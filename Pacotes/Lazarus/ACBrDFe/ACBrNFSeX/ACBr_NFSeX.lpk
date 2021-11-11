@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="ACBr_NFSeX"/>
+    <Type Value="RunAndDesignTime"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <IncludeFiles Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX;..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\DANFSE;..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores"/>
+        <OtherUnitFiles Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX;..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Base;..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Base\Provedores;..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Base\WebServices;..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\DANFSE;..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores"/>
+        <UnitOutputDirectory Value="..\..\..\..\Lib\Lazarus\ACBrDFe\ACBrNFSeX\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Files Count="2">
+      <Item1>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\ACBrNFSeXReg.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="ACBrNFSeXReg"/>
+      </Item1>
+      <Item2>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\ACBrNFSeX.pas"/>
+        <UnitName Value="ACBrNFSeX"/>
+      </Item2>
+    </Files>
+    <RequiredPkgs Count="2">
+      <Item1>
+        <PackageName Value="ACBrDFeComum"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="FCL"/>
+      </Item2>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
