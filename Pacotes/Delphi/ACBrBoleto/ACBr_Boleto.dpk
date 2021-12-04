@@ -1,0 +1,97 @@
+package ACBr_Boleto;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$DEFINITIONINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'ACBr - Boleto - (http://www.projetoacbr.com.br/)'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  ACBr_DFeComum,
+  rtl,
+  vcl,
+  ACBr_Diversos;
+
+contains
+  ACBrBancoBrasil in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBrasil.pas',
+  ACBrBoleto in '..\..\..\Fontes\ACBrBoleto\ACBrBoleto.pas',
+  ACBrBancoItau in '..\..\..\Fontes\ACBrBoleto\ACBrBancoItau.pas',
+  ACBrBancoSicredi in '..\..\..\Fontes\ACBrBoleto\ACBrBancoSicredi.pas',
+  ACBrBancoCaixa in '..\..\..\Fontes\ACBrBoleto\ACBrBancoCaixa.pas',
+  ACBrBancoBanrisul in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBanrisul.pas',
+  ACBrBancoBancoob in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBancoob.pas',
+  ACBrBancoMercantil in '..\..\..\Fontes\ACBrBoleto\ACBrBancoMercantil.pas',
+  ACBrBancoSantander in '..\..\..\Fontes\ACBrBoleto\ACBrBancoSantander.pas',
+  ACBrBancoCaixaSICOB in '..\..\..\Fontes\ACBrBoleto\ACBrBancoCaixaSICOB.pas',
+  ACBrBancoHSBC in '..\..\..\Fontes\ACBrBoleto\ACBrBancoHSBC.pas',
+  ACBrBancoBanestes in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBanestes.pas',
+  ACBrBancoNordeste in '..\..\..\Fontes\ACBrBoleto\ACBrBancoNordeste.pas',
+  ACBrBancoBRB in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBRB.pas',
+  ACBrBancoBic in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBic.pas',
+  ACBrBancoBradesco in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBradesco.pas',
+  ACBrBancoBradescoSICOOB in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBradescoSICOOB.pas',
+  ACBrBancoCecred in '..\..\..\Fontes\ACBrBoleto\ACBrBancoCecred.pas',
+  ACBrBancoSafra in '..\..\..\Fontes\ACBrBoleto\ACBrBancoSafra.pas',
+  ACBrBancoAmazonia in '..\..\..\Fontes\ACBrBoleto\ACBrBancoAmazonia.pas',
+  ACBrBancoSafraBradesco in '..\..\..\Fontes\ACBrBoleto\ACBrBancoSafraBradesco.pas',
+  ACBrBancoBrasilSicoob in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBrasilSicoob.pas',
+  ACBrBancoBanese in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBanese.pas',
+  ACBrBancoCredisis in '..\..\..\Fontes\ACBrBoleto\ACBrBancoCredisis.pas',
+  ACBrBancoCresol in '..\..\..\Fontes\ACBrBoleto\ACBrBancoCresol.pas',
+  ACBrBancoUnicredES in '..\..\..\Fontes\ACBrBoleto\ACBrBancoUnicredES.pas',
+  ACBrBancoUnicredRS in '..\..\..\Fontes\ACBrBoleto\ACBrBancoUnicredRS.pas',
+  ACBrUniprime in '..\..\..\Fontes\ACBrBoleto\ACBrUniprime.pas',
+  ACBrBancoCitiBank in '..\..\..\Fontes\ACBrBoleto\ACBrBancoCitiBank.pas',
+  ACBrBancoABCBrasil in '..\..\..\Fontes\ACBrBoleto\ACBrBancoABCBrasil.pas',
+  ACBrBancoDaycoval in '..\..\..\Fontes\ACBrBoleto\ACBrBancoDaycoval.pas',
+  ACBrUniprimeNortePR in '..\..\..\Fontes\ACBrBoleto\ACBrUniprimeNortePR.pas',
+  ACBrBancoPine in '..\..\..\Fontes\ACBrBoleto\ACBrBancoPine.pas',
+  ACBrBancoPineBradesco in '..\..\..\Fontes\ACBrBoleto\ACBrBancoPineBradesco.pas',
+  ACBrBoletoWS in '..\..\..\Fontes\ACBrBoleto\ACBrBoletoWS.pas',
+  ACBrBoletoConversao in '..\..\..\Fontes\ACBrBoleto\ACBrBoletoConversao.pas',
+  ACBrBoletoPcnConsts in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoPcnConsts.pas',
+  ACBrBoletoRetorno in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRetorno.pas',
+  ACBrBoletoW_Caixa in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Caixa.pas',
+  ACBrBoletoRet_Caixa in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Caixa.pas',
+  ACBrBoletoW_BancoBrasil in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_BancoBrasil.pas',
+  ACBrBoletoRet_BancoBrasil in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_BancoBrasil.pas',
+  ACBrBoletoW_BancoBrasil_API in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_BancoBrasil_API.pas',
+  ACBrBoletoRet_BancoBrasil_API in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_BancoBrasil_API.pas',
+  ACBrBoletoW_Itau in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Itau.pas',
+  ACBrBancoUnicredSC in '..\..\..\Fontes\ACBrBoleto\ACBrBancoUnicredSC.pas',
+  ACBrBancoAlfa in '..\..\..\Fontes\ACBrBoleto\ACBrBancoAlfa.pas',
+  ACBrBancoCresolSCRS in '..\..\..\Fontes\ACBrBoleto\ACBrBancoCresolSCRS.pas',
+  ACBrBancoBradescoMoneyPlus in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBradescoMoneyPlus.pas',
+  ACBrBancoC6 in '..\..\..\Fontes\ACBrBoleto\ACBrBancoC6.pas',
+  ACBrBoletoRet_Itau in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Itau.pas',
+  ACBrBoletoW_Credisis in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Credisis.pas',
+  ACBrBoletoRet_Credisis in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Credisis.pas',
+  ACBrBoletoW_Sicredi_API in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Sicredi_API.pas',
+  ACBrBoletoRet_Sicredi_API in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Sicredi_API.pas';
+
+end.
+
+

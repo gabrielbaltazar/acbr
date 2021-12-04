@@ -1,0 +1,43 @@
+object LibBoletoDM: TLibBoletoDM
+  OnCreate = DataModuleCreate
+  OnDestroy = DataModuleDestroy
+  OldCreateOrder = False
+  Height = 148
+  HorizontalOffset = 330
+  VerticalOffset = 249
+  Width = 193
+  object ACBrBoleto1: TACBrBoleto
+    MAIL = ACBrMail1
+    Banco.TamanhoMaximoNossoNum = 10
+    Banco.TipoCobranca = cobNenhum
+    Banco.LayoutVersaoArquivo = 0
+    Banco.LayoutVersaoLote = 0
+    Banco.CasasDecimaisMoraJuros = 2
+    Cedente.TipoInscricao = pJuridica
+    Cedente.IdentDistribuicao = tbBancoDistribui
+    DirArqRemessa = 'C:\Temp\'
+    DirArqRetorno = 'C:\Temp\'
+    NumeroArquivo = 0
+    LeCedenteRetorno = True
+    Configuracoes.Arquivos.LogRegistro = False
+    Configuracoes.WebService.SSLHttpLib = httpOpenSSL
+    Configuracoes.WebService.StoreName = 'My'
+    Configuracoes.WebService.UseCertificateHTTP = False
+    Configuracoes.WebService.Ambiente = taHomologacao
+    Configuracoes.WebService.Operacao = tpInclui
+    Configuracoes.WebService.VersaoDF = '1.2'
+    Left = 39
+    Top = 36
+  end
+  object ACBrMail1: TACBrMail
+    Host = '127.0.0.1'
+    Port = '25'
+    SetSSL = False
+    SetTLS = False
+    Attempts = 3
+    DefaultCharset = UTF_8
+    IDECharset = UTF_8
+    Left = 120
+    Top = 36
+  end
+end
