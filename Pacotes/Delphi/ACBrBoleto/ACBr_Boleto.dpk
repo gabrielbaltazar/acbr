@@ -13,8 +13,8 @@ package ACBr_Boleto;
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION OFF}
-{$OVERFLOWCHECKS OFF}
-{$RANGECHECKS OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
 {$DEFINITIONINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES ON}
@@ -33,7 +33,6 @@ requires
   ACBr_DFeComum,
   rtl,
   vcl,
-  designide,
   ACBr_Diversos;
 
 contains
@@ -78,7 +77,20 @@ contains
   ACBrBoletoW_Caixa in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Caixa.pas',
   ACBrBoletoRet_Caixa in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Caixa.pas',
   ACBrBoletoW_BancoBrasil in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_BancoBrasil.pas',
-  ACBrBoletoRet_BancoBrasil in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_BancoBrasil.pas';
+  ACBrBoletoRet_BancoBrasil in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_BancoBrasil.pas',
+  ACBrBoletoW_BancoBrasil_API in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_BancoBrasil_API.pas',
+  ACBrBoletoRet_BancoBrasil_API in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_BancoBrasil_API.pas',
+  ACBrBoletoW_Itau in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Itau.pas',
+  ACBrBancoUnicredSC in '..\..\..\Fontes\ACBrBoleto\ACBrBancoUnicredSC.pas',
+  ACBrBancoAlfa in '..\..\..\Fontes\ACBrBoleto\ACBrBancoAlfa.pas',
+  ACBrBancoCresolSCRS in '..\..\..\Fontes\ACBrBoleto\ACBrBancoCresolSCRS.pas',
+  ACBrBancoBradescoMoneyPlus in '..\..\..\Fontes\ACBrBoleto\ACBrBancoBradescoMoneyPlus.pas',
+  ACBrBancoC6 in '..\..\..\Fontes\ACBrBoleto\ACBrBancoC6.pas',
+  ACBrBoletoRet_Itau in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Itau.pas',
+  ACBrBoletoW_Credisis in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Credisis.pas',
+  ACBrBoletoRet_Credisis in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Credisis.pas',
+  ACBrBoletoW_Sicredi_API in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Sicredi_API.pas',
+  ACBrBoletoRet_Sicredi_API in '..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Sicredi_API.pas';
 
 end.
 

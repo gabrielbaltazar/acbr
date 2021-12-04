@@ -30,9 +30,8 @@ package ACBr_DFeComum;
 requires
   rtl,
   vcl,
-  designide,
   inet,
-  soaprtl,  
+  soaprtl,
   ACBr_Integrador,
   ACBr_OpenSSL,
   ACBr_TCP;
@@ -42,7 +41,6 @@ contains
   ACBrDFeUtil in '..\..\..\Fontes\ACBrDFe\ACBrDFeUtil.pas',
   ACBrDFeWebService in '..\..\..\Fontes\ACBrDFe\ACBrDFeWebService.pas',
   ACBrDFe in '..\..\..\Fontes\ACBrDFe\ACBrDFe.pas',
-  ACBrDFeRegUtil in '..\..\..\Fontes\ACBrDFe\ACBrDFeRegUtil.pas',
   ACBrDFeException in '..\..\..\Fontes\ACBrDFe\ACBrDFeException.pas',
   ACBrDFeSSL in '..\..\..\Fontes\ACBrDFe\ACBrDFeSSL.pas',
   
@@ -89,6 +87,5 @@ contains
   {$EndIf}
   
   ACBrDFeReport in '..\..\..\Fontes\ACBrDFe\ACBrDFeReport.pas';
-
 
 end.

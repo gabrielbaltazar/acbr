@@ -495,7 +495,8 @@ begin
 
   Gerador.wCampo(tcInt, '', 'utilizEPI', 1, 1, 1, eStpUtilizEPIToStr(pEpcEpi.utilizEPI));
 
-  Gerador.wCampo(tcStr, '', 'eficEpi',         1,   1, 0, eSSimNaoFacultativoToStr(pEpcEpi.eficEpi));
+  if pEpcEpi.utilizEPI = uEPIUtilizado then
+    Gerador.wCampo(tcStr, '', 'eficEpi',         1,   1, 0, eSSimNaoFacultativoToStr(pEpcEpi.eficEpi));
 
   if pEpcEpi.epiInst() then
   begin
@@ -1090,7 +1091,7 @@ begin
       begin
         // de 1 até 9
         sSecao := 'respReg' + IntToStrZero(I, 1);
-        sFim   := INIRec.ReadString(sSecao, 'dtIni', 'FIM');
+        sFim   := INIRec.ReadString(sSecao, 'cpfResp', 'FIM');
 
         if (sFim = 'FIM') or (Length(sFim) <= 0) then
           break;

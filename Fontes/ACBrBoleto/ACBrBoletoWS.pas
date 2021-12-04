@@ -375,7 +375,8 @@ ResourceString
 implementation
 
 uses
-  ACBrBoletoW_Caixa, ACBrBoletoRet_Caixa, ACBrBoletoW_BancoBrasil, ACBrBoletoRet_BancoBrasil, ACBrBoletoW_BancoBrasil_API, ACBrBoletoRet_BancoBrasil_API, ACBrBoletoW_Itau, ACBrBoletoRet_Itau;
+  ACBrBoletoW_Caixa, ACBrBoletoRet_Caixa, ACBrBoletoW_BancoBrasil, ACBrBoletoRet_BancoBrasil, ACBrBoletoW_BancoBrasil_API, ACBrBoletoRet_BancoBrasil_API, ACBrBoletoW_Itau, ACBrBoletoRet_Itau,
+  ACBrBoletoW_Credisis, ACBrBoletoRet_Credisis, ACBrBoletoW_Sicredi_API, ACBrBoletoRet_Sicredi_API;
 
 { TOAuth }
 
@@ -671,7 +672,7 @@ begin
   try
       try
         FDFeSSL.SSLHttpClass.Clear;
-        FDFeSSL.SSLHttpClass.MimeType := FPContentType;
+        //FDFeSSL.SSLHttpClass.MimeType := FPContentType;
         with FDFeSSL.SSLHttpClass.HeaderReq do
         begin
           Clear;
@@ -1052,6 +1053,11 @@ begin
     FreeAndNil(FRetornoBanco);
 
   case ABanco of
+    cobSicred:
+      begin
+        FBoletoWSClass := TBoletoW_Sicredi_API.Create(Self);
+        FRetornoBanco  := TRetornoEnvio_Sicredi_API.Create(FBoleto);
+      end;
     cobCaixaEconomica:
       begin
         FBoletoWSClass := TBoletoW_Caixa.Create(Self);
@@ -1072,6 +1078,12 @@ begin
         FBoletoWSClass := TBoletoW_Itau.Create(Self);
         FRetornoBanco  := TRetornoEnvio_Itau.Create(FBoleto);
       end;
+    cobCrediSIS:
+      begin
+        FBoletoWSClass := TBoletoW_Credisis.Create(Self);
+        FRetornoBanco  := TRetornoEnvio_Credisis.Create(FBoleto);
+        FBoletoWSClass.FDFeSSL.UseCertificateHTTP := False;
+      end;  
 
   else
     FBoletoWSClass := TBoletoWSClass.Create(Self);

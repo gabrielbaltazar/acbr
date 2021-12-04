@@ -43,6 +43,177 @@ Símbolo : Significado
 [-]     : Correção de Bug (assim esperamos)
 
 
+03/12/2021
+-- ACBrNFSeXServicos --
+[*] Correção na URL de Produção de Linhares/ES.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXLerXml_ABRASFv2/Coplan.GravarXml --
+[*] Ajustes na leitura e gravação do XML no que se refere a tag <ResponsavelRetencao>.
+   Por: Italo Giurizzato Junior
+
+02/12/2021
+-- EL.Provider/EL.GravarXml --
+[*] Mais ajustes na geração e envio do Rps para o WebService.
+   Por: Thiago Ribeiro da Silva
+
+01/12/2021
+-- EL.Provider --
+[*] O conteudo do grupo <arquivo> tem que estar no formato string e não XML.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXConversao/ACBrNFSeXGravarXml_ABRASFv2 --
+[*] Alteração nas funções de conversão do RegimeEspecialTributacao visando as
+    diferenças do provedor Tecnos.
+   Por: Maurício Sareto
+-- ACBrNFSeXServicos --
+[*] Correção na URL de Homologação de Ipatinga/MG.
+   Por: Italo Giurizzato Junior
+
+30/11/2021
+-- Diversos --
+[*] Remoção de um serviço que não esta disponível na grande maioria dos
+    provedores.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXWebServicesResponse/ISSSaoPaulo.Provider --
+[*] Ajustes no tratamento do retorno do Emitir.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] Correção nas URLs de link da nfse do provedor Ginfes.
+   Por: Lucio Bittes
+-- ACBrNFSeXServicos --
+[*] A cidade Barra do Garcas/MT trocou de provedor.
+   Por: Haroldo
+
+29/11/2021
+-- ACBrNFSeXLerXml_ABRASFv2 --
+[*] Correção na leitura do valor do ISS quando o ISS é retido.
+   Por: Italo Giurizzato Junior
+-- Fiorilli.Provider --
+[*] O provedor requer que o numero do lote seja numerico e que não tenha zeros
+    a esquerda.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] Correção de URLs, Troca de provedor.
+   Por: João Antônio/Marcelo J Silva/Alexandre Felippeto Henzen/
+        Sandro Felipe Adad
+[+] Incluida a cidade Irece/BA.
+   Por: Patrick Knopf
+-- Fisco.Provider/Fisco.GravarXml/Fisco.LerXml --
+[+] Implementado o provedor Fisco.
+   Por: Italo Giurizzato Junior
+
+26/11/2021
+-- NFSeBrasil.Provider/NFSeBrasil.GravarXml/NFSeBrasil.LerXml --
+[*] Melhorias e correções visando a geração e a leitura do XML.
+   Por: Jéter Rabelo Ferreira
+-- ACBrNFSeX/ACBrNFSeXConfiguracoes --
+[*] O método SetProvedor agora se chama SetProvider e foi criado um novo
+    método chamado SetProvedor que possui 2 parâmetros (Provedor e Versao)
+    com o objetivo de ajustar o provedor sem a necessidade de informar a 
+    cidade.
+   Por: Italo Giurizzato Junior
+
+25/11/2021
+-- IPM.LerXml --
+[*] Ajustes na leitura do XML da NFS-e.
+   Por: Eliandro.may
+
+24/11/2021
+-- ACBrNFSeXServicos --
+[+] Incluida a cidade Westfalia/RS.
+   Por: Lucas Deinani
+-- ACBrNFSeXReg --
+[*] Ajuste para não mostrar a propriedade de configuração QuebradeLinha no Object Inspector
+    pois cada provedor tem a sua própria configuração.
+   Por: Italo Giurizzato Junior/Pandaa/Juliomar Marchetti
+
+23/11/2021
+-- ACBrNFSeXProviderABRASFv1/ACBrNFSeXProviderABRASFv2 --
+[*] Melhorias no método ProcessarMensagemErros para ignorar o grupo de mensagens
+    caso este estiver presente mas sem nenhuma mensagem.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXProviderABRASFv1 --
+[*] Ajustes no tratamento de retorno do Consultar Lote Rps, visando a leitura
+    correta de uma lista de notas retornadas pela consulta.
+   Por: Alexandre Felippeto Henzen
+-- ACBrNFSeXProviderABRASFv2 --
+[*] Possível correção no tratamento de retorno do Consultar Nfse por Rps.
+   Por: Italo Giurizzato Junior
+-- Infisc.LerXml/Infisc.GravarXml --
+[*] Ajustes feitos por conta das alterações realizadas na unit ACBrNFSeXConversao.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXConversao/ACBrNFSeXGravarXml_ABRASFv2/Tecnos.GravarXml --
+[*] Ajustes realizados para que o provedor processe com sucesso o Rps enviado.
+   Por: Maurício Sareto / Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[+] Incluida a cidade Gaurama/RS.
+   Por: Italo Giurizzato Junior
+
+19/11/2021
+-- SmarAPD.GravarXml --
+[*] Possível correção para a geração da data em <fatorgerador>.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] A cidade Santa Izabel do Oeste/PR trocou de provedor.
+   Por: Maiko Bito
+
+18/11/2021
+-- ACBrNFSeXServicos --
+[*] A cidade Irani/SC trocou de provedor.
+   Por: Douglas GV
+-- Diversos --
+[*] Separado em duas mensagens distintas quando o componente não encontra as
+    URLs de homologação ou de produção.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] Inclusão da cidade Orizona/GO.
+   Por: Maiquel
+
+17/11/2021
+-- Tecnos.GravarXml/ACBrNFSeXGravarXml_ABRASFv2 --
+[*] Criado a propriedade TagIntermediario, pois o provedor Tecnos não segue
+    o padrão que é <IntermediarioServico>.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] A cidade de Cacoal/RO passou a utilizar a versão 2.02 da ABRASF, antes era
+    a versão 1.
+   Por: Adelson Uchoa
+-- Saatri.Provider --
+[*] Removido da lista de tags de retorno a tag <return>.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] Inclusão da cidade Pedra Preta/MT.
+   Por: Diego Reckziegel
+-- ACBrNFSeXServicos --
+[*] A cidade de Cubatão trocou de provedor.
+   Por: CAlmeida
+
+16/11/2021
+-- Agili.Provider --
+[*] Melhorias no TratarRetornoEmitir visando o tratamento correto ao usar o
+    modo de envio meUnitario.
+   Por: Diego Reckziegel/Italo Giurizzato Junior
+-- Agili.GravarXml/Agili.LerXml --
+[*] Ajustes nos fontes visando o uso dos campos Params1 e Params2 e com isso
+    evitar futuras alterações no código do componente.
+   Por: Diego Reckziegel/Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] Incluido os campos Params1 e Params2 nas cidades atendidas pelo provedor Agili
+    com o objetivo de atender as diferentes implementações do webservice desse
+    provedor.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXProviderBase --
+[*] Ajustes na função GetSchemaPath que monta o path dos schemas visando atender
+    os diversos Sistemas Operacionais.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXProviderABRASFv1/ISSNet.Provider --
+[*] Ajustes pois para o provedor ISSNet em ambinete de homologação o código da
+    cidade a ser informado no pedido de cancelamento tem que ser 999 e não o
+    código IBGE da cidade.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] A cidade Boituca teve a sua url alterada pelo provedor Sistema4R.
+   Por: Leonard Miranda
+
 11/11/2021
 -- Diversos --
 [*] Foi criado uma nova propriedade para determinar se a tag <NumeroNfseFinal> 

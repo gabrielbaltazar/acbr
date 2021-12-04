@@ -275,7 +275,6 @@ begin
     ConsultarLote := 'nfse.xsd';
     ConsultarNFSeRps := 'nfse.xsd';
     ConsultarNFSe := 'nfse.xsd';
-    ConsultarNFSeURL := 'nfse.xsd';
     ConsultarNFSePorFaixa := 'nfse.xsd';
     ConsultarNFSeServicoPrestado := 'nfse.xsd';
     ConsultarNFSeServicoTomado := 'nfse.xsd';
@@ -311,7 +310,12 @@ begin
   if URL <> '' then
     Result := TACBrNFSeXWebserviceModeloV1.Create(FAOwner, AMetodo, URL)
   else
-    raise EACBrDFeException.Create(ERR_SEM_URL);
+  begin
+    if ConfigGeral.Ambiente = taProducao then
+      raise EACBrDFeException.Create(ERR_SEM_URL_PRO)
+    else
+      raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
+  end;
 end;
 
 { TACBrNFSeXWebserviceModeloV1 }

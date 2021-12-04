@@ -75,7 +75,9 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    procedure SetProvedor;
+    procedure SetProvedor(aProvedor: TnfseProvedor = proNenhum;
+      aVersao: TVersaoNFSe = ve100);
+    procedure SetProvider;
 
     function GetNumID(ANFSe: TNFSe): String;
 
@@ -100,8 +102,7 @@ type
       const ACodVerificacao: string = '');
 
     // Usado pelos provedores que seguem a versão 1 do layout da ABRASF.
-    procedure ConsultarNFSePorNumero(const aNumero: string;
-      aRetorno: TtpRetorno = trXML; aPagina: Integer = 1);
+    procedure ConsultarNFSePorNumero(const aNumero: string; aPagina: Integer = 1);
 
     // Usado pelos provedores que seguem a versão 2 do layout da ABRASF.
     procedure ConsultarNFSePorFaixa(const aNumeroInicial, aNumeroFinal: string;
@@ -209,6 +210,7 @@ begin
   FNotasFiscais := TNotasFiscais.Create(Self);
   FWebService := TWebservices.Create;
 
+
   fpCidadesJaCarregadas := False;
 end;
 
@@ -273,7 +275,16 @@ begin
   end;
 end;
 
-procedure TACBrNFSeX.SetProvedor;
+procedure TACBrNFSeX.SetProvedor(aProvedor: TnfseProvedor; aVersao: TVersaoNFSe);
+begin
+  Configuracoes.Geral.Provedor := aProvedor;
+  Configuracoes.Geral.Versao := aVersao;
+
+  if aProvedor <> proNenhum then
+    SetProvider;
+end;
+
+procedure TACBrNFSeX.SetProvider;
 begin
   if Assigned(FProvider) then
     FProvider := nil;
@@ -529,16 +540,13 @@ begin
   ConsultarNFSe;
 end;
 
-procedure TACBrNFSeX.ConsultarNFSePorNumero(const aNumero: string; aRetorno: TtpRetorno; aPagina: Integer);
+procedure TACBrNFSeX.ConsultarNFSePorNumero(const aNumero: string; aPagina: Integer);
 begin
   FWebService.ConsultaNFSe.Clear;
 
   with FWebService.ConsultaNFSe.InfConsultaNFSe do
   begin
-    if aRetorno = trXML then
-      tpConsulta := tcPorNumero
-    else
-      tpConsulta := tcPorNumeroURLRetornado;
+    tpConsulta := tcPorNumero;
 
     NumeroIniNFSe := aNumero;
     NumeroFinNFSe := aNumero;

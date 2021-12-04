@@ -55,12 +55,13 @@ type
     function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeUrl(ACabecalho, AMSG: String): string; override;
 
   end;
 
   TACBrNFSeProviderISSNet = class (TACBrNFSeProviderABRASFv1)
   protected
+    FpNameSpaceCanc: string;
+
     procedure Configuracao; override;
 
     function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; override;
@@ -68,12 +69,15 @@ type
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
     procedure ValidarSchema(Response: TNFSeWebserviceResponse; aMetodo: TMetodo); override;
+
+    procedure GerarMsgDadosCancelaNFSe(Response: TNFSeCancelaNFSeResponse;
+      Params: TNFSeParamsResponse); override;
   end;
 
 implementation
 
 uses
-  ACBrDFeException,
+  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   ISSNet.GravarXml, ISSNet.LerXml;
 
 { TACBrNFSeProviderISSNet }
@@ -82,7 +86,18 @@ procedure TACBrNFSeProviderISSNet.Configuracao;
 begin
   inherited Configuracao;
 
-  ConfigGeral.Identificador := '';
+  with ConfigGeral do
+  begin
+    Identificador := '';
+
+    with TACBrNFSeX(FAOwner) do
+    begin
+      if Configuracoes.WebServices.AmbienteCodigo = 1 then
+        CodIBGE := IntToStr(Configuracoes.Geral.CodigoMunicipio)
+      else
+        CodIBGE := '999';
+    end;
+  end;
 
   with ConfigMsgDados do
   begin
@@ -101,8 +116,6 @@ begin
     ConsultarNFSe.xmlns := 'http://www.issnetonline.com.br/webserviceabrasf/vsd/servico_consultar_nfse_envio.xsd';
 
     CancelarNFSe.xmlns := 'http://www.issnetonline.com.br/webserviceabrasf/vsd/servico_cancelar_nfse_envio.xsd';
-
-    ConsultarNFSeURL.xmlns := 'http://www.issnetonline.com.br/webserviceabrasf/vsd/servico_consultar_url_visualizacao_nfse_envio.xsd';
   end;
 
   with ConfigAssinar do
@@ -118,9 +131,13 @@ begin
     ConsultarLote := 'servico_consultar_lote_rps_envio.xsd';
     ConsultarNFSeRps := 'servico_consultar_nfse_rps_envio.xsd';
     ConsultarNFSe := 'servico_consultar_nfse_envio.xsd';
-    ConsultarNFSeURL := 'servico_consultar_url_visualizacao_nfse_envio.xsd';
     CancelarNFSe := 'servico_cancelar_nfse_envio.xsd';
+//    Validar := False;
   end;
+
+  FpNameSpaceCanc := ' xmlns:ts="http://www.issnetonline.com.br/webserviceabrasf/vsd/tipos_simples.xsd"' +
+                     ' xmlns:tc="http://www.issnetonline.com.br/webserviceabrasf/vsd/tipos_complexos.xsd"' +
+                     ' xmlns:p1="http://www.issnetonline.com.br/webserviceabrasf/vsd/servico_cancelar_nfse_envio.xsd"';
 end;
 
 function TACBrNFSeProviderISSNet.CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass;
@@ -144,7 +161,48 @@ begin
   if URL <> '' then
     Result := TACBrNFSeXWebserviceISSNet.Create(FAOwner, AMetodo, URL)
   else
-    raise EACBrDFeException.Create(ERR_SEM_URL);
+  begin
+    if ConfigGeral.Ambiente = taProducao then
+      raise EACBrDFeException.Create(ERR_SEM_URL_PRO)
+    else
+      raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
+  end;
+end;
+
+procedure TACBrNFSeProviderISSNet.GerarMsgDadosCancelaNFSe(
+  Response: TNFSeCancelaNFSeResponse; Params: TNFSeParamsResponse);
+var
+  Emitente: TEmitenteConfNFSe;
+  InfoCanc: TInfCancelamento;
+begin
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+  InfoCanc := Response.InfCancelamento;
+
+  with Params do
+  begin
+    NameSpace := FpNameSpaceCanc;
+
+    Response.XmlEnvio := '<Pedido' + NameSpace + '>' +
+                           '<' + Prefixo2 + 'InfPedidoCancelamento' + IdAttr + '>' +
+                             '<' + Prefixo2 + 'IdentificacaoNfse>' +
+                               '<' + Prefixo2 + 'Numero>' +
+                                 InfoCanc.NumeroNFSe +
+                               '</' + Prefixo2 + 'Numero>' +
+                               '<' + Prefixo2 + 'Cnpj>' +
+                                 OnlyNumber(Emitente.CNPJ) +
+                               '</' + Prefixo2 + 'Cnpj>' +
+                               GetInscMunic(Emitente.InscMun, Prefixo2) +
+                               '<' + Prefixo2 + 'CodigoMunicipio>' +
+                                  ConfigGeral.CodIBGE +
+                               '</' + Prefixo2 + 'CodigoMunicipio>' +
+                             '</' + Prefixo2 + 'IdentificacaoNfse>' +
+                             '<' + Prefixo2 + 'CodigoCancelamento>' +
+                                InfoCanc.CodCancelamento +
+                             '</' + Prefixo2 + 'CodigoCancelamento>' +
+                             Motivo +
+                           '</' + Prefixo2 + 'InfPedidoCancelamento>' +
+                         '</Pedido>';
+  end;
 end;
 
 procedure TACBrNFSeProviderISSNet.ValidarSchema(
@@ -165,9 +223,19 @@ begin
             Copy(xXml, j, Length(xXml));
 
     Response.XmlEnvio := xXml;
-  end;
 
-  inherited ValidarSchema(Response, aMetodo);
+    inherited ValidarSchema(Response, aMetodo);
+  end
+  else
+  begin
+    xXml := Response.XmlEnvio;
+    xXml := StringReplace(xXml, FpNameSpaceCanc, '', []);
+    xXml := '<p1:CancelarNfseEnvio' + FpNameSpaceCanc + '>' +
+              xXml +
+            '</p1:CancelarNfseEnvio>';
+
+    Response.XmlEnvio := xXml;
+  end;
 end;
 
 { TACBrNFSeXWebserviceISSNet }
@@ -260,23 +328,6 @@ begin
   Result := Executar('http://www.issnetonline.com.br/webservice/nfd/CancelarNfse',
                      Request,
                      ['CancelarNfseResult', 'CancelarNfseResposta'], ['']);
-end;
-
-function TACBrNFSeXWebserviceISSNet.ConsultarNFSeUrl(ACabecalho,
-  AMSG: String): string;
-var
-  Request: string;
-begin
-  FPMsgOrig := AMSG;
-
-  Request := '<nfd:ConsultarUrlVisualizacaoNfse>';
-  Request := Request + '<nfd:xml>' + XmlToStr(AMSG) + '</nfd:xml>';
-  Request := Request + '</nfd:ConsultarUrlVisualizacaoNfse>';
-
-  Result := Executar('http://www.issnetonline.com.br/webservice/nfd/ConsultarUrlVisualizacaoNfse',
-                     Request,
-                     ['ConsultarUrlVisualizacaoNfseResult', 'ConsultarUrlVisualizacaoNfseResposta'],
-                     ['xmlns:nfd="http://www.issnetonline.com.br/webservice/nfd"']);
 end;
 
 end.

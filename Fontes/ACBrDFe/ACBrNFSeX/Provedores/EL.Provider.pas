@@ -183,7 +183,12 @@ begin
   if URL <> '' then
     Result := TACBrNFSeXWebserviceEL204.Create(FAOwner, AMetodo, URL)
   else
-    raise EACBrDFeException.Create(ERR_SEM_URL);
+  begin
+    if ConfigGeral.Ambiente = taProducao then
+      raise EACBrDFeException.Create(ERR_SEM_URL_PRO)
+    else
+      raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
+  end;
 end;
 
 { TACBrNFSeXWebserviceEL204 }
@@ -642,7 +647,8 @@ procedure TACBrNFSeProviderEL.GerarMsgDadosEmitir(Response: TNFSeEmiteResponse;
   Params: TNFSeParamsResponse);
 var
   Emitente: TEmitenteConfNFSe;
-  xTipoDoc: string;
+  xTipoDoc, Arquivo: string;
+  lote : string;
 begin
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
@@ -653,6 +659,38 @@ begin
     else
       xTipoDoc := '1';
 
+    if Length(Response.Lote) < 13 then
+      lote := PadLeft(Response.Lote, 13, '0')
+    else
+      lote := Response.Lote;
+
+
+    Arquivo := '<LoteRps xmlns="http://www.el.com.br/nfse/xsd/el-nfse.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.el.com.br/nfse/xsd/el-nfse.xsd el-nfse.xsd ">' +
+                 '<Id>' +
+                      lote+
+                 '</Id>' +
+                 '<NumeroLote>' +
+                    Response.Lote +
+                 '</NumeroLote>' +
+                 '<QuantidadeRps>' +
+                    IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count) +
+                 '</QuantidadeRps>' +
+                 '<IdentificacaoPrestador>' +
+                   '<CpfCnpj>' +
+                     OnlyNumber(Emitente.CNPJ) +
+                   '</CpfCnpj>' +
+                   '<IndicacaoCpfCnpj>' +
+                     xTipoDoc +
+                   '</IndicacaoCpfCnpj>' +
+                   '<InscricaoMunicipal>' +
+                     OnlyNumber(Emitente.InscMun) +
+                   '</InscricaoMunicipal>' +
+                 '</IdentificacaoPrestador>' +
+                 '<ListaRps>' +
+                   Xml +
+                 '</ListaRps>' +
+               '</LoteRps>';
+
     Response.XmlEnvio := '<el:EnviarLoteRpsEnvio>' +
                            '<identificacaoPrestador>' +
                               OnlyNumber(Emitente.CNPJ) +
@@ -661,31 +699,7 @@ begin
                               FPHash +
                            '</hashIdentificador>' +
                            '<arquivo>' +
-                             '<LoteRps>' +
-                               '<Id>' +
-                                  Response.Lote +
-                               '</Id>' +
-                               '<NumeroLote>' +
-                                  Response.Lote +
-                               '</NumeroLote>' +
-                               '<QuantidadeRps>' +
-                                  IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count) +
-                               '</QuantidadeRps>' +
-                               '<IdentificacaoPrestador>' +
-                                 '<CpfCnpj>' +
-                                   OnlyNumber(Emitente.CNPJ) +
-                                 '</CpfCnpj>' +
-                                 '<IndicacaoCpfCnpj>' +
-                                   xTipoDoc +
-                                 '</IndicacaoCpfCnpj>' +
-                                 '<InscricaoMunicipal>' +
-                                   OnlyNumber(Emitente.InscMun) +
-                                 '</InscricaoMunicipal>' +
-                               '</IdentificacaoPrestador>' +
-                               '<ListaRps>' +
-                                 Xml +
-                               '</ListaRps>' +
-                             '</LoteRps>' +
+                              IncluirCDATA(Arquivo) +
                            '</arquivo>' +
                          '</el:EnviarLoteRpsEnvio>';
   end;
@@ -1183,7 +1197,12 @@ begin
   if URL <> '' then
     Result := TACBrNFSeXWebserviceEL.Create(FAOwner, AMetodo, URL)
   else
-    raise EACBrDFeException.Create(ERR_SEM_URL);
+  begin
+    if ConfigGeral.Ambiente = taProducao then
+      raise EACBrDFeException.Create(ERR_SEM_URL_PRO)
+    else
+      raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
+  end;
 end;
 
 { TACBrNFSeXWebserviceEL }

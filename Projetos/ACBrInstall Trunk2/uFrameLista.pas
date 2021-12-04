@@ -180,6 +180,7 @@ type
     lbl3: TLabel;
     ACBr_NFSeXDanfseRL_dpk: TCheckBox;
     Label29: TLabel;
+    ACBr_NFSeXDanfseFR_dpk: TCheckBox;
     procedure btnPacotesMarcarTodosClick(Sender: TObject);
     procedure btnPacotesDesmarcarTodosClick(Sender: TObject);
     procedure VerificarCheckboxes(Sender: TObject);
@@ -190,15 +191,48 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
+    procedure CarregarDeArquivoIni(const ArquivoIni: string);
+    procedure SalvarEmArquivoIni(const ArquivoIni: string);
     property Pacotes: TPacotes read FPacotes write FPacotes;
   end;
 
 implementation
 
 uses
-  StrUtils;
+  StrUtils, IniFiles;
 
 {$R *.dfm}
+
+procedure TframePacotes.CarregarDeArquivoIni(const ArquivoIni: string);
+var
+  ArqIni: TIniFile;
+  I: Integer;
+begin
+  ArqIni := TIniFile.Create(ArquivoIni);
+  try
+    //Não usar ArqIni.ReadSection porque pode ser que houveram mudanças nos pacotes...
+    for I := 0 to Pacotes.Count - 1 do
+      Pacotes[I].Checked := ArqIni.ReadBool('PACOTES', Pacotes[I].Caption, False);
+  finally
+    ArqIni.Free;
+  end;
+end;
+
+procedure TframePacotes.SalvarEmArquivoIni(const ArquivoIni: string);
+var
+  ArqIni: TIniFile;
+  I: Integer;
+begin
+  ArqIni := TIniFile.Create(ArquivoIni);
+  try
+    ArqIni.EraseSection('PACOTES');
+    for I := 0 to Pacotes.Count - 1 do
+      ArqIni.WriteBool('PACOTES', Pacotes[I].Caption, Pacotes[I].Checked);
+  finally
+    ArqIni.Free;
+  end;
+
+end;
 
 constructor TframePacotes.Create(AOwner: TComponent);
 var
@@ -318,6 +352,13 @@ begin
         ACBr_NFSeDanfseRL_dpk.Checked := False;
       end;
 
+      // quando não for selecionado o NFSeX devemos desmarcar
+      if not ACBr_NFSeX_dpk.Checked then
+      begin
+        ACBr_NFSeXDanfseFR_dpk.Checked := False;
+        ACBr_NFSeXDanfseRL_dpk.Checked := False;
+      end;
+
       // quando não for selecionado o Boleto devemos desmarcar
       if not ACBr_Boleto_dpk.Checked then
       begin
@@ -433,7 +474,7 @@ begin
          (ACBr_NFeDanfeRL_dpk.Checked or ACBr_NFSeDanfseRL_dpk.Checked or
           ACBr_CTeDacteRL_dpk.Checked or ACBr_BoletoRL_dpk.Checked or
           ACBr_MDFeDamdfeRL_dpk.Checked or ACBr_SATExtratoRL_dpk.Checked or
-          ACBr_GNREGuiaRL_dpk.Checked) then
+          ACBr_GNREGuiaRL_dpk.Checked or ACBr_NFSeXDanfseRL_dpk.Checked) then
       begin
         ACBr_DFeReportRL_dpk.Checked := True;
       end;

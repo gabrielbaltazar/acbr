@@ -1,7 +1,7 @@
 VERSION 5.00
-Object = "{86CF1D34-0C5F-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomct2.ocx"
-Object = "{BDC217C8-ED16-11CD-956C-0000C04E4C0A}#1.1#0"; "tabctl32.ocx"
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "comdlg32.ocx"
+Object = "{86CF1D34-0C5F-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCT2.OCX"
+Object = "{BDC217C8-ED16-11CD-956C-0000C04E4C0A}#1.1#0"; "TABCTL32.OCX"
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form FrmMain 
    BorderStyle     =   3  'Fixed Dialog
    Caption         =   "ACBrLibGNRe Demo"
@@ -78,7 +78,7 @@ Begin VB.Form FrmMain
       Tab(1).Control(0)=   "cmdConsultaConfiguração"
       Tab(1).ControlCount=   1
       Begin VB.CommandButton btnLimparLista 
-         Caption         =   "Limpar Lista NFe"
+         Caption         =   "Limpar Lista GNRe"
          Height          =   360
          Left            =   3720
          TabIndex        =   108
@@ -86,7 +86,7 @@ Begin VB.Form FrmMain
          Width           =   1710
       End
       Begin VB.CommandButton btnImprimirPDF 
-         Caption         =   "Imprimir PDF DANFe"
+         Caption         =   "Imprimir PDF GNRe"
          Height          =   360
          Left            =   1920
          TabIndex        =   107
@@ -96,7 +96,7 @@ Begin VB.Form FrmMain
       Begin VB.CommandButton btnCarregarXml 
          Caption         =   "Carregar Xml GNRe"
          Height          =   360
-         Left            =   1920
+         Left            =   1950
          TabIndex        =   106
          Top             =   960
          Width           =   1710
@@ -110,7 +110,7 @@ Begin VB.Form FrmMain
          Width           =   1710
       End
       Begin VB.CommandButton btnImprimir 
-         Caption         =   "Imprimir DANFe"
+         Caption         =   "Imprimir GNRe"
          Height          =   360
          Left            =   120
          TabIndex        =   104
@@ -118,7 +118,7 @@ Begin VB.Form FrmMain
          Width           =   1710
       End
       Begin VB.CommandButton btnCarregarIni 
-         Caption         =   "Carregar INI NFe"
+         Caption         =   "Carregar INI GNRe"
          Height          =   360
          Left            =   120
          TabIndex        =   103
@@ -176,7 +176,6 @@ Begin VB.Form FrmMain
       Begin VB.TextBox rtbRespostas 
          Height          =   3735
          Left            =   120
-         Locked          =   -1  'True
          MultiLine       =   -1  'True
          ScrollBars      =   3  'Both
          TabIndex        =   3
@@ -224,11 +223,11 @@ Begin VB.Form FrmMain
       TabCaption(1)   =   "Email"
       TabPicture(1)   =   "FrmMain.frx":0054
       Tab(1).ControlEnabled=   0   'False
-      Tab(1).Control(0)=   "FraConfigurações"
-      Tab(1).Control(1)=   "txtEmailAssunto"
+      Tab(1).Control(0)=   "lblMensagem"
+      Tab(1).Control(1)=   "lblAssunto"
       Tab(1).Control(2)=   "txtEmailMensagem"
-      Tab(1).Control(3)=   "lblAssunto"
-      Tab(1).Control(4)=   "lblMensagem"
+      Tab(1).Control(3)=   "txtEmailAssunto"
+      Tab(1).Control(4)=   "FraConfigurações"
       Tab(1).ControlCount=   5
       Begin VB.Frame FraConfigurações 
          Caption         =   "Configurações"
@@ -537,43 +536,43 @@ Begin VB.Form FrmMain
          TabCaption(1)   =   "Webservice"
          TabPicture(1)   =   "FrmMain.frx":008C
          Tab(1).ControlEnabled=   0   'False
-         Tab(1).Control(0)=   "ckbSalvarSOAP"
-         Tab(1).Control(1)=   "ckbVisualizar"
-         Tab(1).Control(2)=   "frmRetEnvio"
-         Tab(1).Control(3)=   "cmbUfDestino"
-         Tab(1).Control(4)=   "cmbSSlType"
-         Tab(1).Control(5)=   "txtTimeOut"
-         Tab(1).Control(6)=   "FraAmbiente"
-         Tab(1).Control(7)=   "FraProxy"
-         Tab(1).Control(8)=   "nudTimeout"
-         Tab(1).Control(9)=   "lblUfDestino"
-         Tab(1).Control(10)=   "lblSSLType"
-         Tab(1).Control(11)=   "lblTimeOut"
+         Tab(1).Control(0)=   "lblTimeOut"
+         Tab(1).Control(1)=   "lblSSLType"
+         Tab(1).Control(2)=   "lblUfDestino"
+         Tab(1).Control(3)=   "nudTimeout"
+         Tab(1).Control(4)=   "FraProxy"
+         Tab(1).Control(5)=   "FraAmbiente"
+         Tab(1).Control(6)=   "txtTimeOut"
+         Tab(1).Control(7)=   "cmbSSlType"
+         Tab(1).Control(8)=   "cmbUfDestino"
+         Tab(1).Control(9)=   "frmRetEnvio"
+         Tab(1).Control(10)=   "ckbVisualizar"
+         Tab(1).Control(11)=   "ckbSalvarSOAP"
          Tab(1).ControlCount=   12
          TabCaption(2)   =   "Certificado"
          TabPicture(2)   =   "FrmMain.frx":00A8
          Tab(2).ControlEnabled=   0   'False
-         Tab(2).Control(0)=   "btnObterCertificados"
-         Tab(2).Control(1)=   "FraCertificados"
-         Tab(2).Control(2)=   "cmbXmlSign"
-         Tab(2).Control(3)=   "cmbHttp"
-         Tab(2).Control(4)=   "cmbCrypt"
-         Tab(2).Control(5)=   "lblCrytLib"
-         Tab(2).Control(6)=   "lblXmlSignLib"
-         Tab(2).Control(7)=   "lblHttpLib"
+         Tab(2).Control(0)=   "lblHttpLib"
+         Tab(2).Control(1)=   "lblXmlSignLib"
+         Tab(2).Control(2)=   "lblCrytLib"
+         Tab(2).Control(3)=   "cmbCrypt"
+         Tab(2).Control(4)=   "cmbHttp"
+         Tab(2).Control(5)=   "cmbXmlSign"
+         Tab(2).Control(6)=   "FraCertificados"
+         Tab(2).Control(7)=   "btnObterCertificados"
          Tab(2).ControlCount=   8
          TabCaption(3)   =   "Arquivo"
          TabPicture(3)   =   "FrmMain.frx":00C4
          Tab(3).ControlEnabled=   0   'False
-         Tab(3).Control(0)=   "txtArquivos"
-         Tab(3).Control(1)=   "cmdArquivos"
-         Tab(3).Control(2)=   "chkSepararDoc"
-         Tab(3).Control(3)=   "chkSepararCNPJ"
+         Tab(3).Control(0)=   "lblPastaArquivos"
+         Tab(3).Control(1)=   "chkSalvarPasta"
+         Tab(3).Control(2)=   "chkSalvarMensal"
+         Tab(3).Control(3)=   "chkAdicionarLiteral"
          Tab(3).Control(4)=   "chkEmissaoPath"
-         Tab(3).Control(5)=   "chkAdicionarLiteral"
-         Tab(3).Control(6)=   "chkSalvarMensal"
-         Tab(3).Control(7)=   "chkSalvarPasta"
-         Tab(3).Control(8)=   "lblPastaArquivos"
+         Tab(3).Control(5)=   "chkSepararCNPJ"
+         Tab(3).Control(6)=   "chkSepararDoc"
+         Tab(3).Control(7)=   "cmdArquivos"
+         Tab(3).Control(8)=   "txtArquivos"
          Tab(3).ControlCount=   9
          Begin VB.CommandButton btnObterCertificados 
             Caption         =   "Obter Certificados"
@@ -1687,134 +1686,147 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Dim gnre As ACBrGNRe
 
-Private Sub CheckGNReLista()
-    Dim xml As Boolean
-    
+Private Function CheckGNReLista(Optional ByVal xml As Boolean = False) As Boolean
+
+    CheckGNReLista = False
+
+    Dim answer As VbMsgBoxResult
+  
+    answer = MsgBox("Limpar lista ?", vbQuestion + vbYesNo, "Limpar lista")
+      
     If answer = vbYes Then
-    gnre.LimparLista
+        gnre.LimparLista
     End If
+ 
+    CommonDialog1.InitDir = App.Path
+    CommonDialog1.FileName = vbNullString
     
     If xml Then
-    gnre.CarregarXML
+        CommonDialog1.DialogTitle = "Selecione o arquivo xml"
+        CommonDialog1.Filter = "Arquivo Xml GNRe (*.xml)|*.xml|Todos os Arquivos (*.*)|*.*"
     Else
-    gnre.CarregarINI
+        CommonDialog1.DialogTitle = "Selecione o arquivo ini"
+        CommonDialog1.Filter = "Arquivo INI do GNRe (*.ini)|*.ini|Todos os Arquivos (*.*)|*.*"
+    End If
     
-End Sub
+    CommonDialog1.ShowOpen
+    
+    If CommonDialog1.FileName = vbNullString Then Exit Function
+
+    If xml Then
+        gnre.CarregarXML CommonDialog1.FileName
+    Else
+        gnre.CarregarINI CommonDialog1.FileName
+    End If
+    
+    CheckGNReLista = True
+End Function
 
 Private Sub btnCarregarIni_Click()
     On Error GoTo Erro:
     CheckGNReLista
-    
 Erro:
     MsgBox Err.Description
 End Sub
 
 Private Sub btnCarregarXml_Click()
     On Error GoTo Erro:
-    
-    CheckGNReLista True
-    SetResposta gnre.Enviar
+         
+     CheckGNReLista
 Erro:
     MsgBox Err.Description
-    Exit Sub
 End Sub
 
 Private Sub btnEnviar_Click()
     On Error GoTo Erro:
     
-    CheckGNReLista
     SetResposta gnre.Enviar
 Erro:
     MsgBox Err.Description
-    Exit Sub
-    
 End Sub
 
 Private Sub btnImprimir_Click()
 
     On Error GoTo Erro:
-    
+
     CommonDialog1.DialogTitle = "Selecione o arquivo xml"
     CommonDialog1.InitDir = App.Path
     CommonDialog1.Filter = "Arquivo Xml GNRe (*.xml)|*.xml|Todos os Arquivos (*.*)|*.*"
     CommonDialog1.FileName = vbNullString
     CommonDialog1.ShowOpen
-            
+    
     If CommonDialog1.FileName = vbNullString Then Exit Sub
     
-    gnre.LimparLista
-    gnre.CarregarXML CommonDialog1.FileName
-    gnre.Imprimir
+    gnre.LimparListaGuiaRetorno
+    gnre.CarregarGuiaRetorno CommonDialog1.FileName
+    gnre.Imprimir "", True
+    
 Erro:
     MsgBox Err.Description
-
+    
 End Sub
 
 Private Sub btnImprimirPDF_Click()
 
     On Error GoTo Erro:
-    
+
     CommonDialog1.DialogTitle = "Selecione o arquivo xml"
     CommonDialog1.InitDir = App.Path
     CommonDialog1.Filter = "Arquivo Xml GNRe (*.xml)|*.xml|Todos os Arquivos (*.*)|*.*"
     CommonDialog1.FileName = vbNullString
     CommonDialog1.ShowOpen
-            
+    
     If CommonDialog1.FileName = vbNullString Then Exit Sub
     
-    gnre.LimparLista
-    gnre.CarregarXML CommonDialog1.FileName
-    gnre.Imprimir
+    gnre.LimparListaGuiaRetorno
+    gnre.CarregarGuiaRetorno CommonDialog1.FileName
+    gnre.ImprimirPDF
+    
 Erro:
     MsgBox Err.Description
-
+    
 End Sub
 
 Private Sub btnLimparLista_Click()
 
     On Error GoTo Erro:
-    answer = MsgBox("Limpar Lista ?", vbExclamation + vbYesNo, "Add Confirm")
+    Dim answer As VbMsgBoxResult
+  
+    answer = MsgBox("Limpar lista ?", vbQuestion + vbYesNo, "Limpar lista")
+
     If answer = vbYes Then
-    gnre.LimparLista
+        gnre.LimparLista
     End If
 
 Erro:
     MsgBox Err.Description
-
 End Sub
 
 Private Sub cmdConsultaConfiguração_Click()
     On Error GoTo Erro:
-    
+
     Dim uf As String
     uf = InputBox("Digite a UF", "Envio email", vbNullString)
-    
+
     Dim receita As String
     uf = InputBox("Digite o número da Receita", vbNullString)
-    
+
     If uf = vbNullString Then Exit Sub
     If receita = vbNullString Then Exit Sub
-    
-    SetResposta gnre.Consultar(uf, CLong(receita))
+
+    SetResposta gnre.Consultar(uf, CLng(receita))
 Erro:
     MsgBox Err.Description
-
 End Sub
 
 Private Sub cmdEnviarEmail_Click()
     On Error GoTo Erro:
-    
-    CommonDialog1.DialogTitle = "Selecione o arquivo xml"
-    CommonDialog1.InitDir = App.Path
-    CommonDialog1.Filter = "Arquivo Xml GNRe (*.xml)|*.xml|Todos os Arquivos (*.*)|*.*"
-    CommonDialog1.FileName = vbNullString
-    CommonDialog1.ShowOpen
-            
-    If CommonDialog1.FileName = vbNullString Then Exit Sub
-    
+
+    If Not CheckGNReLista(True) Then Exit Sub
+
     Dim destinatario As String
     destinatario = InputBox("Digite o email do destinatario", "Envio email", vbNullString)
-    
+
     If destinatario = vbNullString Then Exit Sub
     gnre.EnviarEmail destinatario, CommonDialog1.FileName, True, txtAssunto.Text, txtMensagem.Text
 Erro:
@@ -1823,22 +1835,13 @@ End Sub
 
 Private Sub cmdGerarGNRe_Click()
     On Error GoTo Erro:
+
+    On Error GoTo Erro:
+
+    If Not CheckGNReLista(True) Then Exit Sub
     
-     On Error GoTo Erro:
-    
-    CommonDialog1.DialogTitle = "Selecione o arquivo INI"
-    CommonDialog1.InitDir = App.Path
-    CommonDialog1.Filter = "Arquivo INI GNRe (*.ini)|*.ini|Todos os Arquivos (*.*)|*.*"
-    CommonDialog1.FileName = vbNullString
-    CommonDialog1.ShowOpen
-    
-    If CommonDialog1.FileName = vbNullString Then Exit Sub
-    
-    Dim ret As String
-    gnre.LimparLista
-    gnre.CarregarINI CommonDialog1.FileName
     gnre.Assinar
-    ret = gnre.ObterXml
+    ret = gnre.ObterXml(0)
     rtbRespostas.Text = ret
 Erro:
     MsgBox Err.Description
@@ -1865,29 +1868,29 @@ Private Sub Form_Load()
     cmbCrypt.ListIndex = 0
     cmbHttp.ListIndex = 0
     cmbXmlSign.ListIndex = 0
-    
+
     Dim LogPath As String
     Dim IniPath As String
-    
+
     LogPath = App.Path & "\Logs\"
     IniPath = App.Path & "\ACBrLib.ini"
-    
+
     If Not DirExists(LogPath) Then
         MkDir LogPath
     End If
-    
+
     Set gnre = CreateGNRe(IniPath)
-    
+
     gnre.ConfigGravarValor SESSAO_PRINCIPAL, "LogNivel", NivelLog.logParanoico
     gnre.ConfigGravarValor SESSAO_PRINCIPAL, "LogPath", LogPath
     gnre.ConfigGravar
-    
+
     LoadConfig
 End Sub
 
 Private Sub LoadConfig()
     gnre.ConfigLer
-    
+
     'Geral
     chkExibirErro.Value = CLng(gnre.ConfigLerValor(SESSAO_GNRE, "ExibirErroSchema"))
     txtFormatoAlerta.Text = gnre.ConfigLerValor(SESSAO_GNRE, "FormatoAlerta")
@@ -1897,31 +1900,31 @@ Private Sub LoadConfig()
     chkSalvarEnvio.Value = CLng(gnre.ConfigLerValor(SESSAO_GNRE, "SalvarGer"))
     txtLogs.Text = gnre.ConfigLerValor(SESSAO_GNRE, "PathSalvar")
     txtSchemas.Text = gnre.ConfigLerValor(SESSAO_GNRE, "PathSchemas")
-    
+
     'Webservice
     cmbUfDestino.Text = gnre.ConfigLerValor(SESSAO_DFE, "UF")
     cmbSSlType.ListIndex = CLng(gnre.ConfigLerValor(SESSAO_GNRE, "SSLType"))
     nudTimeout.Value = CLng(gnre.ConfigLerValor(SESSAO_GNRE, "Timeout"))
-    
+
     Dim ambiente As String
     ambiente = gnre.ConfigLerValor(SESSAO_GNRE, "Ambiente")
-    
+
     rdbHomologacao.Value = CBool(ambiente)
     rdbProducao.Value = Not CBool(ambiente)
-    
+
     'Proxy
     txtProxyServidor.Text = gnre.ConfigLerValor(SESSAO_PROXY, "Servidor")
-    
+
     Dim porta As String
     porta = gnre.ConfigLerValor(SESSAO_PROXY, "Porta")
-    
+
     If IsNumeric(porta) Then
-      nudProxyPorta.Value = CLng(porta)
+        nudProxyPorta.Value = CLng(porta)
     End If
-    
+
     txtProxyUsuario.Text = gnre.ConfigLerValor(SESSAO_PROXY, "Usuario")
     txtProxySenha.Text = gnre.ConfigLerValor(SESSAO_PROXY, "Senha")
-    
+
     'Certificado
     cmbCrypt.ListIndex = CLng(gnre.ConfigLerValor(SESSAO_DFE, "SSLCryptLib"))
     cmbHttp.ListIndex = CLng(gnre.ConfigLerValor(SESSAO_DFE, "SSLHttpLib"))
@@ -1929,7 +1932,7 @@ Private Sub LoadConfig()
     txtCertPath.Text = gnre.ConfigLerValor(SESSAO_DFE, "ArquivoPFX")
     txtCertPassword.Text = gnre.ConfigLerValor(SESSAO_DFE, "Senha")
     txtCertNumero.Text = gnre.ConfigLerValor(SESSAO_DFE, "NumeroSerie")
-    
+
     'Arquivos
     chkSalvarPasta.Value = CLng(gnre.ConfigLerValor(SESSAO_GNRE, "SalvarArq"))
     chkSalvarMensal.Value = CLng(gnre.ConfigLerValor(SESSAO_GNRE, "SepararPorMes"))
@@ -1938,8 +1941,8 @@ Private Sub LoadConfig()
     chkSepararCNPJ.Value = CLng(gnre.ConfigLerValor(SESSAO_GNRE, "SepararPorCNPJ"))
     chkSepararDoc.Value = CLng(gnre.ConfigLerValor(SESSAO_GNRE, "SepararPorModelo"))
     txtArquivos.Text = gnre.ConfigLerValor(SESSAO_GNRE, "PathGNRE")
-    
-    
+
+
     'Email
     txtEmailNome.Text = gnre.ConfigLerValor(SESSAO_EMAIL, "Nome")
     txtEmail.Text = gnre.ConfigLerValor(SESSAO_EMAIL, "Conta")
@@ -1949,12 +1952,12 @@ Private Sub LoadConfig()
     nudEmailPorta.Value = CLng(gnre.ConfigLerValor(SESSAO_EMAIL, "Porta"))
     chkEmailSSL.Value = CLng(gnre.ConfigLerValor(SESSAO_EMAIL, "SSL"))
     chkEmailTLS.Value = CLng(gnre.ConfigLerValor(SESSAO_EMAIL, "TLS"))
-    
+
 End Sub
 
 Private Sub SaveConfig()
 
-    'Geral
+'Geral
     gnre.ConfigGravarValor SESSAO_GNRE, "ExibirErroSchema", CStr(chkExibirErro.Value)
     gnre.ConfigGravarValor SESSAO_GNRE, "FormatoAlerta", txtFormatoAlerta.Text
     gnre.ConfigGravarValor SESSAO_GNRE, "FormaEmissao", CStr(cmbFormaEmissao.ListIndex)
@@ -1963,19 +1966,19 @@ Private Sub SaveConfig()
     gnre.ConfigGravarValor SESSAO_GNRE, "SalvarGer", CStr(chkSalvarEnvio.Value)
     gnre.ConfigGravarValor SESSAO_GNRE, "PathSalvar", txtLogs.Text
     gnre.ConfigGravarValor SESSAO_GNRE, "PathSchemas", txtSchemas.Text
-    
+
     'Webservice
     gnre.ConfigGravarValor SESSAO_DFE, "UF", cmbUfDestino.Text
     gnre.ConfigGravarValor SESSAO_GNRE, "SSLType", CStr(cmbSSlType.ListIndex)
     gnre.ConfigGravarValor SESSAO_GNRE, "Timeout", CStr(nudTimeout.Value)
     gnre.ConfigGravarValor SESSAO_GNRE, "Ambiente", CStr(rdbHomologacao.Value)
-        
+
     'Proxy
     gnre.ConfigGravarValor SESSAO_PROXY, "Servidor", txtProxyServidor.Text
     gnre.ConfigGravarValor SESSAO_PROXY, "Porta", CStr(nudProxyPorta.Value)
     gnre.ConfigGravarValor SESSAO_PROXY, "Usuario", txtProxyUsuario.Text
     gnre.ConfigGravarValor SESSAO_PROXY, "Senha", txtProxySenha.Text
-    
+
     'Certificado
     gnre.ConfigGravarValor SESSAO_DFE, "SSLCryptLib", CStr(cmbCrypt.ListIndex)
     gnre.ConfigGravarValor SESSAO_DFE, "SSLHttpLib", CStr(cmbHttp.ListIndex)
@@ -1983,7 +1986,7 @@ Private Sub SaveConfig()
     gnre.ConfigGravarValor SESSAO_DFE, "ArquivoPFX", txtCertPath.Text
     gnre.ConfigGravarValor SESSAO_DFE, "Senha", txtCertPassword.Text
     gnre.ConfigGravarValor SESSAO_DFE, "NumeroSerie", txtCertNumero.Text
-    
+
     'Arquivos
     gnre.ConfigGravarValor SESSAO_GNRE, "SalvarArq", CStr(chkSalvarPasta.Value)
     gnre.ConfigGravarValor SESSAO_GNRE, "SepararPorMes", CStr(chkSalvarMensal.Value)
@@ -1992,7 +1995,7 @@ Private Sub SaveConfig()
     gnre.ConfigGravarValor SESSAO_GNRE, "SepararPorCNPJ", CStr(chkSepararCNPJ.Value)
     gnre.ConfigGravarValor SESSAO_GNRE, "SepararPorModelo", CStr(chkSepararDoc.Value)
     gnre.ConfigGravarValor SESSAO_GNRE, "PathGNRE", txtArquivos.Text
-    
+
     'Email
     gnre.ConfigGravarValor SESSAO_EMAIL, "Nome", txtEmailNome.Text
     gnre.ConfigGravarValor SESSAO_EMAIL, "Conta", txtEmail.Text
@@ -2002,7 +2005,7 @@ Private Sub SaveConfig()
     gnre.ConfigGravarValor SESSAO_EMAIL, "Porta", CStr(nudEmailPorta.Value)
     gnre.ConfigGravarValor SESSAO_EMAIL, "SSL", CStr(chkEmailSSL.Value)
     gnre.ConfigGravarValor SESSAO_EMAIL, "TLS", CStr(chkEmailTLS.Value)
-    
+
     gnre.ConfigGravar
 
 End Sub

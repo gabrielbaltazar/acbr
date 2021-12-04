@@ -427,7 +427,7 @@ begin
     LerIntermediarioServico(AuxNode);
     LerConstrucaoCivil(AuxNode);
 
-    NFSe.RegimeEspecialTributacao := StrToRegimeEspecialTributacao(Ok, ProcessarConteudo(AuxNode.Childrens.FindAnyNs('RegimeEspecialTributacao'), tcStr));
+    NFSe.RegimeEspecialTributacao := StrToRegimeEspecialTributacao(Ok, ProcessarConteudo(AuxNode.Childrens.FindAnyNs('RegimeEspecialTributacao'), tcStr), Provedor);
     NFSe.OptanteSimplesNacional   := StrToSimNao(Ok, ProcessarConteudo(AuxNode.Childrens.FindAnyNs('OptanteSimplesNacional'), tcStr));
     NFSe.IncentivadorCultural     := StrToSimNao(Ok, ProcessarConteudo(AuxNode.Childrens.FindAnyNs('IncentivoFiscal'), tcStr));
   end;
@@ -655,7 +655,7 @@ procedure TNFSeR_ABRASFv2.LerServico(const ANode: TACBrXmlNode);
 var
   AuxNode, AuxNode2: TACBrXmlNode;
   Ok: Boolean;
-  CodigoItemServico: string;
+  CodigoItemServico, Responsavel: string;
 begin
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
@@ -678,6 +678,13 @@ begin
 
     with NFSe.Servico do
     begin
+      Responsavel := ProcessarConteudo(AuxNode.Childrens.FindAnyNs('ResponsavelRetencao'), tcStr);
+
+      if Responsavel = '' then
+        ResponsavelRetencao := rtNenhum
+      else
+        ResponsavelRetencao := StrToResponsavelRetencao(Ok, Responsavel);
+
       ItemListaServico          := NormatizaItemListaServico(CodigoItemServico);
       xItemListaServico         := ItemListaServicoDescricao(ItemListaServico);
       CodigoCnae                := ProcessarConteudo(AuxNode.Childrens.FindAnyNs('CodigoCnae'), tcStr);
@@ -690,12 +697,21 @@ begin
       MunicipioIncidencia := ProcessarConteudo(AuxNode.Childrens.FindAnyNs('MunicipioIncidencia'), tcInt);
       NumeroProcesso      := ProcessarConteudo(AuxNode.Childrens.FindAnyNs('NumeroProcesso'), tcStr);
 
-      Valores.IssRetido := StrToSituacaoTributaria(Ok, ProcessarConteudo(AuxNode.Childrens.FindAnyNs('IssRetido'), tcStr));
+      with Valores do
+      begin
+        IssRetido := StrToSituacaoTributaria(Ok, ProcessarConteudo(AuxNode.Childrens.FindAnyNs('IssRetido'), tcStr));
 
-      if Valores.IssRetido = stRetencao then
-        Valores.ValorIssRetido := Valores.ValorInss
-      else
-        Valores.ValorIssRetido := 0;
+        if IssRetido = stRetencao then
+          ValorIssRetido := ValorIss
+        else
+          ValorIssRetido := 0;
+
+        if ValorLiquidoNfse = 0 then
+          ValorLiquidoNfse := ValorServicos - ValorPis - ValorCofins - ValorInss -
+                              ValorIr - ValorCsll - OutrasRetencoes -
+                              ValorIssRetido - DescontoIncondicionado -
+                              DescontoCondicionado;
+      end;
     end;
   end;
 end;
@@ -774,11 +790,6 @@ begin
 
       DescontoCondicionado   := ProcessarConteudo(AuxNode.Childrens.FindAnyNs('DescontoCondicionado'), tcDe2);
       DescontoIncondicionado := ProcessarConteudo(AuxNode.Childrens.FindAnyNs('DescontoIncondicionado'), tcDe2);
-
-      if ValorLiquidoNfse = 0 then
-        ValorLiquidoNfse := ValorServicos - ValorPis - ValorCofins - ValorInss -
-          ValorIr - ValorCsll - OutrasRetencoes - ValorIssRetido -
-          DescontoIncondicionado - DescontoCondicionado;
     end;
   end;
 end;

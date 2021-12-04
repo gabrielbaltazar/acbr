@@ -1,19 +1,21 @@
 unit ACBrValidadorTest;
 
-{$IFDEF FPC}
-{$mode objfpc}{$H+}
-{$ENDIF}
+{$I ACBr.inc}
 
 interface
 
 uses
-  Classes,
+  Classes, SysUtils,
   {$ifdef FPC}
-  fpcunit, testutils, testregistry,
+   fpcunit, testutils, testregistry,
   {$else}
-  TestFramework,
+   {$IFDEF DUNITX}
+    DUnitX.TestFramework, DUnitX.DUnitCompatibility,
+   {$ELSE}
+    TestFramework,
+   {$ENDIF}
   {$endif}
-  SysUtils, ACBrValidador;
+  ACBrValidador;
 
 type
 
@@ -1353,16 +1355,24 @@ begin
    CheckEquals('', ValidarPlaca('9999999'));
 end;
 
-initialization
+procedure _RegisterTest(ATesteName: String; ATestClass: TClass);
+begin
+  {$IfDef DUNITX}
+   TDUnitX.RegisterTestFixture( ATestClass, ATesteName );
+  {$ELSE}
+   RegisterTest(ATesteName, TTestCaseClass(ATestClass){$IfNDef FPC}.Suite{$EndIf} );
+  {$EndIf}
+end;
 
-  RegisterTest(TTestCaseACBrValidadorCPF{$ifndef FPC}.Suite{$endif});
-  RegisterTest(TTestCaseACBrValidadorCNPJ{$ifndef FPC}.Suite{$endif});
-  RegisterTest(TTestCaseACBrValidadorUF{$ifndef FPC}.Suite{$endif});
-  RegisterTest(TTestCaseACBrValidadorIE{$ifndef FPC}.Suite{$endif});
-  RegisterTest(TTestCaseACBrValidadorTelefone{$ifndef FPC}.Suite{$endif});
-  RegisterTest(TTestCaseACBrValidadorCEP{$ifndef FPC}.Suite{$endif});
-  RegisterTest(TTestCaseACBrValidadorEmail{$ifndef FPC}.Suite{$endif});
-  RegisterTest(TTestCaseACBrValidadorPlaca{$ifndef FPC}.Suite{$endif});
+initialization
+  _RegisterTest('ACBrDiversos.ACBrValidador', TTestCaseACBrValidadorCPF);
+  _RegisterTest('ACBrDiversos.ACBrValidador', TTestCaseACBrValidadorCNPJ);
+  _RegisterTest('ACBrDiversos.ACBrValidador', TTestCaseACBrValidadorUF);
+  _RegisterTest('ACBrDiversos.ACBrValidador', TTestCaseACBrValidadorIE);
+  _RegisterTest('ACBrDiversos.ACBrValidador', TTestCaseACBrValidadorTelefone);
+  _RegisterTest('ACBrDiversos.ACBrValidador', TTestCaseACBrValidadorCEP);
+  _RegisterTest('ACBrDiversos.ACBrValidador', TTestCaseACBrValidadorEmail);
+  _RegisterTest('ACBrDiversos.ACBrValidador', TTestCaseACBrValidadorPlaca);
 
 end.
 

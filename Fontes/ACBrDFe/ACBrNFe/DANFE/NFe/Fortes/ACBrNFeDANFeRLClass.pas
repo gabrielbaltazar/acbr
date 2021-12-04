@@ -104,6 +104,7 @@ type
     procedure ImprimirDANFE(ANFe: TNFe = nil); override;
     procedure ImprimirDANFECancelado(ANFe: TNFe = nil); override;
     procedure ImprimirDANFEPDF(ANFe: TNFe = nil); override;
+    procedure StreamDANFEPDF(ANFe: TNFe = nil; AStream: TStream = nil); override;
     procedure ImprimirEVENTO(ANFe: TNFe = nil); override;
     procedure ImprimirEVENTOPDF(ANFe: TNFe = nil); override;
     procedure ImprimirINUTILIZACAO(ANFe: TNFe = nil); override;
@@ -138,7 +139,7 @@ type
 implementation
 
 uses
-  ACBrNFe, ACBrUtil, ACBrNFeNotasFiscais, pcnEnvEventoNFe,
+  synautil, ACBrNFe, ACBrUtil, ACBrNFeNotasFiscais, pcnEnvEventoNFe,
   ACBrNFeDANFeRL, ACBrNFeDANFeEventoRL,
   ACBrNFeDANFeRLRetrato, ACBrNFeDANFeRLPaisagem,
   ACBrNFeDANFeEventoRLRetrato, ACBrNFeDANFeRLSimplificado,
@@ -281,6 +282,39 @@ begin
   end
   else
     FPArquivoPDF := ImprimirDANFEPDFTipo(ANFe);
+end;
+
+procedure TACBrNFeDANFeRL.StreamDANFEPDF(ANFe: TNFe = nil; AStream: TStream = nil);
+var
+  i: Integer;
+
+  procedure StreamDANFEPDFTipo(ANFe: TNFe; const AStream: TStream);
+  begin
+    AStream.Size := 0;
+    case Self.TipoDANFE of
+      tiPaisagem:
+        TfrlDANFeRLPaisagem.StreamPDF(Self, ANFe, AStream);
+      tiSimplificado:
+        TfrlDANFeRLSimplificado.StreamPDF(Self, ANFe, AStream);
+    else
+      TfrlDANFeRLRetrato.StreamPDF(Self, ANFe, AStream);
+    end;
+  end;
+
+begin
+  if not Assigned(AStream) then
+  begin
+    raise EACBrNFeException.Create('AStream precisa estar definido');
+  end;
+
+  AStream.Size := 0;
+  if (ANFe = nil) then
+  begin
+    for i := 0 to (TACBrNFe(ACBrNFe).NotasFiscais.Count - 1) do
+      StreamDANFEPDFTipo(TACBrNFe(ACBrNFe).NotasFiscais.Items[i].NFe, AStream);
+  end
+  else
+    StreamDANFEPDFTipo(ANFe, AStream);
 end;
 
 procedure TACBrNFeDANFeRL.ImprimirEVENTO(ANFe: TNFe);

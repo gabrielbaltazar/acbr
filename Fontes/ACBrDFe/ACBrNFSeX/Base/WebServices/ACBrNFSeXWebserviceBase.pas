@@ -55,7 +55,8 @@ uses
 
 resourcestring
   ERR_NAO_IMP = 'Serviço não implementado para este provedor.';
-  ERR_SEM_URL = 'Não informado a URL de Homologação/Produção, favor entrar em contato com a Prefeitura ou Provedor.';
+  ERR_SEM_URL_PRO = 'Não informado a URL de Produção, favor entrar em contato com a Prefeitura ou Provedor.';
+  ERR_SEM_URL_HOM = 'Não informado a URL de Homologação, favor entrar em contato com a Prefeitura ou Provedor.';
 
 type
 
@@ -116,7 +117,6 @@ type
     function ConsultarSituacao(ACabecalho, AMSG: String): string; virtual;
     function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; virtual;
     function ConsultarNFSe(ACabecalho, AMSG: String): string; virtual;
-    function ConsultarNFSeUrl(ACabecalho, AMSG: String): string; virtual;
     function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; virtual;
     function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; virtual;
     function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; virtual;
@@ -333,12 +333,6 @@ begin
       begin
         FPArqEnv := 'con-nfse';
         FPArqResp := 'lista-nfse-con';
-      end;
-
-    tmConsultarNFSeURL:
-      begin
-        FPArqEnv := 'con-url-nfse';
-        FPArqResp := 'lista-nfse-url';
       end;
 
     tmConsultarNFSePorFaixa:
@@ -783,12 +777,6 @@ begin
 end;
 
 function TACBrNFSeXWebservice.ConsultarNFSe(ACabecalho, AMSG: String): string;
-begin
-  Result := '';
-  raise EACBrDFeException.Create(ERR_NAO_IMP);
-end;
-
-function TACBrNFSeXWebservice.ConsultarNFSeUrl(ACabecalho, AMSG: String): string;
 begin
   Result := '';
   raise EACBrDFeException.Create(ERR_NAO_IMP);

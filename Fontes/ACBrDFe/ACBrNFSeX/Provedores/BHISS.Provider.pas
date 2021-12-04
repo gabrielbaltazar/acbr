@@ -250,7 +250,12 @@ begin
   if URL <> '' then
     Result := TACBrNFSeXWebserviceBHISS.Create(FAOwner, AMetodo, URL)
   else
-    raise EACBrDFeException.Create(ERR_SEM_URL);
+  begin
+    if ConfigGeral.Ambiente = taProducao then
+      raise EACBrDFeException.Create(ERR_SEM_URL_PRO)
+    else
+      raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
+  end;
 end;
 
 procedure TACBrNFSeProviderBHISS.PrepararConsultaNFSe(
@@ -260,7 +265,7 @@ var
   Emitente: TEmitenteConfNFSe;
   XmlConsulta, NameSpace, Prefixo: string;
 begin
-  if Response.InfConsultaNFSe.tpConsulta in [tcPorFaixa, tcServicoTomado, tcPorNumeroURLRetornado] then
+  if Response.InfConsultaNFSe.tpConsulta in [tcPorFaixa, tcServicoTomado] then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod001;
