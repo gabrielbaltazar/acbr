@@ -36,7 +36,7 @@ object frmACBrNFe: TfrmACBrNFe
           Top = 0
           Width = 287
           Height = 516
-          ActivePage = TabSheet13
+          ActivePage = TabSheet12
           Align = alClient
           MultiLine = True
           TabOrder = 0
@@ -658,7 +658,7 @@ object frmACBrNFe: TfrmACBrNFe
                 Height = 52
                 Caption = 'Selecione o Ambiente de Destino'
                 Columns = 2
-                ItemIndex = 1
+                ItemIndex = 0
                 Items.Strings = (
                   'Produ'#231#227'o'
                   'Homologa'#231#227'o')
@@ -1711,7 +1711,7 @@ object frmACBrNFe: TfrmACBrNFe
           OnClick = btnGerarTXTClick
         end
         object btnGerarXML: TButton
-          Left = 8
+          Left = 7
           Top = 9
           Width = 177
           Height = 25
@@ -1994,7 +1994,7 @@ object frmACBrNFe: TfrmACBrNFe
       Top = 198
       Width = 567
       Height = 413
-      ActivePage = Dados
+      ActivePage = TabSheet5
       Align = alClient
       TabOrder = 1
       object TabSheet5: TTabSheet

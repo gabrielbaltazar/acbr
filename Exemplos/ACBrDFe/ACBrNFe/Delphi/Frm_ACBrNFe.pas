@@ -2431,7 +2431,6 @@ begin
   end;
 
   ACBrNFe1.NotasFiscais.ImprimirPDF;
-
 end;
 
 procedure TfrmACBrNFe.btnGerarTXTClick(Sender: TObject);

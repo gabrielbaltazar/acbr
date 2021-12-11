@@ -1,3 +1,33 @@
+{******************************************************************************}
+{ Projeto: Componentes ACBr                                                    }
+{  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
+{ mentos de Automação Comercial utilizados no Brasil                           }
+{                                                                              }
+{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{																			   }
+{  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
+{ Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
+{                                                                              }
+{  Esta biblioteca é software livre; você pode redistribuí-la e/ou modificá-la }
+{ sob os termos da Licença Pública Geral Menor do GNU conforme publicada pela  }
+{ Free Software Foundation; tanto a versão 2.1 da Licença, ou (a seu critério) }
+{ qualquer versão posterior.                                                   }
+{                                                                              }
+{  Esta biblioteca é distribuída na expectativa de que seja útil, porém, SEM   }
+{ NENHUMA GARANTIA; nem mesmo a garantia implícita de COMERCIABILIDADE OU      }
+{ ADEQUAÇÃO A UMA FINALIDADE ESPECÍFICA. Consulte a Licença Pública Geral Menor}
+{ do GNU para mais detalhes. (Arquivo LICENÇA.TXT ou LICENSE.TXT)              }
+{                                                                              }
+{  Você deve ter recebido uma cópia da Licença Pública Geral Menor do GNU junto}
+{ com esta biblioteca; se não, escreva para a Free Software Foundation, Inc.,  }
+{ no endereço 59 Temple Street, Suite 330, Boston, MA 02111-1307 USA.          }
+{ Você também pode obter uma copia da licença em:                              }
+{ http://www.opensource.org/licenses/lgpl-license.php                          }
+{                                                                              }
+{ Daniel Simões de Almeida - daniel@projetoacbr.com.br - www.projetoacbr.com.br}
+{       Rua Coronel Aureliano de Camargo, 963 - Tatuí - SP - 18270-170         }
+{******************************************************************************}
+
 {$I ACBr.inc}
 
 unit Unit1;
@@ -375,6 +405,7 @@ type
     estadoSimuladoEcf : tEstadoEcfSimulado;
     procedure GravarConfiguracao ;
     procedure LerConfiguracao ;
+    procedure ConfigurarEmail;
     procedure GerarNFe(NumNFe : String);
     procedure GerarNFCe(NumNFe : String);
     procedure LoadXML(RetWS: String; MyWebBrowser: TWebBrowser);
@@ -952,6 +983,20 @@ begin
   finally
     ckMultiplosCartoes.Checked := ACBrTEFD1.MultiplosCartoes ;
   end;
+end;
+
+procedure TForm1.ConfigurarEmail;
+begin
+  ACBrMail1.Host := edtSmtpHost.Text;
+  ACBrMail1.Port := edtSmtpPort.Text;
+  ACBrMail1.Username := edtSmtpUser.Text;
+  ACBrMail1.Password := edtSmtpPass.Text;
+  ACBrMail1.From := edtSmtpUser.Text;
+  ACBrMail1.SetSSL := cbEmailSSL.Checked; // SSL - ConexÃ£o Segura
+  ACBrMail1.SetTLS := cbEmailSSL.Checked; // Auto TLS
+  ACBrMail1.ReadingConfirmation := False; //Pede confirmaÃ§Ã£o de leitura do email
+  ACBrMail1.UseThread := False;           //Aguarda Envio do Email(nÃ£o usa thread)
+  ACBrMail1.FromName := 'Projeto ACBr - ACBrNFe';
 end;
 
 procedure TForm1.edEsperaSleepChange(Sender: TObject);
@@ -1615,34 +1660,26 @@ begin
   OpenDialog1.DefaultExt := '*-nfe.XML';
   OpenDialog1.Filter := 'Arquivos NFE (*-nfe.XML)|*-nfe.XML|Arquivos XML (*.XML)|*.XML|Todos os Arquivos (*.*)|*.*';
   OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
-  if OpenDialog1.Execute then
-  begin
-    ACBrNFe1.NotasFiscais.Clear;
-    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
-    CC:=TstringList.Create;
-    try
-      CC.Add('andrefmoraes@gmail.com'); //especifique um email vÃ¡lido
-      CC.Add('anfm@zipmail.com.br');    //especifique um email vÃ¡lido
 
-      ACBrMail1.Host := edtSmtpHost.Text;
-      ACBrMail1.Port := edtSmtpPort.Text;
-      ACBrMail1.Username := edtSmtpUser.Text;
-      ACBrMail1.Password := edtSmtpPass.Text;
-      ACBrMail1.From := edtSmtpUser.Text;
-      ACBrMail1.SetSSL := cbEmailSSL.Checked; // SSL - ConexÃ£o Segura
-      ACBrMail1.SetTLS := cbEmailSSL.Checked; // Auto TLS
-      ACBrMail1.ReadingConfirmation := False; //Pede confirmaÃ§Ã£o de leitura do email
-      ACBrMail1.UseThread := False;           //Aguarda Envio do Email(nÃ£o usa thread)
-      ACBrMail1.FromName := 'Projeto ACBr - ACBrNFe';
+  if not OpenDialog1.Execute then
+    Exit;
 
-      ACBrNFe1.NotasFiscais.Items[0].EnviarEmail( Para, edtEmailAssunto.Text,
-                                               mmEmailMsg.Lines
-                                               , True  // Enviar PDF junto
-                                               , CC    // Lista com emails que serÃ£o enviado cÃ³pias - TStrings
-                                               , nil); // Lista de anexos - TStrings
-    finally
-      CC.Free;
-    end;
+  ACBrNFe1.NotasFiscais.Clear;
+  ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+  CC:=TstringList.Create;
+  try
+    //CC.Add('email_1@provedor.com'); //especifique um email válido
+    //CC.Add('email_2@provedor.com.br');    //especifique um email válido
+    ConfigurarEmail;
+    ACBrNFe1.NotasFiscais.Items[0].EnviarEmail(Para
+      , edtEmailAssunto.Text
+      , mmEmailMsg.Lines
+      , True  // Enviar PDF junto
+      , CC    // Lista com emails que serÃ£o enviado cÃ³pias - TStrings
+      , nil // Lista de anexos - TStrings
+      );
+  finally
+    CC.Free;
   end;
 end;
 
@@ -3695,33 +3732,28 @@ begin
   OpenDialog1.DefaultExt := '*.XML';
   OpenDialog1.Filter := 'Arquivos XML (*.XML)|*.XML|Todos os Arquivos (*.*)|*.*';
   OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
-  if OpenDialog1.Execute then
-  begin
-    Evento := TStringList.Create;
+  if not OpenDialog1.Execute then
+    Exit;
+
+  Evento := TStringList.Create;
+  CC := TStringList.Create;
+  try
     Evento.Clear;
     Evento.Add(OpenDialog1.FileName);
     ACBrNFe1.EventoNFe.Evento.Clear;
     ACBrNFe1.EventoNFe.LerXML(OpenDialog1.FileName) ;
-    CC:=TstringList.Create;
-    CC.Add('andrefmoraes@gmail.com'); //especifique um email vÃ¡lido
-    CC.Add('anfm@zipmail.com.br');    //especifique um email vÃ¡lido
-    //TODO:
-    ////ACBrNFe1.EnviarEmailEvento(edtSmtpHost.Text
-    ////                         , edtSmtpPort.Text
-    ////                         , edtSmtpUser.Text
-    ////                         , edtSmtpPass.Text
-    ////                         , edtSmtpUser.Text
-    ////                         , Para
-    ////                         , edtEmailAssunto.Text
-    ////                         , mmEmailMsg.Lines
-    ////                         , cbEmailSSL.Checked // SSL - ConexÃ£o Segura
-    ////                         , True //Enviar PDF junto
-    ////                         , CC //Lista com emails que serÃ£o enviado cÃ³pias - TStrings
-    ////                         , Evento // Lista de anexos - TStrings
-    ////                         , False  //Pede confirmaÃ§Ã£o de leitura do email
-    ////                         , False  //Aguarda Envio do Email(nÃ£o usa thread)
-    ////                         , 'ACBrNFe2' // Nome do Rementente
-    ////                         , cbEmailSSL.Checked ); // Auto TLS
+
+    //CC.Add('email_1@provedor.com'); //especifique um email válido
+    //CC.Add('email_2@provedor.com.br');    //especifique um email válido
+    ConfigurarEmail;
+    ACBrNFe1.EnviarEmailEvento(Para
+      , edtEmailAssunto.Text
+      , mmEmailMsg.Lines
+      , CC // Lista com emails que serao enviado copias - TStrings
+      , nil // Lista de anexos - TStrings
+      , nil  // ReplyTo
+      );
+  finally
     CC.Free;
     Evento.Free;
   end;

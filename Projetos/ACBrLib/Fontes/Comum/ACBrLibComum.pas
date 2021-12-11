@@ -162,6 +162,8 @@ function LerArquivoParaString(AArquivo: String): AnsiString;
 function StringToB64Crypt(AString: String; AChave: AnsiString = ''): String;
 function B64CryptToString(ABase64Str: String; AChave: AnsiString = ''): String;
 
+function StreamToBase64(AStream: TStream):AnsiString;
+
 function StringEhXML(AString: String): Boolean;
 function StringEhINI(AString: String): Boolean;
 function StringEhArquivo(AString: String): Boolean;
@@ -516,8 +518,7 @@ begin
   end;
 end;
 
-function TACBrLib.ConfigLerValor(const eSessao, eChave: PChar; sValor: PChar;
-  var esTamanho: longint): longint;
+function TACBrLib.ConfigLerValor(const eSessao, eChave: PChar; sValor: PChar; var esTamanho: longint): longint;
 var
   Sessao, Chave, Valor: Ansistring;
 begin
@@ -817,6 +818,12 @@ begin
     AChave := CLibChaveCrypt;
 
   Result := StrCrypt(DecodeBase64(ABase64Str), AChave);
+end;
+
+function StreamToBase64(AStream: TStream):AnsiString;
+begin
+  AStream.Position := 0;
+  Result := EncodeBase64(ReadStrFromStream(AStream, AStream.Size));
 end;
 
 function StringEhXML(AString: String): Boolean;

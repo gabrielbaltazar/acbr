@@ -179,11 +179,11 @@ begin
     Result.AppendChild(AddNode(tcStr, '#1', 'serie_recibo_provisorio', 1, 2, 1,
                                     NFSe.IdentificacaoRps.Serie, DSC_SERIERPS));
 
-    Result.AppendChild(AddNode(tcStr, '#1', 'data_emissao_recibo_provisorio', 1, 10, 1,
-                FormatDateTimeBr(NFSe.DataEmissaoRps, 'dd/mm/yyyy'), DSC_DEMI));
+    Result.AppendChild(AddNode(tcDatVcto, '#1', 'data_emissao_recibo_provisorio', 1, 10, 1,
+                                                NFSe.DataEmissaoRps, DSC_DEMI));
 
-    Result.AppendChild(AddNode(tcStr, '#1', 'hora_emissao_recibo_provisorio', 1, 10, 1,
-                  FormatDateTimeBr(NFSe.DataEmissaoRps, 'hh:mm:ss'), DSC_HEMI));
+    Result.AppendChild(AddNode(tcHor, '#1', 'hora_emissao_recibo_provisorio', 1, 10, 1,
+                                                NFSe.DataEmissaoRps, DSC_HEMI));
   end;
 end;
 
@@ -216,6 +216,12 @@ begin
   begin
     Result[i] := CreateElement('lista');
 
+    Result[i].AppendChild(AddNode(tcStr, '#', 'tributa_municipio_prestador', 1, 1, 1,
+        SimNaoToStr(NFSe.Servico.ItemServico[I].TribMunPrestador, proIPM), ''));
+
+    Result[i].AppendChild(AddNode(tcStr, '#', 'codigo_local_prestacao_servico', 1, 9, 1,
+      CodIBGEToCodTOM(StrToIntDef(NFSe.Servico.ItemServico[I].CodMunPrestacao, 0)), ''));
+    {
     if EstaVazio(NFSe.Servico.CodigoTributacaoMunicipio) then
     begin
       if (NFSe.Prestador.Endereco.CodigoMunicipio <> IntToStr(NFSe.Servico.MunicipioIncidencia)) then
@@ -233,7 +239,7 @@ begin
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'codigo_local_prestacao_servico', 1, 9, 1,
             CodIBGEToCodTOM(StrToIntDef(NFSe.Servico.CodigoMunicipio, 0)), ''));
-
+    }
     Result[i].AppendChild(AddNode(tcStr, '#', 'unidade_codigo', 1, 9, 0,
                    UnidadeToStr(NFSe.Servico.ItemServico[I].TipoUnidade), ''));
 
@@ -257,9 +263,12 @@ begin
       Result[i].AppendChild(AddNode(tcDe4, '#', 'aliquota_item_lista_servico', 1, 15, 1,
                                      NFSe.Servico.ItemServico[I].Aliquota, ''));
 
+    Result[i].AppendChild(AddNode(tcInt, '#', 'situacao_tributaria', 1, 4, 1,
+                           NFSe.Servico.ItemServico[I].SituacaoTributaria, ''));
+    {
     Result[i].AppendChild(AddNode(tcStr, '#', 'situacao_tributaria', 1, 4, 1,
                             NaturezaOperacaoToStr( NFSe.NaturezaOperacao), ''));
-
+    }
     Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_tributavel', 1, 15, 1,
                                    NFSe.Servico.ItemServico[I].ValorTotal, ''));
 
@@ -430,6 +439,9 @@ begin
 
     Result.AppendChild(AddNode(tcStr, '#1', 'situacao', 1, 1, 1, 'C', ''));
   end;
+
+  Result.AppendChild(AddNode(tcDatVcto, '#1', 'data_fato_gerador', 1, 10, 0,
+                                                   NFSe.Competencia, DSC_DEMI));
 
   Result.AppendChild(AddNode(tcDe2, '#1', 'valor_total', 1, 15, 1,
                              NFSe.Servico.Valores.ValorServicos, DSC_VSERVICO));

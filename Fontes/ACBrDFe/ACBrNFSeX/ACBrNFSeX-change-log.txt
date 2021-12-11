@@ -43,6 +43,54 @@ Símbolo : Significado
 [-]     : Correção de Bug (assim esperamos)
 
 
+10/12/2021
+-- Diversos --
+[*] Acrescentados os campos abaixo na classe de ItemServico utilizado por alguns
+    provedores como por exemplo o provedor IPM.
+
+    property TribMunPrestador: TnfseSimNao read FTribMunPrestador write FTribMunPrestador;
+    property CodMunPrestacao: string read FCodMunPrestacao write FCodMunPrestacao;
+    property SituacaoTributaria: Integer read FSituacaoTributaria write FSituacaoTributaria;
+ 
+    Vide o programa exemplo de como alimentar corretamente esses campos.
+   Por: Italo Giurizzato Junior
+
+09/12/2021
+-- IPM.LerXml --
+[*] Possível correção na leitura do XML referente ao grupo <lista>
+   Por: Italo Giurizzato Junior
+-- eReceita.GravarXml --
+[*] Ajustado o formato do Item da Lista de Serviços.
+   Por: Douglas GV
+-- ACBrNFSeXServicos --
+[*] Ajustes nas URLs do provedor Actcon.
+   Por: Fernando - DNA Sistemas
+
+08/12/2021
+-- IPM.GravarXml --
+[*] Ajustes na geração da tag <data_fato_gerador> para torna-la opcional.
+   Por: Italo Giurizzato Junior
+-- IPM.GravarXml --
+[*] Incluido a geração da tag <data_fato_gerador>.
+   Por: Sandro Felipe Adad
+-- IPM.Provider --
+[*] Possível correção para o problema de violação de acesso ao consultar o lote.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] Ajustes nas URLs do provedor Agili e remoção das URLs de homologação dos
+    provedores que não tem o ambiente de homologação.
+   Por: Italo Giurizzato Junior
+
+07/12/2021
+-- ACBrNFSeXServicos --
+[*] Incluida a URL de homologação da cidade Governador Valadares/MG.
+   Por: Douglas Santos Miiler
+[*] A cidade Cachoeirinha/RS trocou de provedor.
+   Por: Italo Giurizzato Junior
+-- SimplISS.Provider/SimplISS.GravarXml --
+[*] Possível correção para o problema de assinatura inválida.
+   Por: Italo Giurizzato Junior
+
 03/12/2021
 -- ACBrNFSeXServicos --
 [*] Correção na URL de Produção de Linhares/ES.
