@@ -1,4 +1,5 @@
-﻿using ACBrLib.Core.DFe;
+﻿using System.IO;
+using ACBrLib.Core.DFe;
 
 namespace ACBrLib.Core.Config
 {
@@ -21,6 +22,12 @@ namespace ACBrLib.Core.Config
         }
 
         public string NumeroSerie
+        {
+            get => GetProperty<string>();
+            set => SetProperty(value);
+        }
+
+        public string DadosPFX
         {
             get => GetProperty<string>();
             set => SetProperty(value);

@@ -1,0 +1,1700 @@
+object Form1: TForm1
+  Left = 570
+  Height = 593
+  Top = 164
+  Width = 1006
+  Caption = 'Form1'
+  ClientHeight = 593
+  ClientWidth = 1006
+  OnCreate = FormCreate
+  LCLVersion = '2.2.0.4'
+  object pgPrincipal: TPageControl
+    Left = 0
+    Height = 562
+    Top = 0
+    Width = 1006
+    ActivePage = tsTestes
+    Align = alClient
+    Images = ImageList1
+    TabIndex = 0
+    TabOrder = 0
+    OnChange = pgPrincipalChange
+    object tsTestes: TTabSheet
+      Caption = 'Testes'
+      ClientHeight = 534
+      ClientWidth = 998
+      ImageIndex = 14
+      object pgTestes: TPageControl
+        Left = 0
+        Height = 534
+        Top = 0
+        Width = 630
+        ActivePage = tsEndPoints
+        Align = alClient
+        Images = ImageList1
+        TabIndex = 0
+        TabOrder = 0
+        object tsEndPoints: TTabSheet
+          Caption = 'End Points'
+          ClientHeight = 506
+          ClientWidth = 622
+          ImageIndex = 4
+          object pgTesteEndPoints: TPageControl
+            Left = 0
+            Height = 506
+            Top = 0
+            Width = 622
+            ActivePage = tsEndPointPix
+            Align = alClient
+            TabIndex = 0
+            TabOrder = 0
+            object tsEndPointPix: TTabSheet
+              Caption = '/pix'
+              ClientHeight = 478
+              ClientWidth = 614
+              object pgTestesPix: TPageControl
+                Left = 0
+                Height = 478
+                Top = 0
+                Width = 614
+                ActivePage = tsSolicitarDevolucaoPix
+                Align = alClient
+                TabIndex = 2
+                TabOrder = 0
+                object tsConsultarPix: TTabSheet
+                  Caption = 'ConsultarPix'
+                  ClientHeight = 450
+                  ClientWidth = 606
+                  object pConsultarPix: TPanel
+                    Left = 0
+                    Height = 112
+                    Top = 0
+                    Width = 606
+                    Align = alTop
+                    BevelOuter = bvNone
+                    ClientHeight = 112
+                    ClientWidth = 606
+                    TabOrder = 0
+                    object lConsultarPixE2eid: TLabel
+                      Left = 16
+                      Height = 15
+                      Top = 16
+                      Width = 28
+                      Caption = 'E2eid'
+                    end
+                    object edtConsultarPixE2eid: TEdit
+                      Left = 16
+                      Height = 23
+                      Top = 36
+                      Width = 574
+                      Anchors = [akTop, akLeft, akRight]
+                      TabOrder = 0
+                    end
+                    object btConsultarPix: TBitBtn
+                      Left = 493
+                      Height = 26
+                      Top = 72
+                      Width = 97
+                      Anchors = [akTop, akRight]
+                      AutoSize = True
+                      Caption = 'Consultar'
+                      Images = ImageList1
+                      ImageIndex = 4
+                      OnClick = btConsultarPixClick
+                      TabOrder = 1
+                    end
+                  end
+                  object mConsultarPix: TMemo
+                    Left = 0
+                    Height = 309
+                    Top = 112
+                    Width = 606
+                    Align = alClient
+                    ScrollBars = ssAutoBoth
+                    TabOrder = 1
+                  end
+                  object Panel3: TPanel
+                    Left = 0
+                    Height = 29
+                    Top = 421
+                    Width = 606
+                    Align = alBottom
+                    ClientHeight = 29
+                    ClientWidth = 606
+                    TabOrder = 2
+                    object btLimparConsultarPix: TBitBtn
+                      Left = 463
+                      Height = 26
+                      Top = 1
+                      Width = 83
+                      Anchors = [akTop]
+                      AutoSize = True
+                      Caption = 'Limpar'
+                      Images = ImageList1
+                      ImageIndex = 18
+                      OnClick = btLimparConsultarPixClick
+                      TabOrder = 0
+                    end
+                  end
+                end
+                object tsConsultarPixRecebidos: TTabSheet
+                  Caption = 'ConsultarPixRecebidos'
+                  ClientHeight = 450
+                  ClientWidth = 606
+                  object pConsultarPixRecebidos: TPanel
+                    Left = 0
+                    Height = 152
+                    Top = 0
+                    Width = 606
+                    Align = alTop
+                    BevelOuter = bvNone
+                    ClientHeight = 152
+                    ClientWidth = 606
+                    TabOrder = 0
+                    object lE2eid: TLabel
+                      Left = 8
+                      Height = 15
+                      Top = 56
+                      Width = 170
+                      Caption = 'Identificador da Transação (TxId)'
+                    end
+                    object edtConsultarPixRecebidosTxId: TEdit
+                      Left = 8
+                      Height = 23
+                      Top = 75
+                      Width = 321
+                      Anchors = [akTop, akLeft, akRight]
+                      TabOrder = 2
+                    end
+                    object btConsultarPixRecebidos: TBitBtn
+                      Left = 493
+                      Height = 26
+                      Top = 112
+                      Width = 97
+                      Anchors = [akTop, akRight]
+                      AutoSize = True
+                      Caption = 'Consultar'
+                      Images = ImageList1
+                      ImageIndex = 4
+                      OnClick = btConsultarPixRecebidosClick
+                      TabOrder = 6
+                    end
+                    object lInicio: TLabel
+                      Left = 8
+                      Height = 15
+                      Top = 8
+                      Width = 29
+                      Caption = 'Início'
+                    end
+                    object dtConsultarPixRecebidosInicio: TDateTimePicker
+                      Left = 8
+                      Height = 23
+                      Top = 24
+                      Width = 137
+                      CenturyFrom = 1941
+                      MaxDate = 2958465
+                      MinDate = -53780
+                      TabOrder = 0
+                      TrailingSeparator = False
+                      TextForNullDate = 'NULL'
+                      LeadingZeros = True
+                      Kind = dtkDateTime
+                      TimeFormat = tf24
+                      TimeDisplay = tdHMS
+                      DateMode = dmComboBox
+                      Date = 44568
+                      Time = 0.565578831017774
+                      UseDefaultSeparators = True
+                      HideDateTimeParts = []
+                      MonthNames = 'Long'
+                    end
+                    object lFim: TLabel
+                      Left = 168
+                      Height = 15
+                      Top = 8
+                      Width = 20
+                      Caption = 'Fim'
+                    end
+                    object dtConsultarPixRecebidosFim: TDateTimePicker
+                      Left = 168
+                      Height = 23
+                      Top = 24
+                      Width = 137
+                      CenturyFrom = 1941
+                      MaxDate = 2958465
+                      MinDate = -53780
+                      TabOrder = 1
+                      TrailingSeparator = False
+                      TextForNullDate = 'NULL'
+                      LeadingZeros = True
+                      Kind = dtkDateTime
+                      TimeFormat = tf24
+                      TimeDisplay = tdHMS
+                      DateMode = dmComboBox
+                      Date = 44568
+                      Time = 0.565578831017774
+                      UseDefaultSeparators = True
+                      HideDateTimeParts = []
+                      MonthNames = 'Long'
+                    end
+                    object lCPFCPNJ: TLabel
+                      Left = 352
+                      Height = 15
+                      Top = 56
+                      Width = 59
+                      Anchors = [akTop, akRight]
+                      Caption = 'CPF / CNPJ'
+                    end
+                    object edtConsultarPixRecebidosCPFCNPJ: TEdit
+                      Left = 352
+                      Height = 23
+                      Top = 75
+                      Width = 145
+                      Anchors = [akTop, akRight]
+                      OnChange = edtConsultarPixRecebidosCPFCNPJChange
+                      OnKeyPress = edOnlyNumbersKeyPress
+                      TabOrder = 3
+                    end
+                    object seConsultarPixRecebidosPagina: TSpinEdit
+                      Left = 521
+                      Height = 23
+                      Top = 75
+                      Width = 66
+                      Anchors = [akTop, akRight]
+                      MaxValue = 9999
+                      TabOrder = 5
+                      Value = 1
+                    end
+                    object lPagina: TLabel
+                      Left = 521
+                      Height = 15
+                      Top = 56
+                      Width = 36
+                      Anchors = [akTop, akRight]
+                      Caption = 'Página'
+                    end
+                    object lPagina1: TLabel
+                      Left = 521
+                      Height = 15
+                      Top = 8
+                      Width = 69
+                      Anchors = [akTop, akRight]
+                      Caption = 'Itens por Pág'
+                    end
+                    object seConsultarPixRecebidosItensPagina: TSpinEdit
+                      Left = 521
+                      Height = 23
+                      Top = 27
+                      Width = 66
+                      Anchors = [akTop, akRight]
+                      MaxValue = 100
+                      TabOrder = 4
+                      Value = 10
+                    end
+                  end
+                  object mConsultarPixRecebidos: TMemo
+                    Left = 0
+                    Height = 269
+                    Top = 152
+                    Width = 606
+                    Align = alClient
+                    ScrollBars = ssAutoBoth
+                    TabOrder = 1
+                  end
+                  object Panel4: TPanel
+                    Left = 0
+                    Height = 29
+                    Top = 421
+                    Width = 606
+                    Align = alBottom
+                    ClientHeight = 29
+                    ClientWidth = 606
+                    TabOrder = 2
+                    object btLimparConsultarPixRecebidos: TBitBtn
+                      Left = 463
+                      Height = 26
+                      Top = 1
+                      Width = 83
+                      Anchors = [akTop]
+                      AutoSize = True
+                      Caption = 'Limpar'
+                      Images = ImageList1
+                      ImageIndex = 18
+                      OnClick = btLimparConsultarPixRecebidosClick
+                      TabOrder = 0
+                    end
+                  end
+                end
+                object tsSolicitarDevolucaoPix: TTabSheet
+                  Caption = 'SolicitarDevolucaoPix'
+                  ClientHeight = 450
+                  ClientWidth = 606
+                  ParentBiDiMode = False
+                  object pSolicitarDevolucaoPix: TPanel
+                    Left = 0
+                    Height = 168
+                    Top = 0
+                    Width = 606
+                    Align = alTop
+                    BevelOuter = bvNone
+                    ClientHeight = 168
+                    ClientWidth = 606
+                    TabOrder = 0
+                    object lConsultarDevolucaoPixE2eid2: TLabel
+                      Left = 16
+                      Height = 15
+                      Top = 16
+                      Width = 28
+                      Caption = 'E2eid'
+                    end
+                    object edtSolicitarDevolucaoPix_e2eid: TEdit
+                      Left = 16
+                      Height = 23
+                      Top = 36
+                      Width = 288
+                      Anchors = [akTop, akLeft, akRight]
+                      TabOrder = 0
+                    end
+                    object btSolicitarDevolucaoPix: TBitBtn
+                      Left = 502
+                      Height = 26
+                      Top = 128
+                      Width = 88
+                      Anchors = [akTop, akRight]
+                      AutoSize = True
+                      Caption = 'Solicitar'
+                      Images = ImageList1
+                      ImageIndex = 4
+                      OnClick = btSolicitarDevolucaoPixClick
+                      TabOrder = 5
+                    end
+                    object lConsultarDevolucaoPixIdentificadorDevolucao1: TLabel
+                      Left = 326
+                      Height = 15
+                      Top = 16
+                      Width = 126
+                      Anchors = [akTop, akRight]
+                      Caption = 'Identificador Devolução'
+                    end
+                    object edtSolicitarDevolucaoPix_id: TEdit
+                      Left = 326
+                      Height = 23
+                      Top = 36
+                      Width = 264
+                      Anchors = [akTop, akRight]
+                      TabOrder = 1
+                    end
+                    object Label1: TLabel
+                      Left = 16
+                      Height = 15
+                      Top = 72
+                      Width = 26
+                      Caption = 'Valor'
+                    end
+                    object feSolicitarDevolucaoPix_Valor: TFloatSpinEdit
+                      Left = 16
+                      Height = 23
+                      Top = 89
+                      Width = 106
+                      Alignment = taRightJustify
+                      MaxValue = 99999999
+                      TabOrder = 2
+                    end
+                    object Label37: TLabel
+                      Left = 144
+                      Height = 15
+                      Top = 72
+                      Width = 106
+                      Caption = 'Natureza Devoluçao'
+                    end
+                    object cbxSolicitarDevolucaoPix_Natureza: TComboBox
+                      Left = 144
+                      Height = 23
+                      Top = 89
+                      Width = 160
+                      ItemHeight = 15
+                      Style = csDropDownList
+                      TabOrder = 3
+                    end
+                    object lConsultarDevolucaoPixE2eid3: TLabel
+                      Left = 326
+                      Height = 15
+                      Top = 72
+                      Width = 51
+                      Caption = 'Descrição'
+                    end
+                    object edtSolicitarDevolucaoPix_Descricao: TEdit
+                      Left = 328
+                      Height = 23
+                      Top = 89
+                      Width = 264
+                      Anchors = [akTop, akLeft, akRight]
+                      TabOrder = 4
+                    end
+                  end
+                  object mSolicitarDevolucaoPix: TMemo
+                    Left = 0
+                    Height = 253
+                    Top = 168
+                    Width = 606
+                    Align = alClient
+                    ScrollBars = ssAutoBoth
+                    TabOrder = 1
+                  end
+                  object Panel6: TPanel
+                    Left = 0
+                    Height = 29
+                    Top = 421
+                    Width = 606
+                    Align = alBottom
+                    ClientHeight = 29
+                    ClientWidth = 606
+                    TabOrder = 2
+                    object btLimparSolicitarDevolucaoPix: TBitBtn
+                      Left = 463
+                      Height = 26
+                      Top = 1
+                      Width = 83
+                      Anchors = [akTop]
+                      AutoSize = True
+                      Caption = 'Limpar'
+                      Images = ImageList1
+                      ImageIndex = 18
+                      OnClick = btLimparSolicitarDevolucaoPixClick
+                      TabOrder = 0
+                    end
+                  end
+                end
+                object tsConsultarDevolucaoPix: TTabSheet
+                  Caption = 'ConsultarDevolucaoPix'
+                  ClientHeight = 450
+                  ClientWidth = 606
+                  object pConsultarDevolucaoPix: TPanel
+                    Left = 0
+                    Height = 168
+                    Top = 0
+                    Width = 606
+                    Align = alTop
+                    BevelOuter = bvNone
+                    ClientHeight = 168
+                    ClientWidth = 606
+                    TabOrder = 0
+                    object lConsultarDevolucaoPixE2eid1: TLabel
+                      Left = 16
+                      Height = 15
+                      Top = 16
+                      Width = 28
+                      Caption = 'E2eid'
+                    end
+                    object edtConsultarDevolucaoPix_e2eid: TEdit
+                      Left = 16
+                      Height = 23
+                      Top = 36
+                      Width = 574
+                      Anchors = [akTop, akLeft, akRight]
+                      TabOrder = 0
+                    end
+                    object btConsultarDevolucaoPix: TBitBtn
+                      Left = 493
+                      Height = 26
+                      Top = 128
+                      Width = 97
+                      Anchors = [akTop, akRight]
+                      AutoSize = True
+                      Caption = 'Consultar'
+                      Images = ImageList1
+                      ImageIndex = 4
+                      OnClick = btConsultarDevolucaoPixClick
+                      TabOrder = 2
+                    end
+                    object lConsultarDevolucaoPixIdentificadorDevolucao: TLabel
+                      Left = 16
+                      Height = 15
+                      Top = 72
+                      Width = 126
+                      Caption = 'Identificador Devolução'
+                    end
+                    object edtConsultarDevolucaoPix_id: TEdit
+                      Left = 16
+                      Height = 23
+                      Top = 92
+                      Width = 574
+                      Anchors = [akTop, akLeft, akRight]
+                      TabOrder = 1
+                    end
+                  end
+                  object mConsultarDevolucaoPix: TMemo
+                    Left = 0
+                    Height = 253
+                    Top = 168
+                    Width = 606
+                    Align = alClient
+                    ScrollBars = ssAutoBoth
+                    TabOrder = 1
+                  end
+                  object Panel5: TPanel
+                    Left = 0
+                    Height = 29
+                    Top = 421
+                    Width = 606
+                    Align = alBottom
+                    ClientHeight = 29
+                    ClientWidth = 606
+                    TabOrder = 2
+                    object btLimparConsultarDevolucaoPix: TBitBtn
+                      Left = 463
+                      Height = 26
+                      Top = 1
+                      Width = 83
+                      Anchors = [akTop]
+                      AutoSize = True
+                      Caption = 'Limpar'
+                      Images = ImageList1
+                      ImageIndex = 18
+                      OnClick = btLimparConsultarDevolucaoPixClick
+                      TabOrder = 0
+                    end
+                  end
+                end
+              end
+            end
+            object tsEndPointCob: TTabSheet
+              Caption = '/cob'
+            end
+            object tsEndPointCobV: TTabSheet
+              Caption = '/cobv'
+            end
+          end
+        end
+        object tsQRCodeEstatico: TTabSheet
+          Caption = 'QRCode Estático'
+          ClientHeight = 506
+          ClientWidth = 622
+          ImageIndex = 1
+          object pQREDados: TPanel
+            Left = 0
+            Height = 200
+            Top = 0
+            Width = 622
+            Align = alTop
+            BevelOuter = bvNone
+            ClientHeight = 200
+            ClientWidth = 622
+            TabOrder = 0
+            object Valor: TLabel
+              Left = 16
+              Height = 15
+              Top = 15
+              Width = 26
+              Caption = 'Valor'
+            end
+            object fleQREValor: TFloatSpinEdit
+              Left = 16
+              Height = 23
+              Top = 34
+              Width = 170
+              Alignment = taRightJustify
+              MaxValue = 99999999
+              OnChange = QuandoMudarDadosQRCode
+              TabOrder = 0
+            end
+            object Label34: TLabel
+              Left = 16
+              Height = 15
+              Top = 68
+              Width = 114
+              Caption = 'Informação Adicional'
+            end
+            object edtQREInfoAdicional: TEdit
+              Left = 16
+              Height = 23
+              Top = 88
+              Width = 590
+              Anchors = [akTop, akLeft, akRight]
+              OnChange = QuandoMudarDadosQRCode
+              TabOrder = 1
+            end
+            object Label35: TLabel
+              Left = 16
+              Height = 15
+              Top = 128
+              Width = 170
+              Caption = 'Identificador da Transação (TxId)'
+            end
+            object edtQRETxId: TEdit
+              Left = 16
+              Height = 23
+              Top = 148
+              Width = 590
+              Anchors = [akTop, akLeft, akRight]
+              OnChange = QuandoMudarDadosQRCode
+              TabOrder = 2
+            end
+          end
+          object pQREGerado: TPanel
+            Left = 0
+            Height = 306
+            Top = 200
+            Width = 622
+            Align = alClient
+            ClientHeight = 306
+            ClientWidth = 622
+            TabOrder = 1
+            object imgQRE: TImage
+              Left = 1
+              Height = 272
+              Top = 1
+              Width = 298
+              Align = alLeft
+              Center = True
+              Proportional = True
+              Stretch = True
+            end
+            object pQREMemo: TPanel
+              Left = 299
+              Height = 272
+              Top = 1
+              Width = 322
+              Align = alClient
+              BevelOuter = bvNone
+              ClientHeight = 272
+              ClientWidth = 322
+              TabOrder = 0
+              Wordwrap = True
+              object mQRE: TMemo
+                Left = 0
+                Height = 138
+                Top = 134
+                Width = 322
+                Align = alBottom
+                Alignment = taCenter
+                OnChange = mQREChange
+                ScrollBars = ssAutoBoth
+                TabOrder = 0
+                WantReturns = False
+              end
+              object btQREGerar: TBitBtn
+                Left = 78
+                Height = 49
+                Top = 40
+                Width = 161
+                Anchors = [akBottom]
+                Caption = 'Gerar QRCode'
+                Images = ImageList1
+                ImageIndex = 1
+                OnClick = btQREGerarClick
+                TabOrder = 1
+              end
+            end
+            object Panel1: TPanel
+              Left = 1
+              Height = 32
+              Top = 273
+              Width = 620
+              Align = alBottom
+              ClientHeight = 32
+              ClientWidth = 620
+              TabOrder = 1
+              object btQREColar: TBitBtn
+                Left = 428
+                Height = 26
+                Top = 3
+                Width = 81
+                Anchors = [akTop]
+                AutoSize = True
+                Caption = 'Copiar'
+                Images = ImageList1
+                ImageIndex = 13
+                OnClick = btQREColarClick
+                TabOrder = 0
+              end
+              object btQREAnalisar: TBitBtn
+                Left = 514
+                Height = 26
+                Top = 3
+                Width = 88
+                Anchors = [akTop]
+                AutoSize = True
+                Caption = 'Analisar'
+                Images = ImageList1
+                ImageIndex = 5
+                OnClick = btQREAnalisarClick
+                TabOrder = 1
+              end
+            end
+          end
+        end
+      end
+      object pLogs: TPanel
+        Left = 635
+        Height = 534
+        Top = 0
+        Width = 363
+        Align = alRight
+        ClientHeight = 534
+        ClientWidth = 363
+        TabOrder = 1
+        object mLog: TMemo
+          Left = 4
+          Height = 479
+          Top = 19
+          Width = 355
+          Align = alClient
+          BorderSpacing.Around = 3
+          ReadOnly = True
+          ScrollBars = ssAutoBoth
+          TabOrder = 0
+        end
+        object Label2: TLabel
+          Left = 1
+          Height = 15
+          Top = 1
+          Width = 361
+          Align = alTop
+          Caption = 'Log das Operações'
+        end
+        object Panel2: TPanel
+          Left = 1
+          Height = 32
+          Top = 501
+          Width = 361
+          Align = alBottom
+          ClientHeight = 32
+          ClientWidth = 361
+          TabOrder = 1
+          object btQREAnalisar1: TBitBtn
+            Left = 259
+            Height = 26
+            Top = 1
+            Width = 83
+            Anchors = [akTop]
+            AutoSize = True
+            Caption = 'Limpar'
+            Images = ImageList1
+            ImageIndex = 18
+            OnClick = btQREAnalisar1Click
+            TabOrder = 0
+          end
+        end
+      end
+      object Splitter1: TSplitter
+        Left = 630
+        Height = 534
+        Top = 0
+        Width = 5
+        Align = alRight
+        ResizeAnchor = akRight
+      end
+    end
+    object tsConfiguracao: TTabSheet
+      Caption = 'Configuracao'
+      ClientHeight = 534
+      ClientWidth = 998
+      ImageIndex = 2
+      object pgConfPixPSP: TPageControl
+        Left = 0
+        Height = 497
+        Top = 0
+        Width = 998
+        ActivePage = tsPIX
+        Align = alClient
+        Images = ImageList1
+        TabIndex = 0
+        TabOrder = 0
+        object tsPIX: TTabSheet
+          Caption = 'PIX'
+          ClientHeight = 469
+          ClientWidth = 990
+          ImageIndex = 0
+          object pConfPIX: TPanel
+            Left = 207
+            Height = 392
+            Top = 38
+            Width = 592
+            Anchors = []
+            BevelOuter = bvSpace
+            ClientHeight = 392
+            ClientWidth = 592
+            TabOrder = 0
+            object gbRecebedor: TGroupBox
+              Left = 16
+              Height = 120
+              Top = 16
+              Width = 560
+              Caption = 'Recebedor'
+              ClientHeight = 100
+              ClientWidth = 556
+              TabOrder = 0
+              object imgErrCEP: TImage
+                Left = 532
+                Height = 16
+                Top = 19
+                Width = 16
+                Anchors = [akTop, akRight]
+                Visible = False
+              end
+              object Label14: TLabel
+                Left = 8
+                Height = 15
+                Top = 0
+                Width = 33
+                Caption = 'Nome'
+              end
+              object edtNome: TEdit
+                Left = 8
+                Height = 23
+                Top = 16
+                Width = 384
+                Anchors = [akTop, akLeft, akRight]
+                OnChange = edtNomeChange
+                TabOrder = 0
+              end
+              object Label16: TLabel
+                Left = 8
+                Height = 15
+                Top = 48
+                Width = 37
+                Caption = 'Cidade'
+              end
+              object edtCidade: TEdit
+                Left = 8
+                Height = 23
+                Top = 64
+                Width = 384
+                Anchors = [akTop, akLeft, akRight]
+                TabOrder = 2
+              end
+              object Label18: TLabel
+                Left = 416
+                Height = 15
+                Top = 0
+                Width = 21
+                Anchors = [akTop, akRight]
+                Caption = 'CEP'
+              end
+              object edtCEP: TEdit
+                Left = 416
+                Height = 23
+                Top = 16
+                Width = 113
+                Anchors = [akTop, akRight]
+                OnChange = edtCEPChange
+                OnExit = edtCEPExit
+                OnKeyPress = edOnlyNumbersKeyPress
+                TabOrder = 1
+              end
+              object Label19: TLabel
+                Left = 416
+                Height = 15
+                Top = 48
+                Width = 27
+                Anchors = [akTop, akRight]
+                Caption = 'MCC'
+              end
+              object imgInfoMCC: TImage
+                Cursor = crHandPoint
+                Left = 532
+                Height = 16
+                Top = 68
+                Width = 16
+                Anchors = [akTop, akRight]
+                OnClick = imgInfoMCCClick
+              end
+              object sbConsultaCEP: TSpeedButton
+                Left = 529
+                Height = 23
+                Top = 16
+                Width = 24
+                Anchors = [akTop, akRight]
+                Flat = True
+                Images = ImageList1
+                ImageIndex = 8
+                Visible = False
+                OnClick = sbConsultaCEPClick
+              end
+              object seMCC: TSpinEdit
+                Left = 416
+                Height = 23
+                Top = 64
+                Width = 113
+                Anchors = [akTop, akRight]
+                MaxValue = 99999999
+                TabOrder = 3
+              end
+              object imgErrNome: TImage
+                Left = 394
+                Height = 16
+                Top = 19
+                Width = 16
+                Anchors = [akTop, akRight]
+                Visible = False
+              end
+            end
+            object gbProxy: TGroupBox
+              Left = 16
+              Height = 108
+              Top = 243
+              Width = 280
+              BorderSpacing.Around = 4
+              Caption = 'Proxy'
+              ClientHeight = 88
+              ClientWidth = 276
+              TabOrder = 2
+              object Label8: TLabel
+                Left = 8
+                Height = 15
+                Top = 0
+                Width = 25
+                Caption = 'Host'
+              end
+              object Label9: TLabel
+                Left = 168
+                Height = 15
+                Top = 0
+                Width = 28
+                Anchors = [akTop, akRight]
+                Caption = 'Porta'
+              end
+              object Label10: TLabel
+                Left = 8
+                Height = 15
+                Top = 42
+                Width = 40
+                Caption = 'Usuário'
+              end
+              object Label36: TLabel
+                Left = 168
+                Height = 15
+                Top = 40
+                Width = 32
+                Anchors = [akTop, akRight]
+                Caption = 'Senha'
+              end
+              object edtProxyHost: TEdit
+                Left = 8
+                Height = 23
+                Top = 16
+                Width = 146
+                Anchors = [akTop, akLeft, akRight]
+                TabOrder = 0
+              end
+              object edtProxyUser: TEdit
+                Left = 8
+                Height = 23
+                Top = 58
+                Width = 146
+                Anchors = [akTop, akLeft, akRight]
+                TabOrder = 1
+              end
+              object edtProxySenha: TEdit
+                Left = 168
+                Height = 23
+                Top = 58
+                Width = 74
+                Anchors = [akTop, akRight]
+                EchoMode = emPassword
+                PasswordChar = '*'
+                TabOrder = 2
+              end
+              object seProxyPorta: TSpinEdit
+                Left = 168
+                Height = 23
+                Top = 16
+                Width = 74
+                Anchors = [akTop, akRight]
+                MaxValue = 999999
+                TabOrder = 3
+              end
+              object sbVerSenhaProxy: TSpeedButton
+                Left = 244
+                Height = 23
+                Top = 58
+                Width = 23
+                AllowAllUp = True
+                Anchors = [akTop, akRight]
+                Flat = True
+                Glyph.Data = {
+                  76010000424D7601000000000000760000002800000020000000100000000100
+                  04000000000000010000130B0000130B00001000000000000000000000000000
+                  800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+                  FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0033333333B333
+                  333B33FF33337F3333F73BB3777BB7777BB3377FFFF77FFFF77333B000000000
+                  0B3333777777777777333330FFFFFFFF07333337F33333337F333330FFFFFFFF
+                  07333337F3FF3FFF7F333330F00F000F07333337F77377737F333330FFFFFFFF
+                  07333FF7F3FFFF3F7FFFBBB0F0000F0F0BB37777F7777373777F3BB0FFFFFFFF
+                  0BBB3777F3FF3FFF77773330F00F000003333337F773777773333330FFFF0FF0
+                  33333337F3FF7F37F3333330F08F0F0B33333337F7737F77FF333330FFFF003B
+                  B3333337FFFF77377FF333B000000333BB33337777777F3377FF3BB3333BB333
+                  3BB33773333773333773B333333B3333333B7333333733333337
+                }
+                GroupIndex = 1
+                Images = ImageList1
+                ImageIndex = 7
+                OnClick = sbVerSenhaProxyClick
+              end
+            end
+            object gbLog: TGroupBox
+              Left = 320
+              Height = 108
+              Top = 243
+              Width = 256
+              BorderSpacing.Around = 4
+              Caption = 'Log'
+              ClientHeight = 88
+              ClientWidth = 252
+              TabOrder = 3
+              object Label11: TLabel
+                Left = 8
+                Height = 15
+                Top = 0
+                Width = 42
+                Caption = 'Arquivo'
+              end
+              object Label12: TLabel
+                Left = 8
+                Height = 15
+                Top = 42
+                Width = 27
+                Caption = 'Nível'
+              end
+              object edtArqLog: TEdit
+                Left = 8
+                Height = 23
+                Top = 16
+                Width = 210
+                Anchors = [akTop, akLeft, akRight]
+                TabOrder = 0
+              end
+              object sbArqLog: TSpeedButton
+                Left = 225
+                Height = 23
+                Hint = 'Abrir Arquivo de Log'
+                Top = 16
+                Width = 24
+                Images = ImageList1
+                ImageIndex = 9
+                OnClick = sbArqLogClick
+                ShowHint = True
+                ParentFont = False
+                ParentShowHint = False
+              end
+              object cbxNivelLog: TComboBox
+                Left = 8
+                Height = 23
+                Top = 61
+                Width = 210
+                ItemHeight = 15
+                ItemIndex = 1
+                Items.Strings = (
+                  'Baixo'
+                  'Normal'
+                  'Alto'
+                  'Muito Alto'
+                )
+                Style = csDropDownList
+                TabOrder = 1
+                Text = 'Normal'
+              end
+            end
+            object gbPSP: TGroupBox
+              Left = 16
+              Height = 80
+              Top = 152
+              Width = 560
+              Caption = 'PSP'
+              ClientHeight = 60
+              ClientWidth = 556
+              TabOrder = 1
+              object Label13: TLabel
+                Left = 8
+                Height = 15
+                Top = 0
+                Width = 51
+                Caption = 'PSP Atual'
+              end
+              object cbxPSPAtual: TComboBox
+                Left = 8
+                Height = 23
+                Top = 19
+                Width = 182
+                ItemHeight = 15
+                OnChange = cbxPSPAtualChange
+                Style = csDropDownList
+                TabOrder = 0
+              end
+              object Label15: TLabel
+                Left = 224
+                Height = 15
+                Top = 0
+                Width = 52
+                Caption = 'Ambiente'
+              end
+              object cbxAmbiente: TComboBox
+                Left = 224
+                Height = 23
+                Top = 19
+                Width = 170
+                ItemHeight = 15
+                Style = csDropDownList
+                TabOrder = 1
+              end
+              object Label17: TLabel
+                Left = 416
+                Height = 15
+                Top = 3
+                Width = 44
+                Caption = 'Timeout'
+              end
+              object seTimeout: TSpinEdit
+                Left = 416
+                Height = 23
+                Top = 19
+                Width = 106
+                Increment = 10
+                MaxValue = 999999
+                TabOrder = 2
+              end
+              object imgErrPSP: TImage
+                Left = 192
+                Height = 16
+                Top = 23
+                Width = 16
+                Anchors = [akTop, akRight]
+                Visible = False
+              end
+            end
+          end
+        end
+        object tsPSP: TTabSheet
+          Caption = 'PSPs'
+          ClientHeight = 469
+          ClientWidth = 990
+          ImageIndex = 3
+          object pgPSPs: TPageControl
+            Left = 0
+            Height = 469
+            Top = 0
+            Width = 990
+            ActivePage = tsSantander
+            Align = alClient
+            TabIndex = 3
+            TabOrder = 0
+            object tsShipay: TTabSheet
+              Caption = 'Shipay'
+            end
+            object tsBB: TTabSheet
+              Caption = 'Banco do Brasil'
+              ClientHeight = 441
+              ClientWidth = 982
+              object pConfPSPBB: TPanel
+                Left = 26
+                Height = 240
+                Top = 96
+                Width = 926
+                Anchors = [akLeft, akRight]
+                BevelOuter = bvNone
+                ClientHeight = 240
+                ClientWidth = 926
+                TabOrder = 0
+                object Label20: TLabel
+                  Left = 24
+                  Height = 15
+                  Top = 21
+                  Width = 53
+                  Caption = 'Chave PIX'
+                end
+                object edtBBChavePIX: TEdit
+                  Left = 24
+                  Height = 23
+                  Top = 40
+                  Width = 708
+                  Anchors = [akTop, akLeft, akRight]
+                  OnChange = edtBBChavePIXChange
+                  TabOrder = 1
+                end
+                object Label21: TLabel
+                  Left = 744
+                  Height = 15
+                  Top = 21
+                  Width = 59
+                  Anchors = [akTop, akRight]
+                  Caption = 'Tipo Chave'
+                end
+                object cbxBBTipoChave: TComboBox
+                  Left = 744
+                  Height = 23
+                  Top = 40
+                  Width = 158
+                  Anchors = [akTop, akRight]
+                  ItemHeight = 15
+                  ReadOnly = True
+                  Style = csDropDownList
+                  TabOrder = 0
+                  TabStop = False
+                end
+                object Label22: TLabel
+                  Left = 24
+                  Height = 15
+                  Top = 72
+                  Width = 45
+                  Caption = 'Client ID'
+                end
+                object edtBBClientID: TEdit
+                  Left = 24
+                  Height = 23
+                  Top = 91
+                  Width = 878
+                  Anchors = [akTop, akLeft, akRight]
+                  TabOrder = 2
+                end
+                object Label23: TLabel
+                  Left = 24
+                  Height = 15
+                  Top = 128
+                  Width = 66
+                  Caption = 'Client Secret'
+                end
+                object edtBBClientSecret: TEdit
+                  Left = 24
+                  Height = 23
+                  Top = 147
+                  Width = 878
+                  Anchors = [akTop, akLeft, akRight]
+                  TabOrder = 3
+                end
+                object Label24: TLabel
+                  Left = 24
+                  Height = 15
+                  Top = 184
+                  Width = 139
+                  Caption = 'Developer Application Key'
+                end
+                object edtBBDevAppKey: TEdit
+                  Left = 24
+                  Height = 23
+                  Top = 203
+                  Width = 878
+                  Anchors = [akTop, akLeft, akRight]
+                  TabOrder = 4
+                end
+                object imgBBErroChavePIX: TImage
+                  Left = 906
+                  Height = 16
+                  Top = 44
+                  Width = 16
+                  Anchors = [akTop, akRight]
+                  Visible = False
+                end
+              end
+            end
+            object tsItau: TTabSheet
+              Caption = 'Itaú'
+              ClientHeight = 441
+              ClientWidth = 982
+              object pConfPSPBB1: TPanel
+                Left = 26
+                Height = 240
+                Top = 96
+                Width = 926
+                Anchors = [akLeft, akRight]
+                BevelOuter = bvNone
+                ClientHeight = 240
+                ClientWidth = 926
+                TabOrder = 0
+                object Label25: TLabel
+                  Left = 24
+                  Height = 15
+                  Top = 21
+                  Width = 53
+                  Caption = 'Chave PIX'
+                end
+                object edtItauChavePIX: TEdit
+                  Left = 24
+                  Height = 23
+                  Top = 40
+                  Width = 708
+                  Anchors = [akTop, akLeft, akRight]
+                  OnChange = edtItauChavePIXChange
+                  TabOrder = 1
+                end
+                object Label26: TLabel
+                  Left = 744
+                  Height = 15
+                  Top = 21
+                  Width = 59
+                  Anchors = [akTop, akRight]
+                  Caption = 'Tipo Chave'
+                end
+                object cbxItauTipoChave: TComboBox
+                  Left = 744
+                  Height = 23
+                  Top = 40
+                  Width = 158
+                  Anchors = [akTop, akRight]
+                  ItemHeight = 15
+                  ReadOnly = True
+                  Style = csDropDownList
+                  TabOrder = 0
+                  TabStop = False
+                end
+                object Label27: TLabel
+                  Left = 24
+                  Height = 15
+                  Top = 72
+                  Width = 45
+                  Caption = 'Client ID'
+                end
+                object edtItauClientID: TEdit
+                  Left = 24
+                  Height = 23
+                  Top = 91
+                  Width = 878
+                  Anchors = [akTop, akLeft, akRight]
+                  TabOrder = 2
+                end
+                object Label28: TLabel
+                  Left = 24
+                  Height = 15
+                  Top = 128
+                  Width = 66
+                  Caption = 'Client Secret'
+                end
+                object edtItauClientSecret: TEdit
+                  Left = 24
+                  Height = 23
+                  Top = 147
+                  Width = 878
+                  Anchors = [akTop, akLeft, akRight]
+                  TabOrder = 3
+                end
+                object Label29: TLabel
+                  Left = 24
+                  Height = 15
+                  Top = 184
+                  Width = 83
+                  Caption = 'X Correlation ID'
+                end
+                object edtItauXCorrelationId: TEdit
+                  Left = 24
+                  Height = 23
+                  Top = 203
+                  Width = 878
+                  Anchors = [akTop, akLeft, akRight]
+                  TabOrder = 4
+                end
+                object imgItauErroChavePIX: TImage
+                  Left = 906
+                  Height = 16
+                  Top = 44
+                  Width = 16
+                  Anchors = [akTop, akRight]
+                  Visible = False
+                end
+              end
+            end
+            object tsSantander: TTabSheet
+              Caption = 'Santander'
+              ClientHeight = 441
+              ClientWidth = 982
+              object pConfPSPBB2: TPanel
+                Left = 26
+                Height = 240
+                Top = 96
+                Width = 926
+                Anchors = [akLeft, akRight]
+                BevelOuter = bvNone
+                ClientHeight = 240
+                ClientWidth = 926
+                TabOrder = 0
+                object Label30: TLabel
+                  Left = 24
+                  Height = 15
+                  Top = 21
+                  Width = 53
+                  Caption = 'Chave PIX'
+                end
+                object edtSantanderChavePIX: TEdit
+                  Left = 24
+                  Height = 23
+                  Top = 40
+                  Width = 708
+                  Anchors = [akTop, akLeft, akRight]
+                  OnChange = edtSantanderChavePIXChange
+                  TabOrder = 1
+                end
+                object Label31: TLabel
+                  Left = 744
+                  Height = 15
+                  Top = 21
+                  Width = 59
+                  Anchors = [akTop, akRight]
+                  Caption = 'Tipo Chave'
+                end
+                object cbxSantanderTipoChave: TComboBox
+                  Left = 744
+                  Height = 23
+                  Top = 40
+                  Width = 158
+                  Anchors = [akTop, akRight]
+                  ItemHeight = 15
+                  ReadOnly = True
+                  Style = csDropDownList
+                  TabOrder = 0
+                  TabStop = False
+                end
+                object Label32: TLabel
+                  Left = 24
+                  Height = 15
+                  Top = 72
+                  Width = 77
+                  Caption = 'Consumer Key'
+                end
+                object edtSantanderConsumerKey: TEdit
+                  Left = 24
+                  Height = 23
+                  Top = 91
+                  Width = 878
+                  Anchors = [akTop, akLeft, akRight]
+                  TabOrder = 2
+                end
+                object Label33: TLabel
+                  Left = 24
+                  Height = 15
+                  Top = 128
+                  Width = 90
+                  Caption = 'Consumer Secret'
+                end
+                object edtSantanderConsumerSecret: TEdit
+                  Left = 24
+                  Height = 23
+                  Top = 147
+                  Width = 878
+                  Anchors = [akTop, akLeft, akRight]
+                  TabOrder = 3
+                end
+                object imgSantanderErroChavePIX: TImage
+                  Left = 906
+                  Height = 16
+                  Top = 44
+                  Width = 16
+                  Anchors = [akTop, akRight]
+                  Visible = False
+                end
+              end
+            end
+          end
+        end
+      end
+      object pBotoesConfiguracao: TPanel
+        Left = 0
+        Height = 37
+        Top = 497
+        Width = 998
+        Align = alBottom
+        ClientHeight = 37
+        ClientWidth = 998
+        TabOrder = 1
+        object btSalvarParametros: TBitBtn
+          Left = 16
+          Height = 28
+          Top = 4
+          Width = 136
+          Caption = 'Salvar Parâmetros'
+          Enabled = False
+          Images = ImageList1
+          ImageIndex = 10
+          OnClick = btSalvarParametrosClick
+          TabOrder = 0
+        end
+        object btLerParametros: TBitBtn
+          Left = 176
+          Height = 28
+          Top = 4
+          Width = 136
+          Caption = 'Ler Parâmetros'
+          Images = ImageList1
+          ImageIndex = 11
+          OnClick = btLerParametrosClick
+          TabOrder = 1
+        end
+      end
+    end
+  end
+  object lURLTEF: TLabel
+    Cursor = crHandPoint
+    Left = 5
+    Height = 21
+    Top = 567
+    Width = 996
+    Align = alBottom
+    Alignment = taCenter
+    BorderSpacing.Around = 5
+    Caption = 'https://projetoacbr.com.br/tef'
+    Color = clBlack
+    Font.Color = clWhite
+    Font.Height = -16
+    Font.Style = [fsBold]
+    ParentFont = False
+    Transparent = False
+    OnClick = lURLTEFClick
+  end
+  object ImageList1: TImageList
+    Left = 920
+    Top = 560
+    Bitmap = {
+      4C7A1C0000001000000010000000D30F00000000000078DAED5D0B7456C5115E
+      1242842084A04824A0A242414FEB13E2ABF80215108B1AA05A902A602C88C65A
+      15E51C7C6B5582F501826D5544E1C45A51F1FD288AE01BC45454C46A0982D004
+      54140443E8CEE1DB93C964F6DEBD7F4043CC9E33873FF7DE6FEF3E6666676667
+      2FC6ECB0B28BA51196AEB2D43C2176774B0B2D6D052DB6F4CB406C5B4BEF31AC
+      A3EF2DF50CC09F6A69A982279A1081DBC3D2AB96DEB774A9A5E996B60037D7D2
+      71965EC13307086C73F491BF8BC66DBCA5172C8DB25421FAD28DE147296DDD68
+      E9724B0759FA9F72FF5E86BFD2D3DF872D8DC4FBE4BDD962AE1745B49FF8A09C
+      DDDB64A9BB1883EE6833DDBFCFD215ECBDD32C1D091CD169117C33CCD24C4B3F
+      88F67C84796917C07BA59EF13C2C9007BB8B3123EC490965E017E8F7A396BA9A
+      865F5EB2B48C512B5C27FE190A7DC0EF771278BAD6D75201E4B73F6470046460
+      1D78A32FE6635F057F8EA522E0C7600E8FB1B427F04578C687FFDCD267E0BD31
+      8C07C600BF02CF5429F8A168E79E78FE3CFC7BA6A54C4BADD127A23696D2047E
+      89A541C07FCFE869F6CC0318937465FCF7864E5860697F4B5F5BBA11E3F93168
+      24C6F34365FC5BA16DD4EE6C4B832D5D67E9764BBF03D13B8658AA54FABF1063
+      E488FA3BD1D28BE2391F7E19DE3D167390CDF0D9A8D3E934ADFF843FDBD2F996
+      3E0586DA7C07E680DAFE98A5F996CEB2D452C1BB31AF02BE89A513A1FBE8EF87
+      708FDADF59E03BA14F8ED2D8DAB00FFE6EC7EE37DD0132487C7528D6DA3629E0
+      C7B2358FC670B467AC7D859EBD89D551893AA24A474BBFC758536926EAF8026B
+      B3AF109F6E866CD3FB33B06E55B2369C12811FC4D6B44B80E56BCF16D814BE42
+      B2F62D9EDDCCDEEB6883A5A362C6EC76CFFAEDE84D4B791175108F155B5A8BE7
+      ABD01F5E07ADEF7BC5CC05AD53BFC598509FFFA3D49197801F0EC6FCC9BEEC95
+      A08EC33C75246D87D697DD12B683D7B15AD161A1E3B1C6D2C929CA7867C5FED4
+      4A33AC7DED5378472BE83AB23B3F00FF3609C07585BE255DFD36D6DAC9D0A98B
+      A1FBB57A4877DE059E5D03DB712FCC711EE4F711C825E9EF73D13F572681E79D
+      6D4DEB7499A055EC994D580FF8DC1624A42CA51F243B5D984D7D86E0F501580B
+      7CE52BF802066BC572AC5DAEFC1BEFF015B26B2E60FECC97D08FAE2CC59A585F
+      F183A14FDDF89D2EEC94FE62DE5CE901DE4A427CFD9F06BD9D843A0B9F63DF84
+      B423D6FFFA54F681CFD45BB135E3FCFFFBE02FFF803595F4D0DDCCA7F0955D2D
+      BD1BB18ECE055FC9D21232FDA458B79DEED8C0AE5FA4D85C4F28EBFE1CA6BFE6
+      B0EBA55807DCFCDFEC696B097B4789B8B71EFAB035648CDF23DDFB4FD843AE14
+      E1DA3AF1EC9DCCCEDACA6C982B6147B992816B9BC5B32BA193B458CD95E86353
+      FCD66210ABA0CBAB947BF4AE71A0CD9E31BA17F55F8675634B8C1DC5DBF71C78
+      8DFB4F0302F4FE995857331BB0ECA6A3AFE4FFDD86DF2131C01CF0F35ACCC73C
+      F8FF6B20CBB3F08C0FFB0E7CAD61423FD2EF63213BEF28BE9793A3723CE76C8C
+      D6C2C6EB84674A85FF9D0E7D334CD8279AFF3A0CB27E30BB56001D95A1D8E5D2
+      CFCC80FF7D0BBB763DE28AB2103F162AD7A7587A86FD7D2BC65916ADFD06BEC2
+      CB01EDD7F05AFB9B637E7B05E07B419EE5B3B3302F1DD9B5432C1D2FDE5D0A3B
+      A9C576E61F675B97627E291E33157D5882367F158175250DBC710B62372FE377
+      2FA5CDF5BD7449B8764B1DF22862564D52C0F7879EFE0EB1F7A47110BEFF301F
+      B64148A1B6FE49AC495B985D1B62F7AC026E29DB8BA0B8618700FC5FD97B8B41
+      EEEF4931D82345BB25BE32621FA639F4355F276782F8B5E784EFE5CA482566BF
+      D5B3AE4B1F2617F137F9EC3490BC5ECAF47A9AE863285D8BB9261DF34D0AF80A
+      ECE1907F9D9F22EDDEC07D80CC14ECA4EED0B98B605F7E019D7D33F30D7DB6FF
+      9F991D5E8135F53566F712EF5DADE8E156B0A79DECBC00DDD7127EFE014C36AA
+      A0D3B218FF5DCFB06BB0469C061D4471903EA8631D93C32BC07F5D05FF3D8D58
+      33DFC37A1BEF7B8D5D2B476CE100167F747E470EE236EEDA42F4E515E127EC0B
+      3D3D91B5FF4BACC167A18E52F4A58BA9DEC3247D780DB3A148DF3EC5EA7E0275
+      E4A02F9D31A66EFC1E51F4711BD8355B593BE6603CD6B0F716C7E8F21EF00B96
+      2246B71AF6CA64ECCF2459BF72D0AE74F3F32A59F08D3212E2DA81971663FCE7
+      818F42621D7B80CFD7408E0B21671BE187A4C5E0EF42BC2C575C3F1FFEF25131
+      F6C247F02335BD423EEE0D11F83DF1EEA1CA3DEAFBB358C77CA505F4DDDD1EBF
+      88E2CE97C7F4FF42C435FB43E7A6610E1F800E8DB35B292E720F7409C5491EC7
+      1ED06AB46D54801C10BFF483ACCD828EE882715D2F6212494A33E87FE285D129
+      D6D1047CB441C45493D63132E1BEC1CFA134454C44C64A7203F1BF027F481B6B
+      9189CFF730B0A57C76DA1266073B2A1471C0FC84B61FD911872AF89901369FB3
+      A7F3157C71405F8B1B307E2E744414CD55F0078B186D1CAD177E10E9AD134CF8
+      DECFB10D307EDF14F29A17415911318F89F071CB22C8D9B646F1FF3E471DDA78
+      179AEAFCB367953AF2507F81A77DEE3EB7B1B394FB859E7E1F0E5FC4E1CB4CCD
+      FD67872FF7F47BA5D81FF0E143F93704BF097ED322257E1E87DF8218483AF8E2
+      6A115788C3AF16F64637C4CE42F13267A2B7E883C47780FDC5FB4836D318E88C
+      15CABDF6C2BEB83B807FCBF09E5B9598567A80FCE4A1AD19A6B1FCD4253BE27A
+      5FF8F4E447DE8178722711C3D6627194D3F11E64BD0A7CEC62622BE0F31F8FDF
+      25027B0EE200B4773201EB532EE28994B3F731E4D2F9FA2522EEF7359EF1E517
+      9C616AEEC195B0B5EF71BC3BDF833D99F9E0124F7C3FD06CDB17D5FC83DDE09B
+      95082A6A64C1C6B29D4ACB3AE229DED093F9782443B42F7D277400F9B12745C4
+      9D889F2967F568AC95ABD83AEAEC52D2036FC176D4F0CE2EAD42CC6D38DA910B
+      FBF646C8E8578A9D5322D64E5F6E5937AC7115A6E6FEA5CC2F58616AEFCFB972
+      3CFCF087990D5CA4C8F7248F8E257D7329E204E98DACBB5D0A8D23ED159F1D43
+      BE3204EBCAE618F2159291E74D7CCE93AFD09ED763F84DF9D6D3C15F1A3D8858
+      58BA82CF46CCBA023CACD15AC86507051FE747B8B192F9EB8DF8BAE17B227E94
+      2A3ED40FDCD1F82CC48A69EF6299875CBE56FB8818FAE008191E62C2CEC1EDCC
+      E5B88858434829811EE893E21A53C2D66CF20B3BA68877B41473D73445BC8B39
+      CE366179EF1A9EFA42B9385D52C0FF17B191CC84ED273D4BFB0FFBA5307E644F
+      9D9E629CAD5F847FD758B67F6981184D68FCF4681103B9D4F8733C35DA080CE7
+      979284FC25F36BCB141BD64765263A3F3784B637BEAEFDDF99F13799B0DC239E
+      073556F06F9F04FCDBB78EEB537DF725284FE262AC7D14BBA1BDE5034DFC1E3C
+      ED55DF6FF47C2AF25B697FD997C34F71A2050173F7925207B579460C8ED622CA
+      4B598776F0BEF43035736834ECBD88334C475F0E64F8AB02B0AD10FF73FB0017
+      32FC74539DE77391D0857FC77B09CBCFF4DDC5F00FE21AE53BB541ECE21B6069
+      CDE6E7211D4D66F809A6667E1FE562FC1AEF1DEF91AD8B19FE085373FFED19D8
+      B75728EFDD8AB61D246202FF10CF7C6A6A9F617474BF62D7D1FB1606F0CF02E3
+      CF416F8F76687B89DF82C7E2F6FE33301E13302FD3C11F3D7692788793FF2226
+      FF6303E5BF6D8CFC533E75EB08F97F3D60FE5E56EA201BF121539D5FB6DCD43C
+      0B528935DBED614D8D90FF4FCCB6B320535107618B61C396B1BE70F91F2FECEC
+      EB607F4E03361BFF725918ABC83FAFE35AAC31590AD627FFBCBFC50C3FCDD43E
+      1BE393FF4AD1E66BF17BAAA8A3C823FF4BE1A3B836BBF1D8DB54EFD145C97F15
+      EAA814E3F1099B3F4DFE294EBA2850FEDB7A78303746FE1F4A51FEC783C71AFA
+      99BF6C6623F54ED05F173F5E28FCDDA7713D3F10EFA3383CAD07533CD822CFFD
+      22256EE4B3D3EB8A8F2B7178793F49FE01E19BC3A77673DBCFD43C0F96049F5F
+      C7F66BE341EBC11BA6F639C22DC2CE8A2A140F1E28ECFC534DC33EE7D7104B9C
+      FE6FC4376C7C63D9F9E27F7F4C21FE778988073D079BF3BB081CD99DD7C33F95
+      F127DAB7A13C64DAF79EA7F80F747EA527ECB8259EF85D397CDE3CB48F726628
+      F7FE02EC215C63AACF00F9E27FF4DEB7D08EFD603753EEC162B1BEC5C50F7F40
+      DC6186D1CFC5D7B7F8655DF037FC04F1BFFA7A963717B2D84750AFC03D913723
+      C6EDB53AEAEFAA407CB132E6C509D60F6DFFB6A0111F8CD7F2A00B13E0B53CE8
+      F240FCF711FCF34500FE37F0D3A51F47E7910604CA508ED2FF9C04323845E9FF
+      9404F87C85FFF37F025D9293B0DFDA3824E9779E880BC97D1EBAD72E22F6F00E
+      E283E90A3E133EE2AB46DFBBA1FDC4B5A6E65EB5F67E8A039D2FB0AE6E797E4F
+      DBD79A25DA4885CE0FD21EFBD901F80B111F6B2BE2D6B45F3E54898BC83CDB3F
+      986D79C2394AFBEF0C98A307B00723E36F64F75498E85C89FD61838DF6C48EC9
+      C699EFA983F26DDE453B7D7B48FBA08E0AF485C68372B7EF41CCF62D13FF0D86
+      B6E8CB1B18D3CFD0A622932CA72013F342D46C27B0E19BA0EFBBC7508EA97DF6
+      210D7162E2AB6531F4B1A93EFBEE0AD9B82B5107C9109D1F198158ED02F02CC9
+      267D8BE876CC093F5B780AE492F4C755E081164C7EDCF95E929DAEA6FABBC0AE
+      5C07DDE162E52F0AF94B073FDC8658D387A666FEC1C3F03F9AC277780AFD7B09
+      BFD3D9F55DF0FB2F0C3F1A3ECD2BB04D3780E736E1BAFBBD19CFD0B5214AFCEC
+      55F0FC08C8299D291885DFC3CDB6EFEBCE8B88FF1504F049413DC4BBF33F1303
+      6C777AA6F1FC4FB242E3B39B499EF390093FEB49C811EDBFDF62C2BE8363C0C7
+      E3E06F5D82F591BE4D3B29C1DE02E5133F0A1F9C7C889B53D08BCD30B7CD539C
+      BB5CAC3DFD521CFF10F9C835FEEFD7B9F393133196721DA37ECD4DE03FBF20E2
+      FF1D447C9E7EBF0EA2DF734CCD3DB5E58207787CDFE95DD7F690FD0BEDFC5F14
+      35CA7F74C9C05AA9ED878D32D17B2251DF7B74DF5EEC15811F17130BAC040F6B
+      EF1D1718FBD1F0BD0363903E7C4182D853147E8190D789F85D887B71782E2F0E
+      EFE4A524004FBADA9D772E07ADC4B52703F01B4CF579E7425025AE6D48D87FA7
+      0392F43FD5F1EB6FC2BE1FBA11F16B597605DFC7E58E5E637E9C3DC574F84C7B
+      9BF8BC1DB9661F039BF16BC4ABFF66B69D31CD88D903380336EF37B05987B371
+      FB0E36F20053FB1BBC6D61BB928D4B39EE27B0F8AA96073F57F8BF8EDFCF0D8C
+      4726B13FEB239EFC1FFE7F2238FF2664BFEC32F84759C2C6991388A7EF2FCC54
+      AE9FE7911F5EBA41070CF6C46F9644E089F7281F6461841D7AACA9FE3F88389E
+      647332F8F2F018FE1F6E6A7E27F94453FD0DDB10FFA409DAF12FE6CB11DF1F61
+      927D0793ECAB43B027B5CB8FB8F6F3FC3F1AB324F9BF2EFF8FF406E56F3E8FB1
+      FBCC54E7DD46E5FF3A7B7110783A039403BFF64BF8E6BEFCDFE52276942FE2A6
+      FBA30E2DFF9778636040FC6D28FA22F37F3F50DAA5E173301E32FFF771657C35
+      7C06C654E6FFCD56F84B8BFF65605E64FEDFFBA6F6F9662DFEDB06732BF37FD7
+      2BEBAA16FF1D04FED0F2FF9689F8AE9CBF8EE08FFB8D3FFFCFFD3F52BB623CD2
+      302F03C11FF32362DA2EFF6F3DC66336E6E503F0C70CE3CF1DE47D71F97F33CC
+      0ECEFFFD3F4B528BFF
+    }
+  end
+  object ACBrPixCD1: TACBrPixCD
+    Recebedor.CodCategoriaComerciante = 0
+    QuandoGravarLog = ACBrPixCD1QuandoGravarLog
+    Left = 8
+    Top = 560
+  end
+  object ACBrPSPItau1: TACBrPSPItau
+    Left = 104
+    Top = 560
+  end
+  object ACBrPSPBancoDoBrasil1: TACBrPSPBancoDoBrasil
+    Left = 72
+    Top = 560
+  end
+  object ACBrPSPSantander1: TACBrPSPSantander
+    Left = 40
+    Top = 560
+  end
+  object ACBrCEP1: TACBrCEP
+    ProxyPort = '8080'
+    WebService = wsCorreios
+    PesquisarIBGE = True
+    Left = 160
+    Top = 560
+  end
+end

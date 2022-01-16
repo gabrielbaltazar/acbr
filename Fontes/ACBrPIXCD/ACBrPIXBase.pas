@@ -71,6 +71,7 @@ const
 
 type
   TACBrPIXTipoChave = ( tchNenhuma,
+                        tchEmail,
                         tchCPF,
                         tchCNPJ,
                         tchCelular,
@@ -119,7 +120,7 @@ type
     procedure DoReadFromJSon(AJSon: TJsonObject); virtual;
 
   public
-    constructor Create(const ObjectName: String); virtual;
+    constructor Create(const ObjectName: String = ''); virtual;
     procedure Clear; virtual;
     function IsEmpty: Boolean; virtual;
     procedure WriteToJSon(AJSon: TJsonObject);
@@ -389,8 +390,6 @@ begin
 end;
 
 procedure TACBrPIXSchema.WriteToJSon(AJSon: TJsonObject);
-var
-  js: TJsonObject;
 begin
   if IsEmpty then
     Exit;

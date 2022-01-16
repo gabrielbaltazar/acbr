@@ -8,18 +8,22 @@ unit ACBr_PIXCD;
 interface
 
 uses
-  ACBrPIXBase, ACBrPIXUtil, ACBrPIXQRCodeEstatico, ACBrPIXSchemasCob, 
-  ACBrPIXSchemasProblema, ACBrPIXSchemasPix, ACBrPIXSchemasDevolucao, 
-  ACBrPIXSchemasPaginacao, ACBrPIXSchemasParametrosConsultaPix, 
-  ACBrPIXSchemasPixConsultados, ACBrPIXSchemasParametrosConsultaCob, 
-  ACBrPIXSchemasCalendario, ACBrPIXSchemasDevedor, ACBrPIXSchemasLocation, 
-  ACBrPIXSchemasCobsConsultadas, ACBrPIXSchemasCobV, 
-  ACBrPIXSchemasCobsVConsultadas, LazarusPackageIntf;
+  ACBrPIXCDReg, ACBrPIXBase, ACBrPIXUtil, ACBrPIXCD, ACBrPIXPSPItau, 
+  ACBrPIXPSPBancoDoBrasil, ACBrPIXPSPSantander, ACBrPIXQRCodeEstatico, 
+  ACBrPIXSchemasProblema, ACBrPIXSchemasCalendario, ACBrPIXSchemasDevedor, 
+  ACBrPIXSchemasLocation, ACBrPIXSchemasPaginacao, ACBrPIXSchemasDevolucao, 
+  ACBrPIXSchemasPix, ACBrPIXSchemasParametrosConsultaPix, 
+  ACBrPIXSchemasPixConsultados, ACBrPIXSchemasCob, 
+  ACBrPIXSchemasParametrosConsultaCob, ACBrPIXSchemasCobsConsultadas, 
+  ACBrPIXSchemasCobV, ACBrPIXSchemasCobsVConsultadas, ACBrPIXSchemasLoteCobV, 
+  ACBrPIXSchemasParametrosConsultaLote, ACBrPIXSchemasLotesCobVConsultadas, 
+  LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
+  RegisterUnit('ACBrPIXCDReg', @ACBrPIXCDReg.Register);
 end;
 
 initialization

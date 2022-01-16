@@ -89,13 +89,13 @@ var
 begin
   Configuracao;
 
-  Opcoes.QuebraLinha := FAOwner.ConfigGeral.QuebradeLinha;
+  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
   FDocument.Clear();
 
-  NFSeNode := CreateElement('Rps', FAOwner.ConfigMsgDados.LoteRps.xmlns, '');
+  NFSeNode := CreateElement('Rps', FpAOwner.ConfigMsgDados.LoteRps.xmlns, '');
 
   FDocument.Root := NFSeNode;
 
@@ -151,7 +151,7 @@ begin
   Result := CreateElement('IdentificacaoPrestador');
 
   Result.AppendChild(AddNode(tcStr, '#1', 'CnpjCpf', 1, 14, 1,
-                               NFSe.Prestador.IdentificacaoPrestador.Cnpj, ''));
+                            NFSe.Prestador.IdentificacaoPrestador.CpfCnpj, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'InscricaoMunicipal', 1, 16, 1,
                  NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, ''));

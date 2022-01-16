@@ -299,7 +299,7 @@ begin
     end;
   end;
 
-  Response.XmlEnvio := '<' + Prefixo + 'ConsultarNfseFaixaEnvio' +
+  Response.ArquivoEnvio := '<' + Prefixo + 'ConsultarNfseFaixaEnvio' +
                                 NameSpace + '>' +
                          '<Prestador>' +
                            '<Cnpj>' + OnlyNumber(Emitente.CNPJ) + '</Cnpj>' +
@@ -414,7 +414,7 @@ begin
 
   ListaRps := ChangeLineBreak(ListaRps, '');
 
-  Response.XmlEnvio := '<' + Prefixo + 'GerarNfseEnvio' + NameSpace + '>' +
+  Response.ArquivoEnvio := '<' + Prefixo + 'GerarNfseEnvio' + NameSpace + '>' +
                          '<LoteRps' + NameSpaceLote + IdAttr  + Versao + '>' +
                            '<NumeroLote>' + Response.Lote + '</NumeroLote>' +
                            '<Cnpj>' + OnlyNumber(Emitente.CNPJ) + '</Cnpj>' +
@@ -448,15 +448,16 @@ begin
   Document := TACBrXmlDocument.Create;
   try
     try
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response);
       ProcessarMensagemErros(Document.Root, Response, 'ListaMensagemRetornoLote');
 
       ANode := Document.Root;
 
-      Response.Data := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('DataRecebimento'), tcDatHor);
-      Response.Protocolo := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('Protocolo'), tcStr);
+      Response.Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataRecebimento'), tcDatHor);
+      Response.Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Protocolo'), tcStr);
+      Response.CodVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
 
       ANode := Document.Root.Childrens.FindAnyNs('ListaNfse');
       if not Assigned(ANode) then

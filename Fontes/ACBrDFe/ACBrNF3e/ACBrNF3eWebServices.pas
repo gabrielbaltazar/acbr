@@ -376,7 +376,7 @@ type
 
   TNF3eEnvEvento = class(TNF3eWebService)
   private
-    FidLote: integer;
+    FidLote: Int64;
     FEvento: TEventoNF3e;
     FcStat: integer;
     FxMotivo: String;
@@ -399,7 +399,7 @@ type
     destructor Destroy; override;
     procedure Clear; override;
 
-    property idLote: integer read FidLote write FidLote;
+    property idLote: Int64 read FidLote write FidLote;
     property cStat: integer read FcStat;
     property xMotivo: String read FxMotivo;
     property TpAmb: TpcnTipoAmbiente read FTpAmb;
@@ -493,7 +493,7 @@ type
     constructor Create(AOwner: TACBrDFe); overload;
     destructor Destroy; override;
 
-    function Envia(ALote: integer; const ASincrono: Boolean = False): Boolean;
+    function Envia(ALote: Int64; const ASincrono: Boolean = False): Boolean;
       overload;
     function Envia(const ALote: String; const ASincrono: Boolean = False): Boolean;
       overload;
@@ -3109,7 +3109,7 @@ begin
 end;
 
 
-function TWebServices.Envia(ALote: integer; const ASincrono: Boolean): Boolean;
+function TWebServices.Envia(ALote: Int64; const ASincrono: Boolean): Boolean;
 begin
   Result := Envia(IntToStr(ALote), ASincrono);
 end;

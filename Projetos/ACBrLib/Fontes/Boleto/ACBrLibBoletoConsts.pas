@@ -54,6 +54,7 @@ const
   CChaveNomeArqRetorno = 'NomeArqRetorno';
   CChaveNumeroArquivo = 'NumeroArquivo';
   CChaveRemoveAcentosArqRemessa = 'RemoveAcentosArqRemessa';
+  CChavePrefixArqRemessa = 'PrefixArqRemessa';
 
   CSessaoBoletoBancoConfig = 'BoletoBancoConfig';
   CChaveDigitoBanco = 'Digito';
@@ -64,6 +65,8 @@ const
   CChaveNumeroCorrespondente = 'NumeroCorrespondente';
   CChaveOrientacaoBanco = 'OrientacaoBanco';
   CChaveTipoCobranca = 'TipoCobranca';
+  CChaveCasasDecimaisMoraJuros = 'CasasDecimaisMoraJuros';
+  CChaveCIP = 'CIP';
 
   CSessaoBoletoCedenteConfig = 'BoletoCedenteConfig';
   CChaveAgencia= 'Agencia';
@@ -90,6 +93,8 @@ const
   CChaveTipoInscricao= 'TipoInscricao';
   CChaveUF= 'UF';
   CChaveDigitoVerificadorAgenciaConta= 'DigitoVerificadorAgenciaConta';
+  CChaveIdentDistribuicao= 'IdentDistribuicao';
+  CChaveOperacao= 'Operacao';
 
   CSessaoBoletoFCFortesConfig = 'BoletoBancoFCFortesConfig';
   CChaveDirLogo= 'DirLogo';
@@ -112,13 +117,12 @@ const
   CChaveScope= 'Scope';
   CChaveIndicadorPix= 'IndicadorPix';
 
-  CSessaoBoletoWebSevice= 'BoletoWebSevice';
-  CChaveLogRegistro= 'LogRegistro';
-  CChavePathGravarRegistro= 'PathGravarRegistro';
-  CChaveAmbiente= 'Ambiente';
-  CChaveOperacao= 'Operacao';
-  CChaveVersaoDF= 'VersaoDF';
-  CChaveUseCertificateHTTP= 'UseCertificateHTTP';
+  CSessaoBoletoWebSevice = 'BoletoWebSevice';
+  CChaveLogRegistro = 'LogRegistro';
+  CChavePathGravarRegistro = 'PathGravarRegistro';
+  CChaveAmbiente = 'Ambiente';
+  CChaveVersaoDF = 'VersaoDF';
+  CChaveUseCertificateHTTP = 'UseCertificateHTTP';
 
   CSessaoBolConfig = 'BoletoConfig';
   CChaveemailAssuntoBoleto= 'emailAssuntoBoleto';

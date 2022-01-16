@@ -944,6 +944,34 @@ type
     property Items[Index: Integer]: TSegmentoJ52 read GetItem write SetItem; default;
   end;
 
+  TSegmentoJ99 = class(TObject)
+  private
+    FCodMovimento: TInstrucaoMovimento;
+    FCodAutenticacao: Integer;
+    FNunDocumento: string;
+    FDataHoraPagamento: TDateTime;
+    FProtocoloPagamento: string;
+  public
+    constructor Create; reintroduce;
+    destructor Destroy; override;
+
+    property CodMovimento: TInstrucaoMovimento read FCodMovimento write FCodMovimento;
+    property CodAutenticacao: Integer read FCodAutenticacao write FCodAutenticacao;
+    property NunDocumento: string read FNunDocumento write FNunDocumento;
+    property DataHoraPagamento: TDateTime read FDataHoraPagamento write FDataHoraPagamento;
+    property ProtocoloPagamento: string read FProtocoloPagamento write FProtocoloPagamento;
+  end;
+
+  TSegmentoJ99List = class(TObjectList)
+  private
+    function GetItem(Index: Integer): TSegmentoJ99;
+    procedure SetItem(Index: Integer; Value: TSegmentoJ99);
+  public
+    function New: TSegmentoJ99;
+    function Last: TSegmentoJ99;
+    property Items[Index: Integer]: TSegmentoJ99 read GetItem write SetItem; default;
+  end;
+
   // Lote: Pagamento de Titulos de Cobrança
   // Serviço: 20 = Pagamentos
 
@@ -968,12 +996,14 @@ type
     FCodigoMoeda     : Integer;
     FCodOcorrencia : String;
     FSegmentoJ52: TSegmentoJ52List;
+    FSegmentoJ99: TSegmentoJ99List;
     FSegmentoB: TSegmentoBList;
     FSegmentoC: TSegmentoCList;
     FSegmentoZ: TSegmentoZList;
     FDescOcorrencia: String;
     FNossoNumero: String;
     procedure SetSegmentoJ52(const Value: TSegmentoJ52List);
+    procedure SetSegmentoJ99(const Value: TSegmentoJ99List);
     procedure SetSegmentoB(const Value: TSegmentoBList);
     procedure SetSegmentoC(const Value: TSegmentoCList);
     procedure SetSegmentoZ(const Value: TSegmentoZList);
@@ -999,6 +1029,7 @@ type
     property NossoNumero: String read FNossoNumero write FNossoNumero;
     property PagamentoLiberado: Boolean read GetPagamentoLiberado;
     property SegmentoJ52: TSegmentoJ52List read FSegmentoJ52 write SetSegmentoJ52;
+    property SegmentoJ99: TSegmentoJ99List read FSegmentoJ99 write SetSegmentoJ99;
     property SegmentoB: TSegmentoBList read FSegmentoB write SetSegmentoB;
     property SegmentoC: TSegmentoCList read FSegmentoC write SetSegmentoC;
     property SegmentoZ: TSegmentoZList read FSegmentoZ write SetSegmentoZ;
@@ -2203,6 +2234,7 @@ constructor TSegmentoJ.Create;
 begin
   inherited Create;
   FSegmentoJ52 := TSegmentoJ52List.Create;
+  FSegmentoJ99 := TSegmentoJ99List.Create;
   FSegmentoB := TSegmentoBList.Create;
   FSegmentoC := TSegmentoCList.Create;
   FSegmentoZ := TSegmentoZList.Create;
@@ -2211,6 +2243,7 @@ end;
 destructor TSegmentoJ.Destroy;
 begin
   FSegmentoJ52.Free;
+  FSegmentoJ99.Free;
   FSegmentoB.Free;
   FSegmentoC.Free;
   FSegmentoZ.Free;
@@ -2252,6 +2285,11 @@ end;
 procedure TSegmentoJ.SetSegmentoJ52(const Value: TSegmentoJ52List);
 begin
   FSegmentoJ52 := Value;
+end;
+
+procedure TSegmentoJ.SetSegmentoJ99(const Value: TSegmentoJ99List);
+begin
+  FSegmentoJ99 := Value;
 end;
 
 procedure TSegmentoJ.SetSegmentoZ(const Value: TSegmentoZList);
@@ -3395,6 +3433,41 @@ begin
   FDesconto3.Free;
   FMulta.Free;
 
+  inherited;
+end;
+
+{ TSegmentoJ99List }
+
+function TSegmentoJ99List.GetItem(Index: Integer): TSegmentoJ99;
+begin
+  Result := TSegmentoJ99(inherited GetItem(Index));
+end;
+
+function TSegmentoJ99List.Last: TSegmentoJ99;
+begin
+  Result := TSegmentoJ99(inherited Last);
+end;
+
+function TSegmentoJ99List.New: TSegmentoJ99;
+begin
+  Result := TSegmentoJ99.Create;
+  Add(Result);
+end;
+
+procedure TSegmentoJ99List.SetItem(Index: Integer; Value: TSegmentoJ99);
+begin
+  inherited SetItem(Index, Value);
+end;
+
+{ TSegmentoJ99 }
+
+constructor TSegmentoJ99.Create;
+begin
+  inherited Create;
+end;
+
+destructor TSegmentoJ99.Destroy;
+begin
   inherited;
 end;
 

@@ -613,6 +613,7 @@ type
     DigitoAgenciaConta         : String ;
     CodCedente                 : String ;
     LocalPagamento             : String ;
+    CodigoOperacao             : String;
   end;
 
   TBoletoLayout = record
@@ -637,6 +638,7 @@ type
     LerCedenteRetorno          : Boolean;
     CodTransmissao             : String ;
     RemoveAcentos              : Boolean;
+    PrefixArqRemessa           : String;
   end;
 
   TBoletoRelatorio = record
@@ -1410,6 +1412,7 @@ begin
       ini.WriteString( CSecBOLETO, CKeyBOLETODigitoAgenciaConta, DigitoAgenciaConta );
       ini.WriteString( CSecBOLETO, CKeyBOLETOCodCedente,    CodCedente    );
       ini.WriteString( CSecBOLETO, CKeyBOLETOLocalPagamento,LocalPagamento );
+      ini.WriteString( CSecBOLETO, CKeyBOLETOCodigoOperacao,CodigoOperacao );
     end;
 
     with BOLETO.Layout do
@@ -1436,6 +1439,7 @@ begin
       Ini.WriteBool(   CSecBOLETO, CKeyBOLETOLerCedenteRetorno, LerCedenteRetorno      );
       ini.WriteString( CSecBOLETO, CKeyBOLETOCodTransmissao,CodTransmissao);
       Ini.WriteBool(   CSecBOLETO, CKeyBOLETORemoveAcentos, RemoveAcentos      );
+      ini.WriteString( CSecBOLETO, CKeyBoletoPrefixArqRemessa, PrefixArqRemessa );
     end;
 
     with BOLETO.Relatorio do
@@ -2145,6 +2149,7 @@ begin
       DigitoAgenciaConta     :=  ini.ReadString( CSecBOLETO, CKeyBOLETODigitoAgenciaConta, DigitoAgenciaConta   );
       CodCedente             :=  ini.ReadString( CSecBOLETO, CKeyBOLETOCodCedente,       CodCedente             );
       LocalPagamento         :=  ini.ReadString( CSecBOLETO, CKeyBOLETOLocalPagamento,   LocalPagamento         );
+      CodigoOperacao         :=  ini.ReadString( CSecBOLETO, CKeyBOLETOCodigoOperacao,   CodigoOperacao         );
     end;
 
     with BOLETO.Layout do
@@ -2172,6 +2177,7 @@ begin
       LerCedenteRetorno      :=  Ini.ReadBool(   CSecBOLETO, CKeyBOLETOLerCedenteRetorno,  LerCedenteRetorno      );
       CodTransmissao         :=  ini.ReadString( CSecBOLETO, CKeyBOLETOCodTransmissao,     ini.ReadString( CSecBOLETO,CKeyBOLETOCedenteCodTransmissao,'') );
       RemoveAcentos          :=  Ini.ReadBool(   CSecBOLETO, CKeyBOLETORemoveAcentos,      RemoveAcentos      );
+      PrefixArqRemessa       :=  Ini.ReadString( CSecBOLETO, CKeyBoletoPrefixArqRemessa,   PrefixArqRemessa );
     end;
 
     with BOLETO.Relatorio do
@@ -2847,6 +2853,7 @@ begin
     DigitoAgenciaConta     :=  '';
     CodCedente             :=  '';
     LocalPagamento         :=  '';
+    CodigoOperacao         :=  '';
   end;
 
   with BOLETO.Layout do
@@ -2873,6 +2880,7 @@ begin
     LerCedenteRetorno      :=  False;
     CodTransmissao         :=  '';
     RemoveAcentos          :=  False;
+    PrefixArqRemessa       := '';
   end;
 
   with BOLETO.Relatorio do

@@ -559,6 +559,18 @@ begin
       Servico.Valores.ValorIr := 0.00;
       Servico.Valores.ValorCsll := 0.00;
 
+      // Provedor Elotech
+      Servico.Valores.AliquotaPis := 0;
+      Servico.Valores.RetidoPis := snNao;
+      Servico.Valores.AliquotaCofins := 0;
+      Servico.Valores.RetidoCofins := snNao;
+      Servico.Valores.AliquotaInss := 0;
+      Servico.Valores.RetidoInss := snNao;
+      Servico.Valores.AliquotaIr := 0;
+      Servico.Valores.RetidoIr := snNao;
+      Servico.Valores.AliquotaCsll := 0;
+      Servico.Valores.RetidoCsll := snNao;
+
       // TnfseSituacaoTributaria = ( stRetencao, stNormal, stSubstituicao );
       // stRetencao = snSim
       // stNormal   = snNao
@@ -704,11 +716,19 @@ begin
         AliqRetIRRF := 0;
         ValorIRRF := 0;
 
-        //EloTech
+        // Provedor EloTech
         Tributavel := snNao;
+
+        // Provedor IPM
+        { define se o tributo é no municipio do prestador ou não }
+        TribMunPrestador := snNao;
+        { codigo do municipio que ocorreu a prestação de serviço }
+        CodMunPrestacao :=  edtCodCidade.Text;
+        { codigo da situação tributária: 0 até 15 }
+        SituacaoTributaria := 0;
       end;
 
-      Prestador.IdentificacaoPrestador.CNPJ := edtEmitCNPJ.Text; //'88888888888888';
+      Prestador.IdentificacaoPrestador.CpfCnpj := edtEmitCNPJ.Text; //'88888888888888';
       Prestador.IdentificacaoPrestador.InscricaoMunicipal := edtEmitIM.Text;
 
       Prestador.RazaoSocial  := edtEmitRazao.Text;
@@ -741,6 +761,10 @@ begin
 
       Tomador.RazaoSocial := 'INSCRICAO DE TESTE';
 
+      // O campo EnderecoInformado é utilizado pelo provedor IMP
+      // A tag <endereco_informado> é opcional, caso não deseje que ela seja
+      // gerada devemos informar uma string vazia, ou S = Sim ou N = Não
+      Tomador.Endereco.EnderecoInformado := 'S';
       Tomador.Endereco.TipoLogradouro := 'RUA';
       Tomador.Endereco.Endereco := 'RUA PRINCIPAL';
       Tomador.Endereco.Numero := '100';
@@ -2924,6 +2948,8 @@ begin
             memoLog.Lines.Add('Situação: ' + Situacao);
             memoLog.Lines.Add('Link    : ' + Link);
             memoLog.Lines.Add('Sucesso : ' + BoolToStr(Sucesso, True));
+            memoLog.Lines.Add('Numero da NFSe Substituida  : ' + NumNotaSubstituida);
+            memoLog.Lines.Add('Numero da NFSe Substituidora: ' + NumNotaSubstituidora);
             memoLog.Lines.Add(' ');
             memoLog.Lines.Add('Retorno do Pedido de Cancelamento:');
             memoLog.Lines.Add('Situação : ' + RetCancelamento.Situacao);

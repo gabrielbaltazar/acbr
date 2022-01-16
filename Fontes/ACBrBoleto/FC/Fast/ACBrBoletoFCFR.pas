@@ -37,7 +37,7 @@ unit ACBrBoletoFCFR;
 interface
 
 uses
-  SysUtils, Classes, DB, DBClient, ACBrBase, ACBrBoleto, StrUtils, ACBrBoletoConversao, 
+  SysUtils, Classes, DB, DBClient, ACBrBase, ACBrBoleto, StrUtils, ACBrBoletoConversao,
   frxClass, frxDBSet, frxBarcode, frxExportHTML, frxExportPDF, frxExportImage;
 
 type
@@ -77,14 +77,23 @@ type
     procedure frxReportBeforePrint(Sender: TfrxReportComponent);
     procedure frxReportProgressStart(Sender: TfrxReport;
       ProgressType: TfrxProgressType; Progress: Integer);
+
   public
     { Public declarations }
+    property Report     : TfrxReport     read FfrxReport;
+    property HTMLExport : TfrxHTMLExport read FfrxHTMLExport;
+    property JPEGExport : TfrxJPEGExport read FfrxJPEGExport;
+    property PDFExport  : TfrxPDFExport  read FfrxPDFExport;
+
+
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Imprimir; override;
+    procedure Imprimir(AStream: TStream); override;
     function CarregaFastReportFile: Boolean;
     function PreparedReport: TfrxReport;
     property Titulo: TACBrTitulo read GetACBrTitulo;
+
   published
     property FastReportFile: String read fFastReportFile write fFastReportFile;
     property Impressora: String read FImpressora write FImpressora;
@@ -96,20 +105,22 @@ type
 
 implementation
 
-uses ACBrUtil, ACBrBancoBanestes, ACBrDFeReport, ACBrDelphiZXingQRCode;
+uses
+  ACBrUtil, ACBrImage, ACBrBancoBanestes, ACBrDelphiZXingQRCode;
 
 { TdmACBrBoletoFCFR }
 
 procedure TACBrBoletoFCFR.frxReportBeforePrint(Sender: TfrxReportComponent);
-var
-  emvQrCode: String;
+var emvQrCode: String;
 begin
-  emvQrCode := Trim(Titulo.QrCode.emv);
-  if Assigned(Sender) and (Trim(emvQrCode) = '') and (Sender.Name = 'ImgEmvQrcode') then
-    TfrxPictureView(Sender).Visible := False
-  else
+  emvQrCode := Trim(FcdsTitulo.FieldByName('EMV').AsString);
+
   if Assigned(Sender) and (Sender.Name = 'ImgEmvQrcode') then
-     PintarQRCode(emvQrCode, TfrxPictureView(Sender).Picture.Bitmap, qrAuto);
+  begin
+    TfrxPictureView(Sender).Visible := not (emvQrCode = '');
+    if (emvQrCode <> '') then
+      PintarQRCode(emvQrCode, TfrxPictureView(Sender).Picture.Bitmap, qrAuto);
+  end;
 end;
 
 procedure TACBrBoletoFCFR.frxReportProgressStart(Sender: TfrxReport;
@@ -132,6 +143,26 @@ begin
   frxPict := TfrxPictureView(FfrxReport.FindObject(sfrxPicture));
   if Assigned(frxPict) then
     CarregaLogo(frxPict.Picture, ACBrBoleto.Banco.Numero);
+end;
+
+procedure TACBrBoletoFCFR.Imprimir(AStream: TStream);
+var FiltroAtual : TACBrBoletoFCFiltro;
+begin
+  inherited;
+  FiltroAtual := filtro;
+  try
+    Filtro := fiPDF;
+    if Filtro <> fiPDF then
+      raise Exception.Create(ACBrStr('Impressão por Stream apenas para o Filtro PDF.'));
+
+    if (AStream <> nil) then
+      FfrxPDFExport.Stream := AStream;
+
+    Imprimir;
+  finally
+    Filtro := FiltroAtual;
+  end;
+
 end;
 
 procedure TACBrBoletoFCFR.SetDataSetsToFrxReport;
@@ -259,6 +290,7 @@ begin
   FcdsTitulo.FieldDefs.Add('TextoLivre', ftMemo, 2000);
   FcdsTitulo.FieldDefs.Add('Asbace', ftString, 40);
   FcdsTitulo.FieldDefs.Add('EMV', ftString, 500);
+  FcdsTitulo.FieldDefs.Add('ArquivoLogoEmp', ftString,300);
     // Sacado
   FcdsTitulo.FieldDefs.Add('Sacado_NomeSacado', ftString, 100);
   FcdsTitulo.FieldDefs.Add('Sacado_CNPJCPF', ftString, 18);
@@ -336,67 +368,73 @@ begin
       FfrxReport.PrintOptions.Printer := Impressora;
 
     case Filtro of
-      fiNenhum:
-        begin
-          if (MostrarPreview) and (not FModoThread) then
-          begin
-            FfrxPDFExport.Keywords      := FfrxPDFExport.Title;
-            FfrxPDFExport.Background    := IncorporarBackgroundPdf; // False diminui 70% do tamanho do pdf
-            FfrxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
-            FfrxPDFExport.Author        := SoftwareHouse;
-            FfrxPDFExport.Creator       := SoftwareHouse;
-            FfrxPDFExport.Producer      := SoftwareHouse;
-            FfrxPDFExport.Title         := 'Boleto';
-            FfrxPDFExport.Subject       := FfrxPDFExport.Title;
-            FfrxPDFExport.Keywords      := FfrxPDFExport.Title;
-            FfrxPDFExport.Background    := IncorporarBackgroundPdf; // False diminui 70% do tamanho do pdf
-            FfrxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
-
-            FfrxReport.Engine.Report.FileName := NomeArquivo; // Nome do arquivo a ser exportado
-            FfrxReport.ShowReport(false)
-          end else
-            FfrxReport.Print;
-        end;
-      fiPDF:
+      fiPDF, fiNenhum:
         begin
           if FModoThread then
           begin
-            FfrxPDFExport.ShowDialog := False;
+            FfrxPDFExport.ShowDialog   := False;
             FfrxPDFExport.ShowProgress := False;
           end
           else
           begin
-            FfrxPDFExport.ShowDialog := MostrarSetup;
+            FfrxPDFExport.ShowDialog   := MostrarSetup;
             FfrxPDFExport.ShowProgress := MostrarProgresso;
           end;
-          FfrxPDFExport.FileName := NomeArquivo;
-          FfrxPDFExport.Author := SoftwareHouse;
-          FfrxPDFExport.Creator := SoftwareHouse;
-          FfrxPDFExport.Producer := SoftwareHouse;
-          FfrxPDFExport.Title := 'Boleto';
-          FfrxPDFExport.Subject := FfrxPDFExport.Title;
-          FfrxPDFExport.Keywords := FfrxPDFExport.Title;
-          FfrxPDFExport.Background := IncorporarBackgroundPdf;//False diminui 70% do tamanho do pdf
+
+          if EstaVazio(FfrxPDFExport.FileName) then
+            FfrxPDFExport.FileName := NomeArquivo;
+          if EstaVazio(FfrxPDFExport.Author) then
+            FfrxPDFExport.Author   := SoftwareHouse;
+          if EstaVazio(FfrxPDFExport.Creator) then
+            FfrxPDFExport.Creator  := SoftwareHouse;
+          if EstaVazio(FfrxPDFExport.Producer) then
+            FfrxPDFExport.Producer := SoftwareHouse;
+          if EstaVazio(FfrxPDFExport.Title) then
+            FfrxPDFExport.Title    := 'Boleto';
+          if EstaVazio(FfrxPDFExport.Subject) then
+            FfrxPDFExport.Subject  := FfrxPDFExport.Title;
+          if EstaVazio(FfrxPDFExport.Keywords) then
+            FfrxPDFExport.Keywords := FfrxPDFExport.Title;
+
+          FfrxPDFExport.Background    := IncorporarBackgroundPdf;//False diminui 70% do tamanho do pdf
           FfrxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
-          FfrxPDFExport.UserPassword := PdfSenha;
-          if NaoEstaVazio(FfrxPDFExport.UserPassword) then
-            FfrxPDFExport.ProtectionFlags := [ePrint];
-          FfrxReport.Export(FfrxPDFExport);
+
+          if EstaVazio(FfrxPDFExport.UserPassword) then
+          begin
+            FfrxPDFExport.UserPassword    := PdfSenha;
+            if NaoEstaVazio(FfrxPDFExport.UserPassword) then
+              FfrxPDFExport.ProtectionFlags := [ePrint];
+          end;
+
+          if Filtro = fiNenhum then
+          begin
+            if (MostrarPreview) and (not FModoThread) then
+              FfrxReport.ShowReport(false)
+            else
+              FfrxReport.Print;
+          end else
+            FfrxReport.Export(FfrxPDFExport);
+
           if FfrxPDFExport.FileName <> NomeArquivo then
             NomeArquivo := FfrxPDFExport.FileName;
         end;
       fiHTML:
         begin
-          FfrxHTMLExport.FileName := NomeArquivo;
-          FfrxHTMLExport.ShowDialog := MostrarSetup;
+          if EstaVazio(FfrxHTMLExport.FileName)then
+            FfrxHTMLExport.FileName     := NomeArquivo;
+
+          FfrxHTMLExport.ShowDialog   := MostrarSetup;
           FfrxHTMLExport.ShowProgress := MostrarSetup;
+
           FfrxReport.Export(FfrxHTMLExport);
           if FfrxHTMLExport.FileName <> NomeArquivo then
             NomeArquivo := FfrxHTMLExport.FileName;
         end;
       fiJPG:
         begin
-          FfrxJPEGExport.FileName      := NomeArquivo;
+          if EstaVazio(FfrxJPEGExport.FileName) then
+            FfrxJPEGExport.FileName      := NomeArquivo;
+
           FfrxJPEGExport.ShowDialog    := False;
           FfrxJPEGExport.ShowProgress  := True;
           FfrxJPEGExport.Monochrome    := True;
@@ -522,6 +560,7 @@ var
   Field_TextoLivre: TField;
   Field_Asbace: TField;
   Field_EMV: TField;
+  Field_ArquivoLogoEmp: TField;
 
   // Sacado
   Field_Sacado_NomeSacado: TField;
@@ -592,6 +631,8 @@ var
         if ACBrBoleto.Banco.Numero = 21 then
           Field_Asbace.AsString := TACBrBancoBanestes(Banco).CalcularCampoASBACE(ListadeBoletos[Indice]);
         Field_EMV.AsString := ListadeBoletos[Indice].QrCode.emv;
+        Field_ArquivoLogoEmp.AsString := ListadeBoletos[Indice].ArquivoLogoEmp;
+
         // Sacado
         Field_Sacado_NomeSacado.AsString := ListadeBoletos[Indice].Sacado.NomeSacado;
         Field_Sacado_CNPJCPF.AsString := ListadeBoletos[Indice].Sacado.CNPJCPF;
@@ -689,6 +730,7 @@ begin
       Field_TextoLivre := FieldByName('TextoLivre');
       Field_Asbace := FieldByName('Asbace');
       Field_EMV := FieldByName('EMV');
+      Field_ArquivoLogoEmp := FieldByName('ArquivoLogoEmp');
 
       // Sacado
       Field_Sacado_NomeSacado := FieldByName('Sacado_NomeSacado');
@@ -716,3 +758,4 @@ begin
 end;
 
 end.
+

@@ -40,9 +40,10 @@ uses
   Classes, SysUtils, ACBrBase, ACBrSATExtratoClass, ACBrSATExtratoReportClass, pcnCFe,
   pcnCFeCanc, pcnConversao, DB, DBClient, frxClass, frxExportPDF, frxDBSet, frxBarcode,
   frxExportHTML;
+
 type
  TTipoImpressao = (tiNormal,tiResumido,tiCancelado);
-type
+
   EACBrSATExtratoFR = class(Exception);
 
   { TACBrSATExtratoFR }
@@ -97,7 +98,7 @@ type
     procedure SetExportStream(const Value: TMemoryStream);
   protected
     procedure Imprimir;
-    procedure ImprimirExtratoPDF(AStream : TMemoryStream = nil);
+    procedure ImprimirExtratoPDF(AStream : TStream = nil);
     procedure ImprimirExtratoHTML;
 
   public
@@ -115,7 +116,9 @@ type
 implementation
 
 uses
-  ACBrDFeReport, ACBrValidador, StrUtils, ACBrDelphiZXingQRCode, ACBrUtil, ACBrDFeUtil, ACBrSAT;
+  StrUtils,
+  ACBrDFeUtil, ACBrSAT,
+  ACBrValidador, ACBrUtil, ACBrImage, ACBrDelphiZXingQRCode;
 
 { TACBrSATExtratoFR }
 
@@ -370,14 +373,11 @@ begin
   FPArquivoPDF := frxHTMLExport.FileName;
 end;
 
-procedure TACBrSATExtratoFR.ImprimirExtratoPDF(AStream : TMemoryStream = nil);
+procedure TACBrSATExtratoFR.ImprimirExtratoPDF(AStream : TStream = nil);
 begin
-  if AStream <> nil then
-  begin
+  if (AStream <> nil) then
     frxPDFExport.Stream := AStream;
-    AStream.Position    := 0;
-    AStream.Clear;
-  end;
+
   frxPDFExport.ShowDialog        := false;
   frxPDFExport.ShowProgress      := MostraStatus;
   frxPDFExport.Author            := Sistema;

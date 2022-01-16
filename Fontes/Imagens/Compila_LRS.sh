@@ -22,7 +22,7 @@ echo "****************************************"
 echo
 
 :OpenSSL
-$LAZRES ACBrOpenSSL.lrs TACBrEAD.png
+$LAZRES ACBrOpenSSL.lrs TACBrEAD.png TACBrOpenSSLUtils.png
 mv ACBrOpenSSL.lrs ../ACBrOpenSSL
 echo
 echo "****************************************"
@@ -54,6 +54,15 @@ mv ACBrTEFD.lrs ../ACBrTEFD
 echo
 echo "****************************************"
 echo "* Arquivo   ACBrTEFD.lrs   gerado      *"
+echo "****************************************"
+echo
+
+:PIXCD
+$LAZRES ACBrPIXCD.lrs TACBrPixCD.png TACBrPSPItau.png TACBrPSPBancoDoBrasil.png TACBrPSPSantander.png
+mv ACBrPIXCD.lrs ../ACBrPIXCD
+echo
+echo "****************************************"
+echo "* Arquivo   ACBrPIXCD.lrs   gerado     *"
 echo "****************************************"
 echo
 

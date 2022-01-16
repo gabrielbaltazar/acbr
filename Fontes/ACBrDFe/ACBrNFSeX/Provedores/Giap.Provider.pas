@@ -187,11 +187,11 @@ begin
   for I := Low(ANodeArray) to High(ANodeArray) do
   begin
     AErro := Response.Erros.New;
-    AErro.Codigo := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('Erro'), tcStr);
-    AErro.Descricao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('Status'), tcStr);
+    AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Erro'), tcStr);
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Status'), tcStr);
 
     if AErro.Descricao = '' then
-      AErro.Descricao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
 
     AErro.Correcao := '';
   end;
@@ -205,7 +205,7 @@ end;
 procedure TACBrNFSeProviderGiap.GerarMsgDadosEmitir(
   Response: TNFSeEmiteResponse; Params: TNFSeParamsResponse);
 begin
-  Response.XmlEnvio := '<nfe>' + Params.Xml + '</nfe>';
+  Response.ArquivoEnvio := '<nfe>' + Params.Xml + '</nfe>';
 end;
 
 procedure TACBrNFSeProviderGiap.TratarRetornoEmitir(Response: TNFSeEmiteResponse);
@@ -222,7 +222,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -230,7 +230,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, '', 'Msg');
 
@@ -264,13 +264,13 @@ begin
 
         with Response do
         begin
-          NumeroNota := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('numeroNota'), tcStr);
-          CodVerificacao := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
-          Situacao := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('statusEmissao'), tcStr);
-          Link := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('link'), tcStr);
+          NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroNota'), tcStr);
+          CodVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
+          Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('statusEmissao'), tcStr);
+          Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('link'), tcStr);
         end;
 
-        NumRps := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('numeroRps'), tcStr);
+        NumRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroRps'), tcStr);
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
@@ -313,7 +313,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<consulta>' +
+  Response.ArquivoEnvio := '<consulta>' +
                           '<inscricaoMunicipal>' +
                             OnlyNumber(Emitente.InscMun) +
                           '</inscricaoMunicipal>' +
@@ -341,7 +341,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -349,7 +349,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, '', 'Msg');
 
@@ -359,8 +359,8 @@ begin
 
       if ANode <> nil then
       begin
-        Response.Situacao := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('notaExiste'), tcStr);
-        Response.NumeroNota := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('numeroNota'), tcStr);
+        Response.Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('notaExiste'), tcStr);
+        Response.NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroNota'), tcStr);
       end;
     except
       on E:Exception do
@@ -396,7 +396,7 @@ begin
     Exit;
   end;
 
-  Response.XmlEnvio := '<nfe>' +
+  Response.ArquivoEnvio := '<nfe>' +
                          '<cancelaNota>' +
                            '<codigoMotivo>' +
                               Response.InfCancelamento.CodCancelamento +
@@ -423,7 +423,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -431,7 +431,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, '', 'Msg');
 
@@ -439,7 +439,7 @@ begin
 
       ANode := Document.Root;
 
-      Response.Lote := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('NumeroLote'), tcStr);
+      Response.Lote := ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroLote'), tcStr);
 
       ANodeArray := ANode.Childrens.FindAllAnyNs('Nfse');
 
@@ -458,7 +458,7 @@ begin
         AuxNode := AuxNode.Childrens.FindAnyNs('NumeroRps');
 
         if AuxNode <> nil then
-          NumRps := ProcessarConteudoXml(AuxNode, tcStr);
+          NumRps := ObterConteudoTag(AuxNode, tcStr);
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 

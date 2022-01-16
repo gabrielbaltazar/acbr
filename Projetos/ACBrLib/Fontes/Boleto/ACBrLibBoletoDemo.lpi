@@ -19,7 +19,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="2"/>
-      <BuildNr Value="131"/>
+      <BuildNr Value="143"/>
       <Language Value="0416"/>
       <Attributes pvaPreRelease="True"/>
       <StringTable CompanyName="Projeto ACBr" FileDescription="ACBrLibBoleto - Biblioteca para geração de Arquivos de Remessa e Retorno, e impressão de Boletos" InternalName="ACBrLibBoleto" LegalTrademarks="Projeto ACBr" ProductVersion="0.0.0.0"/>
@@ -497,24 +497,18 @@
         </Mode0>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="5">
+    <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="ACBrTCP"/>
+        <PackageName Value="ACBr_BoletoFC_Fortes"/>
       </Item1>
       <Item2>
-        <PackageName Value="ACBrSerial"/>
+        <PackageName Value="ACBr_Boleto"/>
       </Item2>
       <Item3>
-        <PackageName Value="ACBr_BoletoFC_Fortes"/>
-      </Item3>
-      <Item4>
-        <PackageName Value="ACBr_Boleto"/>
-      </Item4>
-      <Item5>
         <PackageName Value="LCL"/>
-      </Item5>
+      </Item3>
     </RequiredPackages>
-    <Units Count="13">
+    <Units Count="14">
       <Unit0>
         <Filename Value="ACBrLibBoleto.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -570,6 +564,10 @@
         <Filename Value="ACBrLibBoletoRespostas.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit12>
+      <Unit13>
+        <Filename Value="..\Comum\ACBrLibDataModule.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit13>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

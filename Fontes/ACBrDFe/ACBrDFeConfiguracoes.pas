@@ -880,19 +880,20 @@ end;
 
 function TWebServicesConf.LerParamsIniServicos: AnsiString;
 var
-  SL: TStringList;
+  ArqIni: String;
+  FS: TFileStream;
 begin
   Result := '';
+  ArqIni := Trim(fpConfiguracoes.Arquivos.IniServicos);
 
-  if (fpConfiguracoes.Arquivos.IniServicos <> '') and
-    FileExists(fpConfiguracoes.Arquivos.IniServicos) then
+  if (ArqIni <> '') and FileExists(ArqIni) then
   begin
-    SL := TStringList.Create;
+    FS := TFileStream.Create(ArqIni, fmOpenRead or fmShareDenyNone);  // Thread Safe
     try
-      SL.LoadFromFile(fpConfiguracoes.Arquivos.IniServicos);
-      Result := SL.Text;
+      FS.Position := 0;
+      Result := ReadStrFromStream(FS, FS.Size);
     finally
-      SL.Free;
+      FS.Free;
     end;
   end;
 end;
@@ -1038,17 +1039,12 @@ procedure TCertificadosConf.GravarIni(const AIni: TCustomIniFile);
 begin
   AIni.WriteString(CDFeSessaoIni, 'URLPFX', URLPFX);
   AIni.WriteString(CDFeSessaoIni, 'ArquivoPFX', ArquivoPFX);
+  AIni.WriteString(CDFeSessaoIni, 'DadosPFX', EncodeBase64(DadosPFX));
 
   if NaoEstaVazio(fpConfiguracoes.ChaveCryptINI) then
-  begin
-    AIni.WriteString(CDFeSessaoIni, 'DadosPFX', EncodeBase64(StrCrypt(DadosPFX, fpConfiguracoes.ChaveCryptINI)));
-    AIni.WriteString(CDFeSessaoIni, 'Senha', EncodeBase64(StrCrypt(Senha, fpConfiguracoes.ChaveCryptINI)));
-  end
+    AIni.WriteString(CDFeSessaoIni, 'Senha', EncodeBase64(StrCrypt(Senha, fpConfiguracoes.ChaveCryptINI)))
   else
-  begin
-    AIni.WriteString(CDFeSessaoIni, 'DadosPFX', EncodeBase64(DadosPFX));
     AIni.WriteString(CDFeSessaoIni, 'Senha', EncodeBase64(Senha));
-  end;
 
   AIni.WriteString(CDFeSessaoIni, 'NumeroSerie', NumeroSerie);
   AIni.WriteBool(CDFeSessaoIni, 'VerificarValidade', VerificarValidade);
@@ -1058,17 +1054,12 @@ procedure TCertificadosConf.LerIni(const AIni: TCustomIniFile);
 begin
   URLPFX := AIni.ReadString(CDFeSessaoIni, 'URLPFX', URLPFX);
   ArquivoPFX := AIni.ReadString(CDFeSessaoIni, 'ArquivoPFX', ArquivoPFX);
+  DadosPFX := DecodeBase64( AIni.ReadString(CDFeSessaoIni, 'DadosPFX', ''));
 
   if NaoEstaVazio(fpConfiguracoes.ChaveCryptINI) then
-  begin
-    DadosPFX := StrCrypt( DecodeBase64(AIni.ReadString(CDFeSessaoIni, 'DadosPFX', '')), fpConfiguracoes.ChaveCryptINI);
-    Senha := StrCrypt( DecodeBase64(AIni.ReadString(CDFeSessaoIni, 'Senha', '')), fpConfiguracoes.ChaveCryptINI);
-  end
+    Senha := StrCrypt( DecodeBase64(AIni.ReadString(CDFeSessaoIni, 'Senha', '')), fpConfiguracoes.ChaveCryptINI)
   else
-  begin
-    DadosPFX := DecodeBase64( AIni.ReadString(CDFeSessaoIni, 'DadosPFX', ''));
     Senha := DecodeBase64( AIni.ReadString(CDFeSessaoIni, 'Senha', ''));
-  end;
 
   NumeroSerie := AIni.ReadString(CDFeSessaoIni, 'NumeroSerie', NumeroSerie);
   VerificarValidade := AIni.ReadBool(CDFeSessaoIni, 'VerificarValidade', VerificarValidade);

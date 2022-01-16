@@ -251,6 +251,7 @@ function FloatToString(const AValue: Double; SeparadorDecimal: Char = '.';
 function FormatFloatBr(const AValue: Extended; AFormat: String = ''): String; overload;
 function FormatFloatBr(const AFormat: TFormatMask; const AValue: Extended): String; overload;
 function FloatMask(const DecimalDigits: SmallInt = 2; UseThousandSeparator: Boolean = True): String;
+function StringDecimalToFloat(const AValue: String; const DecimalDigits: SmallInt = 2): Double;
 Function StringToFloat(NumString : String): Double;
 Function StringToFloatDef( const NumString : String ;
    const DefaultValue : Double ) : Double ;
@@ -995,8 +996,8 @@ end ;
  ---------------------------------------------------------------------------- }
 function IntToLEStr(AInteger: Integer; BytesStr: Integer): AnsiString;
 var
-   AHexStr: String;
-   LenHex, P, DecVal: Integer;
+  AHexStr: String;
+  LenHex, P, DecVal: Integer;
 begin
   LenHex  := BytesStr * 2 ;
   AHexStr := IntToHex(AInteger,LenHex);
@@ -1807,7 +1808,7 @@ begin
     NumString := StringReplace(NumString, DS, '', []);
 
   Result := StrToFloat(NumString);
-end ;
+end;
 
 {-----------------------------------------------------------------------------
   Converte um Double para string, SEM o separator decimal, considerando as
@@ -1820,6 +1821,25 @@ var
 begin
   Pow    := intpower(10, abs(DecimalDigits) );
   Result := IntToStr( Trunc( SimpleRoundTo( AValue * Pow ,0) ) ) ;
+end;
+
+{-----------------------------------------------------------------------------
+  Converte um String, SEM separador decimal, para Double, considerando a
+  parte final da String como as decimais. Ex: 10000 = "100,00"; 123 = "1,23"
+ ---------------------------------------------------------------------------- }
+function StringDecimalToFloat(const AValue: String; const DecimalDigits: SmallInt): Double;
+var
+  iTam: Integer;
+  sValue: String;
+begin
+  sValue := AValue;
+  iTam   := LengthNativeString(sValue);
+  if (iTam < DecimalDigits) then
+    sValue := StringOfChar('0', (DecimalDigits - iTam)) + sValue;
+
+  sValue := ReverseString(sValue);
+  Insert({$IFDEF HAS_FORMATSETTINGS}FormatSettings.{$ENDIF}DecimalSeparator, sValue, DecimalDigits+1);
+  Result := StrToFloat(ReverseString(sValue));
 end;
 
 {-----------------------------------------------------------------------------
@@ -2053,7 +2073,7 @@ end ;
 
 function Iso8601ToDateTime(const AISODate: string): TDateTime;
 var
-  y, m, d, h, n, s: word;
+  y, m, d, h, n, s, z: word;
 begin
   y := StrToInt(Copy(AISODate, 1, 4));
   m := StrToInt(Copy(AISODate, 6, 2));
@@ -2061,8 +2081,9 @@ begin
   h := StrToInt(Copy(AISODate, 12, 2));
   n := StrToInt(Copy(AISODate, 15, 2));
   s := StrToInt(Copy(AISODate, 18, 2));
+  z := StrToIntDef(Copy(AISODate, 21, 3), 0);
 
-  Result := EncodeDateTime(y,m,d, h,n,s,0);
+  Result := EncodeDateTime(y,m,d, h,n,s,z);
 end;
 
 function DateTimeToIso8601(ADate: TDateTime; const ATimeZone: string = ''): string;
@@ -2980,7 +3001,7 @@ begin
         AFileName := APath + LastFile;
         if (SortType = fstDateTime) then
         begin
-          {$IfDef FMX}
+          {$IfDef DELPHIXE_UP}
             AFileDateTime := SearchRec.TimeStamp;
           {$Else}
             AFileDateTime := FileDateToDateTime(SearchRec.Time);

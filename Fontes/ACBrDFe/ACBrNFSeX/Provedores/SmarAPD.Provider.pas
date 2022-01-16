@@ -245,7 +245,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := '';
-      AErro.Descricao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('return'), tcStr);
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('return'), tcStr);
       AErro.Correcao := '';
 
       if AErro.Descricao = '' then
@@ -253,8 +253,8 @@ begin
     end
     else
     begin
-      Codigo := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-      Descricao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr);
+      Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
+      Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr);
 
       if (Codigo <> '') and (Descricao <> '') then
       begin
@@ -279,7 +279,7 @@ end;
 procedure TACBrNFSeProviderSmarAPD.GerarMsgDadosEmitir(
   Response: TNFSeEmiteResponse; Params: TNFSeParamsResponse);
 begin
-  Response.XmlEnvio := '<tbnfd>' + Params.Xml + '</tbnfd>';
+  Response.ArquivoEnvio := '<tbnfd>' + Params.Xml + '</tbnfd>';
 end;
 
 procedure TACBrNFSeProviderSmarAPD.TratarRetornoEmitir(
@@ -295,7 +295,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -303,7 +303,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, '', 'return');
 
@@ -323,13 +323,13 @@ begin
 
           if AuxNode <> nil then
           begin
-            Response.Protocolo := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('codrecibo'), tcStr);
+            Response.Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('codrecibo'), tcStr);
 
             with Response do
             begin
-              Data := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('datahora'), tcDatHor);
-              Protocolo := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('codrecibo'), tcStr);
-              xSucesso := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
+              Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('datahora'), tcDatHor);
+              Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('codrecibo'), tcStr);
+              xSucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
               Sucesso := not (xSucesso = 'N');
             end;
           end;
@@ -361,7 +361,7 @@ begin
     Exit;
   end;
 
-  Response.XmlEnvio := '<recibo>' +
+  Response.ArquivoEnvio := '<recibo>' +
                          '<codrecibo>' + Response.Protocolo + '</codrecibo>' +
                        '</recibo>';
 end;
@@ -381,7 +381,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -389,7 +389,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, '', 'return');
 
@@ -417,7 +417,7 @@ begin
 
         if AuxNode <> nil then
         begin
-          NumNFSe := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('NumeroNota'), tcStr);
+          NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroNota'), tcStr);
 
           Response.NumeroNota := NumNFSe;
 
@@ -471,7 +471,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<nfd>' +
+  Response.ArquivoEnvio := '<nfd>' +
                          '<inscricaomunicipalemissor>' +
                            OnlyNumber(Emitente.InscMun) +
                          '</inscricaomunicipalemissor>' +
@@ -498,7 +498,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -506,7 +506,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, '', 'return');
 
@@ -520,7 +520,7 @@ begin
       begin
         with Response do
         begin
-          Sucesso := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
+          Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
         end;
       end;
       }
@@ -544,7 +544,9 @@ begin
   with TACBrNFSeX(FPDFeOwner).Configuracoes.Geral do
   begin
     Result := '<cpfUsuario>' + Emitente.WSUser + '</cpfUsuario>' +
-              '<hashSenha>' + EncodeBase64(SHA1(Emitente.WSSenha)) + '</hashSenha>';
+              '<hashSenha>' +
+                string(EncodeBase64(SHA1(AnsiString(Emitente.WSSenha)))) +
+              '</hashSenha>';
   end;
 end;
 

@@ -39,6 +39,52 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+13/01/2022
+-- ACBrXmlBase --
+[+] Inclusão do tipo: TACBrTipoEmissao e das funções:TipoEmissaoToStr,
+    StrToTipoEmissao, TipoAmbienteToStr e StrToTipoAmbiente.
+   Por: Italo Giurizzato Junior
+
+04/01/2022
+-- ACBrXmlBase/ACBrXmlWrite --
+[*] Ajustes para suportar valores Int64.
+   Por: Italo Giurizzato Junior
+
+30/12/2021
+-- ACBrXmlBase --
+[*] Alteração na função StrToXml para trocar o <br> por ;
+   Por: Italo Giurizzato Junior
+
+20/12/2021
+-- ACBrXmlBase --
+[*] Alteração do nome da função de ProcessarConteudoXml para ObterConteudoTag.
+   Por: Italo Giurizzato Junior
+-- ACBrXmlReader --
+[*] Alteração do nome da função de ProcessarCNPJCPF e ProcessarConteudo para 
+    ObterCNPJCPF e ObterConteudo respectivamente.
+   Por: Italo Giurizzato Junior
+
+17/12/2021
+-- ACBrDFeConfiguracoes --
+[*] Ajuste em "TWebServicesConf.LerParamsIniServicos", para ficar mais amigável
+    em ambientes Multi-Thread
+    (por: DSA)
+
+16/12/2021
+-- ACBrXmlBase --
+[+] Implementado a leitura de atributos em um XML.
+  Por: Italo Giurizzato Junior
+
+08/12/2021
+-- ACBrXmlBase --
+[*] Possível correção para o AV que ocorria ao ler uma tag numérica ausente no XML.
+  Por: Italo Giurizzato Junior
+
+07/12/2021
+-- ACBrXmlBase/ACBrXmlDocument --
+[*] Melhoria na leitura de valores decimais.
+  Por: Italo Giurizzato Junior
+
 11/11/2021
 -- ACBrXmlBase --
 [*] Melhoria na leitura de data de competencia.

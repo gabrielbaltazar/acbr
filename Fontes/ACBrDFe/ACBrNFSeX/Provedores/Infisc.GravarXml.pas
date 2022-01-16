@@ -103,6 +103,9 @@ type
 
 implementation
 
+uses
+  ACBrNFSeXProviderBase;
+
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
 //     Infisc
@@ -116,7 +119,7 @@ var
 begin
   Configuracao;
 
-  Opcoes.QuebraLinha := FAOwner.ConfigGeral.QuebradeLinha;
+  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -369,7 +372,7 @@ begin
     Result := CreateElement('prest');
 
   Result.AppendChild(AddNode(tcStr, '#1', 'CNPJ', 1, 14, 1,
-                               NFSe.Prestador.IdentificacaoPrestador.Cnpj, ''));
+                            NFSe.Prestador.IdentificacaoPrestador.CpfCnpj, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'xNome', 1, 100, 1,
                                                NFSe.Prestador.RazaoSocial, ''));
@@ -508,7 +511,7 @@ end;
 
 begin
   cUF := IntToStr(UFtoCUF(NFSe.Prestador.Endereco.UF));
-  CNPJ := Poem_Zeros(OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.Cnpj), 14);
+  CNPJ := Poem_Zeros(OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.CpfCnpj), 14);
   Modelo :=  NFSe.ModeloNFSe;
   aSerie := Poem_Zeros(UpperCase(NFSE.SeriePrestacao), 3);
   Numero := Poem_Zeros(NFSe.Numero, 9);
@@ -560,13 +563,15 @@ begin
   if FPVersao = ve101 then
   begin
     Result.AppendChild(AddNode(tcStr, '#1', 'cancelada', 1, 1, 1,
-                                        SimNaoToStr(NFSe.Cancelada, proInfisc), ''));
+                 TACBrNFSeXProvider(FpAOwner).SimNaoToStr(NFSe.Cancelada), ''));
 
     Result.AppendChild(AddNode(tcStr, '#1', 'canhoto', 1, 1, 1,
                                                CanhotoToStr(NFSe.Canhoto), ''));
 
-    Result.AppendChild(AddNode(tcStr, '#1', 'ambienteEmi', 1, 1, 1,
-                                               SimNaoToStr(NFSe.Producao), ''));
+    if NFSe.Producao = snSim then
+      Result.AppendChild(AddNode(tcStr, '#1', 'ambienteEmi', 1, 1, 1, '1', ''))
+    else
+      Result.AppendChild(AddNode(tcStr, '#1', 'ambienteEmi', 1, 1, 1, '2', ''));
 
     Result.AppendChild(AddNode(tcStr, '#1', 'formaEmi', 1, 1, 1, '2', ''));
 
@@ -586,7 +591,7 @@ begin
   Result := CreateElement('infNFSe');
 
 //  if FPVersao = ve101 then
-    Result.SetAttribute('versao', FAOwner.ConfigWebServices.VersaoDados);
+    Result.SetAttribute('versao', FpAOwner.ConfigWebServices.VersaoDados);
 
   xmlNode := GerarID;
   Result.AppendChild(xmlNode);

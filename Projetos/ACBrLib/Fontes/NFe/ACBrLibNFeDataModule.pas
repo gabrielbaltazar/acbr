@@ -51,7 +51,6 @@ type
     ACBrMail1: TACBrMail;
     ACBrNFe1: TACBrNFe;
     ACBrPosPrinter1: TACBrPosPrinter;
-
   private
     DANFCeFortes: TACBrNFeDANFCeFortes;
     DANFCeA4: TACBrNFeDANFCeFortesA4;
@@ -90,6 +89,7 @@ begin
   ACBrNFe1.Configuracoes.Assign(pLibConfig.NFe);
 
 {$IFDEF Demo}
+  GravarLog('Modo DEMO - Forçando ambiente para Homologação', logNormal);
   ACBrNFe1.Configuracoes.WebServices.Ambiente := taHomologacao;
 {$ENDIF}
 

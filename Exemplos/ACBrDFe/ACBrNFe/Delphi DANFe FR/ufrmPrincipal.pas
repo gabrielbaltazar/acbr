@@ -1,48 +1,48 @@
-{ ****************************************************************************** }
-{ Projeto: Demo para impressão de DANFe, Carta Correção e Inutlização em }
-{ Fast-Report }
-{ }
-{ Direitos Autorais Reservados (c) 2016 Juliomar Marchetti }
-{ }
-{ Colaboradores nesse arquivo: }
-{ }
-{ Você pode obter a última versão desse arquivo na pagina do Projeto ACBr }
-{ Componentes localizado em http://www.sourceforge.net/projects/acbr }
-{ }
-{ }
-{ Esta biblioteca é software livre; você pode redistribuí-la e/ou modificá-la }
-{ sob os termos da Licença Pública Geral Menor do GNU conforme publicada pela }
+{******************************************************************************}
+{ Projeto: Componentes ACBr                                                    }
+{  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
+{ mentos de Automação Comercial utilizados no Brasil                           }
+{                                                                              }
+{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{																			   }
+{ Colaboradores nesse arquivo: Juliomar Marchetti                              }
+{																			   }
+{  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
+{ Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
+{                                                                              }
+{  Esta biblioteca é software livre; você pode redistribuí-la e/ou modificá-la }
+{ sob os termos da Licença Pública Geral Menor do GNU conforme publicada pela  }
 { Free Software Foundation; tanto a versão 2.1 da Licença, ou (a seu critério) }
-{ qualquer versão posterior. }
-{ }
-{ Esta biblioteca é distribuída na expectativa de que seja útil, porém, SEM }
-{ NENHUMA GARANTIA; nem mesmo a garantia implícita de COMERCIABILIDADE OU }
-{ ADEQUAÇÃO A UMA FINALIDADE ESPECÍFICA. Consulte a Licença Pública Geral Menor }
-{ do GNU para mais detalhes. (Arquivo LICENÇA.TXT ou LICENSE.TXT) }
-{ }
-{ Você deve ter recebido uma cópia da Licença Pública Geral Menor do GNU junto }
-{ com esta biblioteca; se não, escreva para a Free Software Foundation, Inc., }
-{ no endereço 59 Temple Street, Suite 330, Boston, MA 02111-1307 USA. }
-{ Você também pode obter uma copia da licença em: }
-{ http://www.opensource.org/licenses/lgpl-license.php }
-{ }
-{ Daniel Simões de Almeida  -  daniel@djsystem.com.br  -  www.djsystem.com.br }
-{ Praça Anita Costa, 34 - Tatuí - SP - 18270-410 }
-{ }
-{ ****************************************************************************** }
+{ qualquer versão posterior.                                                   }
+{                                                                              }
+{  Esta biblioteca é distribuída na expectativa de que seja útil, porém, SEM   }
+{ NENHUMA GARANTIA; nem mesmo a garantia implícita de COMERCIABILIDADE OU      }
+{ ADEQUAÇÃO A UMA FINALIDADE ESPECÍFICA. Consulte a Licença Pública Geral Menor}
+{ do GNU para mais detalhes. (Arquivo LICENÇA.TXT ou LICENSE.TXT)              }
+{                                                                              }
+{  Você deve ter recebido uma cópia da Licença Pública Geral Menor do GNU junto}
+{ com esta biblioteca; se não, escreva para a Free Software Foundation, Inc.,  }
+{ no endereço 59 Temple Street, Suite 330, Boston, MA 02111-1307 USA.          }
+{ Você também pode obter uma copia da licença em:                              }
+{ http://www.opensource.org/licenses/lgpl-license.php                          }
+{                                                                              }
+{ Daniel Simões de Almeida - daniel@projetoacbr.com.br - www.projetoacbr.com.br}
+{       Rua Coronel Aureliano de Camargo, 963 - Tatuí - SP - 18270-170         }
+{******************************************************************************}
 
-{ ******************************************************************************
-  |* Historico
-  ****************************************************************************** }
 unit ufrmPrincipal;
+
+{$I ACBr_jedi.inc}
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, System.IOUtils, pcnConversao,
-  ACBrNFeDANFEFRDM, ACBrNFeDANFEClass, ACBrNFeDANFEFR, ACBrBase, ACBrDFe, ACBrNFe, frxClass, AcbrUtil,
-  Vcl.ComCtrls, ACBrDFeReport, ACBrDFeDANFeReport;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ComCtrls, ExtCtrls,
+  ACBrUtil, ACBrBase, ACBrDFe, ACBrNFe,
+  ACBrDFeReport, ACBrDFeDANFeReport, ACBrNFeDANFEClass, ACBrNFeDANFEFR, ACBrNFeDANFEFRDM,
+  frxClass
+  ;
 
 type
   TfrmPrincipal = class(TForm)
@@ -95,6 +95,8 @@ type
     ACBrNFeDANFEFR1: TACBrNFeDANFEFR;
     ACBrNFeDANFCEFR1: TACBrNFeDANFCEFR;
     ACBrNFe1: TACBrNFe;
+    Label11: TLabel;
+    cbExibeCampoDePagamento: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure btncarregarClick(Sender: TObject);
     procedure btnImprimirClick(Sender: TObject);
@@ -115,6 +117,9 @@ var
   frmPrincipal: TfrmPrincipal;
 
 implementation
+
+uses
+  pcnConversao, pcnConversaoNFe;
 
 {$R *.dfm}
 
@@ -188,11 +193,27 @@ end;
 
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 var
+  {$IFDEF DELPHIXE6_UP}
   fsFiles: string;
+  {$ELSE}
+  SR: TSearchRec;
+  {$ENDIF}
 begin
+  {$IFDEF DELPHIXE6_UP}
   for fsFiles in TDirectory.GetFiles('..\Delphi\Report\') do
     if Pos('.fr3', LowerCase(fsFiles)) > 0 then
       lstbxFR3.AddItem(fsFiles, nil);
+  {$ELSE}
+  if FindFirst('..\Delphi\Report\*.fr3', faArchive, SR) = 0 then
+    try
+      repeat
+        if (SR.Attr and faDirectory) = 0 then
+          lstbxFR3.AddItem('..\Delphi\Report\' + SR.Name, nil)
+      until FindNext(SR) <> 0;
+    finally
+      FindClose(SR);
+    end;
+  {$ENDIF}
 
   Initializao;
 end;
@@ -293,6 +314,8 @@ begin
   ACBrNFeDANFEFR1.QuebraLinhaEmDetalhamentos := ChkQuebraLinhaEmDetalhamentos.Checked;
     // Mostra Layout do Canhoto
   ACBrNFeDANFEFR1.PosCanhotoLayout := TPosReciboLayout(cbPosCanhotoLayout.ItemIndex);
+  // informações de pagamentos
+  ACBrNFeDANFEFR1.ExibeCampoDePagamento := TpcnInformacoesDePagamento(cbExibeCampoDePagamento.ItemIndex);
 
 end;
 

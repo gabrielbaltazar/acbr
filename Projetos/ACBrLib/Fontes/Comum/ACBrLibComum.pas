@@ -162,6 +162,8 @@ function LerArquivoParaString(AArquivo: String): AnsiString;
 function StringToB64Crypt(AString: String; AChave: AnsiString = ''): String;
 function B64CryptToString(ABase64Str: String; AChave: AnsiString = ''): String;
 
+function StreamToBase64(AStream: TStream):AnsiString;
+
 function StringEhXML(AString: String): Boolean;
 function StringEhINI(AString: String): Boolean;
 function StringEhArquivo(AString: String): Boolean;
@@ -213,6 +215,8 @@ begin
   FormatSettings.LongTimeFormat := 'hh:nn:ss';
   FormatSettings.DateSeparator := '/';
   FormatSettings.TimeSeparator := ':';
+  FormatSettings.DecimalSeparator := ',';
+  FormatSettings.ThousandSeparator := '.';
 
 {$IFDEF Demo}
   if not Assigned(FPDemo) then
@@ -225,6 +229,11 @@ end;
 destructor TACBrLib.Destroy;
 begin
   GravarLog('LIB_Finalizar', logSimples);
+
+{$IFDEF Demo}
+  if Assigned(FPDemo) then
+    FPDemo.Free;
+{$ENDIF}
 
   fpFileVerInfo.Free;
   Finalizar;
@@ -406,8 +415,7 @@ Var
 begin
   try
     GravarLog('LIB_UltimoRetorno', logNormal);
-    Ret := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Retorno.Mensagem), Retorno.Mensagem);
-    MoverStringParaPChar(Ret, sMensagem, esTamanho);
+    MoverStringParaPChar(Retorno.Mensagem, sMensagem, esTamanho);
     Result := Retorno.Codigo;
     if (Config.Log.Nivel >= logCompleto) then
       GravarLog('   Codigo:' + IntToStr(Result) + ', Mensagem:' + string(sMensagem), logCompleto, True);
@@ -516,8 +524,7 @@ begin
   end;
 end;
 
-function TACBrLib.ConfigLerValor(const eSessao, eChave: PChar; sValor: PChar;
-  var esTamanho: longint): longint;
+function TACBrLib.ConfigLerValor(const eSessao, eChave: PChar; sValor: PChar; var esTamanho: longint): longint;
 var
   Sessao, Chave, Valor: Ansistring;
 begin
@@ -580,6 +587,7 @@ begin
     ChaveCrypt := Ansistring(eChaveCrypt);
 
     New(libHandle);
+    libHandle^.Lib := Nil;
     libHandle^.Lib := pLibClass.Create(eArqConfig, eChaveCrypt);
     libHandle^.Lib.Inicializar;
     libHandle^.Lib.GravarLog('LIB_Inicializar( ' + IfThen(libHandle^.Lib.Config.EhMemory, CLibMemory, ArqConfig) + ', ' + StringOfChar('*', Length(ChaveCrypt)) + ' )', logSimples);
@@ -783,8 +791,11 @@ procedure LiberarLib(libHandle: PLibHandle);
 begin
   if Assigned(libHandle) then
   begin
-    libHandle^.Lib.Destroy;
-    libHandle^.Lib := nil;
+    if Assigned(libHandle^.Lib) then
+    begin
+      libHandle^.Lib.Destroy;
+      libHandle^.Lib := nil;
+    end;
     Dispose(libHandle);
   end;
 end;
@@ -817,6 +828,12 @@ begin
     AChave := CLibChaveCrypt;
 
   Result := StrCrypt(DecodeBase64(ABase64Str), AChave);
+end;
+
+function StreamToBase64(AStream: TStream):AnsiString;
+begin
+  AStream.Position := 0;
+  Result := EncodeBase64(ReadStrFromStream(AStream, AStream.Size));
 end;
 
 function StringEhXML(AString: String): Boolean;

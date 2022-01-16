@@ -544,6 +544,18 @@ begin
       Servico.Valores.ValorIr := 0.00;
       Servico.Valores.ValorCsll := 0.00;
 
+      // Provedor Elotech
+      Servico.Valores.AliquotaPis := 0;
+      Servico.Valores.RetidoPis := snNao;
+      Servico.Valores.AliquotaCofins := 0;
+      Servico.Valores.RetidoCofins := snNao;
+      Servico.Valores.AliquotaInss := 0;
+      Servico.Valores.RetidoInss := snNao;
+      Servico.Valores.AliquotaIr := 0;
+      Servico.Valores.RetidoIr := snNao;
+      Servico.Valores.AliquotaCsll := 0;
+      Servico.Valores.RetidoCsll := snNao;
+
       // TnfseSituacaoTributaria = ( stRetencao, stNormal, stSubstituicao );
       // stRetencao = snSim
       // stNormal   = snNao
@@ -625,14 +637,12 @@ begin
       Servico.CodigoPais := 1058; // Brasil
       Servico.MunicipioIncidencia := StrToIntDef(edtCodCidade.Text, 0);
 
-      // Somente o provedor SimplISS permite infomar mais de 1 serviço
+      // Provedores que permitem informar mais de 1 serviço:
+      // Agili, AssessorPublico, EL, EloTech, Equiplano, fintelISS, Governa,
+      // Infisc, IPM, ISSDSF, Simple, SmarAPD, WebFisco
       with Servico.ItemServico.New do
       begin
-        // fintelISS, Agili, EL, Equiplano
-        // Para o provedor Elotech o tamanho máximo é de 20 caracteres
         Descricao := 'Desc. do Serv. 1';
-
-        // fintelISS
         ItemListaServico := '09.01';
 
         // infisc, EL
@@ -641,23 +651,69 @@ begin
         codLCServ := '123';
 
         ValorDeducoes := 0;
-        ValorIss := 0;
-        Aliquota := 4;
-        BaseCalculo := 100;
+        xJustDeducao := '';
+
+        AliqReducao := 0;
+        ValorReducao := 0;
+
         DescontoIncondicionado := 0;
         DescontoCondicionado := 0;
 
-        //EloTech
-        Tributavel := snNao;
-
-        // SimplISS, EloTech
+        // TUnidade = (tuHora, tuQtde);
+        TipoUnidade := tuQtde;
+        Unidade := 'UN';
         Quantidade := 10;
         ValorUnitario := 5;
 
+        QtdeDiaria := 0;
+        ValorTaxaTurismo := 0;
+
         ValorTotal := Quantidade * ValorUnitario;
+
+        BaseCalculo := ValorTotal - ValorDeducoes - DescontoIncondicionado;
+
+        Aliquota := 4;
+
+        ValorISS := BaseCalculo * Aliquota / 100;
+
+        ValorISSRetido := 0;
+
+        AliqISSST := 0;
+        ValorISSST := 0;
+
+        ValorBCCSLL := 0;
+        AliqRetCSLL := 0;
+        ValorCSLL := 0;
+
+        ValorBCPIS := 0;
+        AliqRetPIS := 0;
+        ValorPIS := 0;
+
+        ValorBCCOFINS := 0;
+        AliqRetCOFINS := 0;
+        ValorCOFINS := 0;
+
+        ValorBCINSS := 0;
+        AliqRetINSS := 0;
+        ValorINSS := 0;
+
+        ValorBCRetIRRF := 0;
+        AliqRetIRRF := 0;
+        ValorIRRF := 0;
+
+        // Provedor EloTech
+        Tributavel := snNao;
+
+        // Provedor IPM
+        { define se o tributo é no municipio do prestador ou não }
+        TribMunPrestador := snNao;
+        { codigo do municipio que ocorreu a prestação de serviço }
+        CodMunPrestacao :=  edtCodCidade.Text;
+        { codigo da situação tributária: 0 até 15 }
+        SituacaoTributaria := 0;
       end;
 
-      Prestador.IdentificacaoPrestador.CNPJ := edtEmitCNPJ.Text; //'88888888888888';
+      Prestador.IdentificacaoPrestador.CpfCnpj := edtEmitCNPJ.Text; //'88888888888888';
       Prestador.IdentificacaoPrestador.InscricaoMunicipal := edtEmitIM.Text;
 
       Prestador.RazaoSocial  := edtEmitRazao.Text;
@@ -689,6 +745,10 @@ begin
 
       Tomador.RazaoSocial := 'INSCRICAO DE TESTE';
 
+      // O campo EnderecoInformado é utilizado pelo provedor IMP
+      // A tag <endereco_informado> é opcional, caso não deseje que ela seja
+      // gerada devemos informar uma string vazia, ou S = Sim ou N = Não
+      Tomador.Endereco.EnderecoInformado := 'S';
       Tomador.Endereco.TipoLogradouro := 'RUA';
       Tomador.Endereco.Endereco := 'RUA PRINCIPAL';
       Tomador.Endereco.Numero := '100';
@@ -2850,6 +2910,8 @@ begin
             memoLog.Lines.Add('Situação: ' + Situacao);
             memoLog.Lines.Add('Link    : ' + Link);
             memoLog.Lines.Add('Sucesso : ' + BoolToStr(Sucesso, True));
+            memoLog.Lines.Add('Numero da NFSe Substituida  : ' + NumNotaSubstituida);
+            memoLog.Lines.Add('Numero da NFSe Substituidora: ' + NumNotaSubstituidora);
             memoLog.Lines.Add(' ');
             memoLog.Lines.Add('Retorno do Pedido de Cancelamento:');
             memoLog.Lines.Add('Situação : ' + RetCancelamento.Situacao);

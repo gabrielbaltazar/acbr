@@ -152,6 +152,9 @@ type
 
 implementation
 
+uses
+  ACBrNFSeXProviderBase;
+
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS dos provedores:
 //     que seguem a versão 1.xx do layout da ABRASF
@@ -227,14 +230,14 @@ begin
 
   ListaDeAlertas.Clear;
 
-  Opcoes.QuebraLinha := FAOwner.ConfigGeral.QuebradeLinha;
+  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   FDocument.Clear();
 
   NFSeNode := CreateElement('Rps');
 
-  if FAOwner.ConfigMsgDados.XmlRps.xmlns <> '' then
-    NFSeNode.SetNamespace(FAOwner.ConfigMsgDados.XmlRps.xmlns, Self.PrefixoPadrao);
+  if FpAOwner.ConfigMsgDados.XmlRps.xmlns <> '' then
+    NFSeNode.SetNamespace(FpAOwner.ConfigMsgDados.XmlRps.xmlns, Self.PrefixoPadrao);
 
   FDocument.Root := NFSeNode;
 
@@ -251,8 +254,8 @@ begin
 
   DefinirIDRps;
 
-  if (FAOwner.ConfigGeral.Identificador <> '') then
-    Result.SetAttribute(FAOwner.ConfigGeral.Identificador, NFSe.infID.ID);
+  if (FpAOwner.ConfigGeral.Identificador <> '') then
+    Result.SetAttribute(FpAOwner.ConfigGeral.Identificador, NFSe.infID.ID);
 
   Result.AppendChild(GerarIdentificacaoRPS);
 
@@ -264,19 +267,19 @@ begin
 
   if (NFSe.RegimeEspecialTributacao <> retNenhum) then
     Result.AppendChild(AddNode(tcStr, '#6', 'RegimeEspecialTributacao', 1, 1, NrOcorrRegimeEspecialTributacao,
-   RegimeEspecialTributacaoToStr(NFSe.RegimeEspecialTributacao), DSC_REGISSQN));
+   RegimeEspecialTributacaoToStr(NFSe.RegimeEspecialTributacao, Provedor), DSC_REGISSQN));
 
   Result.AppendChild(AddNode(tcStr, '#7', 'OptanteSimplesNacional', 1, 1, NrOcorrOptanteSN,
-                        SimNaoToStr(NFSe.OptanteSimplesNacional), DSC_INDOPSN));
+   TACBrNFSeXProvider(FpAOwner).SimNaoToStr(NFSe.OptanteSimplesNacional), DSC_INDOPSN));
 
   Result.AppendChild(AddNode(tcStr, '#8', 'IncentivadorCultural', 1, 1, NrOcorrIncentCult,
-                       SimNaoToStr(NFSe.IncentivadorCultural), DSC_INDINCCULT));
+   TACBrNFSeXProvider(FpAOwner).SimNaoToStr(NFSe.IncentivadorCultural), DSC_INDINCCULT));
 
   Result.AppendChild(AddNode(tcStr, '#9', 'Status', 1, 1, NrOcorrStatus,
                                    StatusRPSToStr(NFSe.Status), DSC_INDSTATUS));
 
   Result.AppendChild(AddNode(tcStr, '#11', 'OutrasInformacoes', 1, 255, NrOcorrOutrasInformacoes,
-                                         NFSe.OutrasInformacoes, DSC_OUTRASINF));
+                                        NFSe.OutrasInformacoes, DSC_OUTRASINF));
 
   Result.AppendChild(GerarRPSSubstituido);
   Result.AppendChild(GerarServico);
@@ -345,7 +348,7 @@ begin
                      NFSe.Servico.CodigoTributacaoMunicipio, DSC_CSERVTRIBMUN));
 
   Result.AppendChild(AddNode(tcStr, '#32', 'Discriminacao', 1, 2000, 1,
-    StringReplace(NFSe.Servico.Discriminacao, ';', FAOwner.ConfigGeral.QuebradeLinha,
+    StringReplace(NFSe.Servico.Discriminacao, ';', FpAOwner.ConfigGeral.QuebradeLinha,
                                      [rfReplaceAll, rfIgnoreCase]), DSC_DISCR));
 {
   Result.AppendChild(AddNode(tcStr, '#32', 'Discriminacao', 1, 2000, 1,
@@ -400,7 +403,7 @@ begin
                                     NFSe.Servico.Valores.ValorCsll, DSC_VCSLL));
 
   Result.AppendChild(AddNode(tcStr, '#20', 'IssRetido', 1, 1, 1,
-       SituacaoTributariaToStr(NFSe.Servico.Valores.IssRetido), DSC_INDISSRET));
+       SituacaoTributariaToStr(NFSe.Servico.Valores.IssRetido, Provedor), DSC_INDISSRET));
 
   Result.AppendChild(AddNode(tcDe2, '#21', 'ValorIss', 1, 15, NrOcorrValorIss,
                                       NFSe.Servico.Valores.ValorIss, DSC_VISS));
@@ -465,7 +468,7 @@ begin
   // Em conformidade com a versão 1 do layout da ABRASF não deve ser alterado
   Result := CreateElement('Prestador');
 
-  Result.AppendChild(GerarCNPJ(NFSe.Prestador.IdentificacaoPrestador.Cnpj));
+  Result.AppendChild(GerarCNPJ(NFSe.Prestador.IdentificacaoPrestador.CpfCnpj));
 
   Result.AppendChild(AddNode(tcStr, '#35', 'InscricaoMunicipal', 1, 15, 0,
              NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, DSC_IM));
