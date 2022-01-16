@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using ACBrLib.Core;
@@ -513,6 +514,22 @@ namespace ACBrLib.NFe
             CheckResult(ret);
         }
 
+        public void ImprimirPDF(Stream aStream)
+        {
+            if (aStream == null) throw new ArgumentNullException(nameof(aStream));
+
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<NFE_SalvarPDF>();
+            var ret = ExecuteMethod(() => method(libHandle, buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            var pdf = ProcessResult(buffer, bufferLen);
+            Base64ToStream(pdf, aStream);
+        }
+
         public void ImprimirEvento(string eArquivoXmlNFe, string eArquivoXmlEvento)
         {
             var method = GetMethod<NFE_ImprimirEvento>();
@@ -529,6 +546,22 @@ namespace ACBrLib.NFe
             CheckResult(ret);
         }
 
+        public void ImprimirEventoPDF(string eArquivoXmlNFe, string eArquivoXmlEvento, Stream aStream)
+        {
+            if (aStream == null) throw new ArgumentNullException(nameof(aStream));
+
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<NFE_SalvarEventoPDF>();
+            var ret = ExecuteMethod(() => method(libHandle, ToUTF8(eArquivoXmlNFe), ToUTF8(eArquivoXmlEvento), buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            var pdf = ProcessResult(buffer, bufferLen);
+            Base64ToStream(pdf, aStream);
+        }
+
         public void ImprimirInutilizacao(string eArquivoXml)
         {
             var method = GetMethod<NFE_ImprimirInutilizacao>();
@@ -543,6 +576,22 @@ namespace ACBrLib.NFe
             var ret = ExecuteMethod(() => method(libHandle, ToUTF8(eArquivoXml)));
 
             CheckResult(ret);
+        }
+
+        public void ImprimirInutilizacaoPDF(string eArquivoXml, Stream aStream)
+        {
+            if (aStream == null) throw new ArgumentNullException(nameof(aStream));
+
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<NFE_SalvarInutilizacaoPDF>();
+            var ret = ExecuteMethod(() => method(libHandle, ToUTF8(eArquivoXml), buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            var pdf = ProcessResult(buffer, bufferLen);
+            Base64ToStream(pdf, aStream);
         }
 
         #region Private Methods

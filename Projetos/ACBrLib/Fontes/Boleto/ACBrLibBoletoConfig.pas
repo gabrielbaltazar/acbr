@@ -58,6 +58,7 @@ type
     FNomeArqRetorno: String;
     FNumeroArquivo: Integer;
     FRemoveAcentosArqRemessa: Boolean;
+    FPrefixArqRemessa: String;
 
   public
     constructor Create;
@@ -77,6 +78,7 @@ type
     property NomeArqRetorno: String read FNomeArqRetorno write FNomeArqRetorno;
     property NumeroArquivo: Integer read FNumeroArquivo write FNumeroArquivo;
     property RemoveAcentosArqRemessa: Boolean read FRemoveAcentosArqRemessa write FRemoveAcentosArqRemessa;
+    property PrefixArqRemessa: String read FPrefixArqRemessa write FPrefixArqRemessa;
 
   end;
 
@@ -91,6 +93,9 @@ type
     FNumeroCorrespondente: Integer;
     FOrientacaoBanco: String;
     FTipoCobranca: TACBrTipoCobranca;
+    FCIP: string;
+    FDensidadeGravacao: string;
+    FCasasDecimaisMoraJuros: Integer;
 
   public
     constructor Create;
@@ -106,6 +111,9 @@ type
     property NumeroCorrespondente: Integer read FNumeroCorrespondente write FNumeroCorrespondente;
     property OrientacaoBanco: String read FOrientacaoBanco write FOrientacaoBanco;
     property TipoCobranca: TACBrTipoCobranca read FTipoCobranca write FTipoCobranca;
+    property CasasDecimaisMoraJuros: Integer read FCasasDecimaisMoraJuros write FCasasDecimaisMoraJuros;
+    property DensidadeGravacao : string read FDensidadeGravacao write FDensidadeGravacao;
+    property CIP: string read FCIP write FCIP;
 
   end;
 
@@ -159,6 +167,8 @@ type
     FTipoInscricao: TACBrPessoaCedente;
     FUF: String;
     FDigitoVerificadorAgenciaConta: String;
+    FIdentDistribuicao: TACBrIdentDistribuicao;
+    FOperacao: String;
 
   public
     constructor Create;
@@ -190,6 +200,8 @@ type
     property CEP         : String  read FCEP         write FCEP;
     property Telefone    : String  read FTelefone    write FTelefone;
     property DigitoVerificadorAgenciaConta : String read FDigitoVerificadorAgenciaConta   write FDigitoVerificadorAgenciaConta;
+    property IdentDistribuicao: TACBrIdentDistribuicao read FIdentDistribuicao  write FIdentDistribuicao;
+    property Operacao: string read FOperacao write FOperacao;
 
   end;
 
@@ -568,7 +580,8 @@ begin
   FTipoInscricao:= pJuridica;
   FUF:= '';
   FDigitoVerificadorAgenciaConta:= '';
-
+  FIdentDistribuicao := tbClienteDistribui;
+  FOperacao := '';
 end;
 
 procedure TBoletoCedenteConfig.LerIni(const AIni: TCustomIniFile);
@@ -596,7 +609,9 @@ begin
   TipoDocumento:= TACBrTipoDocumento( AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveTipoDocumento, integer(TipoDocumento) ));
   TipoInscricao:= TACBrPessoaCedente( AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveTipoInscricao, integer(TipoInscricao) ));
   UF:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveUF, UF );
-  DigitoVerificadorAgenciaConta:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveDigitoVerificadorAgenciaConta, DigitoVerificadorAgenciaConta );
+  DigitoVerificadorAgenciaConta:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveDigitoVerificadorAgenciaConta, DigitoVerificadorAgenciaConta);
+  IdentDistribuicao:= TACBrIdentDistribuicao(AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveIdentDistribuicao, integer(FIdentDistribuicao)));
+  Operacao:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveOperacao, Operacao);
 
 end;
 
@@ -626,6 +641,8 @@ begin
   AIni.WriteInteger(CSessaoBoletoCedenteConfig, CChaveTipoInscricao, integer(TipoInscricao) );
   AIni.WriteString(CSessaoBoletoCedenteConfig, CChaveUF, UF  );
   AIni.WriteString(CSessaoBoletoCedenteConfig, CChaveDigitoVerificadorAgenciaConta, DigitoVerificadorAgenciaConta );
+  AIni.WriteInteger(CSessaoBoletoCedenteConfig, CChaveIdentDistribuicao, integer(FIdentDistribuicao));
+  AIni.WriteString(CSessaoBoletoCedenteConfig, CChaveOperacao, Operacao);
 
 end;
 
@@ -645,13 +662,16 @@ end;
 procedure TBoletoBancoConfig.LerIni(const AIni: TCustomIniFile);
 begin
   Digito:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveDigitoBanco, Digito);
-  LayoutVersaoArquivo:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveLayoutVersaoArquivo, LayoutVersaoArquivo );
+  LayoutVersaoArquivo:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveLayoutVersaoArquivo, LayoutVersaoArquivo);
   LayoutVersaoLote:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveLayoutVersaoLote, LayoutVersaoLote);
-  LocalPagamento:= AIni.ReadString(CSessaoBoletoBancoConfig, CChaveLocalPagamento, LocalPagamento );
-  Numero:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveNumero, Numero );
-  NumeroCorrespondente:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveNumeroCorrespondente, NumeroCorrespondente );
-  OrientacaoBanco:= AIni.ReadString(CSessaoBoletoBancoConfig, CChaveOrientacaoBanco, OrientacaoBanco );
-  TipoCobranca:= TACBrTipoCobranca( AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveTipoCobranca, integer(TipoCobranca) ));
+  LocalPagamento:= AIni.ReadString(CSessaoBoletoBancoConfig, CChaveLocalPagamento, LocalPagamento);
+  Numero:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveNumero, Numero);
+  NumeroCorrespondente:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveNumeroCorrespondente, NumeroCorrespondente);
+  OrientacaoBanco:= AIni.ReadString(CSessaoBoletoBancoConfig, CChaveOrientacaoBanco, OrientacaoBanco);
+  TipoCobranca:= TACBrTipoCobranca( AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveTipoCobranca, integer(TipoCobranca)));
+  CasasDecimaisMoraJuros:= AIni.ReadInteger(CSessaoBoletoBancoConfig, CChaveCasasDecimaisMoraJuros, CasasDecimaisMoraJuros);
+  //DensidadeGravacao:= AIni.ReadString(CSessaoBoletoBancoConfig, CChaveDensidadeGravacao, DensidadeGravacao);
+  CIP:= AIni.ReadString(CSessaoBoletoBancoConfig, CChaveCIP, CIP);
 
 end;
 
@@ -665,6 +685,9 @@ begin
   AIni.WriteInteger(CSessaoBoletoBancoConfig, CChaveNumeroCorrespondente, NumeroCorrespondente );
   AIni.WriteString(CSessaoBoletoBancoConfig, CChaveOrientacaoBanco, OrientacaoBanco );
   AIni.WriteInteger(CSessaoBoletoBancoConfig, CChaveTipoCobranca, integer(TipoCobranca) );
+  AIni.WriteInteger(CSessaoBoletoBancoConfig, CChaveCasasDecimaisMoraJuros, CasasDecimaisMoraJuros);
+  //AIni.WriteString(CSessaoBoletoBancoConfig, CChaveDensidadeGravacao, DensidadeGravacao);
+  AIni.WriteString(CSessaoBoletoBancoConfig, CChaveCIP, CIP);
 
 end;
 
@@ -683,6 +706,7 @@ begin
   FNomeArqRetorno := '';
   FNumeroArquivo := 0;
   FRemoveAcentosArqRemessa := False;
+  FPrefixArqRemessa:= '';
 
 end;
 
@@ -704,6 +728,7 @@ begin
   NomeArqRetorno := AIni.ReadString(CSessaoBoletoDiretorioConfig, CChaveNomeArqRetorno, NomeArqRetorno);
   NumeroArquivo := AIni.ReadInteger(CSessaoBoletoDiretorioConfig, CChaveNumeroArquivo, NumeroArquivo);
   RemoveAcentosArqRemessa := AIni.ReadBool(CSessaoBoletoDiretorioConfig, CChaveRemoveAcentosArqRemessa, RemoveAcentosArqRemessa);
+  PrefixArqRemessa := AIni.ReadString(CSessaoBoletoDiretorioConfig, CChavePrefixArqRemessa, PrefixArqRemessa);
 
 end;
 
@@ -725,6 +750,7 @@ begin
   AIni.WriteString(CSessaoBoletoDiretorioConfig, CChaveNomeArqRetorno, NomeArqRetorno);
   AIni.WriteInteger(CSessaoBoletoDiretorioConfig, CChaveNumeroArquivo, NumeroArquivo);
   AIni.WriteBool(CSessaoBoletoDiretorioConfig, CChaveRemoveAcentosArqRemessa, RemoveAcentosArqRemessa);
+  AIni.WriteString(CSessaoBoletoDiretorioConfig, CChavePrefixArqRemessa, PrefixArqRemessa);
 
 end;
 

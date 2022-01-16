@@ -431,7 +431,7 @@ type
 
   TCTeEnvEvento = class(TCTeWebService)
   private
-    FidLote: Integer;
+    FidLote: Int64;
     FEvento: TEventoCTe;
     FcStat: Integer;
     FxMotivo: String;
@@ -457,7 +457,7 @@ type
     destructor Destroy; override;
     procedure Clear; override;
 
-    property idLote: Integer read FidLote write FidLote;
+    property idLote: Int64 read FidLote write FidLote;
     property cStat: Integer read FcStat;
     property xMotivo: String read FxMotivo;
     property TpAmb: TpcnTipoAmbiente read FTpAmb;
@@ -552,9 +552,9 @@ type
     constructor Create(AOwner: TACBrDFe); overload;
     destructor Destroy; override;
 
-    function Envia(ALote: Integer; ASincrono: Boolean = False): Boolean; overload;
+    function Envia(ALote: Int64; ASincrono: Boolean = False): Boolean; overload;
     function Envia(const ALote: String; ASincrono: Boolean = False): Boolean; overload;
-    function EnviaOS(ALote: Integer): Boolean; overload;
+    function EnviaOS(ALote: Int64): Boolean; overload;
     function EnviaOS(const ALote: String): Boolean; overload;
     procedure Inutiliza(const CNPJ, AJustificativa: String;
       Ano, Modelo, Serie, NumeroInicial, NumeroFinal: Integer);
@@ -3680,7 +3680,7 @@ begin
   inherited Destroy;
 end;
 
-function TWebServices.Envia(ALote: Integer; ASincrono: Boolean = False): Boolean;
+function TWebServices.Envia(ALote: Int64; ASincrono: Boolean = False): Boolean;
 begin
   Result := Envia(IntToStr(ALote), ASincrono);
 end;
@@ -3707,7 +3707,7 @@ begin
   Result := True;
 end;
 
-function TWebServices.EnviaOS(ALote: Integer): Boolean;
+function TWebServices.EnviaOS(ALote: Int64): Boolean;
 begin
   Result := EnviaOS(IntToStr(ALote));
 end;

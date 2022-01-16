@@ -184,9 +184,9 @@ begin
   for I := Low(ANodeArray) to High(ANodeArray) do
   begin
     AErro := Response.Erros.New;
-    AErro.Codigo := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('id'), tcStr);
-    AErro.Descricao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('DescricaoProcesso'), tcStr);
-    AErro.Correcao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('DescricaoErro'), tcStr);
+    AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('id'), tcStr);
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoProcesso'), tcStr);
+    AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoErro'), tcStr);
 
     if AErro.Descricao = '' then
       AErro.Descricao := ANodeArray[I].AsString;
@@ -214,7 +214,7 @@ end;
 procedure TACBrNFSeProviderSigISS.GerarMsgDadosEmitir(
   Response: TNFSeEmiteResponse; Params: TNFSeParamsResponse);
 begin
-  Response.XmlEnvio := Params.Xml;
+  Response.ArquivoEnvio := Params.Xml;
 end;
 
 procedure TACBrNFSeProviderSigISS.TratarRetornoEmitir(Response: TNFSeEmiteResponse);
@@ -228,7 +228,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -236,9 +236,9 @@ begin
         Exit
       end;
 
-      Response.XmlRetorno := AjustarRetorno(Response.XmlRetorno);
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -252,11 +252,11 @@ begin
       begin
         with Response do
         begin
-          Situacao := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('Resultado'), tcStr);
+          Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Resultado'), tcStr);
           Sucesso := not (Situacao = 'N');
-          Protocolo := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('autenticidade'), tcStr);
-          NumeroNota := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('Nota'), tcStr);
-          Link := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('LinkImpressao'), tcStr);
+          Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('autenticidade'), tcStr);
+          NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Nota'), tcStr);
+          Link := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('LinkImpressao'), tcStr);
         end;
       end;
     except
@@ -290,7 +290,7 @@ begin
 
   Response.Metodo := tmConsultarNFSe;
 
-  Response.XmlEnvio := '<ConsultarNotaPrestador xmlns="urn:sigiss_ws">' +
+  Response.ArquivoEnvio := '<ConsultarNotaPrestador xmlns="urn:sigiss_ws">' +
                          '<DadosPrestador>' +
                            '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
                            '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
@@ -317,7 +317,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -325,9 +325,9 @@ begin
         Exit
       end;
 
-      Response.XmlRetorno := AjustarRetorno(Response.XmlRetorno);
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -342,7 +342,7 @@ begin
       begin
         with Response do
         begin
-          Sucesso := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
+          Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
         end;
       end;
 
@@ -411,7 +411,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<CancelarNota xmlns="urn:sigiss_ws">' +
+  Response.ArquivoEnvio := '<CancelarNota xmlns="urn:sigiss_ws">' +
                          '<DadosCancelaNota>' +
                            '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
                            '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
@@ -441,7 +441,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -449,9 +449,9 @@ begin
         Exit
       end;
 
-      Response.XmlRetorno := AjustarRetorno(Response.XmlRetorno);
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -465,10 +465,10 @@ begin
       begin
         with Response do
         begin
-          xSucesso := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('Resultado'), tcStr);
+          xSucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Resultado'), tcStr);
           Sucesso := not (xSucesso = 'N');
-          NumeroNota := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('Nota'), tcStr);
-          Link := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('LinkImpressao'), tcStr);
+          NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Nota'), tcStr);
+          Link := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('LinkImpressao'), tcStr);
         end;
       end;
     except
@@ -577,7 +577,7 @@ begin
 
   Response.Metodo := tmConsultarNFSe;
 
-  Response.XmlEnvio := '<ConsultarNfseServicoPrestado xmlns="http://iss.londrina.pr.gov.br/ws/v1_03">' +
+  Response.ArquivoEnvio := '<ConsultarNfseServicoPrestado xmlns="http://iss.londrina.pr.gov.br/ws/v1_03">' +
                          '<ConsultarNfseServicoPrestadoEnvio>' +
                            '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
                            '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
@@ -614,7 +614,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<CancelarNota xmlns="http://iss.londrina.pr.gov.br/ws/v1_03"">' +
+  Response.ArquivoEnvio := '<CancelarNota xmlns="http://iss.londrina.pr.gov.br/ws/v1_03"">' +
                          '<DescricaoCancelaNota>' +
                            '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
                            '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +

@@ -189,7 +189,7 @@ begin
 
 //  Opcoes.SuprimirDecimais := True;
 //  Opcoes.DecimalChar := '.';
-  Opcoes.QuebraLinha := FAOwner.ConfigGeral.QuebradeLinha;
+  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -200,7 +200,7 @@ begin
   FDocument.Root := NFSeNode;
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'cpfcnpj', 11, 14, 1,
-                   OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.Cnpj), ''));
+                OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.CpfCnpj), ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'inscricao', 1, 20, 1,
      OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal), ''));

@@ -58,6 +58,7 @@ type
     procedure LerSegmentoH(mSegmentoHList: TSegmentoHList; I:Integer);
     procedure LerSegmentoJ(I: Integer);
     procedure LerSegmentoJ52(mSegmentoJ52List: TSegmentoJ52List; I:Integer);
+    procedure LerSegmentoJ99(mSegmentoJ99List: TSegmentoJ99List; I:Integer);
     procedure LerSegmentoN1(I: Integer);
     procedure LerSegmentoN2(I: Integer);
     procedure LerSegmentoN3(I: Integer);
@@ -163,7 +164,7 @@ begin
   FPagFor.Registro0.Empresa.Convenio         := Trim(Copy(FArquivoTXT.Strings[0], 33, 20));
 
   case FPagFor.Geral.Banco of
-    pagBancoDoBrasil, pagItau, pagSicred:
+    pagBancoDoBrasil, pagItau, pagSicred, pagBancoCECRED, pagSantander:
       begin
         FPagFor.Registro0.Empresa.ContaCorrente.Agencia.Codigo := StrToInt(Copy(FArquivoTXT.Strings[0], 53, 5));
         FPagFor.Registro0.Empresa.ContaCorrente.Agencia.DV     := Copy(FArquivoTXT.Strings[0], 58, 1);
@@ -206,7 +207,7 @@ begin
   FPagFor.Lote.Last.Registro1.Empresa.Convenio         := Trim(Copy(FArquivoTXT.Strings[i], 33 + ajusteBloqueto, 20));
 
   case FPagFor.Geral.Banco of
-    pagBancoDoBrasil, pagItau, pagSicred:
+    pagBancoDoBrasil, pagItau, pagSicred, pagBancoCECRED, pagSantander:
       begin
         FPagFor.Lote.Last.Registro1.Empresa.ContaCorrente.Agencia.Codigo := StrToInt(Copy(FArquivoTXT.Strings[i], 53 + ajusteBloqueto, 5));
         FPagFor.Lote.Last.Registro1.Empresa.ContaCorrente.Agencia.DV     := Copy(FArquivoTXT.Strings[i], 58 + ajusteBloqueto, 1);
@@ -316,7 +317,7 @@ begin
         FPagFor.Lote.Last.SegmentoA.Last.Aviso                  := StrToIntDef(Copy(FArquivoTXT.Strings[i], 230, 1),0);
         FPagFor.Lote.Last.SegmentoA.Last.CodOcorrencia          := Trim(Copy(FArquivoTXT.Strings[i], 231, 10));
 
-        if (FPagFor.Geral.Banco = PagItau) then
+        if (FPagFor.Geral.Banco in [PagItau, pagBradesco]) then
           FPagFor.Lote.Last.SegmentoA.Last.DescOcorrencia := DescricaoRetornoItau(FPagFor.Lote.Last.SegmentoA.Last.CodOcorrencia);
 
         if (FPagFor.Geral.Banco = pagSantander) then
@@ -626,50 +627,71 @@ var
   mOk:boolean;
   x:integer;
 begin
-  if ((Copy(FArquivoTXT.Strings[i], 8, 1) + Copy(FArquivoTXT.Strings[i], 14, 1)) <> '3J') then
+  if ((Copy(FArquivoTXT.Strings[i], 8, 1) + Copy(FArquivoTXT.Strings[i], 14, 1)) <> '3J') and
+     ((Copy(FArquivoTXT.Strings[i], 8, 1) + Copy(FArquivoTXT.Strings[i], 14, 1)) <> '3B') and
+     ((Copy(FArquivoTXT.Strings[i], 8, 1) + Copy(FArquivoTXT.Strings[i], 14, 1)) <> '3C') and
+     ((Copy(FArquivoTXT.Strings[i], 8, 1) + Copy(FArquivoTXT.Strings[i], 14, 1)) <> '3Z') then
     Exit;
 
-  FPagFor.Lote.Last.SegmentoJ.New;
-  FPagFor.Lote.Last.SegmentoJ.Last.CodMovimento   := StrToInMovimento(mOk, Copy(FArquivoTXT.Strings[i], 15, 3));
-  FPagFor.Lote.Last.SegmentoJ.Last.CodigoBarras   := Copy(FArquivoTXT.Strings[i], 18, 44);
-  FPagFor.Lote.Last.SegmentoJ.Last.NomeCedente    := Copy(FArquivoTXT.Strings[i], 62, 30);
-  FPagFor.Lote.Last.SegmentoJ.Last.DataVencimento := StringToDateTime(Copy(FArquivoTXT.Strings[i], 92, 2)+'/'+Copy(FArquivoTXT.Strings[i], 94, 2)+'/'+Copy(FArquivoTXT.Strings[i], 96, 4));
+  if (FPagFor.Geral.Banco = pagBradesco) and (Copy(FArquivoTXT.Strings[i], 18, 2) = '52') then
+    Exit;
 
-  case FPagFor.Geral.Banco of
-    pagItau, pagSantander, pagSicred:
-      begin
-        FPagFor.Lote.Last.SegmentoJ.Last.ValorTitulo      := StrToInt(Copy(FArquivoTXT.Strings[i], 100, 15)) / 100;
-        FPagFor.Lote.Last.SegmentoJ.Last.Desconto         := StrToInt(Copy(FArquivoTXT.Strings[i], 115, 15)) / 100;
-        FPagFor.Lote.Last.SegmentoJ.Last.Acrescimo        := StrToInt(Copy(FArquivoTXT.Strings[i], 130, 15)) / 100;
-        FPagFor.Lote.Last.SegmentoJ.Last.DataPagamento    := StringToDateTime(Copy(FArquivoTXT.Strings[i], 145, 2)+'/'+Copy(FArquivoTXT.Strings[i], 147, 2)+'/'+Copy(FArquivoTXT.Strings[i], 149, 4));
-        FPagFor.Lote.Last.SegmentoJ.Last.ValorPagamento   := StrToInt(Copy(FArquivoTXT.Strings[i], 153, 15)) / 100;
-        FPagFor.Lote.Last.SegmentoJ.Last.QtdeMoeda        := StrToInt(Copy(FArquivoTXT.Strings[i], 168, 15)) / 100000;
-        FPagFor.Lote.Last.SegmentoJ.Last.ReferenciaSacado := Copy(FArquivoTXT.Strings[i], 183, 20);
+  if ((Copy(FArquivoTXT.Strings[i], 18, 2) <> '52') and (Copy(FArquivoTXT.Strings[i], 18, 2) <> '99')) and
+     ((Copy(FArquivoTXT.Strings[i], 8, 1) + Copy(FArquivoTXT.Strings[i], 14, 1)) <> '3B') and
+     ((Copy(FArquivoTXT.Strings[i], 8, 1) + Copy(FArquivoTXT.Strings[i], 14, 1)) <> '3C') and
+     ((Copy(FArquivoTXT.Strings[i], 8, 1) + Copy(FArquivoTXT.Strings[i], 14, 1)) <> '3Z') then
+  begin
+    FPagFor.Lote.Last.SegmentoJ.New;
+    FPagFor.Lote.Last.SegmentoJ.Last.CodMovimento   := StrToInMovimento(mOk, Copy(FArquivoTXT.Strings[i], 15, 3));
+    FPagFor.Lote.Last.SegmentoJ.Last.CodigoBarras   := Copy(FArquivoTXT.Strings[i], 18, 44);
+    FPagFor.Lote.Last.SegmentoJ.Last.NomeCedente    := Copy(FArquivoTXT.Strings[i], 62, 30);
+    FPagFor.Lote.Last.SegmentoJ.Last.DataVencimento := StringToDateTime(Copy(FArquivoTXT.Strings[i], 92, 2)+'/'+Copy(FArquivoTXT.Strings[i], 94, 2)+'/'+Copy(FArquivoTXT.Strings[i], 96, 4));
 
-        if (FPagFor.Geral.Banco <> pagSicred) then
-          FPagFor.Lote.Last.SegmentoJ.Last.NossoNumero := Copy(FArquivoTXT.Strings[i], 216, 15)
-        else
-          FPagFor.Lote.Last.SegmentoJ.Last.NossoNumero := Copy(FArquivoTXT.Strings[i], 203, 20);
-
-        FPagFor.Lote.Last.SegmentoJ.Last.CodOcorrencia := Trim(Copy(FArquivoTXT.Strings[i], 231, 10));
-
-        if (FPagFor.Geral.Banco = pagItau) then
-          FPagFor.Lote.Last.SegmentoJ.Last.DescOcorrencia := DescricaoRetornoItau(FPagFor.Lote.Last.SegmentoJ.Last.CodOcorrencia);
-
-        if POS(FPagFor.Lote.Last.SegmentoJ.Last.CodOcorrencia, PAGAMENTO_LIBERADO_AVISO) = 0 then
+    case FPagFor.Geral.Banco of
+      pagItau,
+      pagSantander,
+      pagSicred,
+      pagBancoCECRED,
+      pagBradesco:
         begin
-          FPagFor.Registro0.Aviso.New;
-          FPagFor.Registro0.Aviso.Last.CodigoRetorno   := FPagFor.Lote.Last.SegmentoJ.Last.CodOcorrencia;
-          FPagFor.Registro0.Aviso.Last.MensagemRetorno := FPagFor.Lote.Last.SegmentoJ.Last.DescOcorrencia;
-          FPagFor.Registro0.Aviso.Last.Segmento        := 'J';
-          FPagFor.Registro0.Aviso.Last.SegmentoFilho   := '';
-          FPagFor.Registro0.Aviso.Last.SeuNumero       := FPagFor.Lote.Last.SegmentoJ.Last.ReferenciaSacado;
+          FPagFor.Lote.Last.SegmentoJ.Last.ValorTitulo      := StrToInt(Copy(FArquivoTXT.Strings[i], 100, 15)) / 100;
+          FPagFor.Lote.Last.SegmentoJ.Last.Desconto         := StrToInt(Copy(FArquivoTXT.Strings[i], 115, 15)) / 100;
+          FPagFor.Lote.Last.SegmentoJ.Last.Acrescimo        := StrToInt(Copy(FArquivoTXT.Strings[i], 130, 15)) / 100;
+          FPagFor.Lote.Last.SegmentoJ.Last.DataPagamento    := StringToDateTime(Copy(FArquivoTXT.Strings[i], 145, 2)+'/'+Copy(FArquivoTXT.Strings[i], 147, 2)+'/'+Copy(FArquivoTXT.Strings[i], 149, 4));
+          FPagFor.Lote.Last.SegmentoJ.Last.ValorPagamento   := StrToInt(Copy(FArquivoTXT.Strings[i], 153, 15)) / 100;
+          FPagFor.Lote.Last.SegmentoJ.Last.QtdeMoeda        := StrToInt(Copy(FArquivoTXT.Strings[i], 168, 15)) / 100000;
+          FPagFor.Lote.Last.SegmentoJ.Last.ReferenciaSacado := Copy(FArquivoTXT.Strings[i], 183, 20);
+
+          case FPagFor.Geral.Banco of
+            pagSicred,
+            pagBancoCECRED,
+            pagBradesco :
+              FPagFor.Lote.Last.SegmentoJ.Last.NossoNumero := Copy(FArquivoTXT.Strings[i], 203, 20);
+          else
+            FPagFor.Lote.Last.SegmentoJ.Last.NossoNumero := Copy(FArquivoTXT.Strings[i], 216, 15)
+          end;
+
+          FPagFor.Lote.Last.SegmentoJ.Last.CodOcorrencia := Trim(Copy(FArquivoTXT.Strings[i], 231, 10));
+
+          if (FPagFor.Geral.Banco = pagItau) then
+            FPagFor.Lote.Last.SegmentoJ.Last.DescOcorrencia := DescricaoRetornoItau(FPagFor.Lote.Last.SegmentoJ.Last.CodOcorrencia);
+
+          if POS(FPagFor.Lote.Last.SegmentoJ.Last.CodOcorrencia, PAGAMENTO_LIBERADO_AVISO) = 0 then
+          begin
+            FPagFor.Registro0.Aviso.New;
+            FPagFor.Registro0.Aviso.Last.CodigoRetorno   := FPagFor.Lote.Last.SegmentoJ.Last.CodOcorrencia;
+            FPagFor.Registro0.Aviso.Last.MensagemRetorno := FPagFor.Lote.Last.SegmentoJ.Last.DescOcorrencia;
+            FPagFor.Registro0.Aviso.Last.Segmento        := 'J';
+            FPagFor.Registro0.Aviso.Last.SegmentoFilho   := '';
+            FPagFor.Registro0.Aviso.Last.SeuNumero       := FPagFor.Lote.Last.SegmentoJ.Last.ReferenciaSacado;
+          end;
         end;
-      end;
+    end;
   end;
 
   {opcionais segmento J}
   LerSegmentoJ52(FPagFor.Lote.Last.SegmentoJ.Last.SegmentoJ52, i);
+  LerSegmentoJ99(FPagFor.Lote.Last.SegmentoJ.Last.SegmentoJ99, i);
   LerSegmentoB(FPagFor.Lote.Last.SegmentoJ.Last.SegmentoB, i);
   LerSegmentoC(FPagFor.Lote.Last.SegmentoJ.Last.SegmentoC, i);
   LerSegmentoZ(FPagFor.Lote.Last.SegmentoJ.Last.SegmentoZ, i);
@@ -728,6 +750,24 @@ begin
   mSegmentoJ52List.Last.SacadorAvalista.Inscricao.Tipo   := StrToTpInscricao(mOk, Copy(FArquivoTXT.Strings[i], 132, 1));
   mSegmentoJ52List.Last.SacadorAvalista.Inscricao.Numero := Copy(FArquivoTXT.Strings[i], 133, 15);
   mSegmentoJ52List.Last.SacadorAvalista.Nome             := Copy(FArquivoTXT.Strings[i], 148, 40);
+end;
+
+procedure TPagForR.LerSegmentoJ99(mSegmentoJ99List: TSegmentoJ99List; I:Integer);
+var
+  mOk : Boolean;
+begin
+  if ((Copy(FArquivoTXT.Strings[i], 8, 1) + Copy(FArquivoTXT.Strings[i], 14, 1) + Copy(FArquivoTXT.Strings[i], 18, 2)) <> '3J99') then
+    Exit;
+
+  mSegmentoJ99List.New;
+  mSegmentoJ99List.Last.CodMovimento := StrToInMovimento(mOk, Copy(FArquivoTXT.Strings[i], 16, 2));
+  mSegmentoJ99List.Last.CodAutenticacao := StrToIntDef(Copy(FArquivoTXT.Strings[i], 20, 10 ), 0);
+  mSegmentoJ99List.Last.NunDocumento := Copy(FArquivoTXT.Strings[i], 30, 25);
+
+  mSegmentoJ99List.Last.DataHoraPagamento := StringToDateTime(Copy(FArquivoTXT.Strings[i], 55, 2) + '/' + Copy(FArquivoTXT.Strings[i], 57, 2) + '/' + Copy(FArquivoTXT.Strings[i], 59, 4) + ' ' +
+                                                              Copy(FArquivoTXT.Strings[i], 63, 2) + ':' + Copy(FArquivoTXT.Strings[i], 65, 2) + ':' + Copy(FArquivoTXT.Strings[i], 67, 2));
+
+  mSegmentoJ99List.Last.ProtocoloPagamento := Copy(FArquivoTXT.Strings[i], 69, 70);
 end;
 
 procedure TPagForR.LerSegmentoN1(I: Integer);

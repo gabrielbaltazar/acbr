@@ -169,7 +169,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := '';
-    AErro.Descricao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('ERRO'), tcStr);
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('ERRO'), tcStr);
     AErro.Correcao := '';
   end;
 end;
@@ -189,7 +189,7 @@ begin
 
   with Params do
   begin
-    Response.XmlEnvio := '<NFSE>' +
+    Response.ArquivoEnvio := '<NFSE>' +
                            '<IDENTIFICACAO>' +
                              '<MESCOMP>' +
                                 FormatDateTime('MM', Now) +
@@ -220,7 +220,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -228,9 +228,9 @@ begin
         Exit
       end;
 
-      Inconsistencia := (Pos('<INCONSISTENCIA>', Response.XmlRetorno) > 0);
+      Inconsistencia := (Pos('<INCONSISTENCIA>', Response.ArquivoRetorno) > 0);
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -241,7 +241,7 @@ begin
         ProcessarMensagemErros(ANode, Response, 'NFSE', 'INCONSISTENCIA');
       end
       else
-        Response.Protocolo := Trim(ProcessarConteudoXml(ANode.Childrens.FindAnyNs('Mensagem'), tcStr));
+        Response.Protocolo := Trim(ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr));
 
       Response.Sucesso := (Response.Erros.Count = 0);
     except
@@ -273,7 +273,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<NFSE>' +
+  Response.ArquivoEnvio := '<NFSE>' +
                          '<IDENTIFICACAO>' +
                            '<INSCRICAO>' +
                               Emitente.InscMun +
@@ -300,7 +300,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -308,7 +308,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -342,7 +342,7 @@ begin
       begin
         ANode := ANodeArray[i];
 
-        NumNFSe := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('COD'), tcStr);
+        NumNFSe := ObterConteudoTag(ANode.Childrens.FindAnyNs('COD'), tcStr);
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
@@ -395,7 +395,7 @@ begin
 
   Response.Metodo := tmConsultarNFSe;
 
-  Response.XmlEnvio := '<NFSE>' +
+  Response.ArquivoEnvio := '<NFSE>' +
                          '<IDENTIFICACAO>' +
                            '<INSCRICAO>' +
                               Emitente.InscMun +
@@ -425,7 +425,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -433,7 +433,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
 
@@ -467,7 +467,7 @@ begin
       begin
         ANode := ANodeArray[i];
 
-        NumNFSe := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('COD'), tcStr);
+        NumNFSe := ObterConteudoTag(ANode.Childrens.FindAnyNs('COD'), tcStr);
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
@@ -526,7 +526,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<NFSE>' +
+  Response.ArquivoEnvio := '<NFSE>' +
                          '<IDENTIFICACAO>' +
                            '<INSCRICAO>' +
                               Emitente.InscMun +
@@ -555,7 +555,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -563,7 +563,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root.Childrens.FindAnyNs('NFSE');
 
@@ -593,7 +593,9 @@ begin
   with TACBrNFSeX(FPDFeOwner).Configuracoes.Geral do
   begin
     Result := '<nfse:Usuario>' + Emitente.WSUser + '</nfse:Usuario>' +
-              '<nfse:Senha>' + LowerCase(AsciiToHex(MD5(Emitente.WSSenha))) + '</nfse:Senha>';
+              '<nfse:Senha>' +
+                LowerCase(AsciiToHex(MD5(AnsiString(Emitente.WSSenha)))) +
+              '</nfse:Senha>';
   end;
 end;
 

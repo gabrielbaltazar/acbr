@@ -181,7 +181,7 @@ begin
   begin
     NameSpace := StringReplace(NameSpace, '_v03.xsd', '', [rfReplaceAll]);
 
-    Response.XmlEnvio := '<' + Prefixo + 'CancelarNfseEnvio' + NameSpace + '>' +
+    Response.ArquivoEnvio := '<' + Prefixo + 'CancelarNfseEnvio' + NameSpace + '>' +
                            '<' + Prefixo + 'Prestador>' +
                              '<' + Prefixo2 + 'Cnpj>' +
                                OnlyNumber(Emitente.CNPJ) +
@@ -267,8 +267,8 @@ begin
   Request := Request + '</ns1:ConsultarNfsePorRpsV3>';
 
   Result := Executar('', Request,
-                     ['return', 'ConsultarNfseResposta'],
-//                     ['return', 'ConsultarNfseRpsResposta'],
+//                     ['return', 'ConsultarNfseResposta'],
+                     ['return', 'ConsultarNfseRpsResposta'], // <== esse é o correto
                      []);
 end;
 

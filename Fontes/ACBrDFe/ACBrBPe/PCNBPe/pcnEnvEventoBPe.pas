@@ -83,7 +83,7 @@ type
   TEventoBPe = class(TObject)
   private
     FGerador: TGerador;
-    FidLote: Integer;
+    FidLote: Int64;
     FEvento: TInfEventoCollection;
     FVersao: String;
 
@@ -99,7 +99,7 @@ type
     function ObterNomeArquivo(tpEvento: TpcnTpEvento): String;
 
     property Gerador: TGerador            read FGerador write FGerador;
-    property idLote: Integer              read FidLote  write FidLote;
+    property idLote: Int64                read FidLote  write FidLote;
     property Evento: TInfEventoCollection read FEvento  write SetEvento;
     property Versao: String               read FVersao  write FVersao;
   end;

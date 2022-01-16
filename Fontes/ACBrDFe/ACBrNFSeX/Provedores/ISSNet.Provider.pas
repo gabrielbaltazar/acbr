@@ -132,7 +132,6 @@ begin
     ConsultarNFSeRps := 'servico_consultar_nfse_rps_envio.xsd';
     ConsultarNFSe := 'servico_consultar_nfse_envio.xsd';
     CancelarNFSe := 'servico_cancelar_nfse_envio.xsd';
-//    Validar := False;
   end;
 
   FpNameSpaceCanc := ' xmlns:ts="http://www.issnetonline.com.br/webserviceabrasf/vsd/tipos_simples.xsd"' +
@@ -182,7 +181,7 @@ begin
   begin
     NameSpace := FpNameSpaceCanc;
 
-    Response.XmlEnvio := '<Pedido' + NameSpace + '>' +
+    Response.ArquivoEnvio := '<Pedido' + NameSpace + '>' +
                            '<' + Prefixo2 + 'InfPedidoCancelamento' + IdAttr + '>' +
                              '<' + Prefixo2 + 'IdentificacaoNfse>' +
                                '<' + Prefixo2 + 'Numero>' +
@@ -213,7 +212,7 @@ var
 begin
   if aMetodo <> tmCancelarNFSe then
   begin
-    xXml := Response.XmlEnvio;
+    xXml := Response.ArquivoEnvio;
 
     i := Pos('<tc:Cnpj>', xXml) -1;
     j := Pos('<tc:InscricaoMunicipal>', xXml);
@@ -222,19 +221,19 @@ begin
             '<tc:CpfCnpj>' + Copy(xXml, i+1, j-i-1) + '</tc:CpfCnpj>' +
             Copy(xXml, j, Length(xXml));
 
-    Response.XmlEnvio := xXml;
+    Response.ArquivoEnvio := xXml;
 
     inherited ValidarSchema(Response, aMetodo);
   end
   else
   begin
-    xXml := Response.XmlEnvio;
+    xXml := Response.ArquivoEnvio;
     xXml := StringReplace(xXml, FpNameSpaceCanc, '', []);
     xXml := '<p1:CancelarNfseEnvio' + FpNameSpaceCanc + '>' +
               xXml +
             '</p1:CancelarNfseEnvio>';
 
-    Response.XmlEnvio := xXml;
+    Response.ArquivoEnvio := xXml;
   end;
 end;
 

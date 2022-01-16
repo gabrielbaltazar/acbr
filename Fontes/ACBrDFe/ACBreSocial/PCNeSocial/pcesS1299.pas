@@ -85,7 +85,7 @@ type
 
   TEvtFechaEvPer = class(TESocialEvento)
   private
-    FIdeEvento: TIdeEvento3;
+    FIdeEvento: TIdeEvento4;
     FIdeEmpregador: TIdeEmpregador;
     FIdeRespInf : TIdeRespInf;
     FInfoFech: TInfoFech;
@@ -99,7 +99,7 @@ type
     function GerarXML: boolean; override;
     function LerArqIni(const AIniString: String): Boolean;
 
-    property IdeEvento: TIdeEvento3 read FIdeEvento write FIdeEvento;
+    property IdeEvento: TIdeEvento4 read FIdeEvento write FIdeEvento;
     property IdeEmpregador: TIdeEmpregador read FIdeEmpregador write FIdeEmpregador;
     property IdeRespInf: TIdeRespInf read FIdeRespInf write FIdeRespInf;
     property InfoFech: TInfoFech read FInfoFech write FInfoFech;
@@ -180,7 +180,7 @@ constructor TEvtFechaEvPer.Create(AACBreSocial: TObject);
 begin
   inherited Create(AACBreSocial);
 
-  FIdeEvento     := TIdeEvento3.Create;
+  FIdeEvento     := TIdeEvento4.Create;
   FIdeEmpregador := TIdeEmpregador.Create;
   FIdeRespInf    := TIdeRespInf.Create;
   FInfoFech      := TInfoFech.Create;
@@ -235,8 +235,7 @@ begin
     a partir de 21/11/2021 }
 
   if (VersaoDF >= veS01_00_00) and
-     (Self.infoFech.transDCTFWeb = snfSim) and
-     (Self.ideEvento.indApuracao = iapuMensal) then
+     (Self.infoFech.transDCTFWeb = snfSim) then
     Gerador.wCampo(tcStr, '', 'transDCTFWeb', 1, 1, 1, eSSimNaoFacultativoToStr(self.infoFech.transDCTFWeb));
 
   Gerador.wGrupo('/infoFech');
@@ -252,7 +251,7 @@ begin
     GerarCabecalho('evtFechaEvPer');
     Gerador.wGrupo('evtFechaEvPer Id="' + Self.Id + '"');
 
-    GerarIdeEvento3(self.IdeEvento, False);
+    GerarIdeEvento4(self.IdeEvento);
     GerarIdeEmpregador(self.IdeEmpregador);
 
     if VersaoDF <= ve02_05_00 then

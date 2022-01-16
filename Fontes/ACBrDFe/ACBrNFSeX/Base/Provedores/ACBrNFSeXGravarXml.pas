@@ -98,7 +98,7 @@ type
     procedure SetOpcoes(AValue: TACBrXmlWriterOptions);
 
   protected
-    FAOwner: IACBrNFSeXProvider;
+    FpAOwner: IACBrNFSeXProvider;
 
     function CreateOptions: TACBrXmlWriterOptions; override;
 
@@ -157,7 +157,7 @@ constructor TNFSeWClass.Create(AOwner: IACBrNFSeXProvider);
 begin
   inherited Create;
 
-  FAOwner := AOwner;
+  FpAOwner := AOwner;
 
   TXmlWriterOptions(Opcoes).AjustarTagNro := True;
   TXmlWriterOptions(Opcoes).NormatizarMunicipios := False;
@@ -209,6 +209,14 @@ begin
         Result := Copy(item, 2, 4)
       else
         Result := item;
+
+    filsSemFormatacaoSemZeroEsquerda:
+      begin
+        Result := OnlyNumber(item);
+
+        if Copy(Result, 1, 1) = '0' then
+          Result := Copy(Result, 2, 4);
+      end
   else
     Result := item;
   end;

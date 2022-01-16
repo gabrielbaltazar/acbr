@@ -72,14 +72,14 @@ var
 begin
   Configuracao;
 
-  Opcoes.QuebraLinha := FAOwner.ConfigGeral.QuebradeLinha;
+  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
   FDocument.Clear();
 
   NFSeNode := CreateElement('Nota');
-  NFSeNode.SetNamespace(FAOwner.ConfigMsgDados.XmlRps.xmlns, Self.PrefixoPadrao);
+  NFSeNode.SetNamespace(FpAOwner.ConfigMsgDados.XmlRps.xmlns, Self.PrefixoPadrao);
 
   FDocument.Root := NFSeNode;
 
@@ -197,7 +197,7 @@ begin
     Result.AppendChild(AddNode(tcStr, '#1', 'Email', 1, 50, 0,
                                                NFSe.Tomador.Contato.Email, ''));
 
-    if Length(OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.Cnpj)) <= 11 then
+    if Length(OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.CpfCnpj)) <= 11 then
       Result.AppendChild(AddNode(tcStr, '#1', 'Particular', 1, 1, 1, '1', ''))
     else
       Result.AppendChild(AddNode(tcStr, '#1', 'Particular', 1, 1, 1, '0', ''));

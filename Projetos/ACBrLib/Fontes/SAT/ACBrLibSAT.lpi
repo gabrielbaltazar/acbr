@@ -19,7 +19,7 @@
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="2"/>
       <RevisionNr Value="4"/>
-      <BuildNr Value="162"/>
+      <BuildNr Value="165"/>
       <Language Value="0416"/>
       <Attributes pvaPreRelease="True"/>
       <StringTable CompanyName="Projeto ACBr" FileDescription="ACBrLibSAT - Biblioteca para comunicação com equipamentos SAT ﻿usando ACBrSAT" InternalName="ACBrLibSAT" LegalCopyright="Projeto ACBr" LegalTrademarks="Projeto ACBr"/>
@@ -262,7 +262,9 @@
             </Options>
           </Linking>
           <Other>
-            <CustomOptions Value="-dDEBUG -dNOGUI"/>
+            <CustomOptions Value="-dDEBUG 
+-dNOGUI
+-dMT"/>
           </Other>
         </CompilerOptions>
       </Item7>

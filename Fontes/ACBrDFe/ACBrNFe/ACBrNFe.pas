@@ -99,7 +99,7 @@ type
       sMensagem: TStrings = nil; sCC: TStrings = nil; Anexos: TStrings = nil;
       StreamNFe: TStream = nil; const NomeArq: String = ''; sReplyTo: TStrings = nil); override;
 
-    function Enviar(ALote: integer; Imprimir: Boolean = True;
+    function Enviar(ALote: Int64; Imprimir: Boolean = True;
       Sincrono: Boolean = False; Zipado: Boolean = False): Boolean; overload;
 
     function GetNomeModeloDFe: String; override;
@@ -113,10 +113,10 @@ type
 
     function Enviar(const ALote: String; Imprimir: Boolean = True;
       Sincrono: Boolean = False; Zipado: Boolean = False): Boolean; overload;
-    function Cancelamento(const AJustificativa: String; ALote: integer = 0): Boolean;
+    function Cancelamento(const AJustificativa: String; ALote: Int64 = 0): Boolean;
     function Consultar(const AChave: String = ''; AExtrairEventos: Boolean = False): Boolean;
-    function EnviarCartaCorrecao(idLote: integer): Boolean;
-    function EnviarEvento(idLote: integer): Boolean;
+    function EnviarCartaCorrecao(idLote: Int64): Boolean;
+    function EnviarEvento(idLote: Int64): Boolean;
 
     procedure LerServicoDeParams(LayOutServico: TLayOut; var Versao: Double;
       var URL: String; var Servico: String; var SoapAction: String); reintroduce; overload;
@@ -639,7 +639,7 @@ begin
   end;
 end;
 
-function TACBrNFe.Cancelamento(const AJustificativa: String; ALote: integer = 0): Boolean;
+function TACBrNFe.Cancelamento(const AJustificativa: String; ALote: Int64 = 0): Boolean;
 var
   i: integer;
 begin
@@ -701,7 +701,7 @@ begin
   Result := True;
 end;
 
-function TACBrNFe.Enviar(ALote: integer; Imprimir: Boolean = True;
+function TACBrNFe.Enviar(ALote: Int64; Imprimir: Boolean = True;
   Sincrono: Boolean = False; Zipado: Boolean = False): Boolean;
 begin
   Result := Enviar(IntToStr(ALote), Imprimir, Sincrono, Zipado);
@@ -737,7 +737,7 @@ begin
   end;
 end;
 
-function TACBrNFe.EnviarCartaCorrecao(idLote: integer): Boolean;
+function TACBrNFe.EnviarCartaCorrecao(idLote: Int64): Boolean;
 var
   i: integer;
 begin
@@ -770,7 +770,7 @@ begin
   Result := EnviarEvento(idLote);
 end;
 
-function TACBrNFe.EnviarEvento(idLote: integer): Boolean;
+function TACBrNFe.EnviarEvento(idLote: Int64): Boolean;
 var
   i, j: integer;
   chNfe: String;

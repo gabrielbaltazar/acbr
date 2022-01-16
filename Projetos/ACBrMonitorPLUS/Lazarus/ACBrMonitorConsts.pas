@@ -1278,6 +1278,7 @@ const
   CKeyBOLETOCodTransmissao =                'CodTransmissao';
   CKeyBOLETOModalidade =                    'Modalidade';
   CKeyBOLETOConvenio =                      'Convenio';
+  CKeyBOLETOCodigoOperacao =                'CodigoOperacao';
   CKeyBOLETOBanco =                         'Banco';
   CKeyBOLETOConta =                         'Conta';
   CKeyBOLETODigitoConta =                   'DigitoConta';
@@ -1302,6 +1303,7 @@ const
   CKeyBOLETOLerCedenteRetorno =             'LerCedenteRetorno';
   CKeyBOLETOMostraPreviewRelRetorno =       'MostraPreviewRelRetorno';
   CKeyBOLETORemoveAcentos =                 'RemoveAcentos';
+  CKeyBoletoPrefixArqRemessa =              'PrefixArqRemessa';
   CKeyBOLETOLogoEmpresa =                   'LogoEmpresa';
   CKeyBOLETOEmailAssuntoBoleto =            'EmailAssuntoBoleto';
   CKeyBOLETOEmailMensagemBoleto =           'EmailMensagemBoleto';

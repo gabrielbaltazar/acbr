@@ -49,12 +49,11 @@ type
 
   TNFSeW_Tecnos201 = class(TNFSeW_ABRASFv2)
   protected
-    function DefinirNameSpaceDeclaracao: string; override;
-
     function GerarInfDeclaracaoPrestacaoServico: TACBrXmlNode; override;
     function GerarValores: TACBrXmlNode; override;
 
     procedure Configuracao; override;
+    procedure DefinirIDDeclaracao; override;
 
   end;
 
@@ -125,9 +124,11 @@ begin
   GerarTagServicos := False;
 end;
 
-function TNFSeW_Tecnos201.DefinirNameSpaceDeclaracao: string;
+procedure TNFSeW_Tecnos201.DefinirIDDeclaracao;
 begin
-  Result := 'http://www.abrasf.org.br/nfse.xsd';
+  NFSe.InfID.ID := '1' + // Tipo de operação, no caso envio
+                   OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.CpfCnpj) +
+                   Poem_Zeros(OnlyNumber(NFSe.IdentificacaoRps.Numero), 16);
 end;
 
 function TNFSeW_Tecnos201.GerarInfDeclaracaoPrestacaoServico: TACBrXmlNode;
@@ -159,7 +160,7 @@ begin
                      NFSe.Servico.CodigoTributacaoMunicipio, DSC_CSERVTRIBMUN));
 
   Result.AppendChild(AddNode(tcStr, '#32', 'Discriminacao', 1, 2000, 1,
-    StringReplace(NFSe.Servico.Discriminacao, ';', FAOwner.ConfigGeral.QuebradeLinha,
+    StringReplace(NFSe.Servico.Discriminacao, ';', FpAOwner.ConfigGeral.QuebradeLinha,
                                        [rfReplaceAll, rfIgnoreCase]), DSC_DISCR,
                 (NFSe.Prestador.Endereco.CodigoMunicipio <> '3304557')));
 

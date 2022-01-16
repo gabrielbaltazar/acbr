@@ -176,9 +176,9 @@ begin
   for I := Low(ANodeArray) to High(ANodeArray) do
   begin
     AErro := Response.Erros.New;
-    AErro.Codigo := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
-    AErro.Correcao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr);
+    AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
+    AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr);
   end;
 end;
 
@@ -243,7 +243,7 @@ begin
       end;
     end;
 
-    Response.XmlEnvio := '<' + TagEnvio + NameSpace + '>' +
+    Response.ArquivoEnvio := '<' + TagEnvio + NameSpace + '>' +
                            '<UnidadeGestora>' +
                               TACBrNFSeX(FAOwner).Configuracoes.Geral.CnpjPrefeitura +
                            '</UnidadeGestora>' +
@@ -264,7 +264,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -272,7 +272,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'ListaMensagemRetorno', 'MensagemRetorno');
 
@@ -284,8 +284,8 @@ begin
       begin
         with Response do
         begin
-          Data := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('DataRecebimento'), tcDatHor);
-          Protocolo := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('Protocolo'), tcStr);
+          Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataRecebimento'), tcDatHor);
+          Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Protocolo'), tcStr);
         end;
       end;
 
@@ -301,7 +301,7 @@ begin
           Exit;
         end;
 
-        NumRps := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('Numero'), tcStr);
+        NumRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('Numero'), tcStr);
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumRps);
 
@@ -350,7 +350,7 @@ begin
   else
     NameSpace := ' xmlns="' + ConfigMsgDados.ConsultarLote.xmlns + '"';
 
-  Response.XmlEnvio := '<ConsultarLoteRpsEnvio' + NameSpace + '>' +
+  Response.ArquivoEnvio := '<ConsultarLoteRpsEnvio' + NameSpace + '>' +
                          '<UnidadeGestora>' +
                             TACBrNFSeX(FAOwner).Configuracoes.Geral.CnpjPrefeitura +
                          '</UnidadeGestora>' +
@@ -387,7 +387,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -395,7 +395,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'ListaMensagemRetorno', 'MensagemRetorno');
 
@@ -407,7 +407,7 @@ begin
       begin
         with Response do
         begin
-          Situacao := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('Situacao'), tcStr);
+          Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Situacao'), tcStr);
 
           AuxNode := ANode.Childrens.FindAnyNs('ListaNfse');
 
@@ -501,7 +501,7 @@ begin
   else
     NameSpace := ' xmlns="' + ConfigMsgDados.ConsultarNFSeRps.xmlns + '"';
 
-  Response.XmlEnvio := '<ConsultarNfseRpsEnvio' + NameSpace + '>' +
+  Response.ArquivoEnvio := '<ConsultarNfseRpsEnvio' + NameSpace + '>' +
                          '<UnidadeGestora>' +
                             TACBrNFSeX(FAOwner).Configuracoes.Geral.CnpjPrefeitura +
                          '</UnidadeGestora>' +
@@ -545,7 +545,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -553,7 +553,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'ListaMensagemRetorno', 'MensagemRetorno');
 
@@ -646,7 +646,7 @@ begin
   else
     NameSpace := ' xmlns="' + ConfigMsgDados.ConsultarNFSe.xmlns + '"';
 
-  Response.XmlEnvio := '<ConsultarNfseFaixaEnvio' + NameSpace + '>' +
+  Response.ArquivoEnvio := '<ConsultarNfseFaixaEnvio' + NameSpace + '>' +
                          '<UnidadeGestora>' +
                             TACBrNFSeX(FAOwner).Configuracoes.Geral.CnpjPrefeitura +
                          '</UnidadeGestora>' +
@@ -686,7 +686,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -694,7 +694,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'ListaMensagemRetorno', 'MensagemRetorno');
 
@@ -798,7 +798,7 @@ begin
   else
     NameSpace := ' xmlns="' + ConfigMsgDados.CancelarNFSe.xmlns + '"';
 
-  Response.XmlEnvio := '<CancelarNfseEnvio' + NameSpace + '>' +
+  Response.ArquivoEnvio := '<CancelarNfseEnvio' + NameSpace + '>' +
                          '<UnidadeGestora>' +
                             TACBrNFSeX(FAOwner).Configuracoes.Geral.CnpjPrefeitura +
                          '</UnidadeGestora>' +
@@ -841,7 +841,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -849,7 +849,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'ListaMensagemRetorno', 'MensagemRetorno');
 
@@ -861,8 +861,8 @@ begin
       begin
         with Response do
         begin
-          Data := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('DataHora'), tcDatHor);
-          Protocolo := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('ProtocoloRequerimentoCancelamento'), tcStr);
+          Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHora'), tcDatHor);
+          Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('ProtocoloRequerimentoCancelamento'), tcStr);
         end;
       end;
     except
@@ -883,7 +883,7 @@ procedure TACBrNFSeProviderAgili.GerarMsgDadosSubstituiNFSe(
 begin
   with Params do
   begin
-    Response.XmlEnvio := '<SubstituirNfseEnvio' + NameSpace + '>' +
+    Response.ArquivoEnvio := '<SubstituirNfseEnvio' + NameSpace + '>' +
                            Response.PedCanc +
                            Xml +
                          '</SubstituirNfseEnvio>';
@@ -905,7 +905,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -913,7 +913,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'ListaMensagemRetorno', 'MensagemRetorno');
 
@@ -932,7 +932,7 @@ begin
           if AuxNode <> nil then
           begin
             with Response.RetCancelamento do
-             DataHora := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('DataHora'), tcDatHor);
+             DataHora := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHora'), tcDatHor);
           end;
 
           AuxNode := AuxNode.Childrens.FindAnyNs('NfseSubstituidora');

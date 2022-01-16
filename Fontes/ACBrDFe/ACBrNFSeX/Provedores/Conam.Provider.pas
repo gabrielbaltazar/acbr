@@ -175,13 +175,13 @@ begin
 
   for I := Low(ANodeArray) to High(ANodeArray) do
   begin
-    xId := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('Id'), tcStr);
+    xId := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Id'), tcStr);
 
     if xId <> 'OK' then
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := xId;
-      AErro.Descricao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('Description'), tcStr);
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Description'), tcStr);
       AErro.Correcao := '';
     end;
   end;
@@ -393,7 +393,7 @@ begin
               '</nfe:ValorTributos>' +
             '</nfe:Reg90>';
 
-  Response.XmlEnvio := '<nfe:Sdt_processarpsin>' +
+  Response.ArquivoEnvio := '<nfe:Sdt_processarpsin>' +
                          '<nfe:Login>' +
                            '<nfe:CodigoUsuario>' +
                               Emitente.WSUser +
@@ -438,7 +438,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -446,7 +446,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'Messages', 'Message');
 
@@ -458,7 +458,7 @@ begin
       begin
         with Response do
         begin
-          Protocolo := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('Protocolo'), tcStr);
+          Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Protocolo'), tcStr);
         end;
       end;
     except
@@ -506,7 +506,7 @@ begin
     Exit;
   end;
 
-  Response.XmlEnvio := '<nfe:Sdt_consultaprotocoloin>' +
+  Response.ArquivoEnvio := '<nfe:Sdt_consultaprotocoloin>' +
                          '<nfe:Protocolo>' +
                             Response.Protocolo +
                          '</nfe:Protocolo>' +
@@ -532,7 +532,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -540,7 +540,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'Messages', 'Message');
 
@@ -552,7 +552,7 @@ begin
       begin
         with Response do
         begin
-          Protocolo := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('PrtCSerRps'), tcStr);
+          Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('PrtCSerRps'), tcStr);
         end;
       end;
     except
@@ -600,7 +600,7 @@ begin
     Exit;
   end;
 
-  Response.XmlEnvio := '<nfe:Sdt_consultanotasprotocoloin>' +
+  Response.ArquivoEnvio := '<nfe:Sdt_consultanotasprotocoloin>' +
                          '<nfe:Protocolo>' +
                             Response.Protocolo +
                          '</nfe:Protocolo>' +
@@ -630,7 +630,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -638,7 +638,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'Messages', 'Message');
 
@@ -773,7 +773,7 @@ begin
     Exit;
   end;
 
-  Response.XmlEnvio := '<nfe:Sdt_cancelanfe>' +
+  Response.ArquivoEnvio := '<nfe:Sdt_cancelanfe>' +
                          '<nfe:Login>' +
                            '<nfe:CodigoUsuario>' +
                               Emitente.WSUser +
@@ -817,7 +817,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -825,7 +825,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'Messages', 'Message');
 
@@ -837,7 +837,7 @@ begin
       begin
         with Response do
         begin
-          Protocolo := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('PrtCSerRps'), tcStr);
+          Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('PrtCSerRps'), tcStr);
         end;
       end;
     except

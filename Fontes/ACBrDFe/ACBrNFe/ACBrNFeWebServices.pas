@@ -441,7 +441,7 @@ type
 
   TNFeEnvEvento = class(TNFeWebService)
   private
-    FidLote: integer;
+    FidLote: Int64;
     FEvento: TEventoNFe;
     FcStat: integer;
     FxMotivo: String;
@@ -466,7 +466,7 @@ type
     destructor Destroy; override;
     procedure Clear; override;
 
-    property idLote: integer read FidLote write FidLote;
+    property idLote: Int64 read FidLote write FidLote;
     property cStat: integer read FcStat;
     property xMotivo: String read FxMotivo;
     property TpAmb: TpcnTipoAmbiente read FTpAmb;
@@ -592,7 +592,7 @@ type
     constructor Create(AOwner: TACBrDFe); overload;
     destructor Destroy; override;
 
-    function Envia(ALote: integer; const ASincrono: Boolean = False; AZipado: Boolean = False): Boolean;
+    function Envia(ALote: Int64; const ASincrono: Boolean = False; AZipado: Boolean = False): Boolean;
       overload;
     function Envia(const ALote: String; const ASincrono: Boolean = False; AZipado: Boolean = False): Boolean;
       overload;
@@ -621,7 +621,7 @@ implementation
 
 uses
   StrUtils, Math,
-  ACBrUtil, ACBrCompress, ACBrNFe,
+  ACBrUtil, ACBrCompress, ACBrNFe, ACBrConsts,
   pcnGerador, pcnConsStatServ, pcnRetConsStatServ,
   pcnConsSitNFe, pcnInutNFe, pcnRetInutNFe, pcnConsReciDFe,
   pcnConsCad, pcnLeitor, ACBrIntegrador;
@@ -1119,7 +1119,7 @@ begin
     vNotas + '</enviNFe>';
 
   if FZipado then
-    FPDadosMsg := EncodeBase64(GZipCompress(FPDadosMsg));
+    FPDadosMsg := EncodeBase64(GZipCompress(CUTF8DeclaracaoXML+FPDadosMsg));
 
   // Lote tem mais de 500kb ? //
   if Length(FPDadosMsg) > (500 * 1024) then
@@ -3942,7 +3942,7 @@ begin
 end;
 
 
-function TWebServices.Envia(ALote: integer; const ASincrono: Boolean;
+function TWebServices.Envia(ALote: Int64; const ASincrono: Boolean;
   AZipado: Boolean): Boolean;
 begin
   Result := Envia(IntToStr(ALote), ASincrono, AZipado );

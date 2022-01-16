@@ -215,6 +215,8 @@ begin
   FormatSettings.LongTimeFormat := 'hh:nn:ss';
   FormatSettings.DateSeparator := '/';
   FormatSettings.TimeSeparator := ':';
+  FormatSettings.DecimalSeparator := ',';
+  FormatSettings.ThousandSeparator := '.';
 
 {$IFDEF Demo}
   if not Assigned(FPDemo) then
@@ -227,6 +229,11 @@ end;
 destructor TACBrLib.Destroy;
 begin
   GravarLog('LIB_Finalizar', logSimples);
+
+{$IFDEF Demo}
+  if Assigned(FPDemo) then
+    FPDemo.Free;
+{$ENDIF}
 
   fpFileVerInfo.Free;
   Finalizar;
@@ -408,8 +415,7 @@ Var
 begin
   try
     GravarLog('LIB_UltimoRetorno', logNormal);
-    Ret := IfThen(Config.CodResposta = codAnsi, ACBrUTF8ToAnsi(Retorno.Mensagem), Retorno.Mensagem);
-    MoverStringParaPChar(Ret, sMensagem, esTamanho);
+    MoverStringParaPChar(Retorno.Mensagem, sMensagem, esTamanho);
     Result := Retorno.Codigo;
     if (Config.Log.Nivel >= logCompleto) then
       GravarLog('   Codigo:' + IntToStr(Result) + ', Mensagem:' + string(sMensagem), logCompleto, True);
@@ -581,6 +587,7 @@ begin
     ChaveCrypt := Ansistring(eChaveCrypt);
 
     New(libHandle);
+    libHandle^.Lib := Nil;
     libHandle^.Lib := pLibClass.Create(eArqConfig, eChaveCrypt);
     libHandle^.Lib.Inicializar;
     libHandle^.Lib.GravarLog('LIB_Inicializar( ' + IfThen(libHandle^.Lib.Config.EhMemory, CLibMemory, ArqConfig) + ', ' + StringOfChar('*', Length(ChaveCrypt)) + ' )', logSimples);
@@ -784,8 +791,11 @@ procedure LiberarLib(libHandle: PLibHandle);
 begin
   if Assigned(libHandle) then
   begin
-    libHandle^.Lib.Destroy;
-    libHandle^.Lib := nil;
+    if Assigned(libHandle^.Lib) then
+    begin
+      libHandle^.Lib.Destroy;
+      libHandle^.Lib := nil;
+    end;
     Dispose(libHandle);
   end;
 end;

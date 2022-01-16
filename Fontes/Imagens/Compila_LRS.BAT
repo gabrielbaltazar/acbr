@@ -16,7 +16,7 @@ echo "****************************************"
 echo.
 
 :OpenSSL
-%1\tools\lazres.exe ACBrOpenSSL.lrs TACBrEAD.png
+%1\tools\lazres.exe ACBrOpenSSL.lrs TACBrEAD.png TACBrOpenSSLUtils.png
 move ACBrOpenSSL.lrs ..\ACBrOpenSSL
 echo.
 echo "****************************************"
@@ -48,6 +48,15 @@ move ACBrTEFD.lrs ..\ACBrTEFD
 echo.
 echo "****************************************"
 echo "* Arquivo   ACBrTEFD.lrs   gerado      *"
+echo "****************************************"
+echo.
+
+:PIXCD
+%1\tools\lazres.exe ACBrPIXCD.lrs TACBrPixCD.png TACBrPSPItau.png TACBrPSPBancoDoBrasil.png TACBrPSPSantander.png
+move ACBrPIXCD.lrs ..\ACBrPIXCD
+echo.
+echo "****************************************"
+echo "* Arquivo   ACBrPIXCD.lrs   gerado     *"
 echo "****************************************"
 echo.
 

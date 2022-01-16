@@ -165,10 +165,10 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := '';
-    AErro.Descricao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('sRetorno'), tcStr);
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('sRetorno'), tcStr);
 
     if AErro.Descricao = '' then
-      AErro.Descricao := ProcessarConteudoXml(ANodeArray[I].Childrens.FindAnyNs('sRetornoCanc'), tcStr);
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('sRetornoCanc'), tcStr);
 
     AErro.Correcao := '';
   end;
@@ -183,7 +183,7 @@ end;
 procedure TACBrNFSeProviderSimple.GerarMsgDadosEmitir(
   Response: TNFSeEmiteResponse; Params: TNFSeParamsResponse);
 begin
-  Response.XmlEnvio := '<tNota>' +
+  Response.ArquivoEnvio := '<tNota>' +
                           Params.Xml +
                        '</tNota>';
 end;
@@ -199,7 +199,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -207,7 +207,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'Nota');
 
@@ -222,7 +222,7 @@ begin
         {
         with Response do
         begin
-          Sucesso := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
+          Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
 
           AuxNode := AuxNode.Childrens.FindAnyNs('InformacoesLote');
 
@@ -230,23 +230,23 @@ begin
           begin
             with InformacoesLote do
             begin
-              NumeroLote := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('NumeroLote'), tcStr);
-              InscricaoPrestador := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('InscricaoPrestador'), tcStr);
+              NumeroLote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroLote'), tcStr);
+              InscricaoPrestador := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('InscricaoPrestador'), tcStr);
 
               AuxNodeCPFCNPJ := AuxNode.Childrens.FindAnyNs('CPFCNPJRemetente');
 
               if AuxNodeCPFCNPJ <> nil then
               begin
-                CPFCNPJRemetente := ProcessarConteudoXml(AuxNodeCPFCNPJ.Childrens.FindAnyNs('CNPJ'), tcStr);
+                CPFCNPJRemetente := ObterConteudoTag(AuxNodeCPFCNPJ.Childrens.FindAnyNs('CNPJ'), tcStr);
 
                 if CPFCNPJRemetente = '' then
-                  CPFCNPJRemetente := ProcessarConteudoXml(AuxNodeCPFCNPJ.Childrens.FindAnyNs('CPF'), tcStr);
+                  CPFCNPJRemetente := ObterConteudoTag(AuxNodeCPFCNPJ.Childrens.FindAnyNs('CPF'), tcStr);
               end;
 
-              DataEnvioLote := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('DataEnvioLote'), tcDatHor);
-              QtdNotasProcessadas := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('QtdNotasProcessadas'), tcInt);
-              TempoProcessamento := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('TempoProcessamento'), tcInt);
-              ValorTotalServico := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('ValorTotalServicos'), tcDe2);
+              DataEnvioLote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataEnvioLote'), tcDatHor);
+              QtdNotasProcessadas := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('QtdNotasProcessadas'), tcInt);
+              TempoProcessamento := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('TempoProcessamento'), tcInt);
+              ValorTotalServico := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ValorTotalServicos'), tcDe2);
             end;
           end;
         end;
@@ -281,7 +281,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<iRPS>' + Response.NumRPS + '</iRPS>' +
+  Response.ArquivoEnvio := '<iRPS>' + Response.NumRPS + '</iRPS>' +
                        '<sCPFCNPJ>' + OnlyNumber(Emitente.CNPJ) + '</sCPFCNPJ>' +
                        '<dDataRecibo>' + '</dDataRecibo>';end;
 
@@ -300,7 +300,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -308,7 +308,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'Nota');
 
@@ -328,7 +328,7 @@ begin
       for i := Low(ANodeArray) to High(ANodeArray) do
       begin
         ANode := ANodeArray[i];
-        NumNFSe := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('iNota'), tcStr);
+        NumNFSe := ObterConteudoTag(ANode.Childrens.FindAnyNs('iNota'), tcStr);
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
@@ -378,7 +378,7 @@ begin
 
       Response.Metodo := tmConsultarNFSe;
 
-      Response.XmlEnvio := '<iNota>' + Response.InfConsultaNFSe.NumeroIniNFSe + '</iNota>' +
+      Response.ArquivoEnvio := '<iNota>' + Response.InfConsultaNFSe.NumeroIniNFSe + '</iNota>' +
                            '<sCPFCNPJ>' + OnlyNumber(Emitente.CNPJ) + '</sCPFCNPJ>';
     end;
   end;
@@ -404,7 +404,7 @@ begin
 
       try
         try
-          if Response.XmlRetorno = '' then
+          if Response.ArquivoRetorno = '' then
           begin
             AErro := Response.Erros.New;
             AErro.Codigo := Cod201;
@@ -412,7 +412,7 @@ begin
             Exit
           end;
 
-          Document.LoadFromXml(Response.XmlRetorno);
+          Document.LoadFromXml(Response.ArquivoRetorno);
 
           ProcessarMensagemErros(Document.Root, Response, 'Nota');
 
@@ -432,7 +432,7 @@ begin
           for i := Low(ANodeArray) to High(ANodeArray) do
           begin
             ANode := ANodeArray[i];
-            NumNFSe := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('iNota'), tcStr);
+            NumNFSe := ObterConteudoTag(ANode.Childrens.FindAnyNs('iNota'), tcStr);
 
             ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
@@ -487,7 +487,7 @@ begin
 
   Response.Metodo := tmConsultarNFSePorFaixa;
 
-  Response.XmlEnvio := '<dDataInicial>' +
+  Response.ArquivoEnvio := '<dDataInicial>' +
                          FormatDateTime('YYYY-MM-DD', Response.InfConsultaNFSe.DataInicial) +
                        '</dDataInicial>' +
                        '<dDataFinal>' +
@@ -511,7 +511,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -519,7 +519,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'Nota');
 
@@ -539,7 +539,7 @@ begin
       for i := Low(ANodeArray) to High(ANodeArray) do
       begin
         ANode := ANodeArray[i];
-        NumNFSe := ProcessarConteudoXml(ANode.Childrens.FindAnyNs('iNota'), tcStr);
+        NumNFSe := ObterConteudoTag(ANode.Childrens.FindAnyNs('iNota'), tcStr);
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
@@ -598,7 +598,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.XmlEnvio := '<tCancelamentoNota>' +
+  Response.ArquivoEnvio := '<tCancelamentoNota>' +
                          '<CancelamentoNota>' +
                            '<sRetornoCanc>' + '</sRetornoCanc>' +
                            '<sContribuinteCanc>' +
@@ -632,7 +632,7 @@ begin
 
   try
     try
-      if Response.XmlRetorno = '' then
+      if Response.ArquivoRetorno = '' then
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
@@ -640,7 +640,7 @@ begin
         Exit
       end;
 
-      Document.LoadFromXml(Response.XmlRetorno);
+      Document.LoadFromXml(Response.ArquivoRetorno);
 
       ProcessarMensagemErros(Document.Root, Response, 'CancelamentoNota');
 
@@ -654,7 +654,7 @@ begin
       begin
         with Response do
         begin
-          xSucesso := ProcessarConteudoXml(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
+          xSucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr);
           Sucesso := not (xSucesso = 'N');
         end;
       end;

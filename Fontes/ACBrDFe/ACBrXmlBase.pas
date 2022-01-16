@@ -43,18 +43,22 @@ uses
 type
   TACBrTipoAmbiente = (taProducao, taHomologacao);
 
+  TACBrTipoEmissao = (teNormal, teContingencia, teSCAN, teDPEC, teFSDA, teSVCAN,
+                      teSVCRS, teSVCSP, teOffLine);
+
   TACBrTagAssinatura = (taSempre, taNunca, taSomenteSeAssinada,
                         taSomenteParaNaoAssinada);
 
-  TACBrTipoCampo = (tcStr, tcInt, tcDat, tcDatHor, tcEsp, tcDe2, tcDe3, tcDe4,
-                    tcDe5, tcDe6, tcDe7, tcDe8, tcDe10, tcHor, tcDatCFe,
+  TACBrTipoCampo = (tcStr, tcInt, tcInt64, tcDat, tcDatHor, tcEsp, tcDe2, tcDe3,
+                    tcDe4, tcDe5, tcDe6, tcDe7, tcDe8, tcDe10, tcHor, tcDatCFe,
                     tcHorCFe, tcDatVcto, tcDatHorCFe, tcBool, tcStrOrig, tcNumStr);
 
 const
   LineBreak = #13#10;
 
-function FiltrarTextoXML(const RetirarEspacos: boolean; aTexto: String; RetirarAcentos: boolean = True;
-                         SubstituirQuebrasLinha: Boolean = True; const QuebraLinha: String = ';'): String;
+function FiltrarTextoXML(const RetirarEspacos: boolean; aTexto: String;
+  RetirarAcentos: boolean = True; SubstituirQuebrasLinha: Boolean = True;
+  const QuebraLinha: String = ';'): String;
 
 function StrToEnumerado(out ok: boolean; const s: string; const AString: array of string;
   const AEnumerados: array of variant): variant;
@@ -72,10 +76,16 @@ function TratarXmlRetorno(const aXML: string): string;
 function RemoverPrefixos(const aXML: string; APrefixo: array of string): string;
 function RemoverPrefixosDesnecessarios(const aXML: string): string;
 
-function ProcessarConteudoXml(const ANode: TACBrXmlNode; const Tipo: TACBrTipoCampo): variant;
+function ObterConteudoTag(const AAtt: TACBrXmlAttribute): string; overload;
+function ObterConteudoTag(const ANode: TACBrXmlNode; const Tipo: TACBrTipoCampo): variant; overload;
 
 function LerDatas(const DataStr: string): TDateTime;
-//procedure ApplyNamespacePrefix(const ANode: TACBrXmlNode; nsPrefix: string; excludeElements: array of string);
+
+function TipoEmissaoToStr(const t: TACBrTipoEmissao): string;
+function StrToTipoEmissao(out ok: boolean; const s: string): TACBrTipoEmissao;
+
+function TipoAmbienteToStr(const t: TACBrTipoAmbiente): string;
+function StrToTipoAmbiente(out ok: boolean; const s: string): TACBrTipoAmbiente;
 
 implementation
 
@@ -83,7 +93,8 @@ uses
   StrUtilsEx, ACBrUtil, DateUtils;
 
 function FiltrarTextoXML(const RetirarEspacos: boolean; aTexto: String;
-  RetirarAcentos: boolean; SubstituirQuebrasLinha: Boolean; const QuebraLinha: String): String;
+  RetirarAcentos: boolean; SubstituirQuebrasLinha: Boolean;
+  const QuebraLinha: String): String;
 begin
   if RetirarAcentos then
      aTexto := TiraAcentos(aTexto);
@@ -162,6 +173,7 @@ begin
   Result := FaststringReplace(Result, ''#$A'', '', [rfReplaceAll]);
   Result := FaststringReplace(Result, ''#$A#$A'', '', [rfReplaceAll]);
   Result := FaststringReplace(Result, '<br >', ';', [rfReplaceAll]);
+  Result := FaststringReplace(Result, '<br>', ';', [rfReplaceAll]);
   Result := FaststringReplace(Result, #9, '', [rfReplaceAll]);
 end;
 
@@ -227,7 +239,15 @@ begin
               'ii:', 'p1:']);
 end;
 
-function ProcessarConteudoXml(const ANode: TACBrXmlNode; const Tipo: TACBrTipoCampo): variant;
+function ObterConteudoTag(const AAtt: TACBrXmlAttribute): string; overload;
+begin
+  if not Assigned(AAtt) or (AAtt = nil) then
+    Result := ''
+  else
+    Result := Trim(AAtt.Content);
+end;
+
+function ObterConteudoTag(const ANode: TACBrXmlNode; const Tipo: TACBrTipoCampo): variant;
 var
   ConteudoTag: string;
   iDecimais: Integer;
@@ -248,34 +268,7 @@ begin
     tcStr,
     tcEsp:
       result := ConteudoTag;
-{
-    tcDat:
-      begin
-        if length(ConteudoTag) > 0 then
-          result := EncodeDate(StrToInt(copy(ConteudoTag, 1, 4)), StrToInt(copy(ConteudoTag, 6, 2)), StrToInt(copy(ConteudoTag, 9, 2)))
-        else
-          result := 0;
-      end;
 
-    tcDatVcto:
-      begin
-        if length(ConteudoTag) > 0 then
-          result := EncodeDate(StrToInt(copy(ConteudoTag, 7, 4)), StrToInt(copy(ConteudoTag, 4, 2)), StrToInt(copy(ConteudoTag, 1, 2)))
-        else
-          Result := 0;
-      end;
-
-    tcDatHor:
-      begin
-        if length(ConteudoTag) > 0 then
-          result := EncodeDate(StrToInt(copy(ConteudoTag, 1, 4)), StrToInt(copy(ConteudoTag, 6, 2)), StrToInt(copy(ConteudoTag, 9, 2))) +
-                    EncodeTime(StrToIntDef(copy(ConteudoTag, 12, 2), 0),
-                               StrToIntDef(copy(ConteudoTag, 15, 2), 0),
-                               StrToIntDef(copy(ConteudoTag, 18, 2), 0), 0)
-        else
-          result := 0;
-      end;
-}
     tcDat,
     tcDatHor,
     tcDatVcto:
@@ -356,6 +349,14 @@ begin
       begin
         if length(ConteudoTag) > 0 then
           result := StrToIntDef(OnlyNumber(ConteudoTag), 0)
+        else
+          result := 0;
+      end;
+
+    tcInt64:
+      begin
+        if length(ConteudoTag) > 0 then
+          result := StrToInt64Def(OnlyNumber(ConteudoTag), 0)
         else
           result := 0;
       end;
@@ -456,28 +457,28 @@ begin
   end;
 end;
 
-{
-procedure ApplyNamespacePrefix(const ANode: TACBrXmlNode; nsPrefix : string; excludeElements: array of string);
-var
-  i: Integer;
-
-  function StringInArray(const Value: string; aStrings: array of string): Boolean;
-  var
-    I: Integer;
-  begin
-    Result := True;
-    for I := Low(aStrings) to High(aStrings) do
-      if aStrings[i] = Value then Exit;
-    Result := False;
-  end;
+function TipoEmissaoToStr(const t: TACBrTipoEmissao): string;
 begin
-  if (ANode = nil) then Exit;
-
-  if not StringInArray(ANode.LocalName, excludeElements) then
-      ANode.Name :=  nsPrefix + ':' + ANode.Name;
-
-  for i := 0 to ANode.Childrens.Count -1 do
-    ApplyNamespacePrefix(ANode.Childrens[i], nsPrefix, excludeElements);
+  result := EnumeradoToStr(t, ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
+                              [teNormal, teContingencia, teSCAN, teDPEC, teFSDA,
+                               teSVCAN, teSVCRS, teSVCSP, teOffLine]);
 end;
-}
+
+function StrToTipoEmissao(out ok: boolean; const s: string): TACBrTipoEmissao;
+begin
+  result := StrToEnumerado(ok, s, ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
+                              [teNormal, teContingencia, teSCAN, teDPEC, teFSDA,
+                               teSVCAN, teSVCRS, teSVCSP, teOffLine]);
+end;
+
+function TipoAmbienteToStr(const t: TACBrTipoAmbiente): string;
+begin
+  result := EnumeradoToStr(t, ['1', '2'], [taProducao, taHomologacao]);
+end;
+
+function StrToTipoAmbiente(out ok: boolean; const s: string): TACBrTipoAmbiente;
+begin
+  result := StrToEnumerado(ok, s, ['1', '2'], [taProducao, taHomologacao]);
+end;
+
 end.

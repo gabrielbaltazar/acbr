@@ -62,9 +62,6 @@ type
   TVersaoNFSe = (ve100, ve101, ve103,
                  ve200, ve201, ve202, ve203, ve204);
 
-  TnfseTagAssinatura = (taSempre, taNunca, taSomenteSeAssinada,
-                        taSomenteParaNaoAssinada);
-
   TStatusRPS = (srNormal, srCancelado);
 
   TStatusNFSe = (snNormal, snCancelado);
@@ -175,21 +172,6 @@ type
 
   TUnidade = (tuHora, tuQtde);
 
-  // A versão do Soap define o MimeType
-  // se for 1.0 será application/xml
-  // se for 1.1 será text/xml
-  // se for 1.2 será application/soap+xml
-  // se for Json será application/json
-  TVersaoSoap = (vs1_0, vs1_1, vs1_2, Json);
-
-  TFormatoMsg = (fmXML, fmStr, fmCDATA);
-
-  TLocalCabecalho = (lcHeader, lcBody);
-
-  TLocalSenha = (lsHeader, lsBody, lsDados);
-
-  TLocalParametros = (ppDentroBody, ppDentroCabecalho, ppDentroDados);
-
   TMetodo = (tmRecepcionar, tmConsultarSituacao, tmConsultarLote,
              tmConsultarNFSePorRps, tmConsultarNFSe,
              tmConsultarNFSePorFaixa, tmConsultarNFSeServicoPrestado,
@@ -197,15 +179,14 @@ type
              tmGerar, tmGerarLote, tmRecepcionarSincrono, tmSubstituirNFSe,
              tmAbrirSessao, tmFecharSessao, tmTeste, tmTodos);
 
-  TFormatoIDLote = (fidInt, fidStr, fidCNPJIMLote);
-
   TFormatoItemListaServico = (filsComFormatacao, filsSemFormatacao,
-                              filsComFormatacaoSemZeroEsquerda);
+                              filsComFormatacaoSemZeroEsquerda,
+                              filsSemFormatacaoSemZeroEsquerda);
 
   TSituacaoTrib = (tsTributadaNoPrestador, tsTibutadaNoTomador, tsIsenta, tsImune,
                    tsNaoTributada);
 
-  TTipoPessoa = (tpPFNaoIdentificaca, tpPF, tpPJdoMunicipio, tpPJforaMunicipio,
+  TTipoPessoa = (tpPFNaoIdentificada, tpPF, tpPJdoMunicipio, tpPJforaMunicipio,
                  tpPJforaPais);
 
   TtpConsulta = (tcPorNumero, tcPorFaixa, tcPorPeriodo, tcServicoPrestado,
@@ -215,16 +196,6 @@ type
 
   TmodoEnvio = (meAutomatico, meLoteAssincrono, meLoteSincrono, meUnitario,
                 meTeste);
-
-  TCancelarRequisitos = (rcaNumeroNFSe, rcaSerieNFSe, rcaChaveNFSe, rcaCodCancelamento,
-                         rcaMotCancelamento, rcaNumeroLote, rcaNumeroRps, rcaSerieRps,
-                         rcaValorNFSe, rcaCodVerificacao);
-
-  TConsultarRequisitos = (rcoNumeroInicial, rcoNumeroFinal,
-                          rcoDataInicial, rcoDataFinal, rcoNumeroLote, rcoPagina);
-
-  TConsultarNFSeRpsRequisitos = (rconNumero, rconSerie, rconTipo,
-                                 rconCodVerificacao);
 
   TtpXML = (txmlRPS, txmlNFSe);
 
@@ -246,9 +217,6 @@ function ExigibilidadeISSDescricao(const t: TnfseExigibilidadeISS): string;
 function RegimeEspecialTributacaoToStr(const t: TnfseRegimeEspecialTributacao; const aProvedor: TnfseProvedor = proNenhum): string;
 function StrToRegimeEspecialTributacao(out ok: boolean; const s: string; const aProvedor: TnfseProvedor = proNenhum): TnfseRegimeEspecialTributacao;
 function nfseRegimeEspecialTributacaoDescricao(const t: TnfseRegimeEspecialTributacao; const aProvedor: TnfseProvedor = proNenhum): string;
-
-function SimNaoToStr(const t: TnfseSimNao; const aProvedor: TnfseProvedor = proNenhum): string;
-function StrToSimNao(out ok: boolean; const s: string; const aProvedor: TnfseProvedor = proNenhum): TnfseSimNao;
 
 function TipoRPSToStr(const t:TTipoRPS): string;
 function StrToTipoRPS(out ok: boolean; const s: string): TTipoRPS;
@@ -293,7 +261,6 @@ function ObterDescricaoServico(const cCodigo: string): string;
 function ChaveAcesso(AUF: Integer; ADataEmissao: TDateTime; const ACNPJ: string;
                      ASerie:Integer; ANumero, ACodigo: Integer;
                      AModelo: Integer=56): string;
-function RetirarPrefixos(const AXML: string; aProvedor: TnfseProvedor): string;
 function VersaoXML(const AXML: string): string;
 function GerarNomeNFSe(AUF: Integer; ADataEmissao: TDateTime; const ACNPJ: string;
                                ANumero: Int64; AModelo: Integer = 56): string;
@@ -335,8 +302,6 @@ function OperacaoDescricao(const t: TOperacao): String;
 function TributacaoToStr(const t: TTributacao): string;
 function StrToTributacao(out ok: boolean; const s: string): TTributacao;
 function TributacaoDescricao(const t: TTributacao): String;
-
-function RemoverAtributos(const AXML: string; aProvedor: TnfseProvedor): string;
 
 function UnidadeToStr(const t: TUnidade): string;
 function StrToUnidade(out ok: boolean; const s: string): TUnidade;
@@ -551,41 +516,6 @@ begin
     else
       Result := '';
     end;
-  end;
-end;
-
-function SimNaoToStr(const t: TnfseSimNao; const aProvedor: TnfseProvedor): string;
-begin
-  case aProvedor of
-    proInfisc: Result := EnumeradoToStr(t,
-                           ['N', 'S'],
-                           [snNao, snSim]);
-
-    proIPM: Result := EnumeradoToStr(t,
-                           ['0', '1'],
-                           [snNao, snSim]);
-  else
-    Result := EnumeradoToStr(t,
-                             ['1', '2'],
-                             [snSim, snNao]);
-  end;
-end;
-
-function StrToSimNao(out ok: boolean; const s: string;
-  const aProvedor: TnfseProvedor): TnfseSimNao;
-begin
-  case aProvedor of
-    proInfisc: Result := StrToEnumerado(ok, s,
-                           ['N', 'S'],
-                           [snNao, snSim]);
-
-    proIPM: Result := StrToEnumerado(ok, s,
-                           ['0', '1'],
-                           [snNao, snSim]);
-  else
-    Result := StrToEnumerado(ok, s,
-                             ['1', '2'],
-                             [snSim, snNao]);
   end;
 end;
 
@@ -18340,47 +18270,6 @@ begin
   Result := vUF + vDataEmissao + ACNPJ + vModelo + vSerie + vNumero + vCodigo;
 end;
 
-function RetirarPrefixos(const AXML: string; aProvedor: TnfseProvedor): string;
-var
-  XML: string;
-
-function StrReplace(AXML, APrefixo: string): string;
-begin
-  Result := stringReplace(stringReplace(AXML, '<' + APrefixo, '<', [rfReplaceAll]),
-                          '</' + APrefixo, '</', [rfReplaceAll]);
-end;
-
-begin
-  XML := StrReplace(AXML, 'ns1:');
-  XML := StrReplace(XML, 'ns2:');
-  XML := StrReplace(XML, 'ns3:');
-  XML := StrReplace(XML, 'ns4:');
-  XML := StrReplace(XML, 'ns5:');
-  XML := StrReplace(XML, 'tc:');
-  XML := StrReplace(XML, 'ii:');
-  XML := StrReplace(XML, 'p1:');
-  XML := StrReplace(XML, 'env:');
-  XML := StrReplace(XML, 'nfse:');
-  XML := StrReplace(XML, 'soap:');
-  XML := StrReplace(XML, 'soap12:');
-  XML := StrReplace(XML, 'soapenv:');
-  XML := StrReplace(XML, 'SOAP-ENV:');
-  XML := StrReplace(XML, 'tin:');
-  XML := StrReplace(XML, 'a:');
-  XML := StrReplace(XML, 'b:');
-  XML := StrReplace(XML, 's:');
-  XML := StrReplace(XML, 'tipos:');
-
-  if aProvedor in [proNFSeBrasil, proSigCorp, proMegaSoft] then
-  begin
-    XML := stringReplace(XML, '<![CDATA[', '', [rfReplaceAll]);
-    XML := stringReplace(XML, ']]>', '', [rfReplaceAll]);
-    XML := stringReplace(XML, 'R$', '', [rfReplaceAll]);
-  end;
-
-  Result := XML;
-end;
-
 function VersaoXML(const AXML: string): string;
 var
   i: Integer;
@@ -18824,15 +18713,6 @@ begin
                             ttTributavelFixo, ttTributavelSN, ttMEI]);
 end;
 
-function RemoverAtributos(const AXML: string; aProvedor: TnfseProvedor): string;
-var
-  XML: string;
-begin
-  XML := stringReplace(AXML, ' xml:lang="pt-BR"', '', [rfReplaceAll]);
-
-  Result := XML;
-end;
-
 function UnidadeToStr(const t: TUnidade): string;
 begin
   Result := EnumeradoToStr(t,
@@ -18913,7 +18793,7 @@ function TipoPessoaToStr(const t: TTipoPessoa): string;
 begin
   Result := EnumeradoToStr(t,
                            ['1', '2', '3', '4', '5'],
-                           [tpPFNaoIdentificaca, tpPF, tpPJdoMunicipio,
+                           [tpPFNaoIdentificada, tpPF, tpPJdoMunicipio,
                             tpPJforaMunicipio, tpPJforaPais]);
 end;
 
@@ -18921,7 +18801,7 @@ function StrToTipoPessoa(out ok: boolean; const s: string): TTipoPessoa;
 begin
   Result := StrToEnumerado(ok, s,
                            ['1', '2', '3', '4', '5'],
-                           [tpPFNaoIdentificaca, tpPF, tpPJdoMunicipio,
+                           [tpPFNaoIdentificada, tpPF, tpPJdoMunicipio,
                             tpPJforaMunicipio, tpPJforaPais]);
 end;
 

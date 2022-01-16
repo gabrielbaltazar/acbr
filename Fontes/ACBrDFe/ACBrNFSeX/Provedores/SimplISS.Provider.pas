@@ -163,7 +163,7 @@ var
 begin
   inherited ValidarSchema(Response, aMetodo);
 
-  xXml := Response.XmlEnvio;
+  xXml := Response.ArquivoEnvio;
 
   case aMetodo of
     tmRecepcionar:
@@ -220,10 +220,10 @@ begin
         xXml := '<sis:CancelarNfseEnvio>' + xXml + '</sis:CancelarNfseEnvio>';
       end;
   else
-    Response.XmlEnvio := xXml;
+    Response.ArquivoEnvio := xXml;
   end;
 
-  Response.XmlEnvio := xXml;
+  Response.ArquivoEnvio := xXml;
 end;
 
 { TACBrNFSeXWebserviceSimplISS }
@@ -234,7 +234,9 @@ begin
   begin
     Result := '<sis:pParam>' +
                 '<sis1:P1>' + Emitente.WSUser + '</sis1:P1>' +
-                '<sis1:P2>' + ParseText(Emitente.WSSenha, False) + '</sis1:P2>' +
+                '<sis1:P2>' +
+                  ParseText(AnsiString(Emitente.WSSenha), False) +
+                '</sis1:P2>' +
               '</sis:pParam>';
   end;
 end;

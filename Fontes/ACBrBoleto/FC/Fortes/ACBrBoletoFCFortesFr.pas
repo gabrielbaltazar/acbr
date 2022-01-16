@@ -59,11 +59,15 @@ type
   TACBrBoletoFCFortes = class(TACBrBoletoFCClass)
   private
     { Private declarations }
+    procedure ImprimirInternal(AStream: TStream);
+
   public
     { Public declarations }
     Constructor Create(AOwner: TComponent); override;
 
-    procedure Imprimir; override;
+    procedure Imprimir; overload; override;
+    procedure Imprimir(AStream: TStream); overload; override;
+
   end;
 
   TACBrBoletoFCFortesFr = class(TForm)
@@ -1192,7 +1196,9 @@ var
 
 implementation
 
-Uses ACBrUtil, strutils, ACBrDFeReport, ACBrDelphiZXingQRCode ;
+Uses
+  strutils,
+  ACBrUtil, ACBrImage, ACBrDelphiZXingQRCode;
 
 {$ifdef FPC}
   {$R *.lfm}
@@ -1209,7 +1215,20 @@ begin
 end;
 
 procedure TACBrBoletoFCFortes.Imprimir;
+begin
+  inherited Imprimir;    // Executa verificações padroes
+  ImprimirInternal(nil);
+end;
 
+procedure TACBrBoletoFCFortes.Imprimir(AStream: TStream);
+begin
+  inherited Imprimir(AStream);    // Executa verificações padroes
+  if Filtro <> fiPDF then
+    raise Exception.Create(ACBrStr('Impressão por Stream apenas para o Filtro PDF.'));
+  ImprimirInternal(AStream);
+end;
+
+procedure TACBrBoletoFCFortes.ImprimirInternal(AStream: TStream);
 var
   frACBrBoletoFortes : TACBRBoletoFCFortesFr;
   RLFiltro : TRLCustomSaveFilter;
@@ -1217,8 +1236,6 @@ var
   i: Integer;
   Bitmap: TBitmap;
 begin
-  inherited Imprimir;    // Executa verificações padroes
-
   frACBrBoletoFortes := TACBrBoletoFCFortesFr.Create(Self);
   try
      with frACBrBoletoFortes do
@@ -1280,31 +1297,38 @@ begin
                    for i := 0 to RLLayout.Pages.PageCount - 1 do
                    begin
                      Bitmap := NeedAuxBitmap;
-                     Bitmap.Width := RLLayout.Pages.Pages[i].Width;
-                     Bitmap.Height := RLLayout.Pages.Pages[i].Height;
+                     Bitmap.Width := RLLayout.Pages[i].Width;
+                     Bitmap.Height := RLLayout.Pages[i].Height;
                      Bitmap.PixelFormat := pf32bit;
 
                      Bitmap.Canvas.Brush.Color := clWhite;
                      Bitmap.Canvas.Brush.Style := bsSolid;
-                     Bitmap.Canvas.FillRect(Rect(0, 0, bitmap.Width, bitmap.Height));
+                     Bitmap.Canvas.FillRect(Rect(0, 0, Bitmap.Width, Bitmap.Height));
 
-                     RLLayout.Pages.Pages[i].PaintTo(bitmap.Canvas, Rect(0, 0, Bitmap.Width, Bitmap.Height));
+                     RLLayout.Pages[i].PaintTo(Bitmap.Canvas, Rect(0, 0, Bitmap.Width, Bitmap.Height));
                      NomeArquivo := ChangeFileExt(NomeArquivo, '');
-                     bitmap.SaveToFile(NomeArquivo + FormatCurr('000', I+1) + '.bmp');
-                  end;
+                     Bitmap.SaveToFile(NomeArquivo + FormatCurr('000', I+1) + '.bmp');
+                   end;
+                   exit;
+                 end
+               else
                   exit;
                end
-               else
-                 exit ;
-               end ;
-
-               if RLFiltro = RLPDFFilter1 then
-                  RLPDFFilter1.DocumentInfo.Title := RLLayout.Title;
-
-               RLFiltro.ShowProgress := MostrarProgresso;
-               RLFiltro.FileName := NomeArquivo ;
-               RLFiltro.FilterPages( RLLayout.Pages );
             end;
+
+            RLFiltro.ShowProgress := MostrarProgresso;
+            RLFiltro.FileName := NomeArquivo;
+
+            if RLFiltro = RLPDFFilter1 then
+            begin
+              RLPDFFilter1.DocumentInfo.Title := RLLayout.Title;
+              if Assigned(AStream) then
+                RLPDFFilter1.FilterPages(RLLayout.Pages, AStream)
+              else
+                RLPDFFilter1.FilterPages(RLLayout.Pages)
+            end
+            else
+              RLFiltro.FilterPages(RLLayout.Pages);
          end;
      end;
   finally
@@ -1312,9 +1336,7 @@ begin
   end;
 end;
 
-
 { TACBrBoletoFCFortesFr }
-
 procedure TACBrBoletoFCFortesFr.FormCreate(Sender: TObject);
 //var
 //  I : Integer ;
