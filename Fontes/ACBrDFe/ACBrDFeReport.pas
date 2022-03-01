@@ -48,7 +48,9 @@ uses
   {$IfDef FMX}
     FMX.Graphics, System.UITypes, System.UIConsts, FMX.Types,
   {$Else}
+    {$IFNDEF LINUX}
     Graphics,
+    {$END}
   {$EndIf}
   ACBrBase,
   pcnConversao;
