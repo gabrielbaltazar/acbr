@@ -50,7 +50,7 @@ uses
   {$Else}
     {$IFNDEF LINUX}
     Graphics,
-    {$END}
+    {$ENDIF}
   {$EndIf}
   ACBrBase,
   pcnConversao;
