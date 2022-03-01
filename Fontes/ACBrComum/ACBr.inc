@@ -177,7 +177,7 @@
       {$DEFINE USE_UTF8}
       {$UNDEF HAS_BLUETOOTH}
     {$ENDIF}
-    {$DEFINE FMX}
+    //{$DEFINE FMX}
     {$DEFINE HAS_SYSTEM_GENERICS}
 
     {$UNDEF CLX}
