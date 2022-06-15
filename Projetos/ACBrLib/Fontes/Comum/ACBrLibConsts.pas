@@ -112,6 +112,7 @@ const
   CChaveAlterarEscalaPadrao = 'AlterarEscalaPadrao';
   CChaveNovaEscala = 'NovaEscala';
   CChaveExpandeLogoMarca = 'ExpandeLogoMarca';
+  CChaveCalcularNomeArquivoPDFIndividual = 'CalcularNomeArquivoPDFIndividual';
 
   CChaveExpandeLogoMarcaAltura = 'ExpandeLogoMarca.Altura';
   CChaveExpandeLogoMarcaEsquerda = 'ExpandeLogoMarca.Esquerda';
@@ -226,7 +227,7 @@ function GerarRetornoWebService(const libHandle: PLibHandle; const CodigoHTTP: I
 
 implementation
 uses
-  ACBrLibResposta, ACBrUtil;
+  ACBrLibResposta, ACBrUtil.Strings;
 
 function GerarRetornoWebService(const libHandle: PLibHandle; const CodigoHTTP: Integer; const WebService: String; const Message: String = ''): String;
 Var

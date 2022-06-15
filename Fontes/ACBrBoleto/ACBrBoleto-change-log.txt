@@ -49,6 +49,221 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+10/06/2022
+--ACBrBancoPenseBank, ACBrBoleto, ACBrBancoBrasil, ACBrBoletoWS, ACBrBoletoW_PenseBankAPI, ACBrBoletoRet_PenseBank, ACBrBoletoConversao, ACBrBoletoRetorno--
+[+] Adicionado as Classe do PenseBank API.
+    por: Ederson Selvati
+    https://www.projetoacbr.com.br/forum/topic/67018-novo-banco-adicionado-pensebank/
+
+08/06/2022
+--ACBrBancoBanestes--
+[*] Adicionado os codigos de Mora aceitos pelo banco.
+    por: Atual Sistemas
+    https://www.projetoacbr.com.br/forum/topic/66698-ajuste-dos-c%C3%B3digos-mora-aceitos-para-banco-banestes-laytou-240-e-400/
+
+
+10/06/2022
+--ACBrBancoDaycoval--
+[*] ACBrBoleto Daycoval - Adicionar ocorrencia 01 de RegistroConfirmado
+  Por : Pandaaa / Niltonfq
+
+07/06/2022
+--ACBrBancoUnicredES--
+[*] ACBrBoleto - UNICRED - Regras Numero Documento - SC
+https://www.projetoacbr.com.br/forum/topic/67300-banco-unicred-es/#comment-440518
+  Por Pandaaa
+
+06/06/2022
+--ACBrBancoCaixa--
+[*] Ajuste na leitura do retorno referente ao campo Carteira, realizado a conversão baseado na validação feita na geração da remessa para a Modalidade
+    https://www.projetoacbr.com.br/forum/topic/67503-erro-na-leitura-arquivo-retorno-cef/
+
+01/06/2022
+--ACBrBancoBradesco.pas--
+[-]TK-2735 Ajuste na validação Nosso Numero pelo Responsavel - ResponEmissao = tbBancoEmite
+  Por Pandaaa / Flavio Macedo 
+
+27/05/2022
+--ACBrBancoAmazonia--
+[*] Adicionado validação para preenchimento dos campos Baixa e Devolução CNAB240
+
+16/05/2022
+--ACBrBancoDaycoval--
+[*] Ajuste na validação do campo TipoCedente na remessa CNAB400 posição 02
+
+13/05/2022
+--ACBrBancoBanrisul--
+[*] Atualização dos códigos de Multa aceito no CNAB240
+  Contribuição: Eloildo Vieira
+  https://www.projetoacbr.com.br/forum/topic/67184-boleto-do-banrisul-o-c%C3%B3digo-da-multa-fixado-em-1-valor-sem-possibilidade-de-usar-o-2-percentual/
+
+10/05/2022
+--ACBrBancoSicredi--
+[-] TK-2648 Correção CNAB240 Segmento R - Coluna 042-042 Ajuste na propriedade Codigo do Desconto 3
+  Por: Pandaaa
+
+09/05/2022
+--ACBrBancoCresol--
+[*] Atualização do código de Mora aceitos na inicialização da Classe
+
+06/05/2022
+--ACBrBoletoBradesco--
+[*] TK-2627 Segmento Q Adicionado Beneficiario Final
+  Contribuição : TopSolution
+
+04/05/2022
+--ACBrBancoCredisis--
+[-] TK-2597 Ajuste na propriedade de geração de data de Multa na remessa do CNAB240
+  Contribuição D'Avila Junior
+  https://www.projetoacbr.com.br/forum/topic/67103-remessa-banco-credisis-acbrbancocredisis/
+[*]
+--ACBrBoleto-- --ACBrBoletoBradesco--
+[*] TK-2571 Ajuste add property TipoDesconto3 e não utilizar TipoDesconto2 para essa finalidade do Desconto3
+  Contribuição Allanbrrj / Por : Pandaaa
+  https://www.projetoacbr.com.br/forum/topic/63180-desconto-por-data-23-e-4-no-bradesco/
+
+02/05/2022
+--ACBrBancoInter--
+[*] Ajuste do código de Retorno para Baixa de Título
+   Por: Rodrigo Cardilo
+	https://www.projetoacbr.com.br/forum/topic/67188-corre%C3%A7%C3%A3o-retorno-banco-inter/
+
+02/05/2022
+--ACBrBancoSicred--
+[*] Atualização dos Códigos de Mora Aceitos pela classe.
+   Por: Eloildo Vieira
+	https://www.projetoacbr.com.br/forum/topic/67046-manual-cnab240-do-sicredi-agora-possui-um-novo-c%C3%B3digo-de-juros-de-mora/
+
+26/04/2022
+--ACBrBoletoRet_BancoBrasil_API--
+[*] TK-2577 ACBrBoleto - Ajuste integração via WS com o BB quando o retorno do Json é nulo - Tratamento de retorno de erros do WS
+  por: Pandaaa
+--ACBrBancoCecred--
+[*] TK-2591 Banco 085 Ajuste de Logo PB e Colorida e Literal de Mensagem Padrão de Pagamento ACBrBoleto - CECRED mudou para AILOS
+  por: Pandaaa
+
+14/04/2022
+--ACBrBancoSofisaSantander--
+[*] Adicionado validação do tipo Multa para definir calculo de casas decimais, baseado na documentação CNAB400
+   por: MarcianoBandeira (https://www.projetoacbr.com.br/forum/topic/66710-banco-sofisa-santander-percentual-da-multa-com-4-casas-decimais-na-remessa/)
+
+14/04/2022
+--TODAS UNIT DO COMPONETE--
+TK-2542 Remoção de Warnings @deprecated ACBrUtil
+  Por : Pandaaa
+TK-2522 Refatoração função de mensagem automática
+TK-2238,2520 Metodo para calculo de juros e mensagem padrão
+TK-2239,2521 Metodo para calculo de multas e mensagem padrão
+TK-2539 Refatoração de Dados obrigatórios - metodo e sobrecarga de metodo em classe propria
+  Por : Pandaaa
+
+06/04/2022
+--ACBrBoleto--
+[+] Adicionado compos para Consulta de Titulos via API na função LerINI
+
+06/04/2022
+--ACBrBancoSafra--
+[*] Atualizado a leitura do campo Especie na geração do CNAB240
+
+06/04/2022
+-- ACBrBoletoInter--
+[*] #TK2543 ACBrBoleto - 77 INTER - Campo data limite de pagamento aceitar somente dominio [0,30,60]
+  Por : Pandaaa
+
+27/03/2022
+-- ACBrBoletoW_Credisis --
+[-] Correção para compilar no Lazarus
+   Por: Waldir Paim
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Waldir Paim
+
+24/03/2022
+--ACBrBoletoW_BancoBrasil_API.pas--
+[-] TK-2505 ACBrBoleto API BB - Correção Swagger - Data Juros
+--ACBrBoleto.pas--
+[*] TK-2493 ACBrBoleto - Alteração na forma de impressão do desconto, Mensagem Padrão
+  Por: Pandaaa
+
+16/03/2022
+--ACBrBoleto.pas--
+[-] TK-2482 ACBrBoleto IniReader - Tratamento para campos vazio Local de Pagamento e Orientações Banco não sobrescrever o construtor da classe.
+  Por: Pandaaa
+
+15/03/2022
+--ACBrBoletoW_BancoBrasil_API.pas--
+[+] Adição de novos filtros Carteira e CarteiraModalidade
+[-] Remoção de parametros na função GerarParametros e adicionados na Classe de Filtro
+TK-2470, TK-2471, TK-2472
+  Por: Pandaaa
+
+14/03/2022
+--ACBrBoletoBancoCresol--
+[*] TK-2408 Adicionado CNAB240 Remessa e Retorno baseados nos manuais
+  Contribuição: Farol TI
+
+14/03/2022
+--ACBrBoletoW_BancoBrasil_API.pas--
+[-] TK-2462 ACBrBoleto BB API Não tentar gerar ID quando titulos for nil
+  Por : Pandaaa
+
+11/03/2022
+--ACBrBoletoConversao.pas-- --ACBrBoletoRet_BancoBrasil_API.pas-- --ACBrBoletoW_BancoBrasil_API.pas--
+[+] TK-2427 Criar / Consultar / Cancelar PIX Boleto Hibrido Banco do Brasil
+[*] TK-2399 Modificado o tratamento dos retornos de erros Boleto Hibrido Banco do Brasil
+
+09/03/2022
+--ACBrBoletoWS.pas--
+[-] TOAuth - PROTEÇÃO ERRO COM JSON MAL FORMATADO
+  Por : Victor H Gonzales - Pandaaa
+
+02/03/2022
+--ACBrBancoSafra.pas--
+[-] TK-2410 Correção do dominio C026 (Código de Protesto)
+Por : Fernando Rodrigo / Pandaaa
+
+25/02/2022
+--ACBrBancoBS2.pas--
+[*] TK-2420 Ajustes no DV NN BS2
+Por : Pandaaa
+
+22/02/2022
+--ACBrBancoInter.pas--
+[*] TK-2377 Ajustes nas informações de descontos
+
+17/02/2022
+--ACBrBancoInter.pas--
+[-] TK2369 ACBrBancoInter - CNAB400 Sem Data Mora
+--ACBrBancoBS2.pas--
+[+] TK2337 ACBrBancoBS2 218 CNAB400 novo banco
+Contribuição: Paulo Cesar Alves de Oliveira
+
+07/02/2022
+--ACBrBancoDoBrasil.pas--
+[*] TK-2320 Ajuste remessa CNAB400 campo "DataDesconto" para ocorrencia 39
+
+04/02/2022
+--ACBrBoletoW_Sicredi_API.pas--
+[-] TK-2333 ACBrBoleto - Ajuste integração via API quando CEP iniciado com 0
+contribuicao : Fernando Henrique
+
+02/02/2022
+--ACBrBoletoSofisa.pas--
+[+] TK-2319 Adicionado banco Sofisa.
+
+27/01/2022
+--ACBrBancoInter.pas, ACBrBancoRendimento.pas, ACBrBoleto.pas, ACBrBoletoFCFortesFR.pas, ACBrBoletoRet_Sicredi_Api.pas, ACBrBoletoW_Sicredi_Api.pas--
+[*] TK-2289 Remoção de Warnings e Hints
+Por : Waldir Paim
+
+--ACBrBancoInter.pas--
+[*] TK-2305 Ajuste remessa Banco Inter
+Por : Pandaaa / WindSoft
+
+21/02/2022
+--ACBrBancoSafra--
+[*] Ajuste na Geração Detalhe Remessa CNAB400 NumeroRemessa
+
 07/10/2021
 --ACBrBoletoWS, ACBrBoletoRetorno--
 [*] Ajuste na atualização do Retorno WebService na lista de títulos

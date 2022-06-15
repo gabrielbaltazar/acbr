@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrNFSeXConversao, ACBrNFSeXGravarXml_ABRASFv2;
 
 type
@@ -54,6 +53,9 @@ type
   end;
 
 implementation
+
+uses
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -82,7 +84,7 @@ procedure TNFSeW_Saatri201.DefinirIDRps;
 begin
   NFSe.InfID.ID := 'rps' + OnlyNumber(NFSe.IdentificacaoRps.Numero) +
                     NFSe.IdentificacaoRps.Serie +
-                    TipoRPSToStr(NFSe.IdentificacaoRps.Tipo);
+                    FpAOwner.TipoRPSToStr(NFSe.IdentificacaoRps.Tipo);
 end;
 
 end.

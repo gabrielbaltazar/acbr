@@ -42,6 +42,123 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+10/06/2022
+-- Diversos --
+[*] Ajustes para a leitura do arquivo de retorno do banco.
+   Por: Italo Giurizzato Junior
+-- PagFor.Bradesco.GravarTxtRemessa --
+[*] Correções para atender o Banco Bradesco.
+   Por: Italo Giurizzato Junior/Diego A. Folieni
+-- Diversos --
+[-] Correção nos Segmentos que são uma lista, não estava inicializando a linha a
+    cada ocorrência do segmento.
+   Por: Italo Giurizzato Junior
+
+09/06/2022
+-- Diversos --
+[*] Ajustes para o Lazarus.
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Refactoring no componente ACBrPagFor, para mais informações leia o tópico no 
+    fórum:
+    https://www.projetoacbr.com.br/forum/topic/67704-refactoring-no-componente-acbrpagfor/
+   Por: Italo Giurizzato Junior
+
+07/06/2022
+-- ACBrPagForGravarTxt --
+[*] Possível solução para geração correta do Registro 5- Banco Bradesco.
+   Por: Italo Giurizzato Junior
+
+03/06/2022
+-- ACBrPagForGravarTxt/ACBrPagForClass --
+[*] Inclusão do campo CodigoISPB no Segmento A para ser utilizado pelo banco
+    Itaú.
+   Por: Rogerio Alves
+
+31/05/2022
+-- ACBrPagForGravarTxt --
+[*] Correção na geração dos Segmentos N - Banco Sicredi.
+   Por: SuporteATInfo
+
+26/05/2022
+-- ACBrPagForGravarTxt --
+[*] Possível solução para geração correta dos Segmentos N (Código da Receita)- Banco Sicredi.
+   Por: Italo Giurizzato Junior
+
+24/05/2022
+-- ACBrPagForGravarTxt --
+[*] Possível solução para geração correta dos Segmentos N - Banco Sicredi.
+   Por: Italo Giurizzato Junior
+-- ACBrPagForGravarTxt --
+[*] Correção na versão do Lote - Banco Santander com exceção do segmento A os demais 
+    a versão é 030.
+   Por: Wesley Lopes
+
+18/05/2022
+-- ACBrPagForGravarTxt --
+[*] Ajuste no Segmento: A, se a DataReal for zero devemos gerar no arquivo 8 zeros. 
+   Por: Wanessa Franco
+
+11/05/2022
+-- ACBrPagForLerTxt --
+[*] Correção para ler o retorno do Segmento A - Banco Bradesco.
+   Por: Wesley Lopes
+
+09/05/2022
+-- ACBrPagForGravarTxt --
+[*] Ajustes nos Segmentos: J e J52, segundo orientação do banco Sicredi.
+   Por: Italo Giurizzato Junior
+
+04/05/2022
+-- ACBrPagForGravarTxt --
+[*] Ajustes nos registros: 1 e 5, bem como nos segmentos:  A, B e J52 para o banco
+    Bradesco.
+   Por: Wanessa Franco
+
+22/04/2022
+-- ACBrPagForLerTxt --
+[*] Os registros 0 e 1 não estava sendo tratado o banco Bradesco ao ler os dados
+    de agência e conta e feita uma correção na leitura da inscrição da empresa no
+    Registro 1.
+   Por: Wanessa Franco
+-- ACBrPagForLerTxt --
+[*] Os Segmentos G e H retornados pelo banco Sicredi as datas estão no formato
+    AAAAMMDD em vez de DDMMAAAA.
+   Por: SuporteATInfo
+
+01/04/2022
+-- ACBrPagForConversao/ACBrPagForLerTxt --
+[*] Ajustes nos nomes dos bancos e correções para a leitura
+    correta do retorno.
+   Por: SuporteATInfo
+
+31/03/2022
+-- ACBrPagForGravarTxt/ACBrPagForLerTxt --
+[*] Mais ajustes para o Sicredi
+   Por: SuporteATInfo
+-- ACBrPagForConversao --
+[*] Acrescentado todos os bancos (assim espero) e
+    refeito as funções: BancoToStr, BancoToDesc e StrToBanco  
+   Por: Italo Giurizzato Junior
+
+29/03/2022
+-- Diversos --
+[*] Ajustes para atender o banco Sicredi.
+   Por: Suporte AT Info
+
+23/03/2022
+-- ACBrPagForGravarTxt --
+[*] Ajustes no Segmento B para o PIX do banco Itau.
+   Por: Cantú
+
+18/03/2022
+-- ACBrPagForClass/ACBrPagForConversao/ACBrPagForGravarTxt/ACBrPagForLerTxt --
+[*] Ajustes para funcionar com o banco Itau
+   Por: Cantú
+-- ACBrPagForArquivo/ACBrPagForConversao/ACBrPagForGravarTxt --
+[*] Ajustes para funcionar com o banco Bradesco
+   Por: Diego A. Folieni
+
 14/01/2022
 -- ACBrPagForGravarTxt/ACBrPagForLerTxt --
 [*] Ajustes para funcionar com o banco Bradesco

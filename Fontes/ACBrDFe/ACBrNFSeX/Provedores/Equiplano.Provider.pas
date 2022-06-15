@@ -56,9 +56,12 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderEquiplano = class (TACBrNFSeProviderProprio)
+  private
+    FpCodigoCidade: string;
   protected
     procedure Configuracao; override;
 
@@ -89,17 +92,20 @@ type
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
-    procedure ProcessarMensagemErros(const RootNode: TACBrXmlNode;
-                                     const Response: TNFSeWebserviceResponse;
-                                     AListTag: string = 'listaErros';
-                                     AMessageTag: string = 'erro'); override;
+    procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
+                                     Response: TNFSeWebserviceResponse;
+                                     const AListTag: string = 'listaErros';
+                                     const AMessageTag: string = 'erro'); override;
 
   end;
 
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   Equiplano.GravarXml, Equiplano.LerXml;
 
@@ -109,7 +115,12 @@ procedure TACBrNFSeProviderEquiplano.Configuracao;
 begin
   inherited Configuracao;
 
-  ConfigGeral.ModoEnvio := meLoteAssincrono;
+  with ConfigGeral do
+  begin
+    ModoEnvio := meLoteAssincrono;
+    FpCodigoCidade := Params.ValorParametro('CodigoCidade');
+    DetalharServico := True;
+  end;
 
   with ConfigAssinar do
   begin
@@ -211,8 +222,8 @@ begin
 end;
 
 procedure TACBrNFSeProviderEquiplano.ProcessarMensagemErros(
-  const RootNode: TACBrXmlNode; const Response: TNFSeWebserviceResponse;
-  AListTag, AMessageTag: string);
+  RootNode: TACBrXmlNode; Response: TNFSeWebserviceResponse;
+  const AListTag, AMessageTag: string);
 var
   I: Integer;
   ANode: TACBrXmlNode;
@@ -283,7 +294,7 @@ begin
                                   SimNaoToStr(TACBrNFSeX(FAOwner).NotasFiscais.items[0].NFSe.OptanteSimplesNacional) +
                                '</isOptanteSimplesNacional>' +
                                '<idEntidade>' +
-                                  TACBrNFSeX(FAOwner).Provider.ConfigGeral.Params1 +
+                                  FpCodigoCidade +
                                '</idEntidade>' +
                              '</prestador>' +
                              '<listaRps>' +
@@ -404,7 +415,7 @@ begin
                               OnlyNumber(Emitente.CNPJ) +
                            '</cnpj>' +
                            '<idEntidade>' +
-                              TACBrNFSeX(FAOwner).Provider.ConfigGeral.Params1 +
+                              FpCodigoCidade +
                            '</idEntidade>' +
                          '</prestador>' +
                          xConsulta +
@@ -500,7 +511,7 @@ begin
                               OnlyNumber(Emitente.CNPJ) +
                            '</cnpj>' +
                            '<idEntidade>' +
-                              TACBrNFSeX(FAOwner).Provider.ConfigGeral.Params1 +
+                              FpCodigoCidade +
                            '</idEntidade>' +
                          '</prestador>' +
                          xConsulta +
@@ -516,7 +527,7 @@ var
   ANodeArray: TACBrXmlNodeArray;
   i: Integer;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -569,7 +580,7 @@ begin
             ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
             if Assigned(ANota) then
-              ANota.XML := ANode.OuterXml
+              ANota.XmlNfse := ANode.OuterXml
             else
             begin
               TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -629,7 +640,7 @@ begin
                               OnlyNumber(Emitente.CNPJ) +
                            '</cnpj>' +
                            '<idEntidade>' +
-                              TACBrNFSeX(FAOwner).Provider.ConfigGeral.Params1 +
+                              FpCodigoCidade +
                            '</idEntidade>' +
                          '</prestador>' +
                        '</es:esConsultarNfsePorRpsEnvio>';
@@ -641,7 +652,7 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANode, AuxNode: TACBrXmlNode;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
   aXmlNota: string;
   i: Integer;
 begin
@@ -680,6 +691,14 @@ begin
           NumeroRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrRps'), tcStr);
         end;
 
+        AuxNode := AuxNode.Childrens.FindAnyNs('cancelamento');
+
+        if AuxNode <> nil then
+        begin
+          Response.Cancelamento.DataHora := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dtCancelamento'), tcDatHor);
+          Response.Cancelamento.Motivo := ObterConteudoTag(AuxNode.Childrens.FindAnyns('dsCancelamento'), tcStr);
+        end;
+
         i := TACBrNFSeX(FAOwner).NotasFiscais.Count;
 
         if i > 0 then
@@ -688,9 +707,12 @@ begin
 
           if ANota.NFSe.IdentificacaoRps.Numero = Response.NumeroRps  then
           begin
-            aXmlNota := GerarXmlNota(ANota.XMLAssinado, Response.ArquivoRetorno);
+            if ANota.XmlRps = '' then
+              aXmlNota := GerarXmlNota(ANota.XmlNfse, Response.ArquivoRetorno)
+            else
+              aXmlNota := GerarXmlNota(ANota.XmlRps, Response.ArquivoRetorno);
 
-            ANota.XML := aXmlNota;
+            ANota.XmlNfse := aXmlNota;
 
             SalvarXmlNfse(ANota);
           end;
@@ -739,7 +761,7 @@ begin
                               OnlyNumber(Emitente.CNPJ) +
                            '</cnpj>' +
                            '<idEntidade>' +
-                              TACBrNFSeX(FAOwner).Provider.ConfigGeral.Params1 +
+                              FpCodigoCidade +
                            '</idEntidade>' +
                          '</prestador>' +
                          '<nrNfse>' +
@@ -757,7 +779,7 @@ var
   ANodeArray: TACBrXmlNodeArray;
   i: Integer;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -808,7 +830,7 @@ begin
             ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
             if Assigned(ANota) then
-              ANota.XML := ANode.OuterXml
+              ANota.XmlNfse := ANode.OuterXml
             else
             begin
               TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -868,7 +890,7 @@ begin
                               OnlyNumber(Emitente.CNPJ) +
                            '</cnpj>' +
                            '<idEntidade>' +
-                              TACBrNFSeX(FAOwner).Provider.ConfigGeral.Params1 +
+                              FpCodigoCidade +
                            '</idEntidade>' +
                          '</prestador>' +
                          '<nrNfse>' +
@@ -1028,6 +1050,18 @@ begin
   Result := Executar('urn:esCancelarNfse', Request,
                      ['return', 'esCancelarNfseResposta'],
                      ['xmlns:ser="http://services.enfsws.es"']);
+end;
+
+function TACBrNFSeXWebserviceEquiplano.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
+  Result := RemoverPrefixosDesnecessarios(Result);
 end;
 
 end.

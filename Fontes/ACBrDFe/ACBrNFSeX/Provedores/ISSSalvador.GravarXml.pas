@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv1, ACBrNFSeXConversao;
 
 type
@@ -56,6 +55,9 @@ type
 
 implementation
 
+uses
+  ACBrUtil.Strings;
+
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
 //     ISSSalvador
@@ -68,6 +70,8 @@ begin
   inherited Configuracao;
 
   FormatoItemListaServico := filsSemFormatacao;
+
+  DivAliq100 := True;
 
   NrOcorrValorDeducoes := 1;
   NrOcorrValorPis := 1;

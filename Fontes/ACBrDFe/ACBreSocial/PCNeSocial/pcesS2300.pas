@@ -54,7 +54,7 @@ uses
   {$ELSE}
    Contnrs,
   {$IFEND}
-  ACBrBase, pcnConversao, ACBrUtil, pcnConsts,
+  ACBrBase, pcnConversao, pcnConsts,
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
@@ -132,6 +132,7 @@ type
     Ftermino: TTermino;
     FMudancaCPF: TMudancaCPF2;
     Fmatricula: String;
+    FnrProcTrab: String;
   public
     constructor Create;
     destructor  Destroy; override;
@@ -145,6 +146,7 @@ type
     property afastamento: TAfastamento read Fafastamento write Fafastamento;
     property termino: TTermino read Ftermino write Ftermino;
     property matricula: String read Fmatricula write FMatricula;
+    property nrProcTrab: String read FnrProcTrab write FnrProcTrab;
   end;
 
   TinfoComplementares = class(TObject)
@@ -213,7 +215,15 @@ type
     FindRemunCargo: tpSimNaoFacultativo;
     FtpRegTrab: tpTpRegTrab;
     FtpRegPrev: tpTpRegPrev;
+    FcnpjOrig: String;
+    FcategOrig: Integer;
+    FmatricOrig: String;
+    FdtExercOrig: TDateTime;
   public
+    property categOrig: Integer read FcategOrig write FcategOrig;
+    property cnpjOrig: String read FcnpjOrig write FcnpjOrig;
+    property matricOrig: String read FmatricOrig write FmatricOrig;
+    property dtExercOrig: TDateTime read FdtExercOrig write FdtExercOrig;
     property indRemunCargo: tpSimNaoFacultativo read FindRemunCargo write FindRemunCargo;
     property tpRegTrab: tpTpRegTrab read FtpRegTrab write FtpRegTrab;
     property tpRegPrev: tpTpRegPrev read FtpRegPrev write FtpRegPrev;
@@ -230,6 +240,9 @@ implementation
 
 uses
   IniFiles,
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
   ACBreSocial;
 
 { TS2300Collection }
@@ -464,7 +477,10 @@ begin
     
     if VersaoDF > ve02_05_00 then
     begin
-      Gerador.wCampo(tcStr, '', 'tpRegTrab',   1,  1, 0, eSTpRegTrabToStr(obj.tpRegTrab));
+      //preenchimento é obrigatório e exclusivo se infoDirigenteSindical/categOrig corresponder a "Empregado" ou "Agente Público"
+      case obj.categOrig of
+        101..199, 301..399 : Gerador.wCampo(tcStr, '', 'tpRegTrab',   1,  1, 0, eSTpRegTrabToStr(obj.tpRegTrab));
+      end;
       Gerador.wCampo(tcStr, '', 'tpRegPrev',   1,  1, 1, eSTpRegPrevToStr(obj.tpRegPrev));
     end;
 
@@ -527,6 +543,9 @@ begin
 
   Gerador.wCampo(tcStr, '', 'codCateg',      0,  3, 1, obj.codCateg);
   Gerador.wCampo(tcDat, '', 'dtInicio',     10, 10, 1, obj.dtInicio);
+
+  if VersaoDF > ve02_05_00 then
+    Gerador.wCampo(tcStr, '', 'nrProcTrab',   1, 20, 0, obj.nrProcTrab);
 
   //    Validação: **Preenchimento obrigatório** para as categorias de avulso, cooperado e dirigente sindical.
   //               Não deve ser preenchido para as categorias Diretor não empregado, servidor público indicado a conselho, membro de conselho tutelar e estagiário.
@@ -614,16 +633,18 @@ end;
 
 procedure TEvtTSVInicio.GerarInfoMandElet(obj: TinfoMandElet);
 begin
-  if obj.indRemunCargo <> snfNada then
+  if (self.FinfoTSVInicio.FcodCateg = 304) then
   begin
     Gerador.wGrupo('infoMandElet');
-  
-    Gerador.wCampo(tcStr, '', 'indRemunCargo',  1,  1,  0, eSSimNaoFacultativoToStr(obj.indRemunCargo));
-    Gerador.wCampo(tcStr, '', 'tpRegTrab',      1,  1,  1, eSTpRegTrabToStr(obj.tpRegTrab));
-    Gerador.wCampo(tcStr, '', 'tpRegPrev',      1,  1,  1, eSTpRegPrevToStr(obj.tpRegPrev));
-  
+    Gerador.wCampo(tcStr, '', 'categOrig',      0,  3, 1, obj.categOrig);
+    Gerador.wCampo(tcStr, '', 'cnpjOrig',      14, 14, 1, obj.cnpjOrig);
+    Gerador.wCampo(tcStr, '', 'matricOrig',     0, 30, 1, obj.matricOrig);
+    Gerador.wCampo(tcDat, '', 'dtExercOrig',   10, 10, 1, obj.dtExercOrig);
+    Gerador.wCampo(tcStr, '', 'indRemunCargo',  1,  1, 0, eSSimNaoFacultativoToStr(obj.indRemunCargo));
+    Gerador.wCampo(tcStr, '', 'tpRegTrab',      1,  1, 1, eSTpRegTrabToStr(obj.tpRegTrab));
+    Gerador.wCampo(tcStr, '', 'tpRegPrev',      1,  1, 1, eSTpRegPrevToStr(obj.tpRegPrev));
     Gerador.wGrupo('/infoMandElet');
-  end;  
+  end;
 end;
 
 function TEvtTSVInicio.GerarXML: boolean;
@@ -820,6 +841,7 @@ begin
           nmDep    := INIRec.ReadString(sSecao, 'nmDep', '');
           dtNascto := StringToDateTime(INIRec.ReadString(sSecao, 'dtNascto', '0'));
           cpfDep   := INIRec.ReadString(sSecao, 'cpfDep', '');
+          sexoDep  := INIRec.ReadString(sSecao, 'sexoDep', 'F');
           depIRRF  := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'depIRRF', 'S'));
           depSF    := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'depSF', 'S'));
           incTrab  := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'incTrab', 'S'));
@@ -895,11 +917,15 @@ begin
       end;
 
       sSecao := 'infoMandElet';
-      if INIRec.ReadString(sSecao, 'tpRegTrab', '') <> '' then
+      if INIRec.ReadString( sSecao, 'categOrig', '' ) <> '' then
       begin
-        infoTSVInicio.infoComplementares.infoMandElet.indRemunCargo  := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'indRemunCargo', '0'));
-        infoTSVInicio.infoComplementares.infoMandElet.tpRegTrab      := eSStrToTpRegTrab(Ok, INIRec.ReadString(sSecao, 'tpRegTrab', '0'));
-        infoTSVInicio.infoComplementares.infoMandElet.tpRegPrev      := eSStrToTpRegPrev(Ok, INIRec.ReadString(sSecao, 'tpTpRegPrev', '0'));
+        infoTSVInicio.infoComplementares.infoMandElet.categOrig     := INIRec.ReadInteger( sSecao, 'categOrig', 1 );
+        infoTSVInicio.infoComplementares.infoMandElet.cnpjOrig      := INIRec.ReadString( sSecao, 'cnpjOrig', '' );
+        infoTSVInicio.infoComplementares.infoMandElet.matricOrig    := INIRec.ReadString( sSecao, 'matricOrig', '' );
+        infoTSVInicio.infoComplementares.infoMandElet.dtExercOrig   := StringToDateTime( INIRec.ReadString( sSecao, 'dtExercOrig', '0' ) );
+        infoTSVInicio.infoComplementares.infoMandElet.indRemunCargo := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'indRemunCargo', '0'));
+        infoTSVInicio.infoComplementares.infoMandElet.tpRegTrab     := eSStrToTpRegTrab(Ok, INIRec.ReadString(sSecao, 'tpRegTrab', '0'));
+        infoTSVInicio.infoComplementares.infoMandElet.tpRegPrev     := eSStrToTpRegPrev(Ok, INIRec.ReadString(sSecao, 'tpTpRegPrev', '0'));
       end;
 
       sSecao := 'infoEstagiario';

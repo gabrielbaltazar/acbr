@@ -37,6 +37,78 @@ Símbolo : Significado
 [-]     : Correção de Bug (assim esperamos)
 
 
+11/06/2022
+-- ACBrMTerClass --
+[-] Correção de erro de compilação
+   Por: Italo Giurizzato Junior
+
+05/05/2022
+-- ACBrNCMs --
+[-] Correção de memory leak ao carregar um arquivo Json inválido.
+    (Por: Elias César)
+
+05/05/2022
+-- ACBrNCMs --
+[-] Correção de erro ao carregar um arquivo Json invalido. Efetuada alteração 
+    para renomear o arquivo cache, caso ele exista e seja invalido.
+    (Por: Elias César)
+
+03/05/2022
+-- ACBrNCMs --
+[-] Correção para não duplicar o conteúdo da lista de NCMs, caso a procedure 
+    "SaveToStringList" seja chamada mais de uma vez com o mesmo objeto
+	(Por: Elias César)    
+
+02/05/2022
+-- ACBrNCMs --
+[+] Inclusão de função que permite salvar uma lista de NCMs em um TStrings
+[-] Correção de memory leak ao ObterNCMs em FPC(Lazarus)
+[-] Ajuste para corrigir problema onde o download do arquivo era efetuado mesmo 
+    após a leitura do cache local
+
+27/04/2022
+-- ACBrNCMs --
+[+] Inclusão do evento 'OnGetJson', possibilitando que a aplicação informe um 
+    arquivo Json antes do componente realizar o download.
+[*] Inclusão das novas propriedades do objeto TACBrNCM no arquivo gerado
+    pela função TACBrNCMsList.SaveToFile. 
+
+26/04/2022
+-- ACBrNCMs --
+[-] Ajuste para carregar corretamente os campos 'Data_Inicio' e 'Data_Fim' da lista
+	de NCMs em versões mais recentes do Delphi.
+	https://www.projetoacbr.com.br/forum/topic/67091-acbrncms/#comment-437010
+	(Por: Elias César)
+
+23/04/2022
+-- ACBrIBGE --
+[*] Refactoring para tentar usar compactação em comunicação, sempre que disponível
+
+-- ACBrNCM --
+[*] Reconstrução do componente, baseado em Novo WebService, da Siscomex
+    - Sistema de cache em Arquivo Local, baseado no mecanismo de ACBrIBGE
+    - Possibilidade de classificar por Código ou Descrição
+    - Novas possibilidade de Busca por Descrição, contendo texto.
+    - Otimização da Busca com arvore binária
+    https://portalunico.siscomex.gov.br/classif/api/publico/nomenclatura/download/json
+    Baseado em contribuiçao de: http://www.projetoacbr.com.br/forum/index.php?showtopic=66845
+    (por: Elias Cesar, DSA e  maiko_bito)
+
+29/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
+27/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Waldir Paim
+
+25/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
 20/01/2021
 -- ACBrConsultaCNPJ --
 [-] Ajuste para não tentar achar o Cod.IBGE de Cidades com Nome e UF com asterísticos

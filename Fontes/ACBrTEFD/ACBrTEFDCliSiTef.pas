@@ -217,8 +217,7 @@ implementation
 
 Uses
   {$IFDEF MSWINDOWS} Windows, {$ENDIF MSWINDOWS}
-  strutils, math,
-  ACBrTEFD, ACBrUtil, ACBrTEFComum;
+  StrUtils, Math, ACBrTEFD, ACBrTEFComum, ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.Math;
 
 { TACBrTEFDRespCliSiTef }
 
@@ -332,7 +331,7 @@ end;
 
 procedure TACBrTEFDCliSiTef.SetNumVias(const AValue : Integer);
 begin
-   fpNumVias := 2;
+   fpNumVias := AValue;
 end;
 
 procedure TACBrTEFDCliSiTef.Inicializar;
@@ -369,6 +368,7 @@ begin
 
   // acertar quebras de linhas e abertura e fechamento da lista de parametros
   ParamAdic := StringReplace(Trim(ParametrosAdicionais.Text), sLineBreak, ';', [rfReplaceAll]);
+
   ParamAdic := '['+ ParamAdic + ']';
 
   if NaoEstaVazio(CNPJEstabelecimento) and NaoEstaVazio(CNPJSoftwareHouse) then
@@ -1146,6 +1146,7 @@ Var
    Finalizacao : SmallInt;
    AMsg: String;
    Est: AnsiChar;
+   DataHora: TDateTime;
 begin
    fRespostas.Clear;
    fIniciouRequisicao := False;
@@ -1160,19 +1161,23 @@ begin
 
   fDocumentosProcessados := fDocumentosProcessados + DocumentoVinculado + '|' ;
 
-  if Assigned(Resp) and (Resp.DataHoraTransacaoComprovante > (date - 3)) then
+  if (fDataHoraFiscal <> 0) then
   begin
-     // Leu com sucesso o arquivo pendente.
-     // Transações com mais de três dias são finalizadas automaticamente pela SiTef
-     DataStr := FormatDateTime('YYYYMMDD',Resp.DataHoraTransacaoComprovante);
-     HoraStr := FormatDateTime('HHNNSS',Resp.DataHoraTransacaoComprovante);
+    // DataHoraFiscal foi definida antes da chamada a "FazerRequisicao" pelo aplicativo
+    DataHora := DataHoraFiscal;
+    fDataHoraFiscal := 0;
+  end
+  else if Assigned(Resp) and (Resp.DataHoraTransacaoComprovante > (date - 3)) then
+  begin
+    // Leu com sucesso o arquivo pendente.
+    // Transações com mais de três dias são finalizadas automaticamente pela SiTef
+    DataHora := Resp.DataHoraTransacaoComprovante
   end
   else
-  begin
-     DataStr := FormatDateTime('YYYYMMDD',Now);
-     HoraStr := FormatDateTime('HHNNSS',Now);
-  end;
+    DataHora := Now;
 
+  DataStr  := FormatDateTime('YYYYMMDD', DataHora );
+  HoraStr  := FormatDateTime('HHNNSS', DataHora );
   Finalizacao := ifthen(Confirma or fCancelamento,1,0);
 
   GravaLog( '*** FinalizaTransacaoSiTefInterativo. Confirma: '+
@@ -1301,6 +1306,7 @@ begin
      CopiarResposta ;
 
      { Cria cópia do Objeto Resp, e salva no ObjectList "RespostasPendentes" }
+     Resp.ViaClienteReduzida := ImprimirViaClienteReduzida;
      RespostaPendente := TACBrTEFDRespCliSiTef.Create ;
      RespostaPendente.Assign( Resp );
      RespostasPendentes.Add( RespostaPendente );

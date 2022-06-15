@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXConversao,
@@ -58,6 +57,9 @@ type
 
 implementation
 
+uses
+  ACBrUtil.Strings;
+
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
 //     ISSNet
@@ -70,7 +72,11 @@ begin
   inherited Configuracao;
 
   FormatoItemListaServico := filsSemFormatacaoSemZeroEsquerda;
+
   DivAliq100 := True;
+
+  if FpAOwner.ConfigGeral.Params.TemParametro('NaoDividir100') then
+    DivAliq100 := False;
 
   NrOcorrValorPis := 1;
   NrOcorrValorCofins := 1;

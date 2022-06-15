@@ -141,7 +141,9 @@ implementation
 
 uses
   math, TypInfo,
-  ACBrUtil;
+  ACBrUtil.Strings,
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO;
 
 { TACBrTEFAPIClassPayGoWeb }
 
@@ -239,6 +241,7 @@ end;
 procedure TACBrTEFAPIClassPayGoWeb.InterpretarRespostaAPI;
 begin
   inherited;
+  fpACBrTEFAPI.UltimaRespostaTEF.ViaClienteReduzida := fpACBrTEFAPI.DadosAutomacao.ImprimeViaClienteReduzida;
   DadosDaTransacaoToTEFResp( fTEFPayGoAPI.DadosDaTransacao,
                              fpACBrTEFAPI.UltimaRespostaTEF );
 end;

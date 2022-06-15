@@ -315,7 +315,10 @@ implementation
 
 uses
   Math, DateUtils, StrUtils,
-  ACBrTEFPayGoRedes, ACBrConsts, ACBrUtil;
+  ACBrTEFPayGoRedes, ACBrConsts,
+  ACBrUtil.Math,
+  ACBrUtil.Strings,
+  ACBrUtil.Base;
 
 procedure ConteudoToPropertyPayGoWeb(AACBrTEFResp: TACBrTEFResp);
 
@@ -323,6 +326,15 @@ procedure ConteudoToPropertyPayGoWeb(AACBrTEFResp: TACBrTEFResp);
   var
     ImprimirViaCliente, ImprimirViaEstabelecimento: Boolean;
     ViaCompleta, ViaDiferenciada, ViasDeComprovante: String;
+
+    function ViaDoCliente( ViaReduzida: Boolean ): String;
+    begin
+      if ViaReduzida then
+        Result := AACBrTEFResp.LeInformacao(PWINFO_RCPTCHSHORT, 0).AsBinary
+      else
+        Result := AACBrTEFResp.LeInformacao(PWINFO_RCPTCHOLDER, 0).AsBinary;
+    end;
+
   begin
     with AACBrTEFResp do
     begin
@@ -341,19 +353,11 @@ procedure ConteudoToPropertyPayGoWeb(AACBrTEFResp: TACBrTEFResp);
       }
 
       ViasDeComprovante := Trim(LeInformacao(PWINFO_RCPTPRN, 0).AsString);
+      if (ViasDeComprovante = '') then
+        ViasDeComprovante := '3';
 
-      if (ViasDeComprovante <> '') then
-      begin
-        ImprimirViaCliente := (ViasDeComprovante = '1') or (ViasDeComprovante = '3');
-        ImprimirViaEstabelecimento := (ViasDeComprovante = '2') or (ViasDeComprovante = '3');
-      end
-      else
-      begin
-        ImprimirViaCliente := (Trim(LeInformacao(PWINFO_RCPTCHOLDER, 0).AsBinary) <> '') or
-                              (Trim(LeInformacao(PWINFO_RCPTCHSHORT, 0).AsBinary) <> '');
-        ImprimirViaEstabelecimento := (Trim(LeInformacao(PWINFO_RCPTMERCH, 0).AsBinary) <> '') or
-                                      (Trim(LeInformacao(PWINFO_RCPTFULL, 0).AsBinary) <> '');
-      end;
+      ImprimirViaCliente := (ViasDeComprovante = '1') or (ViasDeComprovante = '3');
+      ImprimirViaEstabelecimento := (ViasDeComprovante = '2') or (ViasDeComprovante = '3');
 
       ViaCompleta := LeInformacao(PWINFO_RCPTFULL, 0).AsBinary;
 
@@ -372,9 +376,9 @@ procedure ConteudoToPropertyPayGoWeb(AACBrTEFResp: TACBrTEFResp);
       // Verificando Via do Cliente
       if ImprimirViaCliente then
       begin
-        ViaDiferenciada := LeInformacao(PWINFO_RCPTCHSHORT, 0).AsBinary;
+        ViaDiferenciada := ViaDoCliente( ViaClienteReduzida );
         if (Trim(ViaDiferenciada) = '') then
-          ViaDiferenciada := LeInformacao(PWINFO_RCPTCHOLDER, 0).AsBinary;
+          ViaDiferenciada := ViaDoCliente( not ViaClienteReduzida );
 
         if (Trim(ViaDiferenciada) <> '') then
           ImagemComprovante1aVia.Text := ViaDiferenciada
@@ -524,6 +528,9 @@ begin
 
         PWINFO_AUTDATETIME:
           DataHoraTransacaoHost :=  Linha.Informacao.AsTimeStampSQL;
+
+        PWINFO_DATETIMERCPT:
+          DataHoraTransacaoComprovante := Linha.Informacao.AsTimeStampSQL;
 
         PWINFO_AUTHSYST:
         begin

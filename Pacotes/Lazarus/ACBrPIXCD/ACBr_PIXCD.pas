@@ -8,16 +8,17 @@ unit ACBr_PIXCD;
 interface
 
 uses
-  ACBrPIXCDReg, ACBrPIXBase, ACBrPIXUtil, ACBrPIXCD, ACBrPIXPSPItau, 
-  ACBrPIXPSPBancoDoBrasil, ACBrPIXPSPSantander, ACBrPIXQRCodeEstatico, 
-  ACBrPIXSchemasProblema, ACBrPIXSchemasCalendario, ACBrPIXSchemasDevedor, 
-  ACBrPIXSchemasLocation, ACBrPIXSchemasPaginacao, ACBrPIXSchemasDevolucao, 
-  ACBrPIXSchemasPix, ACBrPIXSchemasParametrosConsultaPix, 
-  ACBrPIXSchemasPixConsultados, ACBrPIXSchemasCob, 
-  ACBrPIXSchemasParametrosConsultaCob, ACBrPIXSchemasCobsConsultadas, 
-  ACBrPIXSchemasCobV, ACBrPIXSchemasCobsVConsultadas, ACBrPIXSchemasLoteCobV, 
+  ACBrPIXCDReg, ACBrPIXBase, ACBrPIXUtil, ACBrPIXCD, ACBrPIXBRCode, 
+  ACBrPIXPSPItau, ACBrPIXPSPBancoDoBrasil, ACBrPIXPSPSantander, 
+  ACBrPIXPSPShipay, ACBrPIXSchemasProblema, ACBrPIXSchemasCalendario, 
+  ACBrPIXSchemasDevedor, ACBrPIXSchemasLocation, ACBrPIXSchemasPaginacao, 
+  ACBrPIXSchemasDevolucao, ACBrPIXSchemasPix, 
+  ACBrPIXSchemasParametrosConsultaPix, ACBrPIXSchemasPixConsultados, 
+  ACBrPIXSchemasCob, ACBrPIXSchemasParametrosConsultaCob, 
+  ACBrPIXSchemasCobsConsultadas, ACBrPIXSchemasCobV, 
+  ACBrPIXSchemasCobsVConsultadas, ACBrPIXSchemasLoteCobV, 
   ACBrPIXSchemasParametrosConsultaLote, ACBrPIXSchemasLotesCobVConsultadas, 
-  LazarusPackageIntf;
+  ACBrShipaySchemas, LazarusPackageIntf;
 
 implementation
 

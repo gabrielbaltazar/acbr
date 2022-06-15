@@ -44,16 +44,7 @@ unit ACBrDFeReport;
 interface
 
 uses
-  Classes, SysUtils,
-  {$IfDef FMX}
-    FMX.Graphics, System.UITypes, System.UIConsts, FMX.Types,
-  {$Else}
-    {$IFNDEF NOGUI}
-    Graphics,
-    {$ENDIF}
-  {$EndIf}
-  ACBrBase,
-  pcnConversao;
+  Classes, SysUtils, ACBrBase, pcnConversao;
 
 type
 
@@ -271,8 +262,9 @@ implementation
 
 uses
   Math,
-  ACBrUtil;
-  
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO;
+
 { TCasasDecimais }
 
 constructor TCasasDecimais.Create(AOwner: TComponent);

@@ -38,11 +38,11 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrBase, ACBrUtil, ACBrDFe, ACBrDFeException, ACBrDFeConfiguracoes,
-  ACBrNFSeXDANFSeClass, ACBrNFSeXConfiguracoes, ACBrNFSeXNotasFiscais,
-  ACBrNFSeXClass, ACBrXmlBase, ACBrNFSeXWebservices,
-  ACBrNFSeXInterface, ACBrNFSeXWebserviceBase,
-  ACBrNFSeXWebservicesResponse, ACBrNFSeXProviderManager, ACBrNFSeXConversao;
+  ACBrBase,
+  ACBrDFe, ACBrDFeException, ACBrDFeConfiguracoes,
+  ACBrNFSeXConfiguracoes, ACBrNFSeXNotasFiscais, ACBrNFSeXWebservices,
+  ACBrNFSeXClass, ACBrNFSeXInterface, ACBrNFSeXConversao,
+  ACBrNFSeXWebserviceBase, ACBrNFSeXDANFSeClass;
 
 resourcestring
   ERR_SEM_PROVEDOR = 'Nenhum provedor selecionado';
@@ -181,7 +181,7 @@ type
     property Status: TStatusACBrNFSe      read FStatus;
     property Provider: IACBrNFSeXProvider read FProvider;
     property NumID[ANFSe: TNFSe]: string  read GetNumID;
-    property WebService: TWebServices read FWebService;
+    property WebService: TWebServices     read FWebService;
 
   published
     property Configuracoes: TConfiguracoesNFSe read GetConfiguracoes write SetConfiguracoes;
@@ -192,8 +192,11 @@ type
 implementation
 
 uses
-  StrUtils, DateUtils, Math,
-  ACBrDFeSSL, ACBrNFSeXProviderBase;
+  Math,
+  ACBrUtil.Strings,
+  ACBrUtil.Compatibilidade,
+  ACBrDFeSSL,
+  ACBrNFSeXProviderManager;
 
 {$IFDEF FPC}
  {$R ACBrNFSeXServicos.rc}
@@ -432,6 +435,9 @@ begin
           FWebService.ConsultaLoteRps.Lote := '';
         end;
 
+        if not FProvider.ConfigGeral.ConsultaSitLote then
+          Sleep(Configuracoes.WebServices.AguardarConsultaRet);
+
         FProvider.ConsultaLoteRps;
       end;
     end;
@@ -455,28 +461,19 @@ function TACBrNFSeX.GerarIntegridade(const AXML: string): string;
 var
   XML: string;
   i, j: Integer;
-  xAssinatura: TStringList;
 begin
   j := Length(AXML);
   XML := '';
 
   for i := 1 to J do
   begin
-    if {$IFNDEF HAS_CHARINSET}ACBrUtil.{$ENDIF}CharInSet(AXML[i], ['!'..'~']) then
+    if {$IFNDEF HAS_CHARINSET}ACBrUtil.Compatibilidade.{$ENDIF}CharInSet(AXML[i], ['!'..'~']) then
       XML := XML + AXML[i];
   end;
 
-//  SSL.CarregarCertificadoSeNecessario;
-
-  xAssinatura := TStringList.Create;
-  try
-    xAssinatura.Add(XML + Configuracoes.Geral.Emitente.WSChaveAcesso);
-
-    Result := string(SSL.CalcHash(xAssinatura, dgstSHA512, outHexa, False));
-    Result := lowerCase(Result);
-  finally
-    xAssinatura.Free;
-  end;
+  Result := SSL.CalcHash(XML + Configuracoes.Geral.Emitente.WSChaveAcesso,
+                         dgstSHA512, outHexa, False);
+  Result := lowerCase(Result);
 end;
 
 procedure TACBrNFSeX.ConsultarLoteRps(const AProtocolo, ANumLote: String);
@@ -803,13 +800,20 @@ begin
     NumeroNFSe := aInfCancelamento.NumeroNFSe;
     SerieNFSe := aInfCancelamento.SerieNFSe;
     ChaveNFSe := aInfCancelamento.ChaveNFSe;
+    DataEmissaoNFSe := aInfCancelamento.DataEmissaoNFSe;
     CodCancelamento := aInfCancelamento.CodCancelamento;
-    MotCancelamento := aInfCancelamento.MotCancelamento;
+    MotCancelamento := TiraAcentos(ChangeLineBreak(aInfCancelamento.MotCancelamento));
     NumeroLote := aInfCancelamento.NumeroLote;
     NumeroRps := aInfCancelamento.NumeroRps;
     SerieRps := aInfCancelamento.SerieRps;
     ValorNFSe := aInfCancelamento.ValorNFSe;
     CodVerificacao := aInfCancelamento.CodVerificacao;
+    email := aInfCancelamento.email;
+    NumeroNFSeSubst := aInfCancelamento.NumeroNFSeSubst;
+    SerieNFSeSubst := aInfCancelamento.SerieNFSeSubst;
+
+    if (ChaveNFSe <> '') and (NumeroNFSe = '') then
+      NumeroNFSe := Copy(ChaveNFSe, 22, 9);
   end;
 
   FProvider.CancelaNFSe;
@@ -817,25 +821,22 @@ begin
   if Configuracoes.Geral.ConsultaAposCancelar and
      FProvider.ConfigGeral.ConsultaNFSe then
   begin
-//    try
-      FWebService.ConsultaNFSe.Clear;
+    FWebService.ConsultaNFSe.Clear;
 
-      with FWebService.ConsultaNFSe.InfConsultaNFSe do
-      begin
-        if FProvider.ConfigGeral.ConsultaPorFaixa then
-          tpConsulta := tcPorFaixa
-        else
-          tpConsulta := tcPorNumero;
+    with FWebService.ConsultaNFSe.InfConsultaNFSe do
+    begin
+      if FProvider.ConfigGeral.ConsultaPorFaixa then
+        tpConsulta := tcPorFaixa
+      else
+        tpConsulta := tcPorNumero;
 
-        NumeroIniNFSe := FWebService.CancelaNFSe.InfCancelamento.NumeroNFSe;
-        NumeroFinNFSe := FWebService.CancelaNFSe.InfCancelamento.NumeroNFSe;
-        Pagina        := 1;
-      end;
+      NumeroIniNFSe := FWebService.CancelaNFSe.InfCancelamento.NumeroNFSe;
+      NumeroFinNFSe := FWebService.CancelaNFSe.InfCancelamento.NumeroNFSe;
+      NumeroLote := FWebService.CancelaNFSe.InfCancelamento.NumeroLote;
+      Pagina := 1;
+    end;
 
-      FProvider.ConsultaNFSe;
-//    finally
-//      FWebService.CancelaNFSe.Situacao := FWebService.ConsultaNFSe.Situacao;
-//    end;
+    FProvider.ConsultaNFSe;
   end;
 end;
 
@@ -860,7 +861,7 @@ begin
     NumeroNFSe := aNumNFSe;
     SerieNFSe := aSerieNFSe;
     CodCancelamento := aCodCancelamento;
-    MotCancelamento := aMotCancelamento;
+    MotCancelamento := TiraAcentos(ChangeLineBreak(aMotCancelamento));
     NumeroLote := aNumLote;
     CodVerificacao := aCodVerificacao;
   end;

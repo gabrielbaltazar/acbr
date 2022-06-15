@@ -60,6 +60,8 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
+
     property URL: string read GetURL;
     property NameSpace: string read GetNameSpace;
     property SoapAction: string read GetSoapAction;
@@ -101,7 +103,9 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais,
   VersaTecnologia.GravarXml, VersaTecnologia.LerXml;
 
@@ -277,9 +281,9 @@ var
   xURL: string;
 begin
   if TACBrNFSeX(FPDFeOwner).Configuracoes.WebServices.AmbienteCodigo = 1 then
-    xURL := TACBrNFSeX(FPDFeOwner).Provider.ConfigGeral.Params1
+    xURL := TACBrNFSeX(FPDFeOwner).Provider.ConfigGeral.Params.ValorParametro('URLProducao')
   else
-    xURL := TACBrNFSeX(FPDFeOwner).Provider.ConfigGeral.Params2;
+    xURL := TACBrNFSeX(FPDFeOwner).Provider.ConfigGeral.Params.ValorParametro('URLHomologacao');
 
   if TACBrNFSeX(FPDFeOwner).Configuracoes.Geral.Versao = ve201 then
     xURL := xURL + '/webservice'
@@ -466,6 +470,15 @@ begin
   Result := Executar(SoapAction + 'SubstituirNfse', Request,
                      ['outputXML', 'SubstituirNfseResposta'],
                      [NameSpace]);
+end;
+
+function TACBrNFSeXWebserviceVersaTecnologia200.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result));
+  Result := string(NativeStringToUTF8(RemoverDeclaracaoXML(Result)));
 end;
 
 { TACBrNFSeProviderVersaTecnologia201 }

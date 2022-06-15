@@ -59,6 +59,8 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
+
     property Namespace: string read GetNamespace;
   end;
 
@@ -75,7 +77,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, Coplan.GravarXml, Coplan.LerXml;
 
 { TACBrNFSeProviderCoplan201 }
@@ -83,6 +86,8 @@ uses
 procedure TACBrNFSeProviderCoplan201.Configuracao;
 begin
   inherited Configuracao;
+
+  ConfigGeral.ConsultaPorFaixaPreencherNumNfseFinal := True;
 
   with ConfigAssinar do
   begin
@@ -339,6 +344,16 @@ begin
   Result := Executar('Tributarioaction/ANFSE_WEB_SERVICE.SUBSTITUIRNFSE', Request,
                      ['Substituirnfseresponse', 'outputXML', 'SubstituirNfseResposta'],
                      ['xmlns:trib="Tributario"', NameSpace]);
+end;
+
+function TACBrNFSeXWebserviceCoplan201.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverCDATA(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 end.

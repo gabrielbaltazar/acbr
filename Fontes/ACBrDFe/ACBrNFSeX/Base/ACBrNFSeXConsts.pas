@@ -129,6 +129,8 @@ const
   Desc120	= 'Emitente.WSSenha não informada.';
   Cod121 = 'X121';
   Desc121	= 'Cadastro Econômico.';
+  Cod122 = 'X122';
+  Desc122 = 'Data Emissão da NFSe não informada.';
 
   Cod201 = 'X201';
   Desc201 = 'WebService retornou um XML vazio.';
@@ -150,8 +152,6 @@ const
   Desc209 = 'Retorno do Cancelamento não encontrada.';
   Cod210 = 'X210';
   Desc210 = 'Nfse do Cancelamento não encontrada.';
-  Cod211 = 'X211';
-  Desc211 = 'Acesso Negado';
 
   Cod800 = 'X800';
   Desc800 = 'Erro de Validação: ';

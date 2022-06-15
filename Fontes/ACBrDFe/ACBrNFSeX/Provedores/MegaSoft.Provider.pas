@@ -49,6 +49,7 @@ type
     function GerarNFSe(ACabecalho, AMSG: String): string; override;
     function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderMegaSoft200 = class (TACBrNFSeProviderABRASFv2)
@@ -65,7 +66,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, MegaSoft.GravarXml, MegaSoft.LerXml;
 
 { TACBrNFSeProviderMegaSoft200 }
@@ -186,6 +188,16 @@ begin
   Result := Executar('http://ws.megasoftarrecadanet.com.br/ConsultarNfsePorRps', Request,
                      ['outputXML', 'ConsultarNfseRpsResposta'],
                      ['xmlns:ws="http://ws.megasoftarrecadanet.com.br"']);
+end;
+
+function TACBrNFSeXWebserviceMegaSoft200.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 end.

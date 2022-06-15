@@ -159,7 +159,7 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'LOGRADOURO', 1, 60, 1,
                                            NFSe.Tomador.Endereco.Endereco, ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'COMPLEMENTO', 1, 60, 0,
+  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'COMPLEMENTO', 1, 60, 1,
                                         NFSe.Tomador.Endereco.Complemento, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'NUMERO', 1, 10, 1,
@@ -227,7 +227,7 @@ begin
                              NFSe.Servico.ItemServico.Items[i].Quantidade, ''));
 
     Result[i].AppendChild(AddNode(tcDe2, '#1', 'DESCONTO', 1, 10, 1,
-                             NFSe.Servico.ItemServico.Items[i].DescontoIncondicionado, ''));
+                 NFSe.Servico.ItemServico.Items[i].DescontoIncondicionado, ''));
   end;
 
   if NFSe.Servico.ItemServico.Count > 10 then

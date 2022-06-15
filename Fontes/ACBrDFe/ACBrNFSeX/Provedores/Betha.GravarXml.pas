@@ -60,9 +60,15 @@ type
   protected
     procedure Configuracao; override;
 
+    procedure DefinirIDDeclaracao; override;
+  public
+    function GerarXml: Boolean; override;
   end;
 
 implementation
+
+uses
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -147,6 +153,21 @@ begin
   FormatoItemListaServico := filsSemFormatacao;
 
   NrOcorrCodigoPaisServico := -1;
+end;
+
+procedure TNFSeW_Betha202.DefinirIDDeclaracao;
+begin
+  NFSe.InfID.ID := 'rps' + OnlyNumber(NFSe.IdentificacaoRps.Numero)
+end;
+
+function TNFSeW_Betha202.GerarXml: Boolean;
+begin
+  if NFSe.Servico.Valores.IssRetido <> stNormal then
+    NrOcorrRespRetencao := 0   // se tem a retenção a tag deve ser gerada
+  else
+    NrOcorrRespRetencao := -1; // se não tem a retenção a tag não deve ser gerada
+
+  Result := inherited GerarXml;
 end;
 
 end.

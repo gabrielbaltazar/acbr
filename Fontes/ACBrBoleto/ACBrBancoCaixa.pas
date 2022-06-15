@@ -46,6 +46,8 @@ type
   TACBrCaixaEconomica = class(TACBrBancoClass)
    protected
     function GetLocalPagamento: String; override;
+    function DefineAceiteImpressao(const ACBrTitulo: TACBrTitulo): String; override;
+    procedure EhObrigatorioAgenciaDV; override;
    private
     fValorTotalDocs:Double;
     fQtRegLote: Integer;
@@ -53,6 +55,7 @@ type
     function FormataNossoNumero(const ACBrTitulo :TACBrTitulo): String;
     function RetornaCodCarteira(const Carteira: string; const ACBrTitulo : TACBrTitulo): integer;
     function DefineCodigoCedente(const ACBrCedente :TACBrCedente): String;
+    function ConverteModalidadeEmCodCarteira(const Modalidade: Integer): String;
    public
     Constructor create(AOwner: TACBrBanco);
     function CalcularDigitoVerificador(const ACBrTitulo: TACBrTitulo ): String; override;
@@ -81,7 +84,7 @@ implementation
 
 uses StrUtils, Variants,
   {$IFDEF COMPILER6_UP} DateUtils {$ELSE} ACBrD5, FileCtrl {$ENDIF},
-  ACBrUtil;
+  ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 constructor TACBrCaixaEconomica.create(AOwner: TACBrBanco);
 begin
@@ -284,6 +287,17 @@ begin
 
 end;
 
+function TACBrCaixaEconomica.DefineAceiteImpressao(
+  const ACBrTitulo: TACBrTitulo): String;
+begin
+    case ACBrTitulo.Aceite of
+    atSim :
+      Result := 'A';
+  else
+    Result := 'N';
+  end;
+end;
+
 function TACBrCaixaEconomica.DefineCodigoCedente(const ACBrCedente: TACBrCedente): String;
 begin
   if ((fpLayoutVersaoArquivo = 107) and (fpLayoutVersaoLote = 67))
@@ -291,6 +305,23 @@ begin
     Result := PadLeft(  ACBrCedente.CodigoCedente, 7, '0')
   else
     Result := PadLeft(  ACBrCedente.CodigoCedente, 6, '0');
+end;
+
+function TACBrCaixaEconomica.ConverteModalidadeEmCodCarteira(
+  const Modalidade: Integer): String;
+begin
+  case Modalidade of
+    11, 14: Result:= 'RG';
+    21, 24: Result:= 'SR';
+  else
+    raise Exception.Create( ACBrStr('Código de Modalidade Inválido para Carteira "RG" ou "SR"') ) ;
+  end;
+
+end;
+
+procedure TACBrCaixaEconomica.EhObrigatorioAgenciaDV;
+begin
+  //sem validação
 end;
 
 function TACBrCaixaEconomica.TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String;
@@ -1264,8 +1295,8 @@ begin
 
             ValorDocumento       := StrToFloatDef(Copy(Linha,82,15),0)/100;
             ValorDespesaCobranca := StrToFloatDef(Copy(Linha,199,15),0)/100;
-            NossoNumero          := Copy(Linha,42,15);  
-            Carteira             := Copy(Linha,40,2);
+            NossoNumero          := Copy(Linha,42,15);              
+            Carteira             := ConverteModalidadeEmCodCarteira( StrToIntDef(Copy(Linha,40,2),0));
 
             if (CodOcorrencia  = '06' ) or (CodOcorrencia  = '09' ) or
                (CodOcorrencia  = '17' ) then
@@ -1945,7 +1976,7 @@ begin
        ValorRecebido        := StrToFloatDef(Copy(Linha,254,13),0)/100;
        ValorMoraJuros       := StrToFloatDef(Copy(Linha,267,13),0)/100;
        ValorOutrosCreditos  := StrToFloatDef(Copy(Linha,280,13),0)/100;
-       Carteira             := Copy(Linha,57,2);
+       Carteira             := ConverteModalidadeEmCodCarteira( StrToIntDef(Copy(Linha,57,2),0));
        NossoNumero          := Copy(Linha,59,15);
        ValorDespesaCobranca := StrToFloatDef(Copy(Linha,176,13),0)/100;
 

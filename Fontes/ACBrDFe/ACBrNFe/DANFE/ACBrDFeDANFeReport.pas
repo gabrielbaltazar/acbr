@@ -140,7 +140,9 @@ type
 implementation
 
 uses
-  ACBrNFe, ACBrUtil, ACBrValidador,
+  ACBrNFe,
+  ACBrUtil.Base, ACBrUtil.Strings,
+  ACBrValidador,
   StrUtils;
 
 { TACBrDFeDANFeReport }

@@ -280,7 +280,12 @@ TACBrECFDataRegis = class( TACBrECFClass )
 implementation
 Uses SysUtils, Math, IniFiles,
      {$IFDEF COMPILER6_UP} DateUtils, StrUtils {$ELSE} ACBrD5, Windows{$ENDIF},
-     ACBrUtil, ACBrConsts;
+     ACBrUtil.Strings,
+     ACBrUtil.Math,
+     ACBrUtil.FilesIO,
+     ACBrUtil.Base,
+     ACBrUtil.Compatibilidade,
+     ACBrConsts;
 
 { ----------------------------- TDJECFDataRegis ------------------------------ }
 

@@ -93,6 +93,8 @@ type
      fsOnConsultarNumeroSessao: TACBrSATEventoDados;
      fsOnMensagemSEFAZ: TACBrSATMensagem;
      fsOnCalcPath: TACBrSATCalcPathEvent;
+     fsOnConsultarUltimaSessaoFiscal: TACBrSATEvento;
+
      fsValidarNumeroSessaoResposta: Boolean;
      fsNumeroTentativasValidarSessao: Integer;
      fsErrosSessaoCount: Integer;
@@ -194,6 +196,7 @@ type
      function TrocarCodigoDeAtivacao(const codigoDeAtivacaoOuEmergencia: AnsiString;
        opcao: Integer; const novoCodigo: AnsiString): String;
      function ValidarDadosVenda( dadosVenda : AnsiString; out msgErro: String) : Boolean;
+     function ConsultarUltimaSessaoFiscal : String ;
 
     procedure ImprimirExtrato;
     procedure ImprimirExtratoResumido;
@@ -256,7 +259,8 @@ type
      property OnMensagemSEFAZ: TACBrSATMensagem read fsOnMensagemSEFAZ
         write fsOnMensagemSEFAZ;
      property OnCalcPath: TACBrSATCalcPathEvent read fsOnCalcPath write fsOnCalcPath;
-
+     property OnConsultarUltimaSessaoFiscal: TACBrSATEvento read fsOnConsultarUltimaSessaoFiscal
+        write fsOnConsultarUltimaSessaoFiscal;
    end;
 
 function MensagemCodigoRetorno(CodigoRetorno: Integer): String;
@@ -268,7 +272,8 @@ implementation
 
 Uses
   dateutils,
-  ACBrUtil, ACBrConsts, ACBrSATDinamico_cdecl, ACBrSATDinamico_stdcall, ACBrSATMFe_integrador,
+  ACBrUtil.Strings, ACBrUtil.FilesIO, ACBrUtil.XMLHTML, ACBrUtil.DateTime, ACBrUtil.Base,
+  ACBrConsts, ACBrSATDinamico_cdecl, ACBrSATDinamico_stdcall, ACBrSATMFe_integrador,
   synautil;
 
 function MensagemCodigoRetorno(CodigoRetorno: Integer): String;
@@ -766,18 +771,19 @@ begin
   fsErrosSessaoCount := 0;
   fsSessaoAVerificar := 0;
 
-  fsOnGetcodigoDeAtivacao := Nil;
-  fsOnGetsignAC           := Nil;
-  fsOnGravarLog           := Nil;
-  fsOnGetNumeroSessao     := Nil;
-  fsOnAguardandoRespostaChange  := Nil;
-  fsOnCancelarUltimaVenda       := Nil;
-  fsOnConsultarNumeroSessao     := Nil;
-  fsOnConsultarSAT              := Nil;
-  fsOnConsultaStatusOperacional := Nil;
-  fsOnEnviarDadosVenda          := Nil;
-  fsOnExtrairLogs               := Nil;
-  fsOnMensagemSEFAZ             := Nil;
+  fsOnGetcodigoDeAtivacao         := Nil;
+  fsOnGetsignAC                   := Nil;
+  fsOnGravarLog                   := Nil;
+  fsOnGetNumeroSessao             := Nil;
+  fsOnAguardandoRespostaChange    := Nil;
+  fsOnCancelarUltimaVenda         := Nil;
+  fsOnConsultarNumeroSessao       := Nil;
+  fsOnConsultarSAT                := Nil;
+  fsOnConsultaStatusOperacional   := Nil;
+  fsOnEnviarDadosVenda            := Nil;
+  fsOnExtrairLogs                 := Nil;
+  fsOnMensagemSEFAZ               := Nil;
+  fsOnConsultarUltimaSessaoFiscal := Nil;
 
   fsConfig := TACBrSATConfig.Create(Self);
   fsConfig.Name := 'ACBrSATConfig' ;
@@ -1385,6 +1391,27 @@ begin
     end;
   end;
 end ;
+
+function TACBrSAT.ConsultarUltimaSessaoFiscal: String;
+var
+  SATResp: String;
+begin
+  fsComandoLog := 'ConsultarUltimaSessaoFiscal';
+  IniciaComando;
+  try
+    SATResp := '';
+    if Assigned(fsOnConsultarUltimaSessaoFiscal) then
+      fsOnConsultarUltimaSessaoFiscal(SATResp);
+
+    if EstaVazio(SATResp) then
+      SATResp := fsSATClass.ConsultarUltimaSessaoFiscal;
+  finally
+    Result := FinalizaComando( SATResp );
+  end;
+
+  DecodificaRetorno6000;
+  DecodificaRetorno7000;
+end;
 
 function TACBrSAT.DesbloquearSAT : String ;
 var

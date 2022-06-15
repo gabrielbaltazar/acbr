@@ -52,6 +52,7 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderWebISS = class (TACBrNFSeProviderABRASFv1)
@@ -77,6 +78,7 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderWebISS202 = class (TACBrNFSeProviderABRASFv2)
@@ -92,6 +94,7 @@ type
 implementation
 
 uses
+  ACBrUtil.XMLHTML,
   ACBrDFeException,
   WebISS.GravarXml, WebISS.LerXml;
 
@@ -258,6 +261,17 @@ begin
   Result := Executar('http://tempuri.org/INfseServices/CancelarNfse', Request,
                      ['CancelarNfseResult', 'CancelarNfseResposta'],
                      []);
+end;
+
+function TACBrNFSeXWebserviceWebISS.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 { TACBrNFSeProviderWebISS202 }
@@ -486,6 +500,17 @@ begin
   Result := Executar('http://nfse.abrasf.org.br/SubstituirNfse', Request,
                      ['outputXML', 'SubstituirNfseResposta'],
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceWebISS202.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 end.

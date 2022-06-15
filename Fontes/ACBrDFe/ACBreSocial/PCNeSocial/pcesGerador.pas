@@ -51,7 +51,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils, variants,
-  ACBrUtil,
   pcnGerador, pcnLeitor, pcnConversao, pcnAuxiliar, pcnConsts,
   pcesCommon, pcesConversaoeSocial;
 
@@ -109,11 +108,13 @@ type
     procedure GerarIdeEstabVinc(pIdeEstabVinc: TIdeEstabVinc);
     procedure GerarIdeTrabSubstituido(pIdeTrabSubstituido: TIdeTrabSubstituidoCollection);
     procedure GerarIdVersao(pIdEsocial: TeSocial);
+    procedure GerarIdeVinculo2206(pIdeVinculo: TIdeVinculo; pcodCateg: Boolean = True; pCessao: Boolean = False);
     procedure GerarIdeVinculo(pIdeVinculo: TIdeVinculo; pcodCateg: Boolean = True; pCessao: Boolean = False);
     procedure GerarInfoAtivDesemp(pInfoAtivDesemp: TInfoAtivDesemp);
     procedure GerarInfoDeficiencia(pInfoDeficiencia: TInfoDeficiencia; pTipo: integer = 0);
     procedure GerarLocalTrabGeral(pLocalTrabGeral: TLocalTrabGeral);
     procedure GerarLocalTrabDom(pLocalTrabDom: TLocalTrabDom);
+    procedure GerarLocalTempDom(pLocalTempDom: TLocalTempDom);
     procedure GerarLocalTrabalho(pLocalTrabalho: TLocalTrabalho);
     procedure GerarModoAbertura(pModo: TModoLancamento);
     procedure GerarModoFechamento(pModo: TModoLancamento);
@@ -163,7 +164,7 @@ type
     procedure GerarRemunOutrEmpr(objRemunOutrEmpr: TRemunOutrEmprCollection);
     procedure GerarInfoMV(pInfoMV: TInfoMV);
     procedure GerarInfoSimples(obj: TinfoSimples);
-    procedure GerarIdeEstabLot(pIdeEstabLot : TideEstabLotCollection);
+    procedure GerarIdeEstabLot(pIdeEstabLot: TideEstabLotCollection);
     procedure GerarQuarentena(obj: TQuarentena);
     procedure GerarIdeRespInf(obj: TIdeRespInf);
     procedure GerarTreinamentoCapacitacao(objTreiCap: TtreiCapCollection);
@@ -216,6 +217,9 @@ type
 implementation
 
 uses
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
   ACBreSocial, ACBrDFeSSL, ACBrDFeUtil;
 
 {TeSocialEvento}
@@ -427,13 +431,13 @@ begin
       Result := Result + copy(OnlyNumber(Copy(CNPJF, 1, 8)) + '00000000000000', 1, 14);
   end;
 
-  Result := Result + IntToStrZero(nAno, 4);
-  Result := Result + IntToStrZero(nMes, 2);
-  Result := Result + IntToStrZero(nDia, 2);
-  Result := Result + IntToStrZero(nHora, 2);
-  Result := Result + IntToStrZero(nMin, 2);
-  Result := Result + IntToStrZero(nSeg, 2);
-  Result := Result + IntToStrZero(sequencial, 5);
+  Result := Result + pcnAuxiliar.IntToStrZero(nAno, 4);
+  Result := Result + pcnAuxiliar.IntToStrZero(nMes, 2);
+  Result := Result + pcnAuxiliar.IntToStrZero(nDia, 2);
+  Result := Result + pcnAuxiliar.IntToStrZero(nHora, 2);
+  Result := Result + pcnAuxiliar.IntToStrZero(nMin, 2);
+  Result := Result + pcnAuxiliar.IntToStrZero(nSeg, 2);
+  Result := Result + pcnAuxiliar.IntToStrZero(sequencial, 5);
 end;
 
 procedure TeSocialEvento.GerarCNH(pCnh: TCNH);
@@ -505,8 +509,11 @@ begin
   GerarLocalTrabalho(pInfoContrato.LocalTrabalho);
 
   //Informações do Horário Contratual do Trabalhador. O preenchimento é obrigatório se {tpRegJor} = [1]
-  if (pInfoRegimeTrab.InfoCeletista.TpRegJor = rjSubmetidosHorarioTrabalho) then
-    GerarHorContratual(pInfoContrato.HorContratual);
+  if (NaoEstaVazio(pInfoRegimeTrab.InfoCeletista.cnpjSindCategProf)) then
+    begin
+      if (pInfoRegimeTrab.InfoCeletista.TpRegJor = rjSubmetidosHorarioTrabalho) then
+        GerarHorContratual(pInfoContrato.HorContratual);
+    end;
 
   if VersaoDF <= ve02_05_00 then
     GerarFiliacaoSindical(pInfoContrato.FiliacaoSindical);
@@ -547,8 +554,8 @@ begin
     Gerador.wCampo(tcStr, '', 'nmDep',     1, 70, 1, pDependente.Items[i].NmDep);
     Gerador.wCampo(tcDat, '', 'dtNascto', 10, 10, 1, pDependente.Items[i].DtNascto);
     Gerador.wCampo(tcStr, '', 'cpfDep',   11, 11, 0, pDependente.Items[i].CpfDep);
-    
-    if (VersaoDF > ve02_05_00) and (pBeneficiario) then
+
+    if (VersaoDF > ve02_05_00) then 
       if (pDependente.Items[i].sexoDep = 'F') or (pDependente.Items[i].sexoDep = 'M') then
         Gerador.wCampo(tcStr, '', 'sexoDep',   1,  1, 0, pDependente.Items[i].sexoDep);
 
@@ -973,8 +980,10 @@ begin
         Gerador.wCampo(tcInt, '', 'tpInclContr', 1,   1, 1, eSTpInclContrToStr(pTrabTemporario.tpinclContr));
 
     if VersaoDF <= ve02_05_00 then
-      GerarIdeTomadorServ(pTrabTemporario.ideTomadorServ);
-      
+      GerarIdeTomadorServ(pTrabTemporario.ideTomadorServ)
+    else
+      GerarIdeEstabVinc(pTrabTemporario.ideEstabVinc);
+     
     GerarIdeTrabSubstituido(pTrabTemporario.ideTrabSubstituido);
 
     Gerador.wGrupo('/trabTemporario');
@@ -1326,7 +1335,7 @@ begin
     Gerador.wAlerta('', 'ideTrabSubstituido', 'Lista de Trabalhadores Substituido', ERR_MSG_MAIOR_MAXIMO + '9');
 end;
 
-procedure TeSocialEvento.GerarIdeVinculo(pIdeVinculo: TIdeVinculo; pcodCateg: Boolean = True; pCessao: Boolean = False);
+procedure TeSocialEvento.GerarIdeVinculo2206(pIdeVinculo: TIdeVinculo; pcodCateg: Boolean = True; pCessao: Boolean = False);
 begin
   Gerador.wGrupo('ideVinculo');
 
@@ -1342,7 +1351,31 @@ begin
     end;
 
   if (IntToTpProf(pIdeVinculo.codCateg) = ttpProfissionalEmpregado) then
-          Gerador.wCampo(tcStr, '', 'matricula', 1, 30, 1, pIdeVinculo.matricula);
+          Gerador.wCampo(tcStr, '', 'matricula', 1, 30, 0, pIdeVinculo.matricula);
+  
+  if not(pCessao) then
+    if (pcodCateg) then
+      Gerador.wCampo(tcInt, '', 'codCateg',  3,  3, 0, pIdeVinculo.codCateg);
+
+  Gerador.wGrupo('/ideVinculo');
+end;
+
+procedure TeSocialEvento.GerarIdeVinculo(pIdeVinculo: TIdeVinculo; pcodCateg: Boolean = True; pCessao: Boolean = False);
+begin
+  Gerador.wGrupo('ideVinculo');
+
+  Gerador.wCampo(tcStr, '', 'cpfTrab', 11, 11, 1, pIdeVinculo.cpfTrab);
+
+  if not(pCessao) then
+    if VersaoDF <= ve02_05_00 then
+    begin
+      if ((pIdeVinculo.codCateg = 901) or (pIdeVinculo.codCateg = 903) or (pIdeVinculo.codCateg = 904)) then
+        Gerador.wCampo(tcStr, '', 'nisTrab', 1, 11, 0, pIdeVinculo.nisTrab)
+      else
+        Gerador.wCampo(tcStr, '', 'nisTrab', 1, 11, 1, pIdeVinculo.nisTrab);
+    end;
+
+  Gerador.wCampo(tcStr, '', 'matricula', 0, 30, 0, pIdeVinculo.matricula);
   
   if not(pCessao) then
     if (pcodCateg) then
@@ -1492,7 +1525,7 @@ begin
       Gerador.wCampo(tcDat, '', 'dtExercicio', 10, 10, 1, pInfoEstatutario.dtExercicio);
 
     if pInfoEstatutario.tpPlanRP <> prpNenhum then
-      Gerador.wCampo(tcInt, '', 'tpPlanRP', 0, 1, 0,  eSTpPlanRPToStr(pInfoEstatutario.tpPlanRP));
+      Gerador.wCampo(tcStr, '', 'tpPlanRP', 0, 1, 0,  eSTpPlanRPToStr(pInfoEstatutario.tpPlanRP));
 
     if VersaoDF <= ve02_05_00 then
       GerarInfoDecJud(pInfoEstatutario.infoDecJud)
@@ -1557,8 +1590,11 @@ begin
   Gerador.wGrupo('localTrabalho');
 
   GerarLocalTrabGeral(pLocalTrabalho.LocalTrabGeral);
-  GerarLocalTrabDom(pLocalTrabalho.LocalTrabDom);
 
+  if VersaoDF <= ve02_05_00 then
+    GerarLocalTrabDom(pLocalTrabalho.LocalTrabDom)
+  else
+    GerarLocalTempDom(pLocalTrabalho.LocalTempDom);
   Gerador.wGrupo('/localTrabalho');
 end;
 
@@ -1578,6 +1614,25 @@ begin
     Gerador.wCampo(tcStr, '', 'uf',          2,  2, 1, pLocalTrabDom.Uf);
 
     Gerador.wGrupo('/localTrabDom');
+  end;
+end;
+
+procedure TeSocialEvento.GerarLocalTempDom(pLocalTempDom: TLocalTempDom);
+begin
+  if NaoEstaVazio(pLocalTempDom.TpLograd) then
+  begin
+    Gerador.wGrupo('localTempDom');
+
+    Gerador.wCampo(tcStr, '', 'tpLograd',    1,  4, 1, pLocalTempDom.TpLograd);
+    Gerador.wCampo(tcStr, '', 'dscLograd',   1, 80, 1, pLocalTempDom.DscLograd);
+    Gerador.wCampo(tcStr, '', 'nrLograd',    1, 10, 1, pLocalTempDom.NrLograd);
+    Gerador.wCampo(tcStr, '', 'complemento', 0, 30, 0, pLocalTempDom.Complemento);
+    Gerador.wCampo(tcStr, '', 'bairro',      0, 60, 0, pLocalTempDom.Bairro);
+    Gerador.wCampo(tcStr, '', 'cep',         1,  8, 1, pLocalTempDom.Cep);
+    Gerador.wCampo(tcInt, '', 'codMunic',    7,  7, 1, pLocalTempDom.CodMunic);
+    Gerador.wCampo(tcStr, '', 'uf',          2,  2, 1, pLocalTempDom.Uf);
+
+    Gerador.wGrupo('/localTempDom');
   end;
 end;
 
@@ -1950,7 +2005,7 @@ begin
 
     GerarItensRemun(pIdeEstabLot[i].detVerbas, 'detVerbas');
 
-    if pIdeEstabLot[i].infoSaudeColetInst then
+    if (VersaoDF <= ve02_05_00) and (pIdeEstabLot[i].infoSaudeColetInst) then
       GerarInfoSaudeColet(pIdeEstabLot[i].infoSaudeColet);
 
     if pIdeEstabLot[i].infoAgNocivoInst then

@@ -36,7 +36,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, Spin, Buttons, ComCtrls, OleCtrls, SHDocVw,
   ShellAPI, XMLIntf, XMLDoc, zlib,
-  ACBrBase, ACBrUtil, ACBrMail, ACBrDFe, ACBrDFeReport, ACBrCTe,
+  ACBrBase, ACBrMail, ACBrDFe, ACBrDFeReport, ACBrCTe,
   ACBrCTeDACTEClass, ACBrCTeDACTeRLClass;
 
 type
@@ -331,6 +331,11 @@ implementation
 uses
   strutils, math, TypInfo, DateUtils, synacode, blcksock, FileCtrl, Grids,
   IniFiles, Printers,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
+  ACBrUtil.XMLHTML,
   pcnAuxiliar, pcteCTe, pcnConversao, pcteConversaoCTe, pcnRetConsReciDFe,
   ACBrDFeConfiguracoes, ACBrDFeSSL, ACBrDFeOpenSSL, ACBrDFeUtil,
   ACBrCTeConhecimentos, ACBrCTeConfiguracoes,
@@ -564,13 +569,13 @@ begin
     vPrest.vRec    := 100.00;
 
     {Carrega componentes do valor da prestacao}
-    with vPrest.comp.Add do
+    with vPrest.comp.New do
     begin
       xNome := 'Componente 1';
       vComp := 30.00;
     end;
 
-    with vPrest.comp.Add do
+    with vPrest.comp.New do
     begin
       xNome := 'Componente 2';
       vComp := 70.00;
@@ -1023,6 +1028,55 @@ begin
         qCarga := 5;
       end;
 
+      with infCarga.InfQ.New do
+      begin
+        cUnid  := uM3;
+        tpMed  := 'Volume';
+        qCarga := 10;
+      end;
+
+      with infCarga.InfQ.New do
+      begin
+        cUnid  := uTON;
+        tpMed  := 'Toneladas';
+        qCarga := 1;
+      end;
+
+      with infCarga.InfQ.New do
+      begin
+        cUnid  := uLITROS;
+        tpMed  := 'Litros';
+        qCarga := 10;
+      end;
+
+      with infCarga.InfQ.New do
+      begin
+        cUnid  := uLITROS;
+        tpMed  := 'Litros2';
+        qCarga := 10;
+      end;
+
+      with infCarga.InfQ.New do
+      begin
+        cUnid  := uLITROS;
+        tpMed  := 'Litros3';
+        qCarga := 10;
+      end;
+
+      with infCarga.InfQ.New do
+      begin
+        cUnid  := uLITROS;
+        tpMed  := 'Litros4';
+        qCarga := 10;
+      end;
+
+      with infCarga.InfQ.New do
+      begin
+        cUnid  := uLITROS;
+        tpMed  := 'Litros5';
+        qCarga := 10;
+      end;
+
       {Informações dos Documentos}
       with infDoc.infNFe.New do
         // chave da NFe emitida pelo remente da carga
@@ -1094,28 +1148,36 @@ begin
       *)
 
       {Carrega dados da CTe substituta 0-1}
-      {with infCTeSub do
+      {
+      with infCTeSub do
       begin
+        // Chave do CT-e Original
         chCte := '';
-        //Se tomador não é Contribuinte
-          tomaNaoICMS.refCteAnu := '';
 
-        //Se tomador for Contribuinte
-          case TipoDoc of //Tipo do Documento que o Tomador Emitiu para anulação de valor do Cte Anterior
-            0: tomaICMS.refNFe := '';//CTe
-            1: tomaICMS.refCte := '';//CTe
-            2://NF
-            begin
-              tomaICMS.refNF.CNPJCPF  := '';
-              tomaICMS.refNF.modelo   := '';
-              tomaICMS.refNF.serie    := 0;
-              tomaICMS.refNF.subserie := 0;
-              tomaICMS.refNF.nro      := 0;
-              tomaICMS.refNF.valor    := 0;
-              tomaICMS.refNF.dEmi     := Date;
-            end;
+        // Se tomador não é Contribuinte informar a Chave do CT-e de Anulação
+        refCteAnu := '';
+
+        // Se tomador for Contribuinte, verificar o tipo de documento emitido
+        // pelo tomador (NF-e, CT-e ou NF (comum de papel)
+
+        // Tipo do Documento que o Tomador Emitiu para anulação de valor do
+        // CT-e Anterior
+        case TipoDoc of
+          0: tomaICMS.refNFe := ''; // NF-e de Anulação de Valores
+          1: tomaICMS.refCte := ''; // CT-e de Anulação emitido por outra Transportadora
+          2: // NF (comum de papel)
+          begin
+            tomaICMS.refNF.CNPJCPF  := '';
+            tomaICMS.refNF.modelo   := '';
+            tomaICMS.refNF.serie    := 0;
+            tomaICMS.refNF.subserie := 0;
+            tomaICMS.refNF.nro      := 0;
+            tomaICMS.refNF.valor    := 0;
+            tomaICMS.refNF.dEmi     := Date;
           end;
-      end;}
+        end;
+      end;
+      }
 
       with cobr do
       begin
@@ -3003,8 +3065,8 @@ end;
 
 procedure TfrmACBrCTe.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser);
 begin
-  ACBrUtil.WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
-                      ACBrUtil.ConverteXMLtoUTF8(RetWS), False, False);
+  WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
+                      ConverteXMLtoUTF8(RetWS), False, False);
 
   MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml');
 

@@ -44,6 +44,53 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+01/06/2022
+--ACBrNFeDANFEClass.pas--
+[-]TK-2725 ACBrNFe - Correção erro "divisão operação por zero"
+  por : Innovae Brasil
+
+30/05/2022
+-- ACBrNFeDANFEFRDM --
+[*] Alteração do campo 'DescricaoProduto' para suportar preenchimento das tags de ARMA.
+    Por: thi4182 
+
+19/05/2022
+-- ACBrNFeServicos --
+[+] Inclusão das URLs de produção e homologação versão 4.00 para emissão da NFC-e - SEFAZ-CE
+   Por: Italo Giurizzato Junior
+
+18/05/2022
+-- ACBrNFeNotasFiscais --
+[*] Utilização da função ComparaValor ao validar as rejeições 564 e 610.
+   Por: Vilmondes Cândido Rosa
+-- ACBrNFeNotasFiscais --
+[*] Melhorias na geração da string que contem os erros ao executar o ValidarRegrasdeNegocios
+   Por: Adilson Duarte
+
+12/05/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
+04/05/2022
+-- ACBrDANFCeFortesFr --
+[-] Ajuste no DANFE NFCe para que o valor total dos produtos não fiquem fora da margem 
+
+27/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
+11/03/2022
+-- Diversos --
+[*] Alterações nos fontes do componente visando atender a NT 2021/004
+   Por: Italo Giurizzato Junior
+
+18/02/2022
+-- ACBrNFeServicos --
+[*] Atualização da URL do QR-Code da SEFAZ-MG
+   Por: Italo Giurizzato Junior
+
 12/01/2021
 -- ACBrNFeWebServices --
 [-] Ajustes para evitar a rejeição

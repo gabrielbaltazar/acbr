@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
@@ -100,6 +100,8 @@ begin
 
   // Gera ou não o atributo ID no grupo <Rps> da versão 2 do layout da ABRASF.
   GerarIDRps := False;
+  // Gera ou não o NameSpace no grupo <Rps> da versão 2 do layout da ABRASF.
+  GerarNSRps := True;
 
   GerarIDDeclaracao := True;
   GerarEnderecoExterior := False;

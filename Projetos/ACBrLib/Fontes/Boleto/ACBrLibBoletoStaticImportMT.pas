@@ -52,9 +52,9 @@ const
   {$EndIf}
  {$Else}
   {$IfDef CPU64}
-  CACBrBoletoLIBName = 'ACBrBoleto64.so';
+  CACBrBoletoLIBName = 'libacbrboleto64.so';
   {$Else}
-  CACBrBoletoLIBName = 'ACBrBoleto32.so';
+  CACBrBoletoLIBName = 'libacbrboleto32.so';
 
   {$EndIf}
  {$EndIf}
@@ -163,6 +163,9 @@ function Boleto_RetornaCodigoBarras(const libHandle: TLibHandle; eIndice: longin
   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrBoletoLIBName;
 
 function Boleto_EnviarBoleto(const libHandle: TLibHandle; eCodigoOperacao: longint; const sResposta: PChar; var esTamanho: longint): longint;
+  {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrBoletoLIBName;
+
+function Boleto_ConsultarTitulosPorPeriodo(const libHandle: TLibHandle; eArquivoIni: PChar; const sResposta: PChar; var esTamanho: longint): longint;
   {$IfDef STDCALL} stdcall{$Else} cdecl{$EndIf}; external CACBrBoletoLIBName;
 
 {%endregion}

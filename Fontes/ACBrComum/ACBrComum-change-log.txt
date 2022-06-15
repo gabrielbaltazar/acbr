@@ -37,6 +37,51 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+26/04/2022
+-- ACBrUtil.XMLHTML --
+[*] Incluído o parâmetro: aTodas na função RemoverDeclaracaoXML.
+    por padrão o valor é False, se for True vai remover todas as
+    Declarações que existam no XML.
+   Por: Italo Giurizzato Junior
+
+13/04/2022
+-- ACBrUtil.DateTime --
+[*] Incluida a remoção do caracter "Z" na função:
+    EncodeDataHora.
+   Por: Victor H. Gonzales - Panda
+
+27/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Waldir Paim
+
+25/03/2022
+-- ACBrUtil --
+[*] Correção a função StrIsHexa estava apontando para outro método.
+   Por: Waldir Paim
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
+21/03/2022
+-- ACBrImage --
+[+] Adiciondo o método "PNGInfoIHDR", para obter informações da Imagem PNG, por Stream
+  procedure PNGInfoIHDR(S: TStream; out Width: LongWord; out Height: LongWord;
+                       out BitDepth: Byte; out ColorType: Byte; out CompressionMethod: Byte;
+                       out FilterMethod: Byte; out InterlaceMethod: Byte);
+  (por: DSA)
+
+16/03/2022
+-- ACBrUtil --
+[+] Adicionado o método:
+    function StringCrcCCITT(const s: AnsiString; initial:Word=$1D0F; polynomial:Word=$1021): Word;
+    Calulo de CRC do PIX, Zebra e outros
+
+-- ACBrImage --
+[+] Adiciondo o método:
+    function IsPNG(S: TStream; CheckIsMono: Boolean = True): Boolean;
+    Verifica se o conteúdo do Stream é um PNG e Monocromático
+
 12/11/2022
 -- ACBrUtil --
 [*] Ajuste em "Iso8601ToDateTime", para considerar os Milisegundos, caso eles

@@ -54,6 +54,8 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
+
     property NameSpace: string read GetNameSpace;
   end;
 
@@ -70,6 +72,7 @@ type
 implementation
 
 uses
+  ACBrUtil.XMLHTML,
   ACBrDFeException,
   ACBrNFSeX, ISSNatal.GravarXml, ISSNatal.LerXml;
 
@@ -182,6 +185,14 @@ begin
   Result := Executar('', Request,
                      ['outputXML', 'CancelarNfseResposta'],
                      [NameSpace]);
+end;
+
+function TACBrNFSeXWebserviceISSNatal.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
 end;
 
 { TACBrNFSeProviderISSNatal }

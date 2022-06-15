@@ -109,8 +109,10 @@ implementation
 
 uses
   strutils, Math,
-  ACBrNFe, ACBrValidador, ACBrUtil, ACBrDFeUtil, ACBrConsts, ACBrDFeDANFeReport,
-   pcnConversao, pcnAuxiliar;
+  ACBrNFe, ACBrValidador,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime,
+  ACBrDFeUtil, ACBrConsts, ACBrDFeDANFeReport,
+  pcnConversao, pcnAuxiliar;
 
 { TACBrNFeDANFeESCPOS }
 
@@ -126,7 +128,6 @@ destructor TACBrNFeDANFeESCPOS.Destroy;
 begin
   inherited Destroy;
 end;
-
 
 procedure TACBrNFeDANFeESCPOS.SetPosPrinter(AValue: TACBrPosPrinter);
 begin

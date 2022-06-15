@@ -166,7 +166,11 @@ implementation
 
 Uses
   strutils, math, dateutils,
-  ACBrTEFD, ACBrUtil;
+  ACBrTEFD,
+  ACBrUtil.Math,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO;
 
 { TACBrTEFDRespTicketCar }
 
@@ -583,6 +587,7 @@ begin
      CopiarResposta ;
 
      { Cria cópia do Objeto Resp, e salva no ObjectList "RespostasPendentes" }
+     Resp.ViaClienteReduzida := ImprimirViaClienteReduzida;
      RespostaPendente := TACBrTEFDRespTicketCar.Create ;
      RespostaPendente.Assign( Resp );
      RespostasPendentes.Add( RespostaPendente );

@@ -482,7 +482,10 @@ implementation
 
 uses
   strutils, math, dateutils,
-  ACBrUtil, ACBrConsts;
+  ACBrUtil.Math,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO,
+  ACBrConsts;
 
 function PTIRETToString(iRET: SmallInt): String;
 begin
@@ -1248,10 +1251,9 @@ begin
 
     if (iRet = PTIRET_OK) then
     begin
+      GravarBackupDaTransacao(TerminalId);
       if ConfirmarAntesImpressao then
-        FinalizarTrancao( TerminalId, cnfSucesso )
-      else
-        GravarBackupDaTransacao(TerminalId);
+        FinalizarTrancao( TerminalId, cnfSucesso );
 
       if (Comprovantes <> prnNaoImprimir) then
       begin

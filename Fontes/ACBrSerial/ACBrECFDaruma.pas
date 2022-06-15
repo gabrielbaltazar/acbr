@@ -359,7 +359,13 @@ Uses
     {$IFDEF MSWINDOWS} Windows, {$ENDIF MSWINDOWS}
     SysUtils, Math,
     {$IFDEF COMPILER6_UP} DateUtils, StrUtils, {$ELSE} ACBrD5, {$ENDIF}
-    ACBrUtil, ACBrECF, ACBrECFEscECF, ACBrConsts;
+    ACBrUtil.Strings,
+    ACBrUtil.Base,
+    ACBrUtil.Math,
+    ACBrUtil.DateTime,
+    ACBrUtil.FilesIO,
+    ACBrUtil.Compatibilidade,
+    ACBrECF, ACBrECFEscECF, ACBrConsts;
 
 { ----------------------------- TACBrECFDaruma ------------------------------ }
 

@@ -46,7 +46,7 @@ uses
   IOUtils, UITypes, JclIDEUtils, JclCompilerUtils,
   Types, JvComponentBase, JvExControls, JvAnimatedImage,
   JvGIFCtrl, JvWizard, JvWizardRouteMapNodes, CheckLst,
-  uFrameLista, ACBrUtil, ACBrPacotes, UACBrPlataformaInstalacaoAlvo,
+  uFrameLista, ACBrPacotes, UACBrPlataformaInstalacaoAlvo,
   ACBrInstallDelphiComponentes;
 
 type
@@ -164,7 +164,7 @@ var
 implementation
 
 uses
-  ShellApi, IniFiles, StrUtils, Math, Registry, ACBrInstallUtils;
+  ShellApi, IniFiles, StrUtils, Math, Registry, ACBrUtil.FilesIO, ACBrInstallUtils;
 
 {$R *.dfm}
 
@@ -361,9 +361,10 @@ begin
   if versao <> cVersaoConfig then
   begin
     if MessageDlg('Encontramos um arquivo de configuração antigo. Precisamos apagá-lo para continuar.' + sLineBreak +
-                  'Deseja Continuar?', mtWarning, mbYesNo, 0, mbNo) <> mrYes then
+                  'Deseja continuar?', mtWarning, mbYesNo, 0, mbNo) <> mrYes then
     begin
       Application.Terminate;
+      Exit;
     end;
 
     DeleteFile(PathArquivoIni);

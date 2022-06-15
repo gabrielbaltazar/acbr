@@ -36,7 +36,7 @@ object frmACBrNFe: TfrmACBrNFe
           Top = 0
           Width = 287
           Height = 516
-          ActivePage = TabSheet12
+          ActivePage = TabSheet3
           Align = alClient
           MultiLine = True
           TabOrder = 0
@@ -196,8 +196,8 @@ object frmACBrNFe: TfrmACBrNFe
                 TabOrder = 2
               end
               object edtNumSerie: TEdit
-                Left = 7
-                Top = 156
+                Left = 6
+                Top = 155
                 Width = 193
                 Height = 21
                 TabOrder = 3
@@ -2006,6 +2006,10 @@ object frmACBrNFe: TfrmACBrNFe
     MAIL = ACBrMail1
     OnStatusChange = ACBrNFe1StatusChange
     OnGerarLog = ACBrNFe1GerarLog
+    Configuracoes.Geral.SSLLib = libNone
+    Configuracoes.Geral.SSLCryptLib = cryNone
+    Configuracoes.Geral.SSLHttpLib = httpNone
+    Configuracoes.Geral.SSLXmlSignLib = xsNone
     Configuracoes.Geral.FormaEmissao = teContingencia
     Configuracoes.Geral.FormatoAlerta = 'TAG:%TAGNIVEL% ID:%ID%/%TAG%(%DESCRICAO%) - %MSG%.'
     Configuracoes.Geral.VersaoDF = ve200
@@ -2050,20 +2054,20 @@ object frmACBrNFe: TfrmACBrNFe
     Sistema = 'Projeto ACBr - www.projetoacbr.com.br'
     MargemInferior = 0.800000000000000000
     MargemSuperior = 0.800000000000000000
-    MargemEsquerda = 0.600000000000000000
-    MargemDireita = 0.510000000000000000
+    MargemEsquerda = 0.200000000000000000
+    MargemDireita = 0.200000000000000000
     ExpandeLogoMarcaConfig.Altura = 0
     ExpandeLogoMarcaConfig.Esquerda = 0
     ExpandeLogoMarcaConfig.Topo = 0
     ExpandeLogoMarcaConfig.Largura = 0
     ExpandeLogoMarcaConfig.Dimensionar = False
     ExpandeLogoMarcaConfig.Esticar = True
-    CasasDecimais.Formato = tdetInteger
+    CasasDecimais.Formato = tdetMascara
     CasasDecimais.qCom = 2
     CasasDecimais.vUnCom = 2
     CasasDecimais.MaskqCom = '###,###,###,##0.00'
     CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
-    TipoDANFE = tiSemGeracao
+    TipoDANFE = tiNFCe
     ImprimeNomeFantasia = True
     FormularioContinuo = True
     FonteLinhaItem.Charset = DEFAULT_CHARSET

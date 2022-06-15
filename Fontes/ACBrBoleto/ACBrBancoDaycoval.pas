@@ -70,8 +70,7 @@ implementation
 
 uses
   {$IFDEF COMPILER6_UP} dateutils {$ELSE} ACBrD5 {$ENDIF},
-  StrUtils, Variants,
-  ACBrValidador, ACBrUtil;
+  StrUtils, Variants, ACBrValidador, ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 { TACBrBancoDaycoval }
 
@@ -434,6 +433,7 @@ procedure TACBrBancoDaycoval.GerarRegistroTransacao400( ACBrTitulo: TACBrTitulo;
 var
   ATipoOcorrencia, AEspecieDoc, ACodigoRemessa : String;
   DiasProtesto, TipoSacado, ATipoAceite, AComplemento: String;
+  ATipoCedente: String;
   wLinha: String;
 begin
   with ACBrTitulo do
@@ -480,6 +480,9 @@ begin
       TipoSacado := '03';
     end;
 
+    //Definindo o Tipo de Cedente}
+    ATipoCedente := DefineTipoInscricao;
+
     // Conforme manual o aceite deve ser sempre 'N'
     ATipoAceite := 'N';
 
@@ -503,8 +506,8 @@ begin
 
     with ACBrBoleto do
     begin
-      wLinha := '1' + // 1 - Código do registro: 1 - Transação
-        TipoSacado + // 2 a 3 - Tipo de inscrição da empresa: 01 = CPF; 02 = CNPJ
+      wLinha := '1' +                                                // 1 - Código do registro: 1 - Transação
+        PadLeft(ATipoCedente,2,'0') +                                // 2 a 3 - Tipo de inscrição da empresa: 01 = CPF; 02 = CNPJ
         PadLeft(OnlyNumber(Cedente.CNPJCPF), 14, '0') +              // 4 a 17 - Número de inscrição
         PadRight(Cedente.CodigoCedente, 20) +                        // 18 a 37 - Código da empresa no banco
         PadRight(SeuNumero, 25) +                                    // 38 a 62 - Identificação do título na empresa
@@ -547,7 +550,9 @@ begin
       wLinha := wLinha + IntToStrZero(ARemessa.Count + 1, 6);        // 395 a 400 - Número sequencial do registro
 
       ARemessa.Text := ARemessa.Text + UpperCase(wLinha);
+
     end;
+
   end;
 
   if ACBrTitulo.ListaDadosNFe.Count > 0 then  //Informações da nota fiscal
@@ -680,6 +685,7 @@ begin
   CodOcorrencia := StrToIntDef(TipoOCorrenciaToCod(TipoOcorrencia), 0);
 
   case CodOcorrencia of
+    01: Result := '01 Entrada Confirmada na CIP';
     02: Result := '02 Entrada Confirmada';
     03: Result := '03 Entrada Rejeitada';
     05: Result := '05 Campo Livre Alterado';
@@ -745,6 +751,7 @@ function TACBrBancoDaycoval.CodOcorrenciaToTipo(
   const CodOcorrencia: Integer): TACBrTipoOcorrencia;
 begin
   case CodOcorrencia of
+    01: Result := toRetornoEntradaConfirmadaNaCip;
     02: Result := toRetornoRegistroConfirmado;
     03: Result := toRetornoRegistroRecusado;
     05: Result := toRetornoAlteracaoSeuNumero;
@@ -777,6 +784,7 @@ end;
 function TACBrBancoDaycoval.TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String;
 begin
   case TipoOcorrencia of
+    toRetornoEntradaConfirmadaNaCIP             : Result := '01';
     toRetornoRegistroConfirmado                 : Result := '02';
     toRetornoRegistroRecusado                   : Result := '03';
     toRetornoAlteracaoSeuNumero                 : Result := '05';

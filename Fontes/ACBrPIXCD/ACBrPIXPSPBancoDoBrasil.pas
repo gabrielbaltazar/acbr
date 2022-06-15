@@ -48,11 +48,18 @@ uses
   ACBrPIXCD, ACBrPIXSchemasProblema;
 
 const
-  cURLBBSandbox = 'https://api.hm.bb.com.br';  // 'https://api.sandbox.bb.com.br';
-  cURLBBProducao = 'https://api.bb.com.br';
-  cURLBBAPIPix = '/pix/v1';
-  cURLBBAuthTeste = 'https://oauth.hm.bb.com.br/oauth/token';
-  cURLBBAuthProducao = 'https://oauth.bb.com.br/oauth/token';
+  cBBParamDevAppKey = 'gw-dev-app-key';
+  cBBParamAppKey = 'gw-app-key';
+  cBBURLSandbox = 'https://api.hm.bb.com.br';  // 'https://api.sandbox.bb.com.br';
+  cBBURLProducao = 'https://api.bb.com.br';
+  cBBPathAPIPix = '/pix/v1';
+  cBBURLAuthTeste = 'https://oauth.hm.bb.com.br/oauth/token';
+  cBBURLAuthProducao = 'https://oauth.bb.com.br/oauth/token';
+  cBBPathSandboxPagarPix = '/testes-portal-desenvolvedor/v1';
+  cBBEndPointPagarPix = '/boletos-pix/pagar';
+  cBBURLSandboxPagarPix = cBBURLSandbox + cBBPathSandboxPagarPix + cBBEndPointPagarPix;
+  cBBKeySandboxPagarPix = '95cad3f03fd9013a9d15005056825665';
+  cBBEndPointCobHomologacao = '/cobqrcode';
 
 type
 
@@ -61,15 +68,24 @@ type
   TACBrPSPBancoDoBrasil = class(TACBrPSP)
   private
     fDeveloperApplicationKey: String;
+
+    procedure QuandoAcessarEndPoint(const AEndPoint: String;
+      var AURL: String; var AMethod: String);
+    procedure QuandoReceberRespostaEndPoint(const AEndPoint, AURL, AMethod: String;
+      var AResultCode: Integer; var RespostaHttp: AnsiString);
   protected
     function ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String; override;
     procedure ConfigurarQueryParameters(const Method, EndPoint: String); override;
-    procedure TratarRetornoComErro(ResultCode: Integer; const RespostaHttp: String;
+    procedure TratarRetornoComErro(ResultCode: Integer; const RespostaHttp: AnsiString;
       Problema: TACBrPIXProblema); override;
   public
     constructor Create(AOwner: TComponent); override;
     procedure Autenticar; override;
+
+    procedure SimularPagamentoPIX(const pixCopiaECola: String;
+      var Code: Integer; var Texto: String);
   published
+    property APIVersion;
     property ClientID;
     property ClientSecret;
 
@@ -81,6 +97,8 @@ implementation
 
 uses
   synautil, synacode,
+  ACBrUtil.Strings,
+  ACBrPIXBase,
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
    JsonDataObjects_ACBr
   {$Else}
@@ -94,11 +112,14 @@ constructor TACBrPSPBancoDoBrasil.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   fDeveloperApplicationKey := '';
+  fpQuandoAcessarEndPoint := QuandoAcessarEndPoint;
+  fpQuandoReceberRespostaEndPoint := QuandoReceberRespostaEndPoint;
 end;
 
 procedure TACBrPSPBancoDoBrasil.Autenticar;
 var
-  AURL, RespostaHttp, Body, BasicAutentication: String;
+  AURL, Body, BasicAutentication: String;
+  RespostaHttp: AnsiString;
   ResultCode, sec: Integer;
   js: TJsonObject;
   qp: TACBrQueryParams;
@@ -106,9 +127,9 @@ begin
   LimparHTTP;
 
   if (ACBrPixCD.Ambiente = ambProducao) then
-    AURL := cURLBBAuthProducao
+    AURL := cBBURLAuthProducao
   else
-    AURL := cURLBBAuthTeste;
+    AURL := cBBURLAuthTeste;
 
   qp := TACBrQueryParams.Create;
   try
@@ -146,37 +167,137 @@ begin
     end;
    {$EndIf}
 
+   if (Trim(fpToken) = '') then
+     DispararExcecao(EACBrPixHttpException.Create(ACBrStr(sErroAutenticacao)));
+
    fpValidadeToken := IncSecond(Now, sec);
    fpAutenticado := True;
   end
   else
-    ACBrPixCD.DispararExcecao(EACBrPixHttpException.CreateFmt(
-      sErroHttp,[Http.ResultCode, ChttpMethodPOST, AURL]));
+    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
+       [Http.ResultCode, ChttpMethodPOST, AURL]));
+end;
+
+procedure TACBrPSPBancoDoBrasil.SimularPagamentoPIX(
+  const pixCopiaECola: String; var Code: Integer; var Texto: String);
+var
+  Body, AURL: String;
+  RespostaHttp: AnsiString;
+  ResultCode: Integer;
+  js: TJsonObject;
+begin
+  if (Trim(pixCopiaECola) = '') then
+    raise EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['pixCopiaECola']);
+
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+   js := TJsonObject.Parse(RespostaHttp) as TJsonObject;
+   try
+     js.S['pix'] := pixCopiaECola;
+     Body := js.ToJSON();
+   finally
+     js.Free;
+   end;
+  {$Else}
+   js := TJsonObject.Create;
+   try
+     js['pix'].AsString := pixCopiaECola;
+     Body := js.Stringify;
+   finally
+     js.Free;
+   end;
+  {$EndIf}
+
+  PrepararHTTP;
+  WriteStrToStream(Http.Document, Body);
+  Http.MimeType := CContentTypeApplicationJSon;
+  ConfigurarAutenticacao(ChttpMethodPOST, cBBEndPointPagarPix);
+  AURL := cBBURLSandboxPagarPix + '?' + cBBParamAppKey + '=' + cBBKeySandboxPagarPix;
+
+  TransmitirHttp(ChttpMethodPOST, AURL, ResultCode, RespostaHttp);
+  if (ResultCode = HTTP_OK) then
+  begin
+   {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    js := TJsonObject.Parse(RespostaHttp) as TJsonObject;
+    try
+      code := js.I['code'];
+      texto := js.S['texto'];
+    finally
+      js.Free;
+    end;
+   {$Else}
+    js := TJsonObject.Create;
+    try
+      js.Parse(RespostaHttp);
+      code := js['code'].AsInteger;
+      texto := js['texto'].AsString;
+    finally
+      js.Free;
+    end;
+   {$EndIf}
+
+   if (code <> 0) then
+     DispararExcecao(EACBrPixHttpException.Create( 'Code: '+IntToStr(code)+' - '+
+                                                   UTF8ToNativeString(texto) ));
+  end
+  else
+    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
+       [Http.ResultCode, ChttpMethodPOST, AURL]));
+end;
+
+procedure TACBrPSPBancoDoBrasil.QuandoAcessarEndPoint(
+  const AEndPoint: String; var AURL: String; var AMethod: String);
+begin
+  // Banco do Brasil, não tem: POST /cob   Mudando para /PUT com "txid" vazio
+  if (UpperCase(AMethod) = ChttpMethodPOST) then
+    AMethod := ChttpMethodPUT;
+
+  if ((UpperCase(AMethod) = ChttpMethodPOST) or
+      (UpperCase(AMethod) = ChttpMethodPUT)) and
+      (AEndPoint = cEndPointCob) and (ACBrPixCD.Ambiente = ambTeste) then
+    AURL := StringReplace(AURL, cEndPointCob, '/cobqrcode', [rfReplaceAll]);
+end;
+
+procedure TACBrPSPBancoDoBrasil.QuandoReceberRespostaEndPoint(const AEndPoint,
+  AURL, AMethod: String; var AResultCode: Integer; var RespostaHttp: AnsiString);
+begin
+  // Banco do Brasil, responde OK a esse EndPoint, de forma diferente da especificada
+  if (UpperCase(AMethod) = ChttpMethodPUT) and (AEndPoint = cEndPointCob) and (AResultCode = HTTP_OK) then
+  begin
+    AResultCode := HTTP_CREATED;
+
+    // Ajuste no Json de Resposta em Testes alterando textoImagemQRcode p/ pixCopiaECola - Icozeira
+    if (ACBrPixCD.Ambiente = ambTeste) then
+      RespostaHttp := StringReplace(RespostaHttp, 'textoImagemQRcode', 'pixCopiaECola', [rfReplaceAll]);
+  end;
+
+  // Ajuste para o Método Patch do BB - Icozeira - 14/04/2022
+  if (UpperCase(AMethod) = ChttpMethodPATCH) and (AEndPoint = cEndPointCob) and (AResultCode = HTTP_CREATED) then
+    AResultCode := HTTP_OK;
 end;
 
 function TACBrPSPBancoDoBrasil.ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String;
 begin
   if (Ambiente = ambProducao) then
-    Result := cURLBBProducao
+    Result := cBBURLProducao
   else
-    Result := cURLBBSandbox;
+    Result := cBBURLSandbox;
 
-  Result := Result + cURLBBAPIPix;
+  Result := Result + cBBPathAPIPix;
 end;
 
 procedure TACBrPSPBancoDoBrasil.ConfigurarQueryParameters(const Method, EndPoint: String);
 begin
   inherited ConfigurarQueryParameters(Method, EndPoint);
 
-  with QueryParams do
+  with URLQueryParams do
   begin
     if (fDeveloperApplicationKey <> '') then
-      Values['gw-dev-app-key'] := fDeveloperApplicationKey;
+      Values[cBBParamDevAppKey] := fDeveloperApplicationKey;
   end;
 end;
 
 procedure TACBrPSPBancoDoBrasil.TratarRetornoComErro(ResultCode: Integer;
-  const RespostaHttp: String; Problema: TACBrPIXProblema);
+  const RespostaHttp: AnsiString; Problema: TACBrPIXProblema);
 var
   js, ej: TJsonObject;
   ae: TJsonArray;
@@ -201,7 +322,7 @@ begin
        begin
          ej := ae.O[0];
          Problema.title := ej.S['ocorrencia'];
-         Problema.status := ej.I['codigo'];
+         Problema.status := StrToIntDef(ej.S['codigo'], -1);
          Problema.detail := ej.S['mensagem'];
        end;
      finally
@@ -216,7 +337,7 @@ begin
        begin
          ej := ae[0].AsObject;
          Problema.title := ej['ocorrencia'].AsString;
-         Problema.status := ej['codigo'].AsInteger;
+         Problema.status := StrToIntDef(ej['codigo'].AsString, -1);
          Problema.detail := ej['mensagem'].AsString;
        end;
      finally

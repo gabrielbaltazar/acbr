@@ -38,9 +38,7 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnAuxiliar,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
 
 type
@@ -48,8 +46,6 @@ type
 
   TNFSeW_GeisWeb = class(TNFSeWClass)
   protected
-    function RegimeToStr(const t: TnfseRegimeEspecialTributacao): string;
-
     function GerarIdentificacaoRps: TACBrXmlNode;
     function GerarServico: TACBrXmlNode;
     function GerarValores: TACBrXmlNode;
@@ -67,21 +63,15 @@ type
 
 implementation
 
+uses
+  ACBrUtil.Strings;
+
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
 //     GeisWeb
 //==============================================================================
 
 { TNFSeW_GeisWeb }
-
-function TNFSeW_GeisWeb.RegimeToStr(
-  const t: TnfseRegimeEspecialTributacao): string;
-begin
-  Result := EnumeradoToStr(t,
-                           ['1', '2', '4', '6'],
-                           [retSimplesNacional, retMicroempresarioIndividual,
-                            retImune, retOutros]);
-end;
 
 function TNFSeW_GeisWeb.GerarXml: Boolean;
 var
@@ -157,7 +147,7 @@ begin
                  NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'Regime', 1, 1, 1,
-                               RegimeToStr(NFSe.RegimeEspecialTributacao), ''));
+    FpAOwner.RegimeEspecialTributacaoToStr(NFSe.RegimeEspecialTributacao), ''));
 end;
 
 function TNFSeW_GeisWeb.GerarIdentificacaoRps: TACBrXmlNode;
@@ -229,7 +219,8 @@ begin
   Result.AppendChild(AddNode(tcStr, '#1', 'CodigoServico', 1, 4, 1,
                                 OnlyNumber(NFSe.Servico.ItemListaServico), ''));
 
-  Result.AppendChild(AddNode(tcStr, '#1', 'TipoLancamento', 1, 1, 1, 'P', ''));
+  Result.AppendChild(AddNode(tcStr, '#1', 'TipoLancamento', 1, 1, 1,
+                         TipoLancamentoToStr(NFSe.Servico.TipoLancamento), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'Discriminacao', 1, 1500, 1,
                                                NFSe.Servico.Discriminacao, ''));

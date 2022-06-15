@@ -10,7 +10,6 @@ object frmACBrCTe: TfrmACBrCTe
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
   PixelsPerInch = 96
@@ -1799,6 +1798,7 @@ object frmACBrCTe: TfrmACBrCTe
   end
   object ACBrCTeDACTeRL1: TACBrCTeDACTeRL
     Sistema = 'Projeto ACBr - www.projetoacbr.com.br'
+    Usuario = 'ACBr'
     MargemInferior = 8.000000000000000000
     MargemSuperior = 8.000000000000000000
     MargemEsquerda = 6.000000000000000000
@@ -1815,7 +1815,7 @@ object frmACBrCTe: TfrmACBrCTe
     CasasDecimais.MaskqCom = ',0.00'
     CasasDecimais.MaskvUnCom = ',0.00'
     ACBrCTE = ACBrCTe1
-    ImprimirHoraSaida = False
+    ImprimirHoraSaida = True
     TipoDACTE = tiSemGeracao
     TamanhoPapel = tpA4
     Cancelada = False

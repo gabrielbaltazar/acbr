@@ -38,10 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
-  ACBrDFeException,
-  ACBrXmlBase, ACBrXmlDocument, ACBrXmlWriter, ACBrNFSeXInterface,
-  ACBrNFSeXParametros, ACBrNFSeXClass, ACBrNFSeXConversao;
+  ACBrXmlBase, ACBrXmlDocument, ACBrXmlWriter,
+  ACBrNFSeXInterface, ACBrNFSeXClass, ACBrNFSeXConversao;
 
 type
 
@@ -73,7 +71,6 @@ type
     FCodMunEmit: Integer;
     FUsuario: string;
     FSenha: string;
-    FMunicipio: string;
     FChaveAcesso: string;
     FChaveAutoriz: string;
     FFraseSecreta: string;
@@ -93,6 +90,8 @@ type
 
     // Gera ou não o atributo ID no grupo <Rps> da versão 2 do layout da ABRASF.
     FGerarIDRps: Boolean;
+    // Gera ou não o NameSpace no grupo <Rps> da versão 2 do layout da ABRASF.
+    FGerarNSRps: Boolean;
 
     function GetOpcoes: TACBrXmlWriterOptions;
     procedure SetOpcoes(AValue: TACBrXmlWriterOptions);
@@ -100,24 +99,30 @@ type
   protected
     FpAOwner: IACBrNFSeXProvider;
 
+    FConteudoTxt: TStringList;
+
     function CreateOptions: TACBrXmlWriterOptions; override;
 
     procedure Configuracao; virtual;
 
     procedure DefinirIDRps; virtual;
     procedure DefinirIDDeclaracao; virtual;
+    procedure ConsolidarVariosItensServicosEmUmSo;
 
     function GerarCNPJ(const CNPJ: string): TACBrXmlNode; virtual;
     function GerarCPFCNPJ(const CPFCNPJ: string): TACBrXmlNode; virtual;
-    function PadronizarItemServico(const Codigo: string): string;
+    function NormatizarItemServico(const Codigo: string): string;
     function FormatarItemServico(const Codigo: string; Formato: TFormatoItemListaServico): string;
-    function AjustarAliquota(const Aliquota: Double; DivPor100: Boolean = False): Double;
+    function NormatizarAliquota(const Aliquota: Double; DivPor100: Boolean = False): Double;
 
  public
     constructor Create(AOwner: IACBrNFSeXProvider); virtual;
+    destructor Destroy; override;
 
     function ObterNomeArquivo: String; Override;
     function GerarXml: Boolean; Override;
+    function ConteudoTxt: String;
+
 
     property Opcoes: TACBrXmlWriterOptions read GetOpcoes write SetOpcoes;
 
@@ -127,7 +132,6 @@ type
     property CodMunEmit: Integer         read FCodMunEmit     write FCodMunEmit;
     property Usuario: string             read FUsuario        write FUsuario;
     property Senha: string               read FSenha          write FSenha;
-    property Municipio: string           read FMunicipio      write FMunicipio;
     property ChaveAcesso: string         read FChaveAcesso    write FChaveAcesso;
     property ChaveAutoriz: string        read FChaveAutoriz   write FChaveAutoriz;
     property FraseSecreta: string        read FFraseSecreta   write FFraseSecreta;
@@ -147,9 +151,14 @@ type
     property NrOcorrItemListaServico: Integer read FNrOcorrItemListaServico write FNrOcorrItemListaServico;
 
     property GerarIDRps: Boolean read FGerarIDRps write FGerarIDRps;
+    property GerarNSRps: Boolean read FGerarNSRps write FGerarNSRps;
   end;
 
 implementation
+
+uses
+  ACBrUtil.Strings,
+  ACBrDFeException;
 
 { TNFSeWClass }
 
@@ -164,6 +173,9 @@ begin
   TXmlWriterOptions(Opcoes).PathArquivoMunicipios := '';
   TXmlWriterOptions(Opcoes).ValidarInscricoes := False;
   TXmlWriterOptions(Opcoes).ValidarListaServicos := False;
+
+  FConteudoTxt := TStringList.Create;
+  FConteudoTxt.Clear;
 
   Configuracao;
 end;
@@ -185,6 +197,98 @@ begin
 
   // Gera ou não o atributo ID no grupo <Rps> da versão 2 do layout da ABRASF.
   FGerarIDRps := False;
+  // Gera ou não o NameSpace no grupo <Rps> da versão 2 do layout da ABRASF.
+  FGerarNSRps := True;
+end;
+
+procedure TNFSeWClass.ConsolidarVariosItensServicosEmUmSo;
+var
+  i: Integer;
+  xDiscriminacao, xItemListaServico: string;
+  vValorDeducoes, vValorServicos, vDescontoCondicionado, vAliquota, vBaseCalculo,
+  vDescontoIncondicionado, vValorPis, vValorCofins, vValorInss, vValorIr,
+  vValorCsll, vValorIss, vAliquotaPis, vAliquotaCofins, vAliquotaInss,
+  vAliquotaIr, vAliquotaCsll, vValorIssRetido: Double;
+begin
+  if NFSe.Servico.ItemServico.Count > 0 then
+  begin
+    xDiscriminacao := '';
+    vValorDeducoes := 0;
+    vValorServicos := 0;
+    vDescontoCondicionado := 0;
+    vDescontoIncondicionado := 0;
+    vBaseCalculo := 0;
+    vValorPis := 0;
+    vValorCofins := 0;
+    vValorInss := 0;
+    vValorIr := 0;
+    vValorCsll := 0;
+    vValorIss := 0;
+    vValorIssRetido := 0;
+    vAliquota := 0;
+    vAliquotaPis := 0;
+    vAliquotaCofins := 0;
+    vAliquotaInss := 0;
+    vAliquotaIr := 0;
+    vAliquotaCsll := 0;
+
+    with NFSe.Servico do
+    begin
+      for i := 0 to ItemServico.Count -1 do
+      begin
+        xItemListaServico := ItemServico[i].ItemListaServico;
+        vAliquota := ItemServico[i].Aliquota;
+        vAliquotaPis := ItemServico[i].AliqRetPIS;
+        vAliquotaCofins := ItemServico[i].AliqRetCOFINS;
+        vAliquotaInss := ItemServico[i].AliqRetINSS;
+        vAliquotaIr := ItemServico[i].AliqRetIRRF;
+        vAliquotaCsll := ItemServico[i].AliqRetCSLL;
+
+        xDiscriminacao := xDiscriminacao + ItemServico[i].Descricao;
+        vValorDeducoes := vValorDeducoes + ItemServico[i].ValorDeducoes;
+        vValorServicos := vValorServicos + ItemServico[i].ValorTotal;
+        vDescontoCondicionado := vDescontoCondicionado + ItemServico[i].DescontoCondicionado;
+        vDescontoIncondicionado := vDescontoIncondicionado + ItemServico[i].DescontoIncondicionado;
+        vBaseCalculo := vBaseCalculo + ItemServico[i].BaseCalculo;
+        vValorPis := vValorPis + ItemServico[i].ValorPis;
+        vValorCofins := vValorCofins + ItemServico[i].ValorCofins;
+        vValorInss := vValorInss + ItemServico[i].ValorInss;
+        vValorIr := vValorIr + ItemServico[i].ValorIRRF;
+        vValorCsll := vValorCsll + ItemServico[i].ValorCsll;
+        vValorIss := vValorIss + ItemServico[i].ValorIss;
+        vValorIssRetido := vValorIssRetido + ItemServico[i].ValorIssRetido;
+      end;
+    end;
+
+    // Leva em consideração a informação do ultimo item da lista.
+    NFSe.Servico.ItemListaServico := xItemListaServico;
+    NFSe.Servico.Valores.Aliquota := vAliquota;
+    NFSe.Servico.Valores.AliquotaPis := vAliquotaPis;
+    NFSe.Servico.Valores.AliquotaCofins := vAliquotaCofins;
+    NFSe.Servico.Valores.AliquotaInss := vAliquotaInss;
+    NFSe.Servico.Valores.AliquotaIr := vAliquotaIr;
+    NFSe.Servico.Valores.AliquotaCsll := vAliquotaCsll;
+
+    // Consolida todos os itens da lista.
+    NFSe.Servico.Discriminacao := xDiscriminacao;
+    NFSe.Servico.Valores.ValorDeducoes := vValorDeducoes;
+    NFSe.Servico.Valores.ValorServicos := vValorServicos;
+    NFSe.Servico.Valores.DescontoCondicionado := vDescontoCondicionado;
+    NFSe.Servico.Valores.DescontoIncondicionado := vDescontoIncondicionado;
+    NFSe.Servico.Valores.BaseCalculo := vBaseCalculo;
+    NFSe.Servico.Valores.ValorPis := vValorPis;
+    NFSe.Servico.Valores.ValorCofins := vValorCofins;
+    NFSe.Servico.Valores.ValorInss := vValorInss;
+    NFSe.Servico.Valores.ValorIr := vValorIr;
+    NFSe.Servico.Valores.ValorCsll := vValorCsll;
+    NFSe.Servico.Valores.ValorIss := vValorIss;
+    NFSe.Servico.Valores.ValorIssRetido := vValorIssRetido;
+  end;
+end;
+
+function TNFSeWClass.ConteudoTxt: String;
+begin
+  Result := FConteudoTxt.Text;
 end;
 
 procedure TNFSeWClass.DefinirIDRps;
@@ -193,12 +297,19 @@ begin
                     FNFSe.IdentificacaoRps.Serie;
 end;
 
+destructor TNFSeWClass.Destroy;
+begin
+  FConteudoTxt.Free;
+
+  inherited Destroy;
+end;
+
 function TNFSeWClass.FormatarItemServico(const Codigo: string;
   Formato: TFormatoItemListaServico): string;
 var
   item: string;
 begin
-  item := PadronizarItemServico(Codigo);
+  item := NormatizarItemServico(Codigo);
 
   case Formato of
     filsSemFormatacao:
@@ -238,7 +349,7 @@ begin
   Result := OnlyNumber(NFSe.infID.ID) + '.xml';
 end;
 
-function TNFSeWClass.AjustarAliquota(const Aliquota: Double; DivPor100: Boolean = False): Double;
+function TNFSeWClass.NormatizarAliquota(const Aliquota: Double; DivPor100: Boolean = False): Double;
 var
   Aliq: Double;
 begin
@@ -253,16 +364,22 @@ begin
     Result := Aliq;
 end;
 
-function TNFSeWClass.PadronizarItemServico(const Codigo: string): string;
+function TNFSeWClass.NormatizarItemServico(const Codigo: string): string;
 var
   i: Integer;
   item: string;
 begin
-  item := OnlyNumber(Codigo);
-  i := StrToIntDef(item, 0);
-  item := Poem_Zeros(i, 4);
+  if Length(Codigo) <= 5 then
+  begin
+    item := OnlyNumber(Codigo);
 
-  Result := Copy(item, 1, 2) + '.' + Copy(item, 3, 2);
+    i := StrToIntDef(item, 0);
+    item := Poem_Zeros(i, 4);
+
+    Result := Copy(item, 1, 2) + '.' + Copy(item, 3, 2);
+  end
+  else
+    Result := Codigo;
 end;
 
 function TNFSeWClass.GetOpcoes: TACBrXmlWriterOptions;

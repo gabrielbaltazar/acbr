@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
@@ -56,6 +56,11 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    {
+      Descomente a linha abaixo para definir um tratamento para o XML
+      retornado caso seja necessário.
+    }
+//    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderModeloV1 = class (TACBrNFSeProviderABRASFv1)
@@ -416,4 +421,18 @@ begin
                      []);
 end;
 
+    {
+      Descomente a definição da function abaixo para definir um tratamento para
+      o XML retornado caso seja necessário.
+    }
+
+{
+function TACBrNFSeXWebserviceModeloV1.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  // Reescrever se necessário;
+end;
+}
 end.

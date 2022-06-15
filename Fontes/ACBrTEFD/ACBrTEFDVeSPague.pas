@@ -247,7 +247,11 @@ implementation
 
 Uses
   strutils, math, dateutils,
-  ACBrUtil, ACBrTEFD, ACBrTEFComum;
+  ACBrUtil.Strings,
+  ACBrUtil.Math,
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO,
+  ACBrTEFD, ACBrTEFComum;
 
 { TACBrTEFDVeSPagueCmd }
 
@@ -541,9 +545,15 @@ begin
      Valor := StringToBinaryString( Linha.Informacao.AsString );
 
      if Chave = 'transacao_administradora' then
-        fpNomeAdministradora := Valor
+     begin
+        fpNFCeSAT.Bandeira := Linha.Informacao.AsString;
+        fpNomeAdministradora := Linha.Informacao.AsString;
+     end
      else if Chave = 'transacao_autorizacao' then
-        fpCodigoAutorizacaoTransacao := Linha.Informacao.AsString
+     begin
+        fpNFCeSAT.Autorizacao := Linha.Informacao.AsString;
+        fpCodigoAutorizacaoTransacao := Linha.Informacao.AsString;
+     end
      else if Chave = 'transacao_codigo_vespague' then
         fpNumeroLoteTransacao := Linha.Informacao.AsInteger
      else if Chave = 'transacao_comprovante_1via' then
@@ -557,7 +567,7 @@ begin
      else if Chave = 'transacao_financiado' then
         fpTipoParcelamento := ifthen(LowerCase(Valor)='estabelecimento', 0, 1 )
      else if Chave = 'transacao_nsu' then
-        fpNSU := Valor
+        fpNSU := Linha.Informacao.AsString
      else if Chave = 'transacao_pagamento' then
         fpModalidadePagto := Valor
      else if Chave = 'transacao_parcela' then
@@ -567,9 +577,9 @@ begin
      else if Chave = 'transacao_parcela_vencimento' then
         ParcVenctoStr := Valor
      else if Chave = 'transacao_produto' then
-        fpModalidadePagtoDescrita := Valor
+        fpModalidadePagtoDescrita := Linha.Informacao.AsString
      else if Chave = 'transacao_rede' then
-        fpRede := Valor
+        fpRede := Linha.Informacao.AsString
      else if Chave = 'transacao_tipo_cartao' then
         fpTipoTransacao := ifthen(LowerCase(Valor)='debito', 20, 10 )
      else if Chave = 'transacao_valor' then
@@ -586,6 +596,10 @@ begin
         fpDataVencimento := VSDateTimeToDateTime( Valor )
      else if Linha.Identificacao = 27 then
        fpFinalizacao := Valor
+     else if Chave = 'estabelecimento' then
+       fpEstabelecimento := Linha.Informacao.AsString
+     else if Chave = 'transacao_rede_cnpj' then
+       fpNFCeSAT.CNPJCredenciadora := Linha.Informacao.AsString
      else
        ProcessarTipoInterno(Linha);
    end ;
@@ -871,7 +885,7 @@ begin
        SL2 := TStringList.Create;
        try
           SL2.Clear;
-          RespVS.GetParamStrings('mensagem',SL1);
+          RespVS.GetParamStrings('transacao',SL1);
           For I := 0 to SL1.Count-1 do
           begin
              if pos(copy(SL1[I],1,6), 'Cartao|Cheque') = 0 then
@@ -1387,7 +1401,7 @@ begin
                fpSalvarArquivoBackup := False;
            end;
 
-           ReqVS.Retorno := ifthen( Cancelar, 9, 0) ;
+           ReqVS.Retorno := ifthen( Cancelar, 9, 0);
 
            TransmiteCmd;
         end ;
@@ -1610,6 +1624,7 @@ begin
      CopiarResposta ;
 
      { Cria cópia do Objeto Resp, e salva no ObjectList "RespostasPendentes" }
+     Resp.ViaClienteReduzida := ImprimirViaClienteReduzida;
      RespostaPendente := TACBrTEFDRespVeSPague.Create ;
      RespostaPendente.Assign( Resp );
      RespostasPendentes.Add( RespostaPendente );

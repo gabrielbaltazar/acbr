@@ -81,7 +81,9 @@ type
 
 implementation
 
-Uses ACBrConsts, ACBrUtil,
+uses
+  ACBrConsts,
+  ACBrUtil.Base, ACBrUtil.Strings,
   pcnAuxiliar, pcnConversaoNFe;
 
 { TNFeRTXT }

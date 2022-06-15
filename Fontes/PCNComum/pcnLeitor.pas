@@ -92,7 +92,9 @@ type
 implementation
 
 uses
-  ACBrUtil, StrUtils;
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  StrUtils;
 
 { TLeitor }
 

@@ -38,6 +38,16 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+31/05/2022
+-- pcnCIOTW_eFrete --
+[*] Trocado os tipos para tcDe5 de alguns campos.
+  Por: Centrodata Sistemas
+
+30/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
 22/07/2020
 -- pcnCIOTW_eFrete --
 [-] Correção na geração de Viagem Adicional em Viagem

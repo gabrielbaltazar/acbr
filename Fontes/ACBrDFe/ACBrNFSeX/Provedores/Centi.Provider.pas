@@ -38,21 +38,22 @@ interface
 
 uses
   SysUtils, Classes,
-  ACBrXmlBase, ACBrXmlDocument, ACBrNFSeXClass, ACBrNFSeXConversao,
-  ACBrNFSeXGravarXml, ACBrNFSeXLerXml,
-  ACBrNFSeXProviderABRASFv2, ACBrNFSeXWebserviceBase;
+  ACBrXmlBase,
+  ACBrNFSeXClass, ACBrNFSeXConversao, ACBrNFSeXGravarXml, ACBrNFSeXLerXml,
+  ACBrNFSeXProviderABRASFv2,
+  ACBrNFSeXWebserviceBase, ACBrNFSeXWebservicesResponse;
 
 type
   TACBrNFSeXWebserviceCenti202 = class(TACBrNFSeXWebserviceRest)
   private
-    function GetDadosUsuario: string;
+    function GetOperacao: string;
 
   public
     function GerarNFSe(ACabecalho, AMSG: String): string; override;
     function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
-    property DadosUsuario: string read GetDadosUsuario;
+    property Operacao: string read GetOperacao;
   end;
 
   TACBrNFSeProviderCenti202 = class (TACBrNFSeProviderABRASFv2)
@@ -63,13 +64,20 @@ type
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
+    procedure GerarMsgDadosCancelaNFSe(Response: TNFSeCancelaNFSeResponse;
+      Params: TNFSeParamsResponse); override;
+  public
+    function SituacaoTributariaToStr(const t: TnfseSituacaoTributaria): string; override;
+    function StrToSituacaoTributaria(out ok: boolean; const s: string): TnfseSituacaoTributaria; override;
+    function SituacaoTributariaDescricao(const t: TnfseSituacaoTributaria): string; override;
   end;
 
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
-  ACBrNFSeXNotasFiscais, Centi.GravarXml, Centi.LerXml;
+  ACBrDFeException,
+  ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  Centi.GravarXml, Centi.LerXml;
 
 { TACBrNFSeProviderCenti202 }
 
@@ -81,6 +89,7 @@ begin
   begin
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
+    CancPreencherCodVerificacao := True;
   end;
 
   with ConfigAssinar do
@@ -133,36 +142,104 @@ begin
   end;
 end;
 
+procedure TACBrNFSeProviderCenti202.GerarMsgDadosCancelaNFSe(
+  Response: TNFSeCancelaNFSeResponse; Params: TNFSeParamsResponse);
+var
+  Emitente: TEmitenteConfNFSe;
+  InfoCanc: TInfCancelamento;
+begin
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+  InfoCanc := Response.InfCancelamento;
+
+  with Params do
+  begin
+    if InfoCanc.MotCancelamento <> '' then
+    begin
+      Motivo := '<DescricaoCancelamento>' +
+                   Trim(InfoCanc.MotCancelamento) +
+                 '</DescricaoCancelamento>';
+    end
+    else
+      Motivo := '';
+
+    Response.ArquivoEnvio := '<CancelarNfseEnvio' + NameSpace + '>' +
+                               '<Pedido>' +
+                                 '<InfPedidoCancelamento' + '>' +
+                                   '<IdentificacaoNfse>' +
+                                     '<Numero>' +
+                                        InfoCanc.NumeroNFSe +
+                                     '</Numero>' +
+                                     '<CpfCnpj>' +
+                                        GetCpfCnpj(Emitente.CNPJ, '') +
+                                     '</CpfCnpj>' +
+                                     GetInscMunic(Emitente.InscMun, '') +
+                                     '<CodigoMunicipio>' +
+                                        IntToStr(TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio) +
+                                     '</CodigoMunicipio>' +
+                                     CodVerif +
+                                     Motivo +
+                                     '<Id>' +
+                                        InfoCanc.ChaveNFSe +
+                                     '</Id>' +
+                                   '</IdentificacaoNfse>' +
+                                   '<CodigoCancelamento>' +
+                                      InfoCanc.CodCancelamento +
+                                   '</CodigoCancelamento>' +
+                                 '</InfPedidoCancelamento>' +
+                               '</Pedido>' +
+                             '</CancelarNfseEnvio>';
+  end;
+end;
+
+function TACBrNFSeProviderCenti202.SituacaoTributariaToStr(
+  const t: TnfseSituacaoTributaria): string;
+begin
+  Result := EnumeradoToStr(t,
+                             ['0', '1', '2'],
+                             [stRetencao, stNormal, stSubstituicao]);
+end;
+
+function TACBrNFSeProviderCenti202.StrToSituacaoTributaria(out ok: boolean;
+  const s: string): TnfseSituacaoTributaria;
+begin
+  Result := StrToEnumerado(ok, s,
+                             ['0', '1', '2'],
+                             [stNormal, stRetencao, stSubstituicao]);
+end;
+
+function TACBrNFSeProviderCenti202.SituacaoTributariaDescricao(
+  const t: TnfseSituacaoTributaria): string;
+begin
+  case t of
+    stNormal       : Result := '0 - Não' ;
+    stRetencao     : Result := '1 - Sim' ;
+    stSubstituicao : Result := '2 - Substituição' ;
+  else
+    Result := '';
+  end;
+end;
+
 { TACBrNFSeXWebserviceCenti202 }
 
-function TACBrNFSeXWebserviceCenti202.GetDadosUsuario: string;
+function TACBrNFSeXWebserviceCenti202.GetOperacao: string;
 begin
-  with TACBrNFSeX(FPDFeOwner).Configuracoes.Geral do
-  begin
-    Result := '<aUsuario>' + Emitente.WSUser + '</aUsuario>' +
-              '<aSenha>' + Emitente.WSSenha + '</aSenha>';
-  end;
+  if FPConfiguracoes.WebServices.AmbienteCodigo = 2 then
+    Result := 'Homologacao'
+  else
+    Result := '';
 end;
 
 function TACBrNFSeXWebserviceCenti202.GerarNFSe(ACabecalho,
   AMSG: String): string;
 var
-  Request, Operacao: string;
+  Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  if FPConfiguracoes.WebServices.AmbienteCodigo = 2 then
-    Operacao := 'Homologacao'
-  else
-    Operacao := '';
+  Request := AMSG;
 
-  Request := '<GerarNfse' + Operacao +' xmlns="http://tempuri.org/">';
-  Request := Request + '<aXml>' + XmlToStr(AMSG) + '</aXml>';
-  Request := Request + DadosUsuario;
-  Request := Request + '</GerarNfse>';
-
-  Result := Executar('http://tempuri.org/IServiceNfse/GerarNfse' + Operacao, Request,
-                            ['return', 'outputXML', 'GerarNfseResposta'], []);
+  Result := Executar('http://tempuri.org/IServiceNfse/GerarNfse' + Operacao,
+                     Request, ['GerarNfseResposta'], []);
 end;
 
 function TACBrNFSeXWebserviceCenti202.ConsultarNFSePorRps(ACabecalho,
@@ -172,13 +249,10 @@ var
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<ConsultarNfseRps xmlns="http://tempuri.org/">';
-  Request := Request + '<aXml>' + XmlToStr(AMSG) + '</aXml>';
-  Request := Request + DadosUsuario;
-  Request := Request + '</ConsultarNfseRps>';
+  Request := AMSG;
 
-  Result := Executar('http://tempuri.org/IServiceNfse/ConsultarNfseRps', Request,
-                     ['return', 'outputXML', 'ConsultarNfseRpsResposta'], []);
+  Result := Executar('http://tempuri.org/IServiceNfse/ConsultarNfseRps' + Operacao,
+                     Request, ['ConsultarNfseRpsResposta'], []);
 end;
 
 function TACBrNFSeXWebserviceCenti202.Cancelar(ACabecalho, AMSG: String): string;
@@ -187,13 +261,10 @@ var
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<CancelarNfse xmlns="http://tempuri.org/">';
-  Request := Request + '<aXml>' + XmlToStr(AMSG) + '</aXml>';
-  Request := Request + DadosUsuario;
-  Request := Request + '</CancelarNfse>';
+  Request := AMSG;
 
-  Result := Executar('http://tempuri.org/IServiceNfse/CancelarNfse', Request,
-                         ['return', 'outputXML', 'CancelarNfseResposta'], []);
+  Result := Executar('http://tempuri.org/IServiceNfse/CancelarNfse' + Operacao,
+                     Request, ['CancelarNfseResposta'], []);
 end;
 
 end.

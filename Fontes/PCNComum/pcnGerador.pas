@@ -157,7 +157,10 @@ const
 implementation
 
 uses
-  DateUtils, ACBrUtil, pcnConsts;
+  DateUtils,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  pcnConsts;
 
 { TGeradorOpcoes }
 
@@ -434,7 +437,7 @@ begin
         EstaVazio := (wHor = 0) and (wMin = 0) and (wSeg = 0);
       end;
 
-    tcDatHor:
+    tcDatHor, tcDatHorCFe:
       begin
         DecodeDateTime( VarToDateTime(valor), wAno, wMes, wDia, wHor, wMin, wSeg, wMse);
         ConteudoProcessado := FormatFloat('0000', wAno) + '-' +
@@ -443,10 +446,13 @@ begin
                               FormatFloat('00', wHor) + ':' +
                               FormatFloat('00', wMin) + ':' +
                               FormatFloat('00', wSeg);
+        if Tipo = tcDatHorCFe then
+          ConteudoProcessado := OnlyNumber(ConteudoProcessado);
+
         EstaVazio := ((wAno = 1899) and (wMes = 12) and (wDia = 30));
       end;
 
-    tcDe2, tcDe3, tcDe4, tcDe6, tcDe8, tcDe10:
+    tcDe2, tcDe3, tcDe4, tcDe5, tcDe6, tcDe8, tcDe10:
       begin
         // adicionar um para que o máximo e mínimo não considerem a virgula
         if not FOpcoes.FSuprimirDecimais then
@@ -460,6 +466,7 @@ begin
           tcDe2 : NumeroDecimais :=  2;
           tcDe3 : NumeroDecimais :=  3;
           tcDe4 : NumeroDecimais :=  4;
+          tcDe5 : NumeroDecimais :=  5;
           tcDe6 : NumeroDecimais :=  6;
           tcDe8 : NumeroDecimais :=  8;
           tcDe10: NumeroDecimais := 10;

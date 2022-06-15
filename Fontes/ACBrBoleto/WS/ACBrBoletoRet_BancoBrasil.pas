@@ -38,7 +38,7 @@ interface
 
 uses
   Classes, SysUtils, ACBrBoleto, ACBrBoletoWS, ACBrBoletoRetorno,
-  ACBrUtil, DateUtils, pcnConversao;
+  pcnConversao;
 
 type
 
@@ -61,7 +61,7 @@ type
 implementation
 
 uses
-  ACBrBoletoConversao;
+  ACBrBoletoConversao, ACBrUtil.XMLHTML;
 
 { TRetornoEnvio_BancoBrasil }
 

@@ -105,7 +105,7 @@ uses
   {$IfDef ANDROID}
    Androidapi.Helpers, Androidapi.JNI.Os, Androidapi.JNI.JavaTypes, System.Types, System.Permissions,
   {$EndIf}
-  ACBrDevice, ACBrUtil;
+  ACBrDevice, ACBrUtil.Strings;
 
 { TACBrDeviceBlueTooth }
 
@@ -220,6 +220,7 @@ begin
   if not Assigned(fsBlueToothDevice) then  // Já passou por Conectar ?
     Exit;
 
+  FecharSocket;
   fsBlueToothSocket := fsBlueToothDevice.CreateClientSocket(GUID_BLUETOOTH_PRINTER, False);
   if Assigned(fsBlueToothSocket) then
   begin

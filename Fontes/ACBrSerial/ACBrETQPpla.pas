@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo:   Andrews Ricardo Bejatto                       }
 {                                Anderson Rogerio Bejatto                      }
@@ -75,6 +75,7 @@ type
     function ConverterPaginaDeCodigo(aPaginaDeCodigo: TACBrETQPaginaCodigo): String;
   protected
     function ComandoAbertura: AnsiString; override;
+    function ComandoGuilhotina: AnsiString; override;
     function ComandoUnidade: AnsiString; override;
     function ComandoTemperatura: AnsiString; override;
     function ComandoPaginaDeCodigo: AnsiString; override;
@@ -110,22 +111,24 @@ type
       aAltura: Integer): AnsiString; override;
 
     function ComandoImprimirCaixa(aVertical, aHorizontal, aLargura, aAltura,
-      aEspVertical, aEspHorizontal: Integer): AnsiString; override;
+      aEspVertical, aEspHorizontal: Integer; aCanto: Integer = 0): AnsiString; override;
 
     function ComandoImprimirImagem(aMultImagem, aVertical, aHorizontal: Integer;
       aNomeImagem: String): AnsiString; override;
-
-    function ComandoCarregarImagem(aStream: TStream; aNomeImagem: String;
+    function ComandoCarregarImagem(aStream: TStream; var aNomeImagem: String;
       aFlipped: Boolean; aTipo: String): AnsiString; override;
+    function ComandoApagarImagem(const NomeImagem: String = '*'): String; override;
+
     function BMP2HEX(aStream: TStream; Inverter: Boolean): String;
   end;
 
 implementation
 
 uses
-  math, sysutils, strutils,
+  Math, sysutils, strutils,
   {$IFNDEF COMPILER6_UP} ACBrD5, Windows, {$ENDIF}
-  ACBrUtil, ACBrImage, ACBrConsts, synautil;
+  ACBrImage, ACBrConsts, synautil,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.Math;
 
 { TACBrETQPpla }
 
@@ -374,6 +377,18 @@ begin
   Result := STX + 'L';
 end;
 
+function TACBrETQPpla.ComandoGuilhotina: AnsiString;
+var
+  n: Char;
+begin
+  if Guilhotina then
+    n := '1'
+  else
+    n := '0';
+
+  Result := STX + 'V' + n;
+end;
+
 function TACBrETQPpla.ComandosFinalizarEtiqueta(NumCopias: Integer;
   aAvancoEtq: Integer): AnsiString;
 var
@@ -488,8 +503,9 @@ begin
 end;
 
 function TACBrETQPpla.ComandoImprimirCaixa(aVertical, aHorizontal, aLargura,
-  aAltura, aEspVertical, aEspHorizontal: Integer): AnsiString;
+  aAltura, aEspVertical, aEspHorizontal: Integer; aCanto: Integer): AnsiString;
 begin
+  // aCanto, não é usado em PPLA
   Result := PrefixoComandoLinhaECaixa(orNormal) +
             ConverterCoordenadas(aVertical, aHorizontal) +
             'B' +
@@ -512,7 +528,7 @@ begin
 end;
 
 function TACBrETQPpla.ComandoCarregarImagem(aStream: TStream;
-  aNomeImagem: String; aFlipped: Boolean; aTipo: String): AnsiString;
+  var aNomeImagem: String; aFlipped: Boolean; aTipo: String): AnsiString;
 var
   Cmd: Char;
   DataImg: AnsiString;
@@ -528,14 +544,14 @@ begin
   if (aTipo = 'PCX') then
   begin
     if not IsPCX(aStream, True) then
-      raise Exception.Create(ACBrStr(cErrImgPCXMono));
+      raise Exception.Create(ACBrStr(cErrImgNotPCXMono));
 
     Cmd := 'p'
   end
   else if (aTipo = 'BMP') then
   begin
     if not IsBMP(aStream, True) then
-      raise Exception.Create(ACBrStr(cErrImgBMPMono));
+      raise Exception.Create(ACBrStr(cErrImgNotBMPMono));
 
     Cmd := 'F';
     DataImg := BMP2HEX(aStream, aFlipped);
@@ -554,8 +570,22 @@ begin
   if (DataImg = '') then
     DataImg := ReadStrFromStream(aStream, aStream.Size);
 
-  Result := STX + 'IA' + Cmd + AjustarNomeArquivoImagem(aNomeImagem) + CR +
+  aNomeImagem := AjustarNomeArquivoImagem(aNomeImagem);
+  Result := STX + 'IA' + Cmd + aNomeImagem + CR +
             DataImg;
+end;
+
+function TACBrETQPpla.ComandoApagarImagem(const NomeImagem: String): String;
+var
+  s: String;
+begin
+  if (NomeImagem = '*') then
+    Result := STX + 'qA'
+  else
+  begin
+    s := AjustarNomeArquivoImagem(NomeImagem);
+    Result := STX + 'xAG' + s + CR;
+  end;
 end;
 
 function TACBrETQPpla.BMP2HEX(aStream: TStream; Inverter: Boolean): String;

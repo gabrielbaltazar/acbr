@@ -66,10 +66,11 @@ type
 implementation
 
 uses
-  ACBrXMLBase,
-  ACBrNFSeXConversao, ACBrNFSeXProviderBase,
-  ACBrUtil,
-  ACBrConsts;
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrConsts,
+  ACBrXMLBase, ACBrNFSeXConversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -138,23 +139,24 @@ begin
   begin
     NFSe.Numero            := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
     NFSe.CodigoVerificacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
-    NFSe.DataEmissao       := ObterConteudo(AuxNode.Childrens.FindAnyNs('DataEmissao'), tcDat);
+    NFSe.DataEmissao       := ObterConteudo(AuxNode.Childrens.FindAnyNs('DataEmissao'), tcDatVcto);
     NFSe.NfseSubstituida   := ObterConteudo(AuxNode.Childrens.FindAnyNs('NfseSubstituida'), tcStr);
 
     LerIdentificacaoRps(AuxNode);
 
-    NFSe.DataEmissaoRps           := ObterConteudo(AuxNode.Childrens.FindAnyNs('DataEmissaoRps'), tcDat);
+    NFSe.DataEmissaoRps           := ObterConteudo(AuxNode.Childrens.FindAnyNs('DataEmissaoRps'), tcDatVcto);
     NFSe.NaturezaOperacao         := StrToNaturezaOperacao(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('NaturezaOperacao'), tcStr));
-    NFSe.RegimeEspecialTributacao := StrToRegimeEspecialTributacao(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('RegimeEspecialTributacao'), tcStr));
-    NFSe.OptanteSimplesNacional   := TACBrNFSeXProvider(FpAOwner).StrToSimNao(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('OptanteSimplesNacional'), tcStr));
-    NFSe.IncentivadorCultural     := TACBrNFSeXProvider(FpAOwner).StrToSimNao(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('IncentivadorCultural'), tcStr));
+    NFSe.RegimeEspecialTributacao := FpAOwner.StrToRegimeEspecialTributacao(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('RegimeEspecialTributacao'), tcStr));
+    NFSe.OptanteSimplesNacional   := FpAOwner.StrToSimNao(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('OptanteSimplesNacional'), tcStr));
+    NFSe.IncentivadorCultural     := FpAOwner.StrToSimNao(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('IncentivadorCultural'), tcStr));
 
-    SCompet := Trim(AuxNode.Childrens.FindAnyNs('Competencia').Content);
-    NFSe.Competencia              := EncodeDate(StrToInt(Copy(SCompet, 1, 4)),
-                                                StrToInt(Copy(SCompet, 5, 2)),
-                                                1);
-    NFSe.NfseSubstituida          := ObterConteudo(AuxNode.Childrens.FindAnyNs('NfseSubstituida'), tcStr);
-    NFSe.OutrasInformacoes        := ObterConteudo(AuxNode.Childrens.FindAnyNs('OutrasInformacoes'), tcStr);
+    SCompet := ObterConteudo(AuxNode.Childrens.FindAnyNs('Competencia'), tcStr);
+
+    NFSe.Competencia := EncodeDate(StrToInt(Copy(SCompet, 1, 4)),
+                                   StrToInt(Copy(SCompet, 5, 2)), 1);
+
+    NFSe.NfseSubstituida := ObterConteudo(AuxNode.Childrens.FindAnyNs('NfseSubstituida'), tcStr);
+    NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('OutrasInformacoes'), tcStr);
 
     LerServico(AuxNode);
 
@@ -208,7 +210,7 @@ begin
 
     with NFSe.Servico do
     begin
-      ItemListaServico          := NormatizaItemListaServico(CodigoItemServico);
+      ItemListaServico          := NormatizarItemListaServico(CodigoItemServico);
       xItemListaServico         := ItemListaServicoDescricao(ItemListaServico);
       CodigoCnae                := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoCnae'), tcStr);
       CodigoTributacaoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoTributacaoMunicipio'), tcStr);
@@ -258,7 +260,7 @@ begin
       ValorInss       := StringToFloatDef(StringReplace(AuxNode.Childrens.FindAnyNs('ValorINSS').Content, '.', '', [rfReplaceAll]), 0);
       ValorIr         := StringToFloatDef(StringReplace(AuxNode.Childrens.FindAnyNs('ValorIR').Content, '.', '', [rfReplaceAll]), 0);
       ValorCsll       := StringToFloatDef(StringReplace(AuxNode.Childrens.FindAnyNs('ValorCSLL').Content, '.', '', [rfReplaceAll]), 0);
-      IssRetido       := StrToSituacaoTributaria(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('ISSRetido'), tcStr));
+      IssRetido       := FpAOwner.StrToSituacaoTributaria(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('ISSRetido'), tcStr));
       ValorIss        := StringToFloatDef(StringReplace(AuxNode.Childrens.FindAnyNs('ValorISS').Content, '.', '', [rfReplaceAll]), 0);
       OutrasRetencoes := StringToFloatDef(StringReplace(AuxNode.Childrens.FindAnyNs('OutrasRetencoes').Content, '.', '', [rfReplaceAll]), 0);
       BaseCalculo     := StringToFloatDef(StringReplace(AuxNode.Childrens.FindAnyNs('BaseCalculo').Content, '.', '', [rfReplaceAll]), 0);
@@ -279,30 +281,26 @@ end;
 function TNFSeR_NFSeBrasil.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
-  xRetorno: string;
 begin
-  xRetorno := Arquivo;
-
-  // Se o XML não tiver a codificação incluir ela.
-  if ObtemDeclaracaoXML(xRetorno) = '' then
-    xRetorno := CUTF8DeclaracaoXML + xRetorno;
-
-  // Alguns provedores não retornam o XML em UTF-8
-  xRetorno := ConverteXMLtoUTF8(xRetorno);
-
-  xRetorno := TratarXmlRetorno(xRetorno);
-  xRetorno := TiraAcentos(xRetorno);
-
-  if EstaVazio(xRetorno) then
+  if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
 
-  tpXML := TipodeXMLLeitura(xRetorno);
+  // Se o XML não tiver a codificação incluir ela.
+  if ObtemDeclaracaoXML(Arquivo) = '' then
+    Arquivo := CUTF8DeclaracaoXML + Arquivo;
+
+  // Alguns provedores não retornam o XML em UTF-8
+  Arquivo := ConverteXMLtoUTF8(Arquivo);
+
+  Arquivo := NormatizarXml(Arquivo);
+
+  tpXML := TipodeXMLLeitura(Arquivo);
 
   if FDocument = nil then
     FDocument := TACBrXmlDocument.Create();
 
   Document.Clear();
-  Document.LoadFromXml(xRetorno);
+  Document.LoadFromXml(Arquivo);
 
   XmlNode := Document.Root;
 

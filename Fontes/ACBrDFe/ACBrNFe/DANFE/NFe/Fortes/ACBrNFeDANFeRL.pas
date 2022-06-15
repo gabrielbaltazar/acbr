@@ -80,7 +80,8 @@ type
 implementation
 
 uses
-  StrUtils, Math, ACBrUtil;
+  StrUtils, Math,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 {$IfNDef FPC}
  {$R *.dfm}

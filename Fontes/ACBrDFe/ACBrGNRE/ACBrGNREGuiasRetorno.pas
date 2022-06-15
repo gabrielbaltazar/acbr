@@ -95,7 +95,7 @@ implementation
 
 uses
   synautil,
-  ACBrGNRE2, ACBrUtil, ACBrDFeUtil;
+  ACBrGNRE2, ACBrUtil.XMLHTML, ACBrDFeUtil;
 
 { GuiaRetorno }
 
@@ -259,6 +259,7 @@ var
   i, j, k, Nivel, cProd: Integer;
   xInfo: string;
   Leitor: TLeitor;
+  ValorTotal: Double;
 begin
   Result := False;
   Leitor := TLeitor.Create;
@@ -275,7 +276,7 @@ begin
       GNRERetorno.SituacaoGuia          := Leitor.rCampo(tcStr, 'situacaoGuia');
       GNRERetorno.UFFavorecida          := Leitor.rCampo(tcStr, 'ufFavorecida');
       GNRERetorno.tipoGnre              := Leitor.rCampo(tcStr, 'tipoGnre');
-      GNRERetorno.ValorPrincipal        := Leitor.rCampo(tcDe2, 'valorGNRE');
+      ValorTotal                        := Leitor.rCampo(tcDe2, 'valorGNRE');
       GNRERetorno.DataLimitePagamento   := DateToStr(Leitor.rCampo(tcDat, 'dataLimitePagamento'));
       GNRERetorno.IdentificadorGuia     := Leitor.rCampo(tcInt, 'identificadorGuia');
       GNRERetorno.NumeroControle        := Leitor.rCampo(tcStr, 'nossoNumero');
@@ -286,6 +287,11 @@ begin
       if Leitor.rExtrai(Nivel, 'contribuinteEmitente') <> '' then
       begin
         GNRERetorno.DocEmitente         := Leitor.rCampo(tcStr, 'CNPJ');
+        if GNRERetorno.DocEmitente = '' then
+          GNRERetorno.DocEmitente         := Leitor.rCampo(tcStr, 'CPF');
+        if GNRERetorno.DocEmitente = '' then
+          GNRERetorno.DocEmitente         := Leitor.rCampo(tcStr, 'IE');
+
         GNRERetorno.RazaoSocialEmitente := Leitor.rCampo(tcStr, 'razaoSocial');
         GNRERetorno.EnderecoEmitente    := Leitor.rCampo(tcStr, 'endereco');
         GNRERetorno.MunicipioEmitente   := Leitor.rCampo(tcStr, 'municipio');
@@ -370,6 +376,11 @@ begin
             if Leitor.rAtributo('tipo=', 'valor') = '11' then
               GNRERetorno.ValorPrincICMS := Leitor.rCampo(tcDe2, 'valor');
 
+            if GNRERetorno.ValorPrincICMS <> 0 then
+              GNRERetorno.ValorPrincipal := GNRERetorno.ValorPrincICMS
+            else
+              GNRERetorno.ValorPrincipal := ValorTotal;
+
             if Leitor.rAtributo('tipo=', 'valor') = '12' then
             begin
               GNRERetorno.ValorFECP := Leitor.rCampo(tcDe2, 'valor');
@@ -409,7 +420,14 @@ begin
             GNRERetorno.MunicipioDestinatario := Leitor.rCampo(tcStr, 'municipio');
 
             if GNRERetorno.DocDestinatario = '' then
-              GNRERetorno.DocDestinatario := Leitor.rCampo(tcStr, 'CPF');
+              GNRERetorno.DocDestinatario       := Leitor.rCampo(tcStr, 'CPF');
+
+            case Length(GNRERetorno.DocDestinatario) of
+              11: GNRERetorno.TipoDocDestinatario := 1;
+              14: GNRERetorno.TipoDocDestinatario := 2;
+            else
+              GNRERetorno.TipoDocDestinatario   := 1;
+            end;
           end;
 
           if Leitor.rExtrai(Nivel, 'camposExtras') <> '' then

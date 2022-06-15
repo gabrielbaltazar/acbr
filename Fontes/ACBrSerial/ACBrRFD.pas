@@ -384,7 +384,13 @@ Uses ACBrECF,
     {$ELSE}
       StrUtils, DateUtils,
     {$ENDIF}
-      Math, IniFiles, ACBrUtil;
+      Math, IniFiles,
+      ACBrUtil.Strings,
+      ACBrUtil.DateTime,
+      ACBrUtil.Base,
+      ACBrUtil.FilesIO,
+      ACBrUtil.Compatibilidade,
+      ACBrUtil.Math;
 
 
 {----------------------------- TACBrRFDItemCupom ------------------------------}

@@ -38,9 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnAuxiliar, pcnConsts,
+  pcnConsts,
   ACBrNFSeX,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXGravarXml_ABRASFv2,
   ACBrNFSeXConversao;
@@ -77,6 +76,9 @@ type
 
 implementation
 
+uses
+  ACBrUtil.Strings, ACBrUtil.DateTime;
+
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
 //     SmarAPD
@@ -87,6 +89,13 @@ implementation
 function TNFSeW_SmarAPD.GerarXml: Boolean;
 var
   NFSeNode: TACBrXmlNode;
+
+
+  function NumeroNFSeInformado: boolean;
+  begin
+    Result := (StrToIntDef(NFSe.Numero, 0) > 0);
+  end;
+
 begin
   Configuracao;
 
@@ -105,10 +114,11 @@ begin
 
   FDocument.Root := NFSeNode;
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'numeronfd', 1, 12, 1, '0', ''));
+  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'numeronfd', 1, 12, 1,
+                            ifThen(NumeroNFSeInformado, NFSe.Numero, '0'), ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'codseriedocumento', 1, 12, 1,
-                                             NFSe.IdentificacaoRps.Serie, ''));
+                                              NFSe.IdentificacaoRps.Serie, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'codnaturezaoperacao', 1, 12, 1,
                              NaturezaOperacaoToStr(NFSe.NaturezaOperacao), ''));
@@ -135,7 +145,7 @@ begin
   end;
 
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'nomefantasiatomador', 1, 120, 1,
-                                                 NFSe.Tomador.NomeFantasia, ''));
+                                                NFSe.Tomador.NomeFantasia, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'enderecotomador', 1, 50, 1,
                                            NFSe.Tomador.Endereco.Endereco, ''));
@@ -143,12 +153,8 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'numeroendereco', 1, 50, 1,
                                              NFSe.Tomador.Endereco.Numero, ''));
 
-  if NFSe.Tomador.Endereco.CodigoMunicipio = '9999999' then
-    NFSeNode.AppendChild(AddNode(tcStr, '#2', 'cidadetomador', 1, 50, 1,
-                                             NFSe.Tomador.Endereco.xMunicipio, ''))
-  else
-    NFSeNode.AppendChild(AddNode(tcStr, '#2', 'cidadetomador', 1, 50, 1,
-     CodIBGEToCidade(StrToInt64Def(NFSe.Tomador.Endereco.CodigoMunicipio, 3202405)), ''));
+  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'cidadetomador', 1, 50, 1,
+                                         NFSe.Tomador.Endereco.xMunicipio, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'estadotomador', 1, 50, 1,
                                                  NFSe.Tomador.Endereco.UF, ''));
@@ -235,29 +241,25 @@ begin
     NFSeNode.AppendChild(AddNode(tcStr, '#2', 'totaldeducoesconstrucao', 1, 15, 1,
                                                                        '', ''));
   end;
-  {
-  if NFSe.Tomador.Endereco.CodigoMunicipio <> NFSe.Prestador.Endereco.CodigoMunicipio then
-    NFSeNode.AppendChild(AddNode(tcStr, '#1', 'tributadonomunicipio', 1, 5, 1,
-                                                                   'false', ''))
-  else
-    NFSeNode.AppendChild(AddNode(tcStr, '#1', 'tributadonomunicipio', 1, 5, 1,
-                                                                   'true', ''));
-  }
+
   if NFSe.TipoTributacaoRPS = ttTribnoMun then
     NFSeNode.AppendChild(AddNode(tcStr, '#1', 'tributadonomunicipio', 1, 5, 1,
                                                                    'true', ''))
   else
     NFSeNode.AppendChild(AddNode(tcStr, '#1', 'tributadonomunicipio', 1, 5, 1,
-                                                                   'false', ''));
+                                                                  'false', ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'numerort', 1, 02, 1,
+  if (not NumeroNFSeInformado) then
+  begin
+    NFSeNode.AppendChild(AddNode(tcStr, '#2', 'numerort', 1, 02, 1,
                                              NFSe.IdentificacaoRps.Numero, ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'codigoseriert', 1, 2, 1,
-                                                                     '17', ''));
+    NFSeNode.AppendChild(AddNode(tcStr, '#2', 'codigoseriert', 1, 2, 1,
+                                              NFSe.IdentificacaoRps.Serie, ''));
 
-  NFSeNode.AppendChild(AddNode(tcDatVcto, '#2', 'dataemissaort', 1, 21, 1,
+    NFSeNode.AppendChild(AddNode(tcDatVcto, '#2', 'dataemissaort', 1, 21, 1,
                                                       NFSe.DataEmissaoRps, ''));
+  end;
 
   if NFSe.Competencia <> 0 then
     NFSeNode.AppendChild(AddNode(tcStr, '#2', 'fatorgerador', 1, 21, 1,
@@ -382,6 +384,7 @@ begin
   NrOcorrInformacoesComplemetares := 0;
   NrOcorrNIFTomador := 0;
   NrOcorrValTotTrib := 0;
+  NrOcorrAliquota := 1;
   NrOcorrCodigoPaisServico := -1;
 
   GerarEnderecoExterior := True;

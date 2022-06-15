@@ -44,6 +44,8 @@ type
 
   TForm1 = class(TForm)
     ACBrOpenSSLUtils1: TACBrOpenSSLUtils;
+    btGerarCSR: TBitBtn;
+    btCalcModExp1: TBitBtn;
      btCalcPubKey1: TBitBtn;
      btGerarPubKeyOpenSSH: TBitBtn;
      btLerPubKeyOpenSSH: TBitBtn;
@@ -83,7 +85,9 @@ type
      procedure ACBrOpenSSLUtils1NeedCredentials(
        const CredentialNeeded: TACBrOpenSSLCredential);
      procedure ACBrOpenSSLUtils1Progress(const PosByte, TotalSize: int64);
+     procedure btGerarCSRClick(Sender: TObject);
      procedure btAssinarClick(Sender: TObject);
+     procedure btCalcModExp1Click(Sender: TObject);
      procedure btCalcPubKey1Click(Sender: TObject);
      procedure btCalcPubKeyClick(Sender : TObject) ;
      procedure btGerarPubKeyOpenSSHClick(Sender: TObject);
@@ -120,12 +124,12 @@ Uses
 
 procedure TForm1.FormCreate(Sender : TObject) ;
 Var
-  i: TACBrOpenSSLDgst;
+  i: TACBrOpenSSLAlgorithm;
   j: TACBrOpenSSLStrType;
 begin
    cbxDgst.Items.Clear ;
-   For i := Low(TACBrOpenSSLDgst) to High(TACBrOpenSSLDgst) do
-      cbxDgst.Items.Add( copy(GetEnumName(TypeInfo(TACBrOpenSSLDgst), integer(i)), 5, 20) ) ;
+   For i := Low(TACBrOpenSSLAlgorithm) to High(TACBrOpenSSLAlgorithm) do
+      cbxDgst.Items.Add( copy(GetEnumName(TypeInfo(TACBrOpenSSLAlgorithm), integer(i)), 4, 20) ) ;
    cbxDgst.ItemIndex := 2;
 
    cbxOut.Items.Clear ;
@@ -185,7 +189,7 @@ var
 begin
    tStart := Now;
    Resultado := ACBrOpenSSLUtils1.CalcHashFromFile( edArqEntrada.Text,
-                                       TACBrOpenSSLDgst(cbxDgst.ItemIndex),
+                                       TACBrOpenSSLAlgorithm(cbxDgst.ItemIndex),
                                        TACBrOpenSSLStrType(cbxOut.ItemIndex),
                                        False );
 
@@ -233,13 +237,13 @@ begin
     crePrivKey:
     begin
       mResp.Lines.Add('  Lendo Chave Privada');
-      ACBrOpenSSLUtils1.LoadPrivateKeyFromString(mPrivKey.Lines.Text);
+      ACBrOpenSSLUtils1.LoadPrivateKeyFromString(mPrivKey.Lines.Text, edSenha.Text);
     end;
 
     crePubKey:
     begin
       mResp.Lines.Add('  Lendo Chave Publica');
-      ACBrOpenSSLUtils1.LoadPublicKeyFromFile(mPubKey.Lines.Text);
+      ACBrOpenSSLUtils1.LoadPublicKeyFromString(mPubKey.Lines.Text);
     end;
   end;
 end;
@@ -251,6 +255,45 @@ begin
   Application.ProcessMessages;
 end;
 
+procedure TForm1.btGerarCSRClick(Sender: TObject);
+var
+  CN, O, OU, L, ST, C, EMAIL, CSR: String ;
+begin
+  CN := '*.projetoacbr.com.br';
+  if not InputQuery('Gerar CSR','Informe o Common Name (CN)', CN) then
+     exit ;
+
+  O :=  'Projeto ACBr';
+  if not InputQuery('Gerar CSR','Informe o Organization Name (O)', O) then
+     exit ;
+
+  OU :=  'ACBrLab';
+  if not InputQuery('Gerar CSR','Informe o Organizational Unit (OU)', OU) then
+     exit ;
+
+  L :=  'Tatuí';
+  if not InputQuery('Gerar CSR','Informe o Locality (L)', L) then
+     exit ;
+
+  ST :=  'São Paulo';
+  if not InputQuery('Gerar CSR','Informe o State (ST)', ST) then
+     exit ;
+
+  C :=  'BR';
+  if not InputQuery('Gerar CSR','Informe o Country (C)', C) then
+     exit ;
+
+  EMAIL :=  'sac@projetoacbr.com.br';
+  if not InputQuery('Gerar CSR','Informe o e-mail (EMAIL)', EMAIL) then
+     exit ;
+
+  mResp.Lines.Add('Gerando o Certificate Sign Request (CSR)');
+
+  CSR := ChangeLineBreak( ACBrOpenSSLUtils1.CreateCertificateSignRequest(CN,O,OU,L,ST,C,EMAIL, algSHA512), sLineBreak);
+  mResp.Lines.Add('Certificate Sign Request (CSR):');
+  mResp.Lines.Add( CSR );
+end;
+
 procedure TForm1.btAssinarClick(Sender: TObject);
 var
   Resultado: AnsiString;
@@ -258,7 +301,7 @@ var
 begin
    tStart := Now;
    Resultado := ACBrOpenSSLUtils1.CalcHashFromFile( edArqEntrada.Text,
-                                       TACBrOpenSSLDgst(cbxDgst.ItemIndex),
+                                       TACBrOpenSSLAlgorithm(cbxDgst.ItemIndex),
                                        TACBrOpenSSLStrType(cbxOut.ItemIndex),
                                        True );
 
@@ -266,6 +309,32 @@ begin
    mResp.Lines.Add(UpperCase(cbxDgst.Text)+' = '+ Resultado );
    mResp.Lines.Add('Tempo Gasto: '+IntToStr(SecondsBetween(tStart, Now))+ ' segundos');
    mResp.Lines.Add('------------------------------');
+end;
+
+procedure TForm1.btCalcModExp1Click(Sender: TObject);
+var
+  Modu, Expo, Chave: String ;
+begin
+  Modu := '';
+  Expo := '10001';
+  if not InputQuery('Módulo','Cole aqui o Módulo', Modu) then
+     exit ;
+
+  if not InputQuery('Expoente','Cole aqui o Expoente', Expo) then
+     exit ;
+
+  mResp.Lines.Add('Calculando Chave Pública');
+  mResp.Lines.Add('Modulo: ' + Modu);
+  mResp.Lines.Add('Expoente: ' + Expo);
+
+  ACBrOpenSSLUtils1.LoadPublicKeyFromModulusAndExponent(Modu, Expo);
+
+  Chave := ChangeLineBreak( ACBrOpenSSLUtils1.PublicKeyAsStr, sLineBreak);
+  mResp.Lines.Add('Chave Pública Calculada:');
+  mResp.Lines.Add( Chave );
+  mResp.Lines.Add('------------------------------');
+
+  mPubKey.Lines.Text := Chave;
 end;
 
 procedure TForm1.btCalcPubKey1Click(Sender: TObject);

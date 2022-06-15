@@ -52,6 +52,7 @@ type
     function MontarCodigoBarras(const ACBrTitulo : TACBrTitulo): String; override;
     function MontarCampoNossoNumero(const ACBrTitulo :TACBrTitulo): String; override;
     function MontarCampoCodigoCedente(const ACBrTitulo: TACBrTitulo): String; override;
+    function GerarRegistroTransacao240(ACBrTitulo : TACBrTitulo): String; override;
     procedure GerarRegistroHeader400(NumeroRemessa : Integer; ARemessa:TStringList); override;
     procedure GerarRegistroTransacao400(ACBrTitulo : TACBrTitulo; aRemessa: TStringList); override;
     procedure GerarRegistroTrailler400(ARemessa:TStringList);  override;
@@ -68,8 +69,7 @@ type
 implementation
 
 uses {$IFDEF COMPILER6_UP} dateutils {$ELSE} ACBrD5 {$ENDIF},
-  StrUtils,
-  ACBrUtil ;
+  StrUtils, ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 { TACBrBancoCresolSCRS }
 
@@ -133,6 +133,13 @@ begin
              ACBrTitulo.ACBrBoleto.Cedente.AgenciaDigito + '/' +
              ACBrTitulo.ACBrBoleto.Cedente.Conta + '-' +
              ACBrTitulo.ACBrBoleto.Cedente.ContaDigito;
+end;
+
+function TACBrBancoCresolSCRS.GerarRegistroTransacao240(ACBrTitulo: TACBrTitulo): String;
+begin
+  Result:= '';
+  Raise Exception.Create(ACBrStr('CNAB 240 não ' +
+            'implementado para esse Banco!'));
 end;
 
 procedure TACBrBancoCresolSCRS.GerarRegistroHeader400(NumeroRemessa : Integer; ARemessa:TStringList);
@@ -369,7 +376,7 @@ begin
    ARemessa.Text:= ARemessa.Text + UpperCase(wLinha);
 end;
 
-Procedure TACBrBancoCresolSCRS.LerRetorno400 ( ARetorno: TStringList );
+procedure TACBrBancoCresolSCRS.LerRetorno400(ARetorno: TStringList);
 var
   Titulo : TACBrTitulo;
   ContLinha, CodOcorrencia  :Integer;
@@ -726,7 +733,8 @@ begin
   end;
 end;
 
-function TACBrBancoCresolSCRS.TipoOcorrenciaToCod ( const TipoOcorrencia: TACBrTipoOcorrencia ) : String;
+function TACBrBancoCresolSCRS.TipoOCorrenciaToCod(
+  const TipoOcorrencia: TACBrTipoOcorrencia): String;
 begin
   Result := '';
 

@@ -89,17 +89,35 @@ type
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse); override;
 
-    procedure ProcessarMensagemErros(const RootNode: TACBrXmlNode;
-                                     const Response: TNFSeWebserviceResponse;
-                                     AListTag: string = '';
-                                     AMessageTag: string = 'Erro'); override;
+    procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
+                                     Response: TNFSeWebserviceResponse;
+                                     const AListTag: string = '';
+                                     const AMessageTag: string = 'Erro'); override;
 
+  public
+    function SimNaoToStr(const t: TnfseSimNao): string; override;
+    function StrToSimNao(out ok: boolean; const s: string): TnfseSimNao; override;
+
+    function RegimeEspecialTributacaoToStr(const t: TnfseRegimeEspecialTributacao): string; override;
+    function StrToRegimeEspecialTributacao(out ok: boolean; const s: string): TnfseRegimeEspecialTributacao; override;
+    function RegimeEspecialTributacaoDescricao(const t: TnfseRegimeEspecialTributacao): string; override;
+
+    function ResponsavelRetencaoToStr(const t: TnfseResponsavelRetencao): string; override;
+    function StrToResponsavelRetencao(out ok: boolean; const s: string): TnfseResponsavelRetencao; override;
+
+    function ExigibilidadeISSToStr(const t: TnfseExigibilidadeISS): string; override;
+    function StrToExigibilidadeISS(out ok: boolean; const s: string): TnfseExigibilidadeISS; override;
+
+    function TipoRPSToStr(const t:TTipoRPS): string; override;
+    function StrToTipoRPS(out ok: boolean; const s: string): TTipoRPS; override;
   end;
 
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   Agili.GravarXml, Agili.LerXml;
 
@@ -114,6 +132,7 @@ begin
     Identificador := '';
     UseCertificateHTTP := False;
     ModoEnvio := meLoteAssincrono;
+    DetalharServico := True;
   end;
 
   SetXmlNameSpace('http://www.agili.com.br/nfse_v_1.00.xsd');
@@ -156,8 +175,8 @@ begin
 end;
 
 procedure TACBrNFSeProviderAgili.ProcessarMensagemErros(
-  const RootNode: TACBrXmlNode; const Response: TNFSeWebserviceResponse;
-  AListTag, AMessageTag: string);
+  RootNode: TACBrXmlNode; Response: TNFSeWebserviceResponse;
+  const AListTag, AMessageTag: string);
 var
   I: Integer;
   ANode: TACBrXmlNode;
@@ -180,6 +199,92 @@ begin
     AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
     AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr);
   end;
+end;
+
+function TACBrNFSeProviderAgili.RegimeEspecialTributacaoDescricao(
+  const t: TnfseRegimeEspecialTributacao): string;
+begin
+  case t of
+    retEstimativa                : Result := '2 - Estimativa';
+    retCooperativa               : Result := '4 - Cooperativa';
+    retMicroempresarioIndividual : Result := '5 - Microempresário Individual (MEI)';
+    retMicroempresarioEmpresaPP  : Result := '6 - Microempresário e Empresa de Pequeno Porte (ME EPP)';
+  else
+    Result := '';
+  end;
+end;
+
+function TACBrNFSeProviderAgili.RegimeEspecialTributacaoToStr(
+  const t: TnfseRegimeEspecialTributacao): string;
+begin
+  result := EnumeradoToStr(t, ['', '-2', '-4', '-5', '-6'],
+            [retNenhum, retEstimativa, retCooperativa,
+             retMicroempresarioIndividual, retMicroempresarioEmpresaPP]);
+end;
+
+function TACBrNFSeProviderAgili.StrToRegimeEspecialTributacao(out ok: boolean;
+  const s: string): TnfseRegimeEspecialTributacao;
+begin
+  result := StrToEnumerado(Ok, s, ['-1', '-2', '-4', '-5', '-6'],
+               [retNenhum, retEstimativa, retCooperativa,
+                retMicroempresarioIndividual, retMicroempresarioEmpresaPP]);
+end;
+
+function TACBrNFSeProviderAgili.ResponsavelRetencaoToStr(
+  const t: TnfseResponsavelRetencao): string;
+begin
+  result := EnumeradoToStr(t, ['-1', '-2', '-3'],
+                           [rtTomador, rtIntermediario, rtPrestador]);
+end;
+
+function TACBrNFSeProviderAgili.StrToResponsavelRetencao(out ok: boolean;
+  const s: string): TnfseResponsavelRetencao;
+begin
+  result := StrToEnumerado(Ok, s, ['-1', '-2', '-3'],
+                                     [rtTomador, rtIntermediario, rtPrestador]);
+end;
+
+function TACBrNFSeProviderAgili.SimNaoToStr(const t: TnfseSimNao): string;
+begin
+  Result := EnumeradoToStr(t, ['0', '1'], [snNao, snSim]);
+end;
+
+function TACBrNFSeProviderAgili.StrToSimNao(out ok: boolean;
+  const s: string): TnfseSimNao;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['0', '1'],
+                           [snNao, snSim]);
+end;
+
+function TACBrNFSeProviderAgili.ExigibilidadeISSToStr(
+  const t: TnfseExigibilidadeISS): string;
+begin
+  result := EnumeradoToStr(t, ['-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8'],
+              [exiExigivel, exiNaoIncidencia, exiIsencao, exiExportacao,
+               exiImunidade, exiSuspensaDecisaoJudicial,
+               exiSuspensaProcessoAdministrativo, exiISSFixo]);
+end;
+
+function TACBrNFSeProviderAgili.StrToExigibilidadeISS(out ok: boolean;
+  const s: string): TnfseExigibilidadeISS;
+begin
+  result := StrToEnumerado(Ok, s, ['-1', '-2', '-3', '-4', '-5', '-6', '-7'],
+    [exiExigivel, exiNaoIncidencia, exiIsencao, exiExportacao, exiImunidade,
+     exiSuspensaDecisaoJudicial, exiSuspensaProcessoAdministrativo]);
+end;
+
+function TACBrNFSeProviderAgili.StrToTipoRPS(out ok: boolean;
+  const s: string): TTipoRPS;
+begin
+  result := StrToEnumerado(ok, s, ['-2','-4','-5'],
+                           [trRPS, trNFConjugada, trCupom]);
+end;
+
+function TACBrNFSeProviderAgili.TipoRPSToStr(const t: TTipoRPS): string;
+begin
+  result := EnumeradoToStr(t, ['-2', '-4', '-5'],
+                           [trRPS, trNFConjugada, trCupom]);
 end;
 
 function TACBrNFSeProviderAgili.PrepararRpsParaLote(const aXml: string): string;
@@ -256,8 +361,8 @@ procedure TACBrNFSeProviderAgili.TratarRetornoEmitir(Response: TNFSeEmiteRespons
 var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
-  ANode: TACBrXmlNode;
-  ANota: NotaFiscal;
+  ANode, AuxNode: TACBrXmlNode;
+  ANota: TNotaFiscal;
   NumRps: String;
 begin
   Document := TACBrXmlDocument.Create;
@@ -301,12 +406,17 @@ begin
           Exit;
         end;
 
-        NumRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('Numero'), tcStr);
+        AuxNode := ANode;
+        AuxNode := AuxNode.Childrens.FindAnyNs('DeclaracaoPrestacaoServico');
+        AuxNode := AuxNode.Childrens.FindAnyNs('Rps');
+        AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
+        AuxNode := AuxNode.Childrens.FindAnyNs('Numero');
+        NumRps  := AuxNode.AsString;
 
-        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumRps);
+        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
         if Assigned(ANota) then
-          ANota.XML := ANode.OuterXml
+          ANota.XmlNfse := ANode.OuterXml
         else
         begin
           TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -381,7 +491,7 @@ var
   ANodeArray: TACBrXmlNodeArray;
   i: Integer;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -437,7 +547,7 @@ begin
                 ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
                 if Assigned(ANota) then
-                  ANota.XML := ANode.OuterXml
+                  ANota.XmlNfse := ANode.OuterXml
                 else
                 begin
                   TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -539,7 +649,7 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   i: Integer;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -589,7 +699,7 @@ begin
               ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
               if Assigned(ANota) then
-                ANota.XML := ANode.OuterXml
+                ANota.XmlNfse := ANode.OuterXml
               else
               begin
                 TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -680,7 +790,7 @@ var
   ANodeArray: TACBrXmlNodeArray;
   i: Integer;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -734,7 +844,7 @@ begin
                 ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
                 if Assigned(ANota) then
-                  ANota.XML := ANode.OuterXml
+                  ANota.XmlNfse := ANode.OuterXml
                 else
                 begin
                   TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -897,7 +1007,7 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   AErro: TNFSeEventoCollectionItem;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
   NumRps: String;
   i: Integer;
 begin
@@ -963,7 +1073,7 @@ begin
                 ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
                 if Assigned(ANota) then
-                  ANota.XML := ANode.OuterXml
+                  ANota.XmlNfse := ANode.OuterXml
                 else
                 begin
                   TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -996,14 +1106,14 @@ function TACBrNFSeXWebserviceAgili.Recepcionar(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceAgili.GerarNFSe(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceAgili.ConsultarLote(ACabecalho,
@@ -1011,7 +1121,7 @@ function TACBrNFSeXWebserviceAgili.ConsultarLote(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceAgili.ConsultarNFSePorRps(ACabecalho,
@@ -1019,7 +1129,7 @@ function TACBrNFSeXWebserviceAgili.ConsultarNFSePorRps(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceAgili.ConsultarNFSePorFaixa(ACabecalho,
@@ -1027,14 +1137,14 @@ function TACBrNFSeXWebserviceAgili.ConsultarNFSePorFaixa(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceAgili.Cancelar(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceAgili.SubstituirNFSe(ACabecalho,
@@ -1042,7 +1152,7 @@ function TACBrNFSeXWebserviceAgili.SubstituirNFSe(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 end.

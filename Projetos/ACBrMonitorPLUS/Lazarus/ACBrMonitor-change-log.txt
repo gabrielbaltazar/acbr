@@ -44,6 +44,42 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+13/06/2022
+--- ACBrMoniorConfig ---
+[*] Alterado a versão do layout padrão do e-social
+
+02/05/2022
+--- ACBrMonior1 ---
+[+] Reincluída aba de NCMs, possibilitando consultar um código NCM e salvar a lista de arquivos.
+
+--- DoNcmUnit, ACBrMonitorConsts ---
+[*] Ajuste para voltarem a funcionar os comandos referentes ao NCM;
+[+] Inclusão dos novos comandos 'BuscarPorCodigo' e 'BuscarPorDescricao', retornando uma 
+    lista os NCMs filtrados.
+	
+--- Sobre ---
+[-] Correção da URL chamada ao clicar no botão de ajuda.
+
+06/04/2022
+---DoACBrBoletoUnit, ACBrMonitorConsts---
+[+] Adicionado metodo ConsultarTitulosPorPeriodo para consulta API Banco do Brasil
+
+05/04/2022
+---DoACBrNFeUnit---
+[*] Ajustes na geração da tag autXML a partir das configurações em tela
+
+22/03/2022
+--- ACBrMonior1, DoETQUnit---
+[*] Ajustes de enumerados, atualização de uses da classe ACBrETQClass
+
+26/01/2022
+--- ACBrMonior1---
+[+] Ajustes nas mensagens de interações em tela ref Terminal Consulta e Balança 
+
+20/01/2022
+--- DoACBrCTe ---
+[*] Ajuste na função de Consulta por chave 
+
 28/12/2021
 --- ACBrMonior1, ACBrMonitorConfig, ACBrMonitorConsts ---
 [+] Adicionado a propriedades Cedente CodigoOperacao do componente boleto

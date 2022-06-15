@@ -72,11 +72,10 @@ var
   XmlNode: TACBrXmlNode;
   xRetorno: string;
 begin
-  xRetorno := TratarXmlRetorno(Arquivo);
-  xRetorno := TiraAcentos(xRetorno);
-
-  if EstaVazio(xRetorno) then
+  if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo Json não carregado.');
+
+  xRetorno := TiraAcentos(Arquivo);
 
   if FDocument = nil then
     FDocument := TACBrXmlDocument.Create();

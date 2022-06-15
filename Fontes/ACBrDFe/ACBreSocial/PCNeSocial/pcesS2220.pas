@@ -56,7 +56,7 @@ uses
    System.Contnrs,
   {$IfEnd}
   ACBrBase,
-  pcnConversao, pcnGerador, ACBrUtil, pcnConsts,
+  pcnConversao, pcnGerador, pcnConsts,
   pcesCommon, pcesConversaoeSocial, pcesGerador, pcnLeitor;
 
 type
@@ -204,6 +204,9 @@ implementation
 
 uses
   IniFiles,
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
   ACBreSocial;
 
 { TS2220Collection }
@@ -251,6 +254,7 @@ end;
 constructor TAso.Create;
 begin
   inherited;
+  FResAso := raNaoInformado;
   FExame  := TExameCollection.Create;
   FMedico := TMedico.Create;
 end;
@@ -283,6 +287,10 @@ end;
 function TExameCollection.New: TExameCollectionItem;
 begin
   Result := TExameCollectionItem.Create;
+
+  Result.FOrdExame  := orNaoInformado;
+  Result.FIndResult := irNaoInformado;
+
   Self.Add(Result);
 end;
 
@@ -313,7 +321,8 @@ begin
   Gerador.wGrupo('aso');
 
   Gerador.wCampo(tcDat, '', 'dtAso',  10, 10, 1, self.exMedOcup.Aso.DtAso);
-  Gerador.wCampo(tcStr, '', 'resAso',  1,  1, 1, eSResAsoToStr(self.exMedOcup.Aso.ResAso));
+  if (self.exMedOcup.Aso.ResAso <> raNaoInformado) then
+    Gerador.wCampo(tcStr, '', 'resAso',  1,  1, 1, eSResAsoToStr(self.exMedOcup.Aso.ResAso));
 
   GerarExame;
   GerarMedico;
@@ -352,9 +361,12 @@ begin
     Gerador.wCampo(tcDat, '', 'dtExm',         10,  10, 1, self.exMedOcup.Aso.Exame.Items[i].dtExm);
     Gerador.wCampo(tcStr, '', 'procRealizado',  1,   4, 1, self.exMedOcup.Aso.Exame.Items[i].procRealizado);
     Gerador.wCampo(tcStr, '', 'obsProc',        1, 999, 0, self.exMedOcup.Aso.Exame.Items[i].obsProc);
-    Gerador.wCampo(tcInt, '', 'ordExame',       1,   1, 1, eSOrdExameToStr(self.exMedOcup.Aso.Exame.Items[i].ordExame));
-    if self.exMedOcup.Aso.Exame.Items[i].indResult >= irNormal then
-        Gerador.wCampo(tcInt, '', 'indResult',      1,   1, 0, eSIndResultToStr(self.exMedOcup.Aso.Exame.Items[i].indResult));
+
+    if (self.exMedOcup.Aso.Exame.Items[i].ordExame <> orNaoInformado) then
+      Gerador.wCampo(tcInt, '', 'ordExame', 1, 1, 1, eSOrdExameToStr(self.exMedOcup.Aso.Exame.Items[i].ordExame));
+
+    if (self.exMedOcup.Aso.Exame.Items[i].indResult <> irNaoInformado) then
+      Gerador.wCampo(tcInt, '', 'indResult', 1, 1, 0, eSIndResultToStr(self.exMedOcup.Aso.Exame.Items[i].indResult));
 
     Gerador.wGrupo('/exame');
   end;
@@ -364,13 +376,25 @@ begin
 end;
 
 procedure TevtMonit.GerarExMedOcup;
+  function DeveGerarRespMonit: Boolean;
+  begin
+    //layout 2.5 ou algum campo preenchido deve gerar grupo.
+    Result := (VersaoDF <= ve02_05_00) or (
+     (Trim(self.exMedOcup.RespMonit.nmResp) <> '') and
+     (Trim(self.exMedOcup.RespMonit.nrCRM)  <> '') and
+     (Trim(self.exMedOcup.RespMonit.ufCRM)  <> '')); 
+  end;
 begin
   Gerador.wGrupo('exMedOcup');
 
   Gerador.wCampo(tcStr, '', 'tpExameOcup',   1,  1, 1, eSTpExameOcupToStr(self.exMedOcup.FtpExameOcup));
 
   GerarASO;
-  GerarRespMonit;
+
+  if DeveGerarRespMonit then
+  begin
+    GerarRespMonit;
+  end;
 
   Gerador.wGrupo('/exMedOcup');
 end;
@@ -456,8 +480,10 @@ begin
 
       sSecao := 'aso';
       exMedOcup.aso.DtAso  := StringToDateTime(INIRec.ReadString(sSecao, 'dtAso', '0'));
-      exMedOcup.tpExameOcup  := eSStrToTpExameOcup(Ok, INIRec.ReadString(sSecao, 'tpAso', '0'));
       exMedOcup.aso.ResAso := eSStrToResAso(Ok, INIRec.ReadString(sSecao, 'resAso', '1'));
+
+      sSecao := 'exMedOcup';
+      exMedOcup.tpExameOcup  := eSStrToTpExameOcup(Ok, INIRec.ReadString(sSecao, 'tpExameOcup', '0'));
 
       I := 1;
       while true do
