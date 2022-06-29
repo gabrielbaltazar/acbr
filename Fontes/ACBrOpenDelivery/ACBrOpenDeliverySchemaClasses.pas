@@ -4,11 +4,6 @@ interface
 
 uses
   ACBrOpenDeliverySchema,
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-   JsonDataObjects_ACBr,
-  {$Else}
-   Jsons,
-  {$EndIf}
   SysUtils;
 
 type

@@ -14,6 +14,8 @@ uses
   SysUtils;
 
 type
+  TJsonObject = {$IfDef USE_JSONDATAOBJECTS_UNIT} JsonDataObjects_ACBr.TJsonObject {$Else} Jsons.TJsonObject {$EndIf};
+
   TACBrOpenDeliverySchema = class
   private
     function GetAsJSON: String;
