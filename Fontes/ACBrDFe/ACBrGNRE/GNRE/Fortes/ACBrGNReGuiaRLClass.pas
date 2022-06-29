@@ -60,7 +60,9 @@ end;
 implementation
 
 uses
-  Dialogs, ACBrUtil, ACBrGNRE2, ACBrGNREGuiaRLRetrato;
+  Dialogs,
+  ACBrUtil.Strings, ACBrUtil.FilesIO,
+  ACBrGNRE2, ACBrGNREGuiaRLRetrato;
 
 constructor TACBrGNREGuiaRL.Create(AOwner: TComponent);
 begin
@@ -146,7 +148,7 @@ begin
 
       frlGuiaRLRetrato.SavePDF(Self,
           NomeArq,
-          TACBrGNRE(ACBrGNRE).GuiasRetorno.Items[0].GNRE,
+          TACBrGNRE(ACBrGNRE).GuiasRetorno.Items[i].GNRE,
           Email,
           Fax,
           NumCopias,

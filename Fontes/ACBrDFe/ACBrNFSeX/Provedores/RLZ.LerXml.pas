@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   ACBrNFSeXLerXml_ABRASFv2, ACBrNFSeXConversao, ACBrNFSeXLerXml;
 
@@ -67,7 +66,7 @@ type
 implementation
 
 uses
-  ACBrNFSeXProviderBase;
+  ACBrUtil.Base;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -179,18 +178,17 @@ end;
 function TNFSeR_RLZ.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
-  xRetorno: string;
 begin
-  xRetorno := TratarXmlRetorno(Arquivo);
-
-  if EstaVazio(xRetorno) then
+  if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  Arquivo := NormatizarXml(Arquivo);
 
   if FDocument = nil then
     FDocument := TACBrXmlDocument.Create();
 
   Document.Clear();
-  Document.LoadFromXml(xRetorno);
+  Document.LoadFromXml(Arquivo);
 
   XmlNode := Document.Root;
 
@@ -224,7 +222,7 @@ begin
     // <apuracao>?</apuracao>
     // <valor>/valor>
     // <valorimposto>?</valorimposto>
-    OptanteSimplesNacional := TACBrNFSeXProvider(FpAOwner).StrToSimNao(Ok, ObterConteudo(ANode.Childrens.FindAnyNs('optantesimples'), tcStr));
+    OptanteSimplesNacional := FpAOwner.StrToSimNao(Ok, ObterConteudo(ANode.Childrens.FindAnyNs('optantesimples'), tcStr));
     // <situacao>?</situacao>
     // <deducao>?</deducao>
     // <basecalculo>?</basecalculo>

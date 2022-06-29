@@ -35,7 +35,7 @@ unit ACBrEFDBloco_1_Class;
 interface
 
 uses SysUtils, StrUtils, Classes, DateUtils, ACBrSped, ACBrEFDBloco_1,
-     ACBrEFDBloco_0_Class, ACBrEFDBlocos, ACBrUtil;
+     ACBrEFDBloco_0_Class, ACBrEFDBlocos;
 
 type
   /// TBLOCO_1 -
@@ -213,6 +213,9 @@ type
 
 implementation
 
+  uses
+     ACBrUtil.Strings;
+
 { TBloco_1 }
 
 constructor TBloco_1.Create;
@@ -252,6 +255,7 @@ begin
   Registro1500Count := 0;
   Registro1510Count := 0;
   Registro1600Count := 0;
+  Registro1601Count := 0;
   Registro1700Count := 0;
   Registro1710Count := 0;
   Registro1800Count := 0;

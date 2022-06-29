@@ -54,6 +54,7 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderBHISS = class (TACBrNFSeProviderABRASFv1)
@@ -73,7 +74,10 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXNotasFiscais, ACBrNFSeXConsts,
   BHISS.GravarXml, BHISS.LerXml;
 
@@ -189,6 +193,15 @@ begin
   Result := Executar('http://ws.bhiss.pbh.gov.br/CancelarNfse', Request,
                      ['outputXML', 'CancelarNfseResposta'],
                      ['xmlns:ws="http://ws.bhiss.pbh.gov.br"']);
+end;
+
+function TACBrNFSeXWebserviceBHISS.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
 end;
 
 { TACBrNFSeProviderBHISS }
@@ -318,7 +331,7 @@ procedure TACBrNFSeProviderBHISS.PrepararEmitir(Response: TNFSeEmiteResponse);
 var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
-  Nota: NotaFiscal;
+  Nota: TNotaFiscal;
   Versao, IdAttr, NameSpace, NameSpaceLote, xRps, ListaRps, Prefixo: string;
   I: Integer;
 begin
@@ -357,33 +370,21 @@ begin
   begin
     Nota := TACBrNFSeX(FAOwner).NotasFiscais.Items[I];
 
-    if EstaVazio(Nota.XMLAssinado) then
+    Nota.GerarXML;
+
+    Nota.XmlRps := ConverteXMLtoUTF8(Nota.XmlRps);
+    Nota.XmlRps := ChangeLineBreak(Nota.XmlRps, '');
+
+    if ConfigAssinar.RpsGerarNFSe then
     begin
-      Nota.GerarXML;
-
-      Nota.XMLOriginal := ConverteXMLtoUTF8(Nota.XMLOriginal);
-      Nota.XMLOriginal := ChangeLineBreak(Nota.XMLOriginal, '');
-
-      if ConfigAssinar.RpsGerarNFSe then
-      begin
-        Nota.XMLOriginal := FAOwner.SSL.Assinar(Nota.XMLOriginal,
-                                                ConfigMsgDados.XmlRps.DocElemento,
-                                                ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
-      end;
+      Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
+                                         ConfigMsgDados.XmlRps.DocElemento,
+                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
     end;
 
-    if FAOwner.Configuracoes.Arquivos.Salvar then
-    begin
-      if NaoEstaVazio(Nota.NomeArqRps) then
-        TACBrNFSeX(FAOwner).Gravar(Nota.NomeArqRps, Nota.XMLOriginal)
-      else
-      begin
-        Nota.NomeArqRps := Nota.CalcularNomeArquivoCompleto(Nota.NomeArqRps, '');
-        TACBrNFSeX(FAOwner).Gravar(Nota.NomeArqRps, Nota.XMLOriginal);
-      end;
-    end;
+    SalvarXmlRps(Nota);
 
-    xRps := RemoverDeclaracaoXML(Nota.XMLOriginal);
+    xRps := RemoverDeclaracaoXML(Nota.XmlRps);
     xRps := PrepararRpsParaLote(xRps);
 
     ListaRps := ListaRps + xRps;
@@ -435,7 +436,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
   NumRps: String;
   I: Integer;
 begin
@@ -487,10 +488,16 @@ begin
         NumRps := AuxNode.AsString;
 
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+
         if Assigned(ANota) then
-          ANota.XML := ANode.AsString
+          ANota.XmlNfse := ANode.OuterXml
         else
-          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.AsString);
+        begin
+          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
+          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
+        end;
+
+        SalvarXmlNfse(ANota);
       end;
 
       Response.Sucesso := (Response.Erros.Count > 0);

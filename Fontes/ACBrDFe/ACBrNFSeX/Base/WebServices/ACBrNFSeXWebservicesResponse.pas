@@ -42,9 +42,8 @@ uses
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
    System.Contnrs,
   {$IFEND}
-  SysUtils,
-  ACBrBase, ACBrNFSeXClass, ACBrNFSeXConversao,
-  ACBrNFSeXWebserviceBase;
+  ACBrBase,
+  ACBrNFSeXClass, ACBrNFSeXConversao, ACBrNFSeXWebserviceBase;
 
 type
   TNFSeEventoCollectionItem = class
@@ -157,6 +156,7 @@ type
     FNumeroNota: string;
     FSerieNota: string;
     FData: TDateTime;
+    FDataCanc: TDateTime;
     FidNota: string;
     FLink: String;
     FProtocolo: String;
@@ -188,6 +188,7 @@ type
     property NumeroNota: string read FNumeroNota write FNumeroNota;
     property SerieNota: string read FSerieNota write FSerieNota;
     property Data: TDateTime read FData write FData;
+    property DataCanc: TDateTime read FDataCanc write FDataCanc;
     property idNota: string read FidNota write FidNota;
     property Link: String read FLink write FLink;
     property Protocolo: String read FProtocolo write FProtocolo;
@@ -208,8 +209,8 @@ type
 
   TNFSeEmiteResponse = class(TNFSeWebserviceResponse)
   private
-    FModoEnvio: TmodoEnvio;
     FMaxRps: Integer;
+    FModoEnvio: TmodoEnvio;
     FCodVerificacao: string;
     FNomeArq: string;
   public
@@ -232,6 +233,18 @@ type
     procedure Clear; override;
   end;
 
+  TNFSeCancelamento = class
+  private
+    FDataHora: TDateTime;
+    FMotivo: String;
+
+    function GetCancelada: Boolean;
+  public
+    property Cancelada: Boolean read GetCancelada;
+    property DataHora: TDateTime read FDataHora write FDataHora;
+    property Motivo: String read FMotivo write FMotivo;
+  end;
+
   TNFSeConsultaLoteRpsResponse = class(TNFSeWebserviceResponse)
   private
 
@@ -248,6 +261,7 @@ type
     FSerie: string;
     FTipo: string;
     FCodVerificacao: string;
+    FCancelamento: TNFSeCancelamento;
   public
     constructor Create;
     destructor Destroy; override;
@@ -258,12 +272,13 @@ type
     property Serie: string read FSerie write FSerie;
     property Tipo: string read FTipo write FTipo;
     property CodVerificacao: string read FCodVerificacao write FCodVerificacao;
+    property Cancelamento: TNFSeCancelamento read FCancelamento write FCancelamento;
   end;
 
   TNFSeConsultaNFSeResponse = class(TNFSeWebserviceResponse)
   private
-    FInfConsultaNFSe: TInfConsultaNFSe;
     FMetodo: TMetodo;
+    FInfConsultaNFSe: TInfConsultaNFSe;
   public
     constructor Create;
     destructor Destroy; override;
@@ -327,6 +342,9 @@ type
   end;
 
 implementation
+
+uses
+  SysUtils;
 
 { TNFSeEventoCollection }
 
@@ -703,16 +721,24 @@ begin
     for i := FAlertas.Count - 1 downto 0 do
       FAlertas.Delete(i);
   end;
+
+  if Assigned(FCancelamento) then
+    FCancelamento.Free;
+
+  FCancelamento := TNFSeCancelamento.Create;
 end;
 
 constructor TNFSeConsultaNFSeporRpsResponse.Create;
 begin
   inherited Create;
 
+  FCancelamento := TNFSeCancelamento.Create;
 end;
 
 destructor TNFSeConsultaNFSeporRpsResponse.Destroy;
 begin
+  if Assigned(FCancelamento) then
+    FCancelamento.Free;
 
   inherited Destroy;
 end;
@@ -732,6 +758,13 @@ begin
   Serie := '';
   Motivo := '';
   CodVerif := '';
+end;
+
+{ TNFSeCancelamento }
+
+function TNFSeCancelamento.GetCancelada: Boolean;
+begin
+  Result := ((FDataHora > 0) and (Trim(FMotivo) <> ''));
 end;
 
 end.

@@ -46,6 +46,24 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+30/05/2022
+--ACBrBoletoFCFortesFr.pas--
+  [-] #TK-2437 correção na saida do filtro fiJPG para não sair bitmap (bmp) e sim sair o arquivo como jpeg;
+      por: Pandaaa / Nelson Santos
+
+05/04/2022
+--ACBrBoletoFCFortesFr--
+[*] Ajuste no posicionamento da informação Local Pagamento nos Layouts
+
+22/03/2022
+--ACBrBoletoFCFortesFr--
+[-] correção no layout Carne, cortando o campo parcela na margem esquerda ao gerar pdf
+
+03/13/2022
+--ACBrBoletoFCFortesFr--
+[-] correção na configuração de preview de impressão, não deve passar informações de filtro
+https://www.projetoacbr.com.br/forum/topic/66160-exception-ao-exibir-boleto-fortes/
+
 08/12/2021
 --ACBrBoletoFCFortesFr--
 [+] Adição de novo layout lprestaservicos

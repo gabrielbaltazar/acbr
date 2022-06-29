@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   ACBrNFSeXConversao, ACBrNFSeXLerXml;
 
@@ -64,6 +63,9 @@ type
   end;
 
 implementation
+
+uses
+  ACBrUtil.Base, ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -198,20 +200,19 @@ end;
 function TNFSeR_ISSSaoPaulo.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
-  xRetorno: string;
 begin
-  xRetorno := TratarXmlRetorno(Arquivo);
-
-  if EstaVazio(xRetorno) then
+  if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  Arquivo := NormatizarXml(Arquivo);
 
   if FDocument = nil then
     FDocument := TACBrXmlDocument.Create();
 
   Document.Clear();
-  Document.LoadFromXml(xRetorno);
+  Document.LoadFromXml(Arquivo);
 
-  if (Pos('NFe', xRetorno) > 0) then
+  if (Pos('NFe', Arquivo) > 0) then
     tpXML := txmlNFSe
   else
     tpXML := txmlRPS;
@@ -287,11 +288,11 @@ begin
     BaseCalculo   := NFSe.ValoresNfse.BaseCalculo;
     Aliquota      := NFSe.ValoresNfse.Aliquota;
     ValorIss      := NFSe.ValoresNfse.ValorIss;
-    ValorPis      := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorPis'), tcDe2);
-    ValorCofins   := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorCofins'), tcDe2);
-    ValorInss     := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorInss'), tcDe2);
-    ValorIr       := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorIr'), tcDe2);
-    ValorCsll     := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorCsll'), tcDe2);
+    ValorPis      := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorPIS'), tcDe2);
+    ValorCofins   := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorCOFINS'), tcDe2);
+    ValorInss     := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorINSS'), tcDe2);
+    ValorIr       := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorIR'), tcDe2);
+    ValorCsll     := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorCSLL'), tcDe2);
 
     if aValor = 'false' then
       IssRetido := stNormal
@@ -332,9 +333,9 @@ begin
     aValor := ObterConteudo(ANode.Childrens.FindAnyNs('StatusRPS'), tcStr);
 
     if aValor = 'N' then
-      Status := srNormal
+      StatusRps := srNormal
     else
-      Status := srCancelado;
+      StatusRps := srCancelado;
 
     TipoTributacaoRPS := ObterConteudo(ANode.Childrens.FindAnyNs('TributacaoRPS'), tcStr);
 

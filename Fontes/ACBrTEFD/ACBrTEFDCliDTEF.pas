@@ -257,7 +257,11 @@ implementation
 Uses
   {$IFDEF MSWINDOWS} Windows, {$ENDIF MSWINDOWS}
   strutils, math, dateutils,
-  ACBrTEFD, ACBrUtil, ACBrTEFComum;
+  ACBrTEFD,
+  ACBrUtil.FilesIO,
+  ACBrUtil.Strings,
+  ACBrUtil.Math,
+  ACBrTEFComum;
 
 { TACBrTEFDRespCliDTEF }
 
@@ -979,6 +983,7 @@ begin
      CopiarResposta ;
 
      { Cria cópia do Objeto Resp, e salva no ObjectList "RespostasPendentes" }
+     Resp.ViaClienteReduzida := ImprimirViaClienteReduzida;
      RespostaPendente := TACBrTEFDRespCliDTEF.Create ;
      RespostaPendente.Assign( Resp );
      RespostasPendentes.Add( RespostaPendente );

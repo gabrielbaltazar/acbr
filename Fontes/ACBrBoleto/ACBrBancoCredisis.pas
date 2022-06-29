@@ -77,8 +77,7 @@ type
 implementation
 
 uses {$IFDEF COMPILER6_UP} DateUtils {$ELSE} ACBrD5, FileCtrl {$ENDIF},
-  StrUtils, Variants,
-  ACBrUtil;
+  StrUtils, Variants, ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 constructor TACBrBancoCredisis.create(AOwner: TACBrBanco);
 begin
@@ -456,7 +455,7 @@ begin
               PadRight('',15,' ')    {valor/percentual 3, ainda não implementado}      + // 51 - 65 Valor/Percentual Desconto 3,  *C023 (Manual)
               IfThen((PercentualMulta <> null) and (PercentualMulta > 0), '2', '1')    + // 66 - 66 Código da Multa 1-Valor Fixo / 2-Percentual
               IfThen((PercentualMulta <> null) and (PercentualMulta > 0),
-                    FormatDateTime('ddmmyyyy', DataMoraJuros), PadRight('',8,' '))     + // 67 - 74 Se cobrar informe a data para iniciar a cobrança ou informe EM BRANCO para CONSIDERAR a DATA DO VENCIMENTO
+                    FormatDateTime('ddmmyyyy', DataMulta), PadRight('',8,' '))         + // 67 - 74 Se cobrar informe a data para iniciar a cobrança ou informe EM BRANCO para CONSIDERAR a DATA DO VENCIMENTO
               IfThen(PercentualMulta > 0,
                      IntToStrZero(round(PercentualMulta * 100), 13) + '00',
                      PadRight('', 15, '0'))                                            + // 75 - 89 Percentual de multa. Informar zeros se não cobrar

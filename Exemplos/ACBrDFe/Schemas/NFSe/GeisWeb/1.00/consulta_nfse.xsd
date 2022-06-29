@@ -8,6 +8,7 @@
             <xs:sequence>
               <xs:element type="xs:string" name="CnpjCpfPrestador"/>
               <xs:element type="xs:string" name="NumeroNfse"/>
+              <xs:element type="xs:string" name="MultiplasNfse" minOccurs="0" />
               <xs:element type="xs:string" name="DtInicial"/>
               <xs:element type="xs:string" name="DtFinal"/>
               <xs:element type="xs:string" name="NumeroInicial"/>

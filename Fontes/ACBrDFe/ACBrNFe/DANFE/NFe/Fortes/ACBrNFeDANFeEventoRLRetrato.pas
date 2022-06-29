@@ -196,7 +196,8 @@ implementation
 uses
   pcnConversao,
   ACBrDFeUtil, ACBrNFeDANFeRLClass, ACBrValidador,
-  ACBrDFeReportFortes, ACBrUtil;
+  ACBrDFeReportFortes,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 {$IfNDef FPC}
   {$R *.dfm}

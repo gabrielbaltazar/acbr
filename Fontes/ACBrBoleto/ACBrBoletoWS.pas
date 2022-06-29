@@ -36,13 +36,13 @@ unit ACBrBoletoWS;
 interface
 
 uses
-  Classes, SysUtils, ACBrBoleto, pcnGerador, pcnLeitor, ACBrUtil, pcnConversao, synacode, synautil,
+  Classes, SysUtils, ACBrBoleto, pcnGerador, pcnLeitor, ACBrUtil.Strings, pcnConversao, synacode, synautil,
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     JsonDataObjects_ACBr,
   {$Else}
     Jsons,
   {$EndIf}
-  ACBrBoletoConversao, ACBrBoletoRetorno, ACBrDFeSSL, dateutils, strutils;
+  ACBrBoletoConversao, ACBrBoletoRetorno, ACBrDFeSSL, dateutils, strutils,ACBrUtil.Base,ACBrUtil.FilesIO,ACBrUtil.XMLHTML;
 
 type
 
@@ -376,7 +376,8 @@ implementation
 
 uses
   ACBrBoletoW_Caixa, ACBrBoletoRet_Caixa, ACBrBoletoW_BancoBrasil, ACBrBoletoRet_BancoBrasil, ACBrBoletoW_BancoBrasil_API, ACBrBoletoRet_BancoBrasil_API, ACBrBoletoW_Itau, ACBrBoletoRet_Itau,
-  ACBrBoletoW_Credisis, ACBrBoletoRet_Credisis, ACBrBoletoW_Sicredi_API, ACBrBoletoRet_Sicredi_API;
+  ACBrBoletoW_Credisis, ACBrBoletoRet_Credisis, ACBrBoletoW_Sicredi_API, ACBrBoletoRet_Sicredi_API,
+  ACBrBoletoW_PenseBank_API, ACBrBoletoRet_PenseBank_API;
 
 { TOAuth }
 
@@ -467,46 +468,56 @@ begin
 
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     JsonSerializationConfig.NullConvertsToValueTypes:=True;
-    AJSon := TJsonObject.Parse(ARetorno) as TJsonObject;
+
     try
-      if (FSSL.HTTPResultCode in [200, 201, 202]) then
-      begin
-        FToken := AJson.S['access_token'];
-        try
-          FExpire := Now + (AJson.I['expires_in'] * OneSecond);
-        except
-          FExpire:= 0;
-        end;
+      AJSon := TJsonObject.Parse(ARetorno) as TJsonObject;
+      try
+        if (FSSL.HTTPResultCode in [200, 201, 202]) then
+        begin
+          FToken := AJson.S['access_token'];
+          try
+            FExpire := Now + (AJson.I['expires_in'] * OneSecond);
+          except
+            FExpire:= 0;
+          end;
 
-      end
-      else
-        FErroComunicacao := 'HTTP_Code='+ IntToStr(FSSL.HTTPResultCode)
-                           + ' Erro='+ AJson.S['error_description'];
+        end
+        else
+          FErroComunicacao := 'HTTP_Code='+ IntToStr(FSSL.HTTPResultCode)
+                             + ' Erro='+ AJson.S['error_description'];
 
-    finally
-      AJSon.Free;
+      finally
+        AJSon.Free;
+      end;
+    except
+      FErroComunicacao := 'HTTP_Code='+ IntToStr(FSSL.HTTPResultCode)
+                        + ' Erro='+ ARetorno;
     end;
 
   {$Else}
     AJSon := TJson.Create;
     try
       AJSon.Parse(ARetorno);
-      if (FSSL.HTTPResultCode in [200, 201, 202]) then
-      begin
-        FToken := AJson.Values['access_token'].AsString;
-        try
-          FExpire := Now + (AJson.Values['expires_in'].AsNumber * OneSecond);
-        except
-          FExpire:= 0;
-        end;
+      try
+        if (FSSL.HTTPResultCode in [200, 201, 202]) then
+        begin
+          FToken := AJson.Values['access_token'].AsString;
+          try
+            FExpire := Now + (AJson.Values['expires_in'].AsNumber * OneSecond);
+          except
+            FExpire:= 0;
+          end;
 
-      end
-      else
-        FErroComunicacao := 'HTTP_Code='+ IntToStr(FSSL.HTTPResultCode)
-                           + ' Erro='+ AJson.Values['error_description'].AsString;
-
-    finally
-      AJson.Free;
+        end
+        else
+          FErroComunicacao := 'HTTP_Code='+ IntToStr(FSSL.HTTPResultCode)
+                             + ' Erro='+ AJson.Values['error_description'].AsString;
+      finally
+        AJson.Free;
+      end;
+    except
+      FErroComunicacao := 'HTTP_Code='+ IntToStr(FSSL.HTTPResultCode)
+                        + ' Erro='+ ARetorno;
     end;
 
   {$EndIf}
@@ -1084,6 +1095,11 @@ begin
         FRetornoBanco  := TRetornoEnvio_Credisis.Create(FBoleto);
         FBoletoWSClass.FDFeSSL.UseCertificateHTTP := False;
       end;  
+    cobPenseBankAPI:
+      begin
+        FBoletoWSClass := TBoletoW_PenseBank_API.Create(Self);
+        FRetornoBanco  := TRetornoEnvio_PenseBank_API.Create(FBoleto);
+      end;
 
   else
     FBoletoWSClass := TBoletoWSClass.Create(Self);

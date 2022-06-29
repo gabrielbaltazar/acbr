@@ -52,6 +52,7 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderTiplan = class (TACBrNFSeProviderABRASFv1)
@@ -77,6 +78,7 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderTiplan203 = class (TACBrNFSeProviderABRASFv2)
@@ -92,7 +94,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, Tiplan.GravarXml, Tiplan.LerXml;
 
 { TACBrNFSeProviderTiplan }
@@ -242,6 +245,14 @@ begin
                      Request,
                      ['outputXML', 'CancelarNfseResposta'],
                      []);
+end;
+
+function TACBrNFSeXWebserviceTiplan.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
 end;
 
 { TACBrNFSeProviderTiplan203 }
@@ -469,6 +480,14 @@ begin
   Result := Executar('http://nfse.abrasf.org.br/SubstituirNfse', Request,
                      ['outputXML', 'SubstituirNfseResposta'],
                      ['xmlns:nfse="http://nfse.abrasf.org.br/"']);
+end;
+
+function TACBrNFSeXWebserviceTiplan203.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
 end;
 
 end.

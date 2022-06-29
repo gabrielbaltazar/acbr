@@ -4,7 +4,7 @@
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
-{																			   }
+{																		                                      	   }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
 {                                                                              }
@@ -38,6 +38,7 @@ uses
   Dialogs, StdCtrls, ExtCtrls, Mask,
   {$IFDEF demo_forte} uDMForte,{$ELSE}uDMFast,{$ENDIF}
   ACBrBase, ACBrBoleto, ACBrUtil,
+  {$IFDEF VER150} ComCtrls,{$ENDIF}
   ACBrBoletoConversao, ACBrBoletoRetorno, Vcl.ComCtrls;
 
 type
@@ -213,7 +214,7 @@ type
     Label65: TLabel;
     edtPathRetorno: TEdit;
     Label66: TLabel;
-    flpndlgRetorno: TFileOpenDialog;
+    flpndlgRetorno: TOpenDialog;
     btnRetorno: TButton;
     edtClientID: TEdit;
     Label67: TLabel;
@@ -226,6 +227,7 @@ type
     Label50: TLabel;
     cbxSSLLib: TComboBox;
     Label70: TLabel;
+    btnImpressaoPDFIndividual: TButton;
     procedure btnImpressaoHTMLClick(Sender: TObject);
     procedure btnImpressaoPDFClick(Sender: TObject);
     procedure btnBoletoIndividualClick(Sender: TObject);
@@ -240,6 +242,7 @@ type
     procedure btnWSRegistrarClick(Sender: TObject);
     procedure btnConfigLerClick(Sender: TObject);
     procedure btnConfigGravarClick(Sender: TObject);
+    procedure btnImpressaoPDFIndividualClick(Sender: TObject);
     procedure btnImpressaoStreamClick(Sender: TObject);
     procedure btnRetornoClick(Sender: TObject);
     procedure btnWSConsultaClick(Sender: TObject);
@@ -306,7 +309,7 @@ begin
   if CobAnterior <> TACBrTipoCobranca(cbxBanco.ItemIndex) then
     edtLocalPag.Text := '';
 
-  Boleto.ListadeBoletos.Clear;
+  //Boleto.ListadeBoletos.Clear;
 
   Boleto.PrefixArqRemessa                  := edtPrefixRemessa.Text;
   Boleto.LayoutRemessa                     := TACBrLayoutRemessa(cbxCNAB.itemindex);
@@ -374,6 +377,7 @@ begin
   BeneficiarioWS.ClientSecret := edtClientSecret.Text;
   BeneficiarioWS.KeyUser      := edtKeyUser.Text;
   WebService.Ambiente         := TpcnTipoAmbiente(Ord(ckbEmHomologacao.Checked));
+  WebService.SSLHttpLib       := TSSLHttpLib(cbxSSLLib.ItemIndex);
 end;
 
 procedure TfrmDemo.AplicarConfiguracoesComponenteATela;
@@ -385,6 +389,7 @@ begin
   Boleto.ListadeBoletos.Clear;
 
   edtPrefixRemessa.Text               := Boleto.PrefixArqRemessa;
+
   cbxCNAB.itemindex                   := Ord(Boleto.LayoutRemessa);
   ckbEmHomologacao.Checked            := Boleto.Homologacao;
   ckbImprimirMensagemPadrao.Checked   := Boleto.ImprimirMensagemPadrao;
@@ -504,14 +509,15 @@ begin
   Titulo.ValorAbatimento   := StrToCurrDef(edtValorAbatimento.Text,0);
   Titulo.DataMoraJuros     := StrToDateDef(edtDataMora.Text, 0);
   Titulo.DataDesconto      := StrToDateDef(edtDataDesconto.Text, 0);
+  Titulo.TipoDesconto      := tdNaoConcederDesconto;
   Titulo.DataAbatimento    := StrToDateDef(edtDataAbatimento.Text, 0);
   Titulo.DataProtesto      := StrToDateDef(edtDataProtesto.Text, 0);
   Titulo.PercentualMulta   := StrToCurrDef(edtMulta.Text,0);
-  Titulo.CodigoMoraJuros   := cjIsento;
+  Titulo.CodigoMoraJuros   := cjValorMensal;
   //Mensagem.Text     := memMensagem.Text;
-  Titulo.OcorrenciaOriginal.Tipo := toRemessaBaixar;
-  Titulo.Instrucao1        := PadRight(trim(edtInstrucoes1.Text),2,'0');
-  Titulo.Instrucao2        := PadRight(trim(edtInstrucoes2.Text),2,'0');
+  Titulo.OcorrenciaOriginal.Tipo := toRemessaRegistrar;
+  Titulo.Instrucao1        := trim(edtInstrucoes1.Text);
+  Titulo.Instrucao2        := trim(edtInstrucoes2.Text);
 
   Titulo.QtdePagamentoParcial   := 1;
   Titulo.TipoPagamento          := tpNao_Aceita_Valor_Divergente;
@@ -544,9 +550,10 @@ begin
     Titulo.Detalhamento.Add('Desconto ........................................................................... Valor: R$ 0,00' );
   end;
 
-  logo:= ExtractFileDir(ParamStr(0)) + '\acbr_logo.jpg';
+  //if FileExists(ExtractFileDir(ParamStr(0)) + '\acbr_logo.jpg') then
+    // logo := ExtractFileDir(ParamStr(0)) + '\acbr_logo.jpg';
 
-  Titulo.ArquivoLogoEmp := logo;  // logo da empresa
+  //Titulo.ArquivoLogoEmp := logo;  // logo da empresa
   Titulo.Verso := ((cbxImprimirVersoFatura.Checked) and ( cbxImprimirVersoFatura.Enabled = true ));
 
 end;
@@ -600,7 +607,7 @@ end;
 procedure TfrmDemo.FormCreate(Sender: TObject);
 var
   I: TACBrBolLayOut;
-  CurrentStyle : LONG;
+  CurrentStyle : longint;
 begin
   CurrentStyle := GetWindowLong(edtCNABLVLote.Handle, GWL_STYLE);
   CurrentStyle := CurrentStyle or ES_NUMBER;
@@ -629,8 +636,8 @@ begin
   CarregarSSLLib;
   btnConfigLer.Click;
   AplicarConfiguracoesComponenteATela;
-  edtPathRemessa.Text := ParamStr(0)+'Remessa';
-  edtPathRetorno.Text := ParamStr(0)+'Retorno';
+  edtPathRemessa.Text := ExtractFilePath(ParamStr(0))+'Remessa';
+  edtPathRetorno.Text := ExtractFilePath(ParamStr(0))+'Retorno';
 end;
 
 procedure TfrmDemo.carregarBancos;
@@ -912,9 +919,25 @@ begin
 end;
 
 procedure TfrmDemo.btnConfigGravarClick(Sender: TObject);
+var teste : TStringList;
 begin
   AplicarConfiguracoesAoComponente;
   GravarIniComponente;
+end;
+
+procedure TfrmDemo.btnImpressaoPDFIndividualClick(Sender: TObject);
+var Index : Cardinal;
+begin
+  for Index := 0 to Pred(dm.ACBrBoleto.ListadeBoletos.Count) do
+  begin
+    dm.ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual := True;
+    if Index + 1 = 5 then
+      dm.ACBrBoleto.ACBrBoletoFC.PdfSenha := ''
+    else
+      dm.ACBrBoleto.ACBrBoletoFC.PdfSenha := IntToStr(Index+1);
+
+    dm.ACBrBoleto.GerarPDF(Index);
+  end;
 end;
 
 procedure TfrmDemo.btnImpressaoStreamClick(Sender: TObject);

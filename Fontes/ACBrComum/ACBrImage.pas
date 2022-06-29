@@ -61,15 +61,21 @@ uses
   ,ACBrBase;
 
 const
-  cErrImgPCXMono = 'Imagem não é PCX Monocromática';
-  cErrImgBMPMono = 'Imagem não é BMP Monocromática';
   C_LUMINOSITY_THRESHOLD = 127;
+
+resourcestring
+  cErrImgNotBMPMono = 'Imagem não é BMP Monocromática';
+  cErrImgNotPNG = 'Imagem não é PNG';
 
 type
   EACBrImage = class(Exception);
 
 function IsPCX(S: TStream; CheckIsMono: Boolean = True): Boolean;
 function IsBMP(S: TStream; CheckIsMono: Boolean = True): Boolean;
+function IsPNG(S: TStream; CheckIsMono: Boolean = True): Boolean;
+procedure PNGInfoIHDR(S: TStream; out Width: LongWord; out Height: LongWord;
+                       out BitDepth: Byte; out ColorType: Byte; out CompressionMethod: Byte;
+                       out FilterMethod: Byte; out InterlaceMethod: Byte);
 
 procedure RasterStrToAscII(const ARasterStr: AnsiString; AWidth: Integer;
   InvertImg: Boolean; AscIIArtLines: TStrings);
@@ -87,73 +93,164 @@ procedure RasterStrToBMPMono(const ARasterStr: AnsiString; AWidth: Integer;
   InvertImg: Boolean; ABMPStream: TStream);
 
 {$IfNDef NOGUI}
-procedure BitmapToRasterStr(ABmpSrc: TBitmap; InvertImg: Boolean;
-  out AWidth: Integer; out AHeight: Integer; out ARasterStr: AnsiString;
-  LuminosityThreshold: Byte = C_LUMINOSITY_THRESHOLD);
-procedure PintarQRCode(const QRCodeData: String; ABitMap: TBitmap;
-  const AEncoding: TQRCodeEncoding);
+ {$IfNDef FPC}
+  procedure RedGreenBlue(rgb: TColorRef; out Red, Green, Blue: Byte);
+ {$EndIf}
+ procedure BitmapToRasterStr(ABmpSrc: TBitmap; InvertImg: Boolean;
+   out AWidth: Integer; out AHeight: Integer; out ARasterStr: AnsiString;
+   LuminosityThreshold: Byte = C_LUMINOSITY_THRESHOLD);
+ procedure PintarQRCode(const QRCodeData: String; ABitMap: TBitmap;
+   const AEncoding: TQRCodeEncoding);
 {$EndIf}
 
 implementation
 
 uses
-// DEBUG
-// {$IfDef ANDROID}
-// System.IOUtils,
-// {$EndIf}
-  math, strutils,
-  ACBrUtil, ACBrConsts;
+  Math, strutils, ACBrUtil.Base, ACBrConsts, ACBrUtil.Strings, ACBrUtil.Math;
 
+// https://stackoverflow.com/questions/1689715/image-data-of-pcx-file
 function IsPCX(S: TStream; CheckIsMono: Boolean): Boolean;
 var
   p: Int64;
   b, bColorPlanes, bBitsPerPixel: Byte;
 begin
-  // https://stackoverflow.com/questions/1689715/image-data-of-pcx-file
   p := S.Position;
-  S.Position := 0;
-  b := 0;
-  S.ReadBuffer(b,1);
-  Result := (b = 10);
+  try
+    S.Position := 0;
+    b := 0;
+    S.ReadBuffer(b,1);
+    Result := (b = 10);
 
-  if Result and CheckIsMono then
-  begin
-    // Lendo as cores
-    bBitsPerPixel := 0; bColorPlanes := 0;
-    S.Position := 3;
-    S.ReadBuffer(bBitsPerPixel, 1);
-    S.Position := 65;
-    S.ReadBuffer(bColorPlanes, 1);
-    Result := (bColorPlanes = 1) and (bBitsPerPixel = 1);
+    if Result and CheckIsMono then
+    begin
+      // Lendo as cores
+      bBitsPerPixel := 0; bColorPlanes := 0;
+      S.Position := 3;
+      S.ReadBuffer(bBitsPerPixel, 1);
+      S.Position := 65;
+      S.ReadBuffer(bColorPlanes, 1);
+      Result := (bColorPlanes = 1) and (bBitsPerPixel = 1);
+    end;
+  finally
+    S.Position := p;
   end;
-
-  S.Position := p;
 end;
 
+//https://en.wikipedia.org/wiki/BMP_file_format
 function IsBMP(S: TStream; CheckIsMono: Boolean): Boolean;
 var
   Buffer: array[0..1] of AnsiChar;
   bColorPlanes, bBitsPerPixel: Word;
   p: Int64;
 begin
-  //https://en.wikipedia.org/wiki/BMP_file_format
   p := S.Position;
-  S.Position := 0;
-  Buffer[0] := ' ';
-  S.ReadBuffer(Buffer, 2);
-  Result := (Buffer = 'BM');
+  try
+    S.Position := 0;
+    Buffer[0] := ' ';
+    S.ReadBuffer(Buffer, 2);
+    Result := (Buffer = 'BM');
 
-  if Result and CheckIsMono then
+    if Result and CheckIsMono then
+    begin
+      // Lendo as cores
+      bColorPlanes := 0; bBitsPerPixel := 0;
+      S.Position := 26;
+      S.ReadBuffer(bColorPlanes, 2);
+      S.ReadBuffer(bBitsPerPixel, 2);
+      Result := (bColorPlanes = 1) and (bBitsPerPixel = 1);
+    end;
+  finally
+    S.Position := p;
+  end;
+end;
+
+// https://en.wikipedia.org/wiki/Portable_Network_Graphic
+function IsPNG(S: TStream; CheckIsMono: Boolean): Boolean;
+var
+  w, h: LongWord;
+  BitDepth, ct, cm, fm, im: Byte;
+begin
+  try
+    PNGInfoIHDR(S, w, h, BitDepth, ct, cm, fm, im);
+    Result := (BitDepth = 1) or (not CheckIsMono);
+  except
+    Result := False;
+  end;
+end;
+
+procedure PNGInfoIHDR(S: TStream; out Width: LongWord; out Height: LongWord;
+  out BitDepth: Byte; out ColorType: Byte; out CompressionMethod: Byte; out
+  FilterMethod: Byte; out InterlaceMethod: Byte);
+var
+  Ok: Boolean;
+  p: Int64;
+  Buffer: array[0..7] of Byte;
+  l: Cardinal;
+  t, d: AnsiString;
+
+  procedure ReadNextChunk(S: TStream; out Len: Cardinal; out ChunckType: AnsiString; out Data: AnsiString);
+  var
+    LenStr: AnsiString;
   begin
-    // Lendo as cores
-    bColorPlanes := 0; bBitsPerPixel := 0;
-    S.Position := 26;
-    S.ReadBuffer(bColorPlanes, 2);
-    S.ReadBuffer(bBitsPerPixel, 2);
-    Result := (bColorPlanes = 1) and (bBitsPerPixel = 1);
+    Len := 0; LenStr := ''; ChunckType := ''; Data := '';
+    Setlength(LenStr, 4);
+    S.Read(PAnsiChar(LenStr)^, 4);
+    Len := BEStrToInt(LenStr);
+    if (Len > 0) then
+    begin
+      Setlength(ChunckType, 4);
+      S.Read(PAnsiChar(ChunckType)^, 4);
+      Setlength(Data, Len);
+      S.Read(PAnsiChar(Data)^, Len);
+    end;
   end;
 
-  S.Position := p;
+begin
+  Width := 0; Height := 0; BitDepth := 0; ColorType := 0;
+  CompressionMethod := 0; FilterMethod := 0; InterlaceMethod := 0;
+  p := S.Position;
+  try
+    S.Position := 0;
+    Buffer[0] := 0;
+    S.ReadBuffer(Buffer,8);
+    Ok := (Buffer[0] = 137) and
+          (Buffer[1] = 80) and
+          (Buffer[2] = 78) and
+          (Buffer[3] = 71) and
+          (Buffer[4] = 13) and
+          (Buffer[5] = 10) and
+          (Buffer[6] = 26) and
+          (Buffer[7] = 10);
+
+    if not Ok then
+      raise EACBrImage.Create(ACBrStr(cErrImgNotPNG));
+
+    t := '';
+    l := 1;
+    while (t <> 'IHDR') and (t <> 'IEND') and (l > 0) do
+      ReadNextChunk(S, l, t, d);
+
+    if (t = 'IHDR') and (l = 13) then
+    begin
+      { The IHDR chunk must appear FIRST. It contains:
+         Width:              4 bytes
+         Height:             4 bytes
+         Bit depth:          1 byte
+         Color type:         1 byte
+         Compression method: 1 byte
+         Filter method:      1 byte
+         Interlace method:   1 byte }
+      Width := BEStrToInt(copy(d, 1, 4));
+      Height := BEStrToInt(copy(d, 5, 4));
+      BitDepth := Byte(d[9]);
+      ColorType := Byte(d[10]);
+      CompressionMethod := Byte(d[11]);
+      FilterMethod := Byte(d[12]);
+      InterlaceMethod := Byte(d[13]);
+    end;
+  finally
+    S.Position := p;
+  end;
 end;
 
 procedure BMPMonoToRasterStr(ABMPStream: TStream; InvertImg: Boolean; out
@@ -172,7 +269,7 @@ begin
   // https://github.com/asharif/img2grf/blob/master/src/main/java/org/orphanware/App.java
 
   if not IsBMP(ABMPStream, True) then
-    raise EACBrImage.Create(ACBrStr(cErrImgBMPMono));
+    raise EACBrImage.Create(ACBrStr(cErrImgNotBMPMono));
 
   // Lendo posição do Off-set da imagem
   ABMPStream.Position := 10;
@@ -220,7 +317,7 @@ begin
   RealWidth := trunc(WidthExtended);
   BytesPerWidth := ceil(RealWidth / 8);
   if RealWidth < WidthExtended then
-    bSizePixelArr := (BytesPerWidth * bHeight) ;
+    bSizePixelArr := (LongWord(BytesPerWidth) * bHeight) ;
 
   StreamLastPos := min(Int64(bPixelOffset + bSizePixelArr - 1), ABMPStream.Size-1);
 

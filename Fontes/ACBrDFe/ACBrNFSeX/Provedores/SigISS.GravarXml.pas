@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   pcnAuxiliar, pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
@@ -74,7 +73,7 @@ type
 implementation
 
 uses
-  ACBrNFSeXProviderBase;
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -125,7 +124,7 @@ begin
                                             NFSe.ConstrucaoCivil.Art, DSC_ART));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'situacao', 1, 2, 1,
-                                     SituacaoTribToStr(NFSe.SituacaoTrib), ''));
+                            FpAOwner.SituacaoTribToStr(NFSe.SituacaoTrib), ''));
 
   Result.AppendChild(AddNode(tcDe4, '#1', 'valor', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorServicos, ''));
@@ -137,7 +136,7 @@ begin
                                                NFSe.Servico.Discriminacao, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'tomador_tipo', 1, 1, 1,
-                  TipoPessoaToStr(NFSe.Tomador.IdentificacaoTomador.Tipo), ''));
+         FpAOwner.TipoPessoaToStr(NFSe.Tomador.IdentificacaoTomador.Tipo), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'tomador_cnpj', 1, 15, 1,
                     OnlyNumber(NFSe.Tomador.IdentificacaoTomador.CpfCnpj), ''));
@@ -191,7 +190,7 @@ begin
                                               NFSe.IdentificacaoRps.Serie, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'rps_tipo', 1, 1, 0,
-                                 TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), ''));
+                        FpAOwner.TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'rps_dia', 1, 2, 0,
                                  FormatDateTime('dd',NFSe.DataEmissaoRps), ''));
@@ -336,7 +335,7 @@ begin
                                             NFSe.ConstrucaoCivil.Art, DSC_ART));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'situacao', 1, 2, 1,
-                                     SituacaoTribToStr(NFSe.SituacaoTrib), ''));
+                            FpAOwner.SituacaoTribToStr(NFSe.SituacaoTrib), ''));
 
   Result.AppendChild(AddNode(tcDe4, '#1', 'valor', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorServicos, ''));
@@ -362,8 +361,12 @@ begin
   Result.AppendChild(AddNode(tcDe4, '#1', 'retencao_iss', 1, 15, 0,
                                       NFSe.Servico.Valores.ValorIssRetido, ''));
 
-  Result.AppendChild(AddNode(tcStr, '#1', 'incentivo_fiscal', 1, 1, 0,
-   TACBrNFSeXProvider(FpAOwner).SimNaoToStr(NFSe.IncentivadorCultural), DSC_INDINCCULT));
+{
+  Para a cidade de Londrina que no momento somente ela usa a versão 1.03 não
+  deve gerar a tag abaixo.
+}
+//  Result.AppendChild(AddNode(tcStr, '#1', 'incentivo_fiscal', 1, 1, 0,
+//   FpAOwner.SimNaoToStr(NFSe.IncentivadorCultural), DSC_INDINCCULT));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'cod_municipio_prestacao_servico', 1, 7, 0,
                            OnlyNumber(NFSe.Servico.CodigoMunicipio), DSC_CMUN));
@@ -378,7 +381,7 @@ begin
                                                NFSe.Servico.Discriminacao, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'tomador_tipo', 1, 1, 1,
-                  TipoPessoaToStr(NFSe.Tomador.IdentificacaoTomador.Tipo), ''));
+         FpAOwner.TipoPessoaToStr(NFSe.Tomador.IdentificacaoTomador.Tipo), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'tomador_cnpj', 1, 15, 1,
                     OnlyNumber(NFSe.Tomador.IdentificacaoTomador.CpfCnpj), ''));
@@ -429,7 +432,7 @@ begin
                                               NFSe.IdentificacaoRps.Serie, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'rps_tipo', 1, 1, 0,
-                                 TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), ''));
+                        FpAOwner.TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'rps_dia', 1, 2, 0,
                                  FormatDateTime('dd',NFSe.DataEmissaoRps), ''));

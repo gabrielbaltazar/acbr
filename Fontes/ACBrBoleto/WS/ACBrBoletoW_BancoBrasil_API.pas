@@ -67,6 +67,9 @@ type
     procedure RequisicaoBaixa;
     procedure RequisicaoConsulta;
     procedure RequisicaoConsultaDetalhe;
+    procedure RequisicaoPIXCriar;
+    procedure RequisicaoPIXCancelar;
+    procedure RequisicaoPIXConsultar;
     procedure GerarPagador(AJson: TJsonObject);
     procedure GerarBenificiarioFinal(AJson: TJsonObject);
     procedure GerarJuros(AJson: TJsonObject);
@@ -107,23 +110,30 @@ const
 implementation
 
 uses
-  synacode, strutils, DateUtils;
+  synacode, strutils, DateUtils, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 { TBoletoW_BancoBrasil_API }
 
 procedure TBoletoW_BancoBrasil_API.DefinirURL;
+var DevAPP, ID, NConvenio : String;
 begin
-  FPURL := IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao,C_URL, C_URL_HOM);
+  FPURL     := IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao,C_URL, C_URL_HOM);
+  DevAPP    := '?gw-dev-app-key='+Boleto.Cedente.CedenteWS.KeyUser;
+
+  if Titulos <> nil then
+    ID      := Titulos.ACBrBoleto.Banco.MontarCampoNossoNumero(Titulos);
+
+  NConvenio := OnlyNumber(Boleto.Cedente.Convenio);
+
   case Boleto.Configuracoes.WebService.Operacao of
-    tpInclui   : FPURL := FPURL + '/boletos?gw-dev-app-key='+Boleto.Cedente.CedenteWS.KeyUser;
-    tpConsulta : FPURL := FPURL + '/boletos?gw-dev-app-key='+Boleto.Cedente.CedenteWS.KeyUser + '&' + DefinirParametros;
-    tpAltera   : FPURL := FPURL + '/boletos/'+Titulos.ACBrBoleto.Banco.MontarCampoNossoNumero(Titulos) +
-                                  '?gw-dev-app-key='+Boleto.Cedente.CedenteWS.KeyUser;
-    tpConsultaDetalhe : FPURL := FPURL + '/boletos/'+Titulos.ACBrBoleto.Banco.MontarCampoNossoNumero(Titulos) +
-                                  '?gw-dev-app-key='+Boleto.Cedente.CedenteWS.KeyUser +
-                                  '&' + 'numeroConvenio='+ OnlyNumber(Boleto.Cedente.Convenio);
-    tpBaixa    : FPURL := FPURL + '/boletos/'+Titulos.ACBrBoleto.Banco.MontarCampoNossoNumero(Titulos) +
-                                  '/baixar?gw-dev-app-key='+Boleto.Cedente.CedenteWS.KeyUser;
+    tpInclui           : FPURL := FPURL + '/boletos' + DevAPP;
+    tpConsulta         : FPURL := FPURL + '/boletos' + DevAPP + '&' + DefinirParametros;
+    tpAltera           : FPURL := FPURL + '/boletos/'+ ID + DevAPP;
+    tpConsultaDetalhe  : FPURL := FPURL + '/boletos/'+ ID + DevAPP + '&numeroConvenio='+ NConvenio;
+    tpBaixa            : FPURL := FPURL + '/boletos/'+ ID + '/baixar'+DevAPP;
+    tpPIXCriar         : FPURL := FPURL + '/boletos/'+ ID + '/gerar-pix' + DevAPP;
+    tpPIXCancelar      : FPURL := FPURL + '/boletos/'+ ID + '/cancelar-pix' + DevAPP;
+    tpPIXConsultar     : FPURL := FPURL + '/boletos/'+ ID + '/pix' + DevAPP + '&numeroConvenio='+ NConvenio;
   end;
 
 end;
@@ -169,6 +179,21 @@ begin
          MetodoHTTP:= htGET;   //Define Método GET Consulta Detalhe
          RequisicaoConsultaDetalhe;
        end;
+     tpPIXCriar :
+       begin
+         MetodoHTTP:= htPOST;  // Define Método POST para Criar o PIX
+         RequisicaoPIXCriar;
+       end;
+     tpPIXCancelar :
+       begin
+         MetodoHTTP:= htPOST;  // Define Método POST para Cancelar o PIX
+         RequisicaoPIXCancelar;
+       end;
+     tpPIXConsultar :
+       begin
+         MetodoHTTP:= htGET;   //Define Método GET Consulta PIX
+         RequisicaoPIXConsultar;
+       end
 
    else
      raise EACBrBoletoWSException.Create(ClassName + Format(
@@ -232,8 +257,12 @@ begin
 
         Consulta.Add('agenciaBeneficiario='+OnlyNumber( Boleto.Cedente.Agencia ));
         Consulta.Add('contaBeneficiario='+OnlyNumber( Boleto.Cedente.Conta ));
-        //Consulta.Add('carteiraConvenio='+OnlyNumber(Boleto.Cedente.Convenio));
-        //Consulta.Add('variacaoCarteiraConvenio='+Boleto.Cedente.Modalidade);
+
+        if Boleto.Configuracoes.WebService.Filtro.carteira > 0 then
+          Consulta.Add('carteiraConvenio='+IntToStr(Boleto.Configuracoes.WebService.Filtro.carteira));
+
+        if Boleto.Configuracoes.WebService.Filtro.carteiraVariacao > 0 then
+          Consulta.Add('variacaoCarteiraConvenio='+IntToStr(Boleto.Configuracoes.WebService.Filtro.carteiraVariacao));
 
         if Boleto.Configuracoes.WebService.Filtro.modalidadeCobranca > 0 then
           Consulta.Add('modalidadeCobranca='+ IntToStr(Boleto.Configuracoes.WebService.Filtro.modalidadeCobranca));
@@ -344,6 +373,47 @@ begin
 
       FPDadosMsg := Data;
 
+    finally
+      Json.Free;
+    end;
+  end;
+end;
+
+procedure TBoletoW_BancoBrasil_API.RequisicaoPIXCancelar;
+var
+  Data: string;
+  Json: TJSONObject;
+begin
+  if Assigned(Titulos) then
+  begin
+    Json := TJsonObject.Create;
+    try
+      Json.Add('numeroConvenio').Value.AsNumber := StrToInt64Def(OnlyNumber(Boleto.Cedente.Convenio),0);
+      Data := Json.Stringify;
+      FPDadosMsg := Data;
+    finally
+      Json.Free;
+    end;
+  end;
+end;
+
+procedure TBoletoW_BancoBrasil_API.RequisicaoPIXConsultar;
+begin
+  //Sem Payload - Define Método GET
+end;
+
+procedure TBoletoW_BancoBrasil_API.RequisicaoPIXCriar;
+var
+  Data: string;
+  Json: TJSONObject;
+begin
+  if Assigned(Titulos) then
+  begin
+    Json := TJsonObject.Create;
+    try
+      Json.Add('numeroConvenio').Value.AsNumber := StrToInt64Def(OnlyNumber(Boleto.Cedente.Convenio),0);
+      Data := Json.Stringify;
+      FPDadosMsg := Data;
     finally
       Json.Free;
     end;
@@ -575,10 +645,9 @@ begin
     begin
       JsonJuros := TJSONObject.Create;
       try
-        if (Titulos.DataMoraJuros > 0) then
+        if (Titulos.ValorMoraJuros > 0) then
         begin
           JsonJuros.Add('tipo').Value.AsInteger             := StrToIntDef(Titulos.CodigoMora, 3);
-          JsonJuros.Add('data').Value.AsString              := FormatDateBr(Titulos.DataMoraJuros, 'DD.MM.YYYY');
           case (StrToIntDef(Titulos.CodigoMora, 3)) of
             1 : JsonJuros.Add('valor').Value.AsNumber       := Titulos.ValorMoraJuros;
             2 : JsonJuros.Add('porcentagem').Value.AsNumber := Titulos.ValorMoraJuros;

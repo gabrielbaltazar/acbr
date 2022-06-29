@@ -48,14 +48,14 @@ uses
   ACBrPIXCD;
 
 const
-  cURLSantanderApiPIX = '/api/v1';
-  cURLSantanderSandbox = 'https://pix.santander.com.br'+cURLSantanderApiPIX+'/sandbox';
-  cURLSantanderPreProducao = 'https://trust-pix-h.santander.com.br'+cURLSantanderApiPIX;
-  cURLSantanderProducao = 'https://trust-pix.santander.com.br'+cURLSantanderApiPIX;
+  cSantanderPathApiPIX = '/api/v1';
+  cSantanderURLSandbox = 'https://pix.santander.com.br'+cSantanderPathApiPIX+'/sandbox';
+  cSantanderURLPreProducao = 'https://trust-pix-h.santander.com.br'+cSantanderPathApiPIX;
+  cSantanderURLProducao = 'https://trust-pix.santander.com.br'+cSantanderPathApiPIX;
 
-  cURLSantanderAuthTeste = 'https://pix.santander.com.br/sandbox/oauth/token';
-  cURLSantanderAuthPreProducao = 'https://trust-pix-h.santander.com.br/oauth/token';
-  cURLSantanderAuthProducao = 'https://trust-pix.santander.com.br/oauth/token';
+  cSantanderURLAuthTeste = 'https://pix.santander.com.br/sandbox/oauth/token';
+  cSantanderURLAuthPreProducao = 'https://trust-pix-h.santander.com.br/oauth/token';
+  cSantanderURLAuthProducao = 'https://trust-pix.santander.com.br/oauth/token';
 
 resourcestring
   sErroClienteIdDiferente = 'Cliente_Id diferente do Informado';
@@ -78,6 +78,7 @@ type
     procedure Autenticar; override;
     procedure RenovarToken; override;
   published
+    property APIVersion;
     property ConsumerKey: String read GetConsumerKey write SetConsumerKey;
     property ConsumerSecret: String read GetConsumerSecret write SetConsumerSecret;
   end;
@@ -86,7 +87,7 @@ implementation
 
 uses
   synautil,
-  ACBrUtil,
+  ACBrUtil.Strings,
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
    JsonDataObjects_ACBr
   {$Else}
@@ -104,7 +105,8 @@ end;
 
 procedure TACBrPSPSantander.Autenticar;
 var
-  AURL, RespostaHttp, Body, client_id: String;
+  AURL, Body, client_id: String;
+  RespostaHttp: AnsiString;
   ResultCode, sec: Integer;
   js: TJsonObject;
   qp: TACBrQueryParams;
@@ -112,10 +114,10 @@ begin
   LimparHTTP;
 
   case ACBrPixCD.Ambiente of
-    ambProducao: AURL := cURLSantanderAuthProducao;
-    ambPreProducao: AURL := cURLSantanderAuthPreProducao;
+    ambProducao: AURL := cSantanderURLAuthProducao;
+    ambPreProducao: AURL := cSantanderURLAuthPreProducao;
   else
-    AURL := cURLSantanderAuthTeste;
+    AURL := cSantanderURLAuthTeste;
   end;
 
   AURL := AURL + '?grant_type=client_credentials';
@@ -162,12 +164,15 @@ begin
     end;
    {$EndIf}
 
-   fpValidadeToken := IncSecond(Now, sec);
-   fpAutenticado := True;
+    if (Trim(fpToken) = '') then
+      DispararExcecao(EACBrPixHttpException.Create(ACBrStr(sErroAutenticacao)));
+
+    fpValidadeToken := IncSecond(Now, sec);
+    fpAutenticado := True;
   end
   else
-    ACBrPixCD.DispararExcecao(EACBrPixHttpException.CreateFmt(
-      sErroHttp,[Http.ResultCode, ChttpMethodPOST, AURL]));
+    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
+       [Http.ResultCode, ChttpMethodPOST, AURL]));
 end;
 
 procedure TACBrPSPSantander.RenovarToken;
@@ -199,10 +204,10 @@ end;
 function TACBrPSPSantander.ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String;
 begin
   case ACBrPixCD.Ambiente of
-    ambProducao: Result := cURLSantanderProducao;
-    ambPreProducao: Result := cURLSantanderPreProducao;
+    ambProducao: Result := cSantanderURLProducao;
+    ambPreProducao: Result := cSantanderURLPreProducao;
   else
-    Result := cURLSantanderSandbox;
+    Result := cSantanderURLSandbox;
   end;
 end;
 

@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   ACBrNFSeXParametros, ACBrNFSeXConversao, ACBrNFSeXLerXml;
 
@@ -56,6 +55,10 @@ type
   end;
 
 implementation
+
+uses
+  ACBrUtil.Base,
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -120,21 +123,19 @@ end;
 function TNFSeR_Conam.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
-  xRetorno: string;
 begin
-  xRetorno := TratarXmlRetorno(Arquivo);
-  xRetorno := TiraAcentos(xRetorno);
-
-  if EstaVazio(xRetorno) then
+  if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  Arquivo := NormatizarXml(Arquivo);
 
   if FDocument = nil then
     FDocument := TACBrXmlDocument.Create();
 
   Document.Clear();
-  Document.LoadFromXml(xRetorno);
+  Document.LoadFromXml(Arquivo);
 
-  if (Pos('Reg20Item', xRetorno) > 0) then
+  if (Pos('Reg20Item', Arquivo) > 0) then
     tpXML := txmlNFSe
   else
     tpXML := txmlRPS;

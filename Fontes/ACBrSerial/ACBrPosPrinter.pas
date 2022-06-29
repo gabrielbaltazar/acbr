@@ -536,7 +536,7 @@ type
     procedure LerCMC7(AguardaCheque: Boolean = False; SegundosEspera: Integer = 5);
 
     function TxRx(const ACmd: AnsiString; BytesToRead: Byte = 1;
-      ATimeOut: Integer = 500; WaitForTerminator: Boolean = False): AnsiString;
+      ATimeOut: Integer = 300; WaitForTerminator: Boolean = False): AnsiString;
 
     property TagProcessor: TACBrTagProcessor read FTagProcessor;
     property TagsNaoSuportadas: TStringList read GetTagsNaoSuportadas;
@@ -569,7 +569,8 @@ type
     function CalcularAlturaTexto(ALinhas: Integer): Integer;
     function CalcularLinhasAltura(AAltura: Integer): Integer;
     function CalcularAlturaQRCodeAlfaNumM(const QRCodeData: String): Integer;
-    function ConfigurarRegiaoModoPagina(AEsquerda, ATopo, AAltura, ALargura: Integer): String;
+    function ConfigurarRegiaoModoPagina(AEsquerda, ATopo, AAltura, ALargura: Integer;
+      ADirecao: TACBrPosDirecao = dirEsquerdaParaDireita): String;
 
     function AjustarCodBarras(const ABarCode, ABarCodeTag: AnsiString): AnsiString;
 
@@ -644,7 +645,10 @@ uses
       Graphics,
     {$EndIf}
   {$EndIf}
-  ACBrUtil, ACBrImage, ACBrConsts, ACBrExtenso, ACBrCMC7,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO,
+  ACBrImage, ACBrConsts, ACBrExtenso, ACBrCMC7,
   synacode, synautil,
   ACBrEscPosEpson, ACBrEscEpsonP2, ACBrEscBematech, ACBrEscDaruma,
   ACBrEscElgin, ACBrEscDiebold, ACBrEscCustomPos, ACBrEscPosStar,
@@ -2969,7 +2973,7 @@ begin
 end;
 
 function TACBrPosPrinter.ConfigurarRegiaoModoPagina(AEsquerda, ATopo, AAltura,
-  ALargura: Integer): String;
+  ALargura: Integer; ADirecao: TACBrPosDirecao): String;
 
   Function MontarTag(const ATag, AConteudo: String): String;
   begin
@@ -2977,7 +2981,8 @@ function TACBrPosPrinter.ConfigurarRegiaoModoPagina(AEsquerda, ATopo, AAltura,
   end;
 
 begin
-  Result := MontarTag( cTagModoPaginaPosEsquerda, IntToStr(AEsquerda) ) +
+  Result := MontarTag( cTagModoPaginaDirecao, IntToStr(Integer(ADirecao)) ) +
+            MontarTag( cTagModoPaginaPosEsquerda, IntToStr(AEsquerda) ) +
             MontarTag( cTagModoPaginaPosTopo, IntToStr(ATopo) ) +
             MontarTag( cTagModoPaginaAltura, IntToStr(AAltura) ) +
             MontarTag( cTagModoPaginaLargura, IntToStr(ALargura) ) +

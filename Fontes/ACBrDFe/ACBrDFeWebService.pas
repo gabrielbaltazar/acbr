@@ -146,7 +146,11 @@ implementation
 
 uses
   strutils,
-  ACBrDFeUtil, ACBrDFeException, ACBrUtil,
+  ACBrDFeUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.DateTime,
+  ACBrUtil.XMLHTML,
   pcnAuxiliar, synacode;
 
 { TDFeWebService }

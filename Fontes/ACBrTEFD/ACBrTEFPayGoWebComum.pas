@@ -794,7 +794,11 @@ implementation
 
 uses
   StrUtils, dateutils, math, typinfo,
-  ACBrConsts, ACBrUtil, ACBrValidador
+  ACBrConsts,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO,
+  ACBrUtil.Math,
+  ACBrValidador
   {$IfDef ANDROID}
    ,System.IOUtils
   {$EndIf};
@@ -1580,13 +1584,6 @@ begin
         begin
           AData := BinaryStringToString(AnsiString(pszData));
           GravarLog('  '+Format('%s=%s', [InfoStr, AData]));
-
-          if (i = PWINFO_RCPTCHSHORT) and (not ImprimeViaClienteReduzida) then
-          begin
-            GravarLog('    PWINFO_RCPTCHSHORT ignored, ImprimirViaClienteReduzida = False');
-            Continue;
-          end;
-
           fDadosTransacao.Add(Format('%d=%s', [i, Adata]));  // Add é mais rápido que usar "ValueInfo[i]"
           if (i = PWINFO_IDLEPROCTIME) then
             TempoOcioso := AData;

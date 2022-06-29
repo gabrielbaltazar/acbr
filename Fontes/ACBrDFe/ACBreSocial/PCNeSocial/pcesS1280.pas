@@ -53,7 +53,7 @@ uses
    System.Contnrs,
   {$IfEnd}
   ACBrBase,
-  pcnConversao, pcnGerador, ACBrUtil, pcnConsts,
+  pcnConversao, pcnGerador, pcnConsts,
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
@@ -64,6 +64,7 @@ type
   TInfoSubstPatrOpPortColecao = class;
   TInfoSubstPatr = class;
   TInfoAtivConcom = class;
+  TinfoPercTransf11096 = class;
 
   TS1280Collection = class(TeSocialCollection)
   private
@@ -93,14 +94,17 @@ type
     FInfoSubstPatr: TInfoSubstPatr;
     FInfoAtivConcom: TInfoAtivConcom;
     FInfoSubstPatrOpPort: TInfoSubstPatrOpPortColecao;
+    FinfoPercTransf11096 : TinfoPercTransf11096;
 
     {Geradores específicos da classe}
     procedure GerarInfoSubstPatr;
     procedure GerarInfoSubstPatrOpPort;
     procedure GerarInfoAtivConcom;
+    procedure GerarinfoPercTransf11096;
     function getInfoAtivConcom: TInfoAtivConcom;
     function getInfoSubstPatr: TInfoSubstPatr;
     function getInfoSubstPatrOpPort: TInfoSubstPatrOpPortColecao;
+    function getinfoPercTransf11096: TinfoPercTransf11096;
 
   public
     constructor Create(AACBreSocial: TObject); override;
@@ -112,12 +116,14 @@ type
     function infoAtivConcomInst(): Boolean;
     function infoSubstPatrInst(): Boolean;
     function infoSubstPatrOpPortInst(): Boolean;
+    function infoPercTransf11096Inst(): Boolean;
 
     property IdeEvento: TIdeEvento3 read FIdeEvento write FIdeEvento;
     property IdeEmpregador: TIdeEmpregador read FIdeEmpregador write FIdeEmpregador;
     property InfoSubstPatr: TInfoSubstPatr read getInfoSubstPatr write FInfoSubstPatr;
     property InfoAtivConcom: TInfoAtivConcom read getInfoAtivConcom write FInfoAtivConcom;
     property InfoSubstPatrOpPort: TInfoSubstPatrOpPortColecao read getInfoSubstPatrOpPort write FInfoSubstPatrOpPort;
+    property infoPercTransf11096 : TinfoPercTransf11096 read getinfoPercTransf11096 write FinfoPercTransf11096;
   end;
 
   TInfoSubstPatr = class(TObject)
@@ -132,8 +138,10 @@ type
   TInfoSubstPatrOpPortItem = class(TObject)
   private
     FcnpjOpPortuario : string;
+    FcodLotacao      : string;
   public
     property cnpjOpPortuario: string read FcnpjOpPortuario write FcnpjOpPortuario;
+    property codLotacao: string read FcodLotacao write FcodLotacao;
   end;
 
   TInfoSubstPatrOpPortColecao = class(TACBrObjectList)
@@ -145,6 +153,14 @@ type
     function New: TInfoSubstPatrOpPortItem;
     property Items[Index: Integer]: TInfoSubstPatrOpPortItem read GetItem write SetItem;
   end;
+
+  TinfoPercTransf11096 = class(TObject)
+  private
+    FpercTransf: Integer;
+  public
+    property percTransf : Integer read FpercTransf write FpercTransf;
+  end;
+
 
   TInfoAtivConcom = class(TObject)
   private
@@ -159,6 +175,8 @@ implementation
 
 uses
   IniFiles,
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO,
   ACBreSocial;
 
 { TS1280Collection }
@@ -209,6 +227,7 @@ begin
   FInfoSubstPatrOpPort := nil;
   FInfoSubstPatr       := nil;
   FInfoAtivConcom      := nil;
+  FinfoPercTransf11096 := nil;
 end;
 
 destructor TEvtInfoComplPer.Destroy;
@@ -218,6 +237,7 @@ begin
   FInfoSubstPatr.Free;
   FInfoSubstPatrOpPort.Free;
   FInfoAtivConcom.Free;
+  FinfoPercTransf11096.Free;
 
   inherited;
 end;
@@ -230,6 +250,19 @@ begin
   Gerador.wCampo(tcDe2, '', 'fator13',  1, 5, 1, InfoAtivConcom.fator13);
 
   Gerador.wGrupo('/infoAtivConcom');
+end;
+
+procedure TEvtInfoComplPer.GerarinfoPercTransf11096;
+begin
+  if VersaoDF > ve02_05_00 then
+  begin
+     Gerador.wGrupo('infoPercTransf11096');
+
+     Gerador.wCampo(tcStr, '', 'percTransf', 1, 1, 1, infoPercTransf11096.percTransf);
+
+     Gerador.wGrupo('/infoPercTransf11096');
+  end;
+
 end;
 
 procedure TEvtInfoComplPer.GerarInfoSubstPatr;
@@ -256,7 +289,10 @@ begin
 
     Gerador.wGrupo('infoSubstPatrOpPort');
 
-    Gerador.wCampo(tcStr, '', 'cnpjOpPortuario', 14, 14, 1, objInfoSubstPatrOpPortItem.cnpjOpPortuario);
+    if VersaoDF <= ve02_05_00 then
+      Gerador.wCampo(tcStr, '', 'cnpjOpPortuario', 14, 14, 1, objInfoSubstPatrOpPortItem.cnpjOpPortuario)
+    else
+      Gerador.wCampo(tcStr, '', 'codLotacao ', 30, 30, 1, objInfoSubstPatrOpPortItem.codLotacao);
 
     Gerador.wGrupo('/infoSubstPatrOpPort');
   end;
@@ -284,6 +320,8 @@ begin
       GerarInfoSubstPatrOpPort;
     if (infoAtivConcomInst) then
       GerarInfoAtivConcom;
+    if (infoPercTransf11096Inst) then
+      GerarinfoPercTransf11096;
 
     Gerador.wGrupo('/evtInfoComplPer');
 
@@ -307,6 +345,13 @@ begin
   Result := FInfoAtivConcom;
 end;
 
+function TEvtInfoComplPer.getinfoPercTransf11096: TinfoPercTransf11096;
+begin
+  if not (Assigned(FinfoPercTransf11096)) then
+    FinfoPercTransf11096 := TinfoPercTransf11096.Create;
+  Result := FinfoPercTransf11096;
+end;
+
 function TEvtInfoComplPer.getInfoSubstPatr: TInfoSubstPatr;
 begin
   if not (Assigned(FInfoSubstPatr)) then
@@ -324,6 +369,11 @@ end;
 function TEvtInfoComplPer.infoAtivConcomInst: Boolean;
 begin
   Result := Assigned(FInfoAtivConcom);
+end;
+
+function TEvtInfoComplPer.infoPercTransf11096Inst: Boolean;
+begin
+   Result := Assigned(FinfoPercTransf11096);
 end;
 
 function TEvtInfoComplPer.infoSubstPatrInst: Boolean;

@@ -38,6 +38,46 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+31/05/2022
+-- pcnGerador --
+[+] Inclusão do tipo tcDe5 para geração de campos decimais com 5 casas decimais.
+  Por: Centrodata Sistemas
+
+13/05/2022
+-- pcnConversao --
+[+] Inclusão dos métodos: TipoViaTranspToDescricao e TipoIntermedioToDescricao.
+  Por: Marcelo Calvi Belanga
+
+12/05/2022
+-- pcnConversao --
+[*] Ajuste em diversos métodos de conversão para permitir valores vazios.
+  Por: Marcelo Calvi Belanga/Italo Giurizzato Junior
+
+12/04/2022
+-- pcnAuxiliar --
+[*] Atualização da tabela de países no método "ValidarCodigoPais".
+  Por: BigWings
+
+29/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
+27/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
+25/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
+14/03/2022
+-- pcnConversao --
+[*] Novos enumerados visando os novos eventos do MDF-e.
+  Por: Italo Giurizzato Junior
+
 28/10/2021
 -- pcnConversao --
 [*] Ajuste nos métodos de conversão dos enumerados "TpcnOrigemMercadoria", 

@@ -329,8 +329,10 @@ procedure ACBrAboutDialog ;
 
 implementation
 
-Uses
-  ACBrUtil, DateUtils, Math ;
+uses
+  DateUtils, Math,
+  ACBrUtil.Strings,
+  ACBrUtil.Math;
 
 procedure ACBrAboutDialog ;
   var Msg : String ;

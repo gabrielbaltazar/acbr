@@ -73,8 +73,10 @@ type
     FCidade: String;
     FUF: String;
     FSituacao: String;
+    FSituacaoEspecial : String;
     FCNPJ: String;
     FDataSituacao: TDateTime;
+    FDataSituacaoEspecial : TDateTime;
     FEndEletronico: String;
     FTelefone: String;
     FEFR: string;  //ENTE FEDERATIVO RESPONSÁVEL (EFR)
@@ -110,7 +112,9 @@ type
     property Cidade: String Read FCidade;
     property UF: String Read FUF;
     property Situacao: String Read FSituacao;
+    property SituacaoEspecial: String Read FSituacaoEspecial;
     property DataSituacao: TDateTime Read FDataSituacao;
+    property DataSituacaoEspecial : TDatetime Read FDataSituacaoEspecial;
     property NaturezaJuridica: String Read FNaturezaJuridica;
     property EndEletronico: string read FEndEletronico;
     property Telefone: String read FTelefone;
@@ -126,7 +130,10 @@ implementation
 uses
   strutils,
   blcksock, synautil,
-  ACBrUtil, ACBrValidador;
+  ACBrUtil.Strings,
+  ACBrUtil.DateTime,
+  ACBrUtil.XMLHTML,
+  ACBrValidador;
 
 (*function TACBrConsultaCNPJ.GetCaptchaURL : String ;
 var
@@ -278,11 +285,14 @@ begin
     FCEP          := OnlyNumber( LerCampo(Resposta,'CEP') ) ;
     if FCEP <> '' then
       FCEP        := copy(FCEP,1,5)+'-'+copy(FCEP,6,3) ;
+
     FBairro       := LerCampo(Resposta,'BAIRRO/DISTRITO');
     FCidade       := LerCampo(Resposta,ACBrStr('MUNICÍPIO'));
     FUF           := LerCampo(Resposta,'UF');
     FSituacao     := LerCampo(Resposta,ACBrStr('SITUAÇÃO CADASTRAL'));
+    FSituacaoEspecial     := LerCampo(Resposta,ACBrStr('SITUAÇÃO ESPECIAL'));
     FDataSituacao := StringToDateTimeDef(LerCampo(Resposta,ACBrStr('DATA DA SITUAÇÃO CADASTRAL')),0);
+    FDataSituacaoEspecial := StringToDateTimeDef(LerCampo(Resposta,ACBrStr('DATA DA SITUAÇÃO ESPECIAL')),0);
     FNaturezaJuridica := LerCampo(Resposta,ACBrStr('CÓDIGO E DESCRIÇÃO DA NATUREZA JURÍDICA'));
     FEndEletronico:= LerCampo(Resposta, ACBrStr('ENDEREÇO ELETRÔNICO'));
     if Trim(FEndEletronico) = 'TELEFONE' then
@@ -297,14 +307,14 @@ begin
       if trim(StrAux) = '' then
         Break;
 
-      FCNAE2.Add(ACBrUtil.RemoverEspacosDuplos(StrAux));
+      FCNAE2.Add(RemoverEspacosDuplos(StrAux));
 
       repeat
         StrAux := LerCampo(Resposta, StrAux);
         if trim(StrAux) = '' then
           Break;
 
-        FCNAE2.Add(ACBrUtil.RemoverEspacosDuplos(StrAux));
+        FCNAE2.Add(RemoverEspacosDuplos(StrAux));
       until False;
     until False;
   finally
@@ -388,8 +398,10 @@ begin
   FCidade           := '';
   FUF               := '';
   FSituacao         := '';
+  FSituacaoEspecial := '';
   FCNPJ             := '';
   FDataSituacao     := 0;
+  FDataSituacaoEspecial     := 0;
   FEndEletronico    := '';
   FTelefone         := '';
   FEFR              := '';

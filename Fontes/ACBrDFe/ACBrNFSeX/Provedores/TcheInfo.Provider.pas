@@ -49,6 +49,7 @@ type
     function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderTcheInfo204 = class (TACBrNFSeProviderABRASFv2)
@@ -64,7 +65,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, TcheInfo.GravarXml, TcheInfo.LerXml;
 
 { TACBrNFSeProviderTcheInfo204 }
@@ -167,6 +169,15 @@ begin
                      Request,
                      ['Outputxml', 'GerarNfseResposta'],
                      ['xmlns:nfse="http://www.abrasf.org.br/nfse.xsd"']);
+end;
+
+function TACBrNFSeXWebserviceTcheInfo204.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 function TACBrNFSeXWebserviceTcheInfo204.ConsultarNFSePorRps(ACabecalho,

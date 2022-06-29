@@ -381,7 +381,7 @@ begin
             Gerador.wCampo(tcStr, 'AP46', 'UnidadeDeMedidaDaMercadoria       ', 01, 01, 1, TpUnMedMercToStr(UnidadeDeMedidaDaMercadoria));
             Gerador.wCampo(tcStr, 'AP47', 'TipoDeCalculo                     ', 01, 01, 1, TpVgTipoCalculoToStr(TipoDeCalculo));
             Gerador.wCampo(tcDe4, 'AP48', 'ValorDoFretePorUnidadeDeMercadoria', 01, 01, 1, ValorDoFretePorUnidadeDeMercadoria);
-            Gerador.wCampo(tcDe2, 'AP49', 'QuantidadeDaMercadoriaNoEmbarque  ', 01, 01, 1, QuantidadeDaMercadoriaNoEmbarque);
+            Gerador.wCampo(tcDe5, 'AP49', 'QuantidadeDaMercadoriaNoEmbarque  ', 01, 01, 1, QuantidadeDaMercadoriaNoEmbarque);
 
             if CIOT.AdicionarOperacao.TipoViagem <> TAC_Agregado then
             begin
@@ -1224,7 +1224,7 @@ begin
             Gerador.wCampo(tcStr, 'AP47', 'TipoDeCalculo                     ', 01, 01, 1, TpVgTipoCalculoToStr(TipoDeCalculo));
             Gerador.Prefixo := 'adic:';
             Gerador.wCampo(tcDe4, 'AP48', 'ValorDoFretePorUnidadeDeMercadoria', 01, 01, 1, ValorDoFretePorUnidadeDeMercadoria);
-            Gerador.wCampo(tcDe4, 'AP49', 'QuantidadeDaMercadoriaNoEmbarque  ', 01, 01, 1, QuantidadeDaMercadoriaNoEmbarque);
+            Gerador.wCampo(tcDe5, 'AP49', 'QuantidadeDaMercadoriaNoEmbarque  ', 01, 01, 1, QuantidadeDaMercadoriaNoEmbarque);
 
             if ToleranciaDePerdaDeMercadoria.Valor > 0 then
             begin
@@ -1467,8 +1467,8 @@ begin
               Gerador.wCampo(tcStr, 'AP46', 'UnidadeDeMedidaDaMercadoria        ', 01, 01, 1, TpUnMedMercToStr(UnidadeDeMedidaDaMercadoria));
               Gerador.wCampo(tcStr, 'AP47', 'TipoDeCalculo                      ', 01, 01, 1, TpVgTipoCalculoToStr(TipoDeCalculo));
               Gerador.wCampo(tcDe4, 'AP48', 'ValorDoFretePorUnidadeDeMercadoria ', 01, 01, 1, ValorDoFretePorUnidadeDeMercadoria);
-              Gerador.wCampo(tcDe4, 'AP49', 'QuantidadeDaMercadoriaNoEmbarque   ', 01, 01, 1, QuantidadeDaMercadoriaNoEmbarque);
-              Gerador.wCampo(tcDe4, 'AP49', 'QuantidadeDaMercadoriaNoDesembarque', 01, 01, 1, QuantidadeDaMercadoriaNoDesembarque);
+              Gerador.wCampo(tcDe5, 'AP49', 'QuantidadeDaMercadoriaNoEmbarque   ', 01, 01, 1, QuantidadeDaMercadoriaNoEmbarque);
+              Gerador.wCampo(tcDe5, 'AP49', 'QuantidadeDaMercadoriaNoDesembarque', 01, 01, 1, QuantidadeDaMercadoriaNoDesembarque);
 
               if ToleranciaDePerdaDeMercadoria.Valor > 0 then
               begin
@@ -1753,7 +1753,7 @@ begin
           if TipoViagem <> TAC_Agregado then
           begin
             Gerador.wCampo(tcInt, 'AP09', 'CodigoNCMNaturezaCarga', 01, 04, 1, CodigoNCMNaturezaCarga);
-            Gerador.wCampo(tcDe2, 'AP10', 'PesoCarga             ', 01, 01, 1, PesoCarga);
+            Gerador.wCampo(tcDe5, 'AP10', 'PesoCarga             ', 01, 01, 1, PesoCarga);
             Gerador.wCampo(tcStr, 'AP11', 'TipoEmbalagem         ', 01, 01, 1, TipoEmbalagemToStr(TipoEmbalagem));
           end;
 
@@ -1865,7 +1865,7 @@ begin
           //Gerador.wCampo(tcDat, 'WP07', 'DataInicioViagem           ', 01, 01, 1, DataInicioViagem);
           //Gerador.wCampo(tcDat, 'WP06', 'DataFimViagem              ', 01, 01, 1, DataFimViagem);
           //Gerador.wCampo(tcInt, 'WP05', 'CodigoNCMNaturezaCarga     ', 01, 04, 1, CodigoNCMNaturezaCarga);
-          //Gerador.wCampo(tcDe4, 'WP09', 'PesoCarga                  ', 01, 01, 1, PesoCarga);
+          //Gerador.wCampo(tcDe5, 'WP09', 'PesoCarga                  ', 01, 01, 1, PesoCarga);
           //Gerador.wCampo(tcInt, 'WP04', 'CodigoMunicipioOrigem      ', 01, 07, 1, CodigoMunicipioOrigem);
           //Gerador.wCampo(tcInt, 'WP03', 'CodigoMunicipioDestino     ', 01, 07, 1, CodigoMunicipioDestino);
 
@@ -1990,7 +1990,7 @@ begin
         with CIOT.EncerrarOperacao do
         begin
           Gerador.wCampo(tcStr, 'QP02', 'CodigoIdentificacaoOperacao', 01, 01, 0, CodigoIdentificacaoOperacao);
-          Gerador.wCampo(tcDe6, 'QP03', 'PesoCarga                  ', 01, 01, 1, PesoCarga);
+          Gerador.wCampo(tcDe5, 'QP03', 'PesoCarga                  ', 01, 01, 1, PesoCarga);
 
           GerarViagemEncerramento;
           GerarPagamentosEncerramento;

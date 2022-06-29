@@ -687,7 +687,13 @@ Uses
    SysUtils, IniFiles, math,
    {$IFDEF COMPILER6_UP} DateUtils, StrUtils, {$ELSE} ACBrD5,{$ENDIF}
    {$IfDef POSIX}Posix.Unistd,{$Endif}
-   ACBrConsts, ACBrECF, ACBrECFEscECF, ACBrUtil;
+   ACBrConsts, ACBrECF, ACBrECFEscECF,
+   ACBrUtil.Strings,
+   ACBrUtil.Math,
+   ACBrUtil.DateTime,
+   ACBrUtil.Base,
+   ACBrUtil.FilesIO,
+   ACBrUtil.Compatibilidade;
 
 function BematechTraduzirTag(const ATag : AnsiString) : AnsiString ;
 const

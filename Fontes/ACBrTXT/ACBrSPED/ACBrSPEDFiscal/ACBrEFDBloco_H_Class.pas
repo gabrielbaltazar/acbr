@@ -264,9 +264,22 @@ begin
           end
           else //versões vlVersao103 para trás.
           begin
-            Add( LFill('H005') +
-                 LFill( DT_INV ) +
-                 LFill( VL_INV, 0) ) ;
+
+            // Indicativo do DRCST ...
+            if (FBloco_0.Registro0000.IND_PERFIL = pfPerfilD) then
+            begin
+                strMotInv := '05';
+                Add( LFill('H005') +
+                     LFill( DT_INV ) +
+                     LFill( VL_INV, 0) +
+                     LFill( strMotInv ) ) ;
+            end
+            else
+            begin
+                Add( LFill('H005') +
+                     LFill( DT_INV ) +
+                     LFill( VL_INV, 0) ) ;
+            end;
           end;
         end;
         /// Registros FILHOS
@@ -380,10 +393,10 @@ begin
             with RegH010.RegistroH030.Items[intFor] do
             begin
               Add( LFill('H030') +
-                   LFill( VL_ICMS_OP, 0, 6 ) +
-                   LFill( VL_BC_ICMS_ST, 0, 6 ) +
-                   LFill( VL_ICMS_ST, 0, 6 ) +
-                   LFill( VL_FCP, 0, 6 ) ) ;
+                   DFill( VL_ICMS_OP, 6 ) +
+                   DFill( VL_BC_ICMS_ST, 6 ) +
+                   DFill( VL_ICMS_ST, 6 ) +
+                   DFill( VL_FCP, 6 ) ) ;
             end;
 
             RegistroH990.QTD_LIN_H := RegistroH990.QTD_LIN_H + 1;

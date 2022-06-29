@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo:                                                 }
 {                                                                              }
@@ -42,8 +42,7 @@ uses
 
 type
 
-TACBrETQModelo = (etqNenhum, etqPpla, etqPplb, etqZPLII, etqEpl2);
-
+  TACBrETQModelo = (etqNenhum, etqPpla, etqPplb, etqZPLII, etqEpl2, etqEscLabel);
 
   { TACBrETQCmdList }
 
@@ -75,6 +74,7 @@ TACBrETQModelo = (etqNenhum, etqPpla, etqPplb, etqZPLII, etqEpl2);
     function GetLimparMemoria: Boolean;
     function GetModeloStr: String;
     function GetBackFeed: TACBrETQBackFeed;
+    function GetDeteccaoEtiqueta: TACBrETQDeteccaoEtiqueta;
     function GetOrigem: TACBrETQOrigem;
     function GetPaginaDeCodigo: TACBrETQPaginaCodigo;
     function GetUnidade: TACBrETQUnidade;
@@ -83,10 +83,12 @@ TACBrETQModelo = (etqNenhum, etqPpla, etqPplb, etqZPLII, etqEpl2);
     function GetPorta: String;
     function GetDPI : TACBrETQDPI;
     function GetAvanco: Integer;
+    function GetGuilhotina: Boolean;
 
     procedure SetUnidade(const AValue: TACBrETQUnidade);
     procedure SetModelo(const Value: TACBrETQModelo);
     procedure SetBackFeed(AValue: TACBrETQBackFeed);
+    procedure SetDeteccaoEtiqueta(AValue: TACBrETQDeteccaoEtiqueta);
     procedure SetLimparMemoria(const Value: Boolean);
     procedure SetTemperatura(const Value: Integer);
     procedure SetVelocidade(const Value: Integer);
@@ -94,6 +96,7 @@ TACBrETQModelo = (etqNenhum, etqPpla, etqPplb, etqZPLII, etqEpl2);
     procedure SetPorta(const Value: String);
     procedure SetOrigem(AValue: TACBrETQOrigem);
     procedure SetAvanco(const AValue: Integer);
+    procedure SetGuilhotina(AValue: Boolean);
     procedure SetAtivo(const Value: Boolean);
     procedure SetPaginaDeCodigo(AValue: TACBrETQPaginaCodigo);
     function GetNumeroPaginaDeCodigo(APagCod: TACBrETQPaginaCodigo): word;
@@ -137,23 +140,29 @@ TACBrETQModelo = (etqNenhum, etqPpla, etqPplb, etqZPLII, etqEpl2);
           LarguraModulo: Integer = 4; ErrorLevel: Integer = 0; Tipo: Integer = 2);
 
     procedure ImprimirLinha(Vertical, Horizontal, Largura, Altura: Integer); overload;
-
     procedure ImprimirCaixa(Vertical, Horizontal, Largura, Altura,
-      EspessuraVertical, EspessuraHorizontal: Integer);
+      EspessuraVertical, EspessuraHorizontal: Integer; Canto: Integer = 0);
 
     procedure ImprimirImagem(MultiplicadorImagem, Vertical, Horizontal: Integer;
       const NomeImagem: String);
-
-    procedure CarregarImagem(aStream: TStream; const NomeImagem: String;
+    procedure CarregarImagem(aStream: TStream; var NomeImagem: String;
       Flipped: Boolean = True; const Tipo: String = ''); overload;
-
-    procedure CarregarImagem(const ArquivoImagem, NomeImagem: String;
+    procedure CarregarImagem(const ArquivoImagem: String; var NomeImagem: String;
       Flipped: Boolean = True); overload;
+    procedure ApagarImagem(const NomeImagem: String = '*');
 
-    procedure GravarLog(aString: AnsiString; Traduz: Boolean = False);
+    procedure DefinirCor(FrenteCor: Cardinal; FrenteOpacidade: Byte;
+      FundoCor: Cardinal; FundoOpacidade: Byte); overload;
+    procedure DefinirCor(FrenteR, FrenteG, FrenteB, FrenteOpacidade: Byte;
+      FundoR, FundoG, FundoB, FundoOpacidade: Byte); overload;
+    procedure DefinirCorPadrao;
+    procedure DefinirDimensoes(Largura, Altura: Integer;
+      EspacoEntreEtiquetas: Integer = -1; EspacoEsquerda: Integer = -1);
 
     procedure ComandoGravaRFIDHexaDecimal(aValue:String);
     procedure ComandoGravaRFIDASCII( aValue:String );
+
+    procedure GravarLog(aString: AnsiString; Traduz: Boolean = False);
 
     property ETQ:             TACBrETQClass    read fsETQ;
     property ListaCmd:        TACBrETQCmdList  read fsListaCmd;
@@ -172,7 +181,10 @@ TACBrETQModelo = (etqNenhum, etqPpla, etqPplb, etqZPLII, etqEpl2);
     property Origem:          TACBrETQOrigem   read GetOrigem        write SetOrigem default ogNone;
     property DPI:             TACBrETQDPI      read GetDPI           write SetDPI default dpi203;
     property Avanco:          Integer          read GetAvanco        write SetAvanco default 0;
+    property Guilhotina:      Boolean          read GetGuilhotina    write SetGuilhotina default False;
     property MargemEsquerda:  Integer          read fsMargemEsquerda write fsMargemEsquerda default 0;
+    property DeteccaoEtiqueta:TACBrETQDeteccaoEtiqueta read GetDeteccaoEtiqueta write SetDeteccaoEtiqueta default mdeGap;
+
     property OnGravarLog:     TACBrGravarLog   read fsOnGravarLog    write fsOnGravarLog;
     property ArqLOG:          String           read fsArqLOG         write fsArqLOG;
     property Porta:           String           read GetPorta         write SetPorta;
@@ -182,15 +194,68 @@ TACBrETQModelo = (etqNenhum, etqPpla, etqPplb, etqZPLII, etqEpl2);
     property Device: TACBrDevice read fsDevice;
   end;
 
+function ConverterUnidade(UnidadeEntrada: TACBrETQUnidade; ValorEntrada: Double;
+  UnidadeSaida: TACBrETQUnidade; DPI: TACBrETQDPI = dpi203): Double;
+
 implementation
 
 uses
   math, typinfo,
   {$IFDEF COMPILER6_UP} StrUtils {$ELSE} ACBrD5{$ENDIF},
-  ACBrUtil, ACBrETQPpla, ACBrETQZplII, ACBrETQEpl2
+  ACBrETQPpla, ACBrETQZplII, ACBrETQEpl2, ACBrETQEscLabel,
   {$IfDef MSWINDOWS}
-  ,ACBrWinUSBDevice
-  {$EndIf};
+  ACBrWinUSBDevice,
+  {$EndIf}
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.FilesIO;
+
+function ConverterUnidade(UnidadeEntrada: TACBrETQUnidade;
+  ValorEntrada: Double; UnidadeSaida: TACBrETQUnidade; DPI: TACBrETQDPI): Double;
+var
+  DotsMM, DotsPI: Double;
+begin
+  Result := ValorEntrada;
+  if (UnidadeSaida = UnidadeEntrada) then
+    Exit;
+
+  case DPI of
+    dpi300: DotsPI := 300;
+    dpi600: DotsPI := 600;
+  else
+    DotsPI := 203;
+  end;
+
+  // 1 Inch = 2.54 cm = 25.4 mm
+  DotsMM := DotsPI / CInchCM / 10;
+
+  case UnidadeSaida of
+    etqMilimetros:
+    begin
+      case UnidadeEntrada of
+        etqPolegadas:          Result := (ValorEntrada*10) * CInchCM;
+        etqDots:               Result := ValorEntrada / DotsMM;
+        etqDecimoDeMilimetros: Result := ValorEntrada * 10;
+      end;
+    end;
+
+    etqPolegadas:
+    begin
+      case UnidadeEntrada of
+        etqMilimetros:         Result := ((ValorEntrada/10) / CInchCM);
+        etqDots:               Result := ValorEntrada / DotsPI;
+        etqDecimoDeMilimetros: Result := ((ValorEntrada/100) / CInchCM);
+      end;
+    end;
+
+    etqDots:  // pixels
+    begin
+      case UnidadeEntrada of
+        etqMilimetros:         Result := (ValorEntrada * DotsMM);
+        etqPolegadas:          Result := (ValorEntrada * DotsPI);
+        etqDecimoDeMilimetros: Result := ((ValorEntrada/10) * DotsMM);
+      end;
+    end;
+  end;
+end;
 
 { TACBrETQCmdList }
 
@@ -265,9 +330,19 @@ begin
   Result := fsETQ.LimparMemoria;
 end;
 
+function TACBrETQ.GetGuilhotina: Boolean;
+begin
+  Result := fsETQ.Guilhotina;
+end;
+
 function TACBrETQ.GetBackFeed: TACBrETQBackFeed;
 begin
   Result := fsETQ.BackFeed;
+end;
+
+function TACBrETQ.GetDeteccaoEtiqueta: TACBrETQDeteccaoEtiqueta;
+begin
+  Result := fsETQ.DeteccaoEtiqueta;
 end;
 
 function TACBrETQ.GetOrigem: TACBrETQOrigem;
@@ -313,6 +388,11 @@ end;
 procedure TACBrETQ.SetPaginaDeCodigo(AValue: TACBrETQPaginaCodigo);
 begin
   fsETQ.PaginaDeCodigo := AValue;
+end;
+
+procedure TACBrETQ.SetDeteccaoEtiqueta(AValue: TACBrETQDeteccaoEtiqueta);
+begin
+  fsETQ.DeteccaoEtiqueta := AValue;
 end;
 
 function TACBrETQ.GetNumeroPaginaDeCodigo(APagCod: TACBrETQPaginaCodigo): word;
@@ -401,6 +481,7 @@ begin
     etqPpla:          fsETQ := TACBrETQPpla.Create(Self);
     etqPplb, etqEpl2: fsETQ := TACBrETQEpl2.Create(Self);  // EPL2 = PPLB
     etqZPLII:         fsETQ := TACBrETQZplII.Create(Self);
+    etqEscLabel:      fsETQ := TACBrETQEscLabel.Create(Self);
   else
     fsETQ := TACBrETQClass.Create(Self);
   end;
@@ -452,6 +533,11 @@ end;
 procedure TACBrETQ.SetAvanco(const AValue: Integer);
 begin
   fsETQ.Avanco := AValue;
+end;
+
+procedure TACBrETQ.SetGuilhotina(AValue: Boolean);
+begin
+  fsETQ.Guilhotina := AValue;
 end;
 
 procedure TACBrETQ.SetAtivo(const Value: Boolean);
@@ -773,7 +859,7 @@ begin
 end;
 
 procedure TACBrETQ.ImprimirCaixa(Vertical, Horizontal, Largura, Altura,
-  EspessuraVertical, EspessuraHorizontal: Integer);
+  EspessuraVertical, EspessuraHorizontal: Integer; Canto: Integer);
 var
   wCmd: AnsiString;
 begin
@@ -783,10 +869,11 @@ begin
             ', Largura:'+IntToStr(Largura)+
             ', Altura:'+IntToStr(Altura)+
             ', EspessuraVertical:'+IntToStr(EspessuraVertical)+
-            ', EspessuraHorizontal:'+IntToStr(EspessuraHorizontal));
+            ', EspessuraHorizontal:'+IntToStr(EspessuraHorizontal)+
+            ', Canto:'+IntToStr(Canto));
 
   wCmd := fsETQ.ComandoImprimirCaixa(Vertical, (Horizontal+MargemEsquerda),
-       Largura, Altura, EspessuraVertical, EspessuraHorizontal);
+       Largura, Altura, EspessuraVertical, EspessuraHorizontal, Canto);
 
   fsListaCmd.Add(wCmd);
 end;
@@ -808,7 +895,7 @@ begin
   fsListaCmd.Add(wCmd);
 end;
 
-procedure TACBrETQ.CarregarImagem(aStream: TStream; const NomeImagem: String;
+procedure TACBrETQ.CarregarImagem(aStream: TStream; var NomeImagem: String;
   Flipped: Boolean; const Tipo: String);
 var
   wCmd: AnsiString;
@@ -826,8 +913,8 @@ begin
   fsDevice.EnviaString(wCmd);
 end;
 
-procedure TACBrETQ.CarregarImagem(const ArquivoImagem, NomeImagem: String;
-  Flipped: Boolean = True);
+procedure TACBrETQ.CarregarImagem(const ArquivoImagem: String;
+  var NomeImagem: String; Flipped: Boolean);
 var
   wMS: TMemoryStream;
   wTipo: AnsiString;
@@ -843,6 +930,76 @@ begin
   finally
     wMS.Free;
   end;
+end;
+
+procedure TACBrETQ.ApagarImagem(const NomeImagem: String);
+var
+  wCmd: AnsiString;
+begin
+  GravarLog('- ApagarImagem:'+NomeImagem);
+  AtivarSeNecessario;
+
+  wCmd := fsETQ.ComandoApagarImagem(NomeImagem);
+  GravarLog(wCmd, True);
+  fsDevice.EnviaString(wCmd);
+end;
+
+procedure TACBrETQ.DefinirCor(FrenteCor: Cardinal; FrenteOpacidade: Byte;
+  FundoCor: Cardinal; FundoOpacidade: Byte);
+begin
+  GravarLog('- DefinirCor:'+
+            '  Frente:'+IntToHex(FrenteCor, 6)+
+            ', FrenteOpacidade:'+IntToStr(FrenteOpacidade)+
+            '  Fundo:'+IntToHex(FundoCor, 6)+
+            ', FundoOpacidade:'+IntToStr(FundoOpacidade) );
+
+  fsETQ.CorFrente.Color := FrenteCor;
+  fsETQ.CorFrente.Opacidade := FrenteOpacidade;
+  fsETQ.CorFundo.Color := FundoCor;
+  fsETQ.CorFundo.Opacidade := FundoOpacidade;
+end;
+
+procedure TACBrETQ.DefinirCor(FrenteR, FrenteG, FrenteB, FrenteOpacidade: Byte;
+  FundoR, FundoG, FundoB, FundoOpacidade: Byte);
+begin
+  GravarLog('- DefinirCor:'+
+            '  FrenteR:'+IntToStr(FrenteR)+
+            ', FrenteG:'+IntToStr(FrenteG)+
+            ', FrenteB:'+IntToStr(FrenteB)+
+            ', FrenteOpacidade:'+IntToStr(FrenteOpacidade)+
+            ', FundoR:'+IntToStr(FundoR)+
+            ', FundoG:'+IntToStr(FundoG)+
+            ', FundoB:'+IntToStr(FundoB)+
+            ', FundoOpacidade:'+IntToStr(FundoOpacidade) );
+
+  fsETQ.CorFrente.R := FrenteR;
+  fsETQ.CorFrente.G := FrenteG;
+  fsETQ.CorFrente.B := FrenteB;
+  fsETQ.CorFrente.Opacidade := FrenteOpacidade;
+  fsETQ.CorFundo.R := FundoR;
+  fsETQ.CorFundo.G := FundoG;
+  fsETQ.CorFundo.B := FundoB;
+  fsETQ.CorFundo.Opacidade := FundoOpacidade;
+end;
+
+procedure TACBrETQ.DefinirCorPadrao;
+begin
+  DefinirCor($000000, 255, $FFFFFF, 0);
+end;
+
+procedure TACBrETQ.DefinirDimensoes(Largura, Altura: Integer;
+  EspacoEntreEtiquetas: Integer; EspacoEsquerda: Integer);
+begin
+  GravarLog('- DefinirDimensoes:'+
+            '  Largura:'+IntToStr(Largura)+
+            ', Altura:'+IntToStr(Altura)+
+            ', EspacoEntreEtiquetas:'+IntToStr(EspacoEntreEtiquetas)+
+            ', EspacoEsquerda:'+IntToStr(EspacoEsquerda) );
+
+  fsETQ.Dimensoes.Largura := Largura;
+  fsETQ.Dimensoes.Altura := Altura;
+  fsETQ.Dimensoes.EspacoEntreEtiquetas := EspacoEntreEtiquetas;
+  fsETQ.Dimensoes.EspacoEsquerda := EspacoEsquerda;
 end;
 
 end.

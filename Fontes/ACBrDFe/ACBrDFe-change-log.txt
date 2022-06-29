@@ -39,6 +39,82 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+31/05/2022
+-- ACBrNFeNotasFiscais --
+[*] Adicionado tag cMunFG na seção Identificação da leitura do .INI, compatibilizando com a estrutura Sefaz, porém mantendo compatibilidade.
+   Por: José M S Junior
+
+25/05/2022
+-- ACBrXmlBase --
+[*] Incluida o enumerado tcDatUSA para ler datas no formato
+    MM/DD/YYYY.
+   Por: Italo Giurizzato Junior
+
+29/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
+25/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
+23/03/2022
+-- ACBrXmlBase --
+[*] Incluida a remoção do caracter "T" na função:
+    EncodeDataHora.
+   Por: Renato Rubinho
+
+16/03/2022
+-- ACBrXmlBase --
+[*] Incluida a remoção dos caracteres #10 e #13 na função:
+    RemoverCaracteresDesnecessarios.
+   Por: Italo Giurizzato Junior
+
+15/03/2022
+-- ACBrXmlBase --
+[+] Inclusão da função EncodeDataHora que tem por finalidade converter uma 
+    data/hora em string em TDateTime.
+   Por: Italo Giurizzato Junior
+
+10/03/2022
+-- ACBrXmlBase --
+[-] Correção na leitura de horário que retorna hora com apenas 1 digito em vez de 2.
+   Por: Italo Giurizzato Junior
+
+04/03/2022
+-- ACBrXmlWrite --
+[*] Especificado um valor padrão para a quebra de linha.
+   Por: Italo Giurizzato Junior
+-- ACBrXmlBase --
+[*] Melhorias na leitura de datas e checagem de horarios no formato 24h e 12h (PM/AM).
+   Por: Italo Giurizzato Junior
+
+02/03/2022
+-- ACBrXmlBase --
+[-] Correção na leitura de uma data no formato AAAA/MM/DD estava lento /D em 
+    vez de DD.
+   Por: Italo Giurizzato Junior
+
+28/02/2022
+-- ACBrXmlBase --
+[*] Incluido mais sequencia de Escape a serem removidos do XML na função:
+    RemoverCaracteresDesnecessarios.
+   Por: Italo Giurizzato Junior
+
+28/01/2022
+-- ACBrXmlBase --
+[+] Criado o tipo TACBrTipoEncoding e a função TipoEncoding com
+    a finalidade de identificar o Encoding do XML.
+   Por: Italo Giurizzato Junior
+
+21/01/2022
+-- ACBrXmlBase --
+[*] A função LerDatas não estava previso uma data no formato AAAAMMDD.
+    Ajuste foi feito para reconhecer esse formato também.
+   Por: Italo Giurizzato Junior
+
 13/01/2022
 -- ACBrXmlBase --
 [+] Inclusão do tipo: TACBrTipoEmissao e das funções:TipoEmissaoToStr,

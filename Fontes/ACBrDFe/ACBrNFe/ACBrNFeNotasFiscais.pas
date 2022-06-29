@@ -190,7 +190,10 @@ implementation
 uses
   dateutils, IniFiles,
   synautil,
-  ACBrNFe, ACBrUtil, ACBrDFeUtil, pcnConversaoNFe;
+  ACBrNFe,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.XMLHTML, ACBrUtil.FilesIO,
+  ACBrUtil.DateTime, ACBrUtil.Math,
+  ACBrDFeUtil, pcnConversaoNFe;
 
 { NotaFiscal }
 
@@ -1362,7 +1365,7 @@ begin
       AdicionaErro('534-Rejeição: Total do ICMS-ST difere do somatório dos itens');
 
     GravaLog('Validar: 564-Total Produto/Serviço');
-    if (NFe.Total.ICMSTot.vProd <> fsvProd) then
+    if (ComparaValor(NFe.Total.ICMSTot.vProd, fsvProd, 0.009) <> 0) then
       AdicionaErro('564-Rejeição: Total do Produto / Serviço difere do somatório dos itens');
 
     GravaLog('Validar: 535-Total Frete');
@@ -1428,7 +1431,7 @@ begin
     if not NFImportacao and
        (NFe.Total.ICMSTot.vNF <> fsvNF) then
     begin
-      if (NFe.Total.ICMSTot.vNF <> (fsvNF+fsvICMSDeson)) then
+      if (ComparaValor(NFe.Total.ICMSTot.vNF, (fsvNF + fsvICMSDeson), 0.009) <> 0) then
         AdicionaErro('610-Rejeição: Total da NF difere do somatório dos Valores compõe o valor Total da NF.');
     end;
 
@@ -1575,7 +1578,7 @@ begin
 
     with FNFe do
     begin
-      infNFe.versao := StringToFloatDef( INIRec.ReadString('infNFe','versao', VersaoDFToStr(FConfiguracoes.Geral.VersaoDF)), 0);
+      infNFe.versao := StringToFloatDef(INIRec.ReadString('infNFe','versao', INIRec.ReadString('infNFe','Versao', VersaoDFToStr(FConfiguracoes.Geral.VersaoDF))), 0);
 
       //versao      := FloatToString(infNFe.versao,'.','#0.00'); // Não está sendo utilizado...
       sSecao      := IfThen( INIRec.SectionExists('Identificacao'), 'Identificacao', 'ide');
@@ -1605,6 +1608,7 @@ begin
       Ide.verProc  := INIRec.ReadString(  sSecao, 'verProc' ,'ACBrNFe');
       Ide.dhCont   := StringToDateTime(INIRec.ReadString( sSecao,'dhCont'  ,'0'));
       Ide.xJust    := INIRec.ReadString(  sSecao,'xJust' ,'' );
+      Ide.cMunFG   := INIRec.ReadInteger( sSecao,'cMunFG', 0);
 
       I := 1;
       while true do
@@ -1696,7 +1700,8 @@ begin
       Emit.EnderEmit.fone    := INIRec.ReadString(  sSecao,'Fone'    ,'');
 
       Ide.cUF    := INIRec.ReadInteger( sSecao,'cUF'       ,UFparaCodigo(Emit.EnderEmit.UF));
-      Ide.cMunFG := INIRec.ReadInteger( sSecao,'cMunFG' ,INIRec.ReadInteger( sSecao,'CidadeCod' ,Emit.EnderEmit.cMun));
+      if (Ide.cMunFG = 0) then
+        Ide.cMunFG := INIRec.ReadInteger( sSecao,'cMunFG' ,INIRec.ReadInteger( sSecao,'CidadeCod' ,Emit.EnderEmit.cMun));
 
       if INIRec.ReadString( 'Avulsa', 'CNPJ', '') <> '' then
       begin
@@ -2326,6 +2331,15 @@ begin
               end;
             end;
           end;
+
+
+          sSecao := 'obsContItem' + IntToStrZero(I, 3);
+          obsCont.xCampo := INIRec.ReadString(sSecao,'xCampo', '');
+          obsCont.xTexto := INIRec.ReadString(sSecao,'xTexto', '');
+
+          sSecao := 'obsFiscoItem' + IntToStrZero(I, 3);
+          obsFisco.xCampo := INIRec.ReadString(sSecao,'xCampo', '');
+          obsFisco.xTexto := INIRec.ReadString(sSecao,'xTexto', '');
         end;
 
         Inc( I );
@@ -2570,7 +2584,8 @@ begin
         with InfAdic.procRef.New do
         begin
           nProc := sAdittionalField;
-          indProc := StrToindProc(OK,INIRec.ReadString( sSecao,'indProc','0'));
+          indProc := StrToindProc(OK, INIRec.ReadString( sSecao, 'indProc', '0'));
+          tpAto := StrTotpAto(OK, INIRec.ReadString( sSecao, 'tpAto', ''));
         end;
 
         Inc(I);
@@ -3278,6 +3293,20 @@ begin
               end;
             end;
           end;
+
+          if (obsCont.xTexto <> '') then
+          begin
+            sSecao := 'obsContItem' + IntToStrZero(I + 1, 3);
+            INIRec.WriteString(sSecao, 'xCampo', obsCont.xCampo);
+            INIRec.WriteString(sSecao, 'xTexto', obsCont.xTexto);
+          end;
+
+          if (obsFisco.xTexto <> '') then
+          begin
+            sSecao := 'obsFiscoItem' + IntToStrZero(I + 1, 3);
+            INIRec.WriteString(sSecao, 'xCampo', obsFisco.xCampo);
+            INIRec.WriteString(sSecao, 'xTexto', obsFisco.xTexto);
+          end;
         end;
       end;
 
@@ -3444,6 +3473,7 @@ begin
         begin
           INIRec.WriteString(sSecao, 'nProc', nProc);
           INIRec.WriteString(sSecao, 'indProc', indProcToStr(indProc));
+          INIRec.WriteString(sSecao, 'tpAto', tpAtoToStr(tpAto));
         end;
       end;
 
@@ -3957,16 +3987,21 @@ end;
 function TNotasFiscais.ValidarRegrasdeNegocios(out Erros: String): Boolean;
 var
   i: integer;
+  msg: ShortString;
 begin
   Result := True;
   Erros := '';
+  msg := '';
 
   for i := 0 to Self.Count - 1 do
   begin
     if not Self.Items[i].ValidarRegrasdeNegocios then
     begin
       Result := False;
-      Erros := Erros + Self.Items[i].ErroRegrasdeNegocios + sLineBreak;
+      msg := Self.Items[i].ErroRegrasdeNegocios;
+
+      if Pos(msg, Erros) <= 0 then
+        Erros := Erros + Self.Items[i].ErroRegrasdeNegocios + sLineBreak;
     end;
   end;
 end;

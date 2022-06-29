@@ -99,8 +99,8 @@ type
 implementation
 
 uses
-  strutils, math,
-  ACBrUtil, ACBrImage, ACBrConsts;
+  StrUtils, Math, ACBrImage, ACBrConsts,
+  ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrUtil.Math;
 
 function ComandoCodBarrasEscPosEpson(const ATag: String; ACodigo: AnsiString;
   const AMostrarCodigo: Boolean; const AAltura, ALarguraLinha: Integer): AnsiString;
@@ -791,10 +791,14 @@ var
   end;
 
 begin
-  Info := '';
+  Result := '';
 
   // Lendo o Fabricante
   Ret := fpPosPrinter.TxRx( GS + 'IB', 0, 500, True );
+  if (Ret = '') and (not (Self is TACBrEscPosEpson)) then   // Nem todas GPrinter`s suportam leitura de Info
+    Exit;
+
+  Info := '';
   AddInfo(cKeyFabricante, Ret);
 
   // Lendo a versão do Firmware

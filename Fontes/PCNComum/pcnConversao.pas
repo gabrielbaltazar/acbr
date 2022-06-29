@@ -138,7 +138,8 @@ type
                   teInclusaoDFe, teAutorizadoSubstituicao, teAutorizadoAjuste,
                   teLiberacaoPrazoCancelado, tePagamentoOperacao, teExcessoBagagem,
                   teEncerramentoFisco, teComprEntregaNFe, teCancComprEntregaNFe,
-                  teAtorInteressadoNFe, teComprEntregaCTe, teCancComprEntregaCTe);
+                  teAtorInteressadoNFe, teComprEntregaCTe, teCancComprEntregaCTe,
+                  teConfirmaServMDFe, teAlteracaoPagtoServMDFe);
 
   TpcnIndicadorEmissor = (ieTodos, ieRaizCNPJDiferente);
   TpcnIndicadorContinuacao = (icNaoPossuiMaisDocumentos, icPossuiMaisDocumentos);
@@ -216,7 +217,7 @@ type
   end;
 
 const
-  TpcnTpEventoString : array[0..68] of String =('-99999', '110110', '110111',
+  TpcnTpEventoString : array[0..70] of String =('-99999', '110110', '110111',
                                                 '210200', '210210', '210220',
                                                 '210240', '110112', '110113',
                                                 '110114', '110160', '310620',
@@ -238,7 +239,8 @@ const
                                                 '110115', '240140', '240150',
                                                 '240170', '110116', '110117',
                                                 '310112', '110130', '110131',
-                                                '110150', '610130', '610131');
+                                                '110150', '610130', '610131',
+                                                '110117', '110118');
 
   DFeUF: array[0..26] of String =
   ('AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA',
@@ -377,8 +379,10 @@ function indIEDestToStr(const t: TpcnindIEDest ): string;
 function StrToindIEDest(out ok: boolean; const s: string): TpcnindIEDest;
 function TipoViaTranspToStr(const t: TpcnTipoViaTransp ): string;
 function StrToTipoViaTransp(out ok: boolean; const s: string): TpcnTipoViaTransp;
+function TipoViaTranspToDescricao(const t: TpcnTipoViaTransp): string;
 function TipoIntermedioToStr(const t: TpcnTipoIntermedio ): string;
 function StrToTipoIntermedio(out ok: boolean; const s: string): TpcnTipoIntermedio;
+function TipoIntermedioToDescricao(const t: TpcnTipoIntermedio ): string;
 function indISSRetToStr(const t: TpcnindISSRet ): string;
 function StrToindISSRet(out ok: boolean; const s: string): TpcnindISSRet;
 function indISSToStr(const t: TpcnindISS ): string;
@@ -889,9 +893,10 @@ function modBCSTToStrTagPosText(const t: TpcnDeterminacaoBaseIcmsST): string;
 begin
   result := EnumeradoToStr(t, ['0 - Preço tabelado ou máximo sugerido', '1 - Lista Negativa (valor)',
    '2 - Lista Positiva (valor)', '3 - Lista Neutra (valor)',
-   '4 - Margem Valor Agregado (%)', '5 - Pauta (valor)', '6 - Valor da Operação'],
+   '4 - Margem Valor Agregado (%)', '5 - Pauta (valor)', '6 - Valor da Operação', ''],
     [dbisPrecoTabelado, dbisListaNegativa, dbisListaPositiva, dbisListaNeutra,
-     dbisMargemValorAgregado, dbisPauta, dbisValordaOperacao]);
+     dbisMargemValorAgregado, dbisPauta, dbisValordaOperacao,
+     TpcnDeterminacaoBaseIcmsST(-1)]);
 end;
 
 function modBCSTToStr(const t: TpcnDeterminacaoBaseIcmsST): string;
@@ -903,16 +908,18 @@ begin
   // 4 - Margem Valor Agregado (%);
   // 5 - Pauta (valor);
   // 6 - Valor da Operação
-  result := EnumeradoToStr(t, ['0', '1', '2', '3', '4', '5', '6'],
+  result := EnumeradoToStr(t, ['0', '1', '2', '3', '4', '5', '6', ''],
     [dbisPrecoTabelado, dbisListaNegativa, dbisListaPositiva, dbisListaNeutra,
-     dbisMargemValorAgregado, dbisPauta, dbisValordaOperacao]);
+     dbisMargemValorAgregado, dbisPauta, dbisValordaOperacao,
+     TpcnDeterminacaoBaseIcmsST(-1)]);
 end;
 
 function StrTomodBCST(out ok: boolean; const s: string): TpcnDeterminacaoBaseIcmsST;
 begin
-  result := StrToEnumerado(ok, s, ['0', '1', '2', '3', '4', '5', '6'],
+  result := StrToEnumerado(ok, s, ['0', '1', '2', '3', '4', '5', '6', ''],
     [dbisPrecoTabelado, dbisListaNegativa, dbisListaPositiva, dbisListaNeutra,
-     dbisMargemValorAgregado, dbisPauta, dbisValordaOperacao]);
+     dbisMargemValorAgregado, dbisPauta, dbisValordaOperacao,
+     TpcnDeterminacaoBaseIcmsST(-1)]);
 end;
 
 // N28 - Motivo da desoneração do ICMS ***************************
@@ -935,20 +942,24 @@ begin
     // 11 – Deficiente não Condutor (Convênio ICMS 38/12). (v3.1)
     // 12 - Orgão Fomento
     // 16 - Olimpiadas Rio 2016
-  result := EnumeradoToStr(t, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '16', '90'],
+  result := EnumeradoToStr(t, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+                               '11', '12', '16', '90', ''],
     [mdiTaxi, mdiDeficienteFisico, mdiProdutorAgropecuario, mdiFrotistaLocadora,
      mdiDiplomaticoConsular, mdiAmazoniaLivreComercio, mdiSuframa, mdiVendaOrgaosPublicos,
      mdiOutros, mdiDeficienteCondutor, mdiDeficienteNaoCondutor, mdiOrgaoFomento,
-     mdiOlimpiadaRio2016, mdiSolicitadoFisco]);
+     mdiOlimpiadaRio2016, mdiSolicitadoFisco,
+     TpcnMotivoDesoneracaoICMS(-1)]);
 end;
 
 function StrTomotDesICMS(out ok: boolean; const s: string): TpcnMotivoDesoneracaoICMS;
 begin
-  result := StrToEnumerado(ok, s, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '16', '90'],
+  result := StrToEnumerado(ok, s, ['1', '2', '3', '4', '5', '6', '7', '8', '9',
+                                   '10', '11', '12', '16', '90', ''],
     [mdiTaxi, mdiDeficienteFisico, mdiProdutorAgropecuario, mdiFrotistaLocadora,
      mdiDiplomaticoConsular, mdiAmazoniaLivreComercio, mdiSuframa, mdiVendaOrgaosPublicos,
      mdiOutros, mdiDeficienteCondutor, mdiDeficienteNaoCondutor, mdiOrgaoFomento,
-     mdiOlimpiadaRio2016, mdiSolicitadoFisco]);
+     mdiOlimpiadaRio2016, mdiSolicitadoFisco,
+     TpcnMotivoDesoneracaoICMS(-1)]);
 end;
 
 // CST IPI *********************************************************************
@@ -1523,6 +1534,26 @@ begin
                                    tvEntradaSaidaFicta, tvCourier, tvEmMaos, tvPorReboque]);
 end;
 
+function TipoViaTranspToDescricao(const t: TpcnTipoViaTransp): string;
+begin
+  result := EnumeradoToStr(t, ['01 - Marítima',
+                               '02 - Fluvial',
+                               '03 - Lacustre',
+                               '04 - Aérea',
+                               '05 - Postal',
+                               '06 - Ferroviária',
+                               '07 - Rodoviária',
+                               '08 - Conduto / Rede Transmissão',
+                               '09 - Meios Próprios',
+                               '10 - Entrada / Saída ficta',
+                               '11 - Courier',
+                               '12 - Em mãos',
+                               '13 - Por reboque'],
+                              [tvMaritima, tvFluvial, tvLacustre, tvAerea, tvPostal,
+                               tvFerroviaria, tvRodoviaria, tvConduto, tvMeiosProprios,
+                               tvEntradaSaidaFicta, tvCourier, tvEmMaos, tvPorReboque]);
+end;
+
 function TipoIntermedioToStr(const t: TpcnTipoIntermedio ): string;
 begin
   result := EnumeradoToStr(t, ['1', '2', '3'],
@@ -1533,6 +1564,14 @@ function StrToTipoIntermedio(out ok: boolean; const s: string): TpcnTipoIntermed
 begin
   result := StrToEnumerado(ok, s, ['1', '2', '3'],
                                   [tiContaPropria, tiContaOrdem, tiEncomenda]);
+end;
+
+function TipoIntermedioToDescricao(const t: TpcnTipoIntermedio): string;
+begin
+  result := EnumeradoToStr(t, ['1 - Importação por conta própria',
+                               '2 - Importação por conta e ordem',
+                               '3 - Importação por encomenda'],
+                              [tiContaPropria, tiContaOrdem, tiEncomenda]);
 end;
 
 function indISSRetToStr(const t: TpcnindISSRet ): string;
@@ -1762,11 +1801,13 @@ begin
 result := EnumeradoToStr(t, ['1 – Táxi', '2 – Deficiente Físico', '3 – Produtor Agropecuário',
   '4 – Frotista/Locadora', '5 – Diplomático/Consular', '6 - Utilit./Motos da Am./Áreas Livre Com.',
   '7 – SUFRAMA', '8 – Venda a Orgãos Publicos', '9 – Outros', '10 – Deficiente Condutor',
-  '11 – Deficiente não Condutor', '12 - Orgão Fomento', '16 - Olimpiadas Rio 2016', '90 - Solicitado pelo Fisco'],
+  '11 – Deficiente não Condutor', '12 - Orgão Fomento', '16 - Olimpiadas Rio 2016',
+  '90 - Solicitado pelo Fisco', ''],
   [mdiTaxi, mdiDeficienteFisico, mdiProdutorAgropecuario, mdiFrotistaLocadora,
    mdiDiplomaticoConsular, mdiAmazoniaLivreComercio, mdiSuframa, mdiVendaOrgaosPublicos,
    mdiOutros, mdiDeficienteCondutor, mdiDeficienteNaoCondutor, mdiOrgaoFomento,
-   mdiOlimpiadaRio2016, mdiSolicitadoFisco]);
+   mdiOlimpiadaRio2016, mdiSolicitadoFisco,
+   TpcnMotivoDesoneracaoICMS(-1)]);
 end;
 
 function ISSQNcSitTribToStrTagPosText(const t: TpcnISSQNcSitTrib): string;

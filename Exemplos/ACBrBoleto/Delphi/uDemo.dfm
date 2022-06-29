@@ -11,7 +11,6 @@ object frmDemo: TfrmDemo
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object PageControl1: TPageControl
     AlignWithMargins = True
@@ -338,7 +337,7 @@ object frmDemo: TfrmDemo
         Top = 231
         Width = 779
         Height = 157
-        ActivePage = TabSheet4
+        ActivePage = TabSheet5
         TabOrder = 5
         object TabSheet5: TTabSheet
           Caption = 'Pagador'
@@ -665,7 +664,7 @@ object frmDemo: TfrmDemo
       object GroupBox6: TGroupBox
         Left = 186
         Top = 417
-        Width = 459
+        Width = 596
         Height = 61
         Caption = 'Impress'#227'o / Email '
         TabOrder = 6
@@ -688,7 +687,7 @@ object frmDemo: TfrmDemo
           OnClick = btnImpressaoPDFClick
         end
         object btnImpressaoSpooler: TButton
-          Left = 345
+          Left = 467
           Top = 20
           Width = 98
           Height = 25
@@ -697,7 +696,7 @@ object frmDemo: TfrmDemo
           OnClick = btnImpressaoSpoolerClick
         end
         object btnEnviarEmail: TButton
-          Left = 164
+          Left = 286
           Top = 20
           Width = 75
           Height = 25
@@ -706,13 +705,22 @@ object frmDemo: TfrmDemo
           OnClick = btnEnviarEmailClick
         end
         object btnImpressaoStream: TButton
-          Left = 243
+          Left = 365
           Top = 20
           Width = 98
           Height = 25
           Caption = 'Imprimir Stream'
           TabOrder = 4
           OnClick = btnImpressaoStreamClick
+        end
+        object btnImpressaoPDFIndividual: TButton
+          Left = 163
+          Top = 20
+          Width = 122
+          Height = 25
+          Caption = 'Gerar PDF Individual'
+          TabOrder = 5
+          OnClick = btnImpressaoPDFIndividualClick
         end
       end
     end
@@ -1412,17 +1420,8 @@ object frmDemo: TfrmDemo
       OnClick = btnConfigGravarClick
     end
   end
-  object flpndlgRetorno: TFileOpenDialog
-    FavoriteLinks = <>
-    FileTypes = <
-      item
-        DisplayName = ''
-        FileMask = '*.txt'
-      end
-      item
-        DisplayName = ''
-        FileMask = '*.ret'
-      end>
+  object flpndlgRetorno: TOpenDialog
+    Filter = '*.txt|*.txt|*.ret|*.ret|*.*|*.*'
     Options = []
     Left = 879
     Top = 459

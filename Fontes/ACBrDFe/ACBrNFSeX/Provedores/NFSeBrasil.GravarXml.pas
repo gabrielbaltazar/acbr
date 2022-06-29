@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   pcnConsts,
   ACBrNFSeXConsts, ACBrNFSeXConversao,
@@ -61,6 +60,9 @@ type
   end;
 
 implementation
+
+uses
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -178,6 +180,10 @@ begin
     begin
       Result.AppendChild(GerarIdentificacaoTomador);
     end;
+
+    // Envio de nome com o Caracter '&'
+    NFSe.Tomador.RazaoSocial := StringReplace(NFSe.Tomador.RazaoSocial,
+                                          '&amp;', '&amp;amp;', [rfReplaceAll]);
 
     Result.AppendChild(AddNode(tcStr, '#38', 'RazaoSocial', 1, 115, 0,
                                           NFSe.Tomador.RazaoSocial, DSC_XNOME));

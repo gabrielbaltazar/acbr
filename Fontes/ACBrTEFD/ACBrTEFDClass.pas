@@ -494,7 +494,9 @@ Uses
   dateutils, StrUtils, Math, {$IFDEF FMX} System.Types {$ELSE} types{$ENDIF},
   ACBrTEFD, ACBrTEFDCliSiTef, ACBrTEFCliSiTefComum, ACBrTEFDVeSPague,
   ACBrTEFDPayGo, ACBrTEFDPayGoWeb,
-  ACBrUtil;
+  ACBrUtil.Strings,
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO;
 
 { TACBrTEFDRespostasPendentes }
 
@@ -2083,9 +2085,9 @@ begin
      CopiarResposta ;
 
      { Cria cópia do Objeto Resp, e salva no ObjectList "RespostasPendentes" }
+     Resp.ArqRespPendente := ArqResp;
+     Resp.ViaClienteReduzida := ImprimirViaClienteReduzida;
      RespostaPendente := CriarResposta(fpTipo);
-     RespostaPendente.ArqRespPendente := ArqResp;
-     RespostaPendente.ViaClienteReduzida := ImprimirViaClienteReduzida;
      RespostaPendente.Assign( Resp );
      RespostasPendentes.Add( RespostaPendente );
 

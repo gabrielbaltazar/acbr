@@ -142,7 +142,10 @@ implementation
 uses
   strutils,
   pcnConsts,
-  ACBrDFeException, ACBrUtil;
+  ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO,
+  ACBrUtil.XMLHTML;
 
 { TACBrDFe }
 

@@ -108,7 +108,11 @@ type
   end;
 
 implementation
-Uses {$IFNDEF COMPILER6_UP} ACBrD5,{$ENDIF} ACBrUtil, ACBrExtenso ;
+
+Uses
+  {$IFNDEF COMPILER6_UP} ACBrD5,{$ENDIF}
+  ACBrUtil.Strings,
+  ACBrExtenso ;
 
 { **** TACBrFala **** }
 constructor TACBrFala.Create(AOwner: TComponent); 

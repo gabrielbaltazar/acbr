@@ -33,6 +33,7 @@
 {$I ACBr.inc}
 
 unit ACBrBancoCecred;
+//Banco passou por reestruturação de marca agora chama Ailos
 
 interface
 
@@ -55,6 +56,8 @@ type
     fCountRegR:Integer;
     procedure DefineDataProtestoNegativacao(const ACBrTitulo: TACBrTitulo);
     function DefineCodigoProtesto(const ACBrTitulo: TACBrTitulo): String; override;
+    procedure EhObrigatorioContaDV; override;
+    function GetLocalPagamento: String; override;
   public
     Constructor create(AOwner: TACBrBanco);
     function CalcularDigitoVerificador(const ACBrTitulo: TACBrTitulo ): String; override;
@@ -91,8 +94,7 @@ implementation
 
 uses
   {$IFDEF COMPILER6_UP} DateUtils {$ELSE} ACBrD5, FileCtrl {$ENDIF},
-  StrUtils, Variants,
-  ACBrValidador, ACBrUtil, math;
+  StrUtils, Variants, ACBrValidador, ACBrUtil.Base, Math, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 constructor TACBrBancoCecred.create(AOwner: TACBrBanco);
 begin
@@ -186,6 +188,11 @@ begin
 
   end;
 
+end;
+
+procedure TACBrBancoCecred.EhObrigatorioContaDV;
+begin
+  //validação
 end;
 
 function TACBrBancoCecred.DefineCodigoProtesto(const ACBrTitulo: TACBrTitulo): String;
@@ -774,6 +781,11 @@ begin
          aRemessa.Text := aRemessa.Text + UpperCase(wLinha);
       end;
    end;
+end;
+
+function TACBrBancoCecred.GetLocalPagamento: String;
+begin
+  Result := ACBrStr('Pagar preferencialmente nas cooperativas do Sistema Ailos.');
 end;
 
 function TACBrBancoCecred.GerarRegistroTrailler240(ARemessa: TStringList): String;

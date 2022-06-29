@@ -74,7 +74,7 @@ type
 implementation
 
 uses
-  ACBrUtil;
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 {$IfNDef FPC}
   {$R *.dfm}

@@ -38,7 +38,7 @@ interface
 
 uses
   Classes, SysUtils, IniFiles,
-  ACBrDFeConfiguracoes, ACBrNFSeXParametros, ACBrNFSeXConversao;
+  ACBrDFeConfiguracoes, ACBrNFSeXConversao;
 
 type
 
@@ -222,8 +222,8 @@ type
 implementation
 
 uses
-  DateUtils,
-  ACBrUtil, ACBrNFSeX;
+  ACBrUtil.FilesIO,
+  ACBrNFSeX;
 
 { TEmitenteConfNFSe }
 
@@ -427,7 +427,7 @@ begin
   FxProvedor := FPIniParams.ReadString(CodIBGE, 'Provedor', '');
   FVersao := StrToVersaoNFSe(Ok, FPIniParams.ReadString(CodIBGE, 'Versao', ''));
 
-  FProvedor := StrToProvedor(Ok, FxProvedor);
+  FProvedor := StrToProvedor(FxProvedor);
 
   if Assigned(fpConfiguracoes.Owner) then
     TACBrNFSeX(fpConfiguracoes.Owner).SetProvider;

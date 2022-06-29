@@ -38,6 +38,7 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
+  ACBrXmlDocument,
   ACBrNFSeXLerXml_ABRASFv2;
 
 type
@@ -45,16 +46,96 @@ type
 
   TNFSeR_SigCorp203 = class(TNFSeR_ABRASFv2)
   protected
+    function LerDataHoraCancelamento(const ANode: TACBrXmlNode): TDateTime; override;
+    function LerDataEmissao(const ANode: TACBrXmlNode): TDateTime; override;
+    function LerDataEmissaoRps(const ANode: TACBrXmlNode): TDateTime; override;
 
+    function NormatizarXml(const aXml: string): string; override;
   public
 
   end;
 
 implementation
 
+uses
+  ACBrXmlBase,
+  ACBrUtil.Strings,
+  ACBrUtil.DateTime;
+
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
 //     SigCorp
 //==============================================================================
+
+{ TNFSeR_SigCorp203 }
+
+function TNFSeR_SigCorp203.LerDataEmissao(const ANode: TACBrXmlNode): TDateTime;
+var
+  xDataHora: string;
+begin
+  xDataHora := ObterConteudo(ANode.Childrens.FindAnyNs('DataEmissao'), tcStr);
+
+  if Pos('/', xDataHora) = 2 then
+    xDataHora := '0' + xDataHora;
+
+  if Pos('/', xDataHora) = 3 then
+  begin
+    if Copy(xDataHora, 1, 2) > '12' then
+      result := EncodeDataHora(xDataHora, 'DD/MM/YYYY')
+    else
+      result := EncodeDataHora(xDataHora, 'MM/DD/YYYY');
+  end
+  else
+    result := EncodeDataHora(xDataHora, '');
+end;
+
+function TNFSeR_SigCorp203.LerDataEmissaoRps(
+  const ANode: TACBrXmlNode): TDateTime;
+var
+  xDataHora: string;
+begin
+  xDataHora := ObterConteudo(ANode.Childrens.FindAnyNs('DataEmissao'), tcStr);
+
+  if Pos('/', xDataHora) = 2 then
+    xDataHora := '0' + xDataHora;
+
+  if Pos('/', xDataHora) = 3 then
+  begin
+    if Copy(xDataHora, 1, 2) > '12' then
+      result := EncodeDataHora(xDataHora, 'DD/MM/YYYY')
+    else
+      result := EncodeDataHora(xDataHora, 'MM/DD/YYYY');
+  end
+  else
+    result := EncodeDataHora(xDataHora, '');
+end;
+
+function TNFSeR_SigCorp203.LerDataHoraCancelamento(
+  const ANode: TACBrXmlNode): TDateTime;
+var
+  xDataHora: string;
+begin
+  xDataHora := ObterConteudo(ANode.Childrens.FindAnyNs('DataHoraCancelamento'), tcStr);
+
+  if Pos('/', xDataHora) = 2 then
+    xDataHora := '0' + xDataHora;
+
+  if Pos('/', xDataHora) = 3 then
+  begin
+    if Copy(xDataHora, 1, 2) > '12' then
+      result := EncodeDataHora(xDataHora, 'DD/MM/YYYY')
+    else
+      result := EncodeDataHora(xDataHora, 'MM/DD/YYYY');
+  end
+  else
+    result := EncodeDataHora(xDataHora, '');
+end;
+
+function TNFSeR_SigCorp203.NormatizarXml(const aXml: string): string;
+begin
+  Result := inherited NormatizarXml(aXml);
+
+  Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
+end;
 
 end.

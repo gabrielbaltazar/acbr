@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo:                                                 }
 {                                                                              }
@@ -208,7 +208,8 @@ type
     function GetCacheArquivo: String;
     procedure SetIgnorarCaixaEAcentos(AValue: Boolean);
 
-    function UnZipDoc: String;
+    function UnZipHttpDoc: String;
+    procedure HTTPGetCompressed(const AURL: String);
   public
     constructor Create(AOwner: TComponent); override;
     Destructor Destroy ; override ;
@@ -275,7 +276,10 @@ uses
     Jsons,
   {$EndIf}
   blcksock, synautil,
-  ACBrUtil, ACBrCompress;
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO,
+  ACBrCompress;
 
 { TACBrIBGEUF }
 
@@ -1020,7 +1024,7 @@ begin
   fCacheLido := False;  // Força recarga do Cache, no formato correto
 end;
 
-function TACBrIBGE.UnZipDoc: String;
+function TACBrIBGE.UnZipHttpDoc: String;
 var
   CT: String;
   Resp: AnsiString;
@@ -1034,7 +1038,7 @@ begin
     Resp := ReadStrFromStream(HTTPSend.Document, HTTPSend.Document.Size);
   end
   else
-    Resp := UnZip(HTTPSend.Document);
+    Resp := ACBrUtil.FilesIO.UnZip(HTTPSend.Document);
 
   CT := LowerCase( GetHeaderValue('Content-Type:') );
   RespIsUTF8 := (pos('utf-8', CT) > 0);
@@ -1042,6 +1046,12 @@ begin
     Result := UTF8ToNativeString(Resp)
   else
     Result := String(Resp);
+end;
+
+procedure TACBrIBGE.HTTPGetCompressed(const AURL: String);
+begin
+  HTTPSend.Headers.Add('Accept-Encoding: deflate, gzip');
+  HTTPMethod( 'GET', AURL );
 end;
 
 constructor TACBrIBGE.Create(AOwner : TComponent) ;
@@ -1202,8 +1212,8 @@ begin
     Exit;
 
   fListaCidades.Clear;
-  HTTPGet(CIBGE_URL_MUN);
-  fListaCidades.AddFromJSonStr(UnZipDoc);
+  HTTPGet( CIBGE_URL_MUN );
+  fListaCidades.AddFromJSonStr(UnZipHttpDoc);
 
   for I := 0 to fListaUFs.Count-1 do
     fListaUFs[I].CidadesCarregadas := True;
@@ -1228,8 +1238,8 @@ begin
     Exit;
 
   AURL := StringReplace(CIBGE_URL_MUN_UF, '{idUF}', IntToStrZero(ACodUF,2), []);
-  HTTPGet(AURL);
-  fListaCidades.AddFromJSonStr(UnZipDoc);
+  HTTPGet( AURL );
+  fListaCidades.AddFromJSonStr(UnZipHttpDoc);
 
   oUF.CidadesCarregadas := True;
   SalvarCache;
@@ -1363,9 +1373,8 @@ begin
   AURL := StringReplace(CIBGE_URL_EST_MUN, '{indicadores}', Pesquisas, []);
   AURL := StringReplace(AURL, '{idMunicipio}', ListaMunicipios, []);
 
-  HTTPSend.Headers.Add('Accept-Encoding: deflate, gzip');
-  HTTPGet(AURL);
-  fListaCidades.ParseJSonStat(UnZipDoc);
+  HTTPGetCompressed( AURL );
+  fListaCidades.ParseJSonStat(UnZipHttpDoc);
 
   SalvarCache;
 end;
@@ -1503,8 +1512,8 @@ begin
     UFsEmCache := UFsEmCache + fListaUFs[i].fUF + ',';
 
   fListaUFs.Clear;
-  HTTPGet(CIBGE_URL_UF);
-  fListaUFs.AddFromJSonStr(UnZipDoc);
+  HTTPGetCompressed(CIBGE_URL_UF);
+  fListaUFs.AddFromJSonStr(UnZipHttpDoc);
 
   if (UFsEmCache <> '') then
     for i := 0 to fListaUFs.Count-1 do
@@ -1523,9 +1532,8 @@ begin
 
   AURL := StringReplace(CIBGE_URL_EST_UF, '{idPesquisas}', Pesquisas, []);
   AURL := StringReplace(AURL, '{idUF}', UFs, []);
-
-  HTTPGet(AURL);
-  fListaUFs.ParseJSonStat(UnZipDoc);
+  HTTPGetCompressed(AURL);
+  fListaUFs.ParseJSonStat(UnZipHttpDoc);
 end;
 
 function TACBrIBGE.UFToCodUF(const AUF: String): Integer;

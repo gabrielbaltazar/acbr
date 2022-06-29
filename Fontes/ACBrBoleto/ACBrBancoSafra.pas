@@ -3,12 +3,14 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: André Ferreira de Moraes,                       }
 {                              Paulo H. Ribeiro,                               }
 {                              Jackeline Bellon,                               }
-{                              Juliomar Marchetti                              }
+{                              Juliomar Marchetti,                             }
+{                              Victor H Gonzales,                              }
+{                              Fernando Rodrigo                                }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -90,7 +92,7 @@ type
 
 implementation
 
-uses ACBrUtil;
+uses ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 var
   aTotal: Extended;
@@ -723,14 +725,14 @@ begin
 
     if ((DataProtesto <> 0) and (DiasDeProtesto > 0)) then
     begin
-      if not MatchText(Instrucao1, ['0', '1', '2', '3', '9']) then
+      if not MatchText(Instrucao1, ['1', '2', '4', '5', '8', '9']) then
         Instrucao1 := ACodProtesto;
       // Dias para protesto
       sDiasProtesto := PadLeft(IntToStr(DiasDeProtesto), 2, '0');
     end
     else
     begin
-      Instrucao1 := '0';  // Não protestar
+      Instrucao1 := '3';  // Não protestar Regra C026
       SDiasProtesto := '00';
     end;
 
@@ -905,7 +907,7 @@ begin
     else if Trim(EspecieDoc) = 'DS' then
       aEspecie := '09'
     else
-      aEspecie := EspecieDoc;
+      aEspecie := PadLeft(EspecieDoc, 2, ' ') ;
 
     if Aceite = atSim then
       aAceite := 'A'
@@ -978,7 +980,7 @@ begin
               PadRight(Sacado.SacadoAvalista.NomeAvalista, 30)                               + // 352 a 381 - Nome do Sacador Avalista / Mensagem específica vide nota 6.1.9 conforme manual do banco
               Space(7)                                                                       + // 382 a 388 - "Brancos"
               '422'                                                                          + // 389 a 391 - Banco Emitente do Boleto
-              copy(aRemessa.Text, 392, 3)                                                    + // 392 a 394 - Numero Seqüencial Geração Arquivo Remessa
+              IntToStrZero(FNumeroRemessa, 3)                                                + // 392 a 394 - Numero Seqüencial Geração Arquivo Remessa
               IntToStrZero(ARemessa.Count + 1, 6);                                             // 395 a 400 - Número Sequencial De Registro De Arquivo
 
     aTotal := aTotal + ValorDocumento;

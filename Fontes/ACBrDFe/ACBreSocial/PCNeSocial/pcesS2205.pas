@@ -54,7 +54,7 @@ uses
   {$ELSE}
    Contnrs,
   {$IFEND}
-  ACBrBase, pcnConversao, ACBrUtil, pcnConsts,
+  ACBrBase, pcnConversao, pcnConsts,
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
@@ -113,6 +113,9 @@ implementation
 
 uses
   IniFiles,
+  ACBrUtil.Base,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
   ACBreSocial;
 
 { TS2205Collection }
@@ -392,6 +395,7 @@ begin
           nmDep    := INIRec.ReadString(sSecao, 'nmDep', '');
           dtNascto := StringToDateTime(INIRec.ReadString(sSecao, 'dtNascto', '0'));
           cpfDep   := INIRec.ReadString(sSecao, 'cpfDep', '');
+          sexoDep  := INIRec.ReadString(sSecao, 'sexoDep', '');
           depIRRF  := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'depIRRF', 'S'));
           depSF    := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'depSF', 'S'));
           incTrab  := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'incTrab', 'S'));

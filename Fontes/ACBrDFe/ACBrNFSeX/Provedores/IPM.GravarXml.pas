@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   pcnAuxiliar, pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
@@ -50,10 +49,12 @@ type
   private
     FpGerarID: Boolean;
     FpNrOcorrTagsTomador: Integer;
+    FpNrOcorrCodigoAtividade: Integer;
 
   protected
     procedure Configuracao; override;
 
+    function GerarGrupoRPS: Boolean;
     function GerarIdentificacaoRPS: TACBrXmlNode;
     function GerarValoresServico: TACBrXmlNode;
     function GerarPrestador: TACBrXmlNode;
@@ -81,7 +82,9 @@ type
 implementation
 
 uses
-  ACBrNFSeX, ACBrNFSeXProviderBase;
+  ACBrUtil.Strings,
+  ACBrUtil.DateTime,
+  ACBrNFSeX;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -139,7 +142,7 @@ begin
   // Removido a condição da versão para gerar o grupo Forma de Pagamento para
   // a cidade de Panambi/RS
 //  if (NFSe.Status = srNormal) and (VersaoNFSe = ve101 ) then
-  if (NFSe.Status = srNormal) then
+  if (NFSe.SituacaoNfse = snNormal) then
   begin
     xmlNode := GerarFormaPagamento;
     NFSeNode.AppendChild(xmlNode);
@@ -154,6 +157,7 @@ begin
 
   FpGerarID := False;
   FpNrOcorrTagsTomador := 0;
+  FpNrOcorrCodigoAtividade := -1;
 end;
 
 function TNFSeW_IPM.GerarFormaPagamento: TACBrXmlNode;
@@ -199,11 +203,25 @@ begin
   end;
 end;
 
+function TNFSeW_IPM.GerarGrupoRPS: Boolean;
+var
+  NaoGerar: Boolean;
+begin
+  {
+    Se no arquivo ACBrNFSeXServicos.ini existe o campo: NaoGerarGrupoRps na
+    definição da cidade o valor de NaoGerar é True
+  }
+  NaoGerar := FpAOwner.ConfigGeral.Params.TemParametro('NaoGerarGrupoRps');
+
+  // Na condição abaixo se faz necessário o "not".
+  Result := (StrToIntDef(NFSe.IdentificacaoRps.Numero, 0) > 0) and (not NaoGerar);
+end;
+
 function TNFSeW_IPM.GerarIdentificacaoRPS: TACBrXmlNode;
 begin
   Result :=  nil;
 
-  if( StrToIntDef( NFSe.IdentificacaoRps.Numero, 0 ) > 0 ) then
+  if GerarGrupoRPS then
   begin
     Result := CreateElement('rps');
 
@@ -274,7 +292,7 @@ begin
     Result[i] := CreateElement('lista');
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'tributa_municipio_prestador', 1, 1, 1,
-      TACBrNFSeXProvider(FpAOwner).SimNaoToStr(NFSe.Servico.ItemServico[I].TribMunPrestador), ''));
+      FpAOwner.SimNaoToStr(NFSe.Servico.ItemServico[I].TribMunPrestador), ''));
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'codigo_local_prestacao_servico', 1, 9, 1,
       CodIBGEToCodTOM(StrToIntDef(NFSe.Servico.ItemServico[I].CodMunPrestacao, 0)), ''));
@@ -290,6 +308,9 @@ begin
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'codigo_item_lista_servico', 1, 9, 1,
                  OnlyNumber(NFSe.Servico.ItemServico[I].ItemListaServico), ''));
+
+    Result[i].AppendChild(AddNode(tcStr, '#', 'codigo_atividade', 1, 9, FpNrOcorrCodigoAtividade,
+                       OnlyNumber(NFSe.Servico.ItemServico[I].CodigoCnae), ''));
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'descritivo', 1, 1000, 1,
       IfThen(NFSe.Servico.ItemServico[I].Descricao = '',
@@ -395,7 +416,8 @@ begin
   end
   else
   begin
-    if NFSe.Tomador.IdentificacaoTomador.Tipo in [tpPFNaoIdentificada, tpPF] then
+    if (NFSe.Tomador.IdentificacaoTomador.Tipo in [tpPFNaoIdentificada, tpPF]) and
+       (Length(OnlyNumber(NFSe.Tomador.IdentificacaoTomador.CpfCnpj)) < 14) then
       Result.AppendChild(AddNode(tcStr, '#1', 'tipo', 1, 1, 1, 'F', ''))
     else
       Result.AppendChild(AddNode(tcStr, '#1', 'tipo', 1, 1, 1, 'J', ''));
@@ -460,7 +482,7 @@ function TNFSeW_IPM.GerarValoresServico: TACBrXmlNode;
 begin
   Result := CreateElement('nf');
 
-  if NFSe.Status = srCancelado then
+  if NFSe.SituacaoNfse = snCancelado then
   begin
     Result.AppendChild(AddNode(tcStr, '#1', 'numero', 0, 9, 1,
                                                               NFSe.Numero, ''));
@@ -507,6 +529,9 @@ begin
 
   FpGerarID := True;
   FpNrOcorrTagsTomador := 1;
+
+  if FpAOwner.ConfigGeral.Params.ParamTemValor('GerarTag', 'codigo_atividade') then
+    FpNrOcorrCodigoAtividade := 1;
 end;
 
 end.

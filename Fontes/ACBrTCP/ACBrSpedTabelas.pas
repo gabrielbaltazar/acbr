@@ -52,7 +52,7 @@ uses
   {$Else}
    Contnrs,
   {$IfEnd}
-  ACBrBase, ACBrSocket, ACBrDownload, ACBrUtil;
+  ACBrBase, ACBrSocket, ACBrDownload;
 
 type
   TACBrCodSistema = (csSpedFiscal, csSpedPisCofins, csSpedContabil, csSpedECF);
@@ -122,6 +122,8 @@ type
   end;
 
 implementation
+ uses
+   ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrUtil.DateTime, ACBrUtil.XMLHTML;
 
 constructor TACBrSpedTabelas.Create(AOwner: TComponent);
 begin
@@ -210,14 +212,14 @@ begin
   end;
 
   Buffer := Self.RespHTTP.Text;
-  fUrlDownload := LerTagXML(Buffer, 'urlDownloadArquivo');
-  Buffer := LerTagXML(Buffer, 'metadadosXml');
+  fUrlDownload := SeparaDados(Buffer, 'urlDownloadArquivo');
+  Buffer := SeparaDados(Buffer, 'metadadosXml');
   Buffer := StringReplace(Buffer, '&lt;', '<', [rfReplaceAll]);
   Buffer := StringReplace(Buffer, '&gt;', '>' + sLineBreak, [rfReplaceAll]);
 
   sl1 := TStringList.Create;
   try
-    sl1.Text := LerTagXML(Buffer, 'pacotes');
+    sl1.Text := SeparaDados(Buffer, 'pacotes');
     for i := 0 to sl1.Count - 1 do
     begin
       if Pos('pacote cod', sl1[i]) > 0 then

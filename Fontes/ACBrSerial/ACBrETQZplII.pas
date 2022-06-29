@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo:                                                 }
 {                                                                              }
@@ -49,28 +49,28 @@ type
 
   TACBrETQZplII = class(TACBrETQClass)
   private
-    FImagensPCX: String;
-
     function ComandoCampo(const aTexto: String): String;
-
     function ConverterOrientacao(aOrientacao: TACBrETQOrientacao): String;
-
-    function ComandoTamanhoBarras( aBarraFina, aBarraLargaa , aAlturaBarra:Integer ):String;
-    function ComandoCoordenadas(aVertical, aHorizontal: Integer): String;
-    function ComandoReverso(aImprimirReverso: Boolean): String;
-    function ComandoFonte(const aFonte: String; aMultVertical, aMultHorizontal: Integer;
-      aOrientacao: TACBrETQOrientacao): String;
-
-    function ComandoBarras(const aTipo: String; aOrientacao: TACBrETQOrientacao;
-      aAlturaBarras: Integer; aExibeCodigo: TACBrETQBarraExibeCodigo): String;
     function ConverterExibeCodigo(aExibeCodigo: TACBrETQBarraExibeCodigo): String;
-
-    function ComandoLinhaCaixa(aAltura, aLargura, Espessura: Integer): String;
-    function AjustarNomeArquivoImagem( const aNomeImagem: String): String;
     function ConverterMultiplicadorImagem(aMultiplicador: Integer): String;
-    function ConverterPaginaDeCodigo(aPaginaDeCodigo: TACBrETQPaginaCodigo): String;
+    function GetDriverImagens: String;
   protected
+    function ConverterPaginaDeCodigo(aPaginaDeCodigo: TACBrETQPaginaCodigo): String; virtual;
+    function ComandoTamanhoBarras( aBarraFina, aBarraLargaa , aAlturaBarra:Integer ):String; virtual;
+    function ComandoCoordenadas(aVertical, aHorizontal: Integer): String; virtual;
+    function ComandoReverso(aImprimirReverso: Boolean): String; virtual;
+    function ComandoFonte(const aFonte: String; aMultVertical, aMultHorizontal: Integer;
+      aOrientacao: TACBrETQOrientacao): String; virtual;
+    function ComandoCor: String; virtual;
+    function ComandoBarras(const aTipo: String; aOrientacao: TACBrETQOrientacao;
+      aAlturaBarras: Integer; aExibeCodigo: TACBrETQBarraExibeCodigo): String; virtual;
+    function ComandoLinhaCaixa(aAltura, aLargura, Espessura, aCanto: Integer): String; virtual;
+    function CrcZB64(const AString: AnsiString): String; virtual;
+
+    function AjustarNomeArquivoImagem(const aNomeImagem: String; var aTipo: String): String;
+
     function ComandoAbertura: AnsiString; override;
+    function ComandoGuilhotina: AnsiString; override;
     function ComandoUnidade: AnsiString; override;
     function ComandoTemperatura: AnsiString; override;
     function ComandoPaginaDeCodigo: AnsiString; override;
@@ -105,15 +105,16 @@ type
     function ComandoImprimirLinha(aVertical, aHorizontal, aLargura, aAltura: Integer
       ): AnsiString; override;
 
-    function ComandoImprimirCaixa(aVertical, aHorizontal, aLargura, aAltura, aEspVertical,
-      aEspHorizontal: Integer): AnsiString; override;
+    function ComandoImprimirCaixa(aVertical, aHorizontal, aLargura, aAltura,
+      aEspVertical, aEspHorizontal: Integer; aCanto: Integer = 0): AnsiString; override;
 
     function ComandoImprimirImagem(aMultImagem, aVertical, aHorizontal: Integer;
       aNomeImagem: String): AnsiString; override;
-    function ComandoCarregarImagem(aStream: TStream; aNomeImagem: String;
+    function ComandoCarregarImagem(aStream: TStream; var aNomeImagem: String;
       aFlipped: Boolean; aTipo: String): AnsiString; override;
-    function ComandoBMP2GRF(aStream: TStream; aNomeImagem: String; Inverter: Boolean = True): AnsiString;
+    function ComandoApagarImagem(const NomeImagem: String = '*'): String; override;
 
+    function ComandoBMP2GRF(aStream: TStream; aNomeImagem: String; Inverter: Boolean = True): AnsiString;
     function ComandoGravaRFIDHexaDecimal(aValue:String): AnsiString; override;
     function ComandoGravaRFIDASCII( aValue:String ): AnsiString; override;
 
@@ -122,9 +123,10 @@ type
 implementation
 
 uses
-  math, {$IFNDEF COMPILER6_UP} ACBrD5, Windows, {$ENDIF} sysutils, strutils,
-  synautil,
-  ACBrUtil, ACBrImage, ACBrConsts;
+  Math, {$IFNDEF COMPILER6_UP} ACBrD5, Windows, {$ENDIF} sysutils, strutils,
+  synautil, synacode, ACBrImage, ACBrConsts,
+  ACBrETQ,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.FilesIO, ACBrUtil.Math;
 
 { TACBrETQPpla }
 
@@ -134,7 +136,6 @@ begin
 
   fpModeloStr := 'ZPLII';
   fpLimiteCopias := 999;
-  FImagensPCX := '';
 end;
 
 function TACBrETQZplII.ComandoLimparMemoria: AnsiString;
@@ -186,6 +187,11 @@ begin
                    IntToStr(Max(aMultHorizontal,1));
 end;
 
+function TACBrETQZplII.ComandoCor: String;
+begin
+  Result := EmptyStr;
+end;
+
 function TACBrETQZplII.ComandoGravaRFIDASCII(aValue:String): AnsiString;
 begin
   result := '^RFW,A^FD' + aValue + '^FS';
@@ -217,36 +223,65 @@ begin
     Result := '';
 end;
 
-function TACBrETQZplII.ComandoLinhaCaixa(aAltura, aLargura, Espessura: Integer
-  ): String;
+function TACBrETQZplII.ComandoLinhaCaixa(aAltura, aLargura, Espessura,
+  aCanto: Integer): String;
 var
-  AlturaDots, LarguraDots, EspessuraDots: Integer;
+  AlturaDots, LarguraDots, EspessuraDots, AnguloCanto: Integer;
 begin
   AlturaDots    := ConverterUnidade(etqDots, aAltura);
   LarguraDots   := ConverterUnidade(etqDots, aLargura);
   EspessuraDots := Max(ConverterUnidade(etqDots, Espessura), 1);
+  AnguloCanto   := Min(Max(aCanto, 0), 8);
 
   Result := '^GB' + IntToStr(LarguraDots)   + ',' +
                     IntToStr(AlturaDots)    + ',' +
                     IntToStr(EspessuraDots) + ',' +
                     'B'                     + ',' +
-                    '0'                     +
+                    IntToStr(AnguloCanto)   +
             '^FS';
 end;
 
-function TACBrETQZplII.AjustarNomeArquivoImagem(const aNomeImagem: String): String;
+function TACBrETQZplII.AjustarNomeArquivoImagem(const aNomeImagem: String;
+  var aTipo: String): String;
+var
+  p: Integer;
+  aNome: String;
 begin
-  Result := UpperCase(LeftStr(OnlyAlphaNum(aNomeImagem), 8));
+  p := PosLast('.', aNomeImagem);
+  if (p > 0) then
+  begin
+    aTipo := copy(aNomeImagem, p+1, Length(aNomeImagem));
+    aTipo := UpperCase(LeftStr(aTipo, 3));
+    aNome := copy(aNomeImagem, 1, p-1);
+  end
+  else
+  begin
+    aNome := aNomeImagem;
+    if (aTipo = '') then
+      aTipo := 'GRF';
+  end;
+
+  if (aTipo = 'BMP') then
+    aTipo := 'GRF';
+
+  Result := UpperCase(LeftStr(OnlyAlphaNum(aNome), 8)) + '.' + aTipo;
 end;
 
-function TACBrETQZplII.ConverterMultiplicadorImagem(aMultiplicador: Integer
-  ): String;
+function TACBrETQZplII.ConverterMultiplicadorImagem(aMultiplicador: Integer): String;
 begin
   aMultiplicador := max(aMultiplicador,1);
   if (aMultiplicador > 10) then
     raise Exception.Create('Multiplicador Imagem deve ser de 1 a 10');
 
   Result := IntToStr(aMultiplicador);
+end;
+
+function TACBrETQZplII.GetDriverImagens: String;
+begin
+  if LimparMemoria then
+    Result := 'R:'
+  else
+    Result := 'E:';
 end;
 
 function TACBrETQZplII.ConverterPaginaDeCodigo(
@@ -304,6 +339,18 @@ begin
   Result := '^XA';
 end;
 
+function TACBrETQZplII.ComandoGuilhotina: AnsiString;
+var
+  m: Char;
+begin
+  if Guilhotina then
+    m := 'C'
+  else
+    m := 'T';
+
+  Result := '^MM'+m
+end;
+
 function TACBrETQZplII.ComandoUnidade: AnsiString;
 //var
 //  a: Char;
@@ -345,7 +392,7 @@ end;
 
 function TACBrETQZplII.ComandoOrigemCoordenadas: AnsiString;
 begin
-  if (fpOrigem = ogBottom) then
+  if (Origem = ogBottom) then
     Result := '^POI'
   else
     Result := '^PON';
@@ -377,7 +424,7 @@ end;
 
 function TACBrETQZplII.ComandoBackFeed: AnsiString;
 begin
-  case fpBackFeed of
+  case BackFeed of
     bfOn : Result := '~JSA';
     bfOff: Result := '~JSO';
   else
@@ -387,9 +434,7 @@ end;
 
 function TACBrETQZplII.ComandoCopias(const NumCopias: Integer): AnsiString;
 begin
-  Result := EmptyStr;
   inherited ComandoCopias(NumCopias);
-
   Result := '^PQ' + IntToStr(Max(NumCopias,1));
 end;
 
@@ -423,6 +468,7 @@ begin
   Result := ComandoCoordenadas(aVertical, aHorizontal) +
             ComandoFonte(aFonte, aMultVertical, aMultHorizontal, aOrientacao) +
             ComandoReverso(aImprimirReverso) +
+            ComandoCor +
             ComandoCampo(aTexto);
 end;
 
@@ -452,6 +498,7 @@ function TACBrETQZplII.ComandoImprimirBarras(aOrientacao: TACBrETQOrientacao;
   aExibeCodigo: TACBrETQBarraExibeCodigo): AnsiString;
 begin
   Result := ComandoCoordenadas(aVertical, aHorizontal) +
+            ComandoCor +
             ComandoTamanhoBarras(aBarraFina, aBarraLarga , aAlturaBarras ) +
             ComandoBarras(aTipoBarras, aOrientacao, aAlturaBarras, aExibeCodigo ) +
             ComandoCampo(aTexto);
@@ -462,6 +509,7 @@ function TACBrETQZplII.ComandoImprimirQRCode(aVertical, aHorizontal: Integer;
   aTipo: Integer): AnsiString;
 begin
   Result := ComandoCoordenadas(aVertical, aHorizontal) +
+            ComandoCor +
             '^BQ'+
             ConverterOrientacao(orNormal) + ',' +
             IntToStr(aTipo) + ',' +
@@ -473,85 +521,100 @@ function TACBrETQZplII.ComandoImprimirLinha(aVertical, aHorizontal, aLargura,
   aAltura: Integer): AnsiString;
 begin
   Result := ComandoCoordenadas(aVertical, aHorizontal) +
-            ComandoLinhaCaixa(aAltura, aLargura, Min(aAltura, aLargura) );
+            ComandoCor +
+            ComandoLinhaCaixa(aAltura, aLargura, Min(aAltura, aLargura), 0);
 end;
 
 function TACBrETQZplII.ComandoImprimirCaixa(aVertical, aHorizontal, aLargura,
-  aAltura, aEspVertical, aEspHorizontal: Integer): AnsiString;
+  aAltura, aEspVertical, aEspHorizontal: Integer; aCanto: Integer): AnsiString;
 begin
   Result := ComandoCoordenadas(aVertical, aHorizontal) +
-            ComandoLinhaCaixa(aAltura, aLargura, Max(aEspVertical, aEspHorizontal) )+
+            ComandoCor +
+            ComandoLinhaCaixa(aAltura, aLargura, Max(aEspVertical, aEspHorizontal), aCanto)+
             '^FS';
 end;
 
 function TACBrETQZplII.ComandoImprimirImagem(aMultImagem, aVertical,
   aHorizontal: Integer; aNomeImagem: String): AnsiString;
 var
-  ANome, ATipo: String;
+  ATipo: String;
 begin
-  ATipo := ExtractFileExt(aNomeImagem);
-  if (ATipo <> '') then
-  begin
-    ATipo := UpperCase(RightStr(ATipo, 3));
-    ANome := ExtractFileName(aNomeImagem);
-  end
-  else
-    ANome := aNomeImagem;
-
-  ANome := AjustarNomeArquivoImagem(ANome);
-
-  if (ATipo = '') then
-    if (pos(ANome, FImagensPCX) > 0) then
-      ATipo := 'PCX';
-
-  if (ATipo <> 'PCX') then
-    ATipo := 'GRF';
-
+  ATipo := '';
+  aNomeImagem := AjustarNomeArquivoImagem(aNomeImagem, ATipo);
   Result := ComandoCoordenadas(aVertical, aHorizontal) +
-            '^XGE:' + ANome + '.' + ATipo +  ',' +
-                      ConverterMultiplicadorImagem(aMultImagem) + ',' +
-                      ConverterMultiplicadorImagem(aMultImagem) +
+            '^XG' + GetDriverImagens +
+                    aNomeImagem + ',' +
+                    ConverterMultiplicadorImagem(aMultImagem) + ',' +
+                    ConverterMultiplicadorImagem(aMultImagem) +
             '^FS';
 end;
 
 function TACBrETQZplII.ComandoCarregarImagem(aStream: TStream;
-  aNomeImagem: String; aFlipped: Boolean; aTipo: String): AnsiString;
+  var aNomeImagem: String; aFlipped: Boolean; aTipo: String): AnsiString;
 var
-  ANome: String;
+  Format, Extension: String;
+  ImgData: AnsiString;
+  Len: Integer;
 begin
-  if (aTipo = '') then
-    aTipo := 'BMP'
-  else
-    aTipo := UpperCase(RightStr(aTipo, 3));
+  aNomeImagem := AjustarNomeArquivoImagem(aNomeImagem, aTipo);
+  if (pos(aTipo,'PCX,BMP,GRF,PNG') = 0) then
+    raise Exception.Create(ACBrStr('Formato de Imagem deve ser: PNG, BMP, GRF ou PCX e Monocromática'));
 
-  if (aTipo = 'PCX') then
-  begin
-    if not IsPCX(aStream, True) then
-      raise Exception.Create(ACBrStr(cErrImgPCXMono));
-  end
-  else if (aTipo <> 'BMP') then
-    raise Exception.Create(ACBrStr(
-      'Formato de Imagem deve ser: BMP ou PCX e Monocromática'));
-
-  ANome := AjustarNomeArquivoImagem(aNomeImagem);
   aStream.Position := 0;
+  VerificarConteudoETipoImagemMono(aStream, aTipo);
 
-  if (aTipo = 'BMP') then
-  begin
-    ANome := ANome + '.GRF';
-    Result := ComandoBMP2GRF(aStream, ANome);
-  end
+  if (aTipo = 'GRF') then  // BMP = GRF
+    Result := ComandoBMP2GRF(aStream, aNomeImagem)
   else
   begin
-    FImagensPCX := FImagensPCX + ANome + ',';
-    ANome := ANome + '.PCX';
-    Result := '~DYE:' + ANome + ',B,X,' +
-              IntToStr(aStream.Size)   + ',0,' +
-              ReadStrFromStream(aStream, aStream.Size);
+    ImgData := ReadStrFromStream(aStream, aStream.Size);
+    Len := Length(ImgData);
+
+    if (aTipo = 'PNG') then
+    begin
+      Format := 'P';
+      Extension := 'P';
+      ImgData := EncodeBase64(ImgData);
+      ImgData := ':B64:'+ImgData+':'+CrcZB64(ImgData);
+      Len := Len+6;
+    end
+    else   // PCX
+    begin
+      Format := 'B';
+      Extension := 'X';
+    end;
+
+    Result := '~DY'+                // Download Graphics command
+              GetDriverImagens +    // File Location
+              aNomeImagem + ',' +   // Filename
+              Format + ',' +        // Format - A = uncompressed (ZB64, ASCII), B = uncompressed (binary), C = AR-compressed (used only by Zebra’s BAR-ONE® v5), P = portable network graphic (.PNG) - ZB64 encoded
+              Extension + ',' +     // Extension - B = bitmap, G = raw bitmap (.GRF), P = store as compressed (.PNG), T = TrueType (.TTF) or X = Paintbrush (.PCX)
+              IntToStr(Len) + ',' + // Bytes total
+              '0,' +                // Bytes per Row (BMP only)
+              ImgData;
   end;
 
-  Result := '^IDE:' + ANome + '^FS' +  // Apaga a imagem existente com o mesmo nome
+  Result := '^ID' + GetDriverImagens + aNomeImagem + '^FS' +  // Apaga a imagem existente com o mesmo nome
             Result;
+end;
+
+function TACBrETQZplII.ComandoApagarImagem(const NomeImagem: String): String;
+var
+  s, t: String;
+begin
+  if (NomeImagem = '*') then
+    Result := '^ID' + GetDriverImagens + '*.*^FS'
+  else
+  begin
+    t := '';
+    s := AjustarNomeArquivoImagem(NomeImagem, t);
+    Result := '^ID' + GetDriverImagens + s + '^FS';
+  end;
+
+  if not TACBrETQ(fpOwner).EtqInicializada then
+    Result := ComandoAbertura +
+              Result +
+              ComandoImprimir;
 end;
 
 // Fonte: https://github.com/asharif/img2grf/blob/master/src/main/java/org/orphanware/App.java
@@ -569,8 +632,16 @@ begin
   ImgHex := AsciiToHex(ARasterImg);
   BytesPerRow := ceil(AWidth / 8);
 
-  Result := '~DGE:' + aNomeImagem + ',' + IntToStr(LenImg)+ ',' +
+  Result := '~DG' + GetDriverImagens + aNomeImagem + ',' + IntToStr(LenImg)+ ',' +
             IntToStr(BytesPerRow) + ',' + ImgHex;
+end;
+
+function TACBrETQZplII.CrcZB64(const AString: AnsiString): String;
+var
+  crc: Word;
+begin
+  crc := StringCrcCCITT(AString, $0000);
+  Result := IntToHex(crc, 4);
 end;
 
 end.

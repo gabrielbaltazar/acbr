@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
-  <Package Version="4">
+  <Package Version="5">
     <PathDelim Value="\"/>
     <Name Value="ACBrSerial"/>
     <Type Value="RunAndDesignTime"/>
@@ -18,6 +18,13 @@
           <UseAnsiStrings Value="False"/>
         </SyntaxOptions>
       </Parsing>
+      <Linking>
+        <Debugging>
+          <DebugInfoType Value="dsDwarf3"/>
+          <UseHeaptrc Value="True"/>
+          <TrashVariables Value="True"/>
+        </Debugging>
+      </Linking>
       <Other>
         <CompilerMessages>
           <IgnoredMessages idx5043="True" idx5024="True" idx4080="True" idx4079="True"/>
@@ -28,7 +35,7 @@
     <License Value="LGPL
 "/>
     <Version Minor="9"/>
-    <Files Count="88">
+    <Files Count="89">
       <Item1>
         <Filename Value="..\..\..\Fontes\ACBrSerial\ACBrSerialReg.pas"/>
         <HasRegisterProc Value="True"/>
@@ -382,7 +389,12 @@
         <Filename Value="..\..\..\Fontes\ACBrSerial\ACBrBALLenkeLK2500.pas"/>
         <UnitName Value="ACBrBALLenkeLK2500"/>
       </Item88>
+      <Item89>
+        <Filename Value="..\..\..\Fontes\ACBrSerial\ACBrETQEscLabel.pas"/>
+        <UnitName Value="ACBrETQEscLabel"/>
+      </Item89>
     </Files>
+    <CompatibilityMode Value="True"/>
     <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="Printer4Lazarus"/>

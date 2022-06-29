@@ -74,7 +74,8 @@ type
 
 implementation
 
-uses {$IFDEF COMPILER6_UP} DateUtils {$ELSE} ACBrD5, FileCtrl {$ENDIF}, StrUtils, Variants, ACBrUtil;
+uses {$IFDEF COMPILER6_UP} DateUtils {$ELSE} ACBrD5, FileCtrl {$ENDIF}, StrUtils, Variants,
+   ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 function Modulo11BB(const AValor: String; Base: Integer = 9): string;
 {
@@ -368,6 +369,8 @@ var
      aAgencia, aConta, aDV: String;
      wTamConvenio, wTamNossoNum: Integer;
      wCarteira, wTipoDocumento: Integer;
+     ACodBaixaDevolucao: String;
+     ADiasBaixaDevolucao: String;
 //     ACaracTitulo: Char;
 begin
      with ACBrTitulo do
@@ -496,6 +499,17 @@ begin
 
           ANossoNumero := RemoveZerosEsquerda(ANossoNumero);
 
+          {Código Baixa Devolução}
+          if ((ATipoOcorrencia = '31') and (DataBaixa > Vencimento)) then
+            ACodBaixaDevolucao := '3'
+          else
+            ACodBaixaDevolucao := IfThen(( ((DataProtesto = 0) or (DataProtesto <= Vencimento))
+                               or (DataBaixa <> 0) and (DataBaixa > Vencimento)), '1', '2') ;
+
+          {Dias Baixa Devolução}
+          ADiasBaixaDevolucao := IfThen((DataBaixa <> 0) and (DataBaixa > Vencimento),
+                 PadLeft(IntToStr(DaysBetween(DataBaixa, Vencimento)), 3, '0'), '000');
+
           { SEGMENTO P }
           Result := IntToStrZero(ACBrBanco.Numero, 3) +                                                                      // 1 a 3 - Código do banco
                '0001' +                                                                                                      // 4 a 7 - Lote de serviço
@@ -535,8 +549,8 @@ begin
                       IfThen((DaySpan(Vencimento, DataProtesto) > 5), '1', '2'), '3') +                                      // 221 - Código de protesto: Protestar em XX dias corridos
                IfThen((DataProtesto > 0) and (DataProtesto > Vencimento),
                       PadLeft(IntToStr(DaysBetween(DataProtesto, Vencimento)), 2, '0'), '00') +                              // 222 a 223 - Prazo para protesto (em dias corridos)
-               '0' +                                                                                                         // 224 - Campo não tratado pelo BB [ Alterado conforme instruções da CSO Brasília ] {27-07-09}
-               '000' +                                                                                                       // 225 a 227 - Campo não tratado pelo BB [ Alterado conforme instruções da CSO Brasília ] {27-07-09}
+               ACodBaixaDevolucao +                                                                                          // 224 - Código para baixa/devolução: Não baixar/não devolver
+               ADiasBaixaDevolucao +                                                                                         // 225 a 227 - Prazo para baixa/devolução (em dias corridos)
                '09' +                                                                                                        // 228 a 229 - Código da moeda: Real
                StringOfChar('0', 10) +                                                                                       // 230 a 239 - Uso exclusivo FEBRABAN/CNAB
                ' ';                                                                                                          // 240 - Uso exclusivo FEBRABAN/CNAB

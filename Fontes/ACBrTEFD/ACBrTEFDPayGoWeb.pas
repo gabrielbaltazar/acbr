@@ -217,7 +217,12 @@ implementation
 
 uses
   Math,
-  ACBrTEFD, ACBrUtil, ACBrConsts;
+  ACBrTEFD,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
+  ACBrUtil.Base,
+  ACBrConsts;
 
 { TACBrTEFDRespPayGoWeb }
 
@@ -742,6 +747,7 @@ begin
     
     //DEBUG
     //Conteudo.Conteudo.SaveToFile('c:\temp\PGWeb.txt');
+    Resp.ViaClienteReduzida := TACBrTEFD(Owner).ImprimirViaClienteReduzida;
     ConteudoToProperty;
   end;
 end;

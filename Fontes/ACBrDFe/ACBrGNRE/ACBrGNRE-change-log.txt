@@ -45,6 +45,32 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+24/05/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+-- ACBrGNREWebServices/pgnreRetConsConfigUF --
+[*] Melhorias no retorno da consulta a configuração da UF.
+  Por: Igor Cibiac
+
+07/03/2022
+-- ACBrGNREGuiasRetorno.pas --
+[-] TK-2419 Correção exibição CPF/CNPJ na leitura para impressão
+  Por: Pandaaa (Contribuição de Windsoft)
+-- ACBrGNREGuiaFR.pas --
+[-] TK-2419 Correção de visibilidade do PreparedReport, BUG em Published, alterado para Public
+  Por: Pandaaa
+
+27/01/2022
+-- ACBrGNREWebServices --
+[*] Ajuste na função clear em TGNRERecibo, não limpar a property NumeroRecibo
+  Por: José M S Junior (Contribuição de WindSoft)
+
+17/01/2022
+-- ACBrGNREGuiasRetorno --
+[*] Possível correção para a leitura dos valores da guia.
+  Por: Italo Giurizzato Junior
+
 04/01/2022
 -- pgnreGNREW --
 [*] Corrigido o tipo de campo da tag <mes>.

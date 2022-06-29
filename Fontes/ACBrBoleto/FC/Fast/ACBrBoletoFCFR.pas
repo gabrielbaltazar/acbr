@@ -68,6 +68,7 @@ type
     FfrxCedente: TfrxDBDataset;
     FcdsTitulo: TClientDataSet;
     FfrxTitulo: TfrxDBDataset;
+    FUsarConfiguracoesACBr : Boolean;
     function PrepareBoletos: Boolean;
     function PreparaRelatorio: Boolean;
     function GetACBrTitulo: TACBrTitulo;
@@ -106,7 +107,7 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrImage, ACBrBancoBanestes, ACBrDelphiZXingQRCode;
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrImage, ACBrBancoBanestes, ACBrDelphiZXingQRCode;
 
 { TdmACBrBoletoFCFR }
 
@@ -269,7 +270,7 @@ begin
   FcdsTitulo.FieldDefs.Add('EspecieDoc', ftString, 10);
   FcdsTitulo.FieldDefs.Add('EspecieMod', ftString, 10);
   FcdsTitulo.FieldDefs.Add('UsoBanco', ftString, 4);
-  FcdsTitulo.FieldDefs.Add('Aceite', ftInteger);
+  FcdsTitulo.FieldDefs.Add('Aceite', ftString,3);
   FcdsTitulo.FieldDefs.Add('DataProcessamento', ftDateTime);
   FcdsTitulo.FieldDefs.Add('NossoNumero', ftString, 20);
   FcdsTitulo.FieldDefs.Add('Carteira', ftString, 20);
@@ -381,30 +382,29 @@ begin
             FfrxPDFExport.ShowProgress := MostrarProgresso;
           end;
 
-          if EstaVazio(FfrxPDFExport.FileName) then
-            FfrxPDFExport.FileName := NomeArquivo;
-          if EstaVazio(FfrxPDFExport.Author) then
-            FfrxPDFExport.Author   := SoftwareHouse;
-          if EstaVazio(FfrxPDFExport.Creator) then
-            FfrxPDFExport.Creator  := SoftwareHouse;
-          if EstaVazio(FfrxPDFExport.Producer) then
-            FfrxPDFExport.Producer := SoftwareHouse;
-          if EstaVazio(FfrxPDFExport.Title) then
-            FfrxPDFExport.Title    := 'Boleto';
-          if EstaVazio(FfrxPDFExport.Subject) then
-            FfrxPDFExport.Subject  := FfrxPDFExport.Title;
-          if EstaVazio(FfrxPDFExport.Keywords) then
-            FfrxPDFExport.Keywords := FfrxPDFExport.Title;
-
+          FfrxPDFExport.FileName      := NomeArquivo;
+          FfrxPDFExport.Author        := SoftwareHouse;
+          FfrxPDFExport.Creator       := SoftwareHouse;
+          FfrxPDFExport.Producer      := SoftwareHouse;
+          FfrxPDFExport.Title         := 'Boleto';
+          FfrxPDFExport.Subject       := FfrxPDFExport.Title;
+          FfrxPDFExport.Keywords      := FfrxPDFExport.Title;
           FfrxPDFExport.Background    := IncorporarBackgroundPdf;//False diminui 70% do tamanho do pdf
           FfrxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
 
-          if EstaVazio(FfrxPDFExport.UserPassword) then
+          
+
+          if NaoEstaVazio(PdfSenha) then
           begin
             FfrxPDFExport.UserPassword    := PdfSenha;
-            if NaoEstaVazio(FfrxPDFExport.UserPassword) then
-              FfrxPDFExport.ProtectionFlags := [ePrint];
+            FfrxPDFExport.ProtectionFlags := [ePrint];
+          end else
+          begin
+            FfrxPDFExport.UserPassword    := '';
+            FfrxPDFExport.ProtectionFlags := [];
           end;
+
+          FfrxPDFExport.OwnerPassword   := FfrxPDFExport.UserPassword;
 
           if Filtro = fiNenhum then
           begin
@@ -417,6 +417,7 @@ begin
 
           if FfrxPDFExport.FileName <> NomeArquivo then
             NomeArquivo := FfrxPDFExport.FileName;
+
         end;
       fiHTML:
         begin
@@ -609,7 +610,7 @@ var
         Field_EspecieMod.AsString := ListadeBoletos[Indice].EspecieMod;
         Field_EspecieDoc.AsString := ListadeBoletos[Indice].EspecieDoc;
         Field_UsoBanco.AsString := ListadeBoletos[Indice].UsoBanco;
-        Field_Aceite.AsInteger := Integer(ListadeBoletos[Indice].Aceite);
+        Field_Aceite.AsString := DefineAceiteImpressao(ListadeBoletos[Indice]);
         Field_DataProcessamento.AsDateTime := ListadeBoletos[Indice].DataProcessamento;
         Field_NossoNumero.AsString := ListadeBoletos[Indice].NossoNumero;
         Field_Carteira.AsString := Banco.MontarCampoCarteira(ListadeBoletos[Indice]);

@@ -56,6 +56,7 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderGovDigital200 = class (TACBrNFSeProviderABRASFv2)
@@ -71,7 +72,9 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, GovDigital.GravarXml, GovDigital.LerXml;
 
 { TACBrNFSeProviderGovDigital200 }
@@ -291,6 +294,17 @@ begin
   Result := Executar('http://nfse.abrasf.org.br/SubstituirNfse', Request,
                      ['outputXML', 'SubstituirNfseResposta'],
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceGovDigital200.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverCaracteresDesnecessarios(Result);
+  Result := RemoverPrefixosDesnecessarios(Result);
+  Result := string(NativeStringToUTF8(RemoverDeclaracaoXML(Result)));
 end;
 
 end.

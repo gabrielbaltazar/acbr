@@ -38,6 +38,133 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+05/05/2022
+-- ACBrWinUSBDevice --
+[+] Adicionado o método "Purge", para limpar dados enviados e recebidos da USB
+
+-- ACBrDeviceWinUSB --
+[+] Implementado o método "TACBrDeviceWinUSB.Limpar"
+
+-- ACBrPosPrinter --
+[*] Método "TACBrPosPrinter.TxRx", TimeOut default, diminuido de 500 para 300
+[*] Método "TACBrPosPrinter.ConfigurarRegiaoModoPagina": Adicionado Parâmetro
+    para permitir definir a direção do texto:
+    function ConfigurarRegiaoModoPagina(AEsquerda, ATopo, AAltura, ALargura: Integer;
+      ADirecao: TACBrPosDirecao = dirEsquerdaParaDireita
+
+-- ACBrUSBID.ini --
+[+] Adicionada identificação (VID/PID) de Impressora da Sunmi NT210
+
+-- ACBrDeviceBlueTooth --
+[-] Corrigido problema de vazamento de memória, caso a chamada ao método
+    BlueToothSocket.Connect falhe
+    (por: DSA)
+
+22/04/2022
+-- ACBrETQEpl2 --
+[*] Correçao em "AjustarNomeArquivoImagem", para calcular nomes com no máximo 8
+    caracteres, conforme o Manual
+    (por: DSA)
+
+20/04/2022
+-- ACBrETQZplII --
+[*] Ajustes nos métodos de Carregamento e impressão de Imagem, para considerar
+    a propriedade "LimparMemoria", e carregar a imagem em uma área volátil ou não
+
+-- ACBRETQ, ACBrPosPrinterElginE1Lib, ACBrPosPrinterGEDI --
+[*] Ajustes para usar novas Units de ACBrUtil
+    (por: DSA)
+
+31/03/2022
+-- ACBrETQ, ACBrETQClass --
+[*] Metodo "ConverterUnidade" modificado para ser Publico na Unit e independente
+    da Classe
+
+-- ACBrETQ, ACBrETQClass, ACBrETQEpl2, ACBrETQEscLabel, ACBrETQPpla, ACBrETQZplII --
+[*] Remoção de Hints
+[+] Implementado o método: "ApagarImagem(const NomeImagem: String = '*');"
+    Se NomeImagem for '*', apaga todas as Imagens
+    (por: DSA)
+
+27/03/2022
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Waldir Paim
+
+25/03/2022
+-- ACBrWinUSBDevice --
+[*] Remoção de Warnings e Hints.
+   Por: Waldir Paim
+
+Data: 21/03/2022
+-- ACBrDevice, ACBrETQClass --
+[*] Os tipos abaixo, foram movidos de "ACBrDevice.pas" para "ACBrETQClass.pas"
+    TACBrETQUnidade, TACBrETQDPI, TACBrETQOrientacao, TACBrETQBarraExibeCodigo,
+    TACBrETQBackFeed, TACBrETQOrigem
+
+-- ACBrETQ, ACBrETQClass --
+[+] Adicionado os métodos:
+    procedure DefinirCor(FrenteCor: Cardinal; FrenteOpacidade: Byte;
+      FundoCor: Cardinal; FundoOpacidade: Byte); overload;
+    procedure DefinirCor(FrenteR, FrenteG, FrenteB, FrenteOpacidade: Byte;
+      FundoR, FundoG, FundoB, FundoOpacidade: Byte); overload;
+    procedure DefinirCorPadrao;
+    - Para permitir mudar a Cor de Impressão de Frente e Fundo de Objetos como
+      Texto, Caixa, Linhas, Códigos, etc
+      Usado apenas no modelo: "EscLabel"
+[+] Adicionado o método:
+    procedure DefinirDimensoes(Largura, Altura: Integer;
+      EspacoEntreEtiquetas: Integer = -1; EspacoEsquerda: Integer = -1);
+    - Para permitir definir as Dimensões de uma Etiqueta, em um formulário sem
+      Cortes, Gaps ou BlackMark
+      Usado apenas no modelo: "EscLabel"
+[+] Adicionada a propriedade: "Guilhotina: Boolean default False;"
+    Se for True, acionará a guilhotina da Impressora, após o término da Impressão,
+    (quando disponível)
+[+] Adicionada a propriedade: "DeteccaoEtiqueta: TACBrETQDeteccaoEtiqueta"
+    (mdeNone, mdeGap, mdeBlackMark), default mdeNone.
+
+-- ACBrETQClass --
+[+] Adicionados novos Métodos Protegidos (Protected)
+    function ComandoDeteccao: AnsiString; virtual;
+    function ComandoGuilhotina: AnsiString; virtual;
+    function ComandoDimensoes: AnsiString; virtual;
+[*] Método "ComandosIniciarEtiqueta", modificado para adicionar a lista de
+    comandos, chamadas para: ComandoDeteccao, ComandoGuilhotina, ComandoDimensoes
+
+-- ACBrETQEpl2, ACBrETQPpla, ACBrETQZplII --
+[+] Adicionado suporte ao comando "ComandoGuilhotina"
+
+-- ACBrETQEscLabel --
+[+] Adicionado suporte aos comandos: "ComandoCor", "ComandoDeteccao" e "ComandoDimensoes"
+
+-- ACBrETQZplII --
+[*] Adicionada sobrecarga de alguns métodos, movendo-os em Protected, para
+    permitir a sobrecarga em TACBrETQEscLabel
+    (por: DSA)
+
+Data: 16/03/2022
+-- ACBrETQ, ACBrETQClass --
+[+] Adicionado o modelo "etqEscLabel", que implementa a comunicação do Protocolo
+    Esc/Label da Epson, baseado do Zpl2 da Zebra
+[*] Método "ImprimirCaixa", modificado para permitir informar Parâmetro com o
+    angulo dos Cantos. Canto: Integer = 0.
+    Suporta Valores 0 a 8 (0 sem arredondamento).
+    Suportado apenas em ZPL2 e EscLabel
+[*] Método "CarregarImagem", modificado para retornar por referência, o Nome do
+    arquivo da Imagem, como armazenado na memória da Impressora
+
+-- ACBrETQZplII --
+[*] Método "ComandoImprimirCaixa", modificado para processar o parâmeto recebido
+    em "Canto", para permitir caixas arredondadas
+[*] Métodos "ComandoImprimirImagem" e "ComandoCarregarImagem" refatorados,
+    para melhor detecção do Tipo e suportar arquivos "PNG" mono
+
+-- ACBrETQEscLabel --
+[+] Nova Unit com a implementação das diferenças de EscLabel e Zpl2
+    Suporte às Impressoras "Epson ColorWorks"
+    (por: DSA)
+
 -- ACBrDeviceLPT --
 [-] Correção para envio de Dados em Linux, Delphi FMX, por Stream
     (por: DSA)

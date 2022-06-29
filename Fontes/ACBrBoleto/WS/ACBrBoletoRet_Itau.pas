@@ -43,7 +43,7 @@ uses
 //  {$Else}
     Jsons,
 //  {$EndIf}
-  ACBrUtil, DateUtils, pcnConversao;
+  pcnConversao;
 
 type
 
@@ -63,7 +63,7 @@ type
 implementation
 
 uses
-  ACBrBoletoConversao;
+  ACBrBoletoConversao, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 { TRetornoEnvio }
 

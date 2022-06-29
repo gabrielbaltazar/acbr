@@ -113,7 +113,7 @@ type
     Property SuportaSaque: Boolean read fSuportaSaque write fSuportaSaque default False;
     Property SuportaDesconto: Boolean read fSuportaDesconto write fSuportaDesconto default False;
     property ImprimeViaClienteReduzida: Boolean read fImprimeViaClienteReduzida
-      write fImprimeViaClienteReduzida default True;
+      write fImprimeViaClienteReduzida default False;
     property SuportaViasDiferenciadas: Boolean read fSuportaViasDiferenciadas
       write fSuportaViasDiferenciadas default True;
     property UtilizaSaldoTotalVoucher: Boolean read fUtilizaSaldoTotalVoucher
@@ -427,7 +427,10 @@ implementation
 
 uses
   StrUtils, TypInfo,
-  ACBrUtil;
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.DateTime,
+  ACBrUtil.FilesIO;
 
 { TACBrTEFAPIDadosAutomacao }
 
@@ -442,7 +445,7 @@ begin
   fNomeSoftwareHouse := '';
   fNomeAplicacao := '';
   fVersaoAplicacao := '';
-  fImprimeViaClienteReduzida := True;
+  fImprimeViaClienteReduzida := False;
   fSuportaDesconto := False;
   fSuportaSaque := False;
   fSuportaViasDiferenciadas := True;

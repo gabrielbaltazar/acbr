@@ -60,9 +60,10 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
+
     property Namespace: string read GetNamespace;
     property SoapAction: string read GetSoapAction;
-
   end;
 
   TACBrNFSeProviderISSe200 = class (TACBrNFSeProviderABRASFv2)
@@ -77,7 +78,8 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, ISSe.GravarXml, ISSe.LerXml;
 
 { TACBrNFSeProviderISSe200 }
@@ -96,6 +98,12 @@ begin
   begin
     LoteRps := True;
     CancelarNFSe := True;
+  end;
+
+  with ConfigWebServices do
+  begin
+    VersaoDados := '2.01';
+    VersaoAtrib := '2.01';
   end;
 end;
 
@@ -308,6 +316,16 @@ begin
   Result := Executar(SoapAction + '#SubstituirNfse', Request,
                      ['return', 'SubstituirNfseResposta'],
                      [NameSpace]);
+end;
+
+function TACBrNFSeXWebserviceISSe200.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 end.

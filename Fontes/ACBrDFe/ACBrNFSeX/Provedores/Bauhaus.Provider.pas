@@ -136,13 +136,17 @@ end;
 function TACBrNFSeProviderBauhaus.CriarServiceClient(
   const AMetodo: TMetodo): TACBrNFSeXWebservice;
 var
-  URL: string;
+  URL, FpMethod: string;
 begin
   URL := GetWebServiceURL(AMetodo);
   FpBaseURL := URL;
+  FpMethod := 'POST';
+
+  if AMetodo = tmConsultarNFSe then
+    FpMethod := 'GET';
 
   if URL <> '' then
-    Result := TACBrNFSeXWebserviceBauhaus.Create(FAOwner, AMetodo, URL)
+    Result := TACBrNFSeXWebserviceBauhaus.Create(FAOwner, AMetodo, URL, FpMethod)
   else
   begin
     if ConfigGeral.Ambiente = taProducao then
@@ -251,7 +255,7 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
   I: Integer;
   NotaCompleta: Boolean;
   AcessoNegado: Boolean;
@@ -271,16 +275,6 @@ begin
       Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
 
       NotaCompleta := (Pos('<nfse>', Response.ArquivoRetorno) > 0);
-
-      AcessoNegado := (Pos('Acesso Negado', Response.ArquivoRetorno) > 0);
-
-      if AcessoNegado then
-      begin
-        AErro := Response.Erros.New;
-        AErro.Codigo := Cod211;
-        AErro.Descricao := Desc211;
-        Exit;
-      end;
 
       Document.LoadFromXml(Response.ArquivoRetorno);
 
@@ -324,7 +318,7 @@ begin
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
           if Assigned(ANota) then
-            ANota.XML := ANode.OuterXml
+            ANota.XmlNfse := ANode.OuterXml
           else
           begin
             TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -400,7 +394,7 @@ var
   ANode, AuxNode: TACBrXmlNode;
 //  ANodeArray: TACBrXmlNodeArray;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
 //  I: Integer;
   NotaCompleta: Boolean;
 begin
@@ -450,7 +444,7 @@ begin
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
         if Assigned(ANota) then
-          ANota.XML := ANode.OuterXml
+          ANota.XmlNfse := ANode.OuterXml
         else
         begin
           TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -544,7 +538,7 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
   I: Integer;
   NotaCompleta: Boolean;
 begin
@@ -613,7 +607,7 @@ begin
             ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(Response.NumeroNota);
 
           if Assigned(ANota) then
-            ANota.XML := ANode.OuterXml
+            ANota.XmlNfse := ANode.OuterXml
           else
           begin
             TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -676,7 +670,7 @@ function TACBrNFSeXWebserviceBauhaus.GerarNFSe(ACabecalho, AMSG: String): string
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceBauhaus.ConsultarNFSe(ACabecalho,
@@ -684,14 +678,14 @@ function TACBrNFSeXWebserviceBauhaus.ConsultarNFSe(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceBauhaus.Cancelar(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 function TACBrNFSeXWebserviceBauhaus.SubstituirNFSe(ACabecalho,
@@ -699,7 +693,7 @@ function TACBrNFSeXWebserviceBauhaus.SubstituirNFSe(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''], []);
+  Result := Executar('', AMSG, [], []);
 end;
 
 end.

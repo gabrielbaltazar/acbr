@@ -46,6 +46,54 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+05/05/22
+-- ACBrTEFAPIComum --
+[*] Propriedade "ImprimeViaClienteReduzida: Boolean", modificada de Default "True"
+    para "False"
+
+-- TACBrTEFPGWebAPI --
+[-] Método "TACBrPOSPGWebAPI.ExecutarTransacaoTEF", modificado para sempre criar
+    arquivo de Backup, pois "xPTI_EFT_Confirm", pode falhar, por falta de
+    comunicação
+    (por: DSA)
+
+14/03/22
+-- ACBrTEFDCliSiTef --
+[-] Correções na geração dos dados do campo ParametrosAdicionais
+    www.projetoacbr.com.br/forum/index.php?showtopic=66467
+    (por: Waldir Paim)
+
+18/02/22
+-- ACBrTEFPayGoComum --
+[+] Adicionado mapeamento do retorno do registrador PWINFO_DATETIMERCPT para
+    TACBrTEFResp.DataHoraTransacaoComprovante
+    (por: Antonio Carlos)
+
+-- ACBrTEFDCliSiTef --
+[*] Ajuste na rotina "FinalizarTransacao", para priorizar "DataHoraFiscal", quando for informada
+    https://www.projetoacbr.com.br/forum/topic/66016-datahora-finalizacao-de-transacao-clisitef/
+
+28/01/22
+-- ACBrTEFAndroidPayGo, ACBrTEFAPICliSiTef, ACBrTEFAPIPayGoWeb --
+[*] Método "InterpretarRespostaAPI", ajustado para passar o valor de
+   DadosAutomacao.ImprimeViaClienteReduzida para UltimaRespostaTEF.
+   (por: DSA)
+
+27/01/22
+-- ACBrTEFDClass, ACBrTEFDCliDTEF, ACBrTEFDCliSiTef, ACBrTEFDPayGoWeb,
+   ACBrTEFDTicketCar, ACBrTEFDVeSPague --
+[-] Ajuste para copiar em TACBrTEFResp.ViaClienteReduzida o valor de
+    TACBrTEFD.ImprimirViaClienteReduzida
+
+-- ACBrTEFPayGoWebComum --
+[*] Ajuste em "TACBrTEFPGWebAPI.ObterDadosDaTransacao", para não remover a
+    informação PWINFO_RCPTCHSHORT do Log de resposta do TEF
+
+-- ACBrTEFPayGoComum --
+[-] Ajuste em "ConteudoToPropertyPayGoWeb", para considerar todas as opções de
+    Via do Cliente, apesar das configurações de Via Reduzida
+    (por: DSA)
+
 18/18/21
 -- ACBrTEFDCliSiTef, ACBrTEFAPICliSiTef --
 [-] Ajuste para permitir interromper a leitura do QRCode exibido no PinPad,

@@ -578,6 +578,7 @@ const
   CMetodoEnviarEmailBoleto =         'enviaremailboleto';
   CMetodoEnviarBoleto =              'enviarboleto';
   CMetodoSetOperacaoWS =             'setoperacaows';
+  CMetodoConsultarTitulosPorPeriodo= 'consultartitulosporperiodo';
 
   CMetodoAtivar =               'ativar';
   CMetodoDesativar =            'desativar';
@@ -639,10 +640,12 @@ const
   CMetodoSetAberturaIntervalo = 'setaberturaintervalo';
   CMetodoAberturaAntecipada   = 'aberturaantecipada';
 
-  CMetodoBuscarPorCodigo = 'buscarporcodigo';
-  CMetodoBuscarPorNome   = 'buscarpornome';
+  CMetodoBuscarPorCodigo    = 'buscarporcodigo';
+  CMetodoBuscarPorNome      = 'buscarpornome';
+  CMetodoBuscarPorDescricao = 'buscarpordescricao';
 
   CMetodoValidar      = 'validar';
+  CMetodoObterNCMs    = 'obterncms';
   CMetodoBaixarLista  = 'baixarlista';
   CMetodoDescricaoNCM = 'descricaoncm';
 
@@ -892,6 +895,7 @@ const
 
   CSecNCM =                          'NCM';
   CKeyDirNCMSalvar =                 'DirNCMSalvar';
+  CKeyDiasValidadeCache =            'DiasValidadeCache';
 
   CSecCertificado =                  'Certificado';
   CKeySSLLib =                       'SSLLib';

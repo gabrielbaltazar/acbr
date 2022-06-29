@@ -48,6 +48,7 @@ type
     function GerarNFSe(ACabecalho, AMSG: String): string; override;
     function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderISSGoiania200 = class (TACBrNFSeProviderABRASFv2)
@@ -67,7 +68,9 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXNotasFiscais,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException, ACBrNFSeX, ACBrNFSeXNotasFiscais,
   ISSGoiania.GravarXml, ISSGoiania.LerXml;
 
 { TACBrNFSeProviderISSGoiania200 }
@@ -86,6 +89,7 @@ begin
   with ConfigAssinar do
   begin
     LoteGerarNFSe := True;
+//    ConsultarNFSeRps := True;
     IncluirURI := False;
   end;
 
@@ -133,7 +137,7 @@ var
   Document: TACBrXmlDocument;
   ANode, AuxNode: TACBrXmlNode;
   AErro: TNFSeEventoCollectionItem;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
   NumNFSe, NumRps: String;
 begin
   Document := TACBrXmlDocument.Create;
@@ -204,7 +208,7 @@ begin
         end;
 
         if Assigned(ANota) then
-          ANota.XML := ANode.OuterXml
+          ANota.XmlNfse := ANode.OuterXml
         else
         begin
           TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -240,7 +244,7 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   NumRps: String;
-  ANota: NotaFiscal;
+  ANota: TNotaFiscal;
   I: Integer;
 begin
   Document := TACBrXmlDocument.Create;
@@ -305,7 +309,7 @@ begin
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
           if Assigned(ANota) then
-            ANota.XML := ANode.OuterXml
+            ANota.XmlNfse := ANode.OuterXml
           else
           begin
             TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
@@ -387,8 +391,19 @@ begin
   Request := Request + '</ws:ConsultarNfseRps>';
 
   Result := Executar('http://nfse.goiania.go.gov.br/ws/ConsultarNfseRps', Request,
-                     ['ConsultarNfseRpsResult', 'ConsultarNfseRpsResposta'],
+                     ['ConsultarNfseRpsResult', 'GerarNfseResposta'],
+//                     ['ConsultarNfseRpsResult', 'ConsultarNfseRpsResposta'],
                      ['xmlns:ws="http://nfse.goiania.go.gov.br/ws/"']);
+end;
+
+function TACBrNFSeXWebserviceISSGoiania200.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
 end;
 
 end.

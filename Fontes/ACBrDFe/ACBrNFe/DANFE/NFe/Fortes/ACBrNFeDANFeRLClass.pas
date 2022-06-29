@@ -141,7 +141,9 @@ type
 implementation
 
 uses
-  synautil, ACBrNFe, ACBrUtil, ACBrNFeNotasFiscais, pcnEnvEventoNFe,
+  synautil, ACBrNFe,
+  ACBrUtil.Base, ACBrUtil.Strings,
+  ACBrNFeNotasFiscais, pcnEnvEventoNFe,
   ACBrNFeDANFeRL, ACBrNFeDANFeEventoRL,
   ACBrNFeDANFeRLRetrato, ACBrNFeDANFeRLPaisagem,
   ACBrNFeDANFeEventoRLRetrato, ACBrNFeDANFeRLSimplificado,

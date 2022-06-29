@@ -3,10 +3,10 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2021 Daniel Simoes de Almeida               }
-{ Colaboradores nesse arquivo:  Victor Hugo Gonzales - Panda                   }
-{                               Leandro do Couto                               }
-{                               Fernando Henrique                              }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
+{ Colaboradores nesse arquivo:  Victor Hugo Gonzales - Panda, Leandro do Couto,}
+{  Fernando Henrique                                                           }
+{                                                                              }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -53,7 +53,6 @@ type
   TBoletoW_Sicredi_API = class(TBoletoWSREST)
   private
     FDFeSSL:TDFeSSL;
-    FToken:String;
     function CodigoTipoTitulo(AEspecieDoc:String): String;
   protected
     procedure DefinirURL; override;
@@ -120,6 +119,8 @@ const
   C_ACCESS_TOKEN    = 'token';
 
 implementation
+	uses
+   		ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 
 { TBoletoW_Sicredi_API }
@@ -213,13 +214,13 @@ var
   Json  : TJSONObject;
   Stream: TMemoryStream;
 begin
-  Json := TJsonObject.Create;
+  Json := TJsonObject.Create; 
+  Stream:= TMemoryStream.Create;
   try
       if( not Assigned( FDFeSSL ) ) then
         FDFeSSL := TDFeSSL( Boleto.Configuracoes.WebService);
 
-      FDFeSSL.SSLHttpClass.MimeType := FPContentType;
-      Stream:= TMemoryStream.Create;
+      FDFeSSL.SSLHttpClass.MimeType := FPContentType;   
 
       with FDFeSSL.SSLHttpClass.HeaderReq do
         begin
@@ -250,6 +251,7 @@ begin
         end;
   finally
     Stream.Free;
+	Json.Free;
     FDFeSSL.SSLHttpClass.HeaderReq.Clear;
     FDFeSSL.SSLHttpClass.HeaderResp.Clear;
     FDFeSSL.SSLHttpClass.Clear;
@@ -558,7 +560,7 @@ begin
         aJson.Add('cpfCnpj').Value.asString          := OnlyNumber(Titulos.Sacado.CNPJCPF);
         aJson.Add('nome').Value.AsString             := Titulos.Sacado.NomeSacado;
         aJson.Add('endereco').Value.AsString         := Titulos.Sacado.Logradouro + ' ' + Titulos.Sacado.Numero;
-        aJson.Add('cep').Value.AsInteger             := StrToInt(OnlyNumber(Titulos.Sacado.CEP));
+        aJson.Add('cep').Value.AsString              := OnlyNumber(Titulos.Sacado.CEP);
         aJson.Add('cidade').Value.AsString           := Titulos.Sacado.Cidade;
         aJson.Add('uf').Value.AsString               := Titulos.Sacado.UF;
         aJson.Add('telefone').Value.AsString         := IfThen( Titulos.Sacado.Fone='' , '0',Titulos.Sacado.Fone );

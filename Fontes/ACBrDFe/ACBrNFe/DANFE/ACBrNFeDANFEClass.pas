@@ -180,7 +180,8 @@ type
 implementation
 
 uses
-  ACBrDFeUtil, ACBrValidador, ACBrUtil,
+  ACBrDFeUtil, ACBrValidador,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime,
   StrUtils;
 
 { TACBrNFeDANFEClass }
@@ -266,7 +267,8 @@ begin
             Result := Result + ' (' + FormatFloatBr((Imposto.vTotTrib * 100) / TotalProduto) + '%)';
         end
         else
-          Result := Result + ' (' + FormatFloatBr((Imposto.vTotTrib * 100) / Prod.VProd) + '%)';
+          if NaoEstaZerado(Prod.VProd) then
+            Result := Result + ' (' + FormatFloatBr((Imposto.vTotTrib * 100) / Prod.VProd) + '%)';
       end;
     end;
   end;

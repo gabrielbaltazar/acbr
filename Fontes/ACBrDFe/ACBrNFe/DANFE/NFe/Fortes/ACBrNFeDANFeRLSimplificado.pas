@@ -189,7 +189,8 @@ implementation
 
 uses
   StrUtils, DateUtils,
-  ACBrUtil, ACBrValidador, ACBrDFeUtil,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime,
+  ACBrValidador, ACBrDFeUtil,
   ACBrDFeReportFortes, pcnNFe, pcnConversao;
 
 {$IfNDef FPC}

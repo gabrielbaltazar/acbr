@@ -38,10 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
-  ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
+  ACBrXmlDocument,
+  ACBrNFSeXGravarXml;
 
 type
   { TNFSeW_ABRASFv1 }
@@ -153,7 +151,10 @@ type
 implementation
 
 uses
-  ACBrNFSeXProviderBase;
+  pcnConsts,
+  ACBrUtil.Strings,
+  ACBrXmlBase,
+  ACBrNFSeXConversao, ACBrNFSeXConsts;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS dos provedores:
@@ -241,6 +242,12 @@ begin
 
   FDocument.Root := NFSeNode;
 
+  {
+    O ConsolidarVariosItensServicosEmUmSo esta comentado pois requer varios
+    testes.
+  }
+//  ConsolidarVariosItensServicosEmUmSo;
+
   xmlNode := GerarInfRps;
   NFSeNode.AppendChild(xmlNode);
 
@@ -267,16 +274,16 @@ begin
 
   if (NFSe.RegimeEspecialTributacao <> retNenhum) then
     Result.AppendChild(AddNode(tcStr, '#6', 'RegimeEspecialTributacao', 1, 1, NrOcorrRegimeEspecialTributacao,
-   RegimeEspecialTributacaoToStr(NFSe.RegimeEspecialTributacao, Provedor), DSC_REGISSQN));
+   FpAOwner.RegimeEspecialTributacaoToStr(NFSe.RegimeEspecialTributacao), DSC_REGISSQN));
 
   Result.AppendChild(AddNode(tcStr, '#7', 'OptanteSimplesNacional', 1, 1, NrOcorrOptanteSN,
-   TACBrNFSeXProvider(FpAOwner).SimNaoToStr(NFSe.OptanteSimplesNacional), DSC_INDOPSN));
+   FpAOwner.SimNaoToStr(NFSe.OptanteSimplesNacional), DSC_INDOPSN));
 
   Result.AppendChild(AddNode(tcStr, '#8', 'IncentivadorCultural', 1, 1, NrOcorrIncentCult,
-   TACBrNFSeXProvider(FpAOwner).SimNaoToStr(NFSe.IncentivadorCultural), DSC_INDINCCULT));
+   FpAOwner.SimNaoToStr(NFSe.IncentivadorCultural), DSC_INDINCCULT));
 
   Result.AppendChild(AddNode(tcStr, '#9', 'Status', 1, 1, NrOcorrStatus,
-                                   StatusRPSToStr(NFSe.Status), DSC_INDSTATUS));
+                                   StatusRPSToStr(NFSe.StatusRps), DSC_INDSTATUS));
 
   Result.AppendChild(AddNode(tcStr, '#11', 'OutrasInformacoes', 1, 255, NrOcorrOutrasInformacoes,
                                         NFSe.OutrasInformacoes, DSC_OUTRASINF));
@@ -302,7 +309,7 @@ begin
                                     NFSe.IdentificacaoRps.Serie, DSC_SERIERPS));
 
   Result.AppendChild(AddNode(tcStr, '#3', 'Tipo', 1, 1, 1,
-                        TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), DSC_TIPORPS));
+               FpAOwner.TipoRPSToStr(NFSe.IdentificacaoRps.Tipo), DSC_TIPORPS));
 end;
 
 function TNFSeW_ABRASFv1.GerarRPSSubstituido: TACBrXmlNode;
@@ -321,7 +328,7 @@ begin
                                    NFSe.RpsSubstituido.Serie, DSC_SERIERPSSUB));
 
     Result.AppendChild(AddNode(tcStr, '#3', 'Tipo', 1, 1, 1,
-                       TipoRPSToStr(NFSe.RpsSubstituido.Tipo), DSC_TIPORPSSUB));
+              FpAOwner.TipoRPSToStr(NFSe.RpsSubstituido.Tipo), DSC_TIPORPSSUB));
   end;
 end;
 
@@ -357,7 +364,7 @@ begin
                        (NFSe.Prestador.Endereco.CodigoMunicipio <> '3304557')));
 }
   Result.AppendChild(AddNode(tcStr, '#', 'InformacoesComplementares', 1, 255, NrOcorrInformacoesComplemetares,
-                                                   NFSe.OutrasInformacoes, ''));
+                                           NFSe.InformacoesComplementares, ''));
 
   Result.AppendChild(GerarServicoCodigoMunicipio);
 
@@ -403,7 +410,7 @@ begin
                                     NFSe.Servico.Valores.ValorCsll, DSC_VCSLL));
 
   Result.AppendChild(AddNode(tcStr, '#20', 'IssRetido', 1, 1, 1,
-       SituacaoTributariaToStr(NFSe.Servico.Valores.IssRetido, Provedor), DSC_INDISSRET));
+    FpAOwner.SituacaoTributariaToStr(NFSe.Servico.Valores.IssRetido), DSC_INDISSRET));
 
   Result.AppendChild(AddNode(tcDe2, '#21', 'ValorIss', 1, 15, NrOcorrValorIss,
                                       NFSe.Servico.Valores.ValorIss, DSC_VISS));
@@ -417,7 +424,7 @@ begin
   Result.AppendChild(AddNode(tcDe2, '#24', 'BaseCalculo', 1, 15, NrOcorrBaseCalc,
                                  NFSe.Servico.Valores.BaseCalculo, DSC_VBCISS));
 
-  Aliquota := AjustarAliquota(NFSe.Servico.Valores.Aliquota, DivAliq100);
+  Aliquota := NormatizarAliquota(NFSe.Servico.Valores.Aliquota, DivAliq100);
 
   Result.AppendChild(AddNode(FormatoAliq, '#25', 'Aliquota', 1, 5, NrOcorrAliquota,
                                                           Aliquota, DSC_VALIQ));

@@ -38,7 +38,7 @@ interface
 
 uses
   SysUtils, Classes,
-  ACBrBase, ACBrNFSeXDANFSeClass, ACBrNFSeXClass, frxClass,
+  ACBrBase, ACBrNFSeX, ACBrNFSeXDANFSeClass, ACBrNFSeXClass, frxClass,
   DB, DBClient, frxDBSet, frxExportPDF, frxBarcode, ACBrValidador;
 
 type
@@ -70,6 +70,10 @@ type
     procedure frxReportBeforePrint(Sender: TfrxReportComponent);
     procedure SetDataSetsToFrxReport;
     procedure AjustaMargensReports;
+    function GetACBrNFSe: TACBrNFSeX;
+
+  protected
+    property ACBrNFSe: TACBrNFSeX read GetACBrNFSe;
   public
     frxReport: TfrxReport; // Está como public, pois quando declarado em datamodule, tem acesso externo, e pode ser que alguem esteja usando.
     frxPDFExport: TfrxPDFExport;
@@ -105,7 +109,9 @@ type
 implementation
 
 uses
-  ACBrNFSeX, ACBrUtil, StrUtils, ACBrDFeUtil, Math, ACBrNFSeXConversao;
+  StrUtils, Math,
+  ACBrUtil, ACBrDFeUtil,
+  ACBrNFSeXConversao, ACBrNFSeXInterface;
 
 constructor TACBrNFSeXDANFSeFR.Create(AOwner: TComponent);
 begin
@@ -138,6 +144,11 @@ begin
   frxPDFExport.Free;
 
   inherited Destroy;
+end;
+
+function TACBrNFSeXDANFSeFR.GetACBrNFSe: TACBrNFSeX;
+begin
+  Result := TACBrNFSeX(FDANFSeXClassOwner.ACBrNFSe);
 end;
 
 function TACBrNFSeXDANFSeFR.GetPreparedReport: TfrxReport;
@@ -464,7 +475,7 @@ begin
       Add('LogoPrefExpandido', ftString, 1);
       Add('LogoPrefCarregado', ftBlob);
       Add('Nome_Prefeitura', ftString, 256);
-      Add('Mensagem0', ftString, 50);
+      Add('Mensagem0', ftString, 60);
       Add('Sistema', ftString, 150);
       Add('Usuario', ftString, 50);
       Add('Site', ftString, 50);
@@ -823,7 +834,7 @@ begin
       else
         FieldByName('NumeroNFSe').AsString := ANFSe.Numero;
 
-      if (Provedor in [proGINFES, proBetha, proDSFSJC]) then
+      if (Provedor in [proGINFES, proBetha, proDSF]) then
         FieldByName('DataEmissao').AsString := FormatDateTimeBr(ANFSe.DataEmissao)
       else
         FieldByName('DataEmissao').AsString := FormatDateBr(DataEmissao);
@@ -838,7 +849,10 @@ end;
 procedure TACBrNFSeXDANFSeFR.CarregaItensServico(ANFSe: TNFSe);
 var
   I: Integer;
+  FProvider: IACBrNFSeXProvider;
 begin
+  FProvider := TACBrNFSeX(FACBrNFSe).Provider;
+
   with cdsItensServico do
   begin
     EmptyDataSet;
@@ -851,7 +865,7 @@ begin
         cdsItensServico.FieldByName('Quantidade').AsString := FloatToStr(Quantidade);
         cdsItensServico.FieldByName('ValorUnitario').AsString := FormatFloatBr(ValorUnitario, ',0.00');
         cdsItensServico.FieldByName('ValorTotal').AsString := FormatFloatBr(ValorTotal, ',0.00');
-        cdsItensServico.FieldByName('Tributavel').AsString := SimNaoToStr(Tributavel);
+        cdsItensServico.FieldByName('Tributavel').AsString := FProvider.SimNaoDescricao(Tributavel);
         cdsItensServico.FieldByName('Aliquota').AsString := FormatFloatBr(Aliquota, '0.00');
         cdsItensServico.FieldByName('Unidade').AsString := Unidade;
         cdsItensServico.FieldByName('AliquotaISSST').AsString := FormatFloatBr(AliqISSST, '0.00');
@@ -863,7 +877,11 @@ begin
 end;
 
 procedure TACBrNFSeXDANFSeFR.CarregaParametros(ANFSe: TNFSe);
+var
+  FProvider: IACBrNFSeXProvider;
 begin
+  FProvider := TACBrNFSeX(FACBrNFSe).Provider;
+
   with cdsParametros do
   begin
     EmptyDataSet;
@@ -872,26 +890,26 @@ begin
     with ANFSe do
     begin
       FieldByName('OutrasInformacoes').AsString := OutrasInformacoes;
-      FieldByName('NaturezaOperacao').AsString := NaturezaOperacaoDescricao(NaturezaOperacao);
+      FieldByName('NaturezaOperacao').AsString := FProvider.NaturezaOperacaoDescricao(NaturezaOperacao);
 
       if Provedor = proEL then
       begin
         if RegimeEspecialTributacao = retNenhum then
           FieldByName('RegimeEspecialTributacao').AsString := 'Tributação Normal'
         else
-          FieldByName('RegimeEspecialTributacao').AsString := nfseRegimeEspecialTributacaoDescricao(RegimeEspecialTributacao);
+          FieldByName('RegimeEspecialTributacao').AsString := FProvider.RegimeEspecialTributacaoDescricao(RegimeEspecialTributacao);
 
         if OptanteSimplesNacional = snSim then
           FieldByName('OptanteSimplesNacional').AsString := 'Optante'
         else
           FieldByName('OptanteSimplesNacional').AsString := 'Não Optante';
 
-        FieldByName('IncentivadorCultural').AsString := SimNao(Integer(IncentivadorCultural));
+        FieldByName('IncentivadorCultural').AsString := FProvider.SimNaoDescricao(IncentivadorCultural);
 
         with Servico do
         begin
           FieldByName('CodigoMunicipio').AsString := CodIBGEToCidade(StrToIntDef(IfThen(CodigoMunicipio <> '', CodigoMunicipio, ''), 0));
-          FieldByName('ExigibilidadeISS').AsString := ExigibilidadeISSDescricao(ExigibilidadeISS);
+          FieldByName('ExigibilidadeISS').AsString := FProvider.ExigibilidadeISSDescricao(ExigibilidadeISS);
 
           if NaturezaOperacao = no2 then
             FieldByName('MunicipioIncidencia').AsString := 'Fora do Município'
@@ -906,7 +924,7 @@ begin
       end
       else
       begin
-        FieldByName('RegimeEspecialTributacao').AsString := nfseRegimeEspecialTributacaoDescricao(RegimeEspecialTributacao);
+        FieldByName('RegimeEspecialTributacao').AsString := FProvider.RegimeEspecialTributacaoDescricao(RegimeEspecialTributacao);
 
         if Provedor = proAdm then
         begin
@@ -916,13 +934,13 @@ begin
             FieldByName('OptanteSimplesNacional').AsString := 'Não Optante';
         end
         else
-          FieldByName('OptanteSimplesNacional').AsString := SimNao(Integer(OptanteSimplesNacional));
+          FieldByName('OptanteSimplesNacional').AsString := FProvider.SimNaoDescricao(OptanteSimplesNacional);
 
-        FieldByName('IncentivadorCultural').AsString := SimNao(Integer(IncentivadorCultural));
+        FieldByName('IncentivadorCultural').AsString := FProvider.SimNaoDescricao(IncentivadorCultural);
 
         with Servico do
         begin
-          FieldByName('ExigibilidadeISS').AsString := ExigibilidadeISSDescricao(ExigibilidadeISS);
+          FieldByName('ExigibilidadeISS').AsString := FProvider.ExigibilidadeISSDescricao(ExigibilidadeISS);
           FieldByName('TipoRecolhimento').AsString := TipoRecolhimento;
 
           if Provedor = proAdm then
@@ -956,11 +974,11 @@ begin
     FieldByName('Site').AsString := DANFSeXClassOwner.Site;
 
     if Provedor = proEL then
-      FieldByName('Mensagem0').AsString := IfThen(ANFSe.Cancelada = snSim, 'CANCELADA', '')
+      FieldByName('Mensagem0').AsString := IfThen(ANFSe.SituacaoNfse = snCancelado, 'CANCELADA', '')
     else
-      FieldByName('Mensagem0').AsString := IfThen(ANFSe.Cancelada = snSim, 'NFSe CANCELADA', ''); // LUIZ
+      FieldByName('Mensagem0').AsString := IfThen(ANFSe.SituacaoNfse = snCancelado, 'NFSe CANCELADA', '');
 
-    if (ANFSe.Producao = snNao) then
+    if (ACBrNFSe.Configuracoes.WebServices.AmbienteCodigo = 2) then
       FieldByName('Mensagem0').AsString := Trim(FieldByName('Mensagem0').AsString + sLineBreak + ACBrStr('AMBIENTE DE HOMOLOGAÇÃO - SEM VALOR FISCAL'));
 
     Post;
@@ -1034,7 +1052,11 @@ begin
 end;
 
 procedure TACBrNFSeXDANFSeFR.CarregaServicos(ANFSe: TNFSe);
+var
+  FProvider: IACBrNFSeXProvider;
 begin
+  FProvider := TACBrNFSeX(FACBrNFSe).Provider;
+
   with cdsServicos do
   begin
     EmptyDataSet;
@@ -1062,7 +1084,7 @@ begin
       FieldByName('CodigoPais').AsString := IntToStr(CodigoPais);
       FieldByName('NumeroProcesso').AsString := NumeroProcesso;
       FieldByName('Descricao').AsString := Descricao;
-      FieldByName('ResponsavelRetencao').AsString := ResponsavelRetencaoToStr(ResponsavelRetencao);
+      FieldByName('ResponsavelRetencao').AsString := FProvider.ResponsavelRetencaoToStr(ResponsavelRetencao);
       FieldByName('Tributacao').AsString := TributacaoToStr(Tributacao);
 
       with Valores do
@@ -1074,7 +1096,7 @@ begin
         FieldByName('ValorInss').AsFloat := ValorInss;
         FieldByName('ValorIr').AsFloat := ValorIr;
         FieldByName('ValorCsll').AsFloat := ValorCsll;
-        FieldByName('IssRetido').AsString := SituacaoTributariaDescricao(IssRetido);
+        FieldByName('IssRetido').AsString := FProvider.SituacaoTributariaDescricao(IssRetido);
         FieldByName('ValorIss').AsFloat := ValorIss;
         FieldByName('OutrasRetencoes').AsFloat := OutrasRetencoes;
         FieldByName('BaseCalculo').AsFloat := BaseCalculo;
@@ -1107,7 +1129,7 @@ begin
     begin
       if ValorIss > 0 then
       begin
-        FieldByName('ValorServicos').AsFloat          := BaseCalculo;
+        FieldByName('ValorServicos').AsFloat          := ANFSe.Servico.Valores.ValorServicos;
         FieldByName('ValorIss').AsFloat               := ValorIss;
         FieldByName('BaseCalculo').AsFloat            := BaseCalculo;
         FieldByName('Aliquota').AsFloat               := Aliquota;
@@ -1221,7 +1243,6 @@ procedure TACBrNFSeXDANFSeFR.CarregaImagemPrestadora;
 var
   vStream: TMemoryStream;
   vStringStream: TStringStream;
-
 begin
   With DANFSeXClassOwner do
   begin

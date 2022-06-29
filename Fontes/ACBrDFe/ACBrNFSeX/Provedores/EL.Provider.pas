@@ -98,13 +98,16 @@ type
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
-    procedure ProcessarMensagemErros(const RootNode: TACBrXmlNode;
-                                     const Response: TNFSeWebserviceResponse;
-                                     AListTag: string = '';
-                                     AMessageTag: string = ''); override;
+    procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
+                                     Response: TNFSeWebserviceResponse;
+                                     const AListTag: string = '';
+                                     const AMessageTag: string = ''); override;
 
   public
     procedure Emite; override;
+
+    function RegimeEspecialTributacaoToStr(const t: TnfseRegimeEspecialTributacao): string; override;
+    function StrToRegimeEspecialTributacao(out ok: boolean; const s: string): TnfseRegimeEspecialTributacao; override;
 
   end;
 
@@ -121,6 +124,7 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderEL204 = class (TACBrNFSeProviderABRASFv2)
@@ -136,7 +140,10 @@ type
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   ACBrNFSeXNotasFiscais, EL.GravarXml, EL.LerXml;
 
@@ -382,6 +389,15 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
+function TACBrNFSeXWebserviceEL204.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := RemoverDeclaracaoXML(Result);
+end;
+
 { TACBrNFSeProviderEL }
 
 function TACBrNFSeProviderEL.AbreSessao(
@@ -401,7 +417,7 @@ begin
     TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
     Exit;
   end;
-
+  AService := nil;
   try
     try
       TACBrNFSeX(FAOwner).SetStatus(stNFSeEnvioWebService);
@@ -416,7 +432,7 @@ begin
     except
       on E:Exception do
       begin
-        AErro := Result.Erros.New;
+        AErro := EmiteResponse.Erros.New;
         AErro.Codigo := Cod999;
         AErro.Descricao := Desc999 + E.Message;
       end;
@@ -454,6 +470,7 @@ begin
     Exit;
   end;
 
+  AService := nil;
   try
     try
       TACBrNFSeX(FAOwner).SetStatus(stNFSeEnvioWebService);
@@ -468,7 +485,7 @@ begin
     except
       on E:Exception do
       begin
-        AErro := Result.Erros.New;
+        AErro := EmiteResponse.Erros.New;
         AErro.Codigo := Cod999;
         AErro.Descricao := Desc999 + E.Message;
       end;
@@ -503,8 +520,8 @@ begin
 end;
 
 procedure TACBrNFSeProviderEL.ProcessarMensagemErros(
-  const RootNode: TACBrXmlNode; const Response: TNFSeWebserviceResponse;
-  AListTag, AMessageTag: string);
+  RootNode: TACBrXmlNode; Response: TNFSeWebserviceResponse;
+  const AListTag, AMessageTag: string);
 var
   I: Integer;
   ANode: TACBrXmlNode;
@@ -533,6 +550,28 @@ begin
   end;
 end;
 
+function TACBrNFSeProviderEL.RegimeEspecialTributacaoToStr(
+  const t: TnfseRegimeEspecialTributacao): string;
+begin
+  Result := EnumeradoToStr(t,
+                       ['0', '1', '2', '3', '4', '5', '6'],
+                       [retNenhum, retMicroempresaMunicipal, retEstimativa,
+                       retSociedadeProfissionais, retCooperativa,
+                       retMicroempresarioIndividual, retMicroempresarioEmpresaPP
+                       ]);
+end;
+
+function TACBrNFSeProviderEL.StrToRegimeEspecialTributacao(out ok: boolean;
+  const s: string): TnfseRegimeEspecialTributacao;
+begin
+  Result := StrToEnumerado(ok, s,
+                       ['0', '1', '2', '3', '4', '5', '6'],
+                       [retNenhum, retMicroempresaMunicipal, retEstimativa,
+                       retSociedadeProfissionais, retCooperativa,
+                       retMicroempresarioIndividual, retMicroempresarioEmpresaPP
+                       ]);
+end;
+
 procedure TACBrNFSeProviderEL.PrepararAbrirSessao(
   Response: TNFSeAbreSessaoResponse);
 var
@@ -541,7 +580,7 @@ var
 begin
   if EstaVazio(Response.Lote) then
   begin
-    AErro := Response.Erros.New;
+    AErro := EmiteResponse.Erros.New;
     AErro.Codigo := Cod111;
     AErro.Descricao := Desc111;
     Exit;
@@ -571,7 +610,7 @@ begin
     try
       if Response.ArquivoRetorno = '' then
       begin
-        AErro := Response.Erros.New;
+        AErro := EmiteResponse.Erros.New;
         AErro.Codigo := Cod201;
         AErro.Descricao := Desc201;
         Exit
@@ -619,7 +658,7 @@ begin
     try
       if Response.ArquivoRetorno = '' then
       begin
-        AErro := Response.Erros.New;
+        AErro := EmiteResponse.Erros.New;
         AErro.Codigo := Cod201;
         AErro.Descricao := Desc201;
         Exit
@@ -633,7 +672,7 @@ begin
     except
       on E:Exception do
       begin
-        AErro := Response.Erros.New;
+        AErro := EmiteResponse.Erros.New;
         AErro.Codigo := Cod999;
         AErro.Descricao := Desc999 + E.Message;
       end;
@@ -889,6 +928,9 @@ begin
 
       AuxNode := ANode.Childrens.FindAnyNs('return');
 
+      if (AuxNode <> nil) and (Pos('<notasFiscais>', AuxNode.OuterXml) > 0) then
+        AuxNode := AuxNode.Childrens.FindAnyNs('notasFiscais');
+
       if AuxNode <> nil then
       begin
         with Response do
@@ -967,6 +1009,9 @@ begin
       Response.Sucesso := (Response.Erros.Count = 0);
 
       AuxNode := ANode.Childrens.FindAnyNs('return');
+
+      if (AuxNode <> nil) and (Pos('<nfeRpsNotaFiscal>', AuxNode.OuterXml) > 0) then
+        AuxNode := AuxNode.Childrens.FindAnyNs('nfeRpsNotaFiscal');
 
       if AuxNode <> nil then
       begin
@@ -1130,6 +1175,9 @@ begin
 
       AuxNode := ANode.Childrens.FindAnyNs('return');
 
+      if (AuxNode <> nil) and (Pos('<nfeRpsNotaFiscal>', AuxNode.OuterXml) > 0) then
+        AuxNode := AuxNode.Childrens.FindAnyNs('nfeRpsNotaFiscal');
+
       if AuxNode <> nil then
       begin
         with Response do
@@ -1163,6 +1211,7 @@ begin
     UseCertificateHTTP := False;
     ModoEnvio := meLoteAssincrono;
     NumMaxRpsEnviar := 5;
+    DetalharServico := True;
   end;
 
   SetXmlNameSpace('http://www.el.com.br/nfse/xsd/el-nfse.xsd');
@@ -1211,7 +1260,7 @@ function TACBrNFSeXWebserviceEL.Recepcionar(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1219,7 +1268,7 @@ function TACBrNFSeXWebserviceEL.AbrirSessao(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1227,7 +1276,7 @@ function TACBrNFSeXWebserviceEL.FecharSessao(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1236,7 +1285,7 @@ function TACBrNFSeXWebserviceEL.ConsultarSituacao(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1244,7 +1293,7 @@ function TACBrNFSeXWebserviceEL.ConsultarLote(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1253,7 +1302,7 @@ function TACBrNFSeXWebserviceEL.ConsultarNFSePorRps(ACabecalho,
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1261,7 +1310,7 @@ function TACBrNFSeXWebserviceEL.ConsultarNFSe(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 
@@ -1269,7 +1318,7 @@ function TACBrNFSeXWebserviceEL.Cancelar(ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
-  Result := Executar('', AMSG, [''],
+  Result := Executar('', AMSG, [],
                      ['xmlns:el="http://des36.el.com.br:8080/el-issonline/"']);
 end;
 

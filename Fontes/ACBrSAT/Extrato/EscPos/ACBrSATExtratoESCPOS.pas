@@ -85,6 +85,11 @@ type
     procedure ImprimirExtrato(ACFe : TCFe = nil); override;
     procedure ImprimirExtratoResumido(ACFe : TCFe = nil); override;
     procedure ImprimirExtratoCancelamento(ACFe : TCFe = nil; ACFeCanc: TCFeCanc = nil); override;
+
+    procedure ImprimirExtrato(AStream: TStream; ACFe: TCFe = nil); override;
+    procedure ImprimirExtratoResumido(AStream: TStream; ACFe : TCFe = nil); override;
+    procedure ImprimirExtratoCancelamento(AStream: TStream; ACFe : TCFe = nil; ACFeCanc: TCFeCanc = nil); override;
+
     function GerarImpressaoFiscalMFe(ACFe : TCFe = nil) : String;
   published
     property PosPrinter : TACBrPosPrinter read FPosPrinter write SetPosPrinter;
@@ -637,7 +642,8 @@ procedure TACBrSATExtratoESCPOS.GerarDadosCancelamento;
 Var
   DadosQRCode, Chave, TagCode128 , TituloSAT, ATexto: String;
   ChaveEmUmaLinha, Suporta128c : Boolean;
-  EsquerdaQRCode, AlturaQRCode: Integer;
+  EsquerdaQRCode, AlturaQRCode, AlturaMax: Integer;
+  SL : TStringList;
 begin
   FPosPrinter.Buffer.Add('</fn></linha_simples>');
   FPosPrinter.Buffer.Add(ACBrStr('</ce><n>DADOS DO CUPOM FISCAL ELETRÔNICO DE CANCELAMENTO</n>'));
@@ -684,20 +690,27 @@ begin
                 FormatFloatBr(CFeCanc.ide.nserieSAT,'000,000,000') + sLineBreak +
                 FormatDateTimeBr(CFeCanc.ide.dEmi + CFeCanc.ide.hEmi, 'DD/MM/YYYY - hh:nn:ss');
 
-      ATexto := QuebraLinhas( ATexto, trunc(FPosPrinter.ColunasFonteCondensada/2) );
+      ATexto := QuebraLinhas( ATexto, trunc(FPosPrinter.ColunasFonteCondensada/2) -2 );
       ATexto := AplicarAtributoTexto( ATexto, TituloSAT, '<n>');
+      SL := TStringList.Create;
+      try
+        SL.Text := ATexto;
+        AlturaQRCode   := FPosPrinter.CalcularAlturaQRCodeAlfaNumM(DadosQRCode);
+        AlturaMax      := max( FPosPrinter.CalcularAlturaTexto(SL.Count), AlturaQRCode );
+        EsquerdaQRCode := Trunc(max(CLarguraRegiaoEsquerda - Trunc(AlturaQRCode/2),0) / 2);
 
-      AlturaQRCode := FPosPrinter.CalcularAlturaQRCodeAlfaNumM(DadosQRCode);
-      EsquerdaQRCode := Trunc(max(CLarguraRegiaoEsquerda - Trunc(AlturaQRCode/2),0) / 2);
+        FPosPrinter.Buffer.Add( '<mp>' +
+                                FPosPrinter.ConfigurarRegiaoModoPagina(
+                                  EsquerdaQRCode, 0, AlturaMax,
+                                  (CLarguraRegiaoEsquerda-EsquerdaQRCode) ) +
+                                ComandosQRCode(DadosQRCode));
 
-      FPosPrinter.Buffer.Add( '<mp>' +
-                              FPosPrinter.ConfigurarRegiaoModoPagina(
-                                EsquerdaQRCode, 0, AlturaQRCode,
-                                (CLarguraRegiaoEsquerda-EsquerdaQRCode) ) +
-                              ComandosQRCode(DadosQRCode));
-      FPosPrinter.Buffer.Add( FPosPrinter.ConfigurarRegiaoModoPagina(
-                                CLarguraRegiaoEsquerda, 0, AlturaQRCode, 325) +
-                              '</ce><c>' + ATexto + '</mp>');
+        FPosPrinter.Buffer.Add( FPosPrinter.ConfigurarRegiaoModoPagina(
+                                  CLarguraRegiaoEsquerda, 0, AlturaMax, 325) +
+                                '</ce><c>' + SL.Text + '</mp>');
+      finally
+        SL.Free;
+      end;
     end
     else
     begin
@@ -840,6 +853,22 @@ begin
   GerarFechamento;
 
   ImprimirCopias;
+end;
+
+procedure TACBrSATExtratoESCPOS.ImprimirExtrato(AStream: TStream; ACFe: TCFe);
+begin
+  raise EACBrSATErro.Create(cACBrSATStreamException);
+end;
+
+procedure TACBrSATExtratoESCPOS.ImprimirExtratoCancelamento(AStream: TStream; ACFe: TCFe;
+  ACFeCanc: TCFeCanc);
+begin
+  raise EACBrSATErro.Create(cACBrSATStreamException);
+end;
+
+procedure TACBrSATExtratoESCPOS.ImprimirExtratoResumido(AStream: TStream; ACFe: TCFe);
+begin
+  raise EACBrSATErro.Create(cACBrSATStreamException);
 end;
 
 function TACBrSATExtratoESCPOS.GerarImpressaoFiscalMFe(ACFe: TCFe): String;

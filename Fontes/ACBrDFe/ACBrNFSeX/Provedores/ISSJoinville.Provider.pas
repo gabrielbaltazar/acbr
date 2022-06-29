@@ -54,6 +54,8 @@ type
     function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
+
     property Namespace: string read GetNamespace;
     property SoapAction: string read GetSoapAction;
   end;
@@ -67,14 +69,16 @@ type
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
-    procedure ValidarSchema(Response: TNFSeWebserviceResponse; aMetodo: TMetodo); override;
+    procedure TratarRetornoConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
   end;
 
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
-  ACBrNFSeXNotasFiscais, ISSJoinville.GravarXml, ISSJoinville.LerXml;
+  ACBrUtil, ACBrDFeException,
+  ACBrXmlDocument, ACBrXmlReader,
+  ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXNotasFiscais, ACBrNFSeXConsts,
+  ISSJoinville.GravarXml, ISSJoinville.LerXml;
 
 { TACBrNFSeProviderISSJoinville204 }
 
@@ -93,6 +97,7 @@ begin
   begin
     Rps := True;
     LoteRps := True;
+    CancelarNFSe := True;
   end;
 
   with ConfigWebServices do
@@ -106,13 +111,7 @@ begin
   else
     SetXmlNameSpace('http://nfemwshomologacao.joinville.sc.gov.br');
 
-  with ConfigMsgDados do
-  begin
-    Prefixo := 'nfem';
-    PrefixoTS := 'nfem';
-
-    GerarPrestadorLoteRps := True;
-  end;
+  ConfigMsgDados.GerarPrestadorLoteRps := True;
 
   SetNomeXSD('nfse_v2-04.xsd');
 end;
@@ -159,61 +158,94 @@ begin
     Result := Result + '\Homologacao\';
 end;
 
-procedure TACBrNFSeProviderISSJoinville204.ValidarSchema(
-  Response: TNFSeWebserviceResponse; aMetodo: TMetodo);
+procedure TACBrNFSeProviderISSJoinville204.TratarRetornoConsultaLoteRps(
+  Response: TNFSeConsultaLoteRpsResponse);
 var
-  xXml, FpNameSpace: string;
+  Document: TACBrXmlDocument;
+  ANode, AuxNode: TACBrXmlNode;
+  ANodeArray: TACBrXmlNodeArray;
+  AErro: TNFSeEventoCollectionItem;
+  ANota: TNotaFiscal;
+  NumRps: String;
+  I: Integer;
 begin
-  inherited ValidarSchema(Response, aMetodo);
+  Document := TACBrXmlDocument.Create;
 
-  xXml := Response.ArquivoEnvio;
-
-  if FAOwner.Configuracoes.WebServices.AmbienteCodigo = 1 then
-    FpNameSpace := 'xmlns:nfem="http://nfemws.joinville.sc.gov.br"'
-  else
-    FpNameSpace := 'xmlns:nfem="http://nfemwshomologacao.joinville.sc.gov.br"';
-
-  case aMetodo of
-    tmRecepcionar:
+  try
+    try
+      if Response.ArquivoRetorno = '' then
       begin
-        xXml := RetornarConteudoEntre(xXml,
-          '<nfem:EnviarLoteRpsEnvio ' + FpNameSpace + '>',
-          '</nfem:EnviarLoteRpsEnvio>', False);
-
-        xXml := '<nfem:EnviarLoteRpsEnvio>' + xXml + '</nfem:EnviarLoteRpsEnvio>';
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod201;
+        AErro.Descricao := Desc201;
+        Exit
       end;
 
-    tmConsultarLote:
-      begin
-        xXml := RetornarConteudoEntre(xXml,
-          '<nfem:ConsultarLoteRpsEnvio ' + FpNameSpace + '>',
-          '</nfem:ConsultarLoteRpsEnvio>', False);
+      Response.Situacao := '3'; // Processado com Falhas
 
-        xXml := '<nfem:ConsultarLoteRpsEnvio>' + xXml + '</nfem:ConsultarLoteRpsEnvio>';
+      Document.LoadFromXml(Response.ArquivoRetorno);
+
+      ANode := Document.Root;
+
+      ProcessarMensagemErros(ANode, Response, 'ListaMensagemRetornoLote', 'MensagemRetornoLote');
+
+      Response.Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Situacao'), tcStr);
+
+      ANode := ANode.Childrens.FindAnyNs('ListaNfse');
+
+      if not Assigned(ANode) then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod202;
+        AErro.Descricao := Desc202;
+        Exit;
       end;
 
-    tmConsultarNFSePorRps:
-      begin
-        xXml := RetornarConteudoEntre(xXml,
-          '<nfem:ConsultarNfseRpsEnvio ' + FpNameSpace + '>',
-          '</nfem:ConsultarNfseRpsEnvio>', False);
+      ProcessarMensagemErros(ANode, Response);
 
-        xXml := '<nfem:ConsultarNfseRpsEnvio>' + xXml + '</nfem:ConsultarNfseRpsEnvio>';
+      Response.Sucesso := (Response.Erros.Count = 0);
+
+      ANodeArray := ANode.Childrens.FindAllAnyNs('CompNfse');
+      if not Assigned(ANodeArray) then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod203;
+        AErro.Descricao := Desc203;
+        Exit;
       end;
 
-    tmCancelarNFSe:
+      for I := Low(ANodeArray) to High(ANodeArray) do
       begin
-        xXml := RetornarConteudoEntre(xXml,
-          '<nfem:CancelarNfseEnvio ' + FpNameSpace + '>',
-          '</nfem:CancelarNfseEnvio>', False);
+        ANode := ANodeArray[I];
+        AuxNode := ANode.Childrens.FindAnyNs('Nfse');
+        AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
+        NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroRps'), tcStr);
 
-        xXml := '<nfem:CancelarNfseEnvio>' + xXml + '</nfem:CancelarNfseEnvio>';
+        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+
+        if Assigned(ANota) then
+          ANota.XmlNfse := ANode.OuterXml
+        else
+        begin
+          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
+          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
+        end;
+
+        SalvarXmlNfse(ANota);
+
+        Response.Situacao := '4'; // Processado com sucesso pois retornou a nota
       end;
-  else
-    Response.ArquivoEnvio := xXml;
+    except
+      on E:Exception do
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod999;
+        AErro.Descricao := Desc999 + E.Message;
+      end;
+    end;
+  finally
+    FreeAndNil(Document);
   end;
-
-  Response.ArquivoEnvio := xXml;
 end;
 
 { TACBrNFSeXWebserviceISSJoinville204 }
@@ -221,9 +253,9 @@ end;
 function TACBrNFSeXWebserviceISSJoinville204.GetNamespace: string;
 begin
   if FPConfiguracoes.WebServices.AmbienteCodigo = 1 then
-    Result := 'xmlns:nfem="https://nfemws.joinville.sc.gov.br"'
+    Result := 'xmlns="https://nfemws.joinville.sc.gov.br/"'
   else
-    Result := 'xmlns:nfem="https://nfemwshomologacao.joinville.sc.gov.br"';
+    Result := 'xmlns="https://nfemwshomologacao.joinville.sc.gov.br/"';
 end;
 
 function TACBrNFSeXWebserviceISSJoinville204.GetSoapAction: string;
@@ -271,6 +303,14 @@ begin
   Result := Executar(SoapAction + 'CancelarNfseEnvio', AMSG,
                      ['CancelarNfseResposta'],
                      [NameSpace]);
+end;
+
+function TACBrNFSeXWebserviceISSJoinville204.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := RemoverPrefixosDesnecessarios(Result);
 end;
 
 end.

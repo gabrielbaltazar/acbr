@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   ACBrNFSeXConversao, ACBrNFSeXLerXml;
 
@@ -61,6 +60,10 @@ type
   end;
 
 implementation
+
+uses
+  ACBrUtil.Base,
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -180,6 +183,7 @@ end;
 procedure TNFSeR_Giap.LerDetalheServico(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
+  Ok: Boolean;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('detalheServico');
 
@@ -193,14 +197,10 @@ begin
       ValorInss              := ObterConteudo(AuxNode.Childrens.FindAnyNs('inss'), tcDe2);
       ValorIr                := ObterConteudo(AuxNode.Childrens.FindAnyNs('ir'), tcDe2);
       ValorCsll              := ObterConteudo(AuxNode.Childrens.FindAnyNs('csll'), tcDe2);
-      ValorIssRetido         := ObterConteudo(AuxNode.Childrens.FindAnyNs('issRetido'), tcDe2);
       ValorDeducoes          := ObterConteudo(AuxNode.Childrens.FindAnyNs('deducaoMaterial'), tcDe2);
       DescontoIncondicionado := ObterConteudo(AuxNode.Childrens.FindAnyNs('descontoIncondicional'), tcDe2);
 
-      if ValorIssRetido > 0 then
-        IssRetido := stRetencao
-      else
-        IssRetido := stNormal;
+      IssRetido := FpAOwner.StrToSituacaoTributaria(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('issRetido'), tcStr));
 
       AliquotaPIS    := 0;
       AliquotaCOFINS := 0;
@@ -217,7 +217,7 @@ begin
     begin
       ValorIss         := (ValorServicos * Aliquota) / 100;
       ValorLiquidoNfse := ValorServicos -
-      (ValorDeducoes + DescontoCondicionado + DescontoIncondicionado +
+        (ValorDeducoes + DescontoCondicionado + DescontoIncondicionado +
                                                                 ValorIssRetido);
       BaseCalculo      := ValorLiquidoNfse;
     end;
@@ -250,20 +250,19 @@ end;
 function TNFSeR_Giap.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
-  xRetorno: string;
 begin
-  xRetorno := TratarXmlRetorno(Arquivo);
-
-  if EstaVazio(xRetorno) then
+  if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  Arquivo := NormatizarXml(Arquivo);
 
   if FDocument = nil then
     FDocument := TACBrXmlDocument.Create();
 
   Document.Clear();
-  Document.LoadFromXml(xRetorno);
+  Document.LoadFromXml(Arquivo);
 
-  if (Pos('notaFiscal', xRetorno) > 0) then
+  if (Pos('notaFiscal', Arquivo) > 0) then
     tpXML := txmlNFSe
   else
     tpXML := txmlRPS;

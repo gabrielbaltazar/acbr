@@ -125,7 +125,8 @@ type
 implementation
 
 uses
-  ACBrValidador, ACBrUtil;
+  ACBrValidador,
+  ACBrUtil.Strings;
 
 { TACBrPIXDevedorRecebedorBase }
 
@@ -255,7 +256,6 @@ begin
     e := ValidarCNPJ(s);
     if (e <> '') then
       raise EACBrPixException.Create(ACBrStr(e));
-    fcpf := '';
   end;
 
   fcnpj := s;
@@ -274,7 +274,6 @@ begin
     e := ValidarCPF(s);
     if (e <> '') then
       raise EACBrPixException.Create(ACBrStr(e));
-    fcnpj := '';
   end;
 
   fcpf := s;

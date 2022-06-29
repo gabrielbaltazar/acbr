@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
   ACBrNFSeXConversao, ACBrNFSeXLerXml, ACBrNFSeXLerXml_ABRASFv2;
 
@@ -78,6 +77,9 @@ type
   end;
 
 implementation
+
+uses
+  ACBrUtil.Base, ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -121,6 +123,7 @@ procedure TNFSeR_SmarAPD.LerItens(const ANode: TACBrXmlNode);
 var
   ANodes: TACBrXmlNodeArray;
   i: Integer;
+  aValor: string;
 begin
   ANodes := ANode.Childrens.FindAllAnyNs('ITENS');
 
@@ -134,13 +137,27 @@ begin
       ItemListaServico := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoAtividade'), tcStr);
       Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Servico'), tcStr);
 
-      if NFSe.Servico.Discriminacao = '' then
-        NFSe.Servico.Discriminacao := Descricao;
+      if NFSe.Servico.Discriminacao <> '' then
+        NFSe.Servico.Discriminacao := NFSe.Servico.Discriminacao + ';';
+
+      NFSe.Servico.Discriminacao := NFSe.Servico.Discriminacao + Descricao;
 
       ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorUnitario'), tcDe2);
       ValorTotal    := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorTotal'), tcDe2);
       Aliquota      := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Aliquota'), tcDe2);
       Tributavel    := snSim;
+
+      aValor := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ImpostoRetido'), tcStr);
+
+      if aValor = 'true' then
+      begin
+        NFSe.Servico.Valores.IssRetido := stRetencao;
+        NFSe.Servico.Valores.ValorIssRetido := ObterConteudo(ANode.Childrens.FindAnyNs('ISSQNCliente'), tcDe2);
+      end
+      else
+        NFSe.Servico.Valores.IssRetido := stNormal;
+
+      NFSe.Servico.Valores.Aliquota := Aliquota;
 
       NFSe.Servico.Valores.ValorServicos := (NFSe.Servico.Valores.ValorServicos +
                                                                   ValorTotal);
@@ -191,20 +208,19 @@ end;
 function TNFSeR_SmarAPD.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
-  xRetorno: string;
 begin
-  xRetorno := TratarXmlRetorno(Arquivo);
-
-  if EstaVazio(xRetorno) then
+  if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  Arquivo := NormatizarXml(Arquivo);
 
   if FDocument = nil then
     FDocument := TACBrXmlDocument.Create();
 
   Document.Clear();
-  Document.LoadFromXml(xRetorno);
+  Document.LoadFromXml(Arquivo);
 
-  if (Pos('nfdok', xRetorno) > 0) then
+  if (Pos('nfdok', Arquivo) > 0) then
     tpXML := txmlNFSe
   else
     tpXML := txmlRPS;
@@ -233,11 +249,6 @@ begin
 
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
-//  AuxNode := ANode.Childrens.FindAnyNs('NFe');
-
-//  if AuxNode = nil then
-//    AuxNode := ANode.Childrens.FindAnyNs('CompNfse');
-
   AuxNode := ANode.Childrens.FindAnyNs('nfdok');
 
   if AuxNode <> nil then
@@ -260,7 +271,6 @@ begin
     aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('NaturezaOperacao'), tcStr);
     NaturezaOperacao := StrToNaturezaOperacao(Ok, aValor);
 
-//    Protocolo         := CodigoVerificacao;
     OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('Observacao'), tcStr);
 
     MotivoCancelamento           := '';
@@ -306,7 +316,7 @@ begin
 
       with IdentificacaoPrestador do
       begin
-        InscricaoMunicipal := Trim(copy(aValor, 23, (pos('CPF/CNPJ:', aValor) -24)));
+        InscricaoMunicipal := Trim(copy(aValor, 22, (pos('CPF/CNPJ:', aValor) -23)));
         CpfCnpj := Trim(copy(aValor, pos('CPF/CNPJ:', aValor) +10,
                                                             length(aValor) -1));
       end;
@@ -385,7 +395,9 @@ begin
       ValorIss         := (ValorServicos * Aliquota) /100;
       ValorLiquidoNfse := ValorServicos -
                                       (ValorDeducoes + DescontoCondicionado +
-                                       DescontoIncondicionado + ValorIssRetido);
+                                       DescontoIncondicionado + ValorIssRetido +
+                                       ValorPis + ValorCofins + ValorInss +
+                                       ValorIr + ValorCsll);
       BaseCalculo      := ValorLiquidoNfse;
     end;
   end;

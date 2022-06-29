@@ -621,7 +621,9 @@ implementation
 
 uses
   StrUtils, Math,
-  ACBrUtil, ACBrCompress, ACBrNFe, ACBrConsts,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime, ACBrUtil.XMLHTML,
+  ACBrUtil.FilesIO,
+  ACBrCompress, ACBrNFe, ACBrConsts,
   pcnGerador, pcnConsStatServ, pcnRetConsStatServ,
   pcnConsSitNFe, pcnInutNFe, pcnRetInutNFe, pcnConsReciDFe,
   pcnConsCad, pcnLeitor, ACBrIntegrador;
