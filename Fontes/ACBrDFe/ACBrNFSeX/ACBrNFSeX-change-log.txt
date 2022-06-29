@@ -42,6 +42,160 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+
+29/06/2022
+-- ABase.Provider --
+[*] O provedor esta retornando o XML da NFS-e fora do padrão, Sobreescrito a função:
+    TratarRetornoConsultaNFSeporRps para poder ler corretamente o XML.
+   Por: Italo Giurizzato Junior
+-- Conam.Provider --
+[*] Possível solução para o tratamento das mensagens de retorno.
+   Por: Italo Giurizzato Junior
+-- SigCorp.LerXml --
+[*] Possível solução para o problema de leitura de datas fora do formato padrão.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[+] Incluída a cidade: Marialva/PR - Provedor Elotech.
+   Por: Willian Delan
+[*] A cidade: Chapada dos Guimaraes/MT - Trocou para o provedor Coplan.
+   Por: Podium Informatica
+[+] Incluída a cidade: Glorinha/RS - Provedor Pronim.
+   Por: MaxData Sistema
+[*] A cidade: Modelo/SC - Trocou para o provedor IPM.
+   Por: Léo Boita
+-- EL.Provider --
+[*] Incluido as funções de conversão de Situação Tributária referente ao campo
+    IssRetido.
+   Por: Jeanny Paiva
+
+24/06/2022
+-- ACBrNFSeXProviderABRASFv2 --
+[*] Alteração no tratamento do retorno do cancelamento para correta leitura do XML de
+    retorno.
+   Por: Diogo Rodrigues
+-- ABase.Provider --
+[+] Incluída a função: TratarXmlRetornado para tratar o XML retornado do WebService.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] A cidade: Itaquaquecetuba/SP - Trocou para o provedor Ginfes.
+   Por: Rogério Sales
+[*] A cidade: Santo Antonio do Monte/MG - Trocou para o provedor IPM.
+   Por: Paula Pires
+[+] Incluída a cidade: Ceres/GO - Provedor Prodata.
+   Por: MaxData Sistema
+
+23/06/2022
+-- ACBrNFSeXWebservicesResponse --
+[+] Incluido o campo CodVerificacao na classe TNFSeConsultaLoteRpsResponse, pois
+    ao consultar o lote tem provedor que retorna o código de verificação.
+   Por: Italo Giurizzato Junior
+-- ISSDSF.Provider --
+[*] Possível solução para evitar incluir item na lista de notas indevidamente.
+   Por: Italo Giurizzato Junior
+
+22/06/2022
+-- ACBrNFSeXProviderABRASFv1/ACBrNFSeXProviderABRASFv2 --
+[+] Incluido algumas propriedades para definir o tipo de campo referente a data,
+    infelizmente alguns provedores não seguem os manuais da ABRASF e acabam 
+    geranda o XML com datas em um formanto totalmente diferente.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXProviderBase --
+[+] Incluido na procedure SetXmlNameSpace a configuracao da propriedade NameSpaceURI,
+    necessária quando se utiliza o componente configurado com xsMsXml em vez de xsLibXml2.
+   Por: Italo Giurizzato Junior
+-- Etherium.Provider --
+[*] Incluido na procedure Configuração as linhas para configurar os formatos das datas:
+      FpFormatoDataRecebimento := tcDatUSA; {MM/DD/AAAA}
+      FpFormatoDataEmissao := tcDatUSA;
+      FpFormatoDataHora := tcDatUSA;
+   Por: Italo Giurizzato Junior
+-- SigCorp.Provider --
+[*] Incluido na procedure Configuração a linha para configurar o formato da data:
+      FpFormatoDataRecebimento := tcDatUSA; {MM/DD/AAAA}
+   Por: Italo Giurizzato Junior
+-- Infisc.Provider --
+[*] Alterado a posição da chamada a procedure ProcessarMensagemErros.
+   Por: Italo Giurizzato Junior
+-- IPM.LerXml --
+[*] Ajustes para ler o campo DataEmissaoRps e o Tipo da Pessoal ao ler os dados do
+    Tomador.
+   Por: Maico Smaniotto
+-- ACBrNFSeXServicos --
+[*] A cidade: Santa Rosa/RS - Provedor IPM estava com a versão e URL erradas.
+   Por: Maico Smaniotto
+[+] Incluído a cidade: Julio de Castilhos/RS - Provedor Pronim
+   Por: Gabriel Bobello
+
+21/06/2022
+-- ModernizacaoPublica.GravarXml --
+[*] Comentado a linha que defini como obrigatória a tag Aliquota.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXProviderABRASFv2 --
+[*] Utilizado a função LerDatas para ler a data de recebimento da resposta do
+    método Emitir, pois alguns provedores não retornam a data no formato 
+    definido pela ABRASF.
+   Por: Italo Giurizzato Junior
+-- WebFisco.GravarXml --
+[+] Inclusão de novos campos ao gerar o XML do Rps.
+    Observação: esses novos campos constam no manual do provedor FGMaiss que se
+    utiliza do mesmo layout do WebFisco.
+   Por: Italo Giurizzato Junior
+-- ISSDSF.Provider --
+[*] Possível solução para o erro de AV ao tratar o retorno do Emitir.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] Alterado as URLs de diversas cidade do Provedor Coplan.
+   Por: Joemil
+[+] Incluído as cidades: Guapiaçu/SP e Itajobi/SP - Provedor Fiorilli
+   Por: TBI
+[+] Incluído a cidade: Cruz das Almas/BA - Provedor Fisco
+   Por: Celso Pires
+-- Infisc.Provider/Infisc.GravarXml/Infisc.LerXml/ACBrNFSeXProviderManager --
+[+] Incluído as rotinas para atender a versão 2.03 do provedor Infisc.
+   Por: Italo Giurizzato Junior
+
+17/06/2022
+-- Etherium.Provider --
+[*] Alterado para assinar o Rps também.
+   Por: Italo Giurizzato Junior
+
+15/06/2022
+-- ACBrNFSeXServicos --
+[*] Alterado as URLs da cidade: Alta Floresta/MT - Provedor Coplan.
+   Por: Marcus Smith
+[*] Alterado as URLs da cidade: Sinop/MT - Provedor Coplan.
+   Por: Renato E
+-- ACBrNFSeXClass --
+[*] Acrescentado a limpeza de algumas classes de lista no método Clear da classe
+    NFSe
+-- ISSDSF.GravarXml --
+[*] Alterado para opcional a tag DocTomadorEstrangeiro.
+   Por: Italo Giurizzato Junior
+
+14/06/2022
+-- DSF.GravarXml --
+[*] Incluido na Configuração a linha que define que a aliquota tem 2 casas
+    decimais.
+   Por: Italo Giurizzato Junior
+-- ISSGoiania.Provider --
+[*] Correção na sequencia de tags para extrair o retorno da consulta.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos --
+[*] Alterado as URLs da cidade: Videira/SC - Provedor IPM.
+   Por: Metasis Sistemas
+[*] Alterado as URLs da cidade: Guaranta do Norte/MT - Provedor Coplan.
+   Por: Francelin
+-- Diversos --
+[*] Implementado a função CarregarXmlNfse com o objetivo de simplificar o código
+    de diversos provedores.
+-- BHISS.Provider --
+[*] Nas funções que geram a requisição de envio foi trocado o CDATA pela conversão
+    do XML em String.
+-- ISSSaoPaulo.Provider --
+[*] Implementado as funções LerChaveNFe e LerChaveRPS com o objetivo de simplificar
+    o código e verificar se o componente esta carregado com o XML da NFSe ou RPS.
+   Por: Italo Giurizzato Junior
+
 10/06/2022
 -- ACBrNFSeXProviderABRASFv2 --
 [*] Correção na leitura das tags referente ao cancelamento da nota ao 

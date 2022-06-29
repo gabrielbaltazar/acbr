@@ -78,6 +78,8 @@ type
     procedure SalvarXmlRps(aNota: TNotaFiscal);
     procedure SalvarXmlNfse(aNota: TNotaFiscal);
 
+    function CarregarXmlNfse(aNota: TNotaFiscal; aXml: string): TNotaFiscal;
+
     function GetWebServiceURL(const AMetodo: TMetodo): string;
     function GetSchemaPath: string; virtual;
 
@@ -753,6 +755,19 @@ begin
   end;
 end;
 
+function TACBrNFSeXProvider.CarregarXmlNfse(aNota: TNotaFiscal; aXml: string): TNotaFiscal;
+begin
+  if Assigned(ANota) then
+    ANota.XmlNfse := aXml
+  else
+  begin
+    TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(aXml, False);
+    ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
+  end;
+
+  Result := aNota;
+end;
+
 procedure TACBrNFSeXProvider.SalvarXmlRps(aNota: TNotaFiscal);
 begin
   if FAOwner.Configuracoes.Arquivos.Salvar then
@@ -826,6 +841,8 @@ begin
     AbrirSessao.xmlns := aNameSpace;
     FecharSessao.xmlns := aNameSpace;
   end;
+
+  TACBrNFSeX(FAOwner).SSL.NameSpaceURI := aNameSpace;
 end;
 
 function TACBrNFSeXProvider.SimNaoToStr(const t: TnfseSimNao): string;

@@ -275,7 +275,7 @@ begin
         if Length(Documento) = 11 then
         begin
           Consulta.Add('cpfPagador='+Copy(Documento,1,9));
-          Consulta.Add('digitoCPFPagador='+Copy(Documento,9,2));
+          Consulta.Add('digitoCPFPagador='+Copy(Documento,10,2));
         end;
 
         if Boleto.Configuracoes.WebService.Filtro.dataVencimento.DataInicio > 0 then
@@ -354,7 +354,7 @@ begin
         Json.Add('indicadorPermissaoRecebimentoParcial').Value.AsString := 'S';
 
       Json.Add('numeroTituloBeneficiario').Value.AsString               := Copy(Trim(UpperCase(Titulos.NumeroDocumento)),0,15);
-      Json.Add('campoUtilizacaoBeneficiario').Value.AsString            := Copy(Trim(StringReplace(UpperCase(Titulos.Mensagem.Text),'\r\n',' ',[rfReplaceAll])),0,30);
+      Json.Add('campoUtilizacaoBeneficiario').Value.AsString            := Copy(Trim(StringReplace(UpperCase(OnlyAlphaNum(Titulos.Mensagem.Text)),'\r\n',' ',[rfReplaceAll])),0,30);
       Json.Add('numeroTituloCliente').Value.AsString                    := Boleto.Banco.MontarCampoNossoNumero(Titulos);
       Json.Add('mensagemBloquetoOcorrencia').Value.AsString             := UpperCase(Copy(Trim(Titulos.Instrucao1 +' '+Titulos.Instrucao2+' '+Titulos.Instrucao3),0,165));
       GerarDesconto(Json);

@@ -81,9 +81,13 @@ procedure TACBrNFSeProviderEtherium203.Configuracao;
 begin
   inherited Configuracao;
 
+  FpFormatoDataRecebimento := tcDatUSA;
+  FpFormatoDataEmissao := tcDatUSA;
+  FpFormatoDataHora := tcDatUSA;
+
   with ConfigAssinar do
   begin
-    Rps               := False;
+    Rps               := True;
     LoteRps           := True;
     ConsultarSituacao := False;
     ConsultarLote     := False;

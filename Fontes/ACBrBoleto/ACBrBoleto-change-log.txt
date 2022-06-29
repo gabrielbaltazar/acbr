@@ -49,6 +49,45 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+28/06/2022
+--ACBrBancoCaixaEconomica--
+ [-] TK-2844 Leitura CNAB400 Correção de leitura de Codigo de Carteira
+ Por: Pandaaa
+
+27/06/2022
+--ACBrBancoItau--
+[*] TK-2804 ACBrBoleto - Ajuste para considerar o Desconto 2 e Desconto 3 no Itau
+  Por : Allanbrrj
+
+24/06/2022
+--ACBrBoletoRet_CrediSis--
+[*] TK-2790 Ajustes no metodo LerRetorno do banco CredSis
+  Por : Odeon Tecnologia 
+
+20/06/2022
+--ACBrBancoBanestes--
+[*] TK-2768- Ajuste na geracao CNAB240 pos. 42 Reg.P, alterado para usar campo CarteiraEnvio, seguindo o padrão dos demais bancos.
+    por: Atual Sistemas
+    https://www.projetoacbr.com.br/forum/topic/67698-remessa-banestes-cnab-240-segmento-p-posi%C3%A7%C3%A3o-62/
+
+17/06/2022
+--ACBrBoletoCaixa--
+[-] TK-2780 ACBrBoleto - Erro leitura do retorno CNAB240 Caixa
+  Por : Pandaaa / Innovae Brasil Engenharia
+
+15/06/2022
+--ACBrBoletoW_BancoBrasil_API--
+[*] TK-2784 BBAPI Ajuste no tratamento de caracteres nas mensagens de envio
+  Por : Pandaaa / Aggille Sistemas de Gestão
+
+--ACBrBoletoBancoob--
+[*] TK-2791 Ajuste na Leitura Bancoob CNAB400
+  Por : Leandroaoa
+
+--ACBrBoletoW_BancoBrasil_API--
+[-] TK-2794 BBAPI Copy do DigitoPagador errado.
+  Por : Tiago Tecchio
+
 10/06/2022
 --ACBrBancoPenseBank, ACBrBoleto, ACBrBancoBrasil, ACBrBoletoWS, ACBrBoletoW_PenseBankAPI, ACBrBoletoRet_PenseBank, ACBrBoletoConversao, ACBrBoletoRetorno--
 [+] Adicionado as Classe do PenseBank API.
