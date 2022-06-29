@@ -1,0 +1,12 @@
+{
+	"name": "Horse",
+	"description": "",
+	"version": "1.0.0",
+	"homepage": "",
+	"mainsrc": "./",
+	"projects": [],
+	"dependencies": {
+		"github.com/hashload/horse-cors": "^1.0.5",
+		"github.com/hashload/jhonson": "^1.1.4"
+	}
+}

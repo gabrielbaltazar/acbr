@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{FD24F921-4E3B-4C6F-B4D5-D5FADF52CA81}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="ACBrOpenDelivery_Srv.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\..\..\Testes\Dunit\ACBrOpenDelivery\ACBrOpenDeliveryTest.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="ACBrOpenDelivery_Srv">
+        <MSBuild Projects="ACBrOpenDelivery_Srv.dproj"/>
+    </Target>
+    <Target Name="ACBrOpenDelivery_Srv:Clean">
+        <MSBuild Projects="ACBrOpenDelivery_Srv.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ACBrOpenDelivery_Srv:Make">
+        <MSBuild Projects="ACBrOpenDelivery_Srv.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ACBrOpenDeliveryTest">
+        <MSBuild Projects="..\..\..\..\Testes\Dunit\ACBrOpenDelivery\ACBrOpenDeliveryTest.dproj"/>
+    </Target>
+    <Target Name="ACBrOpenDeliveryTest:Clean">
+        <MSBuild Projects="..\..\..\..\Testes\Dunit\ACBrOpenDelivery\ACBrOpenDeliveryTest.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ACBrOpenDeliveryTest:Make">
+        <MSBuild Projects="..\..\..\..\Testes\Dunit\ACBrOpenDelivery\ACBrOpenDeliveryTest.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="ACBrOpenDelivery_Srv;ACBrOpenDeliveryTest"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="ACBrOpenDelivery_Srv:Clean;ACBrOpenDeliveryTest:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="ACBrOpenDelivery_Srv:Make;ACBrOpenDeliveryTest:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
