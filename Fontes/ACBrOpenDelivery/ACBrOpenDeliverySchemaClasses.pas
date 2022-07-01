@@ -4,6 +4,7 @@ interface
 
 uses
   ACBrOpenDeliverySchema,
+  ACBrJSON,
   SysUtils;
 
 type
@@ -28,8 +29,8 @@ type
     Flongitude: Double;
 
   protected
-    procedure DoWriteToJSon(AJSon: TJsonObject); override;
-    procedure DoReadFromJSon(AJSon: TJsonObject); override;
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
 
   public
     procedure Clear; override;
@@ -90,7 +91,15 @@ type
   private
     FcommercialNumber: String;
     FwhatsappNumber: string;
+
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
   public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
     property commercialNumber: String read FcommercialNumber write FcommercialNumber;
     property whatsappNumber: string read FwhatsappNumber write FwhatsappNumber;
   end;
@@ -99,7 +108,13 @@ type
   private
     FURL: String;
     FCRC_32: String;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
   public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
     property URL: String read FURL write FURL;
     property CRC_32: String read FCRC_32 write FCRC_32;
   end;
@@ -108,7 +123,14 @@ type
   private
     Fvalue: Currency;
     Fcurrency: String;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
   public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
     property value: Currency read Fvalue write Fvalue;
     property &currency: String read Fcurrency write Fcurrency;
   end;
@@ -154,38 +176,36 @@ begin
   Flongitude := 0;
 end;
 
-procedure TACBrOpenDeliverySchemaAddress.DoReadFromJSon(AJSon: TJsonObject);
+procedure TACBrOpenDeliverySchemaAddress.DoReadFromJSon(AJSon: TACBrJSONObject);
 begin
-  TACBrOpenDeliveryJson.New(AJson)
-    .ValueAsString('country', Fcountry)
-    .ValueAsString('state', Fstate)
-    .ValueAsString('city', Fcity)
-    .ValueAsString('district', Fdistrict)
-    .ValueAsString('street', Fstreet)
-    .ValueAsString('number', Fnumber)
-    .ValueAsString('postalCode', FpostalCode)
-    .ValueAsString('complement', Fcomplement)
-    .ValueAsString('reference', Freference)
-    .ValueAsFloat('latitude', Flatitude)
-    .ValueAsFloat('longitude', Flongitude)
-    .Free;
+  AJson
+    .Value('country', Fcountry)
+    .Value('state', Fstate)
+    .Value('city', Fcity)
+    .Value('district', Fdistrict)
+    .Value('street', Fstreet)
+    .Value('number', Fnumber)
+    .Value('postalCode', FpostalCode)
+    .Value('complement', Fcomplement)
+    .Value('reference', Freference)
+    .Value('latitude', Flatitude)
+    .Value('longitude', Flongitude);
 end;
 
-procedure TACBrOpenDeliverySchemaAddress.DoWriteToJSon(AJSon: TJsonObject);
+procedure TACBrOpenDeliverySchemaAddress.DoWriteToJSon(AJSon: TACBrJSONObject);
 begin
-  TACBrOpenDeliveryJson.New(AJson)
-    .AddString('country', Fcountry)
-    .AddString('state', Fstate)
-    .AddString('city', Fcity)
-    .AddString('district', Fdistrict)
-    .AddString('street', Fstreet)
-    .AddString('number', Fnumber)
-    .AddString('postalCode', FpostalCode)
-    .AddString('complement', Fcomplement)
-    .AddString('reference', Freference)
-    .AddNumber('latitude', Flatitude)
-    .AddNumber('longitude', Flongitude)
-    .Free;
+  AJSon
+    .AddPair('country', Fcountry)
+    .AddPair('state', Fstate)
+    .AddPair('city', Fcity)
+    .AddPair('district', Fdistrict)
+    .AddPair('street', Fstreet)
+    .AddPair('number', Fnumber)
+    .AddPair('postalCode', FpostalCode)
+    .AddPair('complement', Fcomplement)
+    .AddPair('reference', Freference)
+    .AddPair('latitude', Flatitude)
+    .AddPair('longitude', Flongitude)
 end;
 
 function TACBrOpenDeliverySchemaAddress.IsEmpty: Boolean;
@@ -201,6 +221,87 @@ begin
             (Freference = '') and
             (Flatitude = 0) and
             (Flongitude = 0);
+end;
+
+{ TACBrOpenDeliverySchemaContactPhone }
+
+procedure TACBrOpenDeliverySchemaContactPhone.Clear;
+begin
+  FwhatsappNumber := '';
+  FcommercialNumber := '';
+end;
+
+procedure TACBrOpenDeliverySchemaContactPhone.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJson
+    .Value('whatsappNumber', FwhatsappNumber)
+    .Value('commercialNumber', FcommercialNumber);
+end;
+
+procedure TACBrOpenDeliverySchemaContactPhone.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('whatsappNumber', FwhatsappNumber)
+    .AddPair('commercialNumber', FcommercialNumber);
+end;
+
+function TACBrOpenDeliverySchemaContactPhone.IsEmpty: Boolean;
+begin
+  Result := (FwhatsappNumber = '') and (FcommercialNumber = '');
+end;
+
+{ TACBrOpenDeliverySchemaPrice }
+
+procedure TACBrOpenDeliverySchemaPrice.Clear;
+begin
+  Fvalue := 0;
+  Fcurrency := '';
+end;
+
+procedure TACBrOpenDeliverySchemaPrice.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJson
+    .Value('value', Fvalue)
+    .Value('currency', FCurrency);
+end;
+
+procedure TACBrOpenDeliverySchemaPrice.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJson
+    .AddPair('value', Fvalue)
+    .AddPair('currency', FCurrency);
+end;
+
+function TACBrOpenDeliverySchemaPrice.IsEmpty: Boolean;
+begin
+  Result := (Fvalue = 0) and (FCurrency = '');
+end;
+
+{ TACBrOpenDeliverySchemaImage }
+
+procedure TACBrOpenDeliverySchemaImage.Clear;
+begin
+  FURL := '';
+  FCRC_32 := '';
+end;
+
+procedure TACBrOpenDeliverySchemaImage.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJson
+    .Value('URL', FURL)
+    .Value('CRC-32', FCRC_32);
+end;
+
+procedure TACBrOpenDeliverySchemaImage.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJson
+    .AddPair('URL', FURL)
+    .AddPair('CRC-32', FCRC_32);
+end;
+
+function TACBrOpenDeliverySchemaImage.IsEmpty: Boolean;
+begin
+  Result := (FURL = '') and (FCRC_32 = '');
 end;
 
 end.

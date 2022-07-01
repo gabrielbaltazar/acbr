@@ -1,0 +1,302 @@
+unit ACBrJSON;
+
+interface
+
+uses
+  ACBrUtil.Base,
+  ACBrUtil.DateTime,
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    JsonDataObjects_ACBr,
+  {$Else}
+    Jsons,
+  {$EndIf}
+  Classes,
+  SysUtils;
+
+type
+  TACBrJSONArray = Jsons.TJsonArray;
+
+  TACBrJSONObject = class
+  private
+    FJSON: TJsonObject;
+    FContexts: TList;
+    FOwnerJSON: Boolean;
+
+    function GetAsBoolean(AName: String): Boolean;
+    function GetAsFloat(AName: String): Double;
+    function GetAsInteger(AName: String): Integer;
+    function GetAsISODate(AName: String): TDateTime;
+    function GetAsString(AName: String): String;
+    function GetAsJSONContext(AName: String): TACBrJSONObject;
+
+  public
+    function AddPair(AName: string; AValue: TJsonArray; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function AddPair(AName: string; AValue: Boolean; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function AddPair(AName: string; AValue: TJsonObject; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function AddPair(AName, AValue: String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function AddPair(AName: string; AValue: Double; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function AddPairISODate(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+
+    function Value(AName: String; var AValue: Boolean; ADefault: Boolean = False): TACBrJSONObject; overload;
+    function Value(AName: String; var AValue: Integer; ADefault: Integer = 0): TACBrJSONObject; overload;
+    function ValueISODate(AName: String; var AValue: TDateTime; ADefault: TDateTime = 0): TACBrJSONObject;
+    function Value(AName: String; var AValue: Double; ADefault: Double = 0): TACBrJSONObject; overload;
+    function Value(AName: String; var AValue: Currency; ADefault: Currency = 0): TACBrJSONObject; overload;
+    function Value(AName: String; var AValue: String; ADefault: String = ''): TACBrJSONObject; overload;
+
+    property OwnerJSON: Boolean read FOwnerJSON write FOwnerJSON;
+    property AsBoolean[AName: String]: Boolean read GetAsBoolean;
+    property AsFloat[AName: String]: Double read GetAsFloat;
+    property AsInteger[AName: String]: Integer read GetAsInteger;
+    property AsISODate[AName: String]: TDateTime read GetAsISODate;
+    property AsString[AName: String]: String read GetAsString;
+    property AsJSONContext[AName: String]: TACBrJSONObject read GetAsJSONContext;
+
+    function ToJSON: String;
+    class function Parse(const AJSONString: String): TACBrJSONObject;
+
+    constructor Create; overload;
+    constructor Create(AJSONObject: TJsonObject); overload;
+    destructor Destroy; override;
+  end;
+
+implementation
+
+{ TACBrJSONObject }
+
+constructor TACBrJSONObject.Create;
+begin
+  FJSON := TJsonObject.Create;
+  FContexts := TList.Create;
+end;
+
+function TACBrJSONObject.AddPair(AName: string; AValue: TJsonObject; AIgnoreEmpty: Boolean): TACBrJSONObject;
+begin
+  Result := Self;
+  if (Assigned(AValue)) or (not AIgnoreEmpty) then
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    FJson.S[AName] := AValue;
+  {$Else}
+    FJson[AName].AsObject := AValue;
+  {$EndIf}
+end;
+
+function TACBrJSONObject.AddPair(AName: string; AValue, AIgnoreEmpty: Boolean): TACBrJSONObject;
+begin
+  Result := Self;
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    FJson.S[AName] := AValue;
+  {$Else}
+    FJson[AName].AsBoolean := AValue;
+  {$EndIf}
+end;
+
+function TACBrJSONObject.AddPair(AName: string; AValue: TJsonArray; AIgnoreEmpty: Boolean): TACBrJSONObject;
+begin
+  Result := Self;
+  if (Assigned(AValue)) and ((AValue.Count > 0) or (not AIgnoreEmpty)) then
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    FJson.S[AName] := AValue;
+  {$Else}
+    FJson[AName].AsArray := AValue;
+  {$EndIf}
+end;
+
+function TACBrJSONObject.AddPair(AName: string; AValue: Double; AIgnoreEmpty: Boolean): TACBrJSONObject;
+begin
+  Result := Self;
+  if (AValue <> 0) or (not AIgnoreEmpty) then
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    FJson.S[AName] := AValue;
+  {$Else}
+    FJson[AName].AsNumber := AValue;
+  {$EndIf}
+end;
+
+function TACBrJSONObject.AddPair(AName, AValue: String; AIgnoreEmpty: Boolean): TACBrJSONObject;
+begin
+  Result := Self;
+  if (AValue <> '') or (not AIgnoreEmpty) then
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    FJson.S[AName] := AValue;
+  {$Else}
+    FJson[AName].AsString := AValue;
+  {$EndIf}
+end;
+
+function TACBrJSONObject.AddPairISODate(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean): TACBrJSONObject;
+begin
+  Result := Self;
+  if (AValue <> 0) or (not AIgnoreEmpty) then
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    FJson.S[AName] := DateTimeToIso8601(AValue);
+  {$Else}
+    FJson[AName].AsString := DateTimeToIso8601(AValue);
+  {$EndIf}
+end;
+
+function TACBrJSONObject.GetAsBoolean(AName: String): Boolean;
+begin
+  Value(AName, Result);
+end;
+
+function TACBrJSONObject.GetAsFloat(AName: String): Double;
+begin
+  Value(AName, Result);
+end;
+
+function TACBrJSONObject.GetAsInteger(AName: String): Integer;
+begin
+  Value(AName, Result);
+end;
+
+function TACBrJSONObject.GetAsISODate(AName: String): TDateTime;
+begin
+  ValueISODate(AName, Result);
+end;
+
+function TACBrJSONObject.GetAsJSONContext(AName: String): TACBrJSONObject;
+var
+  LJSON: TJsonObject;
+begin
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    LJSON := FJSON.O[AName];
+  {$Else}
+    LJSON := FJSON[AName].AsObject;
+  {$EndIf}
+
+  Result := TACBrJSONObject.Create(LJSON);
+  FContexts.Add(Result);
+end;
+
+function TACBrJSONObject.GetAsString(AName: String): String;
+begin
+  Value(AName, Result);
+end;
+
+class function TACBrJSONObject.Parse(const AJSONString: String): TACBrJSONObject;
+var
+  LJSON: TJsonObject;
+begin
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    JsonSerializationConfig.NullConvertsToValueTypes := True;
+    LJSON := TJsonObject.Parse(AValue) as TJsonObject;
+    try
+      Result := TACBrJSONObject.Create(LJSON);
+      Result.OwnerJSON := True;
+    except
+      LJSON.Free;
+      raise;
+    end;
+  {$Else}
+    LJSON := TJsonObject.Create;
+    try
+      LJSON.Parse(AJSONString);
+      Result := TACBrJSONObject.Create(LJSON);
+      Result.OwnerJSON := True;
+    except
+      LJSON.Free;
+      raise;
+    end;
+  {$EndIf}
+end;
+
+function TACBrJSONObject.ToJSON: String;
+begin
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    Result := FJSON.ToJSON();
+  {$Else}
+    Result := FJSON.Stringify;
+  {$EndIf}
+end;
+
+constructor TACBrJSONObject.Create(AJSONObject: TJsonObject);
+begin
+  FOwnerJSON := False;
+  FJSON := AJSONObject;
+  FContexts := TList.Create;
+end;
+
+destructor TACBrJSONObject.Destroy;
+var
+  I: Integer;
+begin
+  for I := Pred(FContexts.Count) downto 0 do
+    TACBrJSONObject(FContexts.Items[I]).Free;
+  FContexts.Free;
+  if FOwnerJSON then
+    FJSON.Free;
+  inherited;
+end;
+
+function TACBrJSONObject.Value(AName: String; var AValue: Boolean; ADefault: Boolean): TACBrJSONObject;
+begin
+  Result := Self;
+  AValue := ADefault;
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    AValue := FJSON.S[AName].AsBoolean;
+  {$Else}
+    AValue := FJSON[AName].AsBoolean;
+  {$EndIf}
+end;
+
+function TACBrJSONObject.ValueISODate(AName: String; var AValue: TDateTime; ADefault: TDateTime): TACBrJSONObject;
+var
+  LStrValue: String;
+begin
+  Result := Self;
+  AValue := ADefault;
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    LStrValue := FJson.S[AName].AsString;
+  {$Else}
+    LStrValue := FJson[AName].AsString;
+  {$EndIf}
+  if LStrValue <> '' then
+    AValue := Iso8601ToDateTime(LStrValue);
+end;
+
+function TACBrJSONObject.Value(AName: String; var AValue: Double; ADefault: Double): TACBrJSONObject;
+begin
+  Result := Self;
+  AValue := ADefault;
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    AValue := StringToFloatDef(FJson.S[AName].AsString, 0);
+  {$Else}
+    AValue := StringToFloatDef(FJson[AName].AsString, 0);
+  {$EndIf}
+end;
+
+function TACBrJSONObject.Value(AName: String; var AValue: Integer; ADefault: Integer): TACBrJSONObject;
+begin
+  Result := Self;
+  AValue := ADefault;
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    AValue := StrToIntDef(FJson[AName].AsString, 0);
+  {$Else}
+    AValue := StrToIntDef(FJson[AName].AsString, 0);
+  {$EndIf}
+end;
+
+function TACBrJSONObject.Value(AName: String; var AValue: String; ADefault: String): TACBrJSONObject;
+begin
+  Result := Self;
+  AValue := ADefault;
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    AValue := FJson.S[AName].AsString;
+  {$Else}
+    AValue := FJson[AName].AsString;
+  {$EndIf}
+end;
+
+function TACBrJSONObject.Value(AName: String; var AValue: Currency; ADefault: Currency): TACBrJSONObject;
+begin
+  Result := Self;
+  AValue := ADefault;
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    AValue := StringToFloatDef(FJson.S[AName].AsString, 0);
+  {$Else}
+    AValue := StringToFloatDef(FJson[AName].AsString, 0);
+  {$EndIf}
+end;
+
+end.

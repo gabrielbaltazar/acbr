@@ -35,7 +35,8 @@ program ACBrOpenDeliveryTest;
 uses
   ACBrTests.Runner in '..\..\ACBrTests.Runner.pas',
   ACBrTests.Util in '..\..\ACBrTests.Util.pas',
-  ACBrOpenDeliverySchemaClassesTest in '..\..\FPCUnit\ACBrOpenDelivery\ACBrOpenDeliverySchemaClassesTest.pas';
+  ACBrOpenDeliverySchemaClassesTest in '..\..\FPCUnit\ACBrOpenDelivery\ACBrOpenDeliverySchemaClassesTest.pas',
+  ACBrJSON in '..\..\..\Fontes\ACBrComum\ACBrJSON.pas';
 
 begin
   {$IF CompilerVersion >= 30.0}
