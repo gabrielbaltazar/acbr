@@ -6,11 +6,10 @@ uses
   SysUtils,
   StrUtils,
   TypInfo,
-  Classes;
+  Classes,
+  ACBrUtil.Strings;
 
 type
-  TACBrODStringArray = array of String;
-
   TACBrODMerchantCategories = (mcBurgers,
                                mcPizza,
                                mcFastFood,
@@ -62,7 +61,7 @@ type
   TACBrODMerchantType = (mtRestaurant);
 
 function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): String;
-function MerchantCategoriesToArray(AValue: TACBrODMerchantCategoriesArray): TACBrODStringArray;
+function MerchantCategoriesToArray(AValue: TACBrODMerchantCategoriesArray): TSplitResult;
 function StrToMerchantCategories(const AValue: String): TACBrODMerchantCategories;
 
 function MerchantTypeToStr(AValue: TACBrODMerchantType): string;
@@ -123,7 +122,7 @@ begin
   end;
 end;
 
-function MerchantCategoriesToArray(AValue: TACBrODMerchantCategoriesArray): TACBrODStringArray;
+function MerchantCategoriesToArray(AValue: TACBrODMerchantCategoriesArray): TSplitResult;
 var
   I: Integer;
 begin

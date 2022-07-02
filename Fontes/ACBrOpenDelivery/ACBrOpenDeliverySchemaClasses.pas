@@ -4,7 +4,9 @@ interface
 
 uses
   ACBrOpenDeliverySchema,
+  ACBrBase,
   ACBrJSON,
+  ACBrUtil.Strings,
   pcnConversaoOD,
   SysUtils;
 
@@ -14,6 +16,7 @@ type
   TACBrOpenDeliverySchemaContactPhone = class;
   TACBrOpenDeliverySchemaImage = class;
   TACBrOpenDeliverySchemaPrice = class;
+  TACBrOpenDeliverySchemaRadiusCollection = class;
 
   TACBrOpenDeliverySchemaAddress = class(TACBrOpenDeliverySchema)
   private
@@ -62,7 +65,7 @@ type
     FmerchantType: TACBrODMerchantType;
     FmerchantCategories: TACBrODMerchantCategoriesArray;
     Faddress: TACBrOpenDeliverySchemaAddress;
-    FcontactEmails: TACBrODStringArray;
+    FcontactEmails: TSplitResult;
     FcontactPhones: TACBrOpenDeliverySchemaContactPhone;
     FlogoImage: TACBrOpenDeliverySchemaImage;
     FbannerImage: TACBrOpenDeliverySchemaImage;
@@ -85,7 +88,7 @@ type
     property merchantType: TACBrODMerchantType read FmerchantType write FmerchantType;
     property merchantCategories: TACBrODMerchantCategoriesArray read FmerchantCategories write FmerchantCategories;
     property address: TACBrOpenDeliverySchemaAddress read Faddress write Faddress;
-    property contactEmails: TACBrODStringArray read FcontactEmails write FcontactEmails;
+    property contactEmails: TSplitResult read FcontactEmails write FcontactEmails;
     property contactPhones: TACBrOpenDeliverySchemaContactPhone read FcontactPhones write FcontactPhones;
     property logoImage: TACBrOpenDeliverySchemaImage read FlogoImage write FlogoImage;
     property bannerImage: TACBrOpenDeliverySchemaImage read FbannerImage write FbannerImage;
@@ -110,6 +113,27 @@ type
 
     property commercialNumber: String read FcommercialNumber write FcommercialNumber;
     property whatsappNumber: string read FwhatsappNumber write FwhatsappNumber;
+  end;
+
+  TACBrOpenDeliverySchemaGeoRadius = class(TACBrOpenDeliverySchema)
+  private
+    FgeoMidpointLatitude: Double;
+    FgeoMidpointLongitude: Double;
+    Fradius: TACBrOpenDeliverySchemaRadiusCollection;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property geoMidpointLatitude: Double read FgeoMidpointLatitude write FgeoMidpointLatitude;
+    property geoMidpointLongitude: Double read FgeoMidpointLongitude write FgeoMidpointLongitude;
+    property radius: TACBrOpenDeliverySchemaRadiusCollection read Fradius write Fradius;
+
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaImage = class(TACBrOpenDeliverySchema)
@@ -141,6 +165,37 @@ type
 
     property value: Currency read Fvalue write Fvalue;
     property &currency: String read Fcurrency write Fcurrency;
+  end;
+
+  TACBrOpenDeliverySchemaRadius = class(TACBrOpenDeliverySchema)
+  private
+    Fsize: Integer;
+    FestimateDeliveryTime: Integer;
+    Fprice: TACBrOpenDeliverySchemaPrice;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+  public
+    property size: Integer read Fsize write Fsize;
+    property price: TACBrOpenDeliverySchemaPrice read Fprice write Fprice;
+    property estimateDeliveryTime: Integer read FestimateDeliveryTime write FestimateDeliveryTime;
+
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
+  end;
+
+  TACBrOpenDeliverySchemaRadiusCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TACBrOpenDeliverySchemaRadius;
+    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaRadius);
+  public
+    function New: TACBrOpenDeliverySchemaRadius;
+    property Items[Index: Integer]: TACBrOpenDeliverySchemaRadius read GetItem write SetItem; default;
   end;
 
 implementation
@@ -188,7 +243,7 @@ end;
 
 procedure TACBrOpenDeliverySchemaBasicInfo.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
-  LCategories: TACBrODStringArray;
+  LCategories: TSplitResult;
   LStrMerchantType: string;
   I: Integer;
 begin
@@ -397,6 +452,137 @@ end;
 function TACBrOpenDeliverySchemaImage.IsEmpty: Boolean;
 begin
   Result := (FURL = '') and (FCRC_32 = '');
+end;
+
+{ TACBrOpenDeliverySchemaRadius }
+
+procedure TACBrOpenDeliverySchemaRadius.Clear;
+begin
+  Fsize := 0;
+  FestimateDeliveryTime := 0;
+  Fprice.Clear;
+end;
+
+constructor TACBrOpenDeliverySchemaRadius.Create(const AObjectName: string);
+begin
+  inherited Create(AObjectName);
+  Fprice := TACBrOpenDeliverySchemaPrice.Create('price');
+end;
+
+destructor TACBrOpenDeliverySchemaRadius.Destroy;
+begin
+  Fprice.Free;
+  inherited;
+end;
+
+procedure TACBrOpenDeliverySchemaRadius.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJson
+    .Value('size', Fsize)
+    .Value('estimateDeliveryTime', FestimateDeliveryTime);
+
+  Fprice.DoReadFromJSon(AJSon.AsJSONContext['price']);
+end;
+
+procedure TACBrOpenDeliverySchemaRadius.DoWriteToJSon(AJSon: TACBrJSONObject);
+var
+  I: Integer;
+begin
+  AJson
+    .AddPair('size', Fsize)
+    .AddPairJSONString('price', Fprice.AsJSON)
+    .AddPair('estimateDeliveryTime', FestimateDeliveryTime);
+end;
+
+function TACBrOpenDeliverySchemaRadius.IsEmpty: Boolean;
+begin
+  Result := (Fsize = 0) and (FestimateDeliveryTime = 0) and (Fprice.IsEmpty);
+end;
+
+{ TACBrOpenDeliverySchemaRadiusCollection }
+
+function TACBrOpenDeliverySchemaRadiusCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaRadius;
+begin
+  Result := TACBrOpenDeliverySchemaRadius(inherited Items[Index]);
+end;
+
+function TACBrOpenDeliverySchemaRadiusCollection.New: TACBrOpenDeliverySchemaRadius;
+begin
+  Result := TACBrOpenDeliverySchemaRadius.Create;
+  Self.Add(Result);
+end;
+
+procedure TACBrOpenDeliverySchemaRadiusCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaRadius);
+begin
+  inherited Items[Index] := Value;
+end;
+
+{ TACBrOpenDeliverySchemaGeoRadius }
+
+procedure TACBrOpenDeliverySchemaGeoRadius.Clear;
+begin
+  inherited;
+  FgeoMidpointLatitude := 0;
+  FgeoMidpointLongitude := 0;
+  Fradius.Clear;
+end;
+
+constructor TACBrOpenDeliverySchemaGeoRadius.Create(const AObjectName: string);
+begin
+  inherited Create(AObjectName);
+  Fradius := TACBrOpenDeliverySchemaRadiusCollection.Create;  
+end;
+
+destructor TACBrOpenDeliverySchemaGeoRadius.Destroy;
+begin
+  Fradius.Free;
+  inherited;
+end;
+
+procedure TACBrOpenDeliverySchemaGeoRadius.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  LJSONArray: TACBrJSONArray;
+  I: Integer;
+begin
+  Fradius.Clear;
+  AJSon
+    .Value('geoMidpointLatitude', FgeoMidpointLatitude)
+    .Value('geoMidpointLongitude', FgeoMidpointLongitude);
+
+  LJSONArray := AJSon.AsJSONArray['radius'];
+  if Assigned(LJSONArray) then
+  begin
+    for I := 0 to Pred(LJSONArray.Count) do
+      Fradius.New.AsJSON := LJSONArray.ItemAsJSONObject[I].ToJSON;
+  end;
+end;
+
+procedure TACBrOpenDeliverySchemaGeoRadius.DoWriteToJSon(AJSon: TACBrJSONObject);
+var
+  I: Integer;
+  LJSONArray: TACBrJSONArray;
+begin
+  AJSon
+    .AddPair('geoMidpointLatitude', FgeoMidpointLatitude)
+    .AddPair('geoMidpointLongitude', FgeoMidpointLongitude);
+
+  LJSONArray := TACBrJSONArray.Create;
+  try
+    for I := 0 to Pred(Fradius.Count) do
+      LJSONArray.AddElementJSONString(Fradius[I].AsJSON);
+  except
+    LJSONArray.Free;
+    raise;
+  end;
+
+  AJSon.AddPair('radius', LJSONArray);
+end;
+
+function TACBrOpenDeliverySchemaGeoRadius.IsEmpty: Boolean;
+begin
+  Result := (FgeoMidpointLatitude = 0) and 
+            (FgeoMidpointLongitude = 0) and
+            (Fradius.Count = 0);
 end;
 
 end.

@@ -89,6 +89,21 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestRadius = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaRadius;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
 implementation
 
 { TTestAddress }
@@ -413,11 +428,56 @@ begin
   inherited;
 end;
 
+{ TTestRadius }
+
+procedure TTestRadius.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals(1, FSchema.size);
+  CheckEquals(5, FSchema.estimateDeliveryTime);
+  CheckEquals('BRL', FSchema.price.currency);
+  CheckEquals('50,5', FloatToStr(FSchema.price.value));
+end;
+
+procedure TTestRadius.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals(1, FJSONObject.AsInteger['size']);
+  CheckEquals(5, FJSONObject.AsInteger['estimateDeliveryTime']);
+  CheckEquals('BRL', FJSONObject.AsJSONContext['price'].AsString['currency']);
+  CheckEquals('50,5', FloatToStr(FJSONObject.AsJSONContext['price'].AsFloat['value']));
+end;
+
+procedure TTestRadius.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaRadius.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"size": 1,' +
+      '"price": {' +
+        '"value": 50.5,' +
+        '"currency": "BRL"' +
+      '},' +
+      '"estimateDeliveryTime": 5' +
+    '}');
+end;
+
+procedure TTestRadius.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
 initialization
   _RegisterTest('ACBrOpenDelivery.Schema.Address', TTestAddress);
   _RegisterTest('ACBrOpenDelivery.Schema.BasicInfo', TTestBasicInfo);
   _RegisterTest('ACBrOpenDelivery.Schema.ContactPhone', TTestContactPhone);
   _RegisterTest('ACBrOpenDelivery.Schema.Image', TTestImage);
   _RegisterTest('ACBrOpenDelivery.Schema.Price', TTestPrice);
+  _RegisterTest('ACBrOpenDelivery.Schema.Radius', TTestRadius);
 
 end.
