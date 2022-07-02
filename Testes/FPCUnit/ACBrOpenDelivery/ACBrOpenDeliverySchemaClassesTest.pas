@@ -275,10 +275,36 @@ begin
   CheckEquals('20', IntToStr(FSchema.averagePreparationTime));
   CheckEquals('BRL', FSchema.minOrderValue.&currency);
   CheckEquals('40', FloatToStr(FSchema.minOrderValue.value));
+  CheckEquals('RESTAURANT', MerchantTypeToStr(FSchema.merchantType));
   CheckEquals(3, Length(FSchema.merchantCategories));
   CheckEquals('PIZZA', MerchantCategoriesToStr(FSchema.merchantCategories[0]));
   CheckEquals('FAMILY_MEALS', MerchantCategoriesToStr(FSchema.merchantCategories[1]));
   CheckEquals('PREMIUM', MerchantCategoriesToStr(FSchema.merchantCategories[2]));
+  CheckEquals('BR', FSchema.address.country);
+  CheckEquals('BR-SP', FSchema.address.state);
+  CheckEquals('São Paulo', FSchema.address.city);
+  CheckEquals('Moema', FSchema.address.district);
+  CheckEquals('Plaza Avenue', FSchema.address.street);
+  CheckEquals('100', FSchema.address.number);
+  CheckEquals('20111-000', FSchema.address.postalCode);
+  CheckEquals('BL 02 AP 31', FSchema.address.complement);
+  CheckEquals('Yellow House', FSchema.address.reference);
+  CheckEquals('-23,54809', FloatToStr(FSchema.address.latitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.address.longitude));
+  CheckEquals(2, Length(FSchema.contactEmails));
+  CheckEquals('food@company.com', FSchema.contactEmails[0]);
+  CheckEquals('food@acbr.com', FSchema.contactEmails[1]);
+
+  CheckEquals('11999999999', FSchema.contactPhones.commercialNumber);
+  CheckEquals('11998888888', FSchema.contactPhones.whatsappNumber);
+
+  CheckEquals('https://food-company.com/image.jpg', FSchema.logoImage.URL);
+  CheckEquals('96b41025', FSchema.logoImage.CRC_32);
+
+  CheckEquals('https://food-company.com/image.jpg', FSchema.bannerImage.URL);
+  CheckEquals('96b41025', FSchema.bannerImage.CRC_32);
+
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.createdAt));
 end;
 
 procedure TTestBasicInfo.ObjectToJSON;
@@ -293,7 +319,37 @@ begin
   CheckEquals('90', FloatToStr(FJSONObject.AsFloat['averageTicket']));
   CheckEquals('20', IntToStr(FJSONObject.AsInteger['averagePreparationTime']));
   CheckEquals('BRL', FJSONObject.AsJSONContext['minOrderValue'].AsString['currency']);
-//  CheckEquals('40', FloatToStr(FSchema.minOrderValue.value));
+  CheckEquals('40', FloatToStr(FSchema.minOrderValue.value));
+  CheckEquals('RESTAURANT', FJSONObject.AsString['merchantType']);
+  CheckEquals(3, FJSONObject.AsJSONArray['merchantCategories'].Count);
+  CheckEquals('PIZZA', FJSONObject.AsJSONArray['merchantCategories'].Items[0]);
+  CheckEquals('FAMILY_MEALS', FJSONObject.AsJSONArray['merchantCategories'].Items[1]);
+  CheckEquals('PREMIUM', FJSONObject.AsJSONArray['merchantCategories'].Items[2]);
+  CheckEquals('BR', FJSONObject.AsJSONContext['address'].AsString['country']);
+  CheckEquals('BR-SP', FJSONObject.AsJSONContext['address'].AsString['state']);
+  CheckEquals('São Paulo', FJSONObject.AsJSONContext['address'].AsString['city']);
+  CheckEquals('Moema', FJSONObject.AsJSONContext['address'].AsString['district']);
+  CheckEquals('Plaza Avenue', FJSONObject.AsJSONContext['address'].AsString['street']);
+  CheckEquals('100', FJSONObject.AsJSONContext['address'].AsString['number']);
+  CheckEquals('20111-000', FJSONObject.AsJSONContext['address'].AsString['postalCode']);
+  CheckEquals('BL 02 AP 31', FJSONObject.AsJSONContext['address'].AsString['complement']);
+  CheckEquals('Yellow House', FJSONObject.AsJSONContext['address'].AsString['reference']);
+  CheckEquals('-23,54809', FloatToStr(FJSONObject.AsJSONContext['address'].AsFloat['latitude']));
+  CheckEquals('-46,63638', FloatToStr(FJSONObject.AsJSONContext['address'].AsFloat['longitude']));
+  CheckEquals(2, FJSONObject.AsJSONArray['contactEmails'].Count);
+  CheckEquals('food@company.com', FJSONObject.AsJSONArray['contactEmails'].Items[0]);
+  CheckEquals('food@acbr.com', FJSONObject.AsJSONArray['contactEmails'].Items[1]);
+
+  CheckEquals('11999999999', FJSONObject.AsJSONContext['contactPhones'].AsString['commercialNumber']);
+  CheckEquals('11998888888', FJSONObject.AsJSONContext['contactPhones'].AsString['whatsappNumber']);
+
+  CheckEquals('https://food-company.com/image.jpg', FJSONObject.AsJSONContext['logoImage'].AsString['URL']);
+  CheckEquals('96b41025', FJSONObject.AsJSONContext['logoImage'].AsString['CRC-32']);
+
+  CheckEquals('https://food-company.com/image.jpg', FJSONObject.AsJSONContext['bannerImage'].AsString['URL']);
+  CheckEquals('96b41025', FJSONObject.AsJSONContext['bannerImage'].AsString['CRC-32']);
+
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FJSONObject.AsISODate['createdAt']));
 end;
 
 procedure TTestBasicInfo.SetUp;
@@ -332,7 +388,8 @@ begin
         '"longitude": -46.63638' +
       '},' +
       '"contactEmails": [' +
-        '"food@company.com"' +
+        '"food@company.com",' +
+        '"food@acbr.com"' +
       '],' +
       '"contactPhones": {' +
         '"commercialNumber": "11999999999",' +

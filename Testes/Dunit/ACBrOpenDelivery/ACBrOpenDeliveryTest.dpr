@@ -36,7 +36,10 @@ uses
   ACBrTests.Runner in '..\..\ACBrTests.Runner.pas',
   ACBrTests.Util in '..\..\ACBrTests.Util.pas',
   ACBrOpenDeliverySchemaClassesTest in '..\..\FPCUnit\ACBrOpenDelivery\ACBrOpenDeliverySchemaClassesTest.pas',
-  ACBrJSON in '..\..\..\Fontes\ACBrComum\ACBrJSON.pas';
+  ACBrJSON in '..\..\..\Fontes\ACBrComum\ACBrJSON.pas',
+  ACBrOpenDeliverySchema in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas',
+  ACBrOpenDeliverySchemaClasses in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas',
+  pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas';
 
 begin
   {$IF CompilerVersion >= 30.0}

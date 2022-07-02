@@ -65,6 +65,9 @@ function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): String;
 function MerchantCategoriesToArray(AValue: TACBrODMerchantCategoriesArray): TACBrODStringArray;
 function StrToMerchantCategories(const AValue: String): TACBrODMerchantCategories;
 
+function MerchantTypeToStr(AValue: TACBrODMerchantType): string;
+function StrToMerchantType(AValue: String): TACBrODMerchantType;
+
 implementation
 
 function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): String;
@@ -224,6 +227,20 @@ begin
     Result := mcPremium
   else if LStr = 'AFFORDABLE_MEALS' then
     Result := mcAffordableMeals;
+end;
+
+function MerchantTypeToStr(AValue: TACBrODMerchantType): string;
+begin
+  case AValue of
+    mtRestaurant: Result := 'RESTAURANT';
+  else
+    Result := '';
+  end;
+end;
+
+function StrToMerchantType(AValue: String): TACBrODMerchantType;
+begin
+  Result := mtRestaurant;
 end;
 
 end.

@@ -189,6 +189,7 @@ end;
 procedure TACBrOpenDeliverySchemaBasicInfo.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
   LCategories: TACBrODStringArray;
+  LStrMerchantType: string;
   I: Integer;
 begin
   AJson
@@ -198,9 +199,16 @@ begin
     .Value('description', Fdescription)
     .Value('averageTicket', FaverageTicket)
     .Value('averagePreparationTime', FaveragePreparationTime)
-    .Value('merchantCategories', LCategories);
+    .Value('merchantCategories', LCategories)
+    .Value('contactEmails', FcontactEmails)
+    .ValueISODate('createdAt', FcreatedAt);
 
+  FmerchantType := StrToMerchantType(AJson.AsString['merchantType']);
   FminOrderValue.DoReadFromJSon(AJSon.AsJSONContext['minOrderValue']);
+  Faddress.DoReadFromJSon(AJSon.AsJSONContext['address']);
+  FcontactPhones.DoReadFromJSon(AJSon.AsJSONContext['contactPhones']);
+  FlogoImage.DoReadFromJSon(AJSon.AsJSONContext['logoImage']);
+  FbannerImage.DoReadFromJSon(AJSon.AsJSONContext['bannerImage']);
 
   SetLength(FmerchantCategories, Length(LCategories));
   for I := 0 to Pred(Length(LCategories)) do
@@ -217,7 +225,14 @@ begin
     .AddPair('averageTicket', FaverageTicket)
     .AddPair('averagePreparationTime', FaveragePreparationTime)
     .AddPairJSONString('minOrderValue', FminOrderValue.AsJSON)
-    .AddPair('merchantCategories', MerchantCategoriesToArray(FmerchantCategories));
+    .AddPair('merchantType', MerchantTypeToStr(FmerchantType))
+    .AddPair('merchantCategories', MerchantCategoriesToArray(FmerchantCategories))
+    .AddPairJSONString('address', Faddress.AsJSON)
+    .AddPair('contactEmails', FcontactEmails)
+    .AddPairJSONString('contactPhones', FcontactPhones.AsJSON)
+    .AddPairJSONString('logoImage', FlogoImage.AsJSON)
+    .AddPairJSONString('bannerImage', FbannerImage.AsJSON)
+    .AddPairISODate('createdAt', FcreatedAt);
 end;
 
 function TACBrOpenDeliverySchemaBasicInfo.IsEmpty: Boolean;

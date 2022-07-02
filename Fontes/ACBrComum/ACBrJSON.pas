@@ -15,7 +15,7 @@ uses
   SysUtils;
 
 type
-  TACBrJSONArray = Jsons.TJsonArray;
+  TACBrJSONArray = class;
 
   TACBrJSONObject = class
   private
@@ -30,6 +30,7 @@ type
     function GetAsInteger(AName: String): Integer;
     function GetAsISODate(AName: String): TDateTime;
     function GetAsString(AName: String): String;
+    function GetAsJSONArray(AName: String): TACBrJSONArray;
     function GetAsJSONContext(AName: String): TACBrJSONObject;
 
   public
@@ -58,12 +59,37 @@ type
     property AsISODate[AName: String]: TDateTime read GetAsISODate;
     property AsString[AName: String]: String read GetAsString;
     property AsJSONContext[AName: String]: TACBrJSONObject read GetAsJSONContext;
+    property AsJSONArray[AName: String]: TACBrJSONArray read GetAsJSONArray;
 
     function ToJSON: String;
     class function Parse(const AJSONString: String): TACBrJSONObject;
 
     constructor Create; overload;
     constructor Create(AJSONObject: TJsonObject); overload;
+    destructor Destroy; override;
+  end;
+
+  TACBrJSONArray = class
+  private
+    FJSON: TJsonArray;
+    FContexts: TList;
+    FOwnerJSON: Boolean;
+
+    class function CreateJsonArray(AJsonString: String): TJsonArray;
+    function GetItems(AIndex: Integer): String;
+
+  public
+    property OwnerJSON: Boolean read FOwnerJSON write FOwnerJSON;
+    property Items[AIndex: Integer]: String read GetItems;
+
+    function AddElement(const AValue: String): TACBrJSONArray;
+
+    function Count: Integer;
+    function ToJSON: String;
+    class function Parse(const AJSONString: String): TACBrJSONArray;
+
+    constructor Create; overload;
+    constructor Create(AJSONArray: TJsonArray); overload;
     destructor Destroy; override;
   end;
 
@@ -188,6 +214,20 @@ end;
 function TACBrJSONObject.GetAsISODate(AName: String): TDateTime;
 begin
   ValueISODate(AName, Result);
+end;
+
+function TACBrJSONObject.GetAsJSONArray(AName: String): TACBrJSONArray;
+var
+  LJSON: TJsonArray;
+begin
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    LJSON := FJSON.O[AName];
+  {$Else}
+    LJSON := FJSON[AName].AsArray;
+  {$EndIf}
+
+  Result := TACBrJSONArray.Create(LJSON);
+  FContexts.Add(Result);
 end;
 
 function TACBrJSONObject.GetAsJSONContext(AName: String): TACBrJSONObject;
@@ -387,10 +427,93 @@ var
   LJSONArray: TJsonArray;
   I: Integer;
 begin
+  Result := Self;
   LJSONArray := FJSON[AName].AsArray;
   SetLength(AValue, LJSONArray.Count);
   for I := 0 to Pred(LJSONArray.Count) do
     AValue[I] := LJSONArray.Items[I].AsString;
+end;
+
+{ TACBrJSONArray }
+
+constructor TACBrJSONArray.Create;
+begin
+  FJSON := TJsonArray.Create;
+  FContexts := TList.Create;
+end;
+
+function TACBrJSONArray.AddElement(const AValue: String): TACBrJSONArray;
+begin
+  Result := Self;
+  FJSON.Put(AValue);
+end;
+
+function TACBrJSONArray.Count: Integer;
+begin
+  Result := FJSON.Count;
+end;
+
+constructor TACBrJSONArray.Create(AJSONArray: TJsonArray);
+begin
+  FOwnerJSON := False;
+  FJSON := AJSONArray;
+  FContexts := TList.Create;
+end;
+
+class function TACBrJSONArray.CreateJsonArray(AJsonString: String): TJsonArray;
+begin
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    JsonSerializationConfig.NullConvertsToValueTypes := True;
+    Result := TJsonArray.Parse(AValue) as TJsonArray;
+  {$Else}
+    Result := TJsonArray.Create;
+    try
+      Result.Parse(AJSONString);
+    except
+      Result.Free;
+      raise;
+    end;
+  {$EndIf}
+end;
+
+destructor TACBrJSONArray.Destroy;
+var
+  I: Integer;
+begin
+  for I := Pred(FContexts.Count) downto 0 do
+    TACBrJSONObject(FContexts.Items[I]).Free;
+  FContexts.Free;
+  if FOwnerJSON then
+    FJSON.Free;
+  inherited;
+end;
+
+function TACBrJSONArray.GetItems(AIndex: Integer): String;
+begin
+  Result := FJSON.Items[AIndex].AsString;
+end;
+
+class function TACBrJSONArray.Parse(const AJSONString: String): TACBrJSONArray;
+var
+  LJSON: TJsonArray;
+begin
+  LJSON := CreateJsonArray(AJSONString);
+  try
+    Result := TACBrJSONArray.Create(LJSON);
+    Result.OwnerJSON := True;
+  except
+    LJSON.Free;
+    raise;
+  end;
+end;
+
+function TACBrJSONArray.ToJSON: String;
+begin
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    Result := FJSON.ToJSON();
+  {$Else}
+    Result := FJSON.Stringify;
+  {$EndIf}
 end;
 
 end.
