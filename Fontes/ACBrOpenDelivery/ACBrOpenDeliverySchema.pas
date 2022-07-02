@@ -6,8 +6,10 @@ uses
   ACBrUtil.Base,
   ACBrUtil.DateTime,
   ACBrJSON,
+  pcnConversaoOD,
   Classes,
-  SysUtils;
+  SysUtils,
+  TypInfo;
 
 type
   TACBrJSONObject = ACBrJSON.TACBrJSONObject;
@@ -57,55 +59,6 @@ type
 //    function ValueAsString(AName: String; var AValue: String; ADefault: String = ''): TACBrOpenDeliveryJson;
 //  end;
 
-  TACBrODStringArray = array of String;
-
-  TACBrODMerchantCategories = (mcBurgers,
-                               mcPizza,
-                               mcFastFood,
-                               mcHotDog,
-                               mcJapanese,
-                               mcDesserts,
-                               mcAmerican,
-                               mcIceCream,
-                               mcBBQ,
-                               mcSandwich,
-                               mcMexican,
-                               mcBrazilian,
-                               mcPastry,
-                               mcArabian,
-                               mcComfortFood,
-                               mcVegetarian,
-                               mcVegan,
-                               mcBakery,
-                               mcHealthy,
-                               mcItalian,
-                               mcChinese,
-                               mcJuiceSmoothies,
-                               mcSeafood,
-                               mcCafe,
-                               mcSalads,
-                               mcCoffeeTea,
-                               mcPasta,
-                               mcBreakfastBrunch,
-                               mcLatinAmerican,
-                               mcConvenience,
-                               mcPub,
-                               mcHawaiian,
-                               mcEuropean,
-                               mcFamilyMeals,
-                               mcFrench,
-                               mcIndian,
-                               mcPortuguese,
-                               mcSpanish,
-                               mcGourmet,
-                               mcKidsFriendly,
-                               mcSouthAmerican,
-                               mcSpecialtyFoods,
-                               mcArgentinian,
-                               mcPremium,
-                               mcAffordableMeals);
-
-  TACBrODMerchantCategoriesArray = array of TACBrODMerchantCategories;
 
   TACBrODMerchantType = (mtRestaurant);
 

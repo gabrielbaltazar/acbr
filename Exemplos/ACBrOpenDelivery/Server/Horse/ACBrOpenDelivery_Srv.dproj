@@ -148,6 +148,7 @@
         </DelphiCompile>
         <DCCReference Include="..\..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas"/>
         <DCCReference Include="..\..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas"/>
+        <DCCReference Include="..\..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

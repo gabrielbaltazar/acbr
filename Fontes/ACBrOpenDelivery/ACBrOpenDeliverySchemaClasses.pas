@@ -5,6 +5,7 @@ interface
 uses
   ACBrOpenDeliverySchema,
   ACBrJSON,
+  pcnConversaoOD,
   SysUtils;
 
 type
@@ -56,7 +57,7 @@ type
     FcorporateName: String;
     Fdescription: string;
     FaverageTicket: Double;
-    FaveragePreprationTime: Integer;
+    FaveragePreparationTime: Integer;
     FminOrderValue: TACBrOpenDeliverySchemaPrice;
     FmerchantType: TACBrODMerchantType;
     FmerchantCategories: TACBrODMerchantCategoriesArray;
@@ -66,13 +67,20 @@ type
     FlogoImage: TACBrOpenDeliverySchemaImage;
     FbannerImage: TACBrOpenDeliverySchemaImage;
     FcreatedAt: TDateTime;
+
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
   public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
     property name: String read Fname write Fname;
     property document: String read Fdocument write Fdocument;
     property corporateName: String read FcorporateName write FcorporateName;
     property description: string read Fdescription write Fdescription;
     property averageTicket: Double read FaverageTicket write FaverageTicket;
-    property averagePreprationTime: Integer read FaveragePreprationTime write FaveragePreprationTime;
+    property averagePreparationTime: Integer read FaveragePreparationTime write FaveragePreparationTime;
     property minOrderValue: TACBrOpenDeliverySchemaPrice read FminOrderValue write FminOrderValue;
     property merchantType: TACBrODMerchantType read FmerchantType write FmerchantType;
     property merchantCategories: TACBrODMerchantCategoriesArray read FmerchantCategories write FmerchantCategories;
@@ -139,6 +147,25 @@ implementation
 
 { TACBrOpenDeliverySchemaBasicInfo }
 
+procedure TACBrOpenDeliverySchemaBasicInfo.Clear;
+begin
+  Fname := '';
+  Fdocument := '';
+  FcorporateName := '';
+  Fdescription := '';
+  FaverageTicket := 0;
+  FaveragePreparationTime := 0;
+  FcreatedAt := 0;
+  FmerchantCategories := [];
+  FcontactEmails := [];
+
+  FminOrderValue.Clear;
+  Faddress.Clear;
+  FcontactPhones.Clear;
+  FlogoImage.Clear;
+  FbannerImage.Clear;
+end;
+
 constructor TACBrOpenDeliverySchemaBasicInfo.Create(const AObjectName: string);
 begin
   inherited Create(AObjectName);
@@ -157,6 +184,59 @@ begin
   FlogoImage.Free;
   FbannerImage.Free;
   inherited;
+end;
+
+procedure TACBrOpenDeliverySchemaBasicInfo.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  LCategories: TACBrODStringArray;
+  I: Integer;
+begin
+  AJson
+    .Value('name', Fname)
+    .Value('document', Fdocument)
+    .Value('corporateName', FcorporateName)
+    .Value('description', Fdescription)
+    .Value('averageTicket', FaverageTicket)
+    .Value('averagePreparationTime', FaveragePreparationTime)
+    .Value('merchantCategories', LCategories);
+
+  FminOrderValue.DoReadFromJSon(AJSon.AsJSONContext['minOrderValue']);
+
+  SetLength(FmerchantCategories, Length(LCategories));
+  for I := 0 to Pred(Length(LCategories)) do
+    FmerchantCategories[I] := StrToMerchantCategories(LCategories[I]);
+end;
+
+procedure TACBrOpenDeliverySchemaBasicInfo.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJson
+    .AddPair('name', Fname)
+    .AddPair('document', Fdocument)
+    .AddPair('corporateName', FcorporateName)
+    .AddPair('description', Fdescription)
+    .AddPair('averageTicket', FaverageTicket)
+    .AddPair('averagePreparationTime', FaveragePreparationTime)
+    .AddPairJSONString('minOrderValue', FminOrderValue.AsJSON)
+    .AddPair('merchantCategories', MerchantCategoriesToArray(FmerchantCategories));
+end;
+
+function TACBrOpenDeliverySchemaBasicInfo.IsEmpty: Boolean;
+begin
+  Result :=
+    (Fname = '') and
+    (Fdocument = '') and
+    (FcorporateName = '') and
+    (Fdescription = '') and
+    (FaverageTicket = 0) and
+    (FaveragePreparationTime = 0) and
+    (FcreatedAt = 0) and
+    (Length(FmerchantCategories) = 0) and
+    (Length(FcontactEmails) = 0) and
+    (FminOrderValue.IsEmpty) and
+    (Faddress.IsEmpty) and
+    (FcontactPhones.IsEmpty) and
+    (FlogoImage.IsEmpty) and
+    (FbannerImage.IsEmpty);
 end;
 
 { TACBrOpenDeliverySchemaAddress }

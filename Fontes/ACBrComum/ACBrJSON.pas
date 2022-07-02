@@ -5,6 +5,7 @@ interface
 uses
   ACBrUtil.Base,
   ACBrUtil.DateTime,
+  pcnConversaoOD,
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     JsonDataObjects_ACBr,
   {$Else}
@@ -22,6 +23,8 @@ type
     FContexts: TList;
     FOwnerJSON: Boolean;
 
+    class function CreateJsonObject(AJsonString: String): TJsonObject;
+
     function GetAsBoolean(AName: String): Boolean;
     function GetAsFloat(AName: String): Double;
     function GetAsInteger(AName: String): Integer;
@@ -34,8 +37,11 @@ type
     function AddPair(AName: string; AValue: Boolean; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
     function AddPair(AName: string; AValue: TJsonObject; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
     function AddPair(AName, AValue: String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function AddPair(AName: string; AValue: Integer; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
     function AddPair(AName: string; AValue: Double; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function AddPair(AName: string; AValue: array of String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
     function AddPairISODate(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function AddPairJSONString(AName: string; AValue: String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
 
     function Value(AName: String; var AValue: Boolean; ADefault: Boolean = False): TACBrJSONObject; overload;
     function Value(AName: String; var AValue: Integer; ADefault: Integer = 0): TACBrJSONObject; overload;
@@ -43,6 +49,7 @@ type
     function Value(AName: String; var AValue: Double; ADefault: Double = 0): TACBrJSONObject; overload;
     function Value(AName: String; var AValue: Currency; ADefault: Currency = 0): TACBrJSONObject; overload;
     function Value(AName: String; var AValue: String; ADefault: String = ''): TACBrJSONObject; overload;
+    function Value(AName: String; var AValue: TACBrODStringArray; ADefault: TACBrODStringArray = []): TACBrJSONObject; overload;
 
     property OwnerJSON: Boolean read FOwnerJSON write FOwnerJSON;
     property AsBoolean[AName: String]: Boolean read GetAsBoolean;
@@ -113,6 +120,17 @@ begin
   {$EndIf}
 end;
 
+function TACBrJSONObject.AddPair(AName: string; AValue: Integer; AIgnoreEmpty: Boolean): TACBrJSONObject;
+begin
+  Result := Self;
+  if (AValue <> 0) or (not AIgnoreEmpty) then
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    FJson.I[AName] := AValue;
+  {$Else}
+    FJson[AName].AsInteger := AValue;
+  {$EndIf}
+end;
+
 function TACBrJSONObject.AddPair(AName, AValue: String; AIgnoreEmpty: Boolean): TACBrJSONObject;
 begin
   Result := Self;
@@ -132,6 +150,23 @@ begin
     FJson.S[AName] := DateTimeToIso8601(AValue);
   {$Else}
     FJson[AName].AsString := DateTimeToIso8601(AValue);
+  {$EndIf}
+end;
+
+function TACBrJSONObject.AddPairJSONString(AName, AValue: String; AIgnoreEmpty: Boolean): TACBrJSONObject;
+var
+  LJSON: TJsonObject;
+begin
+  Result := Self;
+  LJSON := CreateJsonObject(AValue);
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+     FJson.O[AName] := LJSON;
+  {$Else}
+    try
+      FJson[AName].AsObject := LJSON[AName].AsObject;
+    finally
+      LJSON.Free;
+    end;
   {$EndIf}
 end;
 
@@ -217,6 +252,22 @@ begin
   FContexts := TList.Create;
 end;
 
+class function TACBrJSONObject.CreateJsonObject(AJsonString: String): TJsonObject;
+begin
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    JsonSerializationConfig.NullConvertsToValueTypes := True;
+    Result := TJsonObject.Parse(AValue) as TJsonObject;
+  {$Else}
+    Result := TJsonObject.Create;
+    try
+      Result.Parse(AJSONString);
+    except
+      Result.Free;
+      raise;
+    end;
+  {$EndIf}
+end;
+
 destructor TACBrJSONObject.Destroy;
 var
   I: Integer;
@@ -297,6 +348,49 @@ begin
   {$Else}
     AValue := StringToFloatDef(FJson[AName].AsString, 0);
   {$EndIf}
+end;
+
+function TACBrJSONObject.AddPair(AName: string; AValue: array of String; AIgnoreEmpty: Boolean): TACBrJSONObject;
+var
+  LStr: String;
+  I: Integer;
+  LJSONArray: TJsonArray;
+begin
+  Result := Self;
+  LStr := '[';
+  for I := 0 to Pred(Length(AValue)) do
+  begin
+    if I > 0 then
+      LStr := LStr + ',';
+    LStr := LStr + '"' + AValue[I] + '"';
+  end;
+  LStr := LStr + ']';
+
+  if (Length(AValue) > 0) or (not AIgnoreEmpty) then
+  begin
+    {$IfDef USE_JSONDATAOBJECTS_UNIT}
+      FJson.[AName] := AValue;
+    {$Else}
+      LJSONArray := TJsonArray.Create;
+      try
+        LJSONArray.Parse(LStr);
+        FJson[AName].AsArray := LJSONArray;
+      finally
+        LJSONArray.Free;
+      end;
+    {$EndIf}
+  end;
+end;
+
+function TACBrJSONObject.Value(AName: String; var AValue: TACBrODStringArray; ADefault: TACBrODStringArray): TACBrJSONObject;
+var
+  LJSONArray: TJsonArray;
+  I: Integer;
+begin
+  LJSONArray := FJSON[AName].AsArray;
+  SetLength(AValue, LJSONArray.Count);
+  for I := 0 to Pred(LJSONArray.Count) do
+    AValue[I] := LJSONArray.Items[I].AsString;
 end;
 
 end.
