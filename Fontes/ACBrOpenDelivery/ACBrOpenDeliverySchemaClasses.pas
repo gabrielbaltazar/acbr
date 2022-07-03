@@ -115,6 +115,31 @@ type
     property whatsappNumber: string read FwhatsappNumber write FwhatsappNumber;
   end;
 
+  TACBrOpenDeliverySchemaGeoCoordinate = class(TACBrOpenDeliverySchema)
+  private
+    Flatitude: Double;
+    Flongitude: Double;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property latitude: Double read Flatitude write Flatitude;
+    property longitude: Double read Flongitude write Flongitude;
+  end;
+
+  TACBrOpenDeliverySchemaGeoCoordinateCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TACBrOpenDeliverySchemaGeoCoordinate;
+    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaGeoCoordinate);
+  public
+    function New: TACBrOpenDeliverySchemaGeoCoordinate;
+    property Items[Index: Integer]: TACBrOpenDeliverySchemaGeoCoordinate read GetItem write SetItem; default;
+  end;
+
   TACBrOpenDeliverySchemaGeoRadius = class(TACBrOpenDeliverySchema)
   private
     FgeoMidpointLatitude: Double;
@@ -149,6 +174,33 @@ type
     function IsEmpty: Boolean; override;
     property URL: String read FURL write FURL;
     property CRC_32: String read FCRC_32 write FCRC_32;
+  end;
+
+  TACBrOpenDeliverySchemaPolygon = class(TACBrOpenDeliverySchema)
+  private
+    FgeoCoordinates: TACBrOpenDeliverySchemaGeoCoordinateCollection;
+    Fprice: TACBrOpenDeliverySchemaPrice;
+    FestimateDeliveryTime: Integer;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    property geoCoordinates: TACBrOpenDeliverySchemaGeoCoordinateCollection read FgeoCoordinates write FgeoCoordinates;
+    property price: TACBrOpenDeliverySchemaPrice read Fprice write Fprice;
+    property estimateDeliveryTime: Integer read FestimateDeliveryTime write FestimateDeliveryTime;
+
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
+  end;
+
+  TACBrOpenDeliverySchemaPolygonCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TACBrOpenDeliverySchemaPolygon;
+    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaPolygon);
+  public
+    function New: TACBrOpenDeliverySchemaPolygon;
+    property Items[Index: Integer]: TACBrOpenDeliverySchemaPolygon read GetItem write SetItem; default;
   end;
 
   TACBrOpenDeliverySchemaPrice = class(TACBrOpenDeliverySchema)
@@ -196,6 +248,65 @@ type
   public
     function New: TACBrOpenDeliverySchemaRadius;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaRadius read GetItem write SetItem; default;
+  end;
+
+  TACBrOpenDeliverySchemaServiceArea = class(TACBrOpenDeliverySchema)
+  private
+    Fid: String;
+    Fpolygon: TACBrOpenDeliverySchemaPolygonCollection;
+    FgeoRadius: TACBrOpenDeliverySchemaGeoRadius;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+  public
+    property id: String read Fid write Fid;
+    property polygon: TACBrOpenDeliverySchemaPolygonCollection read Fpolygon write Fpolygon;
+    property geoRadius: TACBrOpenDeliverySchemaGeoRadius read FgeoRadius write FgeoRadius;
+
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
+  end;
+
+  TACBrOpenDeliverySchemaTimePeriod = class(TACBrOpenDeliverySchema)
+  private
+    FstartTime: TDateTime;
+    FendTime: TDateTime;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+  public
+    property startTime: TDateTime read FstartTime write FstartTime;
+    property endTime: TDateTime read FendTime write FendTime;
+  end;
+
+  TACBrOpenDeliverySchemaWeekHour = class(TACBrOpenDeliverySchema)
+  private
+    FdayOfWeek: TACBrODDayOfWeekArray;
+    FtimePeriods: TACBrOpenDeliverySchemaTimePeriod;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+  public
+    property dayOfWeek: TACBrODDayOfWeekArray read FdayOfWeek write FdayOfWeek;
+    property timePeriods : TACBrOpenDeliverySchemaTimePeriod read FtimePeriods write FtimePeriods;
+
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -583,6 +694,254 @@ begin
   Result := (FgeoMidpointLatitude = 0) and 
             (FgeoMidpointLongitude = 0) and
             (Fradius.Count = 0);
+end;
+
+{ TACBrOpenDeliverySchemaGeoCoordinate }
+
+procedure TACBrOpenDeliverySchemaGeoCoordinate.Clear;
+begin
+  Flatitude := 0;
+  Flongitude := 0;
+end;
+
+procedure TACBrOpenDeliverySchemaGeoCoordinate.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .Value('latitude', Flatitude)
+    .Value('longitude', Flongitude);
+end;
+
+procedure TACBrOpenDeliverySchemaGeoCoordinate.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('latitude', Flatitude)
+    .AddPair('longitude', Flongitude);
+end;
+
+function TACBrOpenDeliverySchemaGeoCoordinate.IsEmpty: Boolean;
+begin
+  Result := (Flatitude = 0) and (Flongitude = 0);
+end;
+
+{ TACBrOpenDeliverySchemaGeoCoordinateCollection }
+
+function TACBrOpenDeliverySchemaGeoCoordinateCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaGeoCoordinate;
+begin
+  Result := TACBrOpenDeliverySchemaGeoCoordinate(inherited Items[Index]);
+end;
+
+function TACBrOpenDeliverySchemaGeoCoordinateCollection.New: TACBrOpenDeliverySchemaGeoCoordinate;
+begin
+  Result := TACBrOpenDeliverySchemaGeoCoordinate.Create;
+  Self.Add(Result);
+end;
+
+procedure TACBrOpenDeliverySchemaGeoCoordinateCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaGeoCoordinate);
+begin
+  inherited Items[Index] := Value;
+end;
+
+{ TACBrOpenDeliverySchemaPolygon }
+
+constructor TACBrOpenDeliverySchemaPolygon.Create(const AObjectName: string);
+begin
+  inherited Create(AObjectName);
+  Fprice := TACBrOpenDeliverySchemaPrice.Create('price');
+  FgeoCoordinates := TACBrOpenDeliverySchemaGeoCoordinateCollection.Create;
+end;
+
+destructor TACBrOpenDeliverySchemaPolygon.Destroy;
+begin
+  Fprice.Free;
+  FgeoCoordinates.Free;
+  inherited;
+end;
+
+procedure TACBrOpenDeliverySchemaPolygon.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  LJSONArray: TACBrJSONArray;
+  I: Integer;
+begin
+  AJson
+    .Value('estimateDeliveryTime', FestimateDeliveryTime);
+
+  Fprice.DoReadFromJSon(AJSon.AsJSONContext['price']);
+  LJSONArray := AJSon.AsJSONArray['geoCoordinates'];
+  if Assigned(LJSONArray) then
+  begin
+    for I := 0 to Pred(LJSONArray.Count) do
+      FgeoCoordinates.New.AsJSON := LJSONArray.ItemAsJSONObject[I].ToJSON;
+  end;
+end;
+
+procedure TACBrOpenDeliverySchemaPolygon.DoWriteToJSon(AJSon: TACBrJSONObject);
+var
+  I: Integer;
+  LJSONArray: TACBrJSONArray;
+begin
+  LJSONArray := TACBrJSONArray.Create;
+  try
+    for I := 0 to Pred(FgeoCoordinates.Count) do
+      LJSONArray.AddElementJSONString(FgeoCoordinates[I].AsJSON);
+  except
+    LJSONArray.Free;
+    raise;
+  end;
+
+  AJSon
+    .AddPair('geoCoordinates', LJSONArray)
+    .AddPairJSONString('price', Fprice.AsJSON)
+    .AddPair('estimateDeliveryTime', FestimateDeliveryTime);
+end;
+
+{ TACBrOpenDeliverySchemaPolygonCollection }
+
+function TACBrOpenDeliverySchemaPolygonCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaPolygon;
+begin
+  Result := TACBrOpenDeliverySchemaPolygon(inherited Items[Index]);
+end;
+
+function TACBrOpenDeliverySchemaPolygonCollection.New: TACBrOpenDeliverySchemaPolygon;
+begin
+  Result := TACBrOpenDeliverySchemaPolygon.Create;
+  Self.Add(Result);
+end;
+
+procedure TACBrOpenDeliverySchemaPolygonCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaPolygon);
+begin
+  inherited Items[Index] := Value;
+end;
+
+{ TACBrOpenDeliverySchemaServiceArea }
+
+procedure TACBrOpenDeliverySchemaServiceArea.Clear;
+begin
+  Fid := '';
+  Fpolygon.Clear;
+  FgeoRadius.Clear;
+end;
+
+constructor TACBrOpenDeliverySchemaServiceArea.Create(const AObjectName: string);
+begin
+  inherited Create(AObjectName);
+  Fpolygon := TACBrOpenDeliverySchemaPolygonCollection.Create;
+  FgeoRadius := TACBrOpenDeliverySchemaGeoRadius.Create('geoRadius');
+end;
+
+destructor TACBrOpenDeliverySchemaServiceArea.Destroy;
+begin
+  Fpolygon.Free;
+  FgeoRadius.Free;
+  inherited;
+end;
+
+procedure TACBrOpenDeliverySchemaServiceArea.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  LJSONArray: TACBrJSONArray;
+  I: Integer;
+begin
+  Fpolygon.Clear;
+  Fid := AJSon.AsString['id'];
+  FgeoRadius.DoReadFromJSon(AJSon.AsJSONContext['geoRadius']);
+  LJSONArray := AJSon.AsJSONArray['polygon'];
+  if Assigned(LJSONArray) then
+  begin
+    for I := 0 to Pred(LJSONArray.Count) do
+      Fpolygon.New.AsJSON := LJSONArray.ItemAsJSONObject[I].ToJSON;
+  end;
+end;
+
+procedure TACBrOpenDeliverySchemaServiceArea.DoWriteToJSon(AJSon: TACBrJSONObject);
+var
+  I: Integer;
+  LJSONArray: TACBrJSONArray;
+begin
+  LJSONArray := TACBrJSONArray.Create;
+  try
+    for I := 0 to Pred(Fpolygon.Count) do
+      LJSONArray.AddElementJSONString(Fpolygon[I].AsJSON);
+  except
+    LJSONArray.Free;
+    raise;
+  end;
+
+  AJson
+    .AddPair('id', Fid)
+    .AddPair('polygon', LJSONArray)
+    .AddPairJSONString('geoRadius', FgeoRadius.AsJSON);
+end;
+
+function TACBrOpenDeliverySchemaServiceArea.IsEmpty: Boolean;
+begin
+  Result :=
+    (Fid = '') and
+    (Fpolygon.Count = 0) and
+    (FgeoRadius.IsEmpty);
+end;
+
+{ TACBrOpenDeliverySchemaTimePeriod }
+
+procedure TACBrOpenDeliverySchemaTimePeriod.Clear;
+begin
+  FstartTime := 0;
+  FendTime := 0;
+end;
+
+procedure TACBrOpenDeliverySchemaTimePeriod.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJson
+    .ValueISOTime('startTime', FstartTime)
+    .ValueISOTime('endTime', FendTime);
+end;
+
+procedure TACBrOpenDeliverySchemaTimePeriod.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJson
+    .AddPair('startTime', FormatDateTime('hh:mm:ss', FstartTime))
+    .AddPair('endTime', FormatDateTime('hh:mm:ss', FendTime))
+end;
+
+function TACBrOpenDeliverySchemaTimePeriod.IsEmpty: Boolean;
+begin
+  Result := (FstartTime = 0) and (FendTime = 0);
+end;
+
+{ TACBrOpenDeliverySchemaWeekHour }
+
+procedure TACBrOpenDeliverySchemaWeekHour.Clear;
+begin
+  FdayOfWeek := [];
+  FtimePeriods.Clear;
+end;
+
+constructor TACBrOpenDeliverySchemaWeekHour.Create(const AObjectName: string);
+begin
+  inherited Create(AObjectName);
+  FtimePeriods := TACBrOpenDeliverySchemaTimePeriod.Create('timePeriods');
+end;
+
+destructor TACBrOpenDeliverySchemaWeekHour.Destroy;
+begin
+  FtimePeriods.Free;
+  inherited;
+end;
+
+procedure TACBrOpenDeliverySchemaWeekHour.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  inherited;
+  FtimePeriods.DoReadFromJSon(AJSon.AsJSONContext['timePeriods']);
+end;
+
+procedure TACBrOpenDeliverySchemaWeekHour.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('dayOfWeek', DayOfWeekToArray(FdayOfWeek))
+    .AddPairJSONString('timePeriods', FtimePeriods.AsJSON);
+end;
+
+function TACBrOpenDeliverySchemaWeekHour.IsEmpty: Boolean;
+begin
+  Result := (Length(FdayOfWeek) = 0) and (FtimePeriods.IsEmpty);
 end;
 
 end.

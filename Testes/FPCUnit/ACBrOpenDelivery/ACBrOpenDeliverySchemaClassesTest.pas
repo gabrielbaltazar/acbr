@@ -44,6 +44,51 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestContactPhone = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaContactPhone;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
+  TTestGeoCoordinate = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaGeoCoordinate;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
+  TTestGeoRadius = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaGeoRadius;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
   TTestImage = class(TTestCase)
   private
     FJSON: String;
@@ -59,11 +104,11 @@ type
     procedure ObjectToJSON;
   end;
 
-  TTestContactPhone = class(TTestCase)
+  TTestPolygon = class(TTestCase)
   private
     FJSON: String;
     FJSONObject: TACBrJSONObject;
-    FSchema: TACBrOpenDeliverySchemaContactPhone;
+    FSchema: TACBrOpenDeliverySchemaPolygon;
 
   protected
     procedure SetUp; override;
@@ -94,6 +139,36 @@ type
     FJSON: String;
     FJSONObject: TACBrJSONObject;
     FSchema: TACBrOpenDeliverySchemaRadius;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
+  TTestServiceArea = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaServiceArea;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
+  TTestTimePeriod = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaTimePeriod;
 
   protected
     procedure SetUp; override;
@@ -472,12 +547,297 @@ begin
   inherited;
 end;
 
+{ TTestGeoRadius }
+
+procedure TTestGeoRadius.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('-23,54809', FloatToStr(FSchema.geoMidpointLatitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.geoMidpointLongitude));
+  CheckEquals(2, FSchema.radius.Count);
+  CheckEquals(3, FSchema.radius[0].size);
+  CheckEquals('5', FloatToStr(FSchema.radius[0].price.value));
+  CheckEquals('BRL', FSchema.radius[0].price.&currency);
+  CheckEquals(2, FSchema.radius[0].estimateDeliveryTime);
+
+  CheckEquals(4, FSchema.radius[1].size);
+  CheckEquals('6', FloatToStr(FSchema.radius[1].price.value));
+  CheckEquals('US$', FSchema.radius[1].price.&currency);
+  CheckEquals(8, FSchema.radius[1].estimateDeliveryTime);
+end;
+
+procedure TTestGeoRadius.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('-23,54809', FloatToStr(FJSONObject.AsFloat['geoMidpointLatitude']));
+  CheckEquals('-46,63638', FloatToStr(FJSONObject.AsFloat['geoMidpointLongitude']));
+  CheckEquals(2, FJSONObject.AsJSONArray['radius'].Count);
+  CheckEquals(3, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['size']);
+  CheckEquals(2, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
+  CheckEquals('BRL', FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsString['currency']);
+  CheckEquals(5, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsInteger['value']);
+
+  CheckEquals(4, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[1].AsInteger['size']);
+  CheckEquals(8, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[1].AsInteger['estimateDeliveryTime']);
+  CheckEquals('US$', FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[1].AsJSONContext['price'].AsString['currency']);
+  CheckEquals(6, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[1].AsJSONContext['price'].AsInteger['value']);
+end;
+
+procedure TTestGeoRadius.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaGeoRadius.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"geoMidpointLatitude": -23.54809,' +
+      '"geoMidpointLongitude": -46.63638,' +
+      '"radius": [' +
+        '{' +
+          '"size": 3,' +
+          '"price": {' +
+            '"value": 5,' +
+            '"currency": "BRL"' +
+          '},' +
+          '"estimateDeliveryTime": 2' +
+        '},' +
+        '{' +
+          '"size": 4,' +
+          '"price": {' +
+            '"value": 6,' +
+            '"currency": "US$"' +
+          '},' +
+          '"estimateDeliveryTime": 8' +
+        '}' +
+      ']' +
+    '}');
+end;
+
+procedure TTestGeoRadius.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestGeoCoordinate }
+
+procedure TTestGeoCoordinate.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('-23,54809', FloatToStr(FSchema.latitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.longitude));
+end;
+
+procedure TTestGeoCoordinate.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('-23,54809', FloatToStr(FJSONObject.AsFloat['latitude']));
+  CheckEquals('-46,63638', FloatToStr(FJSONObject.AsFloat['longitude']));
+end;
+
+procedure TTestGeoCoordinate.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaGeoCoordinate.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"latitude": -23.54809,' +
+      '"longitude": -46.63638' +
+    '}');
+end;
+
+procedure TTestGeoCoordinate.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestPolygon }
+
+procedure TTestPolygon.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals(3, FSchema.estimateDeliveryTime);
+  CheckEquals(1, FSchema.geoCoordinates.Count);
+  CheckEquals('-23,54809', FloatToStr(FSchema.geoCoordinates[0].latitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.geoCoordinates[0].longitude));
+  CheckEquals('BRL', FSchema.price.&currency);
+  CheckEquals('5', FloatToStr(FSchema.price.value));
+end;
+
+procedure TTestPolygon.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals(3, FJSONObject.AsInteger['estimateDeliveryTime']);
+  CheckEquals(1, FJSONObject.AsJSONArray['geoCoordinates'].Count);
+  CheckEquals('-23,54809', FloatToStr(FJSONObject.AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['latitude']));
+  CheckEquals('-46,63638', FloatToStr(FJSONObject.AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['longitude']));
+  CheckEquals('BRL', FJSONObject.AsJSONContext['price'].AsString['currency']);
+  CheckEquals('5', FloatToStr(FJSONObject.AsJSONContext['price'].AsFloat['value']));
+end;
+
+procedure TTestPolygon.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaPolygon.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"geoCoordinates": [{' +
+        '"latitude": -23.54809,' +
+        '"longitude": -46.63638' +
+      '}],' +
+      '"price": {' +
+        '"value": 5,' +
+        '"currency": "BRL"' +
+      '},' +
+        '"estimateDeliveryTime": 3' +
+    '}');
+end;
+
+procedure TTestPolygon.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestServiceArea }
+
+procedure TTestServiceArea.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('01339e6d-520b-429e-bc7c-dcfd2df42278', FSchema.id);
+  CheckEquals(1, FSchema.polygon.Count);
+  CheckEquals(3, FSchema.polygon[0].estimateDeliveryTime);
+  CheckEquals(1, FSchema.polygon[0].geoCoordinates.Count);
+  CheckEquals('-23,54809', FloatToStr(FSchema.polygon[0].geoCoordinates[0].latitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.polygon[0].geoCoordinates[0].longitude));
+  CheckEquals('BRL', FSchema.polygon[0].price.&currency);
+  CheckEquals('5', FloatToStr(FSchema.polygon[0].price.value));
+
+  CheckEquals('-23,54809', FloatToStr(FSchema.geoRadius.geoMidpointLatitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.geoRadius.geoMidpointLongitude));
+  CheckEquals(1, FSchema.geoRadius.radius.Count);
+  CheckEquals(0, FSchema.geoRadius.radius[0].size);
+  CheckEquals('0', FloatToStr(FSchema.geoRadius.radius[0].price.value));
+  CheckEquals('', FSchema.geoRadius.radius[0].price.&currency);
+  CheckEquals(0, FSchema.geoRadius.radius[0].estimateDeliveryTime);
+end;
+
+procedure TTestServiceArea.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('01339e6d-520b-429e-bc7c-dcfd2df42278', FJSONObject.AsString['id']);
+  CheckEquals(1, FJSONObject.AsJSONArray['polygon'].Count);
+
+  CheckEquals(3, FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
+  CheckEquals(1, FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].Count);
+  CheckEquals('BRL', FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONContext['price'].AsString['currency']);
+  CheckEquals('5', FloatToStr(FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('-23,54809', FloatToStr(FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['latitude']));
+  CheckEquals('-46,63638', FloatToStr(FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['longitude']));
+
+
+  CheckEquals('-23,54809', FloatToStr(FJSONObject.AsJSONContext['geoRadius'].AsFloat['geoMidpointLatitude']));
+  CheckEquals('-46,63638', FloatToStr(FJSONObject.AsJSONContext['geoRadius'].AsFloat['geoMidpointLongitude']));
+  CheckEquals(1, FJSONObject.AsJSONContext['geoRadius'].AsJSONArray['radius'].Count);
+  CheckEquals(0, FJSONObject.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['size']);
+  CheckEquals('0', FloatToStr(FJSONObject.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('', FJSONObject.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsString['currency']);
+  CheckEquals(0, FJSONObject.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
+end;
+
+procedure TTestServiceArea.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaServiceArea.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"id": "01339e6d-520b-429e-bc7c-dcfd2df42278",' +
+      '"polygon": [{' +
+        '"geoCoordinates": [{' +
+          '"latitude": -23.54809,' +
+          '"longitude": -46.63638' +
+        '}],' +
+        '"price": {' +
+          '"value": 5,' +
+          '"currency": "BRL"' +
+        '},' +
+        '"estimateDeliveryTime": 3' +
+      '}],' +
+      '"geoRadius": {' +
+        '"geoMidpointLatitude": -23.54809,' +
+        '"geoMidpointLongitude": -46.63638,' +
+        '"radius": [{' +
+          '"size": 0,' +
+          '"price": {},' +
+          '"estimateDeliveryTime": 0' +
+        '}]' +
+      '}' +
+    '}');
+end;
+
+procedure TTestServiceArea.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestTimePeriod }
+
+procedure TTestTimePeriod.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('10:01:02', FormatDateTime('hh:mm:ss', FSchema.startTime));
+  CheckEquals('18:01:02', FormatDateTime('hh:mm:ss', FSchema.endTime));
+end;
+
+procedure TTestTimePeriod.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+  CheckEquals('10:01:02', FormatDateTime('hh:mm:ss', FSchema.startTime));
+  CheckEquals('18:01:02', FormatDateTime('hh:mm:ss', FSchema.endTime));
+end;
+
+procedure TTestTimePeriod.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaTimePeriod.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"startTime": "10:01:02.000Z",' +
+      '"endTime": "18:01:02.000Z"' +
+    '}');
+end;
+
+procedure TTestTimePeriod.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
 initialization
   _RegisterTest('ACBrOpenDelivery.Schema.Address', TTestAddress);
   _RegisterTest('ACBrOpenDelivery.Schema.BasicInfo', TTestBasicInfo);
   _RegisterTest('ACBrOpenDelivery.Schema.ContactPhone', TTestContactPhone);
+  _RegisterTest('ACBrOpenDelivery.Schema.GeoCordinate', TTestGeoCoordinate);
+  _RegisterTest('ACBrOpenDelivery.Schema.GeoRadius', TTestGeoRadius);
   _RegisterTest('ACBrOpenDelivery.Schema.Image', TTestImage);
+  _RegisterTest('ACBrOpenDelivery.Schema.Polygon', TTestPolygon);
   _RegisterTest('ACBrOpenDelivery.Schema.Price', TTestPrice);
   _RegisterTest('ACBrOpenDelivery.Schema.Radius', TTestRadius);
-
+  _RegisterTest('ACBrOpenDelivery.Schema.ServiceArea', TTestServiceArea);
+  _RegisterTest('ACBrOpenDelivery.Schema.TimePeriod', TTestTimePeriod);
 end.

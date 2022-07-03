@@ -10,6 +10,10 @@ uses
   ACBrUtil.Strings;
 
 type
+  TACBrODDayOfWeek = (dwMonday, dwTuesday, dwWednesday, dwThursday, dwFriday, dwSaturday, dwSunday);
+
+  TACBrODDayOfWeekArray = array of TACBrODDayOfWeek;
+
   TACBrODMerchantCategories = (mcBurgers,
                                mcPizza,
                                mcFastFood,
@@ -60,6 +64,14 @@ type
 
   TACBrODMerchantType = (mtRestaurant);
 
+  TACBrODServiceType = (stDelivery, stTakeout);
+
+  TACBrODStatus = (sAvailable, sUnavailable);
+
+function DayOfWeekToStr(AValue: TACBrODDayOfWeek): String;
+function DayOfWeekToArray(AValue: TACBrODDayOfWeekArray): TSplitResult;
+function StrToDayOfWeek(const AValue: String): TACBrODDayOfWeek;
+
 function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): String;
 function MerchantCategoriesToArray(AValue: TACBrODMerchantCategoriesArray): TSplitResult;
 function StrToMerchantCategories(const AValue: String): TACBrODMerchantCategories;
@@ -67,7 +79,58 @@ function StrToMerchantCategories(const AValue: String): TACBrODMerchantCategorie
 function MerchantTypeToStr(AValue: TACBrODMerchantType): string;
 function StrToMerchantType(AValue: String): TACBrODMerchantType;
 
+function ServiceTypeToStr(AValue: TACBrODServiceType): string;
+function StrToServiceType(AValue: String): TACBrODServiceType;
+
+function StatusToStr(AValue: TACBrODStatus): string;
+function StrToStatus(AValue: String): TACBrODStatus;
+
 implementation
+
+function DayOfWeekToStr(AValue: TACBrODDayOfWeek): String;
+begin
+  case AValue of
+    dwMonday: Result := 'MONDAY';
+    dwTuesday: Result := 'TUESDAY';
+    dwWednesday: Result := 'WEDNESDAY';
+    dwThursday: Result := 'THURSDAY';
+    dwFriday: Result := 'FRIDAY';
+    dwSaturday: Result := 'SATURDAY';
+    dwSunday: Result := 'SUNDAY';
+  else
+    Result := '';
+  end;
+end;
+
+function DayOfWeekToArray(AValue: TACBrODDayOfWeekArray): TSplitResult;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(AValue));
+  for I := 0 to Pred(Length(AValue)) do
+    Result[I] := DayOfWeekToStr(AValue[I]);
+end;
+
+function StrToDayOfWeek(const AValue: String): TACBrODDayOfWeek;
+var
+  LStr: String;
+begin
+  LStr := UpperCase(AValue);
+  if LStr = 'MONDAY' then
+    Result := dwMonday
+  else if LStr = 'TUESDAY' then
+    Result := dwTuesday
+  else if LStr = 'WEDNESDAY' then
+    Result := dwWednesday
+  else if LStr = 'THURSDAY' then
+    Result := dwThursday
+  else if LStr = 'FRIDAY' then
+    Result := dwFriday
+  else if LStr = 'SATURDAY' then
+    Result := dwSaturday
+  else if LStr = 'SUNDAY' then
+    Result := dwSunday;
+end;
 
 function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): String;
 begin
@@ -240,6 +303,48 @@ end;
 function StrToMerchantType(AValue: String): TACBrODMerchantType;
 begin
   Result := mtRestaurant;
+end;
+
+function ServiceTypeToStr(AValue: TACBrODServiceType): string;
+begin
+  case AValue of
+    stDelivery: Result := 'DELIVERY';
+    stTakeout: Result := 'TAKEOUT';
+  else
+    Result := '';
+  end;
+
+end;
+function StrToServiceType(AValue: String): TACBrODServiceType;
+var
+  LStr: String;
+begin
+  LStr := UpperCase(AValue);
+  if LStr = 'DELIVERY' then
+    Result := stDelivery
+  else if LStr = 'TAKEOUT' then
+    Result := stDelivery;
+end;
+
+function StatusToStr(AValue: TACBrODStatus): string;
+begin
+  case AValue of
+    sAvailable: Result := 'AVAILABLE';
+    sUnavailable: Result := 'UNAVAILABLE';
+  else
+    Result := '';
+  end;
+end;
+
+function StrToStatus(AValue: String): TACBrODStatus;
+var
+  LStr: string;
+begin
+  LStr := UpperCase(AValue);
+  if LStr = 'AVAILABLE' then
+    Result := sAvailable
+  else if LStr = 'UNAVAILABLE' then
+    Result := sUnavailable;
 end;
 
 end.
