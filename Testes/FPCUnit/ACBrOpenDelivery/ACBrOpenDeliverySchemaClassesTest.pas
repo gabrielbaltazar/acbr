@@ -179,6 +179,21 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestWeekHour = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaWeekHour;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
 implementation
 
 { TTestAddress }
@@ -828,6 +843,58 @@ begin
   inherited;
 end;
 
+{ TTestWeekHour }
+
+procedure TTestWeekHour.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals(7, Length(FSchema.dayOfWeek));
+  CheckEquals('MONDAY', DayOfWeekToStr(FSchema.dayOfWeek[0]));
+  CheckEquals('SUNDAY', DayOfWeekToStr(FSchema.dayOfWeek[6]));
+  CheckEquals('10:01:02', FormatDateTime('hh:mm:ss', FSchema.timePeriods.startTime));
+  CheckEquals('18:01:02', FormatDateTime('hh:mm:ss', FSchema.timePeriods.endTime));
+end;
+
+procedure TTestWeekHour.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+  CheckEquals(7, FJSONObject.AsJSONArray['dayOfWeek'].Count);
+  CheckEquals('MONDAY', FJSONObject.AsJSONArray['dayOfWeek'].Items[0]);
+  CheckEquals('SUNDAY', FJSONObject.AsJSONArray['dayOfWeek'].Items[6]);
+  CheckEquals('10:01:02', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONContext['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:01:02', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONContext['timePeriods'].AsISOTime['endTime']));
+end;
+
+procedure TTestWeekHour.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaWeekHour.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"dayOfWeek": [' +
+        '"MONDAY",' +
+        '"TUESDAY",' +
+        '"WEDNESDAY",' +
+        '"THURSDAY",' +
+        '"FRIDAY",' +
+        '"SATURDAY",' +
+        '"SUNDAY"' +
+      '],' +
+      '"timePeriods": {' +
+        '"startTime": "10:01:02.000Z",' +
+        '"endTime": "18:01:02.000Z"' +
+      '}' +
+    '}');
+end;
+
+procedure TTestWeekHour.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
 initialization
   _RegisterTest('ACBrOpenDelivery.Schema.Address', TTestAddress);
   _RegisterTest('ACBrOpenDelivery.Schema.BasicInfo', TTestBasicInfo);
@@ -840,4 +907,5 @@ initialization
   _RegisterTest('ACBrOpenDelivery.Schema.Radius', TTestRadius);
   _RegisterTest('ACBrOpenDelivery.Schema.ServiceArea', TTestServiceArea);
   _RegisterTest('ACBrOpenDelivery.Schema.TimePeriod', TTestTimePeriod);
+  _RegisterTest('ACBrOpenDelivery.Schema.WeekHour', TTestWeekHour);
 end.

@@ -17,6 +17,7 @@ type
   TACBrOpenDeliverySchemaImage = class;
   TACBrOpenDeliverySchemaPrice = class;
   TACBrOpenDeliverySchemaRadiusCollection = class;
+  TACBrOpenDeliverySchemaTimePeriod = class;
 
   TACBrOpenDeliverySchemaAddress = class(TACBrOpenDeliverySchema)
   private
@@ -159,6 +160,23 @@ type
 
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
+  end;
+
+  TACBrOpenDeliverySchemaHolidayHour = class(TACBrOpenDeliverySchema)
+  private
+    Fdate: TDateTime;
+    FtimePeriods: TACBrOpenDeliverySchemaTimePeriod;
+
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property date: TDateTime read Fdate write Fdate;
+    property timePeriods: TACBrOpenDeliverySchemaTimePeriod read FtimePeriods write FtimePeriods;
   end;
 
   TACBrOpenDeliverySchemaImage = class(TACBrOpenDeliverySchema)
@@ -927,9 +945,16 @@ begin
 end;
 
 procedure TACBrOpenDeliverySchemaWeekHour.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  LSplitResult: TSplitResult;
+  I: Integer;
 begin
-  inherited;
   FtimePeriods.DoReadFromJSon(AJSon.AsJSONContext['timePeriods']);
+  AJSon.Value('dayOfWeek', LSplitResult);
+
+  SetLength(FdayOfWeek, Length(LSplitResult));
+  for I := 0 to Pred(Length(LSplitResult)) do
+    FdayOfWeek[I] := StrToDayOfWeek(LSplitResult[I]);
 end;
 
 procedure TACBrOpenDeliverySchemaWeekHour.DoWriteToJSon(AJSon: TACBrJSONObject);
@@ -942,6 +967,34 @@ end;
 function TACBrOpenDeliverySchemaWeekHour.IsEmpty: Boolean;
 begin
   Result := (Length(FdayOfWeek) = 0) and (FtimePeriods.IsEmpty);
+end;
+
+{ TACBrOpenDeliverySchemaHolidayHour }
+
+procedure TACBrOpenDeliverySchemaHolidayHour.Clear;
+begin
+  inherited;
+
+
+end;
+
+procedure TACBrOpenDeliverySchemaHolidayHour.DoReadFromJSon(
+  AJSon: TACBrJSONObject);
+begin
+  inherited;
+
+end;
+
+procedure TACBrOpenDeliverySchemaHolidayHour.DoWriteToJSon(
+  AJSon: TACBrJSONObject);
+begin
+  inherited;
+
+end;
+
+function TACBrOpenDeliverySchemaHolidayHour.IsEmpty: Boolean;
+begin
+
 end;
 
 end.
