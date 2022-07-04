@@ -10,55 +10,34 @@ uses
   ACBrUtil.Strings;
 
 type
-  TACBrODDayOfWeek = (dwMonday, dwTuesday, dwWednesday, dwThursday, dwFriday, dwSaturday, dwSunday);
+  TACBrODAlergen =
+    (aAlmonds, aAlphaIsomethylIonone, aAlcohol, aAmylCinnamal, aAniseAlcohol,
+     aBarley, aBenzylAlcohol, aBenzylBenzoate, aBenzylCinnamate, aBenzylSalicylate,
+     aBrazilNuts, aButylphenylMethylpropionate, aCarrots, aCashewNuts, aCelery,
+     aCerealsContainingGluten, aCinnamal, aCinnamylAlcohol, aCitral, aCitronellol,
+     aCocoa, aCoriander, aCorn, aCoumarin, aCrustaceans, aEggs, aEugenol, aEverniaFurfuracea,
+     aEverniaPrunastri, aFarnesol, aFish, aGeraniol, aGluten, aHazelnuts, aHexylCinnamal,
+     aHydroxycitronellal, aKamut, aLactose, aLupine, aMacadamiaNuts, aMethyl2Octynoate, aMilk,
+     aMolluscs, aMustard, aNoDeclaredAllergens, aOat, aPeanuts, aPeas, aPecanNuts, aPistachios,
+     aProdFruits, aQueenslandNuts, aRye, aSesameSeeds, aSoybeans, aSpelt, aSulphurDioxide,
+     aTreeNuts, aTreeNutTraces, aWalnuts, aWheat);
+
+  TACBrODAlergenArray = array of TACBrODAlergen;
+
+  TACBrODDayOfWeek =
+    (dwMonday, dwTuesday, dwWednesday, dwThursday, dwFriday,
+     dwSaturday, dwSunday);
 
   TACBrODDayOfWeekArray = array of TACBrODDayOfWeek;
 
-  TACBrODMerchantCategories = (mcBurgers,
-                               mcPizza,
-                               mcFastFood,
-                               mcHotDog,
-                               mcJapanese,
-                               mcDesserts,
-                               mcAmerican,
-                               mcIceCream,
-                               mcBBQ,
-                               mcSandwich,
-                               mcMexican,
-                               mcBrazilian,
-                               mcPastry,
-                               mcArabian,
-                               mcComfortFood,
-                               mcVegetarian,
-                               mcVegan,
-                               mcBakery,
-                               mcHealthy,
-                               mcItalian,
-                               mcChinese,
-                               mcJuiceSmoothies,
-                               mcSeafood,
-                               mcCafe,
-                               mcSalads,
-                               mcCoffeeTea,
-                               mcPasta,
-                               mcBreakfastBrunch,
-                               mcLatinAmerican,
-                               mcConvenience,
-                               mcPub,
-                               mcHawaiian,
-                               mcEuropean,
-                               mcFamilyMeals,
-                               mcFrench,
-                               mcIndian,
-                               mcPortuguese,
-                               mcSpanish,
-                               mcGourmet,
-                               mcKidsFriendly,
-                               mcSouthAmerican,
-                               mcSpecialtyFoods,
-                               mcArgentinian,
-                               mcPremium,
-                               mcAffordableMeals);
+  TACBrODMerchantCategories =
+    (mcBurgers, mcPizza, mcFastFood, mcHotDog, mcJapanese, mcDesserts, mcAmerican,
+     mcIceCream, mcBBQ, mcSandwich, mcMexican, mcBrazilian, mcPastry, mcArabian,
+     mcComfortFood, mcVegetarian, mcVegan, mcBakery, mcHealthy, mcItalian, mcChinese,
+     mcJuiceSmoothies, mcSeafood, mcCafe, mcSalads, mcCoffeeTea, mcPasta, mcBreakfastBrunch,
+     mcLatinAmerican, mcConvenience, mcPub, mcHawaiian, mcEuropean, mcFamilyMeals, mcFrench,
+     mcIndian, mcPortuguese, mcSpanish, mcGourmet, mcKidsFriendly, mcSouthAmerican,
+     mcSpecialtyFoods, mcArgentinian, mcPremium, mcAffordableMeals);
 
   TACBrODMerchantCategoriesArray = array of TACBrODMerchantCategories;
 
@@ -67,6 +46,10 @@ type
   TACBrODServiceType = (stDelivery, stTakeout);
 
   TACBrODStatus = (sAvailable, sUnavailable);
+
+function AlergenToStr(AValue: TACBrODAlergen): String;
+function AlergensToArray(AValue: TACBrODAlergenArray): TSplitResult;
+function StrToAlergen(const AValue: String): TACBrODAlergen;
 
 function DayOfWeekToStr(AValue: TACBrODDayOfWeek): String;
 function DayOfWeekToArray(AValue: TACBrODDayOfWeekArray): TSplitResult;
@@ -86,6 +69,214 @@ function StatusToStr(AValue: TACBrODStatus): string;
 function StrToStatus(AValue: String): TACBrODStatus;
 
 implementation
+
+function AlergenToStr(AValue: TACBrODAlergen): String;
+begin
+  case AValue of
+    aAlmonds: Result := 'ALMONDS';
+    aAlphaIsomethylIonone: Result := 'ALPHA_ISOMETHYL_IONONE';
+    aAlcohol: Result := 'ALCOHOL';
+    aAmylCinnamal: Result := 'AMYL_CINNAMAL';
+    aAniseAlcohol: Result := 'ANISE_ALCOHOL';
+    aBarley: Result := 'BARLEY';
+    aBenzylAlcohol: Result := 'BENZYL_ALCOHOL';
+    aBenzylBenzoate: Result := 'BENZYL_BENZOATE';
+    aBenzylCinnamate: Result := 'BENZYL_CINNAMATE';
+    aBenzylSalicylate: Result := 'BENZYL_SALICYLATE';
+    aBrazilNuts: Result := 'BRAZIL_NUTS';
+    aButylphenylMethylpropionate: Result := 'BUTYLPHENYL_METHYLPROPIONATE';
+    aCarrots: Result := 'CARROTS';
+    aCashewNuts: Result := 'CASHEW_NUTS';
+    aCelery: Result := 'CELERY';
+    aCerealsContainingGluten: Result := 'CEREALS_CONTAINING_GLUTEN';
+    aCinnamal: Result := 'CINNAMAL';
+    aCinnamylAlcohol: Result := 'CINNAMYL_ALCOHOL';
+    aCitral: Result := 'CITRAL';
+    aCitronellol: Result := 'CITRONELLOL';
+    aCocoa: Result := 'COCOA';
+    aCoriander: Result := 'CORIANDER';
+    aCorn: Result := 'CORN';
+    aCoumarin: Result := 'COUMARIN';
+    aCrustaceans: Result := 'CRUSTACEANS';
+    aEggs: Result := 'EGGS';
+    aEugenol: Result := 'EUGENOL';
+    aEverniaFurfuracea: Result := 'EVERNIA_FURFURACEA';
+    aEverniaPrunastri: Result := 'EVERNIA_PRUNASTRI';
+    aFarnesol: Result := 'FARNESOL';
+    aFish: Result := 'FISH';
+    aGeraniol: Result := 'GERANIOL';
+    aGluten: Result := 'GLUTEN';
+    aHazelnuts: Result := 'HAZELNUTS';
+    aHexylCinnamal: Result := 'HEXYL_CINNAMAL';
+    aHydroxycitronellal: Result := 'HYDROXYCITRONELLAL';
+    aKamut: Result := 'KAMUT';
+    aLactose: Result := 'LACTOSE';
+    aLupine: Result := 'LUPINE';
+    aMacadamiaNuts: Result := 'MACADAMIA_NUTS';
+    aMethyl2Octynoate: Result := 'METHYL_2_OCTYNOATE';
+    aMilk: Result := 'MILK';
+    aMolluscs: Result := 'MOLLUSCS';
+    aMustard: Result := 'MUSTARD';
+    aNoDeclaredAllergens: Result := 'NO_DECLARED_ALLERGENS';
+    aOat: Result := 'OAT';
+    aPeanuts: Result := 'PEANUTS';
+    aPeas: Result := 'PEAS';
+    aPecanNuts: Result := 'PECAN_NUTS';
+    aPistachios: Result := 'PISTACHIOS';
+    aProdFruits: Result := 'POD_FRUITS';
+    aQueenslandNuts: Result := 'QUEENSLAND_NUTS';
+    aRye: Result := 'RYE';
+    aSesameSeeds: Result := 'SESAME_SEEDS';
+    aSoybeans: Result := 'SOYBEANS';
+    aSpelt: Result := 'SPELT';
+    aSulphurDioxide: Result := 'SULPHUR_DIOXIDE';
+    aTreeNuts: Result := 'TREE_NUTS';
+    aTreeNutTraces: Result := 'TREE_NUT_TRACES';
+    aWalnuts: Result := 'WALNUTS';
+    aWheat: Result := 'WHEAT';
+  else
+    Result := '';
+  end;
+end;
+
+function AlergensToArray(AValue: TACBrODAlergenArray): TSplitResult;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(AValue));
+  for I := 0 to Pred(Length(AValue)) do
+    Result[I] := AlergenToStr(AValue[I]);
+end;
+
+function StrToAlergen(const AValue: String): TACBrODAlergen;
+var
+  LStr: String;
+begin
+  LStr := UpperCase(AValue);
+  if LStr = 'ALMONDS' then
+    Result := aAlmonds
+  else if LStr = 'ALPHA_ISOMETHYL_IONONE' then
+    Result := aAlphaIsomethylIonone
+  else if LStr = 'ALCOHOL' then
+    Result := aAlcohol
+  else if LStr = 'AMYL_CINNAMAL' then
+    Result := aAmylCinnamal
+  else if LStr = 'ANISE_ALCOHOL' then
+    Result := aAniseAlcohol
+  else if LStr = 'BARLEY' then
+    Result := aBarley
+  else if LStr = 'BENZYL_ALCOHOL' then
+    Result := aBenzylAlcohol
+  else if LStr = 'BENZYL_BENZOATE' then
+    Result := aBenzylBenzoate
+  else if LStr = 'BENZYL_CINNAMATE' then
+    Result := aBenzylCinnamate
+  else if LStr = 'BENZYL_SALICYLATE' then
+    Result := aBenzylSalicylate
+  else if LStr = 'BRAZIL_NUTS' then
+    Result := aBrazilNuts
+  else if LStr = 'BUTYLPHENYL_METHYLPROPIONATE' then
+    Result := aButylphenylMethylpropionate
+  else if LStr = 'CARROTS' then
+    Result := aCarrots
+  else if LStr = 'CASHEW_NUTS' then
+    Result := aCashewNuts
+  else if LStr = 'CELERY' then
+    Result := aCelery
+  else if LStr = 'CEREALS_CONTAINING_GLUTEN' then
+    Result := aCerealsContainingGluten
+  else if LStr = 'CINNAMAL' then
+    Result := aCinnamal
+  else if LStr = 'CINNAMYL_ALCOHOL' then
+    Result := aCinnamylAlcohol
+  else if LStr = 'CITRAL' then
+    Result := aCitral
+  else if LStr = 'CITRONELLOL' then
+    Result := aCitronellol
+  else if LStr = 'COCOA' then
+    Result := aCocoa
+  else if LStr = 'CORIANDER' then
+    Result := aCoriander
+  else if LStr = 'CORN' then
+    Result := aCorn
+  else if LStr = 'COUMARIN' then
+    Result := aCoumarin
+  else if LStr = 'CRUSTACEANS' then
+    Result := aCrustaceans
+  else if LStr = 'EGGS' then
+    Result := aEggs
+  else if LStr = 'EUGENOL' then
+    Result := aEugenol
+  else if LStr = 'EVERNIA_FURFURACEA' then
+    Result := aEverniaFurfuracea
+  else if LStr = 'EVERNIA_PRUNASTRI' then
+    Result := aEverniaPrunastri
+  else if LStr = 'FARNESOL' then
+    Result := aFarnesol
+  else if LStr = 'FISH' then
+    Result := aFish
+  else if LStr = 'GERANIOL' then
+    Result := aGeraniol
+  else if LStr = 'GLUTEN' then
+    Result := aGluten
+  else if LStr = 'HAZELNUTS' then
+    Result := aHazelnuts
+  else if LStr = 'HEXYL_CINNAMAL' then
+    Result := aHexylCinnamal
+  else if LStr = 'HYDROXYCITRONELLAL' then
+    Result := aHydroxycitronellal
+  else if LStr = 'KAMUT' then
+    Result := aKamut
+  else if LStr = 'LACTOSE' then
+    Result := aLactose
+  else if LStr = 'LUPINE' then
+    Result := aLupine
+  else if LStr = 'MACADAMIA_NUTS' then
+    Result := aMacadamiaNuts
+  else if LStr = 'METHYL_2_OCTYNOATE' then
+    Result := aMethyl2Octynoate
+  else if LStr = 'MILK' then
+    Result := aMilk
+  else if LStr = 'MOLLUSCS' then
+    Result := aMolluscs
+  else if LStr = 'MUSTARD' then
+    Result := aMustard
+  else if LStr = 'NO_DECLARED_ALLERGENS' then
+    Result := aNoDeclaredAllergens
+  else if LStr = 'OAT' then
+    Result := aOat
+  else if LStr = 'PEANUTS' then
+    Result := aPeanuts
+  else if LStr = 'PEAS' then
+    Result := aPeas
+  else if LStr = 'PECAN_NUTS' then
+    Result := aPecanNuts
+  else if LStr = 'PISTACHIOS' then
+    Result := aPistachios
+  else if LStr = 'POD_FRUITS' then
+    Result := aProdFruits
+  else if LStr = 'QUEENSLAND_NUTS' then
+    Result := aQueenslandNuts
+  else if LStr = 'RYE' then
+    Result := aRye
+  else if LStr = 'SESAME_SEEDS' then
+    Result := aSesameSeeds
+  else if LStr = 'SOYBEANS' then
+    Result := aSoybeans
+  else if LStr = 'SPELT' then
+    Result := aSpelt
+  else if LStr = 'SULPHUR_DIOXIDE' then
+    Result := aSulphurDioxide
+  else if LStr = 'TREE_NUTS' then
+    Result := aTreeNuts
+  else if LStr = 'TREE_NUT_TRACES' then
+    Result := aTreeNutTraces
+  else if LStr = 'WALNUTS' then
+    Result := aWalnuts
+  else if LStr = 'WHEAT' then
+    Result := aWheat;
+end;
+
 
 function DayOfWeekToStr(AValue: TACBrODDayOfWeek): String;
 begin

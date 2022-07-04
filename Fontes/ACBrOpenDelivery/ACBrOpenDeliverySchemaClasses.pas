@@ -209,6 +209,41 @@ type
     property CRC_32: String read FCRC_32 write FCRC_32;
   end;
 
+  TACBrOpenDeliverySchemaMenu = class(TACBrOpenDeliverySchema)
+  private
+    Fid: String;
+    Fname: String;
+    Fdescription: String;
+    FexternalCode: String;
+    Fdisclaimer: String;
+    FdisclaimerUrl: String;
+    FcategoryId: TSplitResult;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property id: String read Fid write Fid;
+    property name: String read Fname write Fname;
+    property description: String read Fdescription write Fdescription;
+    property externalCode: String read FexternalCode write FexternalCode;
+    property disclaimer: String read Fdisclaimer write Fdisclaimer;
+    property disclaimerUrl: String read FdisclaimerUrl write FdisclaimerUrl;
+    property categoryId: TSplitResult read FcategoryId write FcategoryId;
+  end;
+
+  TACBrOpenDeliverySchemaMenuCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TACBrOpenDeliverySchemaMenu;
+    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaMenu);
+  public
+    function New: TACBrOpenDeliverySchemaMenu;
+    property Items[Index: Integer]: TACBrOpenDeliverySchemaMenu read GetItem write SetItem; default;
+  end;
+
   TACBrOpenDeliverySchemaPolygon = class(TACBrOpenDeliverySchema)
   private
     FgeoCoordinates: TACBrOpenDeliverySchemaGeoCoordinateCollection;
@@ -219,6 +254,9 @@ type
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
 
   public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
     property geoCoordinates: TACBrOpenDeliverySchemaGeoCoordinateCollection read FgeoCoordinates write FgeoCoordinates;
     property price: TACBrOpenDeliverySchemaPrice read Fprice write Fprice;
     property estimateDeliveryTime: Integer read FestimateDeliveryTime write FestimateDeliveryTime;
@@ -308,6 +346,15 @@ type
 
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
+  end;
+
+  TACBrOpenDeliverySchemaServiceCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TACBrOpenDeliverySchemaService;
+    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaService);
+  public
+    function New: TACBrOpenDeliverySchemaService;
+    property Items[Index: Integer]: TACBrOpenDeliverySchemaService read GetItem write SetItem; default;
   end;
 
   TACBrOpenDeliverySchemaServiceArea = class(TACBrOpenDeliverySchema)
@@ -833,6 +880,14 @@ end;
 
 { TACBrOpenDeliverySchemaPolygon }
 
+procedure TACBrOpenDeliverySchemaPolygon.Clear;
+begin
+  inherited;
+  FestimateDeliveryTime := 0;
+  Fprice.Clear;
+  FgeoCoordinates.Clear;
+end;
+
 constructor TACBrOpenDeliverySchemaPolygon.Create(const AObjectName: string);
 begin
   inherited Create(AObjectName);
@@ -882,6 +937,13 @@ begin
     .AddPair('geoCoordinates', LJSONArray)
     .AddPairJSONString('price', Fprice.AsJSON)
     .AddPair('estimateDeliveryTime', FestimateDeliveryTime);
+end;
+
+function TACBrOpenDeliverySchemaPolygon.IsEmpty: Boolean;
+begin
+  Result := (FestimateDeliveryTime = 0) and
+            (Fprice.IsEmpty) and
+            (FgeoCoordinates.Count = 0);
 end;
 
 { TACBrOpenDeliverySchemaPolygonCollection }
@@ -1259,6 +1321,90 @@ begin
             (FmenuId = '') and
             (FserviceArea.IsEmpty) and
             (FserviceHours.IsEmpty);
+end;
+
+{ TACBrOpenDeliverySchemaServiceCollection }
+
+function TACBrOpenDeliverySchemaServiceCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaService;
+begin
+  Result := TACBrOpenDeliverySchemaService(inherited Items[Index]);
+end;
+
+function TACBrOpenDeliverySchemaServiceCollection.New: TACBrOpenDeliverySchemaService;
+begin
+  Result := TACBrOpenDeliverySchemaService.Create;
+  Self.Add(Result);
+end;
+
+procedure TACBrOpenDeliverySchemaServiceCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaService);
+begin
+  inherited Items[Index] := Value;
+end;
+
+{ TACBrOpenDeliverySchemaMenu }
+
+procedure TACBrOpenDeliverySchemaMenu.Clear;
+begin
+  Fid := '';
+  Fname := '';
+  Fdescription := '';
+  FexternalCode := '';
+  Fdisclaimer := '';
+  FdisclaimerUrl := '';
+  FcategoryId := [];
+end;
+
+procedure TACBrOpenDeliverySchemaMenu.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .Value('id', Fid)
+    .Value('name', Fname)
+    .Value('description', Fdescription)
+    .Value('externalCode', FexternalCode)
+    .Value('disclaimer', Fdisclaimer)
+    .Value('disclaimerURL', FdisclaimerUrl)
+    .Value('categoryId', FcategoryId);
+end;
+
+procedure TACBrOpenDeliverySchemaMenu.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('id', Fid)
+    .AddPair('name', Fname)
+    .AddPair('description', Fdescription)
+    .AddPair('externalCode', FexternalCode)
+    .AddPair('disclaimer', Fdisclaimer)
+    .AddPair('disclaimerURL', FdisclaimerUrl)
+    .AddPair('categoryId', FcategoryId);
+end;
+
+function TACBrOpenDeliverySchemaMenu.IsEmpty: Boolean;
+begin
+  Result := (Fid = '') and
+            (Fname = '') and
+            (Fdescription = '') and
+            (FexternalCode = '') and
+            (Fdisclaimer = '') and
+            (FdisclaimerUrl = '') and
+            (Length(FcategoryId) = 0);
+end;
+
+{ TACBrOpenDeliverySchemaMenuCollection }
+
+function TACBrOpenDeliverySchemaMenuCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaMenu;
+begin
+  Result := TACBrOpenDeliverySchemaMenu(inherited Items[Index]);
+end;
+
+function TACBrOpenDeliverySchemaMenuCollection.New: TACBrOpenDeliverySchemaMenu;
+begin
+  Result := TACBrOpenDeliverySchemaMenu.Create;
+  Self.Add(Result);
+end;
+
+procedure TACBrOpenDeliverySchemaMenuCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaMenu);
+begin
+  inherited Items[Index] := Value;
 end;
 
 end.

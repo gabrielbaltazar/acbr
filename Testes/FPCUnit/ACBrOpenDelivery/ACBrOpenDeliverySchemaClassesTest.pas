@@ -119,6 +119,21 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestMenu = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaMenu;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
   TTestPolygon = class(TTestCase)
   private
     FJSON: String;
@@ -1214,6 +1229,64 @@ begin
   inherited;
 end;
 
+{ TTestMenu }
+
+procedure TTestMenu.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('f627ccdc-6789-456f-a782-148538d5035b', FSchema.id);
+  CheckEquals('Pizzas', FSchema.name);
+  CheckEquals('Pizza menu', FSchema.description);
+  CheckEquals('123', FSchema.externalCode);
+  CheckEquals('Lorem Ipsum is simply dummy text of the printing and typesetting industry.', FSchema.disclaimer);
+  CheckEquals('http://example.com', FSchema.disclaimerUrl);
+  CheckEquals(2, Length(FSchema.categoryId));
+  CheckEquals('92fad022-2c28-4239-a026-989f5b555cb7', FSchema.categoryId[0]);
+  CheckEquals('6bb71850-1d40-49f9-8046-b13e068c0cca', FSchema.categoryId[1]);
+end;
+
+procedure TTestMenu.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('f627ccdc-6789-456f-a782-148538d5035b', FJSONObject.AsString['id']);
+  CheckEquals('Pizzas', FJSONObject.AsString['name']);
+  CheckEquals('Pizza menu', FJSONObject.AsString['description']);
+  CheckEquals('123', FJSONObject.AsString['externalCode']);
+  CheckEquals('Lorem Ipsum is simply dummy text of the printing and typesetting industry.', FJSONObject.AsString['disclaimer']);
+  CheckEquals('http://example.com', FJSONObject.AsString['disclaimerUrl']);
+  CheckEquals(2, FJSONObject.AsJSONArray['categoryId'].Count);
+  CheckEquals('92fad022-2c28-4239-a026-989f5b555cb7', FJSONObject.AsJSONArray['categoryId'].Items[0]);
+  CheckEquals('6bb71850-1d40-49f9-8046-b13e068c0cca', FJSONObject.AsJSONArray['categoryId'].Items[1]);
+end;
+
+procedure TTestMenu.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaMenu.Create;
+  FJSON := ACBrStr(
+    '{' +
+    '    "id": "f627ccdc-6789-456f-a782-148538d5035b",' +
+    '    "name": "Pizzas",' +
+    '    "description": "Pizza menu",' +
+    '    "externalCode": "123",' +
+    '    "disclaimer": "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",' +
+    '    "disclaimerURL": "http://example.com",' +
+    '    "categoryId": [' +
+    '        "92fad022-2c28-4239-a026-989f5b555cb7",' +
+    '        "6bb71850-1d40-49f9-8046-b13e068c0cca"' +
+    '    ]' +
+    '}');
+end;
+
+procedure TTestMenu.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
 initialization
   _RegisterTest('ACBrOpenDelivery.Schema.Address', TTestAddress);
   _RegisterTest('ACBrOpenDelivery.Schema.BasicInfo', TTestBasicInfo);
@@ -1222,6 +1295,7 @@ initialization
   _RegisterTest('ACBrOpenDelivery.Schema.GeoRadius', TTestGeoRadius);
   _RegisterTest('ACBrOpenDelivery.Schema.HolidayHour', TTestHolidayHour);
   _RegisterTest('ACBrOpenDelivery.Schema.Image', TTestImage);
+  _RegisterTest('ACBrOpenDelivery.Schema.Menu', TTestMenu);
   _RegisterTest('ACBrOpenDelivery.Schema.Polygon', TTestPolygon);
   _RegisterTest('ACBrOpenDelivery.Schema.Price', TTestPrice);
   _RegisterTest('ACBrOpenDelivery.Schema.Radius', TTestRadius);
