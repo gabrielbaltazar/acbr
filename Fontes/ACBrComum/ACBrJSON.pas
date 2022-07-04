@@ -28,7 +28,7 @@ type
     function GetAsBoolean(AName: String): Boolean;
     function GetAsFloat(AName: String): Double;
     function GetAsInteger(AName: String): Integer;
-    function GetAsISODate(AName: String): TDateTime;
+    function GetAsISODateTime(AName: String): TDateTime;
     function GetAsString(AName: String): String;
     function GetAsISOTime(AName: String): TDateTime;
     function GetAsJSONArray(AName: String): TACBrJSONArray;
@@ -36,6 +36,7 @@ type
 
     function AddPair(AName: string; AValue: TJsonArray; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
     function AddPair(AName: string; AValue: TJsonObject; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function GetAsISODate(AName: String): TDateTime;
   public
     function AddPair(AName: string; AValue: Boolean; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
     function AddPair(AName, AValue: String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
@@ -50,6 +51,7 @@ type
     function Value(AName: String; var AValue: Boolean; ADefault: Boolean = False): TACBrJSONObject; overload;
     function Value(AName: String; var AValue: Integer; ADefault: Integer = 0): TACBrJSONObject; overload;
     function ValueISODate(AName: String; var AValue: TDateTime; ADefault: TDateTime = 0): TACBrJSONObject;
+    function ValueISODateTime(AName: String; var AValue: TDateTime; ADefault: TDateTime = 0): TACBrJSONObject;
     function ValueISOTime(AName: String; var AValue: TDateTime; ADefault: TDateTime = 0): TACBrJSONObject;
     function Value(AName: String; var AValue: Double; ADefault: Double = 0): TACBrJSONObject; overload;
     function Value(AName: String; var AValue: Currency; ADefault: Currency = 0): TACBrJSONObject; overload;
@@ -60,6 +62,7 @@ type
     property AsBoolean[AName: String]: Boolean read GetAsBoolean;
     property AsFloat[AName: String]: Double read GetAsFloat;
     property AsInteger[AName: String]: Integer read GetAsInteger;
+    property AsISODateTime[AName: String]: TDateTime read GetAsISODateTime;
     property AsISODate[AName: String]: TDateTime read GetAsISODate;
     property AsISOTime[AName: String]: TDateTime read GetAsISOTime;
     property AsString[AName: String]: String read GetAsString;
@@ -239,6 +242,11 @@ begin
   ValueISODate(AName, Result);
 end;
 
+function TACBrJSONObject.GetAsISODateTime(AName: String): TDateTime;
+begin
+  ValueISODateTime(AName, Result);
+end;
+
 function TACBrJSONObject.GetAsJSONArray(AName: String): TACBrJSONArray;
 var
   LJSON: TJsonArray;
@@ -360,6 +368,21 @@ begin
 end;
 
 function TACBrJSONObject.ValueISODate(AName: String; var AValue: TDateTime; ADefault: TDateTime): TACBrJSONObject;
+var
+  LStrValue: String;
+begin
+  Result := Self;
+  AValue := ADefault;
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    LStrValue := FJson.S[AName].AsString;
+  {$Else}
+    LStrValue := FJson[AName].AsString;
+  {$EndIf}
+  if LStrValue <> '' then
+    AValue := EncodeDataHora(LStrValue, 'yyyy-MM-dd');
+end;
+
+function TACBrJSONObject.ValueISODateTime(AName: String; var AValue: TDateTime; ADefault: TDateTime): TACBrJSONObject;
 var
   LStrValue: String;
 begin

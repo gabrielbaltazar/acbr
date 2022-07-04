@@ -89,6 +89,21 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestHolidayHour = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaHolidayHour;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
   TTestImage = class(TTestCase)
   private
     FJSON: String;
@@ -149,11 +164,41 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestService = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaService;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
   TTestServiceArea = class(TTestCase)
   private
     FJSON: String;
     FJSONObject: TACBrJSONObject;
     FSchema: TACBrOpenDeliverySchemaServiceArea;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
+  TTestServiceHour = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaServiceHour;
 
   protected
     procedure SetUp; override;
@@ -454,7 +499,7 @@ begin
   CheckEquals('https://food-company.com/image.jpg', FJSONObject.AsJSONContext['bannerImage'].AsString['URL']);
   CheckEquals('96b41025', FJSONObject.AsJSONContext['bannerImage'].AsString['CRC-32']);
 
-  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FJSONObject.AsISODate['createdAt']));
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FJSONObject.AsISODateTime['createdAt']));
 end;
 
 procedure TTestBasicInfo.SetUp;
@@ -895,17 +940,294 @@ begin
   inherited;
 end;
 
+{ TTestHolidayHour }
+
+procedure TTestHolidayHour.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('2021-07-04', FormatDateTime('yyyy-MM-dd', FSchema.date));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FSchema.timePeriods.startTime));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.timePeriods.endTime));
+end;
+
+procedure TTestHolidayHour.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+  CheckEquals('2021-07-04', FormatDateTime('yyyy-MM-dd', FJSONObject.AsISODateTime['date']));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONContext['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONContext['timePeriods'].AsISOTime['endTime']));
+end;
+
+procedure TTestHolidayHour.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaHolidayHour.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"date": "2021-07-04",' +
+      '"timePeriods": {' +
+        '"startTime": "10:00:00.000Z",' +
+        '"endTime": "18:00:00.000Z"' +
+      '}' +
+    '}');
+end;
+
+procedure TTestHolidayHour.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestServiceHour }
+
+procedure TTestServiceHour.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('fb093d8c-2ca5-40fb-afcf-472fbdae81cc', FSchema.id);
+  CheckEquals(1, FSchema.weekHours.Count);
+  CheckEquals(2, Length(FSchema.weekHours[0].dayOfWeek));
+  CheckEquals('MONDAY', DayOfWeekToStr(FSchema.weekHours[0].dayOfWeek[0]));
+  CheckEquals('SUNDAY', DayOfWeekToStr(FSchema.weekHours[0].dayOfWeek[1]));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FSchema.weekHours[0].timePeriods.startTime));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.weekHours[0].timePeriods.endTime));
+
+  CheckEquals(1, FSchema.holidayHours.Count);
+  CheckEquals('2021-07-04', FormatDateTime('yyyy-MM-dd', FSchema.holidayHours[0].date));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FSchema.holidayHours[0].timePeriods.startTime));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.holidayHours[0].timePeriods.endTime));
+end;
+
+procedure TTestServiceHour.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+  CheckEquals('fb093d8c-2ca5-40fb-afcf-472fbdae81cc', FJSONObject.AsString['id']);
+  CheckEquals(1, FJSONObject.AsJSONArray['weekHours'].Count);
+  CheckEquals(2, FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Count);
+  CheckEquals('MONDAY', FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[0]);
+  CheckEquals('SUNDAY', FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[1]);
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
+
+  CheckEquals(1, FJSONObject.AsJSONArray['holidayHours'].Count);
+  CheckEquals('2021-07-04', FormatDateTime('yyyy-MM-dd', FJSONObject.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsISODate['date']));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
+end;
+
+procedure TTestServiceHour.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaServiceHour.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"id": "fb093d8c-2ca5-40fb-afcf-472fbdae81cc",' +
+      '"weekHours": [{' +
+        '"dayOfWeek": ["MONDAY", "SUNDAY"],' +
+        '"timePeriods": {' +
+          '"startTime": "10:00:00.000Z",' +
+          '"endTime": "18:00:00.000Z"' +
+        '}' +
+      '}],' +
+      '"holidayHours": [{' +
+        '"date": "2021-07-04",' +
+        '"timePeriods": {' +
+          '"startTime": "10:00:00.000Z",' +
+          '"endTime": "18:00:00.000Z"' +
+        '}' +
+      '}]' +
+    '}');
+end;
+
+procedure TTestServiceHour.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestService }
+
+procedure TTestService.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('f078e8e2-3044-4eec-b4a8-8359810de123', FSchema.id);
+  CheckEquals('AVAILABLE', StatusToStr(FSchema.status));
+  CheckEquals('DELIVERY', ServiceTypeToStr(FSchema.serviceType));
+  CheckEquals('f627ccdc-6789-456f-a782-148538d5035b', FSchema.menuId);
+
+  CheckEquals('01339e6d-520b-429e-bc7c-dcfd2df42278', FSchema.serviceArea.id);
+  CheckEquals(1, FSchema.serviceArea.polygon.Count);
+  CheckEquals(1, FSchema.serviceArea.polygon[0].estimateDeliveryTime);
+  CheckEquals(1, FSchema.serviceArea.polygon[0].geoCoordinates.Count);
+  CheckEquals('-23,54809', FloatToStr(FSchema.serviceArea.polygon[0].geoCoordinates[0].latitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.serviceArea.polygon[0].geoCoordinates[0].longitude));
+  CheckEquals('BRL', FSchema.serviceArea.polygon[0].price.&currency);
+  CheckEquals('5', FloatToStr(FSchema.serviceArea.polygon[0].price.value));
+
+  CheckEquals('-23,54809', FloatToStr(FSchema.serviceArea.geoRadius.geoMidpointLatitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.serviceArea.geoRadius.geoMidpointLongitude));
+  CheckEquals(1, FSchema.serviceArea.geoRadius.radius.Count);
+  CheckEquals(1, FSchema.serviceArea.geoRadius.radius[0].size);
+  CheckEquals('5', FloatToStr(FSchema.serviceArea.geoRadius.radius[0].price.value));
+  CheckEquals('BRL', FSchema.serviceArea.geoRadius.radius[0].price.&currency);
+  CheckEquals(1, FSchema.serviceArea.geoRadius.radius[0].estimateDeliveryTime);
+
+  // Service Hours
+  CheckEquals('fb093d8c-2ca5-40fb-afcf-472fbdae81cc', FSchema.serviceHours.id);
+  CheckEquals(1, FSchema.serviceHours.weekHours.Count);
+  CheckEquals(7, Length(FSchema.serviceHours.weekHours[0].dayOfWeek));
+  CheckEquals('MONDAY', DayOfWeekToStr(FSchema.serviceHours.weekHours[0].dayOfWeek[0]));
+  CheckEquals('TUESDAY', DayOfWeekToStr(FSchema.serviceHours.weekHours[0].dayOfWeek[1]));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FSchema.serviceHours.weekHours[0].timePeriods.startTime));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.serviceHours.weekHours[0].timePeriods.endTime));
+
+  CheckEquals(1, FSchema.serviceHours.holidayHours.Count);
+  CheckEquals('2021-04-07', FormatDateTime('yyyy-MM-dd', FSchema.serviceHours.holidayHours[0].date));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FSchema.serviceHours.holidayHours[0].timePeriods.startTime));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.serviceHours.holidayHours[0].timePeriods.endTime));
+end;
+
+procedure TTestService.ObjectToJSON;
+var
+  LJSON: TACBrJSONObject;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('f078e8e2-3044-4eec-b4a8-8359810de123', FJSONObject.AsString['id']);
+  CheckEquals('AVAILABLE', FJSONObject.AsString['status']);
+  CheckEquals('DELIVERY', FJSONObject.AsString['serviceType']);
+  CheckEquals('f627ccdc-6789-456f-a782-148538d5035b', FJSONObject.AsString['menuId']);
+
+  // Service Area
+  LJSON := FJSONObject.AsJSONContext['serviceArea'];
+  CheckEquals('01339e6d-520b-429e-bc7c-dcfd2df42278', LJSON.AsString['id']);
+  CheckEquals(1, LJSON.AsJSONArray['polygon'].Count);
+
+  CheckEquals(1, LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
+  CheckEquals(1, LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].Count);
+  CheckEquals('BRL', LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONContext['price'].AsString['currency']);
+  CheckEquals('5', FloatToStr(LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('-23,54809', FloatToStr(LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['latitude']));
+  CheckEquals('-46,63638', FloatToStr(LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['longitude']));
+
+  CheckEquals('-23,54809', FloatToStr(LJSON.AsJSONContext['geoRadius'].AsFloat['geoMidpointLatitude']));
+  CheckEquals('-46,63638', FloatToStr(LJSON.AsJSONContext['geoRadius'].AsFloat['geoMidpointLongitude']));
+  CheckEquals(1, LJSON.AsJSONContext['geoRadius'].AsJSONArray['radius'].Count);
+  CheckEquals(1, LJSON.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['size']);
+  CheckEquals('5', FloatToStr(LJSON.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('BRL', LJSON.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsString['currency']);
+  CheckEquals(1, LJSON.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
+
+  // Service Hours
+  LJSON := FJSONObject.AsJSONContext['serviceHours'];
+  CheckEquals('fb093d8c-2ca5-40fb-afcf-472fbdae81cc', LJSON.AsString['id']);
+  CheckEquals(1, LJSON.AsJSONArray['weekHours'].Count);
+  CheckEquals(7, LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Count);
+  CheckEquals('MONDAY', LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[0]);
+  CheckEquals('TUESDAY', LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[1]);
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
+
+  CheckEquals(1, LJSON.AsJSONArray['holidayHours'].Count);
+  CheckEquals('2021-04-07', FormatDateTime('yyyy-MM-dd', LJSON.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsISODate['date']));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
+end;
+
+procedure TTestService.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaService.Create;
+  FJSON := ACBrStr(
+    '{' +
+    '    "id": "f078e8e2-3044-4eec-b4a8-8359810de123",' +
+    '    "status": "AVAILABLE",' +
+    '    "serviceType": "DELIVERY",' +
+    '    "menuId": "f627ccdc-6789-456f-a782-148538d5035b",' +
+    '    "serviceArea": {' +
+    '        "id": "01339e6d-520b-429e-bc7c-dcfd2df42278",' +
+    '        "polygon": [{' +
+    '                "geoCoordinates": [{' +
+    '                        "latitude": -23.54809,' +
+    '                        "longitude": -46.63638' +
+    '                    }' +
+    '                ],' +
+    '                "price": {' +
+    '                    "value": 5,' +
+    '                    "currency": "BRL"' +
+    '                },' +
+    '                "estimateDeliveryTime": 1' +
+    '            }' +
+    '        ],' +
+    '        "geoRadius": {' +
+    '            "geoMidpointLatitude": -23.54809,' +
+    '            "geoMidpointLongitude": -46.63638,' +
+    '            "radius": [{' +
+    '                    "size": 1,' +
+    '                    "price": {' +
+    '                        "value": 5,' +
+    '                        "currency": "BRL"' +
+    '                    },' +
+    '                    "estimateDeliveryTime": 1' +
+    '                }' +
+    '            ]' +
+    '        }' +
+    '    },' +
+    '    "serviceHours": {' +
+    '        "id": "fb093d8c-2ca5-40fb-afcf-472fbdae81cc",' +
+    '        "weekHours": [{' +
+    '                "dayOfWeek": [' +
+    '                    "MONDAY",' +
+    '                    "TUESDAY",' +
+    '                    "WEDNESDAY",' +
+    '                    "THURSDAY",' +
+    '                    "FRIDAY",' +
+    '                    "SATURDAY",' +
+    '                    "SUNDAY"' +
+    '                ],' +
+    '                "timePeriods": {' +
+    '                    "startTime": "10:00:00.000Z",' +
+    '                    "endTime": "18:00:00.000Z"' +
+    '                }' +
+    '            }' +
+    '        ],' +
+    '        "holidayHours": [{' +
+    '                "date": "2021-04-07",' +
+    '                "timePeriods": {' +
+    '                    "startTime": "10:00:00.000Z",' +
+    '                    "endTime": "18:00:00.000Z"' +
+    '                }' +
+    '            }' +
+    '        ]' +
+    '    }' +
+    '}');
+end;
+
+procedure TTestService.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
 initialization
   _RegisterTest('ACBrOpenDelivery.Schema.Address', TTestAddress);
   _RegisterTest('ACBrOpenDelivery.Schema.BasicInfo', TTestBasicInfo);
   _RegisterTest('ACBrOpenDelivery.Schema.ContactPhone', TTestContactPhone);
   _RegisterTest('ACBrOpenDelivery.Schema.GeoCordinate', TTestGeoCoordinate);
   _RegisterTest('ACBrOpenDelivery.Schema.GeoRadius', TTestGeoRadius);
+  _RegisterTest('ACBrOpenDelivery.Schema.HolidayHour', TTestHolidayHour);
   _RegisterTest('ACBrOpenDelivery.Schema.Image', TTestImage);
   _RegisterTest('ACBrOpenDelivery.Schema.Polygon', TTestPolygon);
   _RegisterTest('ACBrOpenDelivery.Schema.Price', TTestPrice);
   _RegisterTest('ACBrOpenDelivery.Schema.Radius', TTestRadius);
+  _RegisterTest('ACBrOpenDelivery.Schema.Service', TTestService);
   _RegisterTest('ACBrOpenDelivery.Schema.ServiceArea', TTestServiceArea);
+  _RegisterTest('ACBrOpenDelivery.Schema.ServiceHour', TTestServiceHour);
   _RegisterTest('ACBrOpenDelivery.Schema.TimePeriod', TTestTimePeriod);
   _RegisterTest('ACBrOpenDelivery.Schema.WeekHour', TTestWeekHour);
 end.
