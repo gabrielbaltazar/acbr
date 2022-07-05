@@ -44,6 +44,21 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestCategory = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaCategory;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
   TTestContactPhone = class(TTestCase)
   private
     FJSON: String;
@@ -104,6 +119,21 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestHour = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaHour;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
   TTestImage = class(TTestCase)
   private
     FJSON: String;
@@ -119,11 +149,86 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestItem = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaItem;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
+  TTestItemOffer = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaItemOffer;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
   TTestMenu = class(TTestCase)
   private
     FJSON: String;
     FJSONObject: TACBrJSONObject;
     FSchema: TACBrOpenDeliverySchemaMenu;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
+  TTestNutritionalInfo = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaNutritionalInfo;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
+  TTestOption = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaOption;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
+  TTestOptionGroup = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaOptionGroup;
 
   protected
     procedure SetUp; override;
@@ -199,21 +304,6 @@ type
     FJSON: String;
     FJSONObject: TACBrJSONObject;
     FSchema: TACBrOpenDeliverySchemaServiceArea;
-
-  protected
-    procedure SetUp; override;
-    procedure TearDown; override;
-
-  published
-    procedure JSONToObject;
-    procedure ObjectToJSON;
-  end;
-
-  TTestServiceHour = class(TTestCase)
-  private
-    FJSON: String;
-    FJSONObject: TACBrJSONObject;
-    FSchema: TACBrOpenDeliverySchemaServiceHour;
 
   protected
     procedure SetUp; override;
@@ -997,7 +1087,7 @@ end;
 
 { TTestServiceHour }
 
-procedure TTestServiceHour.JSONToObject;
+procedure TTestHour.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
   CheckEquals('fb093d8c-2ca5-40fb-afcf-472fbdae81cc', FSchema.id);
@@ -1014,7 +1104,7 @@ begin
   CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.holidayHours[0].timePeriods.endTime));
 end;
 
-procedure TTestServiceHour.ObjectToJSON;
+procedure TTestHour.ObjectToJSON;
 begin
   FSchema.AsJSON := FJSON;
   FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
@@ -1032,10 +1122,10 @@ begin
   CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
 end;
 
-procedure TTestServiceHour.SetUp;
+procedure TTestHour.SetUp;
 begin
   inherited;
-  FSchema := TACBrOpenDeliverySchemaServiceHour.Create;
+  FSchema := TACBrOpenDeliverySchemaHour.Create;
   FJSON := ACBrStr(
     '{' +
       '"id": "fb093d8c-2ca5-40fb-afcf-472fbdae81cc",' +
@@ -1056,7 +1146,7 @@ begin
     '}');
 end;
 
-procedure TTestServiceHour.TearDown;
+procedure TTestHour.TearDown;
 begin
   FSchema.Free;
   FJSONObject.Free;
@@ -1287,21 +1377,446 @@ begin
   inherited;
 end;
 
+{ TTestCategory }
+
+procedure TTestCategory.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('92fad022-2c28-4239-a026-989f5b555cb7', FSchema.id);
+  CheckEquals(2, FSchema.index);
+  CheckEquals('Salted Pizza', FSchema.name);
+  CheckEquals('Salted pizza flavors.', FSchema.description);
+  CheckEquals('13', FSchema.externalCode);
+  CheckEquals('AVAILABLE', StatusToStr(FSchema.status));
+  CheckEquals('https://food-company.com/category1.png', FSchema.image.URL);
+  CheckEquals('09345UIHF98', FSchema.image.CRC_32);
+  CheckEquals(1, Length(FSchema.availabilityId));
+  CheckEquals(1, Length(FSchema.itemOfferId));
+  CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FSchema.availabilityId[0]);
+  CheckEquals('f080cfb3-5c4a-4eb7-907d-2de3bbb5dfb9', FSchema.itemOfferId[0]);
+end;
+
+procedure TTestCategory.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('92fad022-2c28-4239-a026-989f5b555cb7', FJSONObject.AsString['id']);
+  CheckEquals(2, FJSONObject.AsInteger['index']);
+  CheckEquals('Salted Pizza', FJSONObject.AsString['name']);
+  CheckEquals('Salted pizza flavors.', FJSONObject.AsString['description']);
+  CheckEquals('13', FJSONObject.AsString['externalCode']);
+  CheckEquals('AVAILABLE', FJSONObject.AsString['status']);
+  CheckEquals('https://food-company.com/category1.png', FJSONObject.AsJSONContext['image'].AsString['URL']);
+  CheckEquals('09345UIHF98', FJSONObject.AsJSONContext['image'].AsString['CRC-32']);
+  CheckEquals(1, FJSONObject.AsJSONArray['availabilityId'].Count);
+  CheckEquals(1, FJSONObject.AsJSONArray['itemOfferId'].Count);
+  CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FJSONObject.AsJSONArray['availabilityId'].Items[0]);
+  CheckEquals('f080cfb3-5c4a-4eb7-907d-2de3bbb5dfb9', FJSONObject.AsJSONArray['itemOfferId'].Items[0]);
+end;
+
+procedure TTestCategory.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaCategory.Create;
+  FJSON := ACBrStr(
+    '{' +
+    '    "id": "92fad022-2c28-4239-a026-989f5b555cb7",' +
+    '    "index": 2,' +
+    '    "name": "Salted Pizza",' +
+    '    "description": "Salted pizza flavors.",' +
+    '    "image": {' +
+    '        "URL": "https://food-company.com/category1.png",' +
+    '        "CRC-32": "09345UIHF98"' +
+    '    },' +
+    '    "externalCode": "13",' +
+    '    "status": "AVAILABLE",' +
+    '    "availabilityId": [' +
+    '        "11d063c4-73a7-4f87-a0eb-71636cc02029"' +
+    '    ],' +
+    '    "itemOfferId": [' +
+    '        "f080cfb3-5c4a-4eb7-907d-2de3bbb5dfb9"' +
+    '    ]' +
+    '}');
+end;
+
+procedure TTestCategory.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestItemOffer }
+
+procedure TTestItemOffer.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+
+  CheckEquals('f080cfb3-5c4a-4eb7-907d-2de3bbb5dfb9', FSchema.id);
+  CheckEquals('732bd31e-77fc-47ee-88ee-a0437f97b198', FSchema.itemId);
+  CheckEquals(1, FSchema.index);
+  CheckEquals('43', FloatToStr(FSchema.price.value));
+  CheckEquals('BRL', FSchema.price.&currency);
+  CheckEquals(1, Length(FSchema.availabilityId));
+  CheckEquals(1, Length(FSchema.optionGroupsId));
+  CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FSchema.availabilityId[0]);
+  CheckEquals('fe67e551-f42f-499a-8afb-0ed893c71fa3', FSchema.optionGroupsId[0]);
+end;
+
+procedure TTestItemOffer.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('f080cfb3-5c4a-4eb7-907d-2de3bbb5dfb9', FJSONObject.AsString['id']);
+  CheckEquals('732bd31e-77fc-47ee-88ee-a0437f97b198', FJSONObject.AsString['itemId']);
+  CheckEquals(1, FJSONObject.AsInteger['index']);
+  CheckEquals('43', FloatToStr(FJSONObject.AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('BRL', FJSONObject.AsJSONContext['price'].AsString['currency']);
+  CheckEquals(1, FJSONObject.AsJSONArray['availabilityId'].Count);
+  CheckEquals(1, FJSONObject.AsJSONArray['optionGroupsId'].Count);
+  CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FJSONObject.AsJSONArray['availabilityId'].Items[0]);
+  CheckEquals('fe67e551-f42f-499a-8afb-0ed893c71fa3', FJSONObject.AsJSONArray['optionGroupsId'].Items[0]);
+end;
+
+procedure TTestItemOffer.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaItemOffer.Create;
+  FJSON := ACBrStr(
+    '{' +
+    '    "id": "f080cfb3-5c4a-4eb7-907d-2de3bbb5dfb9",' +
+    '    "itemId": "732bd31e-77fc-47ee-88ee-a0437f97b198",' +
+    '    "index": 1,' +
+    '    "price": {' +
+    '        "value": 43,' +
+    '        "originalValue": 43,' +
+    '        "currency": "BRL"' +
+    '    },' +
+    '    "availabilityId": [' +
+    '        "11d063c4-73a7-4f87-a0eb-71636cc02029"' +
+    '    ],' +
+    '    "optionGroupsId": [' +
+    '        "fe67e551-f42f-499a-8afb-0ed893c71fa3"' +
+    '    ]' +
+    '}');
+end;
+
+procedure TTestItemOffer.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestNutritionalInfo }
+
+procedure TTestNutritionalInfo.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('Contains preservatives', FSchema.description);
+  CheckEquals('2000 Cal', FSchema.calories);
+  CheckEquals(1, Length(FSchema.allergen));
+  CheckEquals(1, Length(FSchema.additives));
+  CheckEquals(1, Length(FSchema.suitableDiet));
+  CheckEquals('GLUTEN', AllergenToStr(FSchema.allergen[0]));
+  CheckEquals('teste', FSchema.additives[0]);
+  CheckEquals('GLUTEN_FREE', SuitableDietToStr(FSchema.suitableDiet[0]));
+  CheckFalse(FSchema.isAlcoholic);
+end;
+
+procedure TTestNutritionalInfo.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('Contains preservatives', FJSONObject.AsString['description']);
+  CheckEquals('2000 Cal', FJSONObject.AsString['calories']);
+  CheckEquals(1, FJSONObject.AsJSONArray['allergen'].Count);
+  CheckEquals(1, FJSONObject.AsJSONArray['additives'].Count);
+  CheckEquals(1, FJSONObject.AsJSONArray['suitableDiet'].Count);
+  CheckEquals('GLUTEN', FJSONObject.AsJSONArray['allergen'].Items[0]);
+  CheckEquals('teste', FJSONObject.AsJSONArray['additives'].Items[0]);
+  CheckEquals('GLUTEN_FREE', FJSONObject.AsJSONArray['suitableDiet'].Items[0]);
+  CheckFalse(FSchema.isAlcoholic);
+end;
+
+procedure TTestNutritionalInfo.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaNutritionalInfo.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"description": "Contains preservatives",' +
+      '"calories": "2000 Cal",' +
+      '"allergen": [' +
+      ' "GLUTEN"' +
+      '],' +
+      '"additives": [' +
+      ' "teste"' +
+      '],' +
+      '"suitableDiet": [' +
+      ' "GLUTEN_FREE"' +
+      ']' +
+    '}');
+end;
+
+procedure TTestNutritionalInfo.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestItem }
+
+procedure TTestItem.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FSchema.id);
+  CheckEquals('1/2 Mozzarella', FSchema.name);
+  CheckEquals('Delicious mozzarella pizza.', FSchema.description);
+  CheckEquals('24', FSchema.externalCode);
+  CheckEquals('unit', FSchema.&unit);
+  CheckEquals('https://www.food-place.com/images/mozzarella.png', FSchema.image.URL);
+  CheckEquals('09345UIHF98', FSchema.image.CRC_32);
+  CheckEquals('Contains preservatives', FSchema.nutritionalInfo.description);
+  CheckEquals('2500 Cal', FSchema.nutritionalInfo.calories);
+end;
+
+procedure TTestItem.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FJSONObject.AsString['id']);
+  CheckEquals('1/2 Mozzarella', FJSONObject.AsString['name']);
+  CheckEquals('Delicious mozzarella pizza.', FJSONObject.AsString['description']);
+  CheckEquals('24', FJSONObject.AsString['externalCode']);
+  CheckEquals('unit', FJSONObject.AsString['unit']);
+  CheckEquals('09345UIHF98', FJSONObject.AsJSONContext['image'].AsString['CRC-32']);
+  CheckEquals('https://www.food-place.com/images/mozzarella.png', FJSONObject.AsJSONContext['image'].AsString['URL']);
+  CheckEquals('Contains preservatives', FJSONObject.AsJSONContext['nutritionalInfo'].AsString['description']);
+  CheckEquals('2500 Cal', FJSONObject.AsJSONContext['nutritionalInfo'].AsString['calories']);
+end;
+
+procedure TTestItem.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaItem.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"id": "7e507cab-7235-4f75-a0c2-e955fb2f2048",' +
+      '"name": "1/2 Mozzarella",' +
+      '"description": "Delicious mozzarella pizza.",' +
+      '"externalCode": "24",' +
+      '"image": {' +
+        '"URL": "https://www.food-place.com/images/mozzarella.png",' +
+        '"CRC-32": "09345UIHF98"' +
+      '},' +
+      '"nutritionalInfo": {' +
+        '"description": "Contains preservatives",' +
+        '"calories": "2500 Cal",' +
+        '"allergen": [' +
+          '"GLUTEN",' +
+          '"LACTOSE"' +
+        ']' +
+      '},' +
+      '"unit": "unit"' +
+    '}');
+end;
+
+procedure TTestItem.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestOption }
+
+procedure TTestOption.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87b', FSchema.id);
+  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FSchema.itemId);
+  CheckEquals(1, FSchema.index);
+  CheckEquals('43', FloatToStr(FSchema.price.value));
+  CheckEquals('BRL', FSchema.price.&currency);
+  CheckEquals(1, FSchema.maxPermitted);
+end;
+
+procedure TTestOption.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FJSON);
+
+  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87b', FJSONObject.AsString['id']);
+  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FJSONObject.AsString['itemId']);
+  CheckEquals(1, FJSONObject.AsInteger['index']);
+  CheckEquals('43', FloatToStr(FJSONObject.AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('BRL', FJSONObject.AsJSONContext['price'].AsString['currency']);
+  CheckEquals(1, FJSONObject.AsInteger['maxPermitted']);
+end;
+
+procedure TTestOption.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaOption.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"id": "e5232f14-430c-4a94-8ff6-289d5a16a87b",' +
+      '"itemId": "7e507cab-7235-4f75-a0c2-e955fb2f2048",' +
+      '"index": 1,' +
+      '"price": {' +
+        '"value": 43,' +
+        '"originalValue": 43,' +
+        '"currency": "BRL"' +
+      '},' +
+      '"maxPermitted": 1' +
+    '}');
+end;
+
+procedure TTestOption.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+
+end;
+
+{ TTestOptionGroup }
+
+procedure TTestOptionGroup.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+
+  CheckEquals('fe67e551-f42f-499a-8afb-0ed893c71fa3', FSchema.id);
+  CheckEquals(0, FSchema.index);
+  CheckEquals('Choose your salted pizza flavor', FSchema.name);
+  CheckEquals('Choose your salted pizza flavor.', FSchema.description);
+  CheckEquals('12', FSchema.externalCode);
+  CheckEquals('AVAILABLE', StatusToStr(FSchema.status));
+  CheckEquals(2, FSchema.minPermitted);
+  CheckEquals(2, FSchema.maxPermitted);
+  CheckEquals(2, FSchema.options.Count);
+  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87a', FSchema.options[0].id);
+  CheckEquals('502ecf11-0509-48ed-b63c-6211c48fd9b9', FSchema.options[0].itemId);
+  CheckEquals(0, FSchema.options[0].index);
+  CheckEquals('50', FloatToStr(FSchema.options[0].price.value));
+  CheckEquals('BRL', FSchema.options[0].price.&currency);
+  CheckEquals(1, FSchema.options[0].maxPermitted);
+
+  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87b', FSchema.options[1].id);
+  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FSchema.options[1].itemId);
+  CheckEquals(1, FSchema.options[1].index);
+  CheckEquals('43', FloatToStr(FSchema.options[1].price.value));
+  CheckEquals('BRL', FSchema.options[1].price.&currency);
+  CheckEquals(1, FSchema.options[1].maxPermitted);
+end;
+
+procedure TTestOptionGroup.ObjectToJSON;
+var
+  LJSONObject: TACBrJSONObject;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('fe67e551-f42f-499a-8afb-0ed893c71fa3', FJSONObject.AsString['id']);
+  CheckEquals(0, FJSONObject.AsInteger['index']);
+  CheckEquals('Choose your salted pizza flavor', FJSONObject.AsString['name']);
+  CheckEquals('Choose your salted pizza flavor.', FJSONObject.AsString['description']);
+  CheckEquals('12', FJSONObject.AsString['externalCode']);
+  CheckEquals('AVAILABLE', FJSONObject.AsString['status']);
+  CheckEquals(2, FJSONObject.AsInteger['minPermitted']);
+  CheckEquals(2, FJSONObject.AsInteger['maxPermitted']);
+  CheckEquals(2, FJSONObject.AsJSONArray['options'].Count);
+
+  LJSONObject := FJSONObject.AsJSONArray['options'].ItemAsJSONObject[0];
+  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87a', LJSONObject.AsString['id']);
+  CheckEquals('502ecf11-0509-48ed-b63c-6211c48fd9b9', LJSONObject.AsString['itemId']);
+  CheckEquals(0, LJSONObject.AsInteger['index']);
+  CheckEquals('50', FloatToStr(LJSONObject.AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONContext['price'].AsString['currency']);
+  CheckEquals(1, LJSONObject.AsInteger['maxPermitted']);
+
+  LJSONObject := FJSONObject.AsJSONArray['options'].ItemAsJSONObject[1];
+  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87b', LJSONObject.AsString['id']);
+  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', LJSONObject.AsString['itemId']);
+  CheckEquals(1, LJSONObject.AsInteger['index']);
+  CheckEquals('43', FloatToStr(LJSONObject.AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONContext['price'].AsString['currency']);
+  CheckEquals(1, LJSONObject.AsInteger['maxPermitted']);
+end;
+
+procedure TTestOptionGroup.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaOptionGroup.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"id": "fe67e551-f42f-499a-8afb-0ed893c71fa3",' +
+      '"index": 0,' +
+      '"name": "Choose your salted pizza flavor",' +
+      '"description": "Choose your salted pizza flavor.",' +
+      '"externalCode": "12",' +
+      '"status": "AVAILABLE",' +
+      '"minPermitted": 2,' +
+      '"maxPermitted": 2,' +
+      '"options": [{' +
+        '"id": "e5232f14-430c-4a94-8ff6-289d5a16a87a",' +
+        '"itemId": "502ecf11-0509-48ed-b63c-6211c48fd9b9",' +
+        '"index": 0,' +
+        '"price": {' +
+          '"value": 50,' +
+          '"originalValue": 50,' +
+          '"currency": "BRL"' +
+        '},' +
+        '"maxPermitted": 1' +
+      '},' +
+      '{' +
+        '"id": "e5232f14-430c-4a94-8ff6-289d5a16a87b",' +
+        '"itemId": "7e507cab-7235-4f75-a0c2-e955fb2f2048",' +
+        '"index": 1,' +
+        '"price": {' +
+          '"value": 43,' +
+          '"originalValue": 43,' +
+          '"currency": "BRL"' +
+        '},' +
+        '"maxPermitted": 1' +
+      '}]' +
+    '}');
+end;
+
+procedure TTestOptionGroup.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
 initialization
   _RegisterTest('ACBrOpenDelivery.Schema.Address', TTestAddress);
   _RegisterTest('ACBrOpenDelivery.Schema.BasicInfo', TTestBasicInfo);
+  _RegisterTest('ACBrOpenDelivery.Schema.Category', TTestCategory);
   _RegisterTest('ACBrOpenDelivery.Schema.ContactPhone', TTestContactPhone);
   _RegisterTest('ACBrOpenDelivery.Schema.GeoCordinate', TTestGeoCoordinate);
   _RegisterTest('ACBrOpenDelivery.Schema.GeoRadius', TTestGeoRadius);
   _RegisterTest('ACBrOpenDelivery.Schema.HolidayHour', TTestHolidayHour);
+  _RegisterTest('ACBrOpenDelivery.Schema.Hour', TTestHour);
   _RegisterTest('ACBrOpenDelivery.Schema.Image', TTestImage);
+  _RegisterTest('ACBrOpenDelivery.Schema.Item', TTestItem);
+  _RegisterTest('ACBrOpenDelivery.Schema.ItemOffer', TTestItemOffer);
   _RegisterTest('ACBrOpenDelivery.Schema.Menu', TTestMenu);
+  _RegisterTest('ACBrOpenDelivery.Schema.NutritionalInfo', TTestNutritionalInfo);
+  _RegisterTest('ACBrOpenDelivery.Schema.Option', TTestOption);
+  _RegisterTest('ACBrOpenDelivery.Schema.OptionGroup', TTestOptionGroup);
   _RegisterTest('ACBrOpenDelivery.Schema.Polygon', TTestPolygon);
   _RegisterTest('ACBrOpenDelivery.Schema.Price', TTestPrice);
   _RegisterTest('ACBrOpenDelivery.Schema.Radius', TTestRadius);
   _RegisterTest('ACBrOpenDelivery.Schema.Service', TTestService);
   _RegisterTest('ACBrOpenDelivery.Schema.ServiceArea', TTestServiceArea);
-  _RegisterTest('ACBrOpenDelivery.Schema.ServiceHour', TTestServiceHour);
   _RegisterTest('ACBrOpenDelivery.Schema.TimePeriod', TTestTimePeriod);
   _RegisterTest('ACBrOpenDelivery.Schema.WeekHour', TTestWeekHour);
 end.

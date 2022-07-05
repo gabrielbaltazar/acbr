@@ -10,7 +10,7 @@ uses
   ACBrUtil.Strings;
 
 type
-  TACBrODAlergen =
+  TACBrODAllergen =
     (aAlmonds, aAlphaIsomethylIonone, aAlcohol, aAmylCinnamal, aAniseAlcohol,
      aBarley, aBenzylAlcohol, aBenzylBenzoate, aBenzylCinnamate, aBenzylSalicylate,
      aBrazilNuts, aButylphenylMethylpropionate, aCarrots, aCashewNuts, aCelery,
@@ -22,7 +22,7 @@ type
      aProdFruits, aQueenslandNuts, aRye, aSesameSeeds, aSoybeans, aSpelt, aSulphurDioxide,
      aTreeNuts, aTreeNutTraces, aWalnuts, aWheat);
 
-  TACBrODAlergenArray = array of TACBrODAlergen;
+  TACBrODAllergenArray = array of TACBrODAllergen;
 
   TACBrODDayOfWeek =
     (dwMonday, dwTuesday, dwWednesday, dwThursday, dwFriday,
@@ -47,9 +47,16 @@ type
 
   TACBrODStatus = (sAvailable, sUnavailable);
 
-function AlergenToStr(AValue: TACBrODAlergen): String;
-function AlergensToArray(AValue: TACBrODAlergenArray): TSplitResult;
-function StrToAlergen(const AValue: String): TACBrODAlergen;
+  TACBrODSuitableDiet =
+    (sdDiabetic, sdGlutenFree, sdHalal, sdHindu, sdKosher,
+     sdLowCalorie, sdLowFat, sdLowLactose, sdLowSalt, sdVegan,
+     sdVegetarian);
+
+  TACBrODSuitableDietArray = array of TACBrODSuitableDiet;
+
+function AllergenToStr(AValue: TACBrODAllergen): String;
+function AllergensToArray(AValue: TACBrODAllergenArray): TSplitResult;
+function StrToAllergen(const AValue: String): TACBrODAllergen;
 
 function DayOfWeekToStr(AValue: TACBrODDayOfWeek): String;
 function DayOfWeekToArray(AValue: TACBrODDayOfWeekArray): TSplitResult;
@@ -68,9 +75,13 @@ function StrToServiceType(AValue: String): TACBrODServiceType;
 function StatusToStr(AValue: TACBrODStatus): string;
 function StrToStatus(AValue: String): TACBrODStatus;
 
+function SuitableDietToStr(AValue: TACBrODSuitableDiet): String;
+function SuitableDietToArray(AValue: TACBrODSuitableDietArray): TSplitResult;
+function StrToSuitableDiet(const AValue: String): TACBrODSuitableDiet;
+
 implementation
 
-function AlergenToStr(AValue: TACBrODAlergen): String;
+function AllergenToStr(AValue: TACBrODAllergen): String;
 begin
   case AValue of
     aAlmonds: Result := 'ALMONDS';
@@ -139,16 +150,16 @@ begin
   end;
 end;
 
-function AlergensToArray(AValue: TACBrODAlergenArray): TSplitResult;
+function AllergensToArray(AValue: TACBrODAllergenArray): TSplitResult;
 var
   I: Integer;
 begin
   SetLength(Result, Length(AValue));
   for I := 0 to Pred(Length(AValue)) do
-    Result[I] := AlergenToStr(AValue[I]);
+    Result[I] := AllergenToStr(AValue[I]);
 end;
 
-function StrToAlergen(const AValue: String): TACBrODAlergen;
+function StrToAllergen(const AValue: String): TACBrODAllergen;
 var
   LStr: String;
 begin
@@ -536,6 +547,63 @@ begin
     Result := sAvailable
   else if LStr = 'UNAVAILABLE' then
     Result := sUnavailable;
+end;
+
+function SuitableDietToStr(AValue: TACBrODSuitableDiet): String;
+begin
+  case AValue of
+    sdDiabetic: Result := 'DIABETIC';
+    sdGlutenFree: Result := 'GLUTEN_FREE';
+    sdHalal: Result := 'HALAL';
+    sdHindu: Result := 'HINDU';
+    sdKosher: Result := 'KOSHER';
+    sdLowCalorie: Result := 'LOW_CALORIE';
+    sdLowFat: Result := 'LOW_FAT';
+    sdLowLactose: Result := 'LOW_LACTOSE';
+    sdLowSalt: Result := 'LOW_SALT';
+    sdVegan: Result := 'VEGAN';
+    sdVegetarian: Result := 'VEGETARIAN';
+  else
+    Result := '';
+  end;
+end;
+
+function SuitableDietToArray(AValue: TACBrODSuitableDietArray): TSplitResult;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(AValue));
+  for I := 0 to Pred(Length(AValue)) do
+    Result[I] := SuitableDietToStr(AValue[I]);
+end;
+
+function StrToSuitableDiet(const AValue: String): TACBrODSuitableDiet;
+var
+  LStr: string;
+begin
+  LStr := UpperCase(AValue);
+  if LStr = 'DIABETIC' then
+    Result := sdDiabetic
+  else if LStr = 'GLUTEN_FREE' then
+    Result := sdGlutenFree
+  else if LStr = 'HALAL' then
+    Result := sdHalal
+  else if LStr = 'HINDU' then
+    Result := sdHindu
+  else if LStr = 'KOSHER' then
+    Result := sdKosher
+  else if LStr = 'LOW_CALORIE' then
+    Result := sdLowCalorie
+  else if LStr = 'LOW_FAT' then
+    Result := sdLowFat
+  else if LStr = 'LOW_LACTOSE' then
+    Result := sdLowLactose
+  else if LStr = 'LOW_SALT' then
+    Result := sdLowSalt
+  else if LStr = 'VEGAN' then
+    Result := sdVegan
+  else if LStr = 'VEGETARIAN' then
+    Result := sdVegetarian;
 end;
 
 end.
