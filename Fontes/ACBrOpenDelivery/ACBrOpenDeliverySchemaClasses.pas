@@ -14,14 +14,15 @@ type
   TACBrOpenDeliverySchemaAddress = class;
   TACBrOpenDeliverySchemaBasicInfo = class;
   TACBrOpenDeliverySchemaContactPhone = class;
-  TACBrOpenDeliverySchemaHour = class;
   TACBrOpenDeliverySchemaImage = class;
   TACBrOpenDeliverySchemaNutritionalInfo = class;
   TACBrOpenDeliverySchemaPrice = class;
   TACBrOpenDeliverySchemaRadiusCollection = class;
   TACBrOpenDeliverySchemaServiceArea = class;
+  TACBrOpenDeliverySchemaServiceHour = class;
+  TACBrOpenDeliverySchemaServiceHourCollection = class;
   TACBrOpenDeliverySchemaTimePeriod = class;
-  TACBrOpenDeliverySchemaWeekHourCollection = class;
+  TACBrOpenDeliverySchemaHourCollection = class;
 
   TACBrOpenDeliverySchemaAddress = class(TACBrOpenDeliverySchema)
   private
@@ -56,6 +57,38 @@ type
     property reference: String read Freference write Freference;
     property latitude: Double read Flatitude write Flatitude;
     property longitude: Double read Flongitude write Flongitude;
+  end;
+
+  TACBrOpenDeliverySchemaAvailability = class(TACBrOpenDeliverySchema)
+  private
+    Fid: String;
+    FstartDate: TDateTime;
+    FendDate: TDateTime;
+    Fhours: TACBrOpenDeliverySchemaHourCollection;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property id: String read Fid write Fid;
+    property startDate: TDateTime read FstartDate write FstartDate;
+    property endDate: TDateTime read FendDate write FendDate;
+    property hours: TACBrOpenDeliverySchemaHourCollection read Fhours write Fhours;
+
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
+  end;
+
+  TACBrOpenDeliverySchemaAvailabilityCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TACBrOpenDeliverySchemaAvailability;
+    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaAvailability);
+  public
+    function New: TACBrOpenDeliverySchemaAvailability;
+    property Items[Index: Integer]: TACBrOpenDeliverySchemaAvailability read GetItem write SetItem; default;
   end;
 
   TACBrOpenDeliverySchemaBasicInfo = class(TACBrOpenDeliverySchema)
@@ -235,27 +268,6 @@ type
   public
     function New: TACBrOpenDeliverySchemaHolidayHour;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaHolidayHour read GetItem write SetItem; default;
-  end;
-
-  TACBrOpenDeliverySchemaHour = class(TACBrOpenDeliverySchema)
-  private
-    FweekHours: TACBrOpenDeliverySchemaWeekHourCollection;
-    FholidayHours: TACBrOpenDeliverySchemaHolidayHourCollection;
-    Fid: String;
-  protected
-    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
-    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
-  public
-    procedure Clear; override;
-    function IsEmpty: Boolean; override;
-
-    property id: String read Fid write Fid;
-    property weekHours: TACBrOpenDeliverySchemaWeekHourCollection read FweekHours write FweekHours;
-    property holidayHours: TACBrOpenDeliverySchemaHolidayHourCollection read FholidayHours write FholidayHours;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaImage = class(TACBrOpenDeliverySchema)
@@ -569,7 +581,7 @@ type
     FserviceType: TACBrODServiceType;
     FmenuId: String;
     FserviceArea: TACBrOpenDeliverySchemaServiceArea;
-    FserviceHours: TACBrOpenDeliverySchemaHour;
+    FserviceHours: TACBrOpenDeliverySchemaServiceHour;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
@@ -583,7 +595,7 @@ type
     property serviceType: TACBrODServiceType read FserviceType write FserviceType;
     property menuId: String read FmenuId write FmenuId;
     property serviceArea: TACBrOpenDeliverySchemaServiceArea read FserviceArea write FserviceArea;
-    property serviceHours: TACBrOpenDeliverySchemaHour read FserviceHours write FserviceHours;
+    property serviceHours: TACBrOpenDeliverySchemaServiceHour read FserviceHours write FserviceHours;
 
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
@@ -620,6 +632,35 @@ type
     destructor Destroy; override;
   end;
 
+  TACBrOpenDeliverySchemaServiceHour = class(TACBrOpenDeliverySchema)
+  private
+    FweekHours: TACBrOpenDeliverySchemaHourCollection;
+    FholidayHours: TACBrOpenDeliverySchemaHolidayHourCollection;
+    Fid: String;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property id: String read Fid write Fid;
+    property weekHours: TACBrOpenDeliverySchemaHourCollection read FweekHours write FweekHours;
+    property holidayHours: TACBrOpenDeliverySchemaHolidayHourCollection read FholidayHours write FholidayHours;
+
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
+  end;
+
+  TACBrOpenDeliverySchemaServiceHourCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TACBrOpenDeliverySchemaServiceHour;
+    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaServiceHour);
+  public
+    function New: TACBrOpenDeliverySchemaServiceHour;
+    property Items[Index: Integer]: TACBrOpenDeliverySchemaServiceHour read GetItem write SetItem; default;
+  end;
 
   TACBrOpenDeliverySchemaTimePeriod = class(TACBrOpenDeliverySchema)
   private
@@ -638,7 +679,7 @@ type
     property endTime: TDateTime read FendTime write FendTime;
   end;
 
-  TACBrOpenDeliverySchemaWeekHour = class(TACBrOpenDeliverySchema)
+  TACBrOpenDeliverySchemaHour = class(TACBrOpenDeliverySchema)
   private
     FdayOfWeek: TACBrODDayOfWeekArray;
     FtimePeriods: TACBrOpenDeliverySchemaTimePeriod;
@@ -658,13 +699,13 @@ type
     destructor Destroy; override;
   end;
 
-  TACBrOpenDeliverySchemaWeekHourCollection = class(TACBrObjectList)
+  TACBrOpenDeliverySchemaHourCollection = class(TACBrObjectList)
   private
-    function GetItem(Index: Integer): TACBrOpenDeliverySchemaWeekHour;
-    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaWeekHour);
+    function GetItem(Index: Integer): TACBrOpenDeliverySchemaHour;
+    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaHour);
   public
-    function New: TACBrOpenDeliverySchemaWeekHour;
-    property Items[Index: Integer]: TACBrOpenDeliverySchemaWeekHour read GetItem write SetItem; default;
+    function New: TACBrOpenDeliverySchemaHour;
+    property Items[Index: Integer]: TACBrOpenDeliverySchemaHour read GetItem write SetItem; default;
   end;
 
 implementation
@@ -756,7 +797,7 @@ begin
     .AddPairJSONString('contactPhones', FcontactPhones.AsJSON)
     .AddPairJSONString('logoImage', FlogoImage.AsJSON)
     .AddPairJSONString('bannerImage', FbannerImage.AsJSON)
-    .AddPairISODate('createdAt', FcreatedAt);
+    .AddPairISODateTime('createdAt', FcreatedAt);
 end;
 
 function TACBrOpenDeliverySchemaBasicInfo.IsEmpty: Boolean;
@@ -1279,27 +1320,27 @@ begin
   Result := (FstartTime = 0) and (FendTime = 0);
 end;
 
-{ TACBrOpenDeliverySchemaWeekHour }
+{ TACBrOpenDeliverySchemaHour }
 
-procedure TACBrOpenDeliverySchemaWeekHour.Clear;
+procedure TACBrOpenDeliverySchemaHour.Clear;
 begin
   FdayOfWeek := [];
   FtimePeriods.Clear;
 end;
 
-constructor TACBrOpenDeliverySchemaWeekHour.Create(const AObjectName: string);
+constructor TACBrOpenDeliverySchemaHour.Create(const AObjectName: string);
 begin
   inherited Create(AObjectName);
   FtimePeriods := TACBrOpenDeliverySchemaTimePeriod.Create('timePeriods');
 end;
 
-destructor TACBrOpenDeliverySchemaWeekHour.Destroy;
+destructor TACBrOpenDeliverySchemaHour.Destroy;
 begin
   FtimePeriods.Free;
   inherited;
 end;
 
-procedure TACBrOpenDeliverySchemaWeekHour.DoReadFromJSon(AJSon: TACBrJSONObject);
+procedure TACBrOpenDeliverySchemaHour.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
   LSplitResult: TSplitResult;
   I: Integer;
@@ -1312,14 +1353,14 @@ begin
     FdayOfWeek[I] := StrToDayOfWeek(LSplitResult[I]);
 end;
 
-procedure TACBrOpenDeliverySchemaWeekHour.DoWriteToJSon(AJSon: TACBrJSONObject);
+procedure TACBrOpenDeliverySchemaHour.DoWriteToJSon(AJSon: TACBrJSONObject);
 begin
   AJSon
     .AddPair('dayOfWeek', DayOfWeekToArray(FdayOfWeek))
     .AddPairJSONString('timePeriods', FtimePeriods.AsJSON);
 end;
 
-function TACBrOpenDeliverySchemaWeekHour.IsEmpty: Boolean;
+function TACBrOpenDeliverySchemaHour.IsEmpty: Boolean;
 begin
   Result := (Length(FdayOfWeek) = 0) and (FtimePeriods.IsEmpty);
 end;
@@ -1353,7 +1394,7 @@ end;
 procedure TACBrOpenDeliverySchemaHolidayHour.DoWriteToJSon(AJSon: TACBrJSONObject);
 begin
   AJSon
-    .AddPairISODate('date', Fdate)
+    .AddPairISODateTime('date', Fdate)
     .AddPairJSONString('timePeriods', FtimePeriods.AsJSON);
 end;
 
@@ -1380,48 +1421,48 @@ begin
   inherited Items[Index] := Value;
 end;
 
-{ TACBrOpenDeliverySchemaWeekHourCollection }
+{ TACBrOpenDeliverySchemaHourCollection }
 
-function TACBrOpenDeliverySchemaWeekHourCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaWeekHour;
+function TACBrOpenDeliverySchemaHourCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaHour;
 begin
-  Result := TACBrOpenDeliverySchemaWeekHour(inherited Items[Index]);
+  Result := TACBrOpenDeliverySchemaHour(inherited Items[Index]);
 end;
 
-function TACBrOpenDeliverySchemaWeekHourCollection.New: TACBrOpenDeliverySchemaWeekHour;
+function TACBrOpenDeliverySchemaHourCollection.New: TACBrOpenDeliverySchemaHour;
 begin
-  Result := TACBrOpenDeliverySchemaWeekHour.Create;
+  Result := TACBrOpenDeliverySchemaHour.Create;
   Self.Add(Result);
 end;
 
-procedure TACBrOpenDeliverySchemaWeekHourCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaWeekHour);
+procedure TACBrOpenDeliverySchemaHourCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaHour);
 begin
   inherited Items[Index] := Value;
 end;
 
-{ TACBrOpenDeliverySchemaHour }
+{ TACBrOpenDeliverySchemaServiceHour }
 
-procedure TACBrOpenDeliverySchemaHour.Clear;
+procedure TACBrOpenDeliverySchemaServiceHour.Clear;
 begin
   Fid := '';
   FweekHours.Clear;
   FholidayHours.Clear;
 end;
 
-constructor TACBrOpenDeliverySchemaHour.Create(const AObjectName: string);
+constructor TACBrOpenDeliverySchemaServiceHour.Create(const AObjectName: string);
 begin
   inherited Create(AObjectName);
-  FweekHours := TACBrOpenDeliverySchemaWeekHourCollection.Create;
+  FweekHours := TACBrOpenDeliverySchemaHourCollection.Create;
   FholidayHours := TACBrOpenDeliverySchemaHolidayHourCollection.Create;
 end;
 
-destructor TACBrOpenDeliverySchemaHour.Destroy;
+destructor TACBrOpenDeliverySchemaServiceHour.Destroy;
 begin
   FweekHours.Free;
   FholidayHours.Free;
   inherited;
 end;
 
-procedure TACBrOpenDeliverySchemaHour.DoReadFromJSon(AJSon: TACBrJSONObject);
+procedure TACBrOpenDeliverySchemaServiceHour.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
   LJSONArray: TACBrJSONArray;
   I: Integer;
@@ -1444,7 +1485,7 @@ begin
   end;
 end;
 
-procedure TACBrOpenDeliverySchemaHour.DoWriteToJSon(AJSon: TACBrJSONObject);
+procedure TACBrOpenDeliverySchemaServiceHour.DoWriteToJSon(AJSon: TACBrJSONObject);
 var
   LJSONWeek: TACBrJSONArray;
   LJSONHoliday: TACBrJSONArray;
@@ -1472,7 +1513,7 @@ begin
   end;
 end;
 
-function TACBrOpenDeliverySchemaHour.IsEmpty: Boolean;
+function TACBrOpenDeliverySchemaServiceHour.IsEmpty: Boolean;
 begin
   Result := (Fid = '') and
             (FholidayHours.Count = 0) and
@@ -1495,7 +1536,7 @@ constructor TACBrOpenDeliverySchemaService.Create(const AObjectName: string);
 begin
   inherited Create(AObjectName);
   FserviceArea := TACBrOpenDeliverySchemaServiceArea.Create('serviceArea');
-  FserviceHours := TACBrOpenDeliverySchemaHour.Create('serviceHours');
+  FserviceHours := TACBrOpenDeliverySchemaServiceHour.Create('serviceHours');
 end;
 
 destructor TACBrOpenDeliverySchemaService.Destroy;
@@ -2123,6 +2164,109 @@ end;
 procedure TACBrOpenDeliverySchemaOptionGroupCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaOptionGroup);
 begin
   inherited Items[Index] := Value;
+end;
+
+{ TACBrOpenDeliverySchemaServiceHourCollection }
+
+function TACBrOpenDeliverySchemaServiceHourCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaServiceHour;
+begin
+  Result := TACBrOpenDeliverySchemaServiceHour(inherited Items[Index]);
+end;
+
+function TACBrOpenDeliverySchemaServiceHourCollection.New: TACBrOpenDeliverySchemaServiceHour;
+begin
+  Result := TACBrOpenDeliverySchemaServiceHour.Create;
+  Self.Add(Result);
+end;
+
+procedure TACBrOpenDeliverySchemaServiceHourCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaServiceHour);
+begin
+  inherited Items[Index] := Value;
+end;
+
+{ TACBrOpenDeliverySchemaAvailability }
+
+procedure TACBrOpenDeliverySchemaAvailability.Clear;
+begin
+  Fid := '';
+  FstartDate := 0;
+  FendDate := 0;
+  Fhours.Clear;
+end;
+
+constructor TACBrOpenDeliverySchemaAvailability.Create(const AObjectName: string);
+begin
+  inherited Create(AObjectName);
+  Fhours := TACBrOpenDeliverySchemaHourCollection.Create;
+end;
+
+destructor TACBrOpenDeliverySchemaAvailability.Destroy;
+begin
+  Fhours.Free;
+  inherited;
+end;
+
+procedure TACBrOpenDeliverySchemaAvailability.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  LJSONArray: TACBrJSONArray;
+  I: Integer;
+begin
+  AJSon
+    .Value('id', Fid)
+    .ValueISODate('startDate', FstartDate)
+    .ValueISODate('endDate', FendDate);
+
+  LJSONArray := AJSon.AsJSONArray['hours'];
+  for I := 0 to Pred(LJSONArray.Count) do
+    Fhours.New.AsJSON := LJSONArray.ItemAsJSONObject[I].ToJSON;
+end;
+
+procedure TACBrOpenDeliverySchemaAvailability.DoWriteToJSon(AJSon: TACBrJSONObject);
+var
+  LJSONArray: TACBrJSONArray;
+  I: Integer;
+begin
+  AJSon
+    .AddPair('id', Fid)
+    .AddPairISODateTime('startDate', FstartDate)
+    .AddPairISODateTime('endDate', FendDate);
+
+  LJSONArray := TACBrJSONArray.Create;
+  try
+    LJSONArray.OwnerJSON := True;
+    for I := 0 to Pred(Fhours.Count) do
+      LJSONArray.AddElementJSONString(Fhours[I].AsJSON);
+    AJSon.AddPair('hours', LJSONArray);
+  except
+    LJSONArray.Free;
+    raise;
+  end;
+end;
+
+function TACBrOpenDeliverySchemaAvailability.IsEmpty: Boolean;
+begin
+  Result := (Fid = '') and
+            (FstartDate = 0) and
+            (FendDate = 0) and
+            (Fhours.Count = 0);
+end;
+
+{ TACBrOpenDeliverySchemaAvailabilityCollection }
+
+function TACBrOpenDeliverySchemaAvailabilityCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaAvailability;
+begin
+  Result := TACBrOpenDeliverySchemaAvailability(inherited Items[Index]);
+end;
+
+function TACBrOpenDeliverySchemaAvailabilityCollection.New: TACBrOpenDeliverySchemaAvailability;
+begin
+  Result := TACBrOpenDeliverySchemaAvailability.Create;
+  Self.Add(Result);
+end;
+
+procedure TACBrOpenDeliverySchemaAvailabilityCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaAvailability);
+begin
+  inherited Items[Index];
 end;
 
 end.

@@ -44,7 +44,8 @@ type
     function AddPair(AName: string; AValue: Double; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
     function AddPair(AName: string; AValue: array of String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
     function AddPair(AName: string; AValue: TACBrJSONArray; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
-    function AddPairISODate(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function AddPairISODateTime(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function AddPairISOTime(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
     function AddPairJSONString(AName: string; AValue: String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
     function AddPairJSONArray(AName: string; AValue: String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
 
@@ -180,7 +181,7 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONObject.AddPairISODate(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean): TACBrJSONObject;
+function TACBrJSONObject.AddPairISODateTime(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean): TACBrJSONObject;
 begin
   Result := Self;
   if (AValue <> 0) or (not AIgnoreEmpty) then
@@ -188,6 +189,20 @@ begin
     FJson.S[AName] := DateTimeToIso8601(AValue);
   {$Else}
     FJson[AName].AsString := DateTimeToIso8601(AValue);
+  {$EndIf}
+end;
+
+function TACBrJSONObject.AddPairISOTime(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean): TACBrJSONObject;
+var
+  LValue: string;
+begin
+  Result := Self;
+  LValue := FormatDateTime('hh:mm:ss', AValue);
+  if (AValue <> 0) or (not AIgnoreEmpty) then
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    FJson.S[AName] := LValue;
+  {$Else}
+    FJson[AName].AsString := LValue;
   {$EndIf}
 end;
 

@@ -29,6 +29,21 @@ type
     procedure ObjectToJson;
   end;
 
+  TTestAvailability = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaAvailability;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJson;
+  end;
+
   TTestBasicInfo = class(TTestCase)
   private
     FJSON: String;
@@ -119,11 +134,11 @@ type
     procedure ObjectToJSON;
   end;
 
-  TTestHour = class(TTestCase)
+  TTestServiceHour = class(TTestCase)
   private
     FJSON: String;
     FJSONObject: TACBrJSONObject;
-    FSchema: TACBrOpenDeliverySchemaHour;
+    FSchema: TACBrOpenDeliverySchemaServiceHour;
 
   protected
     procedure SetUp; override;
@@ -329,11 +344,11 @@ type
     procedure ObjectToJSON;
   end;
 
-  TTestWeekHour = class(TTestCase)
+  TTestHour = class(TTestCase)
   private
     FJSON: String;
     FJSONObject: TACBrJSONObject;
-    FSchema: TACBrOpenDeliverySchemaWeekHour;
+    FSchema: TACBrOpenDeliverySchemaHour;
 
   protected
     procedure SetUp; override;
@@ -993,9 +1008,9 @@ begin
   inherited;
 end;
 
-{ TTestWeekHour }
+{ TTestHour }
 
-procedure TTestWeekHour.JSONToObject;
+procedure TTestHour.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
   CheckEquals(7, Length(FSchema.dayOfWeek));
@@ -1005,7 +1020,7 @@ begin
   CheckEquals('18:01:02', FormatDateTime('hh:mm:ss', FSchema.timePeriods.endTime));
 end;
 
-procedure TTestWeekHour.ObjectToJSON;
+procedure TTestHour.ObjectToJSON;
 begin
   FSchema.AsJSON := FJSON;
   FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
@@ -1016,10 +1031,10 @@ begin
   CheckEquals('18:01:02', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONContext['timePeriods'].AsISOTime['endTime']));
 end;
 
-procedure TTestWeekHour.SetUp;
+procedure TTestHour.SetUp;
 begin
   inherited;
-  FSchema := TACBrOpenDeliverySchemaWeekHour.Create;
+  FSchema := TACBrOpenDeliverySchemaHour.Create;
   FJSON := ACBrStr(
     '{' +
       '"dayOfWeek": [' +
@@ -1038,7 +1053,7 @@ begin
     '}');
 end;
 
-procedure TTestWeekHour.TearDown;
+procedure TTestHour.TearDown;
 begin
   FSchema.Free;
   FJSONObject.Free;
@@ -1087,7 +1102,7 @@ end;
 
 { TTestServiceHour }
 
-procedure TTestHour.JSONToObject;
+procedure TTestServiceHour.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
   CheckEquals('fb093d8c-2ca5-40fb-afcf-472fbdae81cc', FSchema.id);
@@ -1104,7 +1119,7 @@ begin
   CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.holidayHours[0].timePeriods.endTime));
 end;
 
-procedure TTestHour.ObjectToJSON;
+procedure TTestServiceHour.ObjectToJSON;
 begin
   FSchema.AsJSON := FJSON;
   FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
@@ -1122,10 +1137,10 @@ begin
   CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
 end;
 
-procedure TTestHour.SetUp;
+procedure TTestServiceHour.SetUp;
 begin
   inherited;
-  FSchema := TACBrOpenDeliverySchemaHour.Create;
+  FSchema := TACBrOpenDeliverySchemaServiceHour.Create;
   FJSON := ACBrStr(
     '{' +
       '"id": "fb093d8c-2ca5-40fb-afcf-472fbdae81cc",' +
@@ -1146,7 +1161,7 @@ begin
     '}');
 end;
 
-procedure TTestHour.TearDown;
+procedure TTestServiceHour.TearDown;
 begin
   FSchema.Free;
   FJSONObject.Free;
@@ -1796,8 +1811,79 @@ begin
   inherited;
 end;
 
+{ TTestAvailability }
+
+procedure TTestAvailability.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+
+  CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FSchema.id);
+  CheckEquals('2021-05-01', FormatDateTime('yyyy-MM-dd', FSchema.startDate));
+  CheckEquals('2021-05-30', FormatDateTime('yyyy-MM-dd', FSchema.endDate));
+  CheckEquals(1, FSchema.hours.Count);
+  CheckEquals(7, Length(FSchema.hours[0].dayOfWeek));
+  CheckEquals('MONDAY', DayOfWeekToStr(FSchema.hours[0].dayOfWeek[0]));
+  CheckEquals('SUNDAY', DayOfWeekToStr(FSchema.hours[0].dayOfWeek[6]));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FSchema.hours[0].timePeriods.startTime));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.hours[0].timePeriods.endTime));
+end;
+
+procedure TTestAvailability.ObjectToJson;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FJSONObject.AsString['id']);
+  CheckEquals('2021-05-01', FormatDateTime('yyyy-MM-dd', FJSONObject.AsISODate['startDate']));
+  CheckEquals('2021-05-30', FormatDateTime('yyyy-MM-dd', FJSONObject.AsISODate['endDate']));
+  CheckEquals(1, FJSONObject.AsJSONArray['hours'].Count);
+  CheckEquals(7, FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Count);
+  CheckEquals('MONDAY', FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[0]);
+  CheckEquals('SUNDAY', FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[6]);
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
+
+end;
+
+procedure TTestAvailability.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaAvailability.Create;
+  FJSON := ACBrStr(
+    '{' +
+    '  "id": "11d063c4-73a7-4f87-a0eb-71636cc02029",' +
+    '  "startDate": "2021-05-01", ' +
+    '  "endDate": "2021-05-30",' +
+    '  "hours": [' +
+    '    {' +
+    '      "dayOfWeek": [' +
+    '        "MONDAY",' +
+    '        "TUESDAY",' +
+    '        "WEDNESDAY",' +
+    '        "THURSDAY",' +
+    '        "FRIDAY",' +
+    '        "SATURDAY",' +
+    '        "SUNDAY"' +
+    '      ],' +
+    '      "timePeriods": {' +
+    '        "startTime": "10:00:00.000Z",' +
+    '        "endTime": "18:00:00.000Z"' +
+    '      }' +
+    '    }' +
+    '  ]' +
+    '}');
+end;
+
+procedure TTestAvailability.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
 initialization
   _RegisterTest('ACBrOpenDelivery.Schema.Address', TTestAddress);
+  _RegisterTest('ACBrOpenDelivery.Schema.Availability', TTestAvailability);
   _RegisterTest('ACBrOpenDelivery.Schema.BasicInfo', TTestBasicInfo);
   _RegisterTest('ACBrOpenDelivery.Schema.Category', TTestCategory);
   _RegisterTest('ACBrOpenDelivery.Schema.ContactPhone', TTestContactPhone);
@@ -1817,6 +1903,6 @@ initialization
   _RegisterTest('ACBrOpenDelivery.Schema.Radius', TTestRadius);
   _RegisterTest('ACBrOpenDelivery.Schema.Service', TTestService);
   _RegisterTest('ACBrOpenDelivery.Schema.ServiceArea', TTestServiceArea);
+  _RegisterTest('ACBrOpenDelivery.Schema.ServiceHour', TTestServiceHour);
   _RegisterTest('ACBrOpenDelivery.Schema.TimePeriod', TTestTimePeriod);
-  _RegisterTest('ACBrOpenDelivery.Schema.WeekHour', TTestWeekHour);
 end.
