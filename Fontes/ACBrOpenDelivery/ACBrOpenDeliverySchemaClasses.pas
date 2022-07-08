@@ -12,17 +12,43 @@ uses
 
 type
   TACBrOpenDeliverySchemaAddress = class;
+  TACBrOpenDeliverySchemaAvailability = class;
+  TACBrOpenDeliverySchemaAvailabilityCollection = class;
   TACBrOpenDeliverySchemaBasicInfo = class;
+  TACBrOpenDeliverySchemaCategory = class;
+  TACBrOpenDeliverySchemaCategoryCollection = class;
   TACBrOpenDeliverySchemaContactPhone = class;
+  TACBrOpenDeliverySchemaGeoCoordinate = class;
+  TACBrOpenDeliverySchemaGeoCoordinateCollection = class;
+  TACBrOpenDeliverySchemaGeoRadius = class;
+  TACBrOpenDeliverySchemaHolidayHour = class;
+  TACBrOpenDeliverySchemaHolidayHourCollection = class;
+  TACBrOpenDeliverySchemaHour = class;
+  TACBrOpenDeliverySchemaHourCollection = class;
   TACBrOpenDeliverySchemaImage = class;
+  TACBrOpenDeliverySchemaItem = class;
+  TACBrOpenDeliverySchemaItemCollection = class;
+  TACBrOpenDeliverySchemaItemOffer = class;
+  TACBrOpenDeliverySchemaItemOfferCollection = class;
+  TACBrOpenDeliverySchemaMenu = class;
+  TACBrOpenDeliverySchemaMenuCollection = class;
+  TACBrOpenDeliverySchemaMerchant = class;
   TACBrOpenDeliverySchemaNutritionalInfo = class;
+  TACBrOpenDeliverySchemaOption = class;
+  TACBrOpenDeliverySchemaOptionCollection = class;
+  TACBrOpenDeliverySchemaOptionGroup = class;
+  TACBrOpenDeliverySchemaOptionGroupCollection = class;
+  TACBrOpenDeliverySchemaPolygon = class;
+  TACBrOpenDeliverySchemaPolygonCollection = class;
   TACBrOpenDeliverySchemaPrice = class;
+  TACBrOpenDeliverySchemaRadius = class;
   TACBrOpenDeliverySchemaRadiusCollection = class;
+  TACBrOpenDeliverySchemaService = class;
+  TACBrOpenDeliverySchemaServiceCollection = class;
   TACBrOpenDeliverySchemaServiceArea = class;
   TACBrOpenDeliverySchemaServiceHour = class;
   TACBrOpenDeliverySchemaServiceHourCollection = class;
   TACBrOpenDeliverySchemaTimePeriod = class;
-  TACBrOpenDeliverySchemaHourCollection = class;
 
   TACBrOpenDeliverySchemaAddress = class(TACBrOpenDeliverySchema)
   private
@@ -396,6 +422,45 @@ type
   public
     function New: TACBrOpenDeliverySchemaMenu;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaMenu read GetItem write SetItem; default;
+  end;
+
+  TACBrOpenDeliverySchemaMerchant = class(TACBrOpenDeliverySchema)
+  private
+    FlastUpdate: TDateTime;
+    Fid: String;
+    FTTL: Integer;
+    Fstatus: TACBrODStatus;
+    FbasicInfo: TACBrOpenDeliverySchemaBasicInfo;
+    Fservices: TACBrOpenDeliverySchemaServiceCollection;
+    Fmenus: TACBrOpenDeliverySchemaMenuCollection;
+    Fitems: TACBrOpenDeliverySchemaItemCollection;
+    Fcategories: TACBrOpenDeliverySchemaCategoryCollection;
+    FitemOffers: TACBrOpenDeliverySchemaItemOfferCollection;
+    FoptionGroups: TACBrOpenDeliverySchemaOptionGroupCollection;
+    Favailabilities: TACBrOpenDeliverySchemaAvailabilityCollection;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property lastUpdate: TDateTime read FlastUpdate write FlastUpdate;
+    property TTL: Integer read FTTL write FTTL;
+    property id: String read Fid write Fid;
+    property status: TACBrODStatus read Fstatus write Fstatus;
+    property basicInfo: TACBrOpenDeliverySchemaBasicInfo read FbasicInfo write FbasicInfo;
+    property services: TACBrOpenDeliverySchemaServiceCollection read Fservices write Fservices;
+    property menus: TACBrOpenDeliverySchemaMenuCollection read Fmenus write Fmenus;
+    property items: TACBrOpenDeliverySchemaItemCollection read Fitems write Fitems;
+    property categories: TACBrOpenDeliverySchemaCategoryCollection read Fcategories write Fcategories;
+    property itemOffers: TACBrOpenDeliverySchemaItemOfferCollection read FitemOffers write FitemOffers;
+    property optionGroups: TACBrOpenDeliverySchemaOptionGroupCollection read FoptionGroups write FoptionGroups;
+    property availabilities: TACBrOpenDeliverySchemaAvailabilityCollection read Favailabilities write Favailabilities;
+
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaNutritionalInfo = class(TACBrOpenDeliverySchema)
@@ -2267,6 +2332,188 @@ end;
 procedure TACBrOpenDeliverySchemaAvailabilityCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaAvailability);
 begin
   inherited Items[Index];
+end;
+
+{ TACBrOpenDeliverySchemaMerchant }
+
+procedure TACBrOpenDeliverySchemaMerchant.Clear;
+begin
+  FlastUpdate := 0;
+  FTTL := 0;
+  Fid := '';
+  Fstatus := sAvailable;
+  FbasicInfo.Clear;
+  Fservices.Clear;
+  Fmenus.Clear;
+  Fitems.Clear;
+  Fcategories.Clear;
+  FitemOffers.Clear;
+  FoptionGroups.Clear;
+  Favailabilities.Clear;
+end;
+
+constructor TACBrOpenDeliverySchemaMerchant.Create(const AObjectName: string);
+begin
+  inherited Create(AObjectName);
+  FbasicInfo := TACBrOpenDeliverySchemaBasicInfo.Create('basicInfo');
+  Fservices := TACBrOpenDeliverySchemaServiceCollection.Create;
+  Fmenus := TACBrOpenDeliverySchemaMenuCollection.Create;
+  Fitems := TACBrOpenDeliverySchemaItemCollection.Create;
+  Fcategories := TACBrOpenDeliverySchemaCategoryCollection.Create;
+  FitemOffers := TACBrOpenDeliverySchemaItemOfferCollection.Create;
+  FoptionGroups := TACBrOpenDeliverySchemaOptionGroupCollection.Create;
+  Favailabilities := TACBrOpenDeliverySchemaAvailabilityCollection.Create;
+end;
+
+destructor TACBrOpenDeliverySchemaMerchant.Destroy;
+begin
+  FbasicInfo.Free;
+  Fservices.Free;
+  Fmenus.Free;
+  Fitems.Free;
+  Fcategories.Free;
+  FitemOffers.Free;
+  FoptionGroups.Free;
+  Favailabilities.Free;
+  inherited;
+end;
+
+procedure TACBrOpenDeliverySchemaMerchant.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  LStrStatus: String;
+  LJSONArray: TACBrJSONArray;
+  I: Integer;
+begin
+  AJSon
+    .ValueISODateTime('lastUpdate', FlastUpdate)
+    .Value('TTL', FTTL)
+    .Value('id', Fid)
+    .Value('status', LStrStatus);
+  Fstatus := StrToStatus(LStrStatus);
+  FbasicInfo.DoReadFromJSon(AJSon.AsJSONContext['basicInfo']);
+
+  LJSONArray := AJSon.AsJSONArray['services'];
+  for I := 0 to Pred(LJSONArray.Count) do
+    Fservices.New.AsJSON := LJSONArray.ItemAsJSONObject[I].ToJSON;
+
+  LJSONArray := AJSon.AsJSONArray['menus'];
+  for I := 0 to Pred(LJSONArray.Count) do
+    Fmenus.New.AsJSON := LJSONArray.ItemAsJSONObject[I].ToJSON;
+
+  LJSONArray := AJSon.AsJSONArray['categories'];
+  for I := 0 to Pred(LJSONArray.Count) do
+    Fcategories.New.AsJSON := LJSONArray.ItemAsJSONObject[I].ToJSON;
+
+  LJSONArray := AJSon.AsJSONArray['itemOffers'];
+  for I := 0 to Pred(LJSONArray.Count) do
+    FitemOffers.New.AsJSON := LJSONArray.ItemAsJSONObject[I].ToJSON;
+
+  LJSONArray := AJSon.AsJSONArray['optionGroups'];
+  for I := 0 to Pred(LJSONArray.Count) do
+    FoptionGroups.New.AsJSON := LJSONArray.ItemAsJSONObject[I].ToJSON;
+
+  LJSONArray := AJSon.AsJSONArray['availabilities'];
+  for I := 0 to Pred(LJSONArray.Count) do
+    Favailabilities.New.AsJSON := LJSONArray.ItemAsJSONObject[I].ToJSON;
+end;
+
+procedure TACBrOpenDeliverySchemaMerchant.DoWriteToJSon(AJSon: TACBrJSONObject);
+var
+  LJSONArray: TACBrJSONArray;
+  I: Integer;
+begin
+  AJSon
+    .AddPairISODateTime('lastUpdate', FlastUpdate)
+    .AddPair('TTL', FTTL)
+    .AddPair('id', Fid)
+    .AddPair('status', StatusToStr(Fstatus))
+    .AddPairJSONString('basicInfo', FbasicInfo.AsJSON);
+
+  LJSONArray := TACBrJSONArray.Create;
+  try
+    for I := 0 to Pred(Fservices.Count) do
+      LJSONArray.AddElementJSONString(Fservices[I].AsJSON);
+    AJSon.AddPair('services', LJSONArray);
+  except
+    LJSONArray.Free;
+    raise;
+  end;
+
+  LJSONArray := TACBrJSONArray.Create;
+  try
+    for I := 0 to Pred(Fmenus.Count) do
+      LJSONArray.AddElementJSONString(Fmenus[I].AsJSON);
+    AJSon.AddPair('menus', LJSONArray);
+  except
+    LJSONArray.Free;
+    raise;
+  end;
+
+  LJSONArray := TACBrJSONArray.Create;
+  try
+    for I := 0 to Pred(Fitems.Count) do
+      LJSONArray.AddElementJSONString(Fitems[I].AsJSON);
+    AJSon.AddPair('items', LJSONArray);
+  except
+    LJSONArray.Free;
+    raise;
+  end;
+
+  LJSONArray := TACBrJSONArray.Create;
+  try
+    for I := 0 to Pred(Fcategories.Count) do
+      LJSONArray.AddElementJSONString(Fcategories[I].AsJSON);
+    AJSon.AddPair('categories', LJSONArray);
+  except
+    LJSONArray.Free;
+    raise;
+  end;
+
+  LJSONArray := TACBrJSONArray.Create;
+  try
+    for I := 0 to Pred(FitemOffers.Count) do
+      LJSONArray.AddElementJSONString(FitemOffers[I].AsJSON);
+    AJSon.AddPair('itemOffers', LJSONArray);
+  except
+    LJSONArray.Free;
+    raise;
+  end;
+
+  LJSONArray := TACBrJSONArray.Create;
+  try
+    for I := 0 to Pred(FoptionGroups.Count) do
+      LJSONArray.AddElementJSONString(FoptionGroups[I].AsJSON);
+    AJSon.AddPair('optionGroups', LJSONArray);
+  except
+    LJSONArray.Free;
+    raise;
+  end;
+
+  LJSONArray := TACBrJSONArray.Create;
+  try
+    for I := 0 to Pred(Favailabilities.Count) do
+      LJSONArray.AddElementJSONString(Favailabilities[I].AsJSON);
+    AJSon.AddPair('availabilities', LJSONArray);
+  except
+    LJSONArray.Free;
+    raise;
+  end;
+end;
+
+function TACBrOpenDeliverySchemaMerchant.IsEmpty: Boolean;
+begin
+  Result := (FlastUpdate = 0) and
+            (FTTL = 0) and
+            (Fid = '') and
+            (Fstatus = sAvailable) and
+            (FbasicInfo.IsEmpty) and
+            (Fservices.Count = 0) and
+            (Fmenus.Count = 0) and
+            (Fitems.Count = 0) and
+            (Fcategories.Count = 0) and
+            (FitemOffers.Count = 0) and
+            (FoptionGroups.Count = 0) and
+            (Favailabilities.Count = 0);
 end;
 
 end.
