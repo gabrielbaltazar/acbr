@@ -134,11 +134,11 @@ type
     procedure ObjectToJSON;
   end;
 
-  TTestServiceHour = class(TTestCase)
+  TTestHour = class(TTestCase)
   private
     FJSON: String;
     FJSONObject: TACBrJSONObject;
-    FSchema: TACBrOpenDeliverySchemaServiceHour;
+    FSchema: TACBrOpenDeliverySchemaHour;
 
   protected
     procedure SetUp; override;
@@ -329,11 +329,11 @@ type
     procedure ObjectToJSON;
   end;
 
-  TTestTimePeriod = class(TTestCase)
+  TTestServiceHour = class(TTestCase)
   private
     FJSON: String;
     FJSONObject: TACBrJSONObject;
-    FSchema: TACBrOpenDeliverySchemaTimePeriod;
+    FSchema: TACBrOpenDeliverySchemaServiceHour;
 
   protected
     procedure SetUp; override;
@@ -344,11 +344,11 @@ type
     procedure ObjectToJSON;
   end;
 
-  TTestHour = class(TTestCase)
+  TTestTimePeriod = class(TTestCase)
   private
     FJSON: String;
     FJSONObject: TACBrJSONObject;
-    FSchema: TACBrOpenDeliverySchemaHour;
+    FSchema: TACBrOpenDeliverySchemaTimePeriod;
 
   protected
     procedure SetUp; override;
