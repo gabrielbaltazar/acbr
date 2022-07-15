@@ -46,6 +46,7 @@ begin
     ReportMemoryLeaksOnShutdown := True;
   {$ENDIF};
 
-
+  {$DEFINE USE_JSONDATAOBJECTS_UNIT}
   ACBrRunTests;
+
 end.

@@ -8,7 +8,7 @@ uses
   ACBrTests.Util,
   ACBrOpenDeliverySchema,
   ACBrOpenDeliverySchemaClasses,
-  ACBrUtil,
+  ACBrUtil.Strings,
   pcnConversaoOD,
   Classes,
   SysUtils;
@@ -1120,9 +1120,12 @@ begin
 end;
 
 procedure TTestServiceHour.ObjectToJSON;
+var
+  LJSON: string;
 begin
   FSchema.AsJSON := FJSON;
-  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+  LJSON := FSchema.AsJSON;
+  FJSONObject := TACBrJSONObject.Parse(LJSON);
   CheckEquals('fb093d8c-2ca5-40fb-afcf-472fbdae81cc', FJSONObject.AsString['id']);
   CheckEquals(1, FJSONObject.AsJSONArray['weekHours'].Count);
   CheckEquals(2, FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Count);
@@ -1360,7 +1363,7 @@ begin
   CheckEquals('Pizza menu', FJSONObject.AsString['description']);
   CheckEquals('123', FJSONObject.AsString['externalCode']);
   CheckEquals('Lorem Ipsum is simply dummy text of the printing and typesetting industry.', FJSONObject.AsString['disclaimer']);
-  CheckEquals('http://example.com', FJSONObject.AsString['disclaimerUrl']);
+  CheckEquals('http://example.com', FJSONObject.AsString['disclaimerURL']);
   CheckEquals(2, FJSONObject.AsJSONArray['categoryId'].Count);
   CheckEquals('92fad022-2c28-4239-a026-989f5b555cb7', FJSONObject.AsJSONArray['categoryId'].Items[0]);
   CheckEquals('6bb71850-1d40-49f9-8046-b13e068c0cca', FJSONObject.AsJSONArray['categoryId'].Items[1]);
@@ -1403,6 +1406,7 @@ begin
   CheckEquals('Salted pizza flavors.', FSchema.description);
   CheckEquals('13', FSchema.externalCode);
   CheckEquals('AVAILABLE', StatusToStr(FSchema.status));
+
   CheckEquals('https://food-company.com/category1.png', FSchema.image.URL);
   CheckEquals('09345UIHF98', FSchema.image.CRC_32);
   CheckEquals(1, Length(FSchema.availabilityId));
@@ -1422,8 +1426,10 @@ begin
   CheckEquals('Salted pizza flavors.', FJSONObject.AsString['description']);
   CheckEquals('13', FJSONObject.AsString['externalCode']);
   CheckEquals('AVAILABLE', FJSONObject.AsString['status']);
+
   CheckEquals('https://food-company.com/category1.png', FJSONObject.AsJSONContext['image'].AsString['URL']);
   CheckEquals('09345UIHF98', FJSONObject.AsJSONContext['image'].AsString['CRC-32']);
+
   CheckEquals(1, FJSONObject.AsJSONArray['availabilityId'].Count);
   CheckEquals(1, FJSONObject.AsJSONArray['itemOfferId'].Count);
   CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FJSONObject.AsJSONArray['availabilityId'].Items[0]);

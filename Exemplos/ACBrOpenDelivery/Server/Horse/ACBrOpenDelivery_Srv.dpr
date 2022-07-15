@@ -4,19 +4,32 @@ program ACBrOpenDelivery_Srv;
 
 {$R *.res}
 
+{$R *.dres}
+
 uses
   Horse,
-  Horse.Jhonson,
+  Horse.CORS,
   System.SysUtils,
-  ACBrOpenDeliverySchema in '..\..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas',
-  ACBrOpenDeliverySchemaClasses in '..\..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas',
-  pcnConversaoOD in '..\..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas';
+  SrvOD.Controller.Merchant in 'SrvOD.Controller.Merchant.pas',
+  SrvOD.Middlewares in 'Middlewares\SrvOD.Middlewares.pas';
 
 begin
-  try
-    { TODO -oUser -cConsole Main : Insert code here }
-  except
-    on E: Exception do
-      Writeln(E.ClassName, ': ', E.Message);
-  end;
+  {$IFDEF MSWINDOWS}
+  IsConsole := False;
+  ReportMemoryLeaksOnShutdown := True;
+  {$ENDIF}
+
+  THorse
+    .Use(CORS)
+    .Use(HorseACBrJSON)
+    .Use(HorseODError);
+
+  SrvOD.Controller.Merchant.Registry;
+
+  THorse.Listen(9050,
+    procedure(Horse: THorse)
+    begin
+      System.Writeln('Running...');
+      System.Readln;
+    end);
 end.

@@ -221,6 +221,21 @@ type
     property whatsappNumber: string read FwhatsappNumber write FwhatsappNumber;
   end;
 
+  TACBrOpenDeliverySchemaError = class(TACBrOpenDeliverySchema)
+  private
+    FTitle: String;
+    FStatus: Integer;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+    property Status: Integer read FStatus write FStatus;
+    property Title: String read FTitle write FTitle;
+  end;
+
   TACBrOpenDeliverySchemaGeoCoordinate = class(TACBrOpenDeliverySchema)
   private
     Flatitude: Double;
@@ -819,7 +834,6 @@ end;
 procedure TACBrOpenDeliverySchemaBasicInfo.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
   LCategories: TSplitResult;
-  LStrMerchantType: string;
   I: Integer;
 begin
   AJson
@@ -1060,8 +1074,6 @@ begin
 end;
 
 procedure TACBrOpenDeliverySchemaRadius.DoWriteToJSon(AJSon: TACBrJSONObject);
-var
-  I: Integer;
 begin
   AJson
     .AddPair('size', Fsize)
@@ -2217,7 +2229,7 @@ end;
 
 function TACBrOpenDeliverySchemaOptionGroupCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaOptionGroup;
 begin
-  Result := TACBrOpenDeliverySchemaOptionGroup(Items[Index]);
+  Result := TACBrOpenDeliverySchemaOptionGroup(inherited Items[Index]);
 end;
 
 function TACBrOpenDeliverySchemaOptionGroupCollection.New: TACBrOpenDeliverySchemaOptionGroup;
@@ -2514,6 +2526,33 @@ begin
             (FitemOffers.Count = 0) and
             (FoptionGroups.Count = 0) and
             (Favailabilities.Count = 0);
+end;
+
+{ TACBrOpenDeliverySchemaError }
+
+procedure TACBrOpenDeliverySchemaError.Clear;
+begin
+  FStatus := 0;
+  FTitle := '';
+end;
+
+procedure TACBrOpenDeliverySchemaError.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .Value('status', FStatus)
+    .Value('title', FTitle);
+end;
+
+procedure TACBrOpenDeliverySchemaError.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('status', FStatus)
+    .AddPair('title', FTitle);
+end;
+
+function TACBrOpenDeliverySchemaError.IsEmpty: Boolean;
+begin
+  Result := (Fstatus = 0) and (FTitle = '');
 end;
 
 end.

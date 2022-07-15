@@ -163,6 +163,7 @@ function StrToAllergen(const AValue: String): TACBrODAllergen;
 var
   LStr: String;
 begin
+  Result := aAlmonds;
   LStr := UpperCase(AValue);
   if LStr = 'ALMONDS' then
     Result := aAlmonds
@@ -317,6 +318,7 @@ function StrToDayOfWeek(const AValue: String): TACBrODDayOfWeek;
 var
   LStr: String;
 begin
+  Result := dwMonday;
   LStr := UpperCase(AValue);
   if LStr = 'MONDAY' then
     Result := dwMonday
@@ -400,6 +402,7 @@ function StrToMerchantCategories(const AValue: String): TACBrODMerchantCategorie
 var
   LStr: String;
 begin
+  Result := mcBurgers;
   LStr := UpperCase(AValue);
   if LStr = 'BURGERS' then
     Result := mcBurgers
@@ -521,11 +524,12 @@ function StrToServiceType(AValue: String): TACBrODServiceType;
 var
   LStr: String;
 begin
+  Result := stDelivery;
   LStr := UpperCase(AValue);
   if LStr = 'DELIVERY' then
     Result := stDelivery
   else if LStr = 'TAKEOUT' then
-    Result := stDelivery;
+    Result := stTakeout;
 end;
 
 function StatusToStr(AValue: TACBrODStatus): string;
@@ -542,6 +546,7 @@ function StrToStatus(AValue: String): TACBrODStatus;
 var
   LStr: string;
 begin
+  Result := sAvailable;
   LStr := UpperCase(AValue);
   if LStr = 'AVAILABLE' then
     Result := sAvailable
@@ -581,6 +586,7 @@ function StrToSuitableDiet(const AValue: String): TACBrODSuitableDiet;
 var
   LStr: string;
 begin
+  Result := sdDiabetic;
   LStr := UpperCase(AValue);
   if LStr = 'DIABETIC' then
     Result := sdDiabetic

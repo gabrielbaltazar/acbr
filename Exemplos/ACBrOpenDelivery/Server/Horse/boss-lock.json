@@ -2,10 +2,18 @@
 	"hash": "d41d8cd98f00b204e9800998ecf8427e",
 	"updated": "2022-06-29T17:33:18.2505502-03:00",
 	"installedModules": {
+		"github.com/gabrielbaltazar/gbwinservice": {
+			"name": "gbwinservice",
+			"version": "1.1.1",
+			"hash": "bb0b168ca81b942deb354c37282a3792",
+			"artifacts": {},
+			"failed": false,
+			"changed": false
+		},
 		"github.com/hashload/horse": {
 			"name": "horse",
-			"version": "3.0.1",
-			"hash": "0c0049d693028f6631b00587f270e6d2",
+			"version": "3.0.2",
+			"hash": "2bbae2f5267d9a9034a1b44398d68bf3",
 			"artifacts": {},
 			"failed": false,
 			"changed": false
@@ -14,14 +22,6 @@
 			"name": "horse-cors",
 			"version": "1.0.5",
 			"hash": "655dbd17159adb9d87d36f3aa56be5a5",
-			"artifacts": {},
-			"failed": false,
-			"changed": false
-		},
-		"github.com/hashload/jhonson": {
-			"name": "jhonson",
-			"version": "1.1.4",
-			"hash": "7f48e0509b98505a12fa80ee39b53aea",
 			"artifacts": {},
 			"failed": false,
 			"changed": false
