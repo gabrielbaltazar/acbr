@@ -80,7 +80,7 @@ function TACBrOpenDeliverySchema.GetJSONContext(AJson: TACBrJSONObject): TACBrJS
 begin
   Result := AJson;
   if (FObjectName <> '') then
-    Result := AJSon.AsJSONContext[FObjectName]
+    Result := AJSon.AsJSONObject[FObjectName]
 //  begin
 //    {$IfDef USE_JSONDATAOBJECTS_UNIT}
 //     Result := AJson.O[FObjectName];

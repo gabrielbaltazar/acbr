@@ -37,7 +37,7 @@ type
     function GetAsString(AName: String): String;
     function GetAsISOTime(AName: String): TDateTime;
     function GetAsJSONArray(AName: String): TACBrJSONArray;
-    function GetAsJSONContext(AName: String): TACBrJSONObject;
+    function GetAsJSONObject(AName: String): TACBrJSONObject;
     function GetAsISODate(AName: String): TDateTime;
 
   public
@@ -70,7 +70,7 @@ type
     property AsISODate[AName: String]: TDateTime read GetAsISODate;
     property AsISOTime[AName: String]: TDateTime read GetAsISOTime;
     property AsString[AName: String]: String read GetAsString;
-    property AsJSONContext[AName: String]: TACBrJSONObject read GetAsJSONContext;
+    property AsJSONObject[AName: String]: TACBrJSONObject read GetAsJSONObject;
     property AsJSONArray[AName: String]: TACBrJSONArray read GetAsJSONArray;
 
     function ToJSON: String; override;
@@ -261,7 +261,7 @@ begin
   FContexts.Add(Result);
 end;
 
-function TACBrJSONObject.GetAsJSONContext(AName: String): TACBrJSONObject;
+function TACBrJSONObject.GetAsJSONObject(AName: String): TACBrJSONObject;
 var
   LJSON: TJsonObject;
 begin
@@ -502,8 +502,6 @@ begin
 end;
 
 function TACBrJSONObject.AddPair(AName: string; AValue: TACBrJSONArray; AIgnoreEmpty: Boolean): TACBrJSONObject;
-var
-  LJSONArray: TJsonArray;
 begin
   Result := Self;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
@@ -535,13 +533,10 @@ begin
 end;
 
 function TACBrJSONArray.AddElementJSONString(const AValue: String): TACBrJSONArray;
-var
-  LJSON: TJsonObject;
 begin
   Result := Self;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    LJSON := TACBrJSONObject.CreateJsonObject(AValue);
-    FJSON.AddObject(LJSON);
+    FJSON.AddObject(TACBrJSONObject.CreateJsonObject(AValue));
   {$Else}
     FJSON.Add.Parse(AValue);
   {$EndIf}
@@ -589,7 +584,9 @@ end;
 
 function TACBrJSONArray.GetItemAsJSONObject(AIndex: Integer): TACBrJSONObject;
 var
+  {$IfNDef USE_JSONDATAOBJECTS_UNIT}
   LJSONStr: string;
+  {$EndIf}
   LJSON: TJsonObject;
 begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}

@@ -848,11 +848,11 @@ begin
     .ValueISODate('createdAt', FcreatedAt);
 
   FmerchantType := StrToMerchantType(AJson.AsString['merchantType']);
-  FminOrderValue.DoReadFromJSon(AJSon.AsJSONContext['minOrderValue']);
-  Faddress.DoReadFromJSon(AJSon.AsJSONContext['address']);
-  FcontactPhones.DoReadFromJSon(AJSon.AsJSONContext['contactPhones']);
-  FlogoImage.DoReadFromJSon(AJSon.AsJSONContext['logoImage']);
-  FbannerImage.DoReadFromJSon(AJSon.AsJSONContext['bannerImage']);
+  FminOrderValue.DoReadFromJSon(AJSon.AsJSONObject['minOrderValue']);
+  Faddress.DoReadFromJSon(AJSon.AsJSONObject['address']);
+  FcontactPhones.DoReadFromJSon(AJSon.AsJSONObject['contactPhones']);
+  FlogoImage.DoReadFromJSon(AJSon.AsJSONObject['logoImage']);
+  FbannerImage.DoReadFromJSon(AJSon.AsJSONObject['bannerImage']);
 
   SetLength(FmerchantCategories, Length(LCategories));
   for I := 0 to Pred(Length(LCategories)) do
@@ -1070,7 +1070,7 @@ begin
     .Value('size', Fsize)
     .Value('estimateDeliveryTime', FestimateDeliveryTime);
 
-  Fprice.DoReadFromJSon(AJSon.AsJSONContext['price']);
+  Fprice.DoReadFromJSon(AJSon.AsJSONObject['price']);
 end;
 
 procedure TACBrOpenDeliverySchemaRadius.DoWriteToJSon(AJSon: TACBrJSONObject);
@@ -1249,7 +1249,7 @@ begin
   AJson
     .Value('estimateDeliveryTime', FestimateDeliveryTime);
 
-  Fprice.DoReadFromJSon(AJSon.AsJSONContext['price']);
+  Fprice.DoReadFromJSon(AJSon.AsJSONObject['price']);
   LJSONArray := AJSon.AsJSONArray['geoCoordinates'];
   if Assigned(LJSONArray) then
   begin
@@ -1333,7 +1333,7 @@ var
 begin
   Fpolygon.Clear;
   Fid := AJSon.AsString['id'];
-  FgeoRadius.DoReadFromJSon(AJSon.AsJSONContext['geoRadius']);
+  FgeoRadius.DoReadFromJSon(AJSon.AsJSONObject['geoRadius']);
   LJSONArray := AJSon.AsJSONArray['polygon'];
   if Assigned(LJSONArray) then
   begin
@@ -1422,7 +1422,7 @@ var
   LSplitResult: TSplitResult;
   I: Integer;
 begin
-  FtimePeriods.DoReadFromJSon(AJSon.AsJSONContext['timePeriods']);
+  FtimePeriods.DoReadFromJSon(AJSon.AsJSONObject['timePeriods']);
   AJSon.Value('dayOfWeek', LSplitResult);
 
   SetLength(FdayOfWeek, Length(LSplitResult));
@@ -1465,7 +1465,7 @@ end;
 procedure TACBrOpenDeliverySchemaHolidayHour.DoReadFromJSon(AJSon: TACBrJSONObject);
 begin
   AJSon.ValueISODate('date', Fdate);
-  FtimePeriods.DoReadFromJSon(AJSon.AsJSONContext['timePeriods']);
+  FtimePeriods.DoReadFromJSon(AJSon.AsJSONObject['timePeriods']);
 end;
 
 procedure TACBrOpenDeliverySchemaHolidayHour.DoWriteToJSon(AJSon: TACBrJSONObject);
@@ -1637,8 +1637,8 @@ begin
   LStrEnum := AJSon.AsString['serviceType'];
   FserviceType := StrToServiceType(LStrEnum);
 
-  FserviceArea.DoReadFromJSon(AJSon.AsJSONContext['serviceArea']);
-  FserviceHours.DoReadFromJSon(AJSon.AsJSONContext['serviceHours']);
+  FserviceArea.DoReadFromJSon(AJSon.AsJSONObject['serviceArea']);
+  FserviceHours.DoReadFromJSon(AJSon.AsJSONObject['serviceHours']);
 end;
 
 procedure TACBrOpenDeliverySchemaService.DoWriteToJSon(AJSon: TACBrJSONObject);
@@ -1787,7 +1787,7 @@ begin
     .Value('availabilityId', FavailabilityId)
     .Value('itemOfferId', FitemOfferId);
 
-  Fimage.DoReadFromJSon(AJSon.AsJSONContext['image']);
+  Fimage.DoReadFromJSon(AJSon.AsJSONObject['image']);
   Fstatus := StrToStatus(LStrStatus);
 end;
 
@@ -1869,7 +1869,7 @@ begin
     .Value('availabilityId', FavailabilityId)
     .Value('optionGroupsId', FoptionGroupsId);
 
-  Fprice.DoReadFromJSon(AJSon.AsJSONContext['price']);
+  Fprice.DoReadFromJSon(AJSon.AsJSONObject['price']);
 end;
 
 procedure TACBrOpenDeliverySchemaItemOffer.DoWriteToJSon(AJSon: TACBrJSONObject);
@@ -2014,8 +2014,8 @@ begin
     .Value('unit', Funit)
     .Value('ean', Fean);
 
-  Fimage.DoReadFromJSon(AJSon.AsJSONContext['image']);
-  FnutritionalInfo.DoReadFromJSon(AJSon.AsJSONContext['nutritionalInfo']);
+  Fimage.DoReadFromJSon(AJSon.AsJSONObject['image']);
+  FnutritionalInfo.DoReadFromJSon(AJSon.AsJSONObject['nutritionalInfo']);
 end;
 
 procedure TACBrOpenDeliverySchemaItem.DoWriteToJSon(AJSon: TACBrJSONObject);
@@ -2094,7 +2094,7 @@ begin
     .Value('index', Findex)
     .Value('maxPermitted', FmaxPermitted);
 
-  Fprice.DoReadFromJSon(AJSon.AsJSONContext['price']);
+  Fprice.DoReadFromJSon(AJSon.AsJSONObject['price']);
 end;
 
 procedure TACBrOpenDeliverySchemaOption.DoWriteToJSon(AJSon: TACBrJSONObject);
@@ -2402,7 +2402,7 @@ begin
     .Value('id', Fid)
     .Value('status', LStrStatus);
   Fstatus := StrToStatus(LStrStatus);
-  FbasicInfo.DoReadFromJSon(AJSon.AsJSONContext['basicInfo']);
+  FbasicInfo.DoReadFromJSon(AJSon.AsJSONObject['basicInfo']);
 
   LJSONArray := AJSon.AsJSONArray['services'];
   for I := 0 to Pred(LJSONArray.Count) do

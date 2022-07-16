@@ -588,36 +588,36 @@ begin
   CheckEquals('Food company specializing in pizzas.', FJSONObject.AsString['description']);
   CheckEquals('90', FloatToStr(FJSONObject.AsFloat['averageTicket']));
   CheckEquals('20', IntToStr(FJSONObject.AsInteger['averagePreparationTime']));
-  CheckEquals('BRL', FJSONObject.AsJSONContext['minOrderValue'].AsString['currency']);
+  CheckEquals('BRL', FJSONObject.AsJSONObject['minOrderValue'].AsString['currency']);
   CheckEquals('40', FloatToStr(FSchema.minOrderValue.value));
   CheckEquals('RESTAURANT', FJSONObject.AsString['merchantType']);
   CheckEquals(3, FJSONObject.AsJSONArray['merchantCategories'].Count);
   CheckEquals('PIZZA', FJSONObject.AsJSONArray['merchantCategories'].Items[0]);
   CheckEquals('FAMILY_MEALS', FJSONObject.AsJSONArray['merchantCategories'].Items[1]);
   CheckEquals('PREMIUM', FJSONObject.AsJSONArray['merchantCategories'].Items[2]);
-  CheckEquals('BR', FJSONObject.AsJSONContext['address'].AsString['country']);
-  CheckEquals('BR-SP', FJSONObject.AsJSONContext['address'].AsString['state']);
-  CheckEquals('São Paulo', FJSONObject.AsJSONContext['address'].AsString['city']);
-  CheckEquals('Moema', FJSONObject.AsJSONContext['address'].AsString['district']);
-  CheckEquals('Plaza Avenue', FJSONObject.AsJSONContext['address'].AsString['street']);
-  CheckEquals('100', FJSONObject.AsJSONContext['address'].AsString['number']);
-  CheckEquals('20111-000', FJSONObject.AsJSONContext['address'].AsString['postalCode']);
-  CheckEquals('BL 02 AP 31', FJSONObject.AsJSONContext['address'].AsString['complement']);
-  CheckEquals('Yellow House', FJSONObject.AsJSONContext['address'].AsString['reference']);
-  CheckEquals('-23,54809', FloatToStr(FJSONObject.AsJSONContext['address'].AsFloat['latitude']));
-  CheckEquals('-46,63638', FloatToStr(FJSONObject.AsJSONContext['address'].AsFloat['longitude']));
+  CheckEquals('BR', FJSONObject.AsJSONObject['address'].AsString['country']);
+  CheckEquals('BR-SP', FJSONObject.AsJSONObject['address'].AsString['state']);
+  CheckEquals('São Paulo', FJSONObject.AsJSONObject['address'].AsString['city']);
+  CheckEquals('Moema', FJSONObject.AsJSONObject['address'].AsString['district']);
+  CheckEquals('Plaza Avenue', FJSONObject.AsJSONObject['address'].AsString['street']);
+  CheckEquals('100', FJSONObject.AsJSONObject['address'].AsString['number']);
+  CheckEquals('20111-000', FJSONObject.AsJSONObject['address'].AsString['postalCode']);
+  CheckEquals('BL 02 AP 31', FJSONObject.AsJSONObject['address'].AsString['complement']);
+  CheckEquals('Yellow House', FJSONObject.AsJSONObject['address'].AsString['reference']);
+  CheckEquals('-23,54809', FloatToStr(FJSONObject.AsJSONObject['address'].AsFloat['latitude']));
+  CheckEquals('-46,63638', FloatToStr(FJSONObject.AsJSONObject['address'].AsFloat['longitude']));
   CheckEquals(2, FJSONObject.AsJSONArray['contactEmails'].Count);
   CheckEquals('food@company.com', FJSONObject.AsJSONArray['contactEmails'].Items[0]);
   CheckEquals('food@acbr.com', FJSONObject.AsJSONArray['contactEmails'].Items[1]);
 
-  CheckEquals('11999999999', FJSONObject.AsJSONContext['contactPhones'].AsString['commercialNumber']);
-  CheckEquals('11998888888', FJSONObject.AsJSONContext['contactPhones'].AsString['whatsappNumber']);
+  CheckEquals('11999999999', FJSONObject.AsJSONObject['contactPhones'].AsString['commercialNumber']);
+  CheckEquals('11998888888', FJSONObject.AsJSONObject['contactPhones'].AsString['whatsappNumber']);
 
-  CheckEquals('https://food-company.com/image.jpg', FJSONObject.AsJSONContext['logoImage'].AsString['URL']);
-  CheckEquals('96b41025', FJSONObject.AsJSONContext['logoImage'].AsString['CRC-32']);
+  CheckEquals('https://food-company.com/image.jpg', FJSONObject.AsJSONObject['logoImage'].AsString['URL']);
+  CheckEquals('96b41025', FJSONObject.AsJSONObject['logoImage'].AsString['CRC-32']);
 
-  CheckEquals('https://food-company.com/image.jpg', FJSONObject.AsJSONContext['bannerImage'].AsString['URL']);
-  CheckEquals('96b41025', FJSONObject.AsJSONContext['bannerImage'].AsString['CRC-32']);
+  CheckEquals('https://food-company.com/image.jpg', FJSONObject.AsJSONObject['bannerImage'].AsString['URL']);
+  CheckEquals('96b41025', FJSONObject.AsJSONObject['bannerImage'].AsString['CRC-32']);
 
   CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FJSONObject.AsISODateTime['createdAt']));
 end;
@@ -701,8 +701,8 @@ begin
 
   CheckEquals(1, FJSONObject.AsInteger['size']);
   CheckEquals(5, FJSONObject.AsInteger['estimateDeliveryTime']);
-  CheckEquals('BRL', FJSONObject.AsJSONContext['price'].AsString['currency']);
-  CheckEquals('50,5', FloatToStr(FJSONObject.AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('BRL', FJSONObject.AsJSONObject['price'].AsString['currency']);
+  CheckEquals('50,5', FloatToStr(FJSONObject.AsJSONObject['price'].AsFloat['value']));
 end;
 
 procedure TTestRadius.SetUp;
@@ -756,13 +756,13 @@ begin
   CheckEquals(2, FJSONObject.AsJSONArray['radius'].Count);
   CheckEquals(3, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['size']);
   CheckEquals(2, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
-  CheckEquals('BRL', FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsString['currency']);
-  CheckEquals(5, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsInteger['value']);
+  CheckEquals('BRL', FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONObject['price'].AsString['currency']);
+  CheckEquals(5, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONObject['price'].AsInteger['value']);
 
   CheckEquals(4, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[1].AsInteger['size']);
   CheckEquals(8, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[1].AsInteger['estimateDeliveryTime']);
-  CheckEquals('US$', FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[1].AsJSONContext['price'].AsString['currency']);
-  CheckEquals(6, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[1].AsJSONContext['price'].AsInteger['value']);
+  CheckEquals('US$', FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[1].AsJSONObject['price'].AsString['currency']);
+  CheckEquals(6, FJSONObject.AsJSONArray['radius'].ItemAsJSONObject[1].AsJSONObject['price'].AsInteger['value']);
 end;
 
 procedure TTestGeoRadius.SetUp;
@@ -859,8 +859,8 @@ begin
   CheckEquals(1, FJSONObject.AsJSONArray['geoCoordinates'].Count);
   CheckEquals('-23,54809', FloatToStr(FJSONObject.AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['latitude']));
   CheckEquals('-46,63638', FloatToStr(FJSONObject.AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['longitude']));
-  CheckEquals('BRL', FJSONObject.AsJSONContext['price'].AsString['currency']);
-  CheckEquals('5', FloatToStr(FJSONObject.AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('BRL', FJSONObject.AsJSONObject['price'].AsString['currency']);
+  CheckEquals('5', FloatToStr(FJSONObject.AsJSONObject['price'].AsFloat['value']));
 end;
 
 procedure TTestPolygon.SetUp;
@@ -921,19 +921,19 @@ begin
 
   CheckEquals(3, FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
   CheckEquals(1, FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].Count);
-  CheckEquals('BRL', FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONContext['price'].AsString['currency']);
-  CheckEquals('5', FloatToStr(FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('BRL', FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONObject['price'].AsString['currency']);
+  CheckEquals('5', FloatToStr(FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONObject['price'].AsFloat['value']));
   CheckEquals('-23,54809', FloatToStr(FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['latitude']));
   CheckEquals('-46,63638', FloatToStr(FJSONObject.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['longitude']));
 
 
-  CheckEquals('-23,54809', FloatToStr(FJSONObject.AsJSONContext['geoRadius'].AsFloat['geoMidpointLatitude']));
-  CheckEquals('-46,63638', FloatToStr(FJSONObject.AsJSONContext['geoRadius'].AsFloat['geoMidpointLongitude']));
-  CheckEquals(1, FJSONObject.AsJSONContext['geoRadius'].AsJSONArray['radius'].Count);
-  CheckEquals(0, FJSONObject.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['size']);
-  CheckEquals('0', FloatToStr(FJSONObject.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsFloat['value']));
-  CheckEquals('', FJSONObject.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsString['currency']);
-  CheckEquals(0, FJSONObject.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
+  CheckEquals('-23,54809', FloatToStr(FJSONObject.AsJSONObject['geoRadius'].AsFloat['geoMidpointLatitude']));
+  CheckEquals('-46,63638', FloatToStr(FJSONObject.AsJSONObject['geoRadius'].AsFloat['geoMidpointLongitude']));
+  CheckEquals(1, FJSONObject.AsJSONObject['geoRadius'].AsJSONArray['radius'].Count);
+  CheckEquals(0, FJSONObject.AsJSONObject['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['size']);
+  CheckEquals('0', FloatToStr(FJSONObject.AsJSONObject['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONObject['price'].AsFloat['value']));
+  CheckEquals('', FJSONObject.AsJSONObject['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONObject['price'].AsString['currency']);
+  CheckEquals(0, FJSONObject.AsJSONObject['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
 end;
 
 procedure TTestServiceArea.SetUp;
@@ -1027,8 +1027,8 @@ begin
   CheckEquals(7, FJSONObject.AsJSONArray['dayOfWeek'].Count);
   CheckEquals('MONDAY', FJSONObject.AsJSONArray['dayOfWeek'].Items[0]);
   CheckEquals('SUNDAY', FJSONObject.AsJSONArray['dayOfWeek'].Items[6]);
-  CheckEquals('10:01:02', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONContext['timePeriods'].AsISOTime['startTime']));
-  CheckEquals('18:01:02', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONContext['timePeriods'].AsISOTime['endTime']));
+  CheckEquals('10:01:02', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONObject['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:01:02', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONObject['timePeriods'].AsISOTime['endTime']));
 end;
 
 procedure TTestHour.SetUp;
@@ -1075,8 +1075,8 @@ begin
   FSchema.AsJSON := FJSON;
   FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
   CheckEquals('2021-07-04', FormatDateTime('yyyy-MM-dd', FJSONObject.AsISODateTime['date']));
-  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONContext['timePeriods'].AsISOTime['startTime']));
-  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONContext['timePeriods'].AsISOTime['endTime']));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONObject['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONObject['timePeriods'].AsISOTime['endTime']));
 end;
 
 procedure TTestHolidayHour.SetUp;
@@ -1131,13 +1131,13 @@ begin
   CheckEquals(2, FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Count);
   CheckEquals('MONDAY', FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[0]);
   CheckEquals('SUNDAY', FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[1]);
-  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['startTime']));
-  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONObject['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONObject['timePeriods'].AsISOTime['endTime']));
 
   CheckEquals(1, FJSONObject.AsJSONArray['holidayHours'].Count);
   CheckEquals('2021-07-04', FormatDateTime('yyyy-MM-dd', FJSONObject.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsISODate['date']));
-  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['startTime']));
-  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONObject['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONObject['timePeriods'].AsISOTime['endTime']));
 end;
 
 procedure TTestServiceHour.SetUp;
@@ -1226,39 +1226,39 @@ begin
   CheckEquals('f627ccdc-6789-456f-a782-148538d5035b', FJSONObject.AsString['menuId']);
 
   // Service Area
-  LJSON := FJSONObject.AsJSONContext['serviceArea'];
+  LJSON := FJSONObject.AsJSONObject['serviceArea'];
   CheckEquals('01339e6d-520b-429e-bc7c-dcfd2df42278', LJSON.AsString['id']);
   CheckEquals(1, LJSON.AsJSONArray['polygon'].Count);
 
   CheckEquals(1, LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
   CheckEquals(1, LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].Count);
-  CheckEquals('BRL', LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONContext['price'].AsString['currency']);
-  CheckEquals('5', FloatToStr(LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONContext['price'].AsFloat['value']));
+  CheckEquals('BRL', LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONObject['price'].AsString['currency']);
+  CheckEquals('5', FloatToStr(LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONObject['price'].AsFloat['value']));
   CheckEquals('-23,54809', FloatToStr(LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['latitude']));
   CheckEquals('-46,63638', FloatToStr(LJSON.AsJSONArray['polygon'].ItemAsJSONObject[0].AsJSONArray['geoCoordinates'].ItemAsJSONObject[0].AsFloat['longitude']));
 
-  CheckEquals('-23,54809', FloatToStr(LJSON.AsJSONContext['geoRadius'].AsFloat['geoMidpointLatitude']));
-  CheckEquals('-46,63638', FloatToStr(LJSON.AsJSONContext['geoRadius'].AsFloat['geoMidpointLongitude']));
-  CheckEquals(1, LJSON.AsJSONContext['geoRadius'].AsJSONArray['radius'].Count);
-  CheckEquals(1, LJSON.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['size']);
-  CheckEquals('5', FloatToStr(LJSON.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsFloat['value']));
-  CheckEquals('BRL', LJSON.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONContext['price'].AsString['currency']);
-  CheckEquals(1, LJSON.AsJSONContext['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
+  CheckEquals('-23,54809', FloatToStr(LJSON.AsJSONObject['geoRadius'].AsFloat['geoMidpointLatitude']));
+  CheckEquals('-46,63638', FloatToStr(LJSON.AsJSONObject['geoRadius'].AsFloat['geoMidpointLongitude']));
+  CheckEquals(1, LJSON.AsJSONObject['geoRadius'].AsJSONArray['radius'].Count);
+  CheckEquals(1, LJSON.AsJSONObject['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['size']);
+  CheckEquals('5', FloatToStr(LJSON.AsJSONObject['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONObject['price'].AsFloat['value']));
+  CheckEquals('BRL', LJSON.AsJSONObject['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsJSONObject['price'].AsString['currency']);
+  CheckEquals(1, LJSON.AsJSONObject['geoRadius'].AsJSONArray['radius'].ItemAsJSONObject[0].AsInteger['estimateDeliveryTime']);
 
   // Service Hours
-  LJSON := FJSONObject.AsJSONContext['serviceHours'];
+  LJSON := FJSONObject.AsJSONObject['serviceHours'];
   CheckEquals('fb093d8c-2ca5-40fb-afcf-472fbdae81cc', LJSON.AsString['id']);
   CheckEquals(1, LJSON.AsJSONArray['weekHours'].Count);
   CheckEquals(7, LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Count);
   CheckEquals('MONDAY', LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[0]);
   CheckEquals('TUESDAY', LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[1]);
-  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['startTime']));
-  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONObject['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['weekHours'].ItemAsJSONObject[0].AsJSONObject['timePeriods'].AsISOTime['endTime']));
 
   CheckEquals(1, LJSON.AsJSONArray['holidayHours'].Count);
   CheckEquals('2021-04-07', FormatDateTime('yyyy-MM-dd', LJSON.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsISODate['date']));
-  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['startTime']));
-  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONObject['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', LJSON.AsJSONArray['holidayHours'].ItemAsJSONObject[0].AsJSONObject['timePeriods'].AsISOTime['endTime']));
 end;
 
 procedure TTestService.SetUp;
@@ -1427,8 +1427,8 @@ begin
   CheckEquals('13', FJSONObject.AsString['externalCode']);
   CheckEquals('AVAILABLE', FJSONObject.AsString['status']);
 
-  CheckEquals('https://food-company.com/category1.png', FJSONObject.AsJSONContext['image'].AsString['URL']);
-  CheckEquals('09345UIHF98', FJSONObject.AsJSONContext['image'].AsString['CRC-32']);
+  CheckEquals('https://food-company.com/category1.png', FJSONObject.AsJSONObject['image'].AsString['URL']);
+  CheckEquals('09345UIHF98', FJSONObject.AsJSONObject['image'].AsString['CRC-32']);
 
   CheckEquals(1, FJSONObject.AsJSONArray['availabilityId'].Count);
   CheckEquals(1, FJSONObject.AsJSONArray['itemOfferId'].Count);
@@ -1493,8 +1493,8 @@ begin
   CheckEquals('f080cfb3-5c4a-4eb7-907d-2de3bbb5dfb9', FJSONObject.AsString['id']);
   CheckEquals('732bd31e-77fc-47ee-88ee-a0437f97b198', FJSONObject.AsString['itemId']);
   CheckEquals(1, FJSONObject.AsInteger['index']);
-  CheckEquals('43', FloatToStr(FJSONObject.AsJSONContext['price'].AsFloat['value']));
-  CheckEquals('BRL', FJSONObject.AsJSONContext['price'].AsString['currency']);
+  CheckEquals('43', FloatToStr(FJSONObject.AsJSONObject['price'].AsFloat['value']));
+  CheckEquals('BRL', FJSONObject.AsJSONObject['price'].AsString['currency']);
   CheckEquals(1, FJSONObject.AsJSONArray['availabilityId'].Count);
   CheckEquals(1, FJSONObject.AsJSONArray['optionGroupsId'].Count);
   CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FJSONObject.AsJSONArray['availabilityId'].Items[0]);
@@ -1616,10 +1616,10 @@ begin
   CheckEquals('Delicious mozzarella pizza.', FJSONObject.AsString['description']);
   CheckEquals('24', FJSONObject.AsString['externalCode']);
   CheckEquals('unit', FJSONObject.AsString['unit']);
-  CheckEquals('09345UIHF98', FJSONObject.AsJSONContext['image'].AsString['CRC-32']);
-  CheckEquals('https://www.food-place.com/images/mozzarella.png', FJSONObject.AsJSONContext['image'].AsString['URL']);
-  CheckEquals('Contains preservatives', FJSONObject.AsJSONContext['nutritionalInfo'].AsString['description']);
-  CheckEquals('2500 Cal', FJSONObject.AsJSONContext['nutritionalInfo'].AsString['calories']);
+  CheckEquals('09345UIHF98', FJSONObject.AsJSONObject['image'].AsString['CRC-32']);
+  CheckEquals('https://www.food-place.com/images/mozzarella.png', FJSONObject.AsJSONObject['image'].AsString['URL']);
+  CheckEquals('Contains preservatives', FJSONObject.AsJSONObject['nutritionalInfo'].AsString['description']);
+  CheckEquals('2500 Cal', FJSONObject.AsJSONObject['nutritionalInfo'].AsString['calories']);
 end;
 
 procedure TTestItem.SetUp;
@@ -1676,8 +1676,8 @@ begin
   CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87b', FJSONObject.AsString['id']);
   CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FJSONObject.AsString['itemId']);
   CheckEquals(1, FJSONObject.AsInteger['index']);
-  CheckEquals('43', FloatToStr(FJSONObject.AsJSONContext['price'].AsFloat['value']));
-  CheckEquals('BRL', FJSONObject.AsJSONContext['price'].AsString['currency']);
+  CheckEquals('43', FloatToStr(FJSONObject.AsJSONObject['price'].AsFloat['value']));
+  CheckEquals('BRL', FJSONObject.AsJSONObject['price'].AsString['currency']);
   CheckEquals(1, FJSONObject.AsInteger['maxPermitted']);
 end;
 
@@ -1758,16 +1758,16 @@ begin
   CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87a', LJSONObject.AsString['id']);
   CheckEquals('502ecf11-0509-48ed-b63c-6211c48fd9b9', LJSONObject.AsString['itemId']);
   CheckEquals(0, LJSONObject.AsInteger['index']);
-  CheckEquals('50', FloatToStr(LJSONObject.AsJSONContext['price'].AsFloat['value']));
-  CheckEquals('BRL', LJSONObject.AsJSONContext['price'].AsString['currency']);
+  CheckEquals('50', FloatToStr(LJSONObject.AsJSONObject['price'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONObject['price'].AsString['currency']);
   CheckEquals(1, LJSONObject.AsInteger['maxPermitted']);
 
   LJSONObject := FJSONObject.AsJSONArray['options'].ItemAsJSONObject[1];
   CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87b', LJSONObject.AsString['id']);
   CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', LJSONObject.AsString['itemId']);
   CheckEquals(1, LJSONObject.AsInteger['index']);
-  CheckEquals('43', FloatToStr(LJSONObject.AsJSONContext['price'].AsFloat['value']));
-  CheckEquals('BRL', LJSONObject.AsJSONContext['price'].AsString['currency']);
+  CheckEquals('43', FloatToStr(LJSONObject.AsJSONObject['price'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONObject['price'].AsString['currency']);
   CheckEquals(1, LJSONObject.AsInteger['maxPermitted']);
 end;
 
@@ -1846,8 +1846,8 @@ begin
   CheckEquals(7, FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Count);
   CheckEquals('MONDAY', FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[0]);
   CheckEquals('SUNDAY', FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONArray['dayOfWeek'].Items[6]);
-  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['startTime']));
-  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONContext['timePeriods'].AsISOTime['endTime']));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONObject['timePeriods'].AsISOTime['startTime']));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FJSONObject.AsJSONArray['hours'].ItemAsJSONObject[0].AsJSONObject['timePeriods'].AsISOTime['endTime']));
 
 end;
 

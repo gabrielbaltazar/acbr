@@ -39,7 +39,9 @@ uses
   ACBrJSON in '..\..\..\Fontes\ACBrComum\ACBrJSON.pas',
   ACBrOpenDeliverySchema in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas',
   ACBrOpenDeliverySchemaClasses in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas',
-  pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas';
+  pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas',
+  ACBrRest in '..\..\..\Fontes\ACBrComum\ACBrRest.pas',
+  ACBrRestSynapse in '..\..\..\Fontes\ACBrComum\ACBrRestSynapse.pas';
 
 begin
   {$IF CompilerVersion >= 30.0}
