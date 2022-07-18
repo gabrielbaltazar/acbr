@@ -12,6 +12,9 @@
         <Projects Include="ACBrOpenDelivery_WinSrv.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="..\..\..\..\Testes\Dunit\ACBrComum\ACBrComumTestCases.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -47,14 +50,23 @@
     <Target Name="ACBrOpenDelivery_WinSrv:Make">
         <MSBuild Projects="ACBrOpenDelivery_WinSrv.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ACBrComumTestCases">
+        <MSBuild Projects="..\..\..\..\Testes\Dunit\ACBrComum\ACBrComumTestCases.dproj"/>
+    </Target>
+    <Target Name="ACBrComumTestCases:Clean">
+        <MSBuild Projects="..\..\..\..\Testes\Dunit\ACBrComum\ACBrComumTestCases.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ACBrComumTestCases:Make">
+        <MSBuild Projects="..\..\..\..\Testes\Dunit\ACBrComum\ACBrComumTestCases.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ACBrOpenDeliveryTest;ACBrOpenDelivery_ConsoleSrv;ACBrOpenDelivery_WinSrv"/>
+        <CallTarget Targets="ACBrOpenDeliveryTest;ACBrOpenDelivery_ConsoleSrv;ACBrOpenDelivery_WinSrv;ACBrComumTestCases"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ACBrOpenDeliveryTest:Clean;ACBrOpenDelivery_ConsoleSrv:Clean;ACBrOpenDelivery_WinSrv:Clean"/>
+        <CallTarget Targets="ACBrOpenDeliveryTest:Clean;ACBrOpenDelivery_ConsoleSrv:Clean;ACBrOpenDelivery_WinSrv:Clean;ACBrComumTestCases:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ACBrOpenDeliveryTest:Make;ACBrOpenDelivery_ConsoleSrv:Make;ACBrOpenDelivery_WinSrv:Make"/>
+        <CallTarget Targets="ACBrOpenDeliveryTest:Make;ACBrOpenDelivery_ConsoleSrv:Make;ACBrOpenDelivery_WinSrv:Make;ACBrComumTestCases:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

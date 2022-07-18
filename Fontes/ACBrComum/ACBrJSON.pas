@@ -292,19 +292,7 @@ class function TACBrJSONObject.Parse(const AJSONString: String): TACBrJSONObject
 var
   LJSON: TJsonObject;
 begin
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    JsonSerializationConfig.NullConvertsToValueTypes := True;
-    LJSON := TJsonObject.Parse(AJSONString) as TJsonObject;
-  {$Else}
-    LJSON := TJsonObject.Create;
-    try
-      LJSON.Parse(AJSONString);
-    except
-      LJSON.Free;
-      raise;
-    end;
-  {$EndIf}
-
+  LJSON := CreateJsonObject(AJSONString);
   try
     Result := TACBrJSONObject.Create(LJSON);
     Result.OwnerJSON := True;
