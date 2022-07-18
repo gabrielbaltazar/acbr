@@ -1,13 +1,13 @@
-{
+﻿{
     "lastUpdate": "2022-07-07T16:49:49Z",
     "TTL": 10000,
-    "id": "14417282000141_7cf42549-aff0-4bfd-a33b-83f4c08ff441",
+    "id": "14417282000131_7cf42549-aff0-4bfd-a33b-83f4c08ff441",
     "status": "AVAILABLE",
     "basicInfo": {
-        "name": "AS Restaurante e Pizzaria",
-        "document": "14417282000141",
-        "corporateName": "AS Restaurante e Pizzaria",
-        "description": "AS Restaurante e Pizzaria especializado em refeições rápidas",
+        "name": "GET IT Restaurante e Pizzaria",
+        "document": "14417282000131",
+        "corporateName": "GET IT TECHNOLOGY",
+        "description": "GET IT Restaurante e Pizzaria especializado em refeições rápidas",
         "averageTicket": 25,
         "averagePreparationTime": 30,
         "minOrderValue": {
