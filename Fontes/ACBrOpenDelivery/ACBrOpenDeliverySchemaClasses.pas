@@ -868,14 +868,14 @@ begin
     .AddPair('description', Fdescription)
     .AddPair('averageTicket', FaverageTicket)
     .AddPair('averagePreparationTime', FaveragePreparationTime)
-    .AddPairJSONString('minOrderValue', FminOrderValue.AsJSON)
+    .AddPairJSONObject('minOrderValue', FminOrderValue.AsJSON)
     .AddPair('merchantType', MerchantTypeToStr(FmerchantType))
     .AddPair('merchantCategories', MerchantCategoriesToArray(FmerchantCategories))
-    .AddPairJSONString('address', Faddress.AsJSON)
+    .AddPairJSONObject('address', Faddress.AsJSON)
     .AddPair('contactEmails', FcontactEmails)
-    .AddPairJSONString('contactPhones', FcontactPhones.AsJSON)
-    .AddPairJSONString('logoImage', FlogoImage.AsJSON)
-    .AddPairJSONString('bannerImage', FbannerImage.AsJSON)
+    .AddPairJSONObject('contactPhones', FcontactPhones.AsJSON)
+    .AddPairJSONObject('logoImage', FlogoImage.AsJSON)
+    .AddPairJSONObject('bannerImage', FbannerImage.AsJSON)
     .AddPairISODateTime('createdAt', FcreatedAt);
 end;
 
@@ -1077,7 +1077,7 @@ procedure TACBrOpenDeliverySchemaRadius.DoWriteToJSon(AJSon: TACBrJSONObject);
 begin
   AJson
     .AddPair('size', Fsize)
-    .AddPairJSONString('price', Fprice.AsJSON)
+    .AddPairJSONObject('price', Fprice.AsJSON)
     .AddPair('estimateDeliveryTime', FestimateDeliveryTime);
 end;
 
@@ -1274,7 +1274,7 @@ begin
 
   AJSon
     .AddPair('geoCoordinates', LJSONArray)
-    .AddPairJSONString('price', Fprice.AsJSON)
+    .AddPairJSONObject('price', Fprice.AsJSON)
     .AddPair('estimateDeliveryTime', FestimateDeliveryTime);
 end;
 
@@ -1359,7 +1359,7 @@ begin
   AJson
     .AddPair('id', Fid)
     .AddPair('polygon', LJSONArray)
-    .AddPairJSONString('geoRadius', FgeoRadius.AsJSON);
+    .AddPairJSONObject('geoRadius', FgeoRadius.AsJSON);
 end;
 
 function TACBrOpenDeliverySchemaServiceArea.IsEmpty: Boolean;
@@ -1434,7 +1434,7 @@ procedure TACBrOpenDeliverySchemaHour.DoWriteToJSon(AJSon: TACBrJSONObject);
 begin
   AJSon
     .AddPair('dayOfWeek', DayOfWeekToArray(FdayOfWeek))
-    .AddPairJSONString('timePeriods', FtimePeriods.AsJSON);
+    .AddPairJSONObject('timePeriods', FtimePeriods.AsJSON);
 end;
 
 function TACBrOpenDeliverySchemaHour.IsEmpty: Boolean;
@@ -1472,7 +1472,7 @@ procedure TACBrOpenDeliverySchemaHolidayHour.DoWriteToJSon(AJSon: TACBrJSONObjec
 begin
   AJSon
     .AddPairISODateTime('date', Fdate)
-    .AddPairJSONString('timePeriods', FtimePeriods.AsJSON);
+    .AddPairJSONObject('timePeriods', FtimePeriods.AsJSON);
 end;
 
 function TACBrOpenDeliverySchemaHolidayHour.IsEmpty: Boolean;
@@ -1648,8 +1648,8 @@ begin
     .AddPair('status', StatusToStr(Fstatus))
     .AddPair('serviceType', ServiceTypeToStr(FserviceType))
     .AddPair('menuId', FmenuId)
-    .AddPairJSONString('serviceArea', FserviceArea.AsJSON)
-    .AddPairJSONString('serviceHours', FserviceHours.AsJSON);
+    .AddPairJSONObject('serviceArea', FserviceArea.AsJSON)
+    .AddPairJSONObject('serviceHours', FserviceHours.AsJSON);
 end;
 
 function TACBrOpenDeliverySchemaService.IsEmpty: Boolean;
@@ -1798,7 +1798,7 @@ begin
     .AddPair('index', Findex)
     .AddPair('name', Fname)
     .AddPair('description', Fdescription)
-    .AddPairJSONString('image', Fimage.AsJSON)
+    .AddPairJSONObject('image', Fimage.AsJSON)
     .AddPair('externalCode', FexternalCode)
     .AddPair('status', StatusToStr(Fstatus))
     .AddPair('availabilityId', FavailabilityId)
@@ -1878,7 +1878,7 @@ begin
     .AddPair('id', Fid)
     .AddPair('itemId', FitemId)
     .AddPair('index', Findex)
-    .AddPairJSONString('price', Fprice.AsJSON)
+    .AddPairJSONObject('price', Fprice.AsJSON)
     .AddPair('availabilityId', FavailabilityId)
     .AddPair('optionGroupsId', FoptionGroupsId);
 end;
@@ -2025,8 +2025,8 @@ begin
     .AddPair('name', Fname)
     .AddPair('description', Fdescription)
     .AddPair('externalCode', FexternalCode)
-    .AddPairJSONString('image', Fimage.AsJSON)
-    .AddPairJSONString('nutritionalInfo', FnutritionalInfo.AsJSON)
+    .AddPairJSONObject('image', Fimage.AsJSON)
+    .AddPairJSONObject('nutritionalInfo', FnutritionalInfo.AsJSON)
     .AddPair('serving', Fserving)
     .AddPair('unit', Funit)
     .AddPair('ean', Fean);
@@ -2103,7 +2103,7 @@ begin
     .AddPair('id', Fid)
     .AddPair('itemId', FitemId)
     .AddPair('index', Findex)
-    .AddPairJSONString('price', Fprice.AsJSON)
+    .AddPairJSONObject('price', Fprice.AsJSON)
     .AddPair('maxPermitted', FmaxPermitted);
 end;
 
@@ -2439,7 +2439,7 @@ begin
     .AddPair('TTL', FTTL)
     .AddPair('id', Fid)
     .AddPair('status', StatusToStr(Fstatus))
-    .AddPairJSONString('basicInfo', FbasicInfo.AsJSON);
+    .AddPairJSONObject('basicInfo', FbasicInfo.AsJSON);
 
   LJSONArray := TACBrJSONArray.Create;
   try

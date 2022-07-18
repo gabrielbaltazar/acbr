@@ -41,16 +41,17 @@ type
     function GetAsISODate(AName: String): TDateTime;
 
   public
-    function AddPair(AName: string; AValue: Boolean; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
-    function AddPair(AName, AValue: String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
-    function AddPair(AName: string; AValue: Integer; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
-    function AddPair(AName: string; AValue: Double; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
-    function AddPair(AName: string; AValue: array of String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
-    function AddPair(AName: string; AValue: TACBrJSONArray; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
-    function AddPairISODateTime(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
-    function AddPairISOTime(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
-    function AddPairJSONString(AName: string; AValue: String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
-    function AddPairJSONArray(AName: string; AValue: String; AIgnoreEmpty: Boolean = False): TACBrJSONObject; overload;
+    function AddPair(AName: string; AValue: Boolean): TACBrJSONObject; overload;
+    function AddPair(AName, AValue: String): TACBrJSONObject; overload;
+    function AddPair(AName: string; AValue: Integer): TACBrJSONObject; overload;
+    function AddPair(AName: string; AValue: Double): TACBrJSONObject; overload;
+    function AddPair(AName: string; AValue: array of String): TACBrJSONObject; overload;
+    function AddPair(AName: string; AValue: TACBrJSONArray): TACBrJSONObject; overload;
+    function AddPair(AName: string; AValue: TACBrJSONObject): TACBrJSONObject; overload;
+    function AddPairISODateTime(AName: string; AValue: TDateTime): TACBrJSONObject; overload;
+    function AddPairISOTime(AName: string; AValue: TDateTime): TACBrJSONObject; overload;
+    function AddPairJSONObject(AName: string; AValue: String): TACBrJSONObject; overload;
+    function AddPairJSONArray(AName: string; AValue: String): TACBrJSONObject; overload;
 
     function Value(AName: String; var AValue: Boolean; ADefault: Boolean = False): TACBrJSONObject; overload;
     function Value(AName: String; var AValue: Integer; ADefault: Integer = 0): TACBrJSONObject; overload;
@@ -119,7 +120,7 @@ begin
   FContexts := TList.Create;
 end;
 
-function TACBrJSONObject.AddPair(AName: string; AValue, AIgnoreEmpty: Boolean): TACBrJSONObject;
+function TACBrJSONObject.AddPair(AName: string; AValue: Boolean): TACBrJSONObject;
 begin
   Result := Self;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
@@ -129,10 +130,9 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONObject.AddPair(AName: string; AValue: Double; AIgnoreEmpty: Boolean): TACBrJSONObject;
+function TACBrJSONObject.AddPair(AName: string; AValue: Double): TACBrJSONObject;
 begin
   Result := Self;
-  if (AValue <> 0) or (not AIgnoreEmpty) then
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     FJson.F[AName] := AValue;
   {$Else}
@@ -140,10 +140,9 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONObject.AddPair(AName: string; AValue: Integer; AIgnoreEmpty: Boolean): TACBrJSONObject;
+function TACBrJSONObject.AddPair(AName: string; AValue: Integer): TACBrJSONObject;
 begin
   Result := Self;
-  if (AValue <> 0) or (not AIgnoreEmpty) then
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     FJson.I[AName] := AValue;
   {$Else}
@@ -151,10 +150,9 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONObject.AddPair(AName, AValue: String; AIgnoreEmpty: Boolean): TACBrJSONObject;
+function TACBrJSONObject.AddPair(AName, AValue: String): TACBrJSONObject;
 begin
   Result := Self;
-  if (AValue <> '') or (not AIgnoreEmpty) then
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     FJson.S[AName] := AValue;
   {$Else}
@@ -162,32 +160,31 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONObject.AddPairISODateTime(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean): TACBrJSONObject;
+function TACBrJSONObject.AddPairISODateTime(AName: string; AValue: TDateTime): TACBrJSONObject;
+var
+  LValue: String;
 begin
   Result := Self;
-  if (AValue <> 0) or (not AIgnoreEmpty) then
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    FJson.S[AName] := DateTimeToIso8601(AValue);
-  {$Else}
-    FJson[AName].AsString := DateTimeToIso8601(AValue);
-  {$EndIf}
+  LValue := '';
+  if AValue > 0 then
+    LValue := DateTimeToIso8601(AValue);
+
+  AddPair(AName, LValue);
 end;
 
-function TACBrJSONObject.AddPairISOTime(AName: string; AValue: TDateTime; AIgnoreEmpty: Boolean): TACBrJSONObject;
+function TACBrJSONObject.AddPairISOTime(AName: string; AValue: TDateTime): TACBrJSONObject;
 var
   LValue: string;
 begin
   Result := Self;
-  LValue := FormatDateTime('hh:mm:ss', AValue);
-  if (AValue <> 0) or (not AIgnoreEmpty) then
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    FJson.S[AName] := LValue;
-  {$Else}
-    FJson[AName].AsString := LValue;
-  {$EndIf}
+  LValue := '';
+  if AValue > 0 then
+    LValue := FormatDateTime('hh:mm:ss', AValue);
+
+  AddPair(AName, LValue);
 end;
 
-function TACBrJSONObject.AddPairJSONArray(AName, AValue: String; AIgnoreEmpty: Boolean): TACBrJSONObject;
+function TACBrJSONObject.AddPairJSONArray(AName, AValue: String): TACBrJSONObject;
 var
   LJSONArray: TJsonArray;
 begin
@@ -205,7 +202,7 @@ begin
   end;
 end;
 
-function TACBrJSONObject.AddPairJSONString(AName, AValue: String; AIgnoreEmpty: Boolean): TACBrJSONObject;
+function TACBrJSONObject.AddPairJSONObject(AName: string; AValue: String): TACBrJSONObject;
 var
   LJSON: TJsonObject;
 begin
@@ -326,7 +323,7 @@ begin
   {$Else}
     Result := TJsonObject.Create;
     try
-      Result.Parse(AJSONString);
+      Result.Parse(AJsonString);
     except
       Result.Free;
       raise;
@@ -407,9 +404,9 @@ begin
   Result := Self;
   AValue := ADefault;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    AValue := StringToFloatDef(FJson.S[AName], 0);
+    AValue := FJson.D[AName];
   {$Else}
-    AValue := StringToFloatDef(FJson[AName].AsString, 0);
+    AValue := FJson[AName].AsNumber;
   {$EndIf}
 end;
 
@@ -418,20 +415,26 @@ begin
   Result := Self;
   AValue := ADefault;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    AValue := StrToIntDef(FJson.S[AName], 0);
+    AValue := FJson.I[AName];
   {$Else}
-    AValue := StrToIntDef(FJson[AName].AsString, 0);
+    AValue := FJson[AName].AsInteger;
   {$EndIf}
 end;
 
 function TACBrJSONObject.Value(AName: String; var AValue: String; ADefault: String): TACBrJSONObject;
+{$IfNDef USE_JSONDATAOBJECTS_UNIT}
+var
+  LValue: TJsonValue;
+{$ENDIF}
 begin
   Result := Self;
   AValue := ADefault;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    AValue := FJson.S[AName];
+    AValue := FJson.S[AName]
   {$Else}
-    AValue := FJson[AName].AsString;
+    LValue := FJson[AName];
+    if Assigned(LValue) then
+      AValue := LValue.AsString;
   {$EndIf}
 end;
 
@@ -440,13 +443,13 @@ begin
   Result := Self;
   AValue := ADefault;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    AValue := StringToFloatDef(FJson.S[AName], 0);
+    AValue := FJson.D[AName];
   {$Else}
-    AValue := StringToFloatDef(FJson[AName].AsString, 0);
+    AValue := FJson[AName].AsNumber;
   {$EndIf}
 end;
 
-function TACBrJSONObject.AddPair(AName: string; AValue: array of String; AIgnoreEmpty: Boolean): TACBrJSONObject;
+function TACBrJSONObject.AddPair(AName: string; AValue: array of String): TACBrJSONObject;
 var
   LStr: String;
   I: Integer;
@@ -462,18 +465,15 @@ begin
   end;
   LStr := LStr + ']';
 
-  if (Length(AValue) > 0) or (not AIgnoreEmpty) then
-  begin
-    LJSONArray := TACBrJSONArray.CreateJsonArray(LStr);
-    try
-      {$IfDef USE_JSONDATAOBJECTS_UNIT}
-      FJson.A[AName] := LJSONArray.Clone;
-      {$Else}
-      FJson[AName].AsArray := LJSONArray;
-      {$EndIf}
-    finally
-      LJSONArray.Free;
-    end;
+  LJSONArray := TACBrJSONArray.CreateJsonArray(LStr);
+  try
+    {$IfDef USE_JSONDATAOBJECTS_UNIT}
+    FJson.A[AName] := LJSONArray.Clone;
+    {$Else}
+    FJson[AName].AsArray := LJSONArray;
+    {$EndIf}
+  finally
+    LJSONArray.Free;
   end;
 end;
 
@@ -484,16 +484,31 @@ var
 begin
   Result := Self;
   LJSONArray := GetAsJSONArray(AName);
-  SetLength(AValue, LJSONArray.Count);
-  for I := 0 to Pred(LJSONArray.Count) do
-    AValue[I] := LJSONArray.Items[I];
+  if Assigned(LJSONArray) then
+  begin
+    SetLength(AValue, LJSONArray.Count);
+    for I := 0 to Pred(LJSONArray.Count) do
+      AValue[I] := LJSONArray.Items[I];
+  end;
 end;
 
-function TACBrJSONObject.AddPair(AName: string; AValue: TACBrJSONArray; AIgnoreEmpty: Boolean): TACBrJSONObject;
+function TACBrJSONObject.AddPair(AName: string; AValue: TACBrJSONArray): TACBrJSONObject;
 begin
   Result := Self;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
   FJSON.A[AName] := TACBrJSONArray.CreateJsonArray(AValue.ToJSON);
+  {$ELSE}
+  FJSON.Put(AName, AValue.FJSON);
+  {$ENDIF}
+  AValue.OwnerJSON := True;
+  FContexts.Add(AValue);
+end;
+
+function TACBrJSONObject.AddPair(AName: string; AValue: TACBrJSONObject): TACBrJSONObject;
+begin
+  Result := Self;
+  {$IfDef USE_JSONDATAOBJECTS_UNIT}
+  FJSON.O[AName] := TACBrJSONObject.CreateJsonObject(AValue.ToJSON);
   {$ELSE}
   FJSON.Put(AName, AValue.FJSON);
   {$ENDIF}
