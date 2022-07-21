@@ -18,6 +18,7 @@ type
   TACBrOpenDeliverySchemaCategory = class;
   TACBrOpenDeliverySchemaCategoryCollection = class;
   TACBrOpenDeliverySchemaContactPhone = class;
+  TACBrOpenDeliverySchemaEvent = class;
   TACBrOpenDeliverySchemaGeoCoordinate = class;
   TACBrOpenDeliverySchemaGeoCoordinateCollection = class;
   TACBrOpenDeliverySchemaGeoRadius = class;
@@ -234,6 +235,31 @@ type
     function IsEmpty: Boolean; override;
     property Status: Integer read FStatus write FStatus;
     property Title: String read FTitle write FTitle;
+  end;
+
+  TACBrOpenDeliverySchemaEvent = class(TACBrOpenDeliverySchema)
+  private
+    FEventType: TACBrODEventType;
+    FEventId: string;
+    FOrderId: string;
+    FOrderURL: string;
+    FCreatedAt: TDateTime;
+    FSourceAppId: String;
+
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property EventId: string read FEventId write FEventId;
+    property EventType: TACBrODEventType read FEventType write FEventType;
+    property OrderId: string read FOrderId write FOrderId;
+    property OrderURL: string read FOrderURL write FOrderURL;
+    property CreatedAt: TDateTime read FCreatedAt write FCreatedAt;
+    property SourceAppId: String read FSourceAppId write FSourceAppId;
   end;
 
   TACBrOpenDeliverySchemaGeoCoordinate = class(TACBrOpenDeliverySchema)
@@ -2553,6 +2579,54 @@ end;
 function TACBrOpenDeliverySchemaError.IsEmpty: Boolean;
 begin
   Result := (Fstatus = 0) and (FTitle = '');
+end;
+
+{ TACBrOpenDeliverySchemaEvent }
+
+procedure TACBrOpenDeliverySchemaEvent.Clear;
+begin
+  FEventId := '';
+  FEventType := etCreated;
+  FOrderId := '';
+  FOrderURL := '';
+  FCreatedAt := 0;
+  FSourceAppId := '';
+end;
+
+procedure TACBrOpenDeliverySchemaEvent.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  LStrEventType: string;
+begin
+  AJSon
+    .Value('eventId',  FEventId)
+    .Value('eventType', LStrEventType)
+    .Value('orderId', FOrderId)
+    .Value('orderURL', FOrderURL)
+    .ValueISODateTime('createdAt', FCreatedAt)
+    .Value('sourceAppId', FSourceAppId);
+
+  FEventType := StrToEventType(LStrEventType);
+end;
+
+procedure TACBrOpenDeliverySchemaEvent.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('eventId', FEventId)
+    .AddPair('eventType', EventTypeToStr(FEventType))
+    .AddPair('orderId', FOrderId)
+    .AddPair('orderURL', FOrderURL)
+    .AddPairISODateTime('createdAt', FCreatedAt)
+    .AddPair('sourceAppId', FSourceAppId);
+end;
+
+function TACBrOpenDeliverySchemaEvent.IsEmpty: Boolean;
+begin
+  Result := (FEventId = '') and
+            (FEventType = etCreated) and
+            (FOrderId = '') and
+            (FOrderURL = '') and
+            (FCreatedAt = 0) and
+            (FSourceAppId = '');
 end;
 
 end.

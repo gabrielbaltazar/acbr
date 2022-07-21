@@ -10,7 +10,7 @@ uses
 
 type
   TACBrRestMethodType = (mtGet, mtPost, mtPut, mtDelete, mtPatch);
-  TACBrRestResponse = class;
+//  TACBrRestResponse = class;
 
   EACBrOpenDeliveryHTTPException = class;
 
@@ -59,7 +59,7 @@ type
     function Body(const AValue: TACBrJSON; AOwner: Boolean = True): TACBrOpenDeliveryHTTPRequest; overload;
     function Body(const AValue: string): TACBrOpenDeliveryHTTPRequest; overload;
 
-    function Send: TACBrRestResponse; virtual; abstract;
+//    function Send: TACBrRestResponse; virtual; abstract;
     procedure Clear; virtual;
 
     constructor Create(const ARequestId: string = ''); virtual;

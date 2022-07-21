@@ -89,6 +89,21 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestEvent = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaEvent;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
   TTestGeoCoordinate = class(TTestCase)
   private
     FJSON: String;
@@ -1887,12 +1902,64 @@ begin
   inherited;
 end;
 
+{ TTestEvent }
+
+procedure TTestEvent.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+
+  CheckEquals('1111', FSchema.EventId);
+  CheckEquals(EventTypeToStr(etConfirmed), EventTypeToStr(FSchema.EventType));
+  CheckEquals('2222', FSchema.OrderId);
+  CheckEquals('http://example.com', FSchema.OrderURL);
+  CheckEquals('0000', FSchema.SourceAppId);
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.CreatedAt));
+end;
+
+procedure TTestEvent.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('1111', FJSONObject.AsString['eventId']);
+  CheckEquals(EventTypeToStr(etConfirmed), FJSONObject.AsString['eventType']);
+  CheckEquals('2222', FJSONObject.AsString['orderId']);
+  CheckEquals('http://example.com', FJSONObject.AsString['orderURL']);
+  CheckEquals('0000', FJSONObject.AsString['sourceAppId']);
+  CheckEquals('2019-08-24T14:15:22.000Z', FJSONObject.AsString['createdAt']);
+
+end;
+
+procedure TTestEvent.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaEvent.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"eventId": "1111",' +
+      '"eventType": "CONFIRMED",' +
+      '"orderId": "2222",' +
+      '"orderURL": "http://example.com",' +
+      '"createdAt": "2019-08-24T14:15:22Z",' +
+      '"sourceAppId": "0000"' +
+    '}');
+end;
+
+procedure TTestEvent.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+
+end;
+
 initialization
   _RegisterTest('ACBrOpenDelivery.Schema.Address', TTestAddress);
   _RegisterTest('ACBrOpenDelivery.Schema.Availability', TTestAvailability);
   _RegisterTest('ACBrOpenDelivery.Schema.BasicInfo', TTestBasicInfo);
   _RegisterTest('ACBrOpenDelivery.Schema.Category', TTestCategory);
   _RegisterTest('ACBrOpenDelivery.Schema.ContactPhone', TTestContactPhone);
+  _RegisterTest('ACBrOpenDelivery.Schema.Event', TTestEvent);
   _RegisterTest('ACBrOpenDelivery.Schema.GeoCordinate', TTestGeoCoordinate);
   _RegisterTest('ACBrOpenDelivery.Schema.GeoRadius', TTestGeoRadius);
   _RegisterTest('ACBrOpenDelivery.Schema.HolidayHour', TTestHolidayHour);

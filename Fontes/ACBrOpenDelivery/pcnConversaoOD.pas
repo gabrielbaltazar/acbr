@@ -10,34 +10,37 @@ uses
   ACBrUtil.Strings;
 
 type
-  TACBrODAllergen =
-    (aAlmonds, aAlphaIsomethylIonone, aAlcohol, aAmylCinnamal, aAniseAlcohol,
-     aBarley, aBenzylAlcohol, aBenzylBenzoate, aBenzylCinnamate, aBenzylSalicylate,
-     aBrazilNuts, aButylphenylMethylpropionate, aCarrots, aCashewNuts, aCelery,
-     aCerealsContainingGluten, aCinnamal, aCinnamylAlcohol, aCitral, aCitronellol,
-     aCocoa, aCoriander, aCorn, aCoumarin, aCrustaceans, aEggs, aEugenol, aEverniaFurfuracea,
-     aEverniaPrunastri, aFarnesol, aFish, aGeraniol, aGluten, aHazelnuts, aHexylCinnamal,
-     aHydroxycitronellal, aKamut, aLactose, aLupine, aMacadamiaNuts, aMethyl2Octynoate, aMilk,
-     aMolluscs, aMustard, aNoDeclaredAllergens, aOat, aPeanuts, aPeas, aPecanNuts, aPistachios,
-     aProdFruits, aQueenslandNuts, aRye, aSesameSeeds, aSoybeans, aSpelt, aSulphurDioxide,
-     aTreeNuts, aTreeNutTraces, aWalnuts, aWheat);
+  TACBrODAllergen = (aAlmonds, aAlphaIsomethylIonone, aAlcohol,
+    aAmylCinnamal, aAniseAlcohol, aBarley, aBenzylAlcohol, aBenzylBenzoate,
+    aBenzylCinnamate, aBenzylSalicylate, aBrazilNuts, aButylphenylMethylpropionate,
+    aCarrots, aCashewNuts, aCelery, aCerealsContainingGluten,
+    aCinnamal, aCinnamylAlcohol, aCitral, aCitronellol,
+    aCocoa, aCoriander, aCorn, aCoumarin, aCrustaceans, aEggs, aEugenol, aEverniaFurfuracea,
+    aEverniaPrunastri, aFarnesol, aFish, aGeraniol, aGluten, aHazelnuts, aHexylCinnamal,
+    aHydroxycitronellal, aKamut, aLactose, aLupine, aMacadamiaNuts, aMethyl2Octynoate, aMilk,
+    aMolluscs, aMustard, aNoDeclaredAllergens, aOat, aPeanuts, aPeas, aPecanNuts, aPistachios,
+    aProdFruits, aQueenslandNuts, aRye, aSesameSeeds, aSoybeans, aSpelt, aSulphurDioxide,
+    aTreeNuts, aTreeNutTraces, aWalnuts, aWheat);
 
   TACBrODAllergenArray = array of TACBrODAllergen;
 
-  TACBrODDayOfWeek =
-    (dwMonday, dwTuesday, dwWednesday, dwThursday, dwFriday,
-     dwSaturday, dwSunday);
+  TACBrODDayOfWeek = (dwMonday, dwTuesday, dwWednesday, dwThursday,
+    dwFriday, dwSaturday, dwSunday);
 
   TACBrODDayOfWeekArray = array of TACBrODDayOfWeek;
 
-  TACBrODMerchantCategories =
-    (mcBurgers, mcPizza, mcFastFood, mcHotDog, mcJapanese, mcDesserts, mcAmerican,
-     mcIceCream, mcBBQ, mcSandwich, mcMexican, mcBrazilian, mcPastry, mcArabian,
-     mcComfortFood, mcVegetarian, mcVegan, mcBakery, mcHealthy, mcItalian, mcChinese,
-     mcJuiceSmoothies, mcSeafood, mcCafe, mcSalads, mcCoffeeTea, mcPasta, mcBreakfastBrunch,
-     mcLatinAmerican, mcConvenience, mcPub, mcHawaiian, mcEuropean, mcFamilyMeals, mcFrench,
-     mcIndian, mcPortuguese, mcSpanish, mcGourmet, mcKidsFriendly, mcSouthAmerican,
-     mcSpecialtyFoods, mcArgentinian, mcPremium, mcAffordableMeals);
+  TACBrODEventType = (etCreated, etConfirmed, etDispatched, etReadyForPickup,
+    etPickupAreaAssigned, etConcluded, etCancellationRequested,
+    etCancellationRequestDenied, etCancelled, etOrderCancellationRequest);
+
+  TACBrODMerchantCategories = (mcBurgers, mcPizza, mcFastFood, mcHotDog,
+    mcJapanese, mcDesserts, mcAmerican, mcIceCream, mcBBQ, mcSandwich,
+    mcMexican, mcBrazilian, mcPastry, mcArabian, mcComfortFood,
+    mcVegetarian, mcVegan, mcBakery, mcHealthy, mcItalian, mcChinese,
+    mcJuiceSmoothies, mcSeafood, mcCafe, mcSalads, mcCoffeeTea, mcPasta, mcBreakfastBrunch,
+    mcLatinAmerican, mcConvenience, mcPub, mcHawaiian, mcEuropean, mcFamilyMeals, mcFrench,
+    mcIndian, mcPortuguese, mcSpanish, mcGourmet, mcKidsFriendly, mcSouthAmerican,
+    mcSpecialtyFoods, mcArgentinian, mcPremium, mcAffordableMeals);
 
   TACBrODMerchantCategoriesArray = array of TACBrODMerchantCategories;
 
@@ -47,41 +50,43 @@ type
 
   TACBrODStatus = (sAvailable, sUnavailable);
 
-  TACBrODSuitableDiet =
-    (sdDiabetic, sdGlutenFree, sdHalal, sdHindu, sdKosher,
-     sdLowCalorie, sdLowFat, sdLowLactose, sdLowSalt, sdVegan,
-     sdVegetarian);
+  TACBrODSuitableDiet = (sdDiabetic, sdGlutenFree, sdHalal,
+    sdHindu, sdKosher, sdLowCalorie, sdLowFat, sdLowLactose, sdLowSalt, sdVegan,
+    sdVegetarian);
 
   TACBrODSuitableDietArray = array of TACBrODSuitableDiet;
 
-function AllergenToStr(AValue: TACBrODAllergen): String;
+function AllergenToStr(AValue: TACBrODAllergen): string;
 function AllergensToArray(AValue: TACBrODAllergenArray): TSplitResult;
-function StrToAllergen(const AValue: String): TACBrODAllergen;
+function StrToAllergen(const AValue: string): TACBrODAllergen;
 
-function DayOfWeekToStr(AValue: TACBrODDayOfWeek): String;
+function DayOfWeekToStr(AValue: TACBrODDayOfWeek): string;
 function DayOfWeekToArray(AValue: TACBrODDayOfWeekArray): TSplitResult;
-function StrToDayOfWeek(const AValue: String): TACBrODDayOfWeek;
+function StrToDayOfWeek(const AValue: string): TACBrODDayOfWeek;
 
-function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): String;
+function EventTypeToStr(AValue: TACBrODEventType): string;
+function StrToEventType(const AValue: string): TACBrODEventType;
+
+function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): string;
 function MerchantCategoriesToArray(AValue: TACBrODMerchantCategoriesArray): TSplitResult;
-function StrToMerchantCategories(const AValue: String): TACBrODMerchantCategories;
+function StrToMerchantCategories(const AValue: string): TACBrODMerchantCategories;
 
 function MerchantTypeToStr(AValue: TACBrODMerchantType): string;
-function StrToMerchantType(AValue: String): TACBrODMerchantType;
+function StrToMerchantType(AValue: string): TACBrODMerchantType;
 
 function ServiceTypeToStr(AValue: TACBrODServiceType): string;
-function StrToServiceType(AValue: String): TACBrODServiceType;
+function StrToServiceType(AValue: string): TACBrODServiceType;
 
 function StatusToStr(AValue: TACBrODStatus): string;
-function StrToStatus(AValue: String): TACBrODStatus;
+function StrToStatus(AValue: string): TACBrODStatus;
 
-function SuitableDietToStr(AValue: TACBrODSuitableDiet): String;
+function SuitableDietToStr(AValue: TACBrODSuitableDiet): string;
 function SuitableDietToArray(AValue: TACBrODSuitableDietArray): TSplitResult;
-function StrToSuitableDiet(const AValue: String): TACBrODSuitableDiet;
+function StrToSuitableDiet(const AValue: string): TACBrODSuitableDiet;
 
 implementation
 
-function AllergenToStr(AValue: TACBrODAllergen): String;
+function AllergenToStr(AValue: TACBrODAllergen): string;
 begin
   case AValue of
     aAlmonds: Result := 'ALMONDS';
@@ -159,9 +164,9 @@ begin
     Result[I] := AllergenToStr(AValue[I]);
 end;
 
-function StrToAllergen(const AValue: String): TACBrODAllergen;
+function StrToAllergen(const AValue: string): TACBrODAllergen;
 var
-  LStr: String;
+  LStr: string;
 begin
   Result := aAlmonds;
   LStr := UpperCase(AValue);
@@ -290,7 +295,7 @@ begin
 end;
 
 
-function DayOfWeekToStr(AValue: TACBrODDayOfWeek): String;
+function DayOfWeekToStr(AValue: TACBrODDayOfWeek): string;
 begin
   case AValue of
     dwMonday: Result := 'MONDAY';
@@ -314,9 +319,9 @@ begin
     Result[I] := DayOfWeekToStr(AValue[I]);
 end;
 
-function StrToDayOfWeek(const AValue: String): TACBrODDayOfWeek;
+function StrToDayOfWeek(const AValue: string): TACBrODDayOfWeek;
 var
-  LStr: String;
+  LStr: string;
 begin
   Result := dwMonday;
   LStr := UpperCase(AValue);
@@ -336,7 +341,53 @@ begin
     Result := dwSunday;
 end;
 
-function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): String;
+function EventTypeToStr(AValue: TACBrODEventType): string;
+begin
+  case AValue of
+    etCreated: Result := 'CREATED';
+    etConfirmed: Result := 'CONFIRMED';
+    etDispatched: Result := 'DISPATCHED';
+    etReadyForPickup: Result := 'READY_FOR_PICKUP';
+    etPickupAreaAssigned: Result := 'PICKUP_AREA_ASSIGNED';
+    etConcluded: Result := 'CONCLUDED';
+    etCancellationRequested: Result := 'CANCELLATION_REQUESTED';
+    etCancellationRequestDenied: Result := 'CANCELLATION_REQUEST_DENIED';
+    etCancelled: Result := 'CANCELLED';
+    etOrderCancellationRequest: Result := 'ORDER_CANCELLATION_REQUEST';
+  else
+    Result := '';
+  end;
+end;
+
+function StrToEventType(const AValue: string): TACBrODEventType;
+var
+  LStr: string;
+begin
+  LStr := UpperCase(AValue);
+  Result := etCreated;
+  if LStr = 'CREATED' then
+    Result := etCreated
+  else if LStr = 'CONFIRMED' then
+    Result := etConfirmed
+  else if LStr = 'DISPATCHED' then
+    Result := etDispatched
+  else if LStr = 'READY_FOR_PICKUP' then
+    Result := etReadyForPickup
+  else if LStr = 'PICKUP_AREA_ASSIGNED' then
+    Result := etPickupAreaAssigned
+  else if LStr = 'CONCLUDED' then
+    Result := etConcluded
+  else if LStr = 'CANCELLATION_REQUESTED' then
+    Result := etCancellationRequested
+  else if LStr = 'CANCELLATION_REQUEST_DENIED' then
+    Result := etCancellationRequestDenied
+  else if LStr = 'CANCELLED' then
+    Result := etCancelled
+  else if LStr = 'ORDER_CANCELLATION_REQUEST' then
+    Result := etOrderCancellationRequest;
+end;
+
+function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): string;
 begin
   case AValue of
     mcBurgers: Result := 'BURGERS';
@@ -398,9 +449,9 @@ begin
     Result[I] := MerchantCategoriesToStr(AValue[I]);
 end;
 
-function StrToMerchantCategories(const AValue: String): TACBrODMerchantCategories;
+function StrToMerchantCategories(const AValue: string): TACBrODMerchantCategories;
 var
-  LStr: String;
+  LStr: string;
 begin
   Result := mcBurgers;
   LStr := UpperCase(AValue);
@@ -505,7 +556,7 @@ begin
   end;
 end;
 
-function StrToMerchantType(AValue: String): TACBrODMerchantType;
+function StrToMerchantType(AValue: string): TACBrODMerchantType;
 begin
   Result := mtRestaurant;
 end;
@@ -520,9 +571,9 @@ begin
   end;
 
 end;
-function StrToServiceType(AValue: String): TACBrODServiceType;
+function StrToServiceType(AValue: string): TACBrODServiceType;
 var
-  LStr: String;
+  LStr: string;
 begin
   Result := stDelivery;
   LStr := UpperCase(AValue);
@@ -542,7 +593,7 @@ begin
   end;
 end;
 
-function StrToStatus(AValue: String): TACBrODStatus;
+function StrToStatus(AValue: string): TACBrODStatus;
 var
   LStr: string;
 begin
@@ -554,7 +605,7 @@ begin
     Result := sUnavailable;
 end;
 
-function SuitableDietToStr(AValue: TACBrODSuitableDiet): String;
+function SuitableDietToStr(AValue: TACBrODSuitableDiet): string;
 begin
   case AValue of
     sdDiabetic: Result := 'DIABETIC';
@@ -582,7 +633,7 @@ begin
     Result[I] := SuitableDietToStr(AValue[I]);
 end;
 
-function StrToSuitableDiet(const AValue: String): TACBrODSuitableDiet;
+function StrToSuitableDiet(const AValue: string): TACBrODSuitableDiet;
 var
   LStr: string;
 begin
