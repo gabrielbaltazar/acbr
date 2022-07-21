@@ -262,6 +262,15 @@ type
     property SourceAppId: String read FSourceAppId write FSourceAppId;
   end;
 
+  TACBrOpenDeliverySchemaEventCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TACBrOpenDeliverySchemaEvent;
+    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaEvent);
+  public
+    function New: TACBrOpenDeliverySchemaEvent;
+    property Items[Index: Integer]: TACBrOpenDeliverySchemaEvent read GetItem write SetItem; default;
+  end;
+
   TACBrOpenDeliverySchemaGeoCoordinate = class(TACBrOpenDeliverySchema)
   private
     Flatitude: Double;
@@ -2627,6 +2636,24 @@ begin
             (FOrderURL = '') and
             (FCreatedAt = 0) and
             (FSourceAppId = '');
+end;
+
+{ TACBrOpenDeliverySchemaEventCollection }
+
+function TACBrOpenDeliverySchemaEventCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaEvent;
+begin
+  Result := TACBrOpenDeliverySchemaEvent(inherited Items[Index]);
+end;
+
+function TACBrOpenDeliverySchemaEventCollection.New: TACBrOpenDeliverySchemaEvent;
+begin
+  Result := TACBrOpenDeliverySchemaEvent.Create;
+  Self.Add(Result);
+end;
+
+procedure TACBrOpenDeliverySchemaEventCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaEvent);
+begin
+  inherited Items[Index] := Value;
 end;
 
 end.
