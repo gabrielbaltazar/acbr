@@ -1,9 +1,9 @@
-unit ACBrRestSynapse;
+unit ACBrOpenDeliveryHTTPSynapse;
 
 interface
 
 uses
-  ACBrRest,
+  ACBrOpenDeliveryHTTP,
   ACBrJSON,
   ACBrCompress,
   ACBrUtil.Strings,
@@ -22,13 +22,13 @@ uses
   Classes;
 
 type
-  TACBrRestRequestSynapse = class(TACBrRestRequest)
+  TACBrOpenDeliveryHTTPRequestSynapse = class(TACBrOpenDeliveryHTTPRequest)
   protected
     FHTTPSend: THTTPSend;
     FIsUTF8: Boolean;
 
     function GetFullUrl: string;
-    function GetMethodType: String;
+    function GetMethodType: string;
 
     procedure PrepareRequest;
     procedure PrepareRequestAuth;
@@ -37,15 +37,15 @@ type
 
   public
     procedure Clear; override;
-    function Send: TACBrRestResponse; override;
+    function Send: TACBrOpenDeliveryHTTPResponse; override;
 
-    constructor Create(ARequestId: String); override;
+    constructor Create(const ARequestId: string = ''); override;
     destructor Destroy; override;
   end;
 
-  TACBrRestResponseSynapse = class(TACBrRestResponse)
+  TACBrOpenDeliveryHTTPResponseSynapse = class(TACBrOpenDeliveryHTTPResponse)
   private
-    function GetHeaderValue(const AName: String; AHTTPSend: THTTPSend): String;
+    function GetHeaderValue(const AName: string; AHTTPSend: THTTPSend): string;
 
   public
     constructor Create(AHTTPSend: THTTPSend);
@@ -53,9 +53,159 @@ type
 
 implementation
 
-{ TACBrRestResponseSynapse }
+{ TACBrOpenDeliveryHTTPRequestSynapse }
 
-constructor TACBrRestResponseSynapse.Create(AHTTPSend: THTTPSend);
+procedure TACBrOpenDeliveryHTTPRequestSynapse.Clear;
+begin
+  inherited;
+  FHTTPSend.Clear;
+  FHeaders.Clear;
+  FQuery.Clear;
+  FBody := EmptyStr;
+end;
+
+constructor TACBrOpenDeliveryHTTPRequestSynapse.Create(const ARequestId: string);
+begin
+  inherited Create(ARequestId);
+  FHTTPSend := THTTPSend.Create;
+  FIsUTF8 := False;
+end;
+
+destructor TACBrOpenDeliveryHTTPRequestSynapse.Destroy;
+begin
+  FHTTPSend.Free;
+  inherited;
+end;
+
+function TACBrOpenDeliveryHTTPRequestSynapse.GetFullUrl: string;
+var
+  LResource: string;
+  I: Integer;
+begin
+  result := FBaseUrl;
+
+  if Copy(FBaseUrl, Length(FBaseUrl), 1) <> '/' then
+    Result := Result + '/';
+
+  LResource := FResource;
+  if Copy(LResource, 1, 1) = '/' then
+    LResource := Copy(LResource, 2, Length(LResource) - 1);
+
+  Result := Result + LResource;
+
+  for I := 0 to Pred(Self.FQuery.Count) do
+  begin
+    if I = 0 then
+      Result := Result + '?'
+    else
+      Result := Result + '&';
+
+    Result := Result + FQuery.Names[I] + '=' + FQuery.ValueFromIndex[I];
+  end;
+end;
+
+function TACBrOpenDeliveryHTTPRequestSynapse.GetMethodType: string;
+begin
+  case FMethodType of
+    mtGET: Result := 'GET';
+    mtPOST: Result := 'POST';
+    mtPUT: Result := 'PUT';
+    mtDELETE: Result := 'DELETE';
+    mtPATCH: Result := 'PATCH';
+  else
+    raise ENotSupportedException.Create('Verbo Http não suportado.');
+  end;
+end;
+
+procedure TACBrOpenDeliveryHTTPRequestSynapse.PrepareRequest;
+begin
+  FHTTPSend.Clear;
+  FHTTPSend.Timeout := FTimeout;
+  FHTTPSend.Sock.ConnectionTimeout := FTimeout;
+  FHTTPSend.Sock.InterPacketTimeout := False;
+  FHTTPSend.Sock.NonblockSendTimeout := FTimeout;
+  FHTTPSend.Sock.SocksTimeout := FTimeout;
+  FHTTPSend.Sock.HTTPTunnelTimeout := FTimeout;
+  FHTTPSend.Sock.SSL.SSLType := LT_all;
+  FHTTPSend.AddPortNumberToHost := False;
+
+  PrepareRequestAuth;
+  PrepareRequestHeaders;
+  PrepareRequestBody;
+end;
+
+procedure TACBrOpenDeliveryHTTPRequestSynapse.PrepareRequestAuth;
+begin
+  if FToken <> '' then
+    FHTTPSend.Headers.Add('Authorization: Bearer ' + FToken)
+  else
+  if (FUsername <> '') and (FPassword <> '') then
+  begin
+    FHTTPSend.UserName := FUsername;
+    FHTTPSend.Password := FPassword;
+  end;
+end;
+
+procedure TACBrOpenDeliveryHTTPRequestSynapse.PrepareRequestBody;
+var
+  I: Integer;
+  LUrlData: string;
+begin
+  if FFormUrlEncoded.Count > 0 then
+  begin
+    for I := 0 to Pred(FFormUrlEncoded.Count) do
+    begin
+      if I > 0 then
+        LUrlData := LUrlData + '&';
+      LUrlData := LUrlData + Format('%s=%s', [FFormUrlEncoded.Names[I], FFormUrlEncoded.ValueFromIndex[I]]);
+    end;
+
+    WriteStrToStream(FHTTPSend.Document, LUrlData);
+  end
+  else
+  if FBody <> '' then
+    WriteStrToStream(FHTTPSend.Document, AnsiString( FBody))
+  else
+    FHTTPSend.Headers.Add('Content-Length:0');
+end;
+
+procedure TACBrOpenDeliveryHTTPRequestSynapse.PrepareRequestHeaders;
+var
+  I: Integer;
+begin
+  if not Assigned(FHeaders) then
+    exit;
+
+  for I := 0 to Pred(FHeaders.Count) do
+    FHTTPSend.Headers.Add(Format('%s:%s', [FHeaders.Names[I], FHeaders.ValueFromIndex[I]]));
+
+  if FContentType <> EmptyStr then
+    FHTTPSend.MimeType := FContentType;
+
+  if FAccept <> EmptyStr then
+    FHTTPSend.Headers.Add(Format('Accept:%s', [FAccept]));
+end;
+
+function TACBrOpenDeliveryHTTPRequestSynapse.Send: TACBrOpenDeliveryHTTPResponse;
+var
+  LUrl: String;
+begin
+  LUrl := GetFullUrl;
+  if LUrl.EndsWith('/') then
+    LUrl := Copy(LUrl, 1, LUrl.Length - 1);
+  PrepareRequest;
+  try
+    FHTTPSend.HTTPMethod(GetMethodType, LUrl);
+
+    Result := TACBrOpenDeliveryHTTPResponseSynapse.Create(FHTTPSend);
+  finally
+    Clear;
+  end;
+end;
+
+{ TACBrOpenDeliveryHTTPResponseSynapse }
+
+constructor TACBrOpenDeliveryHTTPResponseSynapse.Create(AHTTPSend: THTTPSend);
 
   function UnzipDoc: String;
   var
@@ -83,6 +233,7 @@ constructor TACBrRestResponseSynapse.Create(AHTTPSend: THTTPSend);
     else
       Result := String(LResp);
   end;
+
 begin
   FStatusText := AHTTPSend.ResultString;
   FStatusCode := AHTTPSend.ResultCode;
@@ -97,7 +248,7 @@ begin
   end;
 end;
 
-function TACBrRestResponseSynapse.GetHeaderValue(const AName: String; AHTTPSend: THTTPSend): String;
+function TACBrOpenDeliveryHTTPResponseSynapse.GetHeaderValue(const AName: string; AHTTPSend: THTTPSend): string;
 var
   I: Integer ;
   AHeaderLine: string ;
@@ -113,156 +264,6 @@ begin
       Result := Trim(Copy(AHeaderLine, Length(AName)+1, Length(AHeaderLine) )) ;
 
     Inc(I);
-  end;
-end;
-
-{ TACBrRestRequestSynapse }
-
-procedure TACBrRestRequestSynapse.Clear;
-begin
-  inherited;
-  FHTTPSend.Clear;
-  FHeaders.Clear;
-  FQuery.Clear;
-  FBody := EmptyStr;
-end;
-
-constructor TACBrRestRequestSynapse.Create(ARequestId: String);
-begin
-  inherited Create(ARequestId);
-  FHTTPSend := THTTPSend.Create;
-  FIsUTF8 := False;
-end;
-
-destructor TACBrRestRequestSynapse.Destroy;
-begin
-  FHTTPSend.Free;
-  inherited;
-end;
-
-function TACBrRestRequestSynapse.GetFullUrl: string;
-var
-  LResource: string;
-  I: Integer;
-begin
-  result := FBaseUrl;
-
-  if Copy(FBaseUrl, Length(FBaseUrl), 1) <> '/' then
-    Result := Result + '/';
-
-  LResource := FResource;
-  if Copy(LResource, 1, 1) = '/' then
-    LResource := Copy(LResource, 2, Length(LResource) - 1);
-
-  Result := Result + LResource;
-
-  for I := 0 to Pred(Self.FQuery.Count) do
-  begin
-    if I = 0 then
-      Result := Result + '?'
-    else
-      Result := Result + '&';
-
-    Result := Result + FQuery.Names[I] + '=' + FQuery.ValueFromIndex[I];
-  end;
-end;
-
-function TACBrRestRequestSynapse.GetMethodType: String;
-begin
-  case FMethodType of
-    mtGET: Result := 'GET';
-    mtPOST: Result := 'POST';
-    mtPUT: Result := 'PUT';
-    mtDELETE: Result := 'DELETE';
-    mtPATCH: Result := 'PATCH';
-  else
-    raise ENotSupportedException.Create('Verbo Http não suportado.');
-  end;
-end;
-
-procedure TACBrRestRequestSynapse.PrepareRequest;
-begin
-  FHTTPSend.Clear;
-  FHTTPSend.Timeout := FTimeout;
-  FHTTPSend.Sock.ConnectionTimeout := FTimeout;
-  FHTTPSend.Sock.InterPacketTimeout := False;
-  FHTTPSend.Sock.NonblockSendTimeout := FTimeout;
-  FHTTPSend.Sock.SocksTimeout := FTimeout;
-  FHTTPSend.Sock.HTTPTunnelTimeout := FTimeout;
-  FHTTPSend.Sock.SSL.SSLType := LT_all;
-  FHTTPSend.AddPortNumberToHost := False;
-
-  PrepareRequestAuth;
-  PrepareRequestHeaders;
-  PrepareRequestBody;
-end;
-
-procedure TACBrRestRequestSynapse.PrepareRequestAuth;
-begin
-  if FToken <> '' then
-    FHTTPSend.Headers.Add('Authorization: Bearer ' + FToken)
-  else
-  if (FUsername <> '') and (FPassword <> '') then
-  begin
-    FHTTPSend.UserName := FUsername;
-    FHTTPSend.Password := FPassword;
-  end;
-end;
-
-procedure TACBrRestRequestSynapse.PrepareRequestBody;
-var
-  I: Integer;
-  LUrlData: string;
-begin
-  if FFormUrlEncoded.Count > 0 then
-  begin
-    for I := 0 to Pred(FFormUrlEncoded.Count) do
-    begin
-      if I > 0 then
-        LUrlData := LUrlData + '&';
-      LUrlData := LUrlData + Format('%s=%s', [FFormUrlEncoded.Names[I], FFormUrlEncoded.ValueFromIndex[I]]);
-    end;
-
-    WriteStrToStream(FHTTPSend.Document, LUrlData);
-  end
-  else
-  if FBody <> '' then
-    WriteStrToStream(FHTTPSend.Document, AnsiString( FBody))
-  else
-    FHTTPSend.Headers.Add('Content-Length:0');
-end;
-
-procedure TACBrRestRequestSynapse.PrepareRequestHeaders;
-var
-  I: Integer;
-begin
-  if not Assigned(FHeaders) then
-    exit;
-
-  for I := 0 to Pred(FHeaders.Count) do
-    FHTTPSend.Headers.Add(Format('%s:%s', [FHeaders.Names[I], FHeaders.ValueFromIndex[I]]));
-
-  if FContentType <> EmptyStr then
-    FHTTPSend.MimeType := FContentType;
-
-  if FAccept <> EmptyStr then
-    FHTTPSend.Headers.Add(Format('Accept:%s', [FAccept]));
-end;
-
-function TACBrRestRequestSynapse.Send: TACBrRestResponse;
-var
-  LUrl: String;
-begin
-  LUrl := GetFullUrl;
-  if LUrl.EndsWith('/') then
-    LUrl := Copy(LUrl, 1, LUrl.Length - 1);
-  PrepareRequest;
-  try
-    FHTTPSend.HTTPMethod(GetMethodType, LUrl);
-
-    Result := TACBrRestResponseSynapse.Create(FHTTPSend);
-  finally
-    Clear;
   end;
 end;
 

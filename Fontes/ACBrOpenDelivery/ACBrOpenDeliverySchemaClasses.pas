@@ -11,6 +11,7 @@ uses
   SysUtils;
 
 type
+  TACBrOpenDeliverySchemaAccessToken = class;
   TACBrOpenDeliverySchemaAddress = class;
   TACBrOpenDeliverySchemaAvailability = class;
   TACBrOpenDeliverySchemaAvailabilityCollection = class;
@@ -50,6 +51,25 @@ type
   TACBrOpenDeliverySchemaServiceHour = class;
   TACBrOpenDeliverySchemaServiceHourCollection = class;
   TACBrOpenDeliverySchemaTimePeriod = class;
+
+  TACBrOpenDeliverySchemaAccessToken = class(TACBrOpenDeliverySchema)
+  private
+    FAccessToken: String;
+    FExpiresIn: Integer;
+    FExpiresAt: TDateTime;
+
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property AccessToken: String read FAccessToken write FAccessToken;
+    property ExpiresIn: Integer read FExpiresIn write FExpiresIn;
+    property ExpiresAt: TDateTime read FExpiresAt write FExpiresAt;
+  end;
 
   TACBrOpenDeliverySchemaAddress = class(TACBrOpenDeliverySchema)
   private
@@ -2654,6 +2674,34 @@ end;
 procedure TACBrOpenDeliverySchemaEventCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaEvent);
 begin
   inherited Items[Index] := Value;
+end;
+
+{ TACBrOpenDeliverySchemaAccessToken }
+
+procedure TACBrOpenDeliverySchemaAccessToken.Clear;
+begin
+  FAccessToken := '';
+  FExpiresIn := 0;
+end;
+
+procedure TACBrOpenDeliverySchemaAccessToken.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .Value('access_token', FAccessToken)
+    .Value('expires_in', FExpiresIn);
+end;
+
+procedure TACBrOpenDeliverySchemaAccessToken.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('access_token', FAccessToken)
+    .AddPair('expires_in', FExpiresIn);
+
+end;
+
+function TACBrOpenDeliverySchemaAccessToken.IsEmpty: Boolean;
+begin
+  Result := (FAccessToken = '') and (FExpiresIn = 0);
 end;
 
 end.
