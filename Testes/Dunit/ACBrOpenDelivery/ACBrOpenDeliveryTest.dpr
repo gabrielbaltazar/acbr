@@ -40,8 +40,7 @@ uses
   ACBrOpenDeliverySchema in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas',
   ACBrOpenDeliverySchemaClasses in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas',
   pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas',
-  ACBrRest in '..\..\..\Fontes\ACBrComum\ACBrRest.pas',
-  ACBrRestSynapse in '..\..\..\Fontes\ACBrComum\ACBrRestSynapse.pas';
+  ACBrOpenDeliveryHTTP in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTP.pas';
 
 begin
   {$IF CompilerVersion >= 30.0}

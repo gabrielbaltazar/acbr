@@ -108,8 +108,7 @@
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrComum\ACBrRest.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrComum\ACBrRestSynapse.pas"/>
+        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTP.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

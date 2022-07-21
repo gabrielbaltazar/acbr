@@ -19,7 +19,7 @@ type
 
   TACBrJSON = class
   public
-    function ToJSON: String; virtual; abstract;
+    function ToJSON: string; virtual; abstract;
   end;
 
   TACBrJSONObject = class(TACBrJSON)
@@ -28,58 +28,58 @@ type
     FContexts: TList;
     FOwnerJSON: Boolean;
 
-    class function CreateJsonObject(const AJsonString: String): TJsonObject;
+    class function CreateJsonObject(const AJsonString: string): TJsonObject;
 
-    function GetAsBoolean(const AName: String): Boolean;
-    function GetAsCurrency(const AName: String): Currency;
-    function GetAsFloat(const AName: String): Double;
-    function GetAsInteger(const AName: String): Integer;
-    function GetAsISODateTime(const AName: String): TDateTime;
-    function GetAsString(const AName: String): String;
-    function GetAsISOTime(const AName: String): TDateTime;
-    function GetAsJSONArray(const AName: String): TACBrJSONArray;
-    function GetAsJSONObject(const AName: String): TACBrJSONObject;
-    function GetAsISODate(const AName: String): TDateTime;
+    function GetAsBoolean(const AName: string): Boolean;
+    function GetAsCurrency(const AName: string): Currency;
+    function GetAsFloat(const AName: string): Double;
+    function GetAsInteger(const AName: string): Integer;
+    function GetAsISODateTime(const AName: string): TDateTime;
+    function GetAsString(const AName: string): string;
+    function GetAsISOTime(const AName: string): TDateTime;
+    function GetAsJSONArray(const AName: string): TACBrJSONArray;
+    function GetAsJSONObject(const AName: string): TACBrJSONObject;
+    function GetAsISODate(const AName: string): TDateTime;
     function GetAsSplitResult(const AName: string): TSplitResult;
 
   public
     function AddPair(const AName: string; const AValue: Boolean): TACBrJSONObject; overload;
-    function AddPair(const AName, AValue: String): TACBrJSONObject; overload;
+    function AddPair(const AName, AValue: string): TACBrJSONObject; overload;
     function AddPair(const AName: string; const AValue: Integer): TACBrJSONObject; overload;
     function AddPair(const AName: string; const AValue: Double): TACBrJSONObject; overload;
-    function AddPair(const AName: string; const AValue: array of String): TACBrJSONObject; overload;
+    function AddPair(const AName: string; const AValue: array of string): TACBrJSONObject; overload;
     function AddPair(const AName: string; AValue: TACBrJSONArray): TACBrJSONObject; overload;
     function AddPair(const AName: string; AValue: TACBrJSONObject): TACBrJSONObject; overload;
     function AddPairISODateTime(const AName: string; const AValue: TDateTime): TACBrJSONObject; overload;
     function AddPairISOTime(const AName: string; const AValue: TDateTime): TACBrJSONObject; overload;
-    function AddPairJSONObject(const AName: string; const AValue: String): TACBrJSONObject; overload;
-    function AddPairJSONArray(const AName: string; const AValue: String): TACBrJSONObject; overload;
+    function AddPairJSONObject(const AName: string; const AValue: string): TACBrJSONObject; overload;
+    function AddPairJSONArray(const AName: string; const AValue: string): TACBrJSONObject; overload;
 
-    function Value(const AName: String; var AValue: Boolean): TACBrJSONObject; overload;
-    function Value(const AName: String; var AValue: Integer): TACBrJSONObject; overload;
-    function ValueISODate(const AName: String; var AValue: TDateTime): TACBrJSONObject;
-    function ValueISODateTime(const AName: String; var AValue: TDateTime): TACBrJSONObject;
-    function ValueISOTime(const AName: String; var AValue: TDateTime): TACBrJSONObject;
-    function Value(const AName: String; var AValue: Double): TACBrJSONObject; overload;
-    function Value(const AName: String; var AValue: Currency): TACBrJSONObject; overload;
-    function Value(const AName: String; var AValue: String): TACBrJSONObject; overload;
-    function Value(const AName: String; var AValue: TSplitResult): TACBrJSONObject; overload;
+    function Value(const AName: string; var AValue: Boolean): TACBrJSONObject; overload;
+    function Value(const AName: string; var AValue: Integer): TACBrJSONObject; overload;
+    function ValueISODate(const AName: string; var AValue: TDateTime): TACBrJSONObject;
+    function ValueISODateTime(const AName: string; var AValue: TDateTime): TACBrJSONObject;
+    function ValueISOTime(const AName: string; var AValue: TDateTime): TACBrJSONObject;
+    function Value(const AName: string; var AValue: Double): TACBrJSONObject; overload;
+    function Value(const AName: string; var AValue: Currency): TACBrJSONObject; overload;
+    function Value(const AName: string; var AValue: string): TACBrJSONObject; overload;
+    function Value(const AName: string; var AValue: TSplitResult): TACBrJSONObject; overload;
 
     property OwnerJSON: Boolean read FOwnerJSON write FOwnerJSON;
-    property AsBoolean[const AName: String]: Boolean read GetAsBoolean;
-    property AsCurrency[const AName: String]: Currency read GetAsCurrency;
-    property AsFloat[const AName: String]: Double read GetAsFloat;
-    property AsInteger[const AName: String]: Integer read GetAsInteger;
-    property AsISODateTime[const AName: String]: TDateTime read GetAsISODateTime;
-    property AsISODate[const AName: String]: TDateTime read GetAsISODate;
-    property AsISOTime[const AName: String]: TDateTime read GetAsISOTime;
-    property AsString[const AName: String]: String read GetAsString;
+    property AsBoolean[const AName: string]: Boolean read GetAsBoolean;
+    property AsCurrency[const AName: string]: Currency read GetAsCurrency;
+    property AsFloat[const AName: string]: Double read GetAsFloat;
+    property AsInteger[const AName: string]: Integer read GetAsInteger;
+    property AsISODateTime[const AName: string]: TDateTime read GetAsISODateTime;
+    property AsISODate[const AName: string]: TDateTime read GetAsISODate;
+    property AsISOTime[const AName: string]: TDateTime read GetAsISOTime;
+    property AsString[const AName: string]: string read GetAsString;
     property AsSplit[const AName: string]: TSplitResult read GetAsSplitResult;
-    property AsJSONObject[const AName: String]: TACBrJSONObject read GetAsJSONObject;
-    property AsJSONArray[const AName: String]: TACBrJSONArray read GetAsJSONArray;
+    property AsJSONObject[const AName: string]: TACBrJSONObject read GetAsJSONObject;
+    property AsJSONArray[const AName: string]: TACBrJSONArray read GetAsJSONArray;
 
-    function ToJSON: String; override;
-    class function Parse(const AJSONString: String): TACBrJSONObject;
+    function ToJSON: string; override;
+    class function Parse(const AJSONString: string): TACBrJSONObject;
 
     constructor Create; overload;
     constructor Create(AJSONObject: TJsonObject); overload;
@@ -92,21 +92,21 @@ type
     FContexts: TList;
     FOwnerJSON: Boolean;
 
-    class function CreateJsonArray(const AJsonString: String): TJsonArray;
-    function GetItems(const AIndex: Integer): String;
+    class function CreateJsonArray(const AJsonString: string): TJsonArray;
+    function GetItems(const AIndex: Integer): string;
     function GetItemAsJSONObject(const AIndex: Integer): TACBrJSONObject;
 
   public
     property OwnerJSON: Boolean read FOwnerJSON write FOwnerJSON;
-    property Items[const AIndex: Integer]: String read GetItems;
+    property Items[const AIndex: Integer]: string read GetItems;
     property ItemAsJSONObject[const AIndex: Integer]: TACBrJSONObject read GetItemAsJSONObject;
 
-    function AddElement(const AValue: String): TACBrJSONArray; overload;
-    function AddElementJSONString(const AValue: String): TACBrJSONArray; overload;
+    function AddElement(const AValue: string): TACBrJSONArray; overload;
+    function AddElementJSONString(const AValue: string): TACBrJSONArray; overload;
 
     function Count: Integer;
-    function ToJSON: String; override;
-    class function Parse(const AJSONString: String): TACBrJSONArray;
+    function ToJSON: string; override;
+    class function Parse(const AJSONString: string): TACBrJSONArray;
 
     constructor Create; overload;
     constructor Create(AJSONArray: TJsonArray); overload;
@@ -154,7 +154,7 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONObject.AddPair(const AName, AValue: String): TACBrJSONObject;
+function TACBrJSONObject.AddPair(const AName, AValue: string): TACBrJSONObject;
 begin
   Result := Self;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
@@ -166,7 +166,7 @@ end;
 
 function TACBrJSONObject.AddPairISODateTime(const AName: string; const AValue: TDateTime): TACBrJSONObject;
 var
-  LValue: String;
+  LValue: string;
 begin
   Result := Self;
   LValue := '';
@@ -188,7 +188,7 @@ begin
   AddPair(AName, LValue);
 end;
 
-function TACBrJSONObject.AddPairJSONArray(const AName, AValue: String): TACBrJSONObject;
+function TACBrJSONObject.AddPairJSONArray(const AName, AValue: string): TACBrJSONObject;
 var
   LJSONArray: TJsonArray;
 begin
@@ -206,7 +206,7 @@ begin
   end;
 end;
 
-function TACBrJSONObject.AddPairJSONObject(const AName: string; const AValue: String): TACBrJSONObject;
+function TACBrJSONObject.AddPairJSONObject(const AName: string; const AValue: string): TACBrJSONObject;
 var
   LJSON: TJsonObject;
 begin
@@ -223,7 +223,7 @@ begin
   end;
 end;
 
-function TACBrJSONObject.GetAsBoolean(const AName: String): Boolean;
+function TACBrJSONObject.GetAsBoolean(const AName: string): Boolean;
 begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     Result := FJSON.B[AName];
@@ -232,7 +232,7 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONObject.GetAsCurrency(const AName: String): Currency;
+function TACBrJSONObject.GetAsCurrency(const AName: string): Currency;
 begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     Result := FJson.D[AName];
@@ -241,7 +241,7 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONObject.GetAsFloat(const AName: String): Double;
+function TACBrJSONObject.GetAsFloat(const AName: string): Double;
 begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     Result := FJson.D[AName];
@@ -250,7 +250,7 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONObject.GetAsInteger(const AName: String): Integer;
+function TACBrJSONObject.GetAsInteger(const AName: string): Integer;
 begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     Result := FJson.I[AName];
@@ -259,10 +259,11 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONObject.GetAsISODate(const AName: String): TDateTime;
+function TACBrJSONObject.GetAsISODate(const AName: string): TDateTime;
 var
-  LStrValue: String;
+  LStrValue: string;
 begin
+  Result := 0;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     LStrValue := FJson.S[AName];
   {$Else}
@@ -272,10 +273,11 @@ begin
     Result := EncodeDataHora(LStrValue, 'yyyy-MM-dd');
 end;
 
-function TACBrJSONObject.GetAsISODateTime(const AName: String): TDateTime;
+function TACBrJSONObject.GetAsISODateTime(const AName: string): TDateTime;
 var
-  LStrValue: String;
+  LStrValue: string;
 begin
+  Result := 0;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     LStrValue := FJson.S[AName];
   {$Else}
@@ -285,7 +287,7 @@ begin
     Result := Iso8601ToDateTime(LStrValue);
 end;
 
-function TACBrJSONObject.GetAsJSONArray(const AName: String): TACBrJSONArray;
+function TACBrJSONObject.GetAsJSONArray(const AName: string): TACBrJSONArray;
 var
   LJSON: TJsonArray;
 begin
@@ -299,7 +301,7 @@ begin
   FContexts.Add(Result);
 end;
 
-function TACBrJSONObject.GetAsJSONObject(const AName: String): TACBrJSONObject;
+function TACBrJSONObject.GetAsJSONObject(const AName: string): TACBrJSONObject;
 var
   LJSON: TJsonObject;
 begin
@@ -327,7 +329,7 @@ begin
   end;
 end;
 
-function TACBrJSONObject.GetAsString(const AName: String): String;
+function TACBrJSONObject.GetAsString(const AName: string): string;
 {$IfNDef USE_JSONDATAOBJECTS_UNIT}
 var
   LValue: TJsonValue;
@@ -342,10 +344,11 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONObject.GetAsISOTime(const AName: String): TDateTime;
+function TACBrJSONObject.GetAsISOTime(const AName: string): TDateTime;
 var
-  LStrValue: String;
+  LStrValue: string;
 begin
+  Result := 0;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     LStrValue := FJson.S[AName];
   {$Else}
@@ -355,7 +358,7 @@ begin
     Result := StringToDateTime(Copy(LStrValue, 1, 8), 'hh:mm:ss');
 end;
 
-class function TACBrJSONObject.Parse(const AJSONString: String): TACBrJSONObject;
+class function TACBrJSONObject.Parse(const AJSONString: string): TACBrJSONObject;
 var
   LJSON: TJsonObject;
 begin
@@ -369,7 +372,7 @@ begin
   end;
 end;
 
-function TACBrJSONObject.ToJSON: String;
+function TACBrJSONObject.ToJSON: string;
 begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     Result := FJSON.ToJSON();
@@ -385,7 +388,7 @@ begin
   FContexts := TList.Create;
 end;
 
-class function TACBrJSONObject.CreateJsonObject(const AJsonString: String): TJsonObject;
+class function TACBrJSONObject.CreateJsonObject(const AJsonString: string): TJsonObject;
 begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     JsonSerializationConfig.NullConvertsToValueTypes := True;
@@ -413,57 +416,57 @@ begin
   inherited;
 end;
 
-function TACBrJSONObject.Value(const AName: String; var AValue: Boolean): TACBrJSONObject;
+function TACBrJSONObject.Value(const AName: string; var AValue: Boolean): TACBrJSONObject;
 begin
   Result := Self;
   AValue := GetAsBoolean(AName);
 end;
 
-function TACBrJSONObject.ValueISODate(const AName: String; var AValue: TDateTime): TACBrJSONObject;
+function TACBrJSONObject.ValueISODate(const AName: string; var AValue: TDateTime): TACBrJSONObject;
 begin
   Result := Self;
   AValue := GetAsISODate(AName);
 end;
 
-function TACBrJSONObject.ValueISODateTime(const AName: String; var AValue: TDateTime): TACBrJSONObject;
+function TACBrJSONObject.ValueISODateTime(const AName: string; var AValue: TDateTime): TACBrJSONObject;
 begin
   Result := Self;
   AValue := GetAsISODateTime(AName);
 end;
 
-function TACBrJSONObject.ValueISOTime(const AName: String; var AValue: TDateTime): TACBrJSONObject;
+function TACBrJSONObject.ValueISOTime(const AName: string; var AValue: TDateTime): TACBrJSONObject;
 begin
   Result := Self;
   AValue := GetAsISOTime(AName);
 end;
 
-function TACBrJSONObject.Value(const AName: String; var AValue: Double): TACBrJSONObject;
+function TACBrJSONObject.Value(const AName: string; var AValue: Double): TACBrJSONObject;
 begin
   Result := Self;
   AValue := GetAsFloat(AName);
 end;
 
-function TACBrJSONObject.Value(const AName: String; var AValue: Integer): TACBrJSONObject;
+function TACBrJSONObject.Value(const AName: string; var AValue: Integer): TACBrJSONObject;
 begin
   Result := Self;
   AValue := GetAsInteger(AName);
 end;
 
-function TACBrJSONObject.Value(const AName: String; var AValue: String): TACBrJSONObject;
+function TACBrJSONObject.Value(const AName: string; var AValue: string): TACBrJSONObject;
 begin
   Result := Self;
   AValue := GetAsString(AName);
 end;
 
-function TACBrJSONObject.Value(const AName: String; var AValue: Currency): TACBrJSONObject;
+function TACBrJSONObject.Value(const AName: string; var AValue: Currency): TACBrJSONObject;
 begin
   Result := Self;
   AValue := GetAsCurrency(AName);
 end;
 
-function TACBrJSONObject.AddPair(const AName: string; const AValue: array of String): TACBrJSONObject;
+function TACBrJSONObject.AddPair(const AName: string; const AValue: array of string): TACBrJSONObject;
 var
-  LStr: String;
+  LStr: string;
   I: Integer;
   LJSONArray: TJsonArray;
 begin
@@ -489,7 +492,7 @@ begin
   end;
 end;
 
-function TACBrJSONObject.Value(const AName: String; var AValue: TSplitResult): TACBrJSONObject;
+function TACBrJSONObject.Value(const AName: string; var AValue: TSplitResult): TACBrJSONObject;
 begin
   Result := Self;
   AValue := GetAsSplitResult(AName);
@@ -528,7 +531,7 @@ begin
   FContexts := TList.Create;
 end;
 
-function TACBrJSONArray.AddElement(const AValue: String): TACBrJSONArray;
+function TACBrJSONArray.AddElement(const AValue: string): TACBrJSONArray;
 begin
   Result := Self;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
@@ -538,7 +541,7 @@ begin
   {$EndIf}
 end;
 
-function TACBrJSONArray.AddElementJSONString(const AValue: String): TACBrJSONArray;
+function TACBrJSONArray.AddElementJSONString(const AValue: string): TACBrJSONArray;
 begin
   Result := Self;
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
@@ -560,7 +563,7 @@ begin
   FContexts := TList.Create;
 end;
 
-class function TACBrJSONArray.CreateJsonArray(const AJsonString: String): TJsonArray;
+class function TACBrJSONArray.CreateJsonArray(const AJsonString: string): TJsonArray;
 begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     JsonSerializationConfig.NullConvertsToValueTypes := True;
@@ -612,7 +615,7 @@ begin
   end;
 end;
 
-function TACBrJSONArray.GetItems(const AIndex: Integer): String;
+function TACBrJSONArray.GetItems(const AIndex: Integer): string;
 begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
   Result := FJSON.Items[AIndex].Value;
@@ -621,7 +624,7 @@ begin
   {$EndIf}
 end;
 
-class function TACBrJSONArray.Parse(const AJSONString: String): TACBrJSONArray;
+class function TACBrJSONArray.Parse(const AJSONString: string): TACBrJSONArray;
 var
   LJSON: TJsonArray;
 begin
@@ -635,7 +638,7 @@ begin
   end;
 end;
 
-function TACBrJSONArray.ToJSON: String;
+function TACBrJSONArray.ToJSON: string;
 begin
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     Result := FJSON.ToJSON();
