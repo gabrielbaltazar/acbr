@@ -12,6 +12,7 @@ uses
 
 type
   TACBrOpenDeliverySchemaAccessToken = class;
+  TACBrOpenDeliverySchemaAcknowledgment = class;
   TACBrOpenDeliverySchemaAddress = class;
   TACBrOpenDeliverySchemaAvailability = class;
   TACBrOpenDeliverySchemaAvailabilityCollection = class;
@@ -69,6 +70,33 @@ type
     property AccessToken: String read FAccessToken write FAccessToken;
     property ExpiresIn: Integer read FExpiresIn write FExpiresIn;
     property ExpiresAt: TDateTime read FExpiresAt write FExpiresAt;
+  end;
+
+  TACBrOpenDeliverySchemaAcknowledgment = class(TACBrOpenDeliverySchema)
+  private
+    FId: String;
+    FOrderId: String;
+    FEventType: TACBrODEventType;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property Id: String read FId write FId;
+    property OrderId: String read FOrderId write FOrderId;
+    property EventType: TACBrODEventType read FEventType write FEventType;
+  end;
+
+  TACBrOpenDeliverySchemaAcknowledgmentCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TACBrOpenDeliverySchemaAcknowledgment;
+    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaAcknowledgment);
+  public
+    function New: TACBrOpenDeliverySchemaAcknowledgment;
+    property Items[Index: Integer]: TACBrOpenDeliverySchemaAcknowledgment read GetItem write SetItem; default;
   end;
 
   TACBrOpenDeliverySchemaAddress = class(TACBrOpenDeliverySchema)
@@ -630,6 +658,23 @@ type
   public
     function New: TACBrOpenDeliverySchemaOptionGroup;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaOptionGroup read GetItem write SetItem; default;
+  end;
+
+  TACBrOpenDeliverySchemaOrderTakeout = class(TACBrOpenDeliverySchema)
+  private
+    FMode: TACBrODTakeoutMode;
+    FTakeoutDateTime: TDateTime;
+
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property Mode: TACBrODTakeoutMode read FMode write FMode;
+    property TakeoutDateTime: TDateTime read FTakeoutDateTime write FTakeoutDateTime;
   end;
 
   TACBrOpenDeliverySchemaPolygon = class(TACBrOpenDeliverySchema)
@@ -2702,6 +2747,91 @@ end;
 function TACBrOpenDeliverySchemaAccessToken.IsEmpty: Boolean;
 begin
   Result := (FAccessToken = '') and (FExpiresIn = 0);
+end;
+
+{ TACBrOpenDeliverySchemaAcknowledgment }
+
+procedure TACBrOpenDeliverySchemaAcknowledgment.Clear;
+begin
+  FId := '';
+  FOrderId := '';
+  FEventType := etCreated;
+end;
+
+procedure TACBrOpenDeliverySchemaAcknowledgment.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  LStr: string;
+begin
+  AJSon
+    .Value('id', FId)
+    .Value('orderId', FOrderId)
+    .Value('eventType', LStr);
+
+  FEventType := StrToEventType(LStr);
+end;
+
+procedure TACBrOpenDeliverySchemaAcknowledgment.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('id', Fid)
+    .AddPair('orderId', FOrderId)
+    .AddPair('eventType', EventTypeToStr(FEventType));
+end;
+
+function TACBrOpenDeliverySchemaAcknowledgment.IsEmpty: Boolean;
+begin
+  Result := (FId = '') and
+            (FOrderId = '') and
+            (FEventType = etCreated);
+end;
+
+{ TACBrOpenDeliverySchemaAcknowledgmentCollection }
+
+function TACBrOpenDeliverySchemaAcknowledgmentCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaAcknowledgment;
+begin
+  Result := TACBrOpenDeliverySchemaAcknowledgment(inherited Items[Index]);
+end;
+
+function TACBrOpenDeliverySchemaAcknowledgmentCollection.New: TACBrOpenDeliverySchemaAcknowledgment;
+begin
+  Result := TACBrOpenDeliverySchemaAcknowledgment.Create;
+  Self.Add(Result);
+end;
+
+procedure TACBrOpenDeliverySchemaAcknowledgmentCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaAcknowledgment);
+begin
+  inherited Items[Index] := Value;
+end;
+
+{ TACBrOpenDeliverySchemaOrderTakeout }
+
+procedure TACBrOpenDeliverySchemaOrderTakeout.Clear;
+begin
+  FMode := tmDefault;
+  FTakeoutDateTime := 0;
+end;
+
+procedure TACBrOpenDeliverySchemaOrderTakeout.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  LStr: string;
+begin
+  AJSon
+    .Value('mode', LStr)
+    .ValueISODateTime('takeoutDateTime', FTakeoutDateTime);
+
+  FMode := StrToTakeoutMode(LStr);
+end;
+
+procedure TACBrOpenDeliverySchemaOrderTakeout.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('mode', TakeoutModeToStr(FMode))
+    .AddPairISODateTime('takeoutDateTime', FTakeoutDateTime);
+end;
+
+function TACBrOpenDeliverySchemaOrderTakeout.IsEmpty: Boolean;
+begin
+  Result := (FMode = tmDefault) and (FTakeoutDateTime = 0);
 end;
 
 end.

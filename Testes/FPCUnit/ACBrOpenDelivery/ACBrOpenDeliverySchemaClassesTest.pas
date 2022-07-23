@@ -14,6 +14,33 @@ uses
   SysUtils;
 
 type
+  TTestAccessToken = class(TTestCase)
+  private
+    FJSON: String;
+    FSchema: TACBrOpenDeliverySchemaAccessToken;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+  end;
+
+  TTestAcknowledgment = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaAcknowledgment;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure ObjectToJson;
+  end;
+
   TTestAddress = class(TTestCase)
   private
     FJSON: String;
@@ -259,6 +286,21 @@ type
     FJSON: String;
     FJSONObject: TACBrJSONObject;
     FSchema: TACBrOpenDeliverySchemaOptionGroup;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJSON;
+  end;
+
+  TTestOrderTakeout = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaOrderTakeout;
 
   protected
     procedure SetUp; override;
@@ -1953,7 +1995,104 @@ begin
 
 end;
 
+{ TTestAccessToken }
+
+procedure TTestAccessToken.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('22222', FSchema.AccessToken);
+  CheckEquals(900, FSchema.ExpiresIn);
+end;
+
+procedure TTestAccessToken.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaAccessToken.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"access_token": "22222",' +
+      '"token_type": "bearer",' +
+      '"expires_in": 900' +
+    '}');
+end;
+
+procedure TTestAccessToken.TearDown;
+begin
+  FSchema.Free;
+  inherited;
+end;
+
+{ TTestAcknowledgment }
+
+procedure TTestAcknowledgment.ObjectToJson;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('222', FJSONObject.AsString['id']);
+  CheckEquals(EventTypeToStr(etDispatched), FJSONObject.AsString['eventType']);
+  CheckEquals('555', FJSONObject.AsString['orderId']);
+end;
+
+procedure TTestAcknowledgment.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaAcknowledgment.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"id": "222",' +
+      '"orderId": "555",' +
+      '"eventType": "DISPATCHED"' +
+    '}');
+end;
+
+procedure TTestAcknowledgment.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestOrderTakeout }
+
+procedure TTestOrderTakeout.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+
+  CheckEquals('PICKUP_AREA', TakeoutModeToStr(FSchema.Mode));
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.TakeoutDateTime));
+end;
+
+procedure TTestOrderTakeout.ObjectToJSON;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('PICKUP_AREA', FJSONObject.AsString['mode']);
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FJSONObject.AsISODateTime['takeoutDateTime']));
+end;
+
+procedure TTestOrderTakeout.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaOrderTakeout.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"mode": "PICKUP_AREA",' +
+      '"takeoutDateTime": "2019-08-24T14:15:22Z"' +
+    '}');
+end;
+
+procedure TTestOrderTakeout.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
 initialization
+  _RegisterTest('ACBrOpenDelivery.Schema.AccessToken', TTestAccessToken);
+  _RegisterTest('ACBrOpenDelivery.Schema.Acknowledgment', TTestAcknowledgment);
   _RegisterTest('ACBrOpenDelivery.Schema.Address', TTestAddress);
   _RegisterTest('ACBrOpenDelivery.Schema.Availability', TTestAvailability);
   _RegisterTest('ACBrOpenDelivery.Schema.BasicInfo', TTestBasicInfo);
@@ -1971,6 +2110,7 @@ initialization
   _RegisterTest('ACBrOpenDelivery.Schema.NutritionalInfo', TTestNutritionalInfo);
   _RegisterTest('ACBrOpenDelivery.Schema.Option', TTestOption);
   _RegisterTest('ACBrOpenDelivery.Schema.OptionGroup', TTestOptionGroup);
+  _RegisterTest('ACBrOpenDelivery.Schema.OrderTakeout', TTestOrderTakeout);
   _RegisterTest('ACBrOpenDelivery.Schema.Polygon', TTestPolygon);
   _RegisterTest('ACBrOpenDelivery.Schema.Price', TTestPrice);
   _RegisterTest('ACBrOpenDelivery.Schema.Radius', TTestRadius);

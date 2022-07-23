@@ -29,9 +29,15 @@ type
 
   TACBrODDayOfWeekArray = array of TACBrODDayOfWeek;
 
+  TACBrODDiscountTarget = (dtCart, dtDeliveryFee, dtItem);
+
   TACBrODEventType = (etCreated, etConfirmed, etDispatched, etReadyForPickup,
     etPickupAreaAssigned, etConcluded, etCancellationRequested,
     etCancellationRequestDenied, etCancelled, etOrderCancellationRequest);
+
+  TACBrODFeeReceivedBy = (rbMarketplace, rbMerchant, rbLogisticServices);
+
+  TACBrODFeeType = (ftDeliveryFee, ftServiceFee, ftTip);
 
   TACBrODMerchantCategories = (mcBurgers, mcPizza, mcFastFood, mcHotDog,
     mcJapanese, mcDesserts, mcAmerican, mcIceCream, mcBBQ, mcSandwich,
@@ -46,7 +52,15 @@ type
 
   TACBrODMerchantType = (mtRestaurant);
 
+  TACBrODPaymentMethod = (pmCredit, pmDebit, pmMealVoucher, pmFoodVoucher,
+    pmDigitalWallet, pmPix, pmCash, pmCreditDebit, pmCoupon, pmRedeem,
+    pmPrepaidRedeem, pmOther);
+
+  TACBrODPaymentType = (ptPrepaid, ptPending);
+
   TACBrODServiceType = (stDelivery, stTakeout);
+
+  TACBrODSponsor = (sMarketPlace, sMerchant);
 
   TACBrODStatus = (sAvailable, sUnavailable);
 
@@ -56,6 +70,8 @@ type
 
   TACBrODSuitableDietArray = array of TACBrODSuitableDiet;
 
+  TACBrODTakeoutMode = (tmDefault, tmPickupArea);
+
 function AllergenToStr(AValue: TACBrODAllergen): string;
 function AllergensToArray(AValue: TACBrODAllergenArray): TSplitResult;
 function StrToAllergen(const AValue: string): TACBrODAllergen;
@@ -64,18 +80,36 @@ function DayOfWeekToStr(AValue: TACBrODDayOfWeek): string;
 function DayOfWeekToArray(AValue: TACBrODDayOfWeekArray): TSplitResult;
 function StrToDayOfWeek(const AValue: string): TACBrODDayOfWeek;
 
+function DiscountTargetToStr(AValue: TACBrODDiscountTarget): string;
+function StrToDiscountTarget(const AValue: string): TACBrODDiscountTarget;
+
 function EventTypeToStr(AValue: TACBrODEventType): string;
 function StrToEventType(const AValue: string): TACBrODEventType;
+
+function FeeReceivedByToStr(AValue: TACBrODFeeReceivedBy): string;
+function StrToFeeReceivedBy(const AValue: string): TACBrODFeeReceivedBy;
+
+function FeeTypeToStr(AValue: TACBrODFeeType): string;
+function StrToFeeType(const AValue: string): TACBrODFeeType;
 
 function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): string;
 function MerchantCategoriesToArray(AValue: TACBrODMerchantCategoriesArray): TSplitResult;
 function StrToMerchantCategories(const AValue: string): TACBrODMerchantCategories;
 
 function MerchantTypeToStr(AValue: TACBrODMerchantType): string;
-function StrToMerchantType(AValue: string): TACBrODMerchantType;
+function StrToMerchantType(const AValue: string): TACBrODMerchantType;
+
+function PaymentMethodToStr(AValue: TACBrODPaymentMethod): string;
+function StrToPaymentMethod(const AValue: string): TACBrODPaymentMethod;
+
+function PaymentTypeToStr(AValue: TACBrODPaymentType): string;
+function StrToPaymentType(const AValue: string): TACBrODPaymentType;
 
 function ServiceTypeToStr(AValue: TACBrODServiceType): string;
 function StrToServiceType(AValue: string): TACBrODServiceType;
+
+function SponsorToStr(AValue: TACBrODSponsor): string;
+function StrToSponsor(AValue: string): TACBrODSponsor;
 
 function StatusToStr(AValue: TACBrODStatus): string;
 function StrToStatus(AValue: string): TACBrODStatus;
@@ -83,6 +117,9 @@ function StrToStatus(AValue: string): TACBrODStatus;
 function SuitableDietToStr(AValue: TACBrODSuitableDiet): string;
 function SuitableDietToArray(AValue: TACBrODSuitableDietArray): TSplitResult;
 function StrToSuitableDiet(const AValue: string): TACBrODSuitableDiet;
+
+function TakeoutModeToStr(AValue: TACBrODTakeoutMode): string;
+function StrToTakeoutMode(AValue: string): TACBrODTakeoutMode;
 
 implementation
 
@@ -341,6 +378,31 @@ begin
     Result := dwSunday;
 end;
 
+function DiscountTargetToStr(AValue: TACBrODDiscountTarget): string;
+begin
+  case AValue of
+    dtCart: Result := 'CART';
+    dtDeliveryFee: Result := 'DELIVERY_FEE';
+    dtItem: Result := 'ITEM';
+  else
+    Result := '';
+  end;
+end;
+
+function StrToDiscountTarget(const AValue: string): TACBrODDiscountTarget;
+var
+  LStr: string;
+begin
+  Result := dtCart;
+  LStr := UpperCase(AValue);
+  if LStr = 'CART' then
+    Result := dtCart
+  else if LStr = 'DELIVERY_FEE' then
+    Result := dtDeliveryFee
+  else if LStr = 'ITEM' then
+    Result := dtItem;
+end;
+
 function EventTypeToStr(AValue: TACBrODEventType): string;
 begin
   case AValue of
@@ -385,6 +447,56 @@ begin
     Result := etCancelled
   else if LStr = 'ORDER_CANCELLATION_REQUEST' then
     Result := etOrderCancellationRequest;
+end;
+
+function FeeReceivedByToStr(AValue: TACBrODFeeReceivedBy): string;
+begin
+  case AValue of
+    rbMarketplace: Result := 'MARKETPLACE';
+    rbMerchant: Result := 'MERCHANT';
+    rbLogisticServices: Result := 'LOGISTIC_SERVICES';
+  else
+    Result := '';
+  end;
+end;
+
+function StrToFeeReceivedBy(const AValue: string): TACBrODFeeReceivedBy;
+var
+  LStr: string;
+begin
+  Result := rbMarketplace;
+  LStr := UpperCase(AValue);
+  if LStr = 'MARKETPLACE' then
+    Result := rbMarketplace
+  else if LStr = 'MERCHANT' then
+    Result := rbMerchant
+  else if LStr = 'LOGISTIC_SERVICES' then
+    Result := rbLogisticServices;
+end;
+
+function FeeTypeToStr(AValue: TACBrODFeeType): string;
+begin
+  case AValue of
+    ftDeliveryFee: Result := 'DELIVERY_FEE';
+    ftServiceFee: Result := 'SERVICE_FEE';
+    ftTip: Result := 'TIP';
+  else
+    Result := '';
+  end;
+end;
+
+function StrToFeeType(const AValue: string): TACBrODFeeType;
+var
+  LStr: string;
+begin
+  Result := ftDeliveryFee;
+  LStr := UpperCase(AValue);
+  if LStr = 'DELIVERY_FEE' then
+    Result := ftDeliveryFee
+  else if LStr = 'SERVICE_FEE' then
+    Result := ftServiceFee
+  else if LStr = 'TIP' then
+    Result := ftTip;
 end;
 
 function MerchantCategoriesToStr(AValue: TACBrODMerchantCategories): string;
@@ -556,9 +668,83 @@ begin
   end;
 end;
 
-function StrToMerchantType(AValue: string): TACBrODMerchantType;
+function StrToMerchantType(const AValue: string): TACBrODMerchantType;
 begin
   Result := mtRestaurant;
+end;
+
+function PaymentMethodToStr(AValue: TACBrODPaymentMethod): string;
+begin
+  case AValue of
+    pmCredit: Result := 'CREDIT';
+    pmDebit: Result := 'DEBIT';
+    pmMealVoucher: Result := 'MEAL_VOUCHER';
+    pmFoodVoucher: Result := 'FOOD_VOUCHER';
+    pmDigitalWallet: Result := 'DIGITAL_WALLET';
+    pmPix: Result := 'PIX';
+    pmCash: Result := 'CASH';
+    pmCreditDebit: Result := 'CREDIT_DEBIT';
+    pmCoupon: Result := 'COUPON';
+    pmRedeem: Result := 'REDEEM';
+    pmPrepaidRedeem: Result := 'PREPAID_REDEEM';
+    pmOther: Result := 'OTHER';
+  else
+    Result := ''
+  end;
+end;
+
+function StrToPaymentMethod(const AValue: string): TACBrODPaymentMethod;
+var
+  LStr: string;
+begin
+  Result := pmCredit;
+  LStr := UpperCase(AValue);
+  if LStr = 'CREDIT' then
+    Result := pmCredit
+  else if LStr = 'DEBIT' then
+    Result := pmDebit
+  else if LStr = 'MEAL_VOUCHER' then
+    Result := pmMealVoucher
+  else if LStr = 'FOOD_VOUCHER' then
+    Result := pmFoodVoucher
+  else if LStr = 'DIGITAL_WALLET' then
+    Result := pmDigitalWallet
+  else if LStr = 'PIX' then
+    Result := pmPix
+  else if LStr = 'CASH' then
+    Result := pmCash
+  else if LStr = 'CREDIT_DEBIT' then
+    Result := pmCreditDebit
+  else if LStr = 'COUPON' then
+    Result := pmCoupon
+  else if LStr = 'REDEEM' then
+    Result := pmRedeem
+  else if LStr = 'PREPAID_REDEEM' then
+    Result := pmPrepaidRedeem
+  else if LStr = 'OTHER' then
+    Result := pmOther;
+end;
+
+function PaymentTypeToStr(AValue: TACBrODPaymentType): string;
+begin
+  case AValue of
+    ptPrepaid: Result := 'PREPAID';
+    ptPending: Result := 'PENDING';
+  else
+    Result := '';
+  end;
+end;
+
+function StrToPaymentType(const AValue: string): TACBrODPaymentType;
+var
+  LStr: string;
+begin
+  Result := ptPrepaid;
+  LStr := UpperCase(AValue);
+  if LStr = 'PREPAID' then
+    Result := ptPrepaid
+  else if LStr = 'PENDING' then
+    Result := ptPending;
 end;
 
 function ServiceTypeToStr(AValue: TACBrODServiceType): string;
@@ -569,8 +755,8 @@ begin
   else
     Result := '';
   end;
-
 end;
+
 function StrToServiceType(AValue: string): TACBrODServiceType;
 var
   LStr: string;
@@ -581,6 +767,28 @@ begin
     Result := stDelivery
   else if LStr = 'TAKEOUT' then
     Result := stTakeout;
+end;
+
+function SponsorToStr(AValue: TACBrODSponsor): string;
+begin
+  case AValue of
+    sMarketPlace: Result := 'MARKETPLACE';
+    sMerchant: Result := 'MERCHANT';
+  else
+    Result := '';
+  end;
+end;
+
+function StrToSponsor(AValue: string): TACBrODSponsor;
+var
+  LStr: string;
+begin
+  Result := sMarketPlace;
+  LStr := UpperCase(AValue);
+  if LStr = 'MARKETPLACE' then
+    Result := sMarketPlace
+  else if LStr = 'MERCHANT' then
+    Result := sMerchant;
 end;
 
 function StatusToStr(AValue: TACBrODStatus): string;
@@ -661,6 +869,28 @@ begin
     Result := sdVegan
   else if LStr = 'VEGETARIAN' then
     Result := sdVegetarian;
+end;
+
+function TakeoutModeToStr(AValue: TACBrODTakeoutMode): string;
+begin
+  case AValue of
+    tmDefault: Result := 'DEFAULT';
+    tmPickupArea: Result := 'PICKUP_AREA';
+  else
+    Result := ''
+  end;
+end;
+
+function StrToTakeoutMode(AValue: string): TACBrODTakeoutMode;
+var
+  LStr: string;
+begin
+  Result := tmDefault;
+  LStr := UpperCase(AValue);
+  if LStr = 'DEFAULT' then
+    Result := tmDefault
+  else if LStr = 'PICKUP_AREA' then
+    Result := tmPickupArea
 end;
 
 end.
