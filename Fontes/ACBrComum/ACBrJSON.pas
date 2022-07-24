@@ -104,6 +104,7 @@ type
     function AddElement(const AValue: string): TACBrJSONArray; overload;
     function AddElementJSONString(const AValue: string): TACBrJSONArray; overload;
 
+    procedure Clear;
     function Count: Integer;
     function ToJSON: string; override;
     class function Parse(const AJSONString: string): TACBrJSONArray;
@@ -549,6 +550,11 @@ begin
   {$Else}
     FJSON.Add.Parse(AValue);
   {$EndIf}
+end;
+
+procedure TACBrJSONArray.Clear;
+begin
+  FJSON.Clear;
 end;
 
 function TACBrJSONArray.Count: Integer;

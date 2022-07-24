@@ -83,7 +83,7 @@ begin
     LResponse := FHTTP.Send;
     LJSON := LResponse.GetJSONObject;
     Result.AsJSON := LJSON.ToJSON;
-    Result.ExpiresAt := LIssuedAt + Result.ExpiresIn;
+    Result.expiresAt := LIssuedAt + Result.expiresIn;
   except
     Result.Free;
     raise;

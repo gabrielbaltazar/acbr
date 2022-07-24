@@ -296,6 +296,51 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestOrderAddress = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaOrderAddress;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJson;
+  end;
+
+  TTestOrderCustomer = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaOrderCustomer;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJson;
+  end;
+
+  TTestOrderDelivery = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaOrderDelivery;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJson;
+  end;
+
   TTestOrderTakeout = class(TTestCase)
   private
     FJSON: String;
@@ -2000,8 +2045,8 @@ end;
 procedure TTestAccessToken.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('22222', FSchema.AccessToken);
-  CheckEquals(900, FSchema.ExpiresIn);
+  CheckEquals('22222', FSchema.accessToken);
+  CheckEquals(900, FSchema.expiresIn);
 end;
 
 procedure TTestAccessToken.SetUp;
@@ -2090,6 +2135,198 @@ begin
   inherited;
 end;
 
+{ TTestOrderAddress }
+
+procedure TTestOrderAddress.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('BR', FSchema.country);
+  CheckEquals('BR-SP', FSchema.state);
+  CheckEquals('São Paulo', FSchema.city);
+  CheckEquals('Moema', FSchema.district);
+  CheckEquals('Plaza Avenue', FSchema.street);
+  CheckEquals('100', FSchema.number);
+  CheckEquals('20111-000', FSchema.postalCode);
+  CheckEquals('BL 02 AP 31', FSchema.complement);
+  CheckEquals('Yellow House', FSchema.reference);
+  CheckEquals('-23,54823', FloatToStr(FSchema.coordinates.latitude));
+  CheckEquals('-46,63632', FloatToStr(FSchema.coordinates.longitude));
+end;
+
+procedure TTestOrderAddress.ObjectToJson;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('BR', FJSONObject.AsString['country']);
+  CheckEquals('BR-SP', FJSONObject.AsString['state']);
+  CheckEquals('São Paulo', FJSONObject.AsString['city']);
+  CheckEquals('Moema', FJSONObject.AsString['district']);
+  CheckEquals('Plaza Avenue', FJSONObject.AsString['street']);
+  CheckEquals('100', FJSONObject.AsString['number']);
+  CheckEquals('20111-000', FJSONObject.AsString['postalCode']);
+  CheckEquals('BL 02 AP 31', FJSONObject.AsString['complement']);
+  CheckEquals('Yellow House', FJSONObject.AsString['reference']);
+  CheckEquals('-23,54823', FloatToStr(FJSONObject.AsJSONObject['coordinates'].AsFloat['latitude']));
+  CheckEquals('-46,63632', FloatToStr(FJSONObject.AsJSONObject['coordinates'].AsFloat['longitude']));
+end;
+
+procedure TTestOrderAddress.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaOrderAddress.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"country": "BR",' +
+      '"state": "BR-SP",' +
+      '"city": "São Paulo",' +
+      '"district": "Moema",' +
+      '"street": "Plaza Avenue",' +
+      '"number": "100",' +
+      '"postalCode": "20111-000",' +
+      '"complement": "BL 02 AP 31",' +
+      '"reference": "Yellow House",' +
+      '"coordinates": {' +
+        '"latitude": -23.54823,' +
+        '"longitude": -46.63632' +
+      '}' +
+    '}');
+end;
+
+procedure TTestOrderAddress.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestOrderDelivery }
+
+procedure TTestOrderDelivery.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('MARKETPLACE', SponsorToStr(FSchema.deliveredBy));
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.estimatedDeliveryDateTime));
+  CheckEquals('2019-08-23 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.deliveryDateTime));
+  CheckEquals('BR', FSchema.deliveryAddress.country);
+  CheckEquals('BR-SP', FSchema.deliveryAddress.state);
+  CheckEquals('São Paulo', FSchema.deliveryAddress.city);
+  CheckEquals('Moema', FSchema.deliveryAddress.district);
+  CheckEquals('Plaza Avenue', FSchema.deliveryAddress.street);
+  CheckEquals('100', FSchema.deliveryAddress.number);
+  CheckEquals('20111-000', FSchema.deliveryAddress.postalCode);
+  CheckEquals('BL 02 AP 31', FSchema.deliveryAddress.complement);
+  CheckEquals('Yellow House', FSchema.deliveryAddress.reference);
+  CheckEquals('-23,54823', FloatToStr(FSchema.deliveryAddress.coordinates.latitude));
+  CheckEquals('-46,63632', FloatToStr(FSchema.deliveryAddress.coordinates.longitude));
+end;
+
+procedure TTestOrderDelivery.ObjectToJson;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('MARKETPLACE', FJSONObject.AsString['deliveredBy']);
+  CheckEquals('BR', FJSONObject.AsJSONObject['deliveryAddress'].AsString['country']);
+  CheckEquals('BR-SP', FJSONObject.AsJSONObject['deliveryAddress'].AsString['state']);
+  CheckEquals('São Paulo', FJSONObject.AsJSONObject['deliveryAddress'].AsString['city']);
+  CheckEquals('Moema', FJSONObject.AsJSONObject['deliveryAddress'].AsString['district']);
+  CheckEquals('Plaza Avenue', FJSONObject.AsJSONObject['deliveryAddress'].AsString['street']);
+  CheckEquals('100', FJSONObject.AsJSONObject['deliveryAddress'].AsString['number']);
+  CheckEquals('20111-000', FJSONObject.AsJSONObject['deliveryAddress'].AsString['postalCode']);
+  CheckEquals('BL 02 AP 31', FJSONObject.AsJSONObject['deliveryAddress'].AsString['complement']);
+  CheckEquals('Yellow House', FJSONObject.AsJSONObject['deliveryAddress'].AsString['reference']);
+  CheckEquals('-23,54823', FloatToStr(FJSONObject.AsJSONObject['deliveryAddress'].AsJSONObject['coordinates'].AsFloat['latitude']));
+  CheckEquals('-46,63632', FloatToStr(FJSONObject.AsJSONObject['deliveryAddress'].AsJSONObject['coordinates'].AsFloat['longitude']));
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FJSONObject.AsISODateTime['estimatedDeliveryDateTime']));
+  CheckEquals('2019-08-23 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FJSONObject.AsISODateTime['deliveryDateTime']));
+end;
+
+procedure TTestOrderDelivery.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaOrderDelivery.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"deliveredBy": "MARKETPLACE",' +
+      '"deliveryAddress": {' +
+        '"country": "BR",' +
+        '"state": "BR-SP",' +
+        '"city": "São Paulo",' +
+        '"district": "Moema",' +
+        '"street": "Plaza Avenue",' +
+        '"number": "100",' +
+        '"complement": "BL 02 AP 31",' +
+        '"reference": "Yellow House",' +
+        '"formattedAddress": "Plaza Avenue, 100, BL 02 AP 31, Moema - São Paulo, SP - Brazil",' +
+        '"postalCode": "20111-000",' +
+        '"coordinates": {' +
+          '"latitude": -23.54823,' +
+          '"longitude": -46.63632' +
+          '}' +
+        '},' +
+      '"estimatedDeliveryDateTime": "2019-08-24T14:15:22Z",' +
+      '"deliveryDateTime": "2019-08-23T14:15:22Z"' +
+    '}');
+end;
+
+procedure TTestOrderDelivery.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
+{ TTestOrderCustomer }
+
+procedure TTestOrderCustomer.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+  CheckEquals('1234', FSchema.id);
+  CheckEquals('22', FSchema.phone.extension);
+  CheckEquals('9999', FSchema.phone.number);
+  CheckEquals('987', FSchema.documentNumber);
+  CheckEquals('Customer Test', FSchema.name);
+  CheckEquals(8, FSchema.ordersCountOnMerchant);
+end;
+
+procedure TTestOrderCustomer.ObjectToJson;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('1234', FJSONObject.AsString['id']);
+  CheckEquals('22',  FJSONObject.AsJSONObject['phone'].AsString['extension']);
+  CheckEquals('9999', FJSONObject.AsJSONObject['phone'].AsString['number']);
+  CheckEquals('987', FJSONObject.AsString['documentNumber']);
+  CheckEquals('Customer Test', FJSONObject.AsString['name']);
+  CheckEquals(8, FJSONObject.AsInteger['ordersCountOnMerchant']);
+end;
+
+procedure TTestOrderCustomer.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaOrderCustomer.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"id": "1234",' +
+      '"phone": {' +
+        '"number": "9999",' +
+        '"extension": "22"' +
+      '},' +
+      '"documentNumber": "987",' +
+      '"name": "Customer Test",' +
+      '"ordersCountOnMerchant": 8' +
+    '}');
+end;
+
+procedure TTestOrderCustomer.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
 initialization
   _RegisterTest('ACBrOpenDelivery.Schema.AccessToken', TTestAccessToken);
   _RegisterTest('ACBrOpenDelivery.Schema.Acknowledgment', TTestAcknowledgment);
@@ -2110,6 +2347,9 @@ initialization
   _RegisterTest('ACBrOpenDelivery.Schema.NutritionalInfo', TTestNutritionalInfo);
   _RegisterTest('ACBrOpenDelivery.Schema.Option', TTestOption);
   _RegisterTest('ACBrOpenDelivery.Schema.OptionGroup', TTestOptionGroup);
+  _RegisterTest('ACBrOpenDelivery.Schema.OrderAddress', TTestOrderAddress);
+  _RegisterTest('ACBrOpenDelivery.Schema.OrderCustomer', TTestOrderCustomer);
+  _RegisterTest('ACBrOpenDelivery.Schema.OrderDelivery', TTestOrderDelivery);
   _RegisterTest('ACBrOpenDelivery.Schema.OrderTakeout', TTestOrderTakeout);
   _RegisterTest('ACBrOpenDelivery.Schema.Polygon', TTestPolygon);
   _RegisterTest('ACBrOpenDelivery.Schema.Price', TTestPrice);
