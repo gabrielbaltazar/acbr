@@ -111,6 +111,10 @@
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTP.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPSynapse.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientAuth.pas"/>
+        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientEvents.pas"/>
+        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClient.pas"/>
+        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientDetails.pas"/>
+        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientActions.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

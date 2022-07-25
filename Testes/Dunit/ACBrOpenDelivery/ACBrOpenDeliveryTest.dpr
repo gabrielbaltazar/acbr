@@ -42,7 +42,11 @@ uses
   pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas',
   ACBrOpenDeliveryHTTP in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTP.pas',
   ACBrOpenDeliveryHTTPSynapse in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPSynapse.pas',
-  ACBrOpenDeliveryHTTPClientAuth in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientAuth.pas';
+  ACBrOpenDeliveryHTTPClientAuth in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientAuth.pas',
+  ACBrOpenDeliveryHTTPClientEvents in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientEvents.pas',
+  ACBrOpenDeliveryHTTPClient in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClient.pas',
+  ACBrOpenDeliveryHTTPClientDetails in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientDetails.pas',
+  ACBrOpenDeliveryHTTPClientActions in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientActions.pas';
 
 begin
   {$IF CompilerVersion >= 30.0}

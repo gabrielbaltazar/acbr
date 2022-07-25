@@ -24,6 +24,14 @@ type
 
   TACBrODAllergenArray = array of TACBrODAllergen;
 
+  TACBrODCancelRequestCode = (crcSystemicIssues, crcDuplicateApplication, crcUnavailableItem,
+    crcRestaurantWithoutDeliveryMan, crcOutdatedMenu, crcOrderOutsideTheDeliveryArea, crcBlockedCustomer,
+    crcOutsideDeliveryHours, crcInternalDifficultiesOfTheRestaurant, crcRiskArea);
+
+  TACBrODCancelRequestMode = (crmAuto, crmManual);
+
+  TACBrODDenyCancelCode = (dccDishAlreadyDone, dccOutForDelivery);
+
   TACBrODDayOfWeek = (dwMonday, dwTuesday, dwWednesday, dwThursday,
     dwFriday, dwSaturday, dwSunday);
 
@@ -75,6 +83,12 @@ type
 function AllergenToStr(AValue: TACBrODAllergen): string;
 function AllergensToArray(AValue: TACBrODAllergenArray): TSplitResult;
 function StrToAllergen(const AValue: string): TACBrODAllergen;
+
+function CancelRequestCodeToStr(const AValue: TACBrODCancelRequestCode): string;
+
+function CancelRequestModeToStr(const AValue: TACBrODCancelRequestMode): string;
+
+function DenyCancelCodeToStr(const AValue: TACBrODDenyCancelCode): string;
 
 function DayOfWeekToStr(AValue: TACBrODDayOfWeek): string;
 function DayOfWeekToArray(AValue: TACBrODDayOfWeekArray): TSplitResult;
@@ -331,6 +345,43 @@ begin
     Result := aWheat;
 end;
 
+function CancelRequestCodeToStr(const AValue: TACBrODCancelRequestCode): string;
+begin
+  case AValue of
+    crcSystemicIssues: Result := 'SYSTEMIC_ISSUES';
+    crcDuplicateApplication: Result := 'DUPLICATE_APPLICATION';
+    crcUnavailableItem: Result := 'UNAVAILABLE_ITEM';
+    crcRestaurantWithoutDeliveryMan: Result := 'RESTAURANT_WITHOUT_DELIVERY_MAN';
+    crcOutdatedMenu: Result := 'OUTDATED_MENU';
+    crcOrderOutsideTheDeliveryArea: Result := 'ORDER_OUTSIDE_THE_DELIVERY_AREA';
+    crcBlockedCustomer: Result := 'BLOCKED_CUSTOMER';
+    crcOutsideDeliveryHours: Result := 'OUTSIDE_DELIVERY_HOURS';
+    crcInternalDifficultiesOfTheRestaurant: Result := 'INTERNAL_DIFFICULTIES_OF_THE_RESTAURANT';
+    crcRiskArea: Result := 'RISK_AREA';
+  else
+    Result := '';
+  end;
+end;
+
+function CancelRequestModeToStr(const AValue: TACBrODCancelRequestMode): string;
+begin
+  case AValue of
+    crmAuto: Result := 'AUTO';
+    crmManual: Result := 'MANUAL';
+  else
+    Result := '';
+  end;
+end;
+
+function DenyCancelCodeToStr(const AValue: TACBrODDenyCancelCode): string;
+begin
+  case AValue of
+    dccDishAlreadyDone: Result := 'DISH_ALREADY_DONE';
+    dccOutForDelivery: Result := 'OUT_FOR_DELIVERY';
+  else
+    Result := '';
+  end;
+end;
 
 function DayOfWeekToStr(AValue: TACBrODDayOfWeek): string;
 begin

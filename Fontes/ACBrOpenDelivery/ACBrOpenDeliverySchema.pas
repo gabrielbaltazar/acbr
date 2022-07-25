@@ -46,9 +46,8 @@ type
 
   TACBrOpenDeliverySchemaArray = class(TACBrObjectList)
   private
-//    function GetAsJSONArray: string;
-//    procedure SetAsJSON(AValue: string);
-
+    function GetAsJSON: String;
+    procedure SetAsJSON(const AValue: String);
   protected
     FArrayName: String;
 
@@ -63,7 +62,7 @@ type
     procedure WriteToJSon(AJSon: TACBrJSONObject); virtual;
     procedure ReadFromJSon(AJSon: TACBrJSONObject); virtual;
 
-//    property AsJSON: String read GetAsJSON write SetAsJSON;
+    property AsJSON: String read GetAsJSON write SetAsJSON;
   end;
 
 implementation
@@ -157,6 +156,18 @@ begin
   FArrayName := AArrayName;
 end;
 
+function TACBrOpenDeliverySchemaArray.GetAsJSON: String;
+var
+  LJSON: TACBrJSONArray;
+begin
+  LJSON := Self.ToJSonArray;
+  try
+    Result := LJSON.ToJSON;
+  finally
+    LJSON.Free;
+  end;
+end;
+
 function TACBrOpenDeliverySchemaArray.IsEmpty: Boolean;
 begin
   Result := (Count < 1);
@@ -179,6 +190,21 @@ begin
   if Assigned(LJSonArray) then
     for I := 0 to Pred(LJSonArray.Count) do
       NewSchema.DoReadFromJSon(LJSonArray.ItemAsJSONObject[I]);
+end;
+
+procedure TACBrOpenDeliverySchemaArray.SetAsJSON(const AValue: String);
+var
+  LJSON: TACBrJSONArray;
+  I: Integer;
+begin
+  Clear;
+  LJSON := TACBrJSONArray.Parse(AValue);
+  try
+    for I := 0 to Pred(LJSON.Count) do
+      NewSchema.DoReadFromJSon(LJSON.ItemAsJSONObject[I]);
+  finally
+    LJSON.Free;
+  end;
 end;
 
 function TACBrOpenDeliverySchemaArray.ToJSonArray: TACBrJSONArray;

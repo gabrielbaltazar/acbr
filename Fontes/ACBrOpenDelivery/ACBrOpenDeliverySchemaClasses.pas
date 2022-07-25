@@ -43,6 +43,7 @@ type
   TACBrOpenDeliverySchemaOptionGroupCollection = class;
   TACBrOpenDeliverySchemaOrder = class;
   TACBrOpenDeliverySchemaOrderAddress = class;
+  TACBrOpenDeliverySchemaOrderConfirmation = class;
   TACBrOpenDeliverySchemaOrderCustomer = class;
   TACBrOpenDeliverySchemaOrderDelivery = class;
   TACBrOpenDeliverySchemaOrderDiscount = class;
@@ -788,6 +789,71 @@ type
     property reference: String read Freference write Freference;
     property formattedAddress: string read FformattedAddress write FformattedAddress;
     property coordinates: TACBrOpenDeliverySchemaGeoCoordinate read Fcoordinates write Fcoordinates;
+  end;
+
+  TACBrOpenDeliverySchemaOrderCancelRequest = class(TACBrOpenDeliverySchema)
+  private
+    Freason: string;
+    Fcode: TACBrODCancelRequestCode;
+    Fmode: TACBrODCancelRequestMode;
+    FoutOfStockItems: TSplitResult;
+    FinvalidItems: TSplitResult;
+    ForderId: string;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property orderId: string read ForderId write ForderId;
+    property reason: string read Freason write Freason;
+    property code: TACBrODCancelRequestCode read Fcode write Fcode;
+    property mode: TACBrODCancelRequestMode read Fmode write Fmode;
+    property outOfStockItems: TSplitResult read FoutOfStockItems write FoutOfStockItems;
+    property invalidItems: TSplitResult read FinvalidItems write FinvalidItems;
+
+    function AddOutOfStockItems(const AValue: string): TACBrOpenDeliverySchemaOrderCancelRequest;
+    function AddInvalidItems(const AValue: string): TACBrOpenDeliverySchemaOrderCancelRequest;
+  end;
+
+  TACBrOpenDeliverySchemaOrderCancelDenyRequest = class(TACBrOpenDeliverySchema)
+  private
+    Freason: string;
+    Fcode: TACBrODDenyCancelCode;
+    ForderId: string;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property orderId: string read ForderId write ForderId;
+    property reason: string read Freason write Freason;
+    property code: TACBrODDenyCancelCode read Fcode write Fcode;
+  end;
+
+  TACBrOpenDeliverySchemaOrderConfirmation = class(TACBrOpenDeliverySchema)
+  private
+    Fid: string;
+    Freason: string;
+    FcreatedAt: TDateTime;
+    ForderExternalCode: string;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property id: string read Fid write Fid;
+    property reason: string read Freason write Freason;
+    property createdAt: TDateTime read FcreatedAt write FcreatedAt;
+    property orderExternalCode: string read ForderExternalCode write ForderExternalCode;
   end;
 
   TACBrOpenDeliverySchemaOrderCustomer = class(TACBrOpenDeliverySchema)
@@ -4199,6 +4265,122 @@ begin
             (Fcustomer.IsEmpty) and
             (Fdelivery.IsEmpty) and
             (Ftakeout.IsEmpty);
+end;
+
+{ TACBrOpenDeliverySchemaOrderConfirmation }
+
+procedure TACBrOpenDeliverySchemaOrderConfirmation.Clear;
+begin
+  Fid := '';
+  Freason := '';
+  FcreatedAt := 0;
+  ForderExternalCode := '';
+end;
+
+procedure TACBrOpenDeliverySchemaOrderConfirmation.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .Value('reason', Freason)
+    .ValueISODateTime('createdAt', FcreatedAt)
+    .Value('orderExternalCode', ForderExternalCode);
+end;
+
+procedure TACBrOpenDeliverySchemaOrderConfirmation.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('reason', Freason)
+    .AddPairISODateTime('createdAt', FcreatedAt)
+    .AddPair('orderExternalCode', ForderExternalCode);
+end;
+
+function TACBrOpenDeliverySchemaOrderConfirmation.IsEmpty: Boolean;
+begin
+  Result := (Fid = '') and
+            (Freason = '') and
+            (FcreatedAt = 0) and
+            (ForderExternalCode = '');
+end;
+
+{ TACBrOpenDeliverySchemaOrderCancelRequest }
+
+function TACBrOpenDeliverySchemaOrderCancelRequest.AddInvalidItems(const AValue: string): TACBrOpenDeliverySchemaOrderCancelRequest;
+begin
+  Result := Self;
+  SetLength(FinvalidItems, Length(FinvalidItems) + 1);
+  FinvalidItems[Length(FinvalidItems) - 1] := AValue;
+end;
+
+function TACBrOpenDeliverySchemaOrderCancelRequest.AddOutOfStockItems(const AValue: string): TACBrOpenDeliverySchemaOrderCancelRequest;
+begin
+  Result := Self;
+  SetLength(FoutOfStockItems, Length(FoutOfStockItems) + 1);
+  FoutOfStockItems[Length(FoutOfStockItems) - 1] := AValue;
+end;
+
+procedure TACBrOpenDeliverySchemaOrderCancelRequest.Clear;
+begin
+  ForderId := '';
+  Freason := '';
+  Fcode := crcSystemicIssues;
+  Fmode := crmAuto;
+  FoutOfStockItems := [];
+  FinvalidItems := [];
+end;
+
+procedure TACBrOpenDeliverySchemaOrderCancelRequest.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .Value('reason', Freason)
+    .Value('outOfStockItems', FoutOfStockItems)
+    .Value('invalidItems', FinvalidItems);
+end;
+
+procedure TACBrOpenDeliverySchemaOrderCancelRequest.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('reason', Freason)
+    .AddPair('code', CancelRequestCodeToStr(Fcode))
+    .AddPair('mode', CancelRequestModeToStr(Fmode))
+    .AddPair('outOfStockItems', FoutOfStockItems)
+    .AddPair('invalidItems', FinvalidItems);
+end;
+
+function TACBrOpenDeliverySchemaOrderCancelRequest.IsEmpty: Boolean;
+begin
+  Result := (ForderId = '') and
+            (Freason = '') and
+            (Fcode = crcSystemicIssues) and
+            (Fmode = crmAuto) and
+            (Length(FoutOfStockItems) = 0) and
+            (Length(FinvalidItems) = 0);
+end;
+
+{ TACBrOpenDeliverySchemaOrderCancelDenyRequest }
+
+procedure TACBrOpenDeliverySchemaOrderCancelDenyRequest.Clear;
+begin
+  ForderId := '';
+  Freason := '';
+  Fcode := dccDishAlreadyDone;
+end;
+
+procedure TACBrOpenDeliverySchemaOrderCancelDenyRequest.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon.Value('reason', Freason);
+end;
+
+procedure TACBrOpenDeliverySchemaOrderCancelDenyRequest.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('reason', Freason)
+    .AddPair('code', DenyCancelCodeToStr(Fcode));
+end;
+
+function TACBrOpenDeliverySchemaOrderCancelDenyRequest.IsEmpty: Boolean;
+begin
+  Result := (ForderId = '') and
+            (Freason = '') and
+            (Fcode = dccDishAlreadyDone);
 end;
 
 end.

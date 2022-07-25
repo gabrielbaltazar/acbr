@@ -20,6 +20,7 @@ type
 
   public
     constructor Create(const AHTTPRequest: TACBrOpenDeliveryHTTPRequest);
+    destructor Destroy; override;
 
     function BaseUrl(const AValue: string): TACBrOpenDeliveryHTTPClientAuth;
     function Resource(const AValue: string): TACBrOpenDeliveryHTTPClientAuth;
@@ -57,6 +58,12 @@ begin
   FResource := 'oauth/token';
 end;
 
+destructor TACBrOpenDeliveryHTTPClientAuth.Destroy;
+begin
+  FHTTP.Free;
+  inherited;
+end;
+
 function TACBrOpenDeliveryHTTPClientAuth.Resource(const AValue: string): TACBrOpenDeliveryHTTPClientAuth;
 begin
   Result := Self;
@@ -81,9 +88,13 @@ begin
       .AddOrSetUrlEncoded('client_secret', FClientSecret);
 
     LResponse := FHTTP.Send;
-    LJSON := LResponse.GetJSONObject;
-    Result.AsJSON := LJSON.ToJSON;
-    Result.expiresAt := LIssuedAt + Result.expiresIn;
+    try
+      LJSON := LResponse.GetJSONObject;
+      Result.AsJSON := LJSON.ToJSON;
+      Result.expiresAt := LIssuedAt + Result.expiresIn;
+    finally
+      LResponse.Free;
+    end;
   except
     Result.Free;
     raise;
