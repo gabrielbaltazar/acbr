@@ -765,6 +765,7 @@ type
     Fcountry: String;
     Fcity: String;
     Freference: String;
+    FformattedAddress: string;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
@@ -785,6 +786,7 @@ type
     property postalCode: String read FpostalCode write FpostalCode;
     property complement: String read Fcomplement write Fcomplement;
     property reference: String read Freference write Freference;
+    property formattedAddress: string read FformattedAddress write FformattedAddress;
     property coordinates: TACBrOpenDeliverySchemaGeoCoordinate read Fcoordinates write Fcoordinates;
   end;
 
@@ -1140,8 +1142,8 @@ type
 
   TACBrOpenDeliverySchemaOrderTakeout = class(TACBrOpenDeliverySchema)
   private
-    FMode: TACBrODTakeoutMode;
-    FTakeoutDateTime: TDateTime;
+    Fmode: TACBrODTakeoutMode;
+    FtakeoutDateTime: TDateTime;
 
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
@@ -1151,8 +1153,8 @@ type
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property Mode: TACBrODTakeoutMode read FMode write FMode;
-    property TakeoutDateTime: TDateTime read FTakeoutDateTime write FTakeoutDateTime;
+    property mode: TACBrODTakeoutMode read Fmode write Fmode;
+    property takeoutDateTime: TDateTime read FtakeoutDateTime write FtakeoutDateTime;
   end;
 
   TACBrOpenDeliverySchemaOrderTotal = class(TACBrOpenDeliverySchema)
@@ -3180,8 +3182,8 @@ end;
 
 procedure TACBrOpenDeliverySchemaOrderTakeout.Clear;
 begin
-  FMode := tmDefault;
-  FTakeoutDateTime := 0;
+  Fmode := tmDefault;
+  FtakeoutDateTime := 0;
 end;
 
 procedure TACBrOpenDeliverySchemaOrderTakeout.DoReadFromJSon(AJSon: TACBrJSONObject);
@@ -3190,21 +3192,21 @@ var
 begin
   AJSon
     .Value('mode', LStr)
-    .ValueISODateTime('takeoutDateTime', FTakeoutDateTime);
+    .ValueISODateTime('takeoutDateTime', FtakeoutDateTime);
 
-  FMode := StrToTakeoutMode(LStr);
+  Fmode := StrToTakeoutMode(LStr);
 end;
 
 procedure TACBrOpenDeliverySchemaOrderTakeout.DoWriteToJSon(AJSon: TACBrJSONObject);
 begin
   AJSon
-    .AddPair('mode', TakeoutModeToStr(FMode))
-    .AddPairISODateTime('takeoutDateTime', FTakeoutDateTime);
+    .AddPair('mode', TakeoutModeToStr(Fmode))
+    .AddPairISODateTime('takeoutDateTime', FtakeoutDateTime);
 end;
 
 function TACBrOpenDeliverySchemaOrderTakeout.IsEmpty: Boolean;
 begin
-  Result := (FMode = tmDefault) and (FTakeoutDateTime = 0);
+  Result := (Fmode = tmDefault) and (FtakeoutDateTime = 0);
 end;
 
 { TACBrOpenDeliverySchemaOrderAddress }
@@ -3220,6 +3222,7 @@ begin
   Fcountry := '';
   Fcity := '';
   Freference := '';
+  FformattedAddress := '';
   Fcoordinates.Clear;
 end;
 
@@ -3246,7 +3249,8 @@ begin
     .Value('number', Fnumber)
     .Value('postalCode', FpostalCode)
     .Value('complement', Fcomplement)
-    .Value('reference', Freference);
+    .Value('reference', Freference)
+    .Value('formattedAddress', FformattedAddress);
 
   Fcoordinates.ReadFromJSon(AJSon);
 end;
@@ -3263,6 +3267,7 @@ begin
     .AddPair('postalCode', FpostalCode)
     .AddPair('complement', Fcomplement)
     .AddPair('reference', Freference)
+    .AddPair('formattedAddress', FformattedAddress)
     .AddPairJSONObject('coordinates', Fcoordinates.AsJSON);
 end;
 
@@ -3277,6 +3282,7 @@ begin
             (Fcountry = '') and
             (Fcity = '') and
             (Freference = '') and
+            (FformattedAddress = '') and
             (Fcoordinates.IsEmpty);
 end;
 
@@ -3632,7 +3638,7 @@ end;
 
 function TACBrOpenDeliverySchemaOrderItemCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaOrderItem;
 begin
-  Result := TACBrOpenDeliverySchemaOrderItem(Items[Index]);
+  Result := TACBrOpenDeliverySchemaOrderItem(inherited Items[Index]);
 end;
 
 function TACBrOpenDeliverySchemaOrderItemCollection.New: TACBrOpenDeliverySchemaOrderItem;
@@ -3846,7 +3852,7 @@ end;
 
 function TACBrOpenDeliverySchemaOrderDiscount.IsEmpty: Boolean;
 begin
-
+  Result := False;
 end;
 
 { TACBrOpenDeliverySchemaOrderDiscountCollection }

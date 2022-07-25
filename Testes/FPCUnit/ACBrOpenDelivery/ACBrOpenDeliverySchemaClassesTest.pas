@@ -296,6 +296,21 @@ type
     procedure ObjectToJSON;
   end;
 
+  TTestOrder = class(TTestCase)
+  private
+    FJSON: String;
+    FJSONObject: TACBrJSONObject;
+    FSchema: TACBrOpenDeliverySchemaOrder;
+
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+  published
+    procedure JSONToObject;
+    procedure ObjectToJson;
+  end;
+
   TTestOrderAddress = class(TTestCase)
   private
     FJSON: String;
@@ -2104,8 +2119,8 @@ procedure TTestOrderTakeout.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
 
-  CheckEquals('PICKUP_AREA', TakeoutModeToStr(FSchema.Mode));
-  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.TakeoutDateTime));
+  CheckEquals('PICKUP_AREA', TakeoutModeToStr(FSchema.mode));
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.takeoutDateTime));
 end;
 
 procedure TTestOrderTakeout.ObjectToJSON;
@@ -2327,6 +2342,434 @@ begin
   inherited;
 end;
 
+{ TTestOrder }
+
+procedure TTestOrder.JSONToObject;
+begin
+  FSchema.AsJSON := FJSON;
+
+  CheckEquals('1111', FSchema.id);
+  CheckEquals('DELIVERY', ServiceTypeToStr(FSchema.&type));
+  CheckEquals('01111', FSchema.displayId);
+  CheckEquals('001111', FSchema.sourceAppId);
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.createdAt));
+  CheckEquals('2019-08-24 14:14:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.preparationStartDateTime));
+  CheckEquals('INSTANT', FSchema.orderTiming);
+  CheckEquals('2222222', FSchema.merchant.id);
+  CheckEquals('Pizza Plaza', FSchema.merchant.name);
+  CheckEquals('no onions', FSchema.extraInfo);
+
+  // Items
+  CheckEquals(1, FSchema.items.Count);
+  CheckEquals(1, FSchema.items[0].options.Count);
+  CheckEquals('22', FSchema.items[0].id);
+  CheckEquals(0, FSchema.items[0].index);
+  CheckEquals('item 1', FSchema.items[0].name);
+  CheckEquals('111', FSchema.items[0].externalCode);
+  CheckEquals('UNIT', FSchema.items[0].&unit);
+  CheckEquals('99999', FSchema.items[0].ean);
+  CheckEquals('2', FloatToStr(FSchema.items[0].quantity));
+  CheckEquals('no onion', FSchema.items[0].specialInstructions);
+  CheckEquals('40', FloatToStr(FSchema.items[0].unitPrice.value));
+  CheckEquals('BRL', FSchema.items[0].unitPrice.&currency);
+  CheckEquals('40', FloatToStr(FSchema.items[0].optionsPrice.value));
+  CheckEquals('BRL', FSchema.items[0].optionsPrice.&currency);
+  CheckEquals('120', FloatToStr(FSchema.items[0].totalPrice.value));
+  CheckEquals('BRL', FSchema.items[0].totalPrice.&currency);
+
+  // Options
+  CheckEquals('111', FSchema.items[0].options[0].id);
+  CheckEquals(0, FSchema.items[0].options[0].index);
+  CheckEquals('option 1', FSchema.items[0].options[0].name);
+  CheckEquals('1111', FSchema.items[0].options[0].externalCode);
+  CheckEquals('UNIT', FSchema.items[0].options[0].&unit);
+  CheckEquals('22222', FSchema.items[0].options[0].ean);
+  CheckEquals('1', FloatToStr(FSchema.items[0].options[0].quantity));
+  CheckEquals('no onion', FSchema.items[0].options[0].specialInstructions);
+  CheckEquals('40', FloatToStr(FSchema.items[0].options[0].unitPrice.value));
+  CheckEquals('BRL', FSchema.items[0].options[0].unitPrice.&currency);
+  CheckEquals('40', FloatToStr(FSchema.items[0].options[0].totalPrice.value));
+  CheckEquals('BRL', FSchema.items[0].options[0].totalPrice.&currency);
+
+  // OtherFees
+  CheckEquals(1, FSchema.otherFees.Count);
+  CheckEquals('ENTREGA', FSchema.otherFees[0].name);
+  CheckEquals('DELIVERY_FEE', FeeTypeToStr(FSchema.otherFees[0].&type));
+  CheckEquals('MARKETPLACE', FeeReceivedByToStr(FSchema.otherFees[0].receivedBy));
+  CheckEquals('5555', FSchema.otherFees[0].receiverDocument);
+  CheckEquals('string', FSchema.otherFees[0].observation);
+  CheckEquals('BRL', FSchema.otherFees[0].price.&currency);
+  CheckEquals('10', FloatToStr(FSchema.otherFees[0].price.value));
+
+  // Discounts
+  CheckEquals(1, FSchema.discounts.Count);
+  CheckEquals('CART', DiscountTargetToStr(FSchema.discounts[0].target));
+  CheckEquals('string', FSchema.discounts[0].targetId);
+  CheckEquals('BRL', FSchema.discounts[0].amount.&currency);
+  CheckEquals('5', FloatToStr(FSchema.discounts[0].amount.value));
+  CheckEquals(1, FSchema.discounts[0].sponsorshipValues.Count);
+  CheckEquals('MARKETPLACE', FSchema.discounts[0].sponsorshipValues[0].name);
+  CheckEquals('BRL', FSchema.discounts[0].sponsorshipValues[0].amount.&currency);
+  CheckEquals('5', FloatToStr(FSchema.discounts[0].sponsorshipValues[0].amount.value));
+
+  // Total
+  CheckEquals('BRL', FSchema.total.itemsPrice.&currency);
+  CheckEquals('120', FloatToStr(FSchema.total.itemsPrice.value));
+  CheckEquals('BRL', FSchema.total.otherFees.&currency);
+  CheckEquals('10', FloatToStr(FSchema.total.otherFees.value));
+  CheckEquals('BRL', FSchema.total.discount.&currency);
+  CheckEquals('5', FloatToStr(FSchema.total.discount.value));
+  CheckEquals('BRL', FSchema.total.orderAmount.&currency);
+  CheckEquals('125', FloatToStr(FSchema.total.orderAmount.value));
+
+  // Payments
+  CheckEquals('125', FloatToStr(FSchema.payments.prepaid));
+  CheckEquals('0', FloatToStr(FSchema.payments.pending));
+  CheckEquals(1, FSchema.payments.methods.Count);
+  CheckEquals('125', FloatToStr(FSchema.payments.methods[0].value));
+  CheckEquals('BRL', FSchema.payments.methods[0].&currency);
+  CheckEquals('PREPAID', PaymentTypeToStr(FSchema.payments.methods[0].&type));
+  CheckEquals('DEBIT', PaymentMethodToStr(FSchema.payments.methods[0].method));
+  CheckEquals('Cash', FSchema.payments.methods[0].methodInfo);
+  CheckEquals('150', FloatToStr(FSchema.payments.methods[0].changeFor));
+  CheckEquals('25', FloatToStr(FSchema.payments.methods[0].ChangeValue));
+
+  // Customer
+  CheckEquals('4444', FSchema.customer.id);
+  CheckEquals('998855', FSchema.customer.phone.number);
+  CheckEquals('21', FSchema.customer.phone.extension);
+  CheckEquals('888888', FSchema.customer.documentNumber);
+  CheckEquals('Customer 123', FSchema.customer.name);
+  CheckEquals(3, FSchema.customer.ordersCountOnMerchant);
+
+  // Delivery
+  CheckEquals('MERCHANT', SponsorToStr(FSchema.delivery.deliveredBy));
+  CheckEquals('BR', FSchema.delivery.deliveryAddress.country);
+  CheckEquals('BR-SP', FSchema.delivery.deliveryAddress.state);
+  CheckEquals('São Paulo', FSchema.delivery.deliveryAddress.city);
+  CheckEquals('Moema', FSchema.delivery.deliveryAddress.district);
+  CheckEquals('Plaza Avenue', FSchema.delivery.deliveryAddress.street);
+  CheckEquals('100', FSchema.delivery.deliveryAddress.number);
+  CheckEquals('BL 02 AP 31', FSchema.delivery.deliveryAddress.complement);
+  CheckEquals('Yellow House', FSchema.delivery.deliveryAddress.reference);
+  CheckEquals('Plaza Avenue, 100, BL 02 AP 31, Moema - São Paulo, SP - Brazil', FSchema.delivery.deliveryAddress.formattedAddress);
+  CheckEquals('20111-000', FSchema.delivery.deliveryAddress.postalCode);
+  CheckEquals('-23,54823', FloatToStr(FSchema.delivery.deliveryAddress.coordinates.latitude));
+  CheckEquals('-46,63632', FloatToStr(FSchema.delivery.deliveryAddress.coordinates.longitude));
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.delivery.estimatedDeliveryDateTime));
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.delivery.deliveryDateTime));
+
+  // Takeout
+  CheckEquals('DEFAULT', TakeoutModeToStr(FSchema.takeout.mode));
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.takeout.takeoutDateTime));
+end;
+
+procedure TTestOrder.ObjectToJson;
+var
+  LJSONObject: TACBrJSONObject;
+begin
+  FSchema.AsJSON := FJSON;
+  FJSONObject := TACBrJSONObject.Parse(FSchema.AsJSON);
+
+  CheckEquals('1111', FJSONObject.AsString['id']);
+  CheckEquals('DELIVERY', FJSONObject.AsString['type']);
+  CheckEquals('01111', FJSONObject.AsString['displayId']);
+  CheckEquals('001111', FJSONObject.AsString['sourceAppId']);
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FJSONObject.AsISODateTime['createdAt']));
+  CheckEquals('2019-08-24 14:14:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FJSONObject.AsISODateTime['preparationStartDateTime']));
+  CheckEquals('INSTANT', FJSONObject.AsString['orderTiming']);
+  CheckEquals('2222222', FJSONObject.AsJSONObject['merchant'].AsString['id']);
+  CheckEquals('Pizza Plaza', FJSONObject.AsJSONObject['merchant'].AsString['name']);
+  CheckEquals('no onions', FJSONObject.AsString['extraInfo']);
+
+  // Items
+  CheckEquals(1, FJSONObject.AsJSONArray['items'].Count);
+  LJSONObject := FJSONObject.AsJSONArray['items'].ItemAsJSONObject[0];
+  CheckEquals(1, LJSONObject.AsJSONArray['options'].Count);
+  CheckEquals('22', LJSONObject.AsString['id']);
+  CheckEquals(0, LJSONObject.AsInteger['index']);
+  CheckEquals('item 1', LJSONObject.AsString['name']);
+  CheckEquals('111', LJSONObject.AsString['externalCode']);
+  CheckEquals('UNIT', LJSONObject.AsString['unit']);
+  CheckEquals('99999', LJSONObject.AsString['ean']);
+  CheckEquals('2', FloatToStr(LJSONObject.AsFloat['quantity']));
+  CheckEquals('no onion', LJSONObject.AsString['specialInstructions']);
+  CheckEquals('40', FloatToStr(LJSONObject.AsJSONObject['unitPrice'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONObject['unitPrice'].AsString['currency']);
+  CheckEquals('40', FloatToStr(LJSONObject.AsJSONObject['optionsPrice'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONObject['optionsPrice'].AsString['currency']);
+  CheckEquals('120', FloatToStr(LJSONObject.AsJSONObject['totalPrice'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONObject['totalPrice'].AsString['currency']);
+
+  // Options
+  LJSONObject := LJSONObject.AsJSONArray['options'].ItemAsJSONObject[0];
+  CheckEquals('111', LJSONObject.AsString['id']);
+  CheckEquals(0, LJSONObject.AsInteger['index']);
+  CheckEquals('option 1', LJSONObject.AsString['name']);
+  CheckEquals('1111', LJSONObject.AsString['externalCode']);
+  CheckEquals('UNIT', LJSONObject.AsString['unit']);
+  CheckEquals('22222', LJSONObject.AsString['ean']);
+  CheckEquals('1', FloatToStr(LJSONObject.AsFloat['quantity']));
+  CheckEquals('no onion', LJSONObject.AsString['specialInstructions']);
+  CheckEquals('40', FloatToStr(LJSONObject.AsJSONObject['unitPrice'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONObject['unitPrice'].AsString['currency']);
+  CheckEquals('40', FloatToStr(LJSONObject.AsJSONObject['totalPrice'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONObject['totalPrice'].AsString['currency']);
+
+  // OtherFees
+  LJSONObject := FJSONObject.AsJSONArray['otherFees'].ItemAsJSONObject[0];
+  CheckEquals(1, FJSONObject.AsJSONArray['otherFees'].Count);
+  CheckEquals('ENTREGA', LJSONObject.AsString['name']);
+  CheckEquals('DELIVERY_FEE', LJSONObject.AsString['type']);
+  CheckEquals('MARKETPLACE', LJSONObject.AsString['receivedBy']);
+  CheckEquals('5555', LJSONObject.AsString['receiverDocument']);
+  CheckEquals('string', LJSONObject.AsString['observation']);
+  CheckEquals('BRL', LJSONObject.AsJSONObject['price'].AsString['currency']);
+  CheckEquals('10', FloatToStr(LJSONObject.AsJSONObject['price'].AsFloat['value']));
+
+  // Discounts
+  LJSONObject := FJSONObject.AsJSONArray['discounts'].ItemAsJSONObject[0];
+  CheckEquals(1, FJSONObject.AsJSONArray['discounts'].Count);
+  CheckEquals('CART', LJSONObject.AsString['target']);
+  CheckEquals('string', LJSONObject.AsString['targetId']);
+  CheckEquals('BRL', LJSONObject.AsJSONObject['amount'].AsString['currency']);
+  CheckEquals('5', FloatToStr(LJSONObject.AsJSONObject['amount'].AsFloat['value']));
+
+  CheckEquals(1, LJSONObject.AsJSONArray['sponsorshipValues'].Count);
+  LJSONObject := LJSONObject.AsJSONArray['sponsorshipValues'].ItemAsJSONObject[0];
+  CheckEquals('MARKETPLACE', LJSONObject.AsString['name']);
+  CheckEquals('BRL', LJSONObject.AsJSONObject['amount'].AsString['currency']);
+  CheckEquals('5', FloatToStr(LJSONObject.AsJSONObject['amount'].AsFloat['value']));
+
+  // Total
+  LJSONObject := FJSONObject.AsJSONObject['total'];
+  CheckEquals('BRL', LJSONObject.AsJSONObject['itemsPrice'].AsString['currency']);
+  CheckEquals('120', FloatToStr(LJSONObject.AsJSONObject['itemsPrice'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONObject['otherFees'].AsString['currency']);
+  CheckEquals('10', FloatToStr(LJSONObject.AsJSONObject['otherFees'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONObject['discount'].AsString['currency']);
+  CheckEquals('5', FloatToStr(LJSONObject.AsJSONObject['discount'].AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsJSONObject['orderAmount'].AsString['currency']);
+  CheckEquals('125', FloatToStr(LJSONObject.AsJSONObject['orderAmount'].AsFloat['value']));
+
+  // Payments
+  LJSONObject := FJSONObject.AsJSONObject['payments'];
+  CheckEquals('125', FloatToStr(LJSONObject.AsFloat['prepaid']));
+  CheckEquals('0', FloatToStr(LJSONObject.AsFloat['pending']));
+  CheckEquals(1, LJSONObject.AsJSONArray['methods'].Count);
+  LJSONObject := LJSONObject.AsJSONArray['methods'].ItemAsJSONObject[0];
+  CheckEquals('125', FloatToStr(LJSONObject.AsFloat['value']));
+  CheckEquals('BRL', LJSONObject.AsString['currency']);
+  CheckEquals('PREPAID', LJSONObject.AsString['type']);
+  CheckEquals('DEBIT', LJSONObject.AsString['method']);
+  CheckEquals('Cash', LJSONObject.AsString['methodInfo']);
+  CheckEquals('150', FloatToStr(LJSONObject.AsFloat['changeFor']));
+
+  // Customer
+  LJSONObject := FJSONObject.AsJSONObject['customer'];
+  CheckEquals('4444', LJSONObject.AsString['id']);
+  CheckEquals('888888', LJSONObject.AsString['documentNumber']);
+  CheckEquals('Customer 123', LJSONObject.AsString['name']);
+  CheckEquals(3, LJSONObject.AsInteger['ordersCountOnMerchant']);
+  CheckEquals('998855', LJSONObject.AsJSONObject['phone'].AsString['number']);
+  CheckEquals('21', LJSONObject.AsJSONObject['phone'].AsString['extension']);
+
+  // Delivery
+  LJSONObject := FJSONObject.AsJSONObject['delivery'];
+  CheckEquals('MERCHANT', LJSONObject.AsString['deliveredBy']);
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', LJSONObject.AsISODateTime['estimatedDeliveryDateTime']));
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', LJSONObject.AsISODateTime['deliveryDateTime']));
+  LJSONObject := LJSONObject.AsJSONObject['deliveryAddress'];
+  CheckEquals('BR', LJSONObject.AsString['country']);
+  CheckEquals('BR-SP', LJSONObject.AsString['state']);
+  CheckEquals('São Paulo', LJSONObject.AsString['city']);
+  CheckEquals('Moema', LJSONObject.AsString['district']);
+  CheckEquals('Plaza Avenue', LJSONObject.AsString['street']);
+  CheckEquals('100', LJSONObject.AsString['number']);
+  CheckEquals('BL 02 AP 31', LJSONObject.AsString['complement']);
+  CheckEquals('Yellow House', LJSONObject.AsString['reference']);
+  CheckEquals('Plaza Avenue, 100, BL 02 AP 31, Moema - São Paulo, SP - Brazil', LJSONObject.AsString['formattedAddress']);
+  CheckEquals('20111-000', LJSONObject.AsString['postalCode']);
+  CheckEquals('-23,54823', FloatToStr(LJSONObject.AsJSONObject['coordinates'].AsFloat['latitude']));
+  CheckEquals('-46,63632', FloatToStr(LJSONObject.AsJSONObject['coordinates'].AsFloat['longitude']));
+
+  // Takeout
+  LJSONObject := FJSONObject.AsJSONObject['takeout'];
+  CheckEquals('DEFAULT', LJSONObject.AsString['mode']);
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', LJSONObject.AsISODateTime['takeoutDateTime']));
+end;
+
+procedure TTestOrder.SetUp;
+begin
+  inherited;
+  FSchema := TACBrOpenDeliverySchemaOrder.Create;
+  FJSON := ACBrStr(
+    '{' +
+      '"id": "1111",' +
+      '"type": "DELIVERY",' +
+      '"displayId": "01111",' +
+      '"sourceAppId": "001111",' +
+      '"createdAt": "2019-08-24T14:15:22Z",' +
+      '"orderTiming": "INSTANT",' +
+      '"preparationStartDateTime": "2019-08-24T14:14:22Z",' +
+      '"merchant": {' +
+        '"id": "2222222",' +
+        '"name": "Pizza Plaza"' +
+      '},' +
+      '"items": [' +
+        '{' +
+          '"id": "22",' +
+          '"index": 0,' +
+          '"name": "item 1",' +
+          '"externalCode": "111",' +
+          '"unit": "UNIT",' +
+          '"ean": "99999",' +
+          '"quantity": 2,' +
+          '"specialInstructions": "no onion",' +
+          '"unitPrice": {' +
+            '"value": 40,' +
+            '"currency": "BRL"' +
+          '},' +
+          '"optionsPrice": {' +
+            '"value": 40,' +
+            '"currency": "BRL"' +
+          '},' +
+          '"totalPrice": {' +
+            '"value": 120,' +
+            '"currency": "BRL"' +
+          '},' +
+          '"options": [' +
+            '{' +
+              '"index": 0,' +
+              '"id": "111",' +
+              '"name": "option 1",' +
+              '"externalCode": "1111",' +
+              '"unit": "UNIT",' +
+              '"ean": "22222",' +
+              '"quantity": 1,' +
+              '"unitPrice": {' +
+                '"value": 40,' +
+                '"currency": "BRL"' +
+              '},' +
+              '"totalPrice": {' +
+                '"value": 40,' +
+                '"currency": "BRL"' +
+              '},' +
+              '"specialInstructions": "no onion"' +
+            '}' +
+          ']' +
+        '}' +
+      '],' +
+      '"otherFees": [' +
+        '{' +
+          '"name": "ENTREGA",' +
+          '"type": "DELIVERY_FEE",' +
+          '"receivedBy": "MARKETPLACE",' +
+          '"receiverDocument": "5555",' +
+          '"price": {' +
+            '"value": 10,' +
+            '"currency": "BRL"' +
+          '},' +
+          '"observation": "string"' +
+        '}' +
+      '],' +
+      '"discounts": [' +
+        '{' +
+          '"amount": {' +
+            '"value": 5,' +
+            '"currency": "BRL"' +
+          '},' +
+          '"target": "CART",' +
+          '"targetId": "string",' +
+          '"sponsorshipValues": [' +
+            '{' +
+              '"name": "MARKETPLACE",' +
+              '"amount": {' +
+                '"value": 5,' +
+                '"currency": "BRL"' +
+              '}' +
+            '}' +
+          ']' +
+        '}' +
+      '],' +
+      '"total": {' +
+        '"itemsPrice": {  ' +
+          '"value": 120,' +
+          '"currency": "BRL"' +
+        '},' +
+        '"otherFees": {' +
+          '"value": 10,' +
+          '"currency": "BRL"' +
+        '},' +
+        '"discount": {' +
+          '"value": 5,' +
+          '"currency": "BRL"' +
+        '},' +
+        '"orderAmount": {' +
+          '"value": 125,' +
+          '"currency": "BRL"' +
+        '}' +
+      '},' +
+      '"payments": {' +
+        '"prepaid": 125,' +
+        '"pending": 0,' +
+        '"methods": [' +
+          '{' +
+            '"value": 125,' +
+            '"currency": "BRL",' +
+            '"type": "PREPAID",' +
+            '"method": "DEBIT",' +
+            '"methodInfo": "Cash",' +
+            '"changeFor": 150' +
+          '}' +
+        ']' +
+      '},' +
+      '"customer": {' +
+        '"id": "4444",' +
+        '"phone": {' +
+          '"number": "998855",' +
+          '"extension": "21"' +
+        '},' +
+        '"documentNumber": "888888",' +
+        '"name": "Customer 123",' +
+        '"ordersCountOnMerchant": 3' +
+      '},' +
+      '"delivery": {' +
+        '"deliveredBy": "MERCHANT",' +
+        '"deliveryAddress": {' +
+          '"country": "BR",' +
+          '"state": "BR-SP",' +
+          '"city": "São Paulo",' +
+          '"district": "Moema",' +
+          '"street": "Plaza Avenue",' +
+          '"number": "100",' +
+          '"complement": "BL 02 AP 31",' +
+          '"reference": "Yellow House",' +
+          '"formattedAddress": "Plaza Avenue, 100, BL 02 AP 31, Moema - São Paulo, SP - Brazil",' +
+          '"postalCode": "20111-000",' +
+          '"coordinates": {' +
+            '"latitude": -23.54823,' +
+            '"longitude": -46.63632' +
+          '}' +
+        '},' +
+        '"estimatedDeliveryDateTime": "2019-08-24T14:15:22Z",' +
+        '"deliveryDateTime": "2019-08-24T14:15:22Z"' +
+      '},' +
+      '"takeout": {' +
+        '"mode": "DEFAULT",' +
+        '"takeoutDateTime": "2019-08-24T14:15:22Z"' +
+      '},' +
+      '"extraInfo": "no onions"' +
+    '}');
+end;
+
+procedure TTestOrder.TearDown;
+begin
+  FSchema.Free;
+  FJSONObject.Free;
+  inherited;
+end;
+
 initialization
   _RegisterTest('ACBrOpenDelivery.Schema.AccessToken', TTestAccessToken);
   _RegisterTest('ACBrOpenDelivery.Schema.Acknowledgment', TTestAcknowledgment);
@@ -2347,6 +2790,7 @@ initialization
   _RegisterTest('ACBrOpenDelivery.Schema.NutritionalInfo', TTestNutritionalInfo);
   _RegisterTest('ACBrOpenDelivery.Schema.Option', TTestOption);
   _RegisterTest('ACBrOpenDelivery.Schema.OptionGroup', TTestOptionGroup);
+  _RegisterTest('ACBrOpenDelivery.Schema.Order', TTestOrder);
   _RegisterTest('ACBrOpenDelivery.Schema.OrderAddress', TTestOrderAddress);
   _RegisterTest('ACBrOpenDelivery.Schema.OrderCustomer', TTestOrderCustomer);
   _RegisterTest('ACBrOpenDelivery.Schema.OrderDelivery', TTestOrderDelivery);
