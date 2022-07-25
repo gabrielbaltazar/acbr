@@ -41,6 +41,7 @@ type
   TACBrOpenDeliverySchemaOptionCollection = class;
   TACBrOpenDeliverySchemaOptionGroup = class;
   TACBrOpenDeliverySchemaOptionGroupCollection = class;
+  TACBrOpenDeliverySchemaOrder = class;
   TACBrOpenDeliverySchemaOrderAddress = class;
   TACBrOpenDeliverySchemaOrderCustomer = class;
   TACBrOpenDeliverySchemaOrderDelivery = class;
@@ -55,6 +56,8 @@ type
   TACBrOpenDeliverySchemaOrderItemOption = class;
   TACBrOpenDeliverySchemaOrderItemOptionCollection = class;
   TACBrOpenDeliverySchemaOrderMerchant = class;
+  TACBrOpenDeliverySchemaOrderPayment = class;
+  TACBrOpenDeliverySchemaOrderPaymentCollection = class;
   TACBrOpenDeliverySchemaOrderPaymentMethod = class;
   TACBrOpenDeliverySchemaOrderPaymentMethodCollection = class;
   TACBrOpenDeliverySchemaOrderTakeout = class;
@@ -702,6 +705,54 @@ type
     property Items[Index: Integer]: TACBrOpenDeliverySchemaOptionGroup read GetItem write SetItem; default;
   end;
 
+  TACBrOpenDeliverySchemaOrder = class(TACBrOpenDeliverySchema)
+  private
+    Fid: string;
+    Ftype: TACBrODServiceType;
+    FdisplayId: string;
+    FsourceAppId: string;
+    FcreatedAt: TDateTime;
+    ForderTiming: string;
+    FpreparationStartDateTime: TDateTime;
+    FextraInfo: string;
+    Fmerchant: TACBrOpenDeliverySchemaOrderMerchant;
+    Fitems: TACBrOpenDeliverySchemaOrderItemCollection;
+    FotherFees: TACBrOpenDeliverySchemaOrderFeeCollection;
+    Fdiscounts: TACBrOpenDeliverySchemaOrderDiscountCollection;
+    Ftotal: TACBrOpenDeliverySchemaOrderTotal;
+    Fpayments: TACBrOpenDeliverySchemaOrderPayment;
+    Fcustomer: TACBrOpenDeliverySchemaOrderCustomer;
+    Fdelivery: TACBrOpenDeliverySchemaOrderDelivery;
+    Ftakeout: TACBrOpenDeliverySchemaOrderTakeout;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+
+    property id: string read Fid write Fid;
+    property &type: TACBrODServiceType read Ftype write Ftype;
+    property displayId: string read FdisplayId write FdisplayId;
+    property sourceAppId: string read FsourceAppId write FsourceAppId;
+    property createdAt: TDateTime read FcreatedAt write FcreatedAt;
+    property orderTiming: string read ForderTiming write ForderTiming;
+    property preparationStartDateTime: TDateTime read FpreparationStartDateTime write FpreparationStartDateTime;
+    property extraInfo: string read FextraInfo write FextraInfo;
+    property merchant: TACBrOpenDeliverySchemaOrderMerchant read Fmerchant write Fmerchant;
+    property items: TACBrOpenDeliverySchemaOrderItemCollection read Fitems write Fitems;
+    property otherFees: TACBrOpenDeliverySchemaOrderFeeCollection read FotherFees write FotherFees;
+    property discounts: TACBrOpenDeliverySchemaOrderDiscountCollection read Fdiscounts write Fdiscounts;
+    property total: TACBrOpenDeliverySchemaOrderTotal read Ftotal write Ftotal;
+    property payments: TACBrOpenDeliverySchemaOrderPayment read Fpayments write Fpayments;
+    property customer: TACBrOpenDeliverySchemaOrderCustomer read Fcustomer write Fcustomer;
+    property delivery: TACBrOpenDeliverySchemaOrderDelivery read Fdelivery write Fdelivery;
+    property takeout: TACBrOpenDeliverySchemaOrderTakeout read Ftakeout write Ftakeout;
+  end;
+
   TACBrOpenDeliverySchemaOrderAddress = class(TACBrOpenDeliverySchema)
   private
     Fdistrict: string;
@@ -1017,6 +1068,38 @@ type
     property name: string read Fname write Fname;
   end;
 
+  TACBrOpenDeliverySchemaOrderPayment = class(TACBrOpenDeliverySchema)
+  private
+    Fprepaid: Currency;
+    Fpending: Currency;
+    Fmethods: TACBrOpenDeliverySchemaOrderPaymentMethodCollection;
+  protected
+    procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
+    procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
+
+  public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
+    procedure Clear; override;
+    function IsEmpty: Boolean; override;
+    property prepaid: Currency read Fprepaid write Fprepaid;
+    property pending: Currency read Fpending write Fpending;
+    property methods: TACBrOpenDeliverySchemaOrderPaymentMethodCollection read Fmethods write Fmethods;
+  end;
+
+  TACBrOpenDeliverySchemaOrderPaymentCollection = class(TACBrOpenDeliverySchemaArray)
+  private
+    function GetItem(Index: Integer): TACBrOpenDeliverySchemaOrderPayment;
+    procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaOrderPayment);
+
+  protected
+    function NewSchema: TACBrOpenDeliverySchema; override;
+
+  public
+    function New: TACBrOpenDeliverySchemaOrderPayment;
+    property Items[Index: Integer]: TACBrOpenDeliverySchemaOrderPayment read GetItem write SetItem; default;
+  end;
+
   TACBrOpenDeliverySchemaOrderPaymentMethod = class(TACBrOpenDeliverySchema)
   private
     Fvalue: Currency;
@@ -1029,6 +1112,7 @@ type
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
 
+  public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
     function ChangeValue: Currency;
@@ -3918,6 +4002,197 @@ end;
 procedure TACBrOpenDeliverySchemaOrderPaymentMethodCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaOrderPaymentMethod);
 begin
   inherited Items[Index] := Value;
+end;
+
+{ TACBrOpenDeliverySchemaOrderPayment }
+
+procedure TACBrOpenDeliverySchemaOrderPayment.Clear;
+begin
+  Fprepaid := 0;
+  Fpending := 0;
+  Fmethods.Clear;
+end;
+
+constructor TACBrOpenDeliverySchemaOrderPayment.Create(const AObjectName: string);
+begin
+  inherited Create(AObjectName);
+  Fmethods := TACBrOpenDeliverySchemaOrderPaymentMethodCollection.Create('methods');
+end;
+
+destructor TACBrOpenDeliverySchemaOrderPayment.Destroy;
+begin
+  Fmethods.Free;
+  inherited;
+end;
+
+procedure TACBrOpenDeliverySchemaOrderPayment.DoReadFromJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .Value('prepaid', Fprepaid)
+    .Value('pending', Fpending);
+
+  Fmethods.ReadFromJSon(AJSon);
+end;
+
+procedure TACBrOpenDeliverySchemaOrderPayment.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('prepaid', Fprepaid)
+    .AddPair('pending', Fpending);
+
+  Fmethods.WriteToJSon(AJSon);
+end;
+
+function TACBrOpenDeliverySchemaOrderPayment.IsEmpty: Boolean;
+begin
+  Result := (Fprepaid = 0) and
+            (Fpending = 0) and
+            (Fmethods.IsEmpty);
+end;
+
+{ TACBrOpenDeliverySchemaOrderPaymentCollection }
+
+function TACBrOpenDeliverySchemaOrderPaymentCollection.GetItem(Index: Integer): TACBrOpenDeliverySchemaOrderPayment;
+begin
+  Result := TACBrOpenDeliverySchemaOrderPayment(inherited Items[Index]);
+end;
+
+function TACBrOpenDeliverySchemaOrderPaymentCollection.New: TACBrOpenDeliverySchemaOrderPayment;
+begin
+  Result := TACBrOpenDeliverySchemaOrderPayment.Create;
+  Self.Add(Result);
+end;
+
+function TACBrOpenDeliverySchemaOrderPaymentCollection.NewSchema: TACBrOpenDeliverySchema;
+begin
+  Result := New;
+end;
+
+procedure TACBrOpenDeliverySchemaOrderPaymentCollection.SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaOrderPayment);
+begin
+  inherited Items[Index] := Value;
+end;
+
+{ TACBrOpenDeliverySchemaOrder }
+
+procedure TACBrOpenDeliverySchemaOrder.Clear;
+begin
+  Fid := '';
+  Ftype := stDelivery;
+  FdisplayId := '';
+  FsourceAppId := '';
+  FcreatedAt := 0;
+  ForderTiming := 'INSTANT';
+  FpreparationStartDateTime := 0;
+  FextraInfo := '';
+  Fmerchant.Clear;
+  Fitems.Clear;
+  FotherFees.Clear;
+  Fdiscounts.Clear;
+  Ftotal.Clear;
+  Fpayments.Clear;
+  Fcustomer.Clear;
+  Fdelivery.Clear;
+  Ftakeout.Clear;
+end;
+
+constructor TACBrOpenDeliverySchemaOrder.Create(const AObjectName: string);
+begin
+  inherited Create(AObjectName);
+  ForderTiming := 'INSTANT';
+  Fmerchant := TACBrOpenDeliverySchemaOrderMerchant.Create('merchant');
+  Fitems := TACBrOpenDeliverySchemaOrderItemCollection.Create('items');
+  FotherFees := TACBrOpenDeliverySchemaOrderFeeCollection.Create('otherFees');
+  Fdiscounts := TACBrOpenDeliverySchemaOrderDiscountCollection.Create('discounts');
+  Ftotal := TACBrOpenDeliverySchemaOrderTotal.Create('total');
+  Fpayments := TACBrOpenDeliverySchemaOrderPayment.Create('payments');
+  Fcustomer := TACBrOpenDeliverySchemaOrderCustomer.Create('customer');
+  Fdelivery := TACBrOpenDeliverySchemaOrderDelivery.Create('delivery');
+  Ftakeout := TACBrOpenDeliverySchemaOrderTakeout.Create('takeout');
+end;
+
+destructor TACBrOpenDeliverySchemaOrder.Destroy;
+begin
+  Fmerchant.Free;
+  Fitems.Free;
+  FotherFees.Free;
+  Fdiscounts.Free;
+  Ftotal.Free;
+  Fpayments.Free;
+  Fcustomer.Free;
+  Fdelivery.Free;
+  Ftakeout.Free;
+  inherited;
+end;
+
+procedure TACBrOpenDeliverySchemaOrder.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  LStrType: String;
+begin
+  AJSon
+    .Value('id', Fid)
+    .Value('type', LStrType)
+    .Value('displayId', FdisplayId)
+    .Value('sourceAppId', FsourceAppId)
+    .ValueISODateTime('createdAt', FcreatedAt)
+    .Value('orderTiming', ForderTiming)
+    .ValueISODateTime('preparationStartDateTime', FpreparationStartDateTime)
+    .Value('extraInfo', FextraInfo);
+
+  Ftype := StrToServiceType(LStrType);
+  Fmerchant.ReadFromJSon(AJSon);
+  Fitems.ReadFromJSon(AJSon);
+  FotherFees.ReadFromJSon(AJSon);
+  Fdiscounts.ReadFromJSon(AJSon);
+  Ftotal.ReadFromJSon(AJSon);
+  Fpayments.ReadFromJSon(AJSon);
+  Fcustomer.ReadFromJSon(AJSon);
+  Fdelivery.ReadFromJSon(AJSon);
+  Ftakeout.ReadFromJSon(AJSon);
+end;
+
+procedure TACBrOpenDeliverySchemaOrder.DoWriteToJSon(AJSon: TACBrJSONObject);
+begin
+  AJSon
+    .AddPair('id', Fid)
+    .AddPair('type', ServiceTypeToStr(Ftype))
+    .AddPair('displayId', FdisplayId)
+    .AddPair('sourceAppId', FsourceAppId)
+    .AddPairISODateTime('createdAt', FcreatedAt)
+    .AddPair('orderTiming', ForderTiming)
+    .AddPairISODateTime('preparationStartDateTime', FpreparationStartDateTime)
+    .AddPair('extraInfo', FextraInfo);
+
+  Fmerchant.WriteToJSon(AJSon);
+  Fitems.WriteToJSon(AJSon);
+  FotherFees.WriteToJSon(AJSon);
+  Fdiscounts.WriteToJSon(AJSon);
+  Ftotal.WriteToJSon(AJSon);
+  Fpayments.WriteToJSon(AJSon);
+  Fcustomer.WriteToJSon(AJSon);
+  Fdelivery.WriteToJSon(AJSon);
+  Ftakeout.WriteToJSon(AJSon);
+end;
+
+function TACBrOpenDeliverySchemaOrder.IsEmpty: Boolean;
+begin
+  Result := (Fid = '') and
+            (Ftype = stDelivery) and
+            (FdisplayId = '') and
+            (FsourceAppId = '') and
+            (FcreatedAt = 0) and
+            (ForderTiming = 'INSTANT') and
+            (FpreparationStartDateTime = 0) and
+            (FextraInfo = '') and
+            (Fmerchant.IsEmpty) and
+            (Fitems.IsEmpty) and
+            (FotherFees.IsEmpty) and
+            (Fdiscounts.IsEmpty) and
+            (Ftotal.IsEmpty) and
+            (Fpayments.IsEmpty) and
+            (Fcustomer.IsEmpty) and
+            (Fdelivery.IsEmpty) and
+            (Ftakeout.IsEmpty);
 end;
 
 end.
