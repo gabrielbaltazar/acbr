@@ -31,6 +31,7 @@ type
     function GetMethodType: string;
 
     procedure PrepareRequest;
+    procedure PrepareRequestProxy;
     procedure PrepareRequestAuth;
     procedure PrepareRequestHeaders;
     procedure PrepareRequestBody;
@@ -129,6 +130,7 @@ begin
   FHTTPSend.Sock.SSL.SSLType := LT_all;
   FHTTPSend.AddPortNumberToHost := False;
 
+  PrepareRequestProxy;
   PrepareRequestAuth;
   PrepareRequestHeaders;
   PrepareRequestBody;
@@ -184,6 +186,17 @@ begin
 
   if FAccept <> EmptyStr then
     FHTTPSend.Headers.Add(Format('Accept:%s', [FAccept]));
+end;
+
+procedure TACBrOpenDeliveryHTTPRequestSynapse.PrepareRequestProxy;
+begin
+  if FProxyHost <> '' then
+  begin
+    FHTTPSend.ProxyHost := FProxyHost;
+    FHTTPSend.ProxyPort := FProxyPort;
+    FHTTPSend.ProxyUser := FProxyUser;
+    FHTTPSend.ProxyPass := FProxyPass;
+  end;
 end;
 
 function TACBrOpenDeliveryHTTPRequestSynapse.Send: TACBrOpenDeliveryHTTPResponse;

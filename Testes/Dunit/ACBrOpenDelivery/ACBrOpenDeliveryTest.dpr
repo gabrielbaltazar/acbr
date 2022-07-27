@@ -46,7 +46,9 @@ uses
   ACBrOpenDeliveryHTTPClientEvents in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientEvents.pas',
   ACBrOpenDeliveryHTTPClient in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClient.pas',
   ACBrOpenDeliveryHTTPClientDetails in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientDetails.pas',
-  ACBrOpenDeliveryHTTPClientActions in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientActions.pas';
+  ACBrOpenDeliveryHTTPClientActions in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientActions.pas',
+  ACBrOpenDelivery in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDelivery.pas',
+  ACBrOpenDeliveryWebService in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryWebService.pas';
 
 begin
   {$IF CompilerVersion >= 30.0}

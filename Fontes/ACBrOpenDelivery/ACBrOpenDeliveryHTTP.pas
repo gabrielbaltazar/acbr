@@ -30,6 +30,10 @@ type
     FBaseURL: string;
     FResource: string;
     FBody: string;
+    FProxyHost: string;
+    FProxyPort: string;
+    FProxyUser: string;
+    FProxyPass: string;
 
   public
     function POST: TACBrOpenDeliveryHTTPRequest;
@@ -38,8 +42,13 @@ type
     function DELETE: TACBrOpenDeliveryHTTPRequest;
     function PATCH: TACBrOpenDeliveryHTTPRequest;
 
-    function BaseURL(const AValue: string) : TACBrOpenDeliveryHTTPRequest;
-    function Resource(const AValue: string) : TACBrOpenDeliveryHTTPRequest;
+    function ProxyHost(const AValue: string): TACBrOpenDeliveryHTTPRequest;
+    function ProxyPort(const AValue: string): TACBrOpenDeliveryHTTPRequest;
+    function ProxyUser(const AValue: string): TACBrOpenDeliveryHTTPRequest;
+    function ProxyPass(const AValue: string): TACBrOpenDeliveryHTTPRequest;
+
+    function BaseURL(const AValue: string): TACBrOpenDeliveryHTTPRequest;
+    function Resource(const AValue: string): TACBrOpenDeliveryHTTPRequest;
     function TimeOut(const AValue: Integer): TACBrOpenDeliveryHTTPRequest;
 
     function ContentType(const AValue: string): TACBrOpenDeliveryHTTPRequest;
@@ -279,6 +288,30 @@ function TACBrOpenDeliveryHTTPRequest.POST: TACBrOpenDeliveryHTTPRequest;
 begin
   Result := Self;
   FMethodType := mtPost;
+end;
+
+function TACBrOpenDeliveryHTTPRequest.ProxyHost(const AValue: string): TACBrOpenDeliveryHTTPRequest;
+begin
+  Result := Self;
+  FProxyHost := AValue;
+end;
+
+function TACBrOpenDeliveryHTTPRequest.ProxyPass(const AValue: string): TACBrOpenDeliveryHTTPRequest;
+begin
+  Result := Self;
+  FProxyPass := AValue;
+end;
+
+function TACBrOpenDeliveryHTTPRequest.ProxyPort(const AValue: string): TACBrOpenDeliveryHTTPRequest;
+begin
+  Result := Self;
+  FProxyPort := AValue;
+end;
+
+function TACBrOpenDeliveryHTTPRequest.ProxyUser(const AValue: string): TACBrOpenDeliveryHTTPRequest;
+begin
+  Result := Self;
+  FProxyUser := AValue;
 end;
 
 function TACBrOpenDeliveryHTTPRequest.PUT: TACBrOpenDeliveryHTTPRequest;

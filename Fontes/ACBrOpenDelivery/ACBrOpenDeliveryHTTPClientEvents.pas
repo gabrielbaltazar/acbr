@@ -106,7 +106,6 @@ var
   LResponse: TACBrOpenDeliveryHTTPResponse;
   LJSONArray: TACBrJSONArray;
 begin
-  Result := nil;
   try
     for I := 0 to Pred(Length(FEvents)) do
     begin

@@ -89,6 +89,7 @@ type
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
+    function IsValid: Boolean;
 
     property accessToken: String read FaccessToken write FaccessToken;
     property expiresIn: Integer read FexpiresIn write FexpiresIn;
@@ -3183,6 +3184,11 @@ end;
 function TACBrOpenDeliverySchemaAccessToken.IsEmpty: Boolean;
 begin
   Result := (FaccessToken = '') and (FexpiresIn = 0);
+end;
+
+function TACBrOpenDeliverySchemaAccessToken.IsValid: Boolean;
+begin
+  Result := (FaccessToken <> '') and (not (FexpiresAt < Now));
 end;
 
 { TACBrOpenDeliverySchemaAcknowledgment }

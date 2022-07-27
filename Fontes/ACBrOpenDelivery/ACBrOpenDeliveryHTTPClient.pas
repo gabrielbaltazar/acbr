@@ -3,6 +3,7 @@ unit ACBrOpenDeliveryHTTPClient;
 interface
 
 uses
+  ACBrBase,
   ACBrOpenDeliveryHTTP,
   ACBrOpenDeliveryHTTPClientAuth,
   ACBrOpenDeliveryHTTPClientDetails,
@@ -11,6 +12,7 @@ uses
 type
   TACBrOpenDeliveryHTTPClient = class
   private
+    FACBr: TACBrComponent;
     FAuth: TACBrOpenDeliveryHTTPClientAuth;
     FDetails: TACBrOpenDeliveryHTTPClientDetails;
     FEvents: TACBrOpenDeliveryHTTPClientEvents;
@@ -22,6 +24,7 @@ type
     function GetDetails: TACBrOpenDeliveryHTTPClientDetails;
 
   public
+    constructor Create(AOwner: TACBrComponent);
     destructor Destroy; override;
 
     property Auth: TACBrOpenDeliveryHTTPClientAuth read GetAuth;
@@ -32,6 +35,11 @@ type
 implementation
 
 { TACBrOpenDeliveryHTTPClient }
+
+constructor TACBrOpenDeliveryHTTPClient.Create(AOwner: TACBrComponent);
+begin
+  FACBr := AOwner;
+end;
 
 destructor TACBrOpenDeliveryHTTPClient.Destroy;
 begin
