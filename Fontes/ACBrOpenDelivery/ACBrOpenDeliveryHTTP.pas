@@ -11,8 +11,53 @@ uses
 type
   TACBrRestMethodType = (mtGet, mtPost, mtPut, mtDelete, mtPatch);
   TACBrOpenDeliveryHTTPResponse = class;
+  TACBrOpenDeliveryHTTPLogEnvio = class;
+  TACBrOpenDeliveryHTTPLogResposta = class;
 
-  EACBrOpenDeliveryHTTPException = class;
+  TACBrOpenDeliveryOnHTTPEnviar = procedure(ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio) of object;
+  TACBrOpenDeliveryOnHTTPRetornar = procedure(ALogResposta: TACBrOpenDeliveryHTTPLogResposta) of object;
+
+  TACBrOpenDeliveryHTTPLogEnvio = class
+  private
+    FId: string;
+    FHeaders: TStrings;
+    FMethod: string;
+    FBody: string;
+    FURL: string;
+    FData: TDateTime;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear;
+    property Id: string read FId write FId;
+    property Data: TDateTime read FData write FData;
+    property URL: string read FURL write FURL;
+    property Method: string read FMethod write FMethod;
+    property Headers: TStrings read FHeaders write FHeaders;
+    property Body: string read FBody write FBody;
+  end;
+
+  TACBrOpenDeliveryHTTPLogResposta = class
+  private
+    FId: string;
+    FHeaders: TStrings;
+    FMethod: string;
+    FBody: string;
+    FURL: string;
+    FStatus: Integer;
+    FData: TDateTime;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear;
+    property Id: string read FId write FId;
+    property Data: TDateTime read FData write FData;
+    property URL: string read FURL write FURL;
+    property Method: string read FMethod write FMethod;
+    property Headers: TStrings read FHeaders write FHeaders;
+    property Body: string read FBody write FBody;
+    property Status: Integer read FStatus write FStatus;
+  end;
 
   TACBrOpenDeliveryHTTPRequest = class
   protected
@@ -34,8 +79,15 @@ type
     FProxyPort: string;
     FProxyUser: string;
     FProxyPass: string;
-
+    FEnvio: TACBrOpenDeliveryHTTPLogEnvio;
+    FResposta: TACBrOpenDeliveryHTTPLogResposta;
+    FOnHTTPEnvio: TACBrOpenDeliveryOnHTTPEnviar;
+    FOnHTTPResposta: TACBrOpenDeliveryOnHTTPRetornar;
   public
+    constructor Create(const ARequestId: string = ''); virtual;
+    destructor Destroy; override;
+    class function New(const ARequestId: string = ''): TACBrOpenDeliveryHTTPRequest;
+
     function POST: TACBrOpenDeliveryHTTPRequest;
     function PUT: TACBrOpenDeliveryHTTPRequest;
     function GET: TACBrOpenDeliveryHTTPRequest;
@@ -71,9 +123,8 @@ type
     function Send: TACBrOpenDeliveryHTTPResponse; virtual; abstract;
     procedure Clear; virtual;
 
-    constructor Create(const ARequestId: string = ''); virtual;
-    destructor Destroy; override;
-    class function New(const ARequestId: string = ''): TACBrOpenDeliveryHTTPRequest;
+    function OnHTTPEnvio(AValue: TACBrOpenDeliveryOnHTTPEnviar): TACBrOpenDeliveryHTTPRequest;
+    function OnHTTPResposta(AValue: TACBrOpenDeliveryOnHTTPRetornar): TACBrOpenDeliveryHTTPRequest;
   end;
 
   TACBrOpenDeliveryHTTPResponse = class
@@ -84,8 +135,9 @@ type
     FJSONObject: TACBrJSONObject;
     FJSONArray: TACBrJSONArray;
     FHeaders: TStrings;
-
   public
+    destructor Destroy; override;
+
     function StatusCode: Integer;
     function StatusText: string;
     function GetContent: string;
@@ -95,54 +147,12 @@ type
     function HeaderAsString(AName: String): string;
     function HeaderAsInteger(AName: String): Integer;
     function HeaderAsFloat(AName: String): Double;
-
-    destructor Destroy; override;
-  end;
-
-  EACBrOpenDeliveryHTTPException = class(Exception)
-  private
-    FError: TACBrOpenDeliverySchemaError;
-    function GetStatus: Integer;
-    function GetTitle: string;
-
-  public
-    property Status: Integer read GetStatus;
-    property Title: string read GetTitle;
-
-    constructor Create(const AStatus: Integer; const AMessage: string); reintroduce;
-    destructor Destroy; override;
   end;
 
 implementation
 
-{ EACBrOpenDeliveryHTTPException }
-
 uses
   ACBrOpenDeliveryHTTPSynapse;
-
-constructor EACBrOpenDeliveryHTTPException.Create(const AStatus: Integer; const AMessage: string);
-begin
-  inherited Create(AMessage);
-  FError := TACBrOpenDeliverySchemaError.Create;
-  FError.Status := AStatus;
-  FError.Title := AMessage;
-end;
-
-destructor EACBrOpenDeliveryHTTPException.Destroy;
-begin
-  FError.Free;
-  inherited;
-end;
-
-function EACBrOpenDeliveryHTTPException.GetStatus: Integer;
-begin
-  Result := FError.Status;
-end;
-
-function EACBrOpenDeliveryHTTPException.GetTitle: string;
-begin
-  Result := FError.Title;
-end;
 
 { TACBrOpenDeliveryHTTPRequest }
 
@@ -251,6 +261,8 @@ begin
   FTimeOut := 60000;
   FContentType := 'application/json';
   FAccept := 'application/json';
+  FEnvio := TACBrOpenDeliveryHTTPLogEnvio.Create;
+  FResposta := TACBrOpenDeliveryHTTPLogResposta.Create;
 end;
 
 function TACBrOpenDeliveryHTTPRequest.DELETE: TACBrOpenDeliveryHTTPRequest;
@@ -264,6 +276,8 @@ begin
   FQuery.Free;
   FHeaders.Free;
   FFormUrlEncoded.Free;
+  FEnvio.Free;
+  FResposta.Free;
   inherited;
 end;
 
@@ -276,6 +290,18 @@ end;
 class function TACBrOpenDeliveryHTTPRequest.New(const ARequestId: string): TACBrOpenDeliveryHTTPRequest;
 begin
   Result := TACBrOpenDeliveryHTTPRequestSynapse.New(ARequestId);
+end;
+
+function TACBrOpenDeliveryHTTPRequest.OnHTTPEnvio(AValue: TACBrOpenDeliveryOnHTTPEnviar): TACBrOpenDeliveryHTTPRequest;
+begin
+  Result := Self;
+  FOnHTTPEnvio := AValue;
+end;
+
+function TACBrOpenDeliveryHTTPRequest.OnHTTPResposta(AValue: TACBrOpenDeliveryOnHTTPRetornar): TACBrOpenDeliveryHTTPRequest;
+begin
+  Result := Self;
+  FOnHTTPResposta := AValue;
 end;
 
 function TACBrOpenDeliveryHTTPRequest.PATCH: TACBrOpenDeliveryHTTPRequest;
@@ -390,6 +416,55 @@ end;
 function TACBrOpenDeliveryHTTPResponse.StatusText: string;
 begin
   Result := FStatusText;
+end;
+
+{ TACBrOpenDeliveryHTTPLogEnvio }
+
+procedure TACBrOpenDeliveryHTTPLogEnvio.Clear;
+begin
+  FId := '';
+  FURL := '';
+  FMethod := 'GET';
+  FBody := '';
+  FData := 0;
+  FHeaders.Clear;
+end;
+
+constructor TACBrOpenDeliveryHTTPLogEnvio.Create;
+begin
+  inherited Create;
+  FHeaders := TStringList.Create;
+end;
+
+destructor TACBrOpenDeliveryHTTPLogEnvio.Destroy;
+begin
+  FHeaders.Free;
+  inherited;
+end;
+
+{ TACBrOpenDeliveryHTTPLogResposta }
+
+procedure TACBrOpenDeliveryHTTPLogResposta.Clear;
+begin
+  FId := '';
+  FURL := '';
+  FMethod := 'GET';
+  FBody := '';
+  FStatus := 0;
+  FData := 0;
+  FHeaders.Clear;
+end;
+
+constructor TACBrOpenDeliveryHTTPLogResposta.Create;
+begin
+  inherited Create;
+  FHeaders := TStringList.Create;
+end;
+
+destructor TACBrOpenDeliveryHTTPLogResposta.Destroy;
+begin
+  FHeaders.Free;
+  inherited;
 end;
 
 end.

@@ -4,6 +4,7 @@ interface
 
 uses
   ACBrBase,
+  ACBrOpenDeliveryException,
   ACBrOpenDeliveryWebService,
   Classes,
   SysUtils;
@@ -22,12 +23,15 @@ type
     FCredenciais: TACBrOpenDeliveryCredential;
     FBaseUrl: string;
     FWebServices: TACBrOpenDeliveryWebServices;
+    FOnGerarLog: TACBrGravarLog;
     function GetWebServices: TACBrOpenDeliveryWebServices;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
     function GetToken: string;
+    procedure FazerLog(const AMsg: String; out ATratado: Boolean);
+    procedure GerarException(const AMsg: String; AErro: Exception = nil);
 
     property WebServices: TACBrOpenDeliveryWebServices read GetWebServices;
   published
@@ -35,6 +39,8 @@ type
     property Credenciais: TACBrOpenDeliveryCredential read FCredenciais write FCredenciais;
     property Proxy: TACBrOpenDeliveryProxy read FProxy write FProxy;
     property TimeOut: Integer read FTimeOut write FTimeOut;
+
+    property OnGerarLog: TACBrGravarLog read FOnGerarLog write FOnGerarLog;
   end;
 
   TACBrOpenDeliveryCredential = class(TPersistent)
@@ -112,6 +118,31 @@ begin
   FProxy.Free;
   FWebServices.Free;
   inherited;
+end;
+
+procedure TACBrOpenDelivery.FazerLog(const AMsg: String; out ATratado: Boolean);
+begin
+  ATratado := False;
+  if (AMsg <> '') then
+  begin
+    if Assigned(OnGerarLog) then
+      OnGerarLog(AMsg, ATratado);
+  end;
+end;
+
+procedure TACBrOpenDelivery.GerarException(const AMsg: String; AErro: Exception);
+var
+  LTratado: Boolean;
+  LMsgErro: string;
+begin
+  LMsgErro := AMsg;
+  if Assigned(AErro) then
+    LMsgErro := LMsgErro + sLineBreak + AErro.Message;
+
+  LTratado := False;
+  FazerLog('ERRO: ' + LMsgErro, LTratado);
+  if not LTratado then
+    raise EACBrOpenDeliveryException.CreateDef(LMsgErro);
 end;
 
 function TACBrOpenDelivery.GetToken: string;

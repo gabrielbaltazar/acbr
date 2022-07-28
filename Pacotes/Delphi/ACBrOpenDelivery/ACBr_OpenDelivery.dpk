@@ -45,6 +45,7 @@ contains
   ACBrOpenDeliverySchema in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas',
   ACBrOpenDeliverySchemaClasses in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas',
   ACBrOpenDeliveryWebService in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryWebService.pas',
-  pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas';
+  pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas',
+  ACBrOpenDeliveryException in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryException.pas';
 
 end.

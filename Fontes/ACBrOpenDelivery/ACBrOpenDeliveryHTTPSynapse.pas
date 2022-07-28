@@ -62,6 +62,8 @@ begin
   FHTTPSend.Clear;
   FHeaders.Clear;
   FQuery.Clear;
+  FEnvio.Clear;
+  FResposta.Clear;
   FBody := EmptyStr;
 end;
 
@@ -83,7 +85,7 @@ var
   LResource: string;
   I: Integer;
 begin
-  result := FBaseUrl;
+  Result := FBaseUrl;
 
   if Copy(FBaseUrl, Length(FBaseUrl), 1) <> '/' then
     Result := Result + '/';
@@ -100,7 +102,6 @@ begin
       Result := Result + '?'
     else
       Result := Result + '&';
-
     Result := Result + FQuery.Names[I] + '=' + FQuery.ValueFromIndex[I];
   end;
 end;
@@ -120,6 +121,8 @@ end;
 
 procedure TACBrOpenDeliveryHTTPRequestSynapse.PrepareRequest;
 begin
+  FEnvio.Clear;
+  FResposta.Clear;
   FHTTPSend.Clear;
   FHTTPSend.Timeout := FTimeout;
   FHTTPSend.Sock.ConnectionTimeout := FTimeout;
@@ -163,10 +166,14 @@ begin
     end;
 
     WriteStrToStream(FHTTPSend.Document, LUrlData);
+    FEnvio.Body := LUrlData;
   end
   else
   if FBody <> '' then
-    WriteStrToStream(FHTTPSend.Document, AnsiString( FBody))
+  begin
+    WriteStrToStream(FHTTPSend.Document, AnsiString(FBody));
+    FEnvio.Body := AnsiString(FBody);
+  end
   else
     FHTTPSend.Headers.Add('Content-Length:0');
 end;
@@ -174,12 +181,19 @@ end;
 procedure TACBrOpenDeliveryHTTPRequestSynapse.PrepareRequestHeaders;
 var
   I: Integer;
+  LName: string;
+  LValue: string;
 begin
   if not Assigned(FHeaders) then
     exit;
 
   for I := 0 to Pred(FHeaders.Count) do
-    FHTTPSend.Headers.Add(Format('%s:%s', [FHeaders.Names[I], FHeaders.ValueFromIndex[I]]));
+  begin
+    LName := FHeaders.Names[I];
+    LValue := FHeaders.ValueFromIndex[I];
+    FHTTPSend.Headers.Add(Format('%s:%s', [LName, LValue]));
+    FEnvio.Headers.Values[LName] := LValue;
+  end;
 
   if FContentType <> EmptyStr then
     FHTTPSend.MimeType := FContentType;
@@ -206,12 +220,21 @@ begin
   LUrl := GetFullUrl;
   if LUrl.EndsWith('/') then
     LUrl := Copy(LUrl, 1, LUrl.Length - 1);
+  FEnvio.URL := LUrl;
   PrepareRequest;
   try
-    FHTTPSend.HTTPMethod(GetMethodType, LUrl);
+    FEnvio.Data := Now;
+    FEnvio.Method := GetMethodType;
+    FHTTPSend.HTTPMethod(FEnvio.Method, LUrl);
+    FResposta.Data := Now;
 
     Result := TACBrOpenDeliveryHTTPResponseSynapse.Create(FHTTPSend);
   finally
+    if Assigned(FOnHTTPEnvio) then
+      FOnHTTPEnvio(FEnvio);
+
+    if Assigned(FOnHTTPResposta) then
+      FOnHTTPResposta(FResposta);
     Clear;
   end;
 end;

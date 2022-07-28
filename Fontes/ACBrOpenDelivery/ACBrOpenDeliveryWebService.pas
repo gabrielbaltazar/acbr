@@ -6,6 +6,7 @@ uses
   ACBrBase,
   ACBrJSON,
   ACBrOpenDeliverySchemaClasses,
+  ACBrOpenDeliveryException,
   ACBrOpenDeliveryHTTP,
   ACBrOpenDeliveryHTTPClientDetails,
   SysUtils;
@@ -39,6 +40,11 @@ type
     procedure EnviarDados;
     function TratarResposta: Boolean; virtual;
     procedure SalvarResposta;
+
+    procedure FazerLog(const AMsg: string); virtual;
+    procedure GerarException(const AMsg: string; AErro: Exception = nil); virtual;
+    function GerarMsgLog: string; virtual;
+    function GerarMsgErro(AErro: Exception): string; virtual;
   public
     constructor Create(AOwner: TACBrComponent);
     destructor Destroy; override;
@@ -146,7 +152,10 @@ begin
 end;
 
 function TACBrOpenDeliveryWebService.Executar: Boolean;
+var
+  LMsgErro: string;
 begin
+  FazerLog('Inicio ' + ClassName);
   InicializarServico;
   try
     DefinirRecurso;
@@ -157,12 +166,15 @@ begin
       try
         Result := TratarResposta;
       finally
+        FazerLog(GerarMsgLog);
         SalvarResposta;
       end;
     except
       on E: Exception do
       begin
         Result := False;
+        LMsgErro := GerarMsgErro(E);
+        GerarException(LMsgErro, E);
       end;
     end;
   finally
@@ -171,13 +183,60 @@ begin
 end;
 
 procedure TACBrOpenDeliveryWebService.EnviarDados;
+var
+  LError: TACBrOpenDeliverySchemaError;
+  LJSONObject: TACBrJSONObject;
+  LStatus: Integer;
+  LTitle: string;
 begin
   FreeAndNil(FResponse);
   FResponse := FRequest.Send;
+  if FResponse.StatusCode >= 400 then
+  begin
+    LStatus := FResponse.StatusCode;
+    LTitle := FResponse.StatusText;
+    LJSONObject := FResponse.GetJSONObject;
+    if Assigned(LJSONObject) then
+    begin
+      LError := TACBrOpenDeliverySchemaError.Create;
+      try
+        LError.AsJSON := LJSONObject.ToJSON;
+        LStatus := LError.Status;
+        LTitle := LError.Title;
+      finally
+        LError.Free;
+      end;
+    end;
+
+    raise EACBrOpenDeliveryHTTPException.Create(LStatus, LTitle);
+  end;
+end;
+
+procedure TACBrOpenDeliveryWebService.FazerLog(const AMsg: string);
+var
+  LTratado: Boolean;
+begin
+  if (AMsg <> '') then
+    GetACBrOpenDelivery(FOwner).FazerLog(AMsg, LTratado);
 end;
 
 procedure TACBrOpenDeliveryWebService.FinalizarServico;
 begin
+end;
+
+procedure TACBrOpenDeliveryWebService.GerarException(const AMsg: string; AErro: Exception);
+begin
+  GetACBrOpenDelivery(FOwner).GerarException(AMsg, AErro);
+end;
+
+function TACBrOpenDeliveryWebService.GerarMsgErro(AErro: Exception): string;
+begin
+  Result := '';
+end;
+
+function TACBrOpenDeliveryWebService.GerarMsgLog: string;
+begin
+  Result := '';
 end;
 
 procedure TACBrOpenDeliveryWebService.InicializarServico;
