@@ -40,15 +40,7 @@ uses
   ACBrOpenDeliverySchema in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas',
   ACBrOpenDeliverySchemaClasses in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas',
   pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas',
-  ACBrOpenDeliveryHTTP in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTP.pas',
-  ACBrOpenDeliveryHTTPSynapse in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPSynapse.pas',
-  ACBrOpenDeliveryHTTPClientAuth in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientAuth.pas',
-  ACBrOpenDeliveryHTTPClientEvents in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientEvents.pas',
-  ACBrOpenDeliveryHTTPClient in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClient.pas',
-  ACBrOpenDeliveryHTTPClientDetails in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientDetails.pas',
-  ACBrOpenDeliveryHTTPClientActions in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientActions.pas',
-  ACBrOpenDelivery in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDelivery.pas',
-  ACBrOpenDeliveryWebService in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryWebService.pas';
+  ACBrOpenDelivery in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDelivery.pas';
 
 begin
   {$IF CompilerVersion >= 30.0}

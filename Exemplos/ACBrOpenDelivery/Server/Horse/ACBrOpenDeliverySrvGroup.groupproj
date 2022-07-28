@@ -9,10 +9,13 @@
         <Projects Include="ACBrOpenDelivery_WinSrv.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="..\..\..\..\Testes\Dunit\ACBrComum\ACBrComumTestCases.dproj">
+        <Projects Include="..\..\..\..\Testes\Dunit\ACBrOpenDelivery\ACBrOpenDeliveryTest.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="..\..\..\..\Testes\Dunit\ACBrOpenDelivery\ACBrOpenDeliveryTest.dproj">
+        <Projects Include="..\..\..\..\Pacotes\Delphi\ACBrOpenDelivery\ACBr_OpenDelivery.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\..\..\Pacotes\Delphi\ACBrOpenDelivery\DCLACBr_OpenDelivery.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -41,15 +44,6 @@
     <Target Name="ACBrOpenDelivery_WinSrv:Make">
         <MSBuild Projects="ACBrOpenDelivery_WinSrv.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ACBrComumTestCases">
-        <MSBuild Projects="..\..\..\..\Testes\Dunit\ACBrComum\ACBrComumTestCases.dproj"/>
-    </Target>
-    <Target Name="ACBrComumTestCases:Clean">
-        <MSBuild Projects="..\..\..\..\Testes\Dunit\ACBrComum\ACBrComumTestCases.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="ACBrComumTestCases:Make">
-        <MSBuild Projects="..\..\..\..\Testes\Dunit\ACBrComum\ACBrComumTestCases.dproj" Targets="Make"/>
-    </Target>
     <Target Name="ACBrOpenDeliveryTest">
         <MSBuild Projects="..\..\..\..\Testes\Dunit\ACBrOpenDelivery\ACBrOpenDeliveryTest.dproj"/>
     </Target>
@@ -59,14 +53,32 @@
     <Target Name="ACBrOpenDeliveryTest:Make">
         <MSBuild Projects="..\..\..\..\Testes\Dunit\ACBrOpenDelivery\ACBrOpenDeliveryTest.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ACBr_OpenDelivery">
+        <MSBuild Projects="..\..\..\..\Pacotes\Delphi\ACBrOpenDelivery\ACBr_OpenDelivery.dproj"/>
+    </Target>
+    <Target Name="ACBr_OpenDelivery:Clean">
+        <MSBuild Projects="..\..\..\..\Pacotes\Delphi\ACBrOpenDelivery\ACBr_OpenDelivery.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ACBr_OpenDelivery:Make">
+        <MSBuild Projects="..\..\..\..\Pacotes\Delphi\ACBrOpenDelivery\ACBr_OpenDelivery.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DCLACBr_OpenDelivery">
+        <MSBuild Projects="..\..\..\..\Pacotes\Delphi\ACBrOpenDelivery\DCLACBr_OpenDelivery.dproj"/>
+    </Target>
+    <Target Name="DCLACBr_OpenDelivery:Clean">
+        <MSBuild Projects="..\..\..\..\Pacotes\Delphi\ACBrOpenDelivery\DCLACBr_OpenDelivery.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DCLACBr_OpenDelivery:Make">
+        <MSBuild Projects="..\..\..\..\Pacotes\Delphi\ACBrOpenDelivery\DCLACBr_OpenDelivery.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv;ACBrOpenDelivery_WinSrv;ACBrComumTestCases;ACBrOpenDeliveryTest"/>
+        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv;ACBrOpenDelivery_WinSrv;ACBrOpenDeliveryTest;ACBr_OpenDelivery;DCLACBr_OpenDelivery"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Clean;ACBrOpenDelivery_WinSrv:Clean;ACBrComumTestCases:Clean;ACBrOpenDeliveryTest:Clean"/>
+        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Clean;ACBrOpenDelivery_WinSrv:Clean;ACBrOpenDeliveryTest:Clean;ACBr_OpenDelivery:Clean;DCLACBr_OpenDelivery:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Make;ACBrOpenDelivery_WinSrv:Make;ACBrComumTestCases:Make;ACBrOpenDeliveryTest:Make"/>
+        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Make;ACBrOpenDelivery_WinSrv:Make;ACBrOpenDeliveryTest:Make;ACBr_OpenDelivery:Make;DCLACBr_OpenDelivery:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
