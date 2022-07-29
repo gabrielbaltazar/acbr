@@ -220,15 +220,18 @@ begin
   LUrl := GetFullUrl;
   if LUrl.EndsWith('/') then
     LUrl := Copy(LUrl, 1, LUrl.Length - 1);
-  FEnvio.URL := LUrl;
   PrepareRequest;
   try
+    FEnvio.URL := LUrl;
     FEnvio.Data := Now;
     FEnvio.Method := GetMethodType;
     FHTTPSend.HTTPMethod(FEnvio.Method, LUrl);
     FResposta.Data := Now;
+    FResposta.URL := LUrl;
 
     Result := TACBrOpenDeliveryHTTPResponseSynapse.Create(FHTTPSend);
+    FResposta.Body := Result.GetContent;
+    FResposta.Status := Result.StatusCode;
   finally
     if Assigned(FOnHTTPEnvio) then
       FOnHTTPEnvio(FEnvio);
@@ -243,13 +246,16 @@ end;
 
 constructor TACBrOpenDeliveryHTTPResponseSynapse.Create(AHTTPSend: THTTPSend);
 
-  function UnzipDoc: String;
+  function UnzipDoc: string;
   var
-    LCT: String;
+    LCT: string;
     LResp: AnsiString;
     LRespIsUTF8: Boolean;
     LZT: TCompressType;
   begin
+    if AHTTPSend.Document.Size = 0 then
+      Exit('');
+
     LZT := DetectCompressType(AHTTPSend.Document);
     if LZT = ctUnknown then
     begin

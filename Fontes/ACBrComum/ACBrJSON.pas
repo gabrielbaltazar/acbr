@@ -577,7 +577,8 @@ begin
   {$Else}
     Result := TJsonArray.Create;
     try
-      Result.Parse(AJSONString);
+      if AJsonString <> '' then
+        Result.Parse(AJSONString);
     except
       Result.Free;
       raise;

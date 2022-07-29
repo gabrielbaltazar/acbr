@@ -43,6 +43,8 @@ type
     etPickupAreaAssigned, etConcluded, etCancellationRequested,
     etCancellationRequestDenied, etCancelled, etOrderCancellationRequest);
 
+  TACBrODEventTypeArray = array of TACBrODEventType;
+
   TACBrODFeeReceivedBy = (rbMarketplace, rbMerchant, rbLogisticServices);
 
   TACBrODFeeType = (ftDeliveryFee, ftServiceFee, ftTip);

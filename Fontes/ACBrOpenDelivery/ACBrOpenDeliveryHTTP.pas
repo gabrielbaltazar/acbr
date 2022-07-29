@@ -41,7 +41,6 @@ type
   private
     FId: string;
     FHeaders: TStrings;
-    FMethod: string;
     FBody: string;
     FURL: string;
     FStatus: Integer;
@@ -53,7 +52,6 @@ type
     property Id: string read FId write FId;
     property Data: TDateTime read FData write FData;
     property URL: string read FURL write FURL;
-    property Method: string read FMethod write FMethod;
     property Headers: TStrings read FHeaders write FHeaders;
     property Body: string read FBody write FBody;
     property Status: Integer read FStatus write FStatus;
@@ -196,6 +194,7 @@ function TACBrOpenDeliveryHTTPRequest.AddOrSetUrlEncoded(const AName, AValue: st
 begin
   Result := Self;
   FFormUrlEncoded.Values[AName] := AValue;
+  FContentType := 'application/x-www-form-urlencoded';
 end;
 
 function TACBrOpenDeliveryHTTPRequest.AddOrSetUrlEncoded(const AName: string; const AValue: Integer): TACBrOpenDeliveryHTTPRequest;
@@ -289,7 +288,7 @@ end;
 
 class function TACBrOpenDeliveryHTTPRequest.New(const ARequestId: string): TACBrOpenDeliveryHTTPRequest;
 begin
-  Result := TACBrOpenDeliveryHTTPRequestSynapse.New(ARequestId);
+  Result := TACBrOpenDeliveryHTTPRequestSynapse.Create(ARequestId);
 end;
 
 function TACBrOpenDeliveryHTTPRequest.OnHTTPEnvio(AValue: TACBrOpenDeliveryOnHTTPEnviar): TACBrOpenDeliveryHTTPRequest;
@@ -448,7 +447,6 @@ procedure TACBrOpenDeliveryHTTPLogResposta.Clear;
 begin
   FId := '';
   FURL := '';
-  FMethod := 'GET';
   FBody := '';
   FStatus := 0;
   FData := 0;
