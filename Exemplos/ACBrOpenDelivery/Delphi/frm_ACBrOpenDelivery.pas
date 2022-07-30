@@ -6,9 +6,10 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls,
   IniFiles,
+  pcnConversaoOD,
   ACBrBase,
   ACBrOpenDeliveryHTTP,
-  ACBrOpenDelivery;
+  ACBrOpenDelivery, Vcl.Menus;
 
 type
   TForm1 = class(TForm)
@@ -31,17 +32,42 @@ type
     btnPollingAddMerchantId: TButton;
     mmoPolling: TMemo;
     btnPolling: TButton;
-    procedure ACBrOpenDelivery1HTTPEnviar(
-      ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio);
-    procedure ACBrOpenDelivery1HTTPRetornar(
-      ALogResposta: TACBrOpenDeliveryHTTPLogResposta);
+    pmLog: TPopupMenu;
+    Clear1: TMenuItem;
+    edtPollingAddEventId: TEdit;
+    Label4: TLabel;
+    btnPollingAck: TButton;
+    tsOrder: TTabSheet;
+    Label5: TLabel;
+    edtOrderOrderId: TEdit;
+    btnOrderGetDetails: TButton;
+    mmoOrder: TMemo;
+    edtPollingOrderId: TEdit;
+    Label6: TLabel;
+    btnOrderConfirm: TButton;
+    btnOrderDispatch: TButton;
+    btnOrderReadyForPickup: TButton;
+    btnOrderRequestCancellation: TButton;
+    btnOrderAcceptCancellation: TButton;
+    btnOrderDenyCancellation: TButton;
+    Label7: TLabel;
+    edtOrderReason: TEdit;
+    procedure ACBrOpenDelivery1HTTPEnviar(ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio);
+    procedure ACBrOpenDelivery1HTTPRetornar(ALogResposta: TACBrOpenDeliveryHTTPLogResposta);
     procedure btnGetTokenClick(Sender: TObject);
-    procedure ACBrOpenDelivery1TokenGet(AClientId: string;
-      var AToken: string; var AExpiresAt: TDateTime);
-    procedure ACBrOpenDelivery1TokenSave(AClientId, AToken: string;
-      AExpiresAt: TDateTime);
+    procedure ACBrOpenDelivery1TokenGet(AClientId: string; var AToken: string; var AExpiresAt: TDateTime);
+    procedure ACBrOpenDelivery1TokenSave(AClientId, AToken: string; AExpiresAt: TDateTime);
     procedure btnPollingClick(Sender: TObject);
     procedure btnPollingAddMerchantIdClick(Sender: TObject);
+    procedure Clear1Click(Sender: TObject);
+    procedure btnOrderGetDetailsClick(Sender: TObject);
+    procedure btnPollingAckClick(Sender: TObject);
+    procedure btnOrderConfirmClick(Sender: TObject);
+    procedure btnOrderDispatchClick(Sender: TObject);
+    procedure btnOrderReadyForPickupClick(Sender: TObject);
+    procedure btnOrderRequestCancellationClick(Sender: TObject);
+    procedure btnOrderAcceptCancellationClick(Sender: TObject);
+    procedure btnOrderDenyCancellationClick(Sender: TObject);
   private
     procedure ConfigurarComponente;
     { Private declarations }
@@ -62,6 +88,7 @@ begin
   mmoLogRequest.Lines.Add('Start: ' + FormatDateTime('hh:mm:ss', ALogEnvio.Data));
   mmoLogRequest.Lines.Add('Url: ' + ALogEnvio.URL);
   mmoLogRequest.Lines.Add('Method: ' + ALogEnvio.Method);
+  mmoLogRequest.Lines.Add('Headers: ' + ALogEnvio.Headers.Text);
   mmoLogRequest.Lines.Add('Body: ' + ALogEnvio.Body);
 end;
 
@@ -71,6 +98,7 @@ begin
   mmoLogResponse.Lines.Add('Start: ' + FormatDateTime('hh:mm:ss', ALogResposta.Data));
   mmoLogResponse.Lines.Add('Url: ' + ALogResposta.URL);
   mmoLogResponse.Lines.Add('Status: ' + IntToStr(ALogResposta.Status));
+  mmoLogResponse.Lines.Add('Headers: ' + ALogResposta.Headers.Text);
   mmoLogResponse.Lines.Add('Body: ' + ALogResposta.Body);
 end;
 
@@ -109,6 +137,77 @@ begin
   ShowMessage(LToken);
 end;
 
+procedure TForm1.btnOrderAcceptCancellationClick(Sender: TObject);
+begin
+  ConfigurarComponente;
+  ACBrOpenDelivery1.WebServices.OrderAcceptCancellation.OrderId := edtOrderOrderId.Text;
+  ACBrOpenDelivery1.WebServices.OrderAcceptCancellation.Executar;
+end;
+
+procedure TForm1.btnOrderConfirmClick(Sender: TObject);
+begin
+  ConfigurarComponente;
+  ACBrOpenDelivery1.WebServices.OrderConfirm.OrderId := edtOrderOrderId.Text;
+  ACBrOpenDelivery1.WebServices.OrderConfirm.Reason := 'Free field for more information about the order confirmation';
+  ACBrOpenDelivery1.WebServices.OrderConfirm.OrderExternalCode := '';
+  ACBrOpenDelivery1.WebServices.OrderConfirm.CreatedAt := Now;
+
+  ACBrOpenDelivery1.WebServices.OrderConfirm.Executar;
+end;
+
+procedure TForm1.btnOrderDenyCancellationClick(Sender: TObject);
+begin
+  ConfigurarComponente;
+  ACBrOpenDelivery1.WebServices.OrderDenyCancellation.OrderId := edtOrderOrderId.Text;
+  ACBrOpenDelivery1.WebServices.OrderDenyCancellation.Reason := edtOrderReason.Text;
+  ACBrOpenDelivery1.WebServices.OrderDenyCancellation.Code := dccOutForDelivery;
+  ACBrOpenDelivery1.WebServices.OrderDenyCancellation.Executar;
+end;
+
+procedure TForm1.btnOrderDispatchClick(Sender: TObject);
+begin
+  ConfigurarComponente;
+  ACBrOpenDelivery1.WebServices.OrderDispatch.OrderId := edtOrderOrderId.Text;
+  ACBrOpenDelivery1.WebServices.OrderDispatch.Executar;
+end;
+
+procedure TForm1.btnOrderGetDetailsClick(Sender: TObject);
+begin
+  ConfigurarComponente;
+  ACBrOpenDelivery1.WebServices.OrderDetails.OrderId := edtOrderOrderId.Text;
+  ACBrOpenDelivery1.WebServices.OrderDetails.Executar;
+
+  mmoOrder.Lines.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.AsJSON;
+end;
+
+procedure TForm1.btnOrderReadyForPickupClick(Sender: TObject);
+begin
+  ConfigurarComponente;
+  ACBrOpenDelivery1.WebServices.OrderReadyForPickup.OrderId := edtOrderOrderId.Text;
+  ACBrOpenDelivery1.WebServices.OrderReadyForPickup.Executar;
+end;
+
+procedure TForm1.btnOrderRequestCancellationClick(Sender: TObject);
+begin
+  ConfigurarComponente;
+  ACBrOpenDelivery1.WebServices.OrderRequestCancellation.OrderId := edtOrderOrderId.Text;
+  ACBrOpenDelivery1.WebServices.OrderRequestCancellation.Reason := edtOrderReason.Text;
+  ACBrOpenDelivery1.WebServices.OrderRequestCancellation.Code := crcUnavailableItem;
+  ACBrOpenDelivery1.WebServices.OrderRequestCancellation.Mode := crmAuto;
+  ACBrOpenDelivery1.WebServices.OrderRequestCancellation.Executar;
+end;
+
+procedure TForm1.btnPollingAckClick(Sender: TObject);
+begin
+  ConfigurarComponente;
+  ACBrOpenDelivery1.WebServices.Acknowledgment.Events.New;
+  ACBrOpenDelivery1.WebServices.Acknowledgment.Events[0].Id := edtPollingAddEventId.Text;
+  ACBrOpenDelivery1.WebServices.Acknowledgment.Events[0].OrderId := edtPollingOrderId.Text;
+
+  ACBrOpenDelivery1.WebServices.Acknowledgment.Executar;
+  ShowMessage(IntToStr(ACBrOpenDelivery1.WebServices.Acknowledgment.StatusCode));
+end;
+
 procedure TForm1.btnPollingAddMerchantIdClick(Sender: TObject);
 begin
   ACBrOpenDelivery1.WebServices.Polling
@@ -120,8 +219,12 @@ begin
   ConfigurarComponente;
   ACBrOpenDelivery1.WebServices.Polling.Executar;
   mmoPolling.Lines.Text := ACBrOpenDelivery1.WebServices.Polling.Events.AsJSON;
+end;
 
-
+procedure TForm1.Clear1Click(Sender: TObject);
+begin
+  mmoLogRequest.Lines.Clear;
+  mmoLogResponse.Lines.Clear;
 end;
 
 procedure TForm1.ConfigurarComponente;

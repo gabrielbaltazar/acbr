@@ -16,19 +16,51 @@ uses
 type
   TACBrOpenDeliveryAuth = class;
   TACBrOpenDeliveryPolling = class;
+  TACBrOpenDeliveryAcknowledgment = class;
+  TACBrOpenDeliveryOrderDetails = class;
+  TACBrOpenDeliveryOrderConfirm = class;
+  TACBrOpenDeliveryOrderReadyForPickup = class;
+  TACBrOpenDeliveryOrderDispatch = class;
+  TACBrOpenDeliveryOrderRequestCancellation = class;
+  TACBrOpenDeliveryOrderAcceptCancellation = class;
+  TACBrOpenDeliveryOrderDenyCancellation = class;
 
   TACBrOpenDeliveryWebServices = class
   private
     FOwner: TACBrComponent;
     FAuth: TACBrOpenDeliveryAuth;
+    FAcknowledgment: TACBrOpenDeliveryAcknowledgment;
     FPolling: TACBrOpenDeliveryPolling;
+    FOrderDetails: TACBrOpenDeliveryOrderDetails;
+    FOrderConfirm: TACBrOpenDeliveryOrderConfirm;
+    FOrderReadyForPickup: TACBrOpenDeliveryOrderReadyForPickup;
+    FOrderDispatch: TACBrOpenDeliveryOrderDispatch;
+    FOrderRequestCancellation: TACBrOpenDeliveryOrderRequestCancellation;
+    FOrderAcceptCancellation: TACBrOpenDeliveryOrderAcceptCancellation;
+    FOrderDenyCancellation: TACBrOpenDeliveryOrderDenyCancellation;
     function GetAuth: TACBrOpenDeliveryAuth;
     function GetPolling: TACBrOpenDeliveryPolling;
+    function GetAcknowledgment: TACBrOpenDeliveryAcknowledgment;
+    function GetOrderDetails: TACBrOpenDeliveryOrderDetails;
+    function GetOrderConfirm: TACBrOpenDeliveryOrderConfirm;
+    function GetOrderDispatch: TACBrOpenDeliveryOrderDispatch;
+    function GetOrderReadyForPickup: TACBrOpenDeliveryOrderReadyForPickup;
+    function GetOrderAcceptCancellation: TACBrOpenDeliveryOrderAcceptCancellation;
+    function GetOrderDenyCancellation: TACBrOpenDeliveryOrderDenyCancellation;
+    function GetOrderRequestCancellation: TACBrOpenDeliveryOrderRequestCancellation;
   public
     constructor Create(AOwner: TACBrComponent);
     destructor Destroy; override;
 
     property Auth: TACBrOpenDeliveryAuth read GetAuth;
+    property Acknowledgment: TACBrOpenDeliveryAcknowledgment read GetAcknowledgment;
+    property OrderDetails: TACBrOpenDeliveryOrderDetails read GetOrderDetails;
+    property OrderConfirm: TACBrOpenDeliveryOrderConfirm read GetOrderConfirm;
+    property OrderReadyForPickup: TACBrOpenDeliveryOrderReadyForPickup read GetOrderReadyForPickup;
+    property OrderDispatch: TACBrOpenDeliveryOrderDispatch read GetOrderDispatch;
+    property OrderRequestCancellation: TACBrOpenDeliveryOrderRequestCancellation read GetOrderRequestCancellation;
+    property OrderAcceptCancellation: TACBrOpenDeliveryOrderAcceptCancellation read GetOrderAcceptCancellation write FOrderAcceptCancellation;
+    property OrderDenyCancellation: TACBrOpenDeliveryOrderDenyCancellation read GetOrderDenyCancellation write FOrderDenyCancellation;
     property Polling: TACBrOpenDeliveryPolling read GetPolling;
   end;
 
@@ -38,6 +70,8 @@ type
     FRequest: TACBrOpenDeliveryHTTPRequest;
     FResponse: TACBrOpenDeliveryHTTPResponse;
     FUseAuth: Boolean;
+    FStatusCode: Integer;
+    FStatusText: string;
 
     procedure InicializarServico;
     procedure FinalizarServico;
@@ -55,10 +89,14 @@ type
   public
     constructor Create(AOwner: TACBrComponent); virtual;
     destructor Destroy; override;
-
     function Executar: Boolean;
     procedure Clear; virtual;
+
+    property StatusCode: Integer read FStatusCode;
+    property StatusTitle: string read FStatusText;
   end;
+
+  { TACBrOpenDeliveryAuth }
 
   TACBrOpenDeliveryAuth = class(TACBrOpenDeliveryWebService)
   private
@@ -75,6 +113,8 @@ type
     destructor Destroy; override;
     property AccessToken: TACBrOpenDeliverySchemaAccessToken read GetAccessToken;
   end;
+
+  { TACBrOpenDeliveryPolling }
 
   TACBrOpenDeliveryPolling = class(TACBrOpenDeliveryWebService)
   private
@@ -94,20 +134,154 @@ type
 
     property EventType: TACBrODEventTypeArray read FEventType write FEventType;
     property XPollingMerchants: TSplitResult read FXPollingMerchants write FXPollingMerchants;
-    property Events: TACBrOpenDeliverySchemaEventCollection read FEvents write FEvents;
+    property Events: TACBrOpenDeliverySchemaEventCollection read FEvents;
   end;
 
-  TACBrOpenDeliveryDetails = class(TACBrOpenDeliveryWebService)
+  { TACBrOpenDeliveryAcknowledgment }
+
+  TACBrOpenDeliveryAcknowledgment = class(TACBrOpenDeliveryWebService)
+  private
+    FEvents: TACBrOpenDeliverySchemaAcknowledgmentCollection;
+  protected
+    procedure DefinirDadosMsg; override;
+    procedure DefinirRecurso; override;
+    function TratarResposta: Boolean; override;
+  public
+    constructor Create(AOwner: TACBrComponent); override;
+    destructor Destroy; override;
+    procedure Clear; override;
+    function AddEventId(const AValue: string): TACBrOpenDeliveryAcknowledgment;
+
+    property Events: TACBrOpenDeliverySchemaAcknowledgmentCollection read FEvents;
+  end;
+
+  { TACBrOpenDeliveryDetails }
+
+  TACBrOpenDeliveryOrderDetails = class(TACBrOpenDeliveryWebService)
   private
     FOrder: TACBrOpenDeliverySchemaOrder;
+    FOrderId: string;
 
     function GetOrder: TACBrOpenDeliverySchemaOrder;
   protected
     procedure DefinirRecurso; override;
     function TratarResposta: Boolean; override;
   public
+    destructor Destroy; override;
+    procedure Clear; override;
 
+    property OrderId: string read FOrderId write FOrderId;
     property Order: TACBrOpenDeliverySchemaOrder read GetOrder;
+  end;
+
+  { TACBrOpenDeliveryOrderConfirm }
+
+  TACBrOpenDeliveryOrderConfirm = class(TACBrOpenDeliveryWebService)
+  private
+    FOrderId: string;
+    FReason: string;
+    FCreatedAt: TDateTime;
+    FOrderExternalCode: string;
+  protected
+    procedure DefinirRecurso; override;
+    procedure DefinirDadosMsg; override;
+    function TratarResposta: Boolean; override;
+  public
+    procedure Clear; override;
+
+    property OrderId: string read FOrderId write FOrderId;
+    property Reason: string read FReason write FReason;
+    property CreatedAt: TDateTime read FCreatedAt write FCreatedAt;
+    property OrderExternalCode: string read FOrderExternalCode write FOrderExternalCode;
+  end;
+
+  { TACBrOpenDeliveryOrderDispatch }
+
+  TACBrOpenDeliveryOrderDispatch = class(TACBrOpenDeliveryWebService)
+  private
+    FOrderId: string;
+  protected
+    procedure DefinirRecurso; override;
+    function TratarResposta: Boolean; override;
+  public
+    procedure Clear; override;
+
+    property OrderId: string read FOrderId write FOrderId;
+  end;
+
+  { TACBrOpenDeliveryOrderReadyForPickup }
+
+  TACBrOpenDeliveryOrderReadyForPickup = class(TACBrOpenDeliveryWebService)
+  private
+    FOrderId: string;
+  protected
+    procedure DefinirRecurso; override;
+    function TratarResposta: Boolean; override;
+  public
+    procedure Clear; override;
+
+    property OrderId: string read FOrderId write FOrderId;
+  end;
+
+  { TACBrOpenDeliveryOrderRequestCancellation }
+
+  TACBrOpenDeliveryOrderRequestCancellation = class(TACBrOpenDeliveryWebService)
+  private
+    FOrderId: string;
+    FReason: string;
+    FCode: TACBrODCancelRequestCode;
+    FMode: TACBrODCancelRequestMode;
+    FOutOfStockItems: TSplitResult;
+    FInvalidItems: TSplitResult;
+  protected
+    procedure DefinirRecurso; override;
+    procedure DefinirDadosMsg; override;
+    function TratarResposta: Boolean; override;
+  public
+    procedure Clear; override;
+
+    property OrderId: string read FOrderId write FOrderId;
+    property Reason: string read FReason write FReason;
+    property Code: TACBrODCancelRequestCode read FCode write FCode;
+    property Mode: TACBrODCancelRequestMode read FMode write FMode;
+    property OutOfStockItems: TSplitResult read FOutOfStockItems write FOutOfStockItems;
+    property InvalidItems: TSplitResult read FInvalidItems write FInvalidItems;
+
+    function AddOutOfStockItems(const AValue: string): TACBrOpenDeliveryOrderRequestCancellation;
+    function AddInvalidItems(const AValue: string): TACBrOpenDeliveryOrderRequestCancellation;
+  end;
+
+  { TACBrOpenDeliveryOrderAcceptCancellation }
+
+  TACBrOpenDeliveryOrderAcceptCancellation = class(TACBrOpenDeliveryWebService)
+  private
+    FOrderId: string;
+  protected
+    procedure DefinirRecurso; override;
+    function TratarResposta: Boolean; override;
+  public
+    procedure Clear; override;
+
+    property OrderId: string read FOrderId write FOrderId;
+  end;
+
+  { TACBrOpenDeliveryOrderDenyCancellation }
+
+  TACBrOpenDeliveryOrderDenyCancellation = class(TACBrOpenDeliveryWebService)
+  private
+    FOrderId: string;
+    FReason: string;
+    FCode: TACBrODDenyCancelCode;
+  protected
+    procedure DefinirRecurso; override;
+    procedure DefinirDadosMsg; override;
+    function TratarResposta: Boolean; override;
+  public
+    procedure Clear; override;
+
+    property OrderId: string read FOrderId write FOrderId;
+    property Reason: string read FReason write FReason;
+    property Code: TACBrODDenyCancelCode read FCode write FCode;
   end;
 
 implementation
@@ -125,24 +299,38 @@ begin
   Result := GetACBrOpenDelivery(AACBrComponent).GetToken;
 end;
 
-{ TACBrOpenDeliveryDetails }
+{ TACBrOpenDeliveryOrderDetails }
 
-procedure TACBrOpenDeliveryDetails.DefinirRecurso;
-var
-  LResource: string;
+procedure TACBrOpenDeliveryOrderDetails.Clear;
 begin
-  LResource := Format('v1/orders/%s', [Order.id]);
-  FRequest.Resource(LResource);
+  inherited;
+  FOrderId := '';
 end;
 
-function TACBrOpenDeliveryDetails.GetOrder: TACBrOpenDeliverySchemaOrder;
+procedure TACBrOpenDeliveryOrderDetails.DefinirRecurso;
+var
+  LResource: string;
+  LComponent: TACBrOpenDelivery;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  LResource := StringReplace(LComponent.Resources.OrderDetails, '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  FRequest.GET.Resource(LResource);
+end;
+
+destructor TACBrOpenDeliveryOrderDetails.Destroy;
+begin
+  FOrder.Free;
+  inherited;
+end;
+
+function TACBrOpenDeliveryOrderDetails.GetOrder: TACBrOpenDeliverySchemaOrder;
 begin
   if not Assigned(FOrder) then
     FOrder := TACBrOpenDeliverySchemaOrder.Create;
   Result := FOrder;
 end;
 
-function TACBrOpenDeliveryDetails.TratarResposta: Boolean;
+function TACBrOpenDeliveryOrderDetails.TratarResposta: Boolean;
 var
   LJSON: TACBrJSONObject;
 begin
@@ -195,6 +383,7 @@ begin
       EnviarDados;
       try
         Result := TratarResposta;
+        Clear;
       finally
         FazerLog(GerarMsgLog);
         SalvarResposta;
@@ -221,10 +410,13 @@ var
 begin
   FreeAndNil(FResponse);
   FResponse := FRequest.Send;
-  if FResponse.StatusCode >= 400 then
+  FStatusText := FResponse.StatusText;
+  FStatusCode := FResponse.StatusCode;
+
+  LStatus := FStatusCode;
+  LTitle := FStatusText;
+  if FStatusCode >= 400 then
   begin
-    LStatus := FResponse.StatusCode;
-    LTitle := FResponse.StatusText;
     LJSONObject := FResponse.GetJSONObject;
     if Assigned(LJSONObject) then
     begin
@@ -370,8 +562,23 @@ end;
 destructor TACBrOpenDeliveryWebServices.Destroy;
 begin
   FAuth.Free;
+  FAcknowledgment.Free;
   FPolling.Free;
+  FOrderDetails.Free;
+  FOrderConfirm.Free;
+  FOrderDispatch.Free;
+  FOrderReadyForPickup.Free;
+  FOrderRequestCancellation.Free;
+  FOrderAcceptCancellation.Free;
+  FOrderDenyCancellation.Free;
   inherited;
+end;
+
+function TACBrOpenDeliveryWebServices.GetAcknowledgment: TACBrOpenDeliveryAcknowledgment;
+begin
+  if not Assigned(FAcknowledgment) then
+    FAcknowledgment := TACBrOpenDeliveryAcknowledgment.Create(FOwner);
+  Result := FAcknowledgment;
 end;
 
 function TACBrOpenDeliveryWebServices.GetAuth: TACBrOpenDeliveryAuth;
@@ -379,6 +586,55 @@ begin
   if not Assigned(FAuth) then
     FAuth := TACBrOpenDeliveryAuth.Create(FOwner);
   Result := FAuth;
+end;
+
+function TACBrOpenDeliveryWebServices.GetOrderAcceptCancellation: TACBrOpenDeliveryOrderAcceptCancellation;
+begin
+  if not Assigned(FOrderAcceptCancellation) then
+    FOrderAcceptCancellation := TACBrOpenDeliveryOrderAcceptCancellation.Create(FOwner);
+  Result := FOrderAcceptCancellation;
+end;
+
+function TACBrOpenDeliveryWebServices.GetOrderConfirm: TACBrOpenDeliveryOrderConfirm;
+begin
+  if not Assigned(FOrderConfirm) then
+    FOrderConfirm := TACBrOpenDeliveryOrderConfirm.Create(FOwner);
+  Result := FOrderConfirm;
+end;
+
+function TACBrOpenDeliveryWebServices.GetOrderDenyCancellation: TACBrOpenDeliveryOrderDenyCancellation;
+begin
+  if not Assigned(FOrderDenyCancellation) then
+    FOrderDenyCancellation := TACBrOpenDeliveryOrderDenyCancellation.Create(FOwner);
+  Result := FOrderDenyCancellation;
+end;
+
+function TACBrOpenDeliveryWebServices.GetOrderDetails: TACBrOpenDeliveryOrderDetails;
+begin
+  if not Assigned(FOrderDetails) then
+    FOrderDetails := TACBrOpenDeliveryOrderDetails.Create(FOwner);
+  Result := FOrderDetails;
+end;
+
+function TACBrOpenDeliveryWebServices.GetOrderDispatch: TACBrOpenDeliveryOrderDispatch;
+begin
+  if not Assigned(FOrderDispatch) then
+    FOrderDispatch := TACBrOpenDeliveryOrderDispatch.Create(FOwner);
+  Result := FOrderDispatch;
+end;
+
+function TACBrOpenDeliveryWebServices.GetOrderReadyForPickup: TACBrOpenDeliveryOrderReadyForPickup;
+begin
+  if not Assigned(FOrderReadyForPickup) then
+    FOrderReadyForPickup := TACBrOpenDeliveryOrderReadyForPickup.Create(FOwner);
+  Result := FOrderReadyForPickup;
+end;
+
+function TACBrOpenDeliveryWebServices.GetOrderRequestCancellation: TACBrOpenDeliveryOrderRequestCancellation;
+begin
+  if not Assigned(FOrderRequestCancellation) then
+    FOrderRequestCancellation := TACBrOpenDeliveryOrderRequestCancellation.Create(FOwner);
+  Result := FOrderRequestCancellation;
 end;
 
 function TACBrOpenDeliveryWebServices.GetPolling: TACBrOpenDeliveryPolling;
@@ -468,6 +724,276 @@ begin
   LJSON := FResponse.GetJSONArray;
   Events.Clear;
   Events.AsJSON := LJSON.ToJSON;
+  Result := True;
+end;
+
+{ TACBrOpenDeliveryAcknowledgment }
+
+function TACBrOpenDeliveryAcknowledgment.AddEventId(const AValue: string): TACBrOpenDeliveryAcknowledgment;
+begin
+  Result := Self;
+  FEvents.New.Id := AValue;
+end;
+
+procedure TACBrOpenDeliveryAcknowledgment.Clear;
+begin
+  inherited;
+  FEvents.Clear;
+end;
+
+constructor TACBrOpenDeliveryAcknowledgment.Create(AOwner: TACBrComponent);
+begin
+  inherited Create(AOwner);
+  FEvents := TACBrOpenDeliverySchemaAcknowledgmentCollection.Create('');
+end;
+
+procedure TACBrOpenDeliveryAcknowledgment.DefinirDadosMsg;
+var
+  LJSON: TACBrJSONArray;
+begin
+  LJSON := FEvents.ToJSonArray;
+  try
+    FRequest.Body(LJSON, False);
+  finally
+    LJSON.Free;
+  end;
+end;
+
+procedure TACBrOpenDeliveryAcknowledgment.DefinirRecurso;
+var
+  LComponent: TACBrOpenDelivery;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  FRequest
+    .POST
+    .Resource(LComponent.Resources.EventAcknowledgment);
+end;
+
+destructor TACBrOpenDeliveryAcknowledgment.Destroy;
+begin
+  FEvents.Free;
+  inherited;
+end;
+
+function TACBrOpenDeliveryAcknowledgment.TratarResposta: Boolean;
+begin
+  Result := True;
+end;
+
+{ TACBrOpenDeliveryOrderConfirm }
+
+procedure TACBrOpenDeliveryOrderConfirm.Clear;
+begin
+  inherited;
+  FOrderId := '';
+  FReason := '';
+  FCreatedAt := 0;
+  FOrderExternalCode := '';
+end;
+
+procedure TACBrOpenDeliveryOrderConfirm.DefinirDadosMsg;
+var
+  LJSON: TACBrJSONObject;
+begin
+  LJSON := TACBrJSONObject.Create;
+  try
+    LJSON
+      .AddPair('reason', FReason)
+      .AddPairISODateTime('createdAt', FCreatedAt)
+      .AddPair('orderExternalCode', FOrderExternalCode);
+
+    FRequest.Body(LJSON, False);
+  finally
+    LJSON.Free;
+  end;
+end;
+
+procedure TACBrOpenDeliveryOrderConfirm.DefinirRecurso;
+var
+  LResource: string;
+  LComponent: TACBrOpenDelivery;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  LResource := StringReplace(LComponent.Resources.OrderConfirm, '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  FRequest.POST.Resource(LResource);
+end;
+
+function TACBrOpenDeliveryOrderConfirm.TratarResposta: Boolean;
+begin
+  Result := True;
+end;
+
+{ TACBrOpenDeliveryOrderReadyForPickup }
+
+procedure TACBrOpenDeliveryOrderReadyForPickup.Clear;
+begin
+  inherited;
+  FOrderId := '';
+end;
+
+procedure TACBrOpenDeliveryOrderReadyForPickup.DefinirRecurso;
+var
+  LResource: string;
+  LComponent: TACBrOpenDelivery;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  LResource := StringReplace(LComponent.Resources.OrderReadyForPickup, '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  FRequest.POST.Resource(LResource);
+end;
+
+function TACBrOpenDeliveryOrderReadyForPickup.TratarResposta: Boolean;
+begin
+  Result := True;
+end;
+
+{ TACBrOpenDeliveryOrderDispatch }
+
+procedure TACBrOpenDeliveryOrderDispatch.Clear;
+begin
+  inherited;
+  FOrderId := '';
+end;
+
+procedure TACBrOpenDeliveryOrderDispatch.DefinirRecurso;
+var
+  LResource: string;
+  LComponent: TACBrOpenDelivery;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  LResource := StringReplace(LComponent.Resources.OrderDispatch, '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  FRequest.POST.Resource(LResource);
+end;
+
+function TACBrOpenDeliveryOrderDispatch.TratarResposta: Boolean;
+begin
+  Result := True;
+end;
+
+{ TACBrOpenDeliveryOrderRequestCancellation }
+
+function TACBrOpenDeliveryOrderRequestCancellation.AddInvalidItems(const AValue: string): TACBrOpenDeliveryOrderRequestCancellation;
+begin
+  Result := Self;
+  SetLength(FInvalidItems, Length(FInvalidItems) + 1);
+  FInvalidItems[Length(FInvalidItems) - 1] := AValue;
+end;
+
+function TACBrOpenDeliveryOrderRequestCancellation.AddOutOfStockItems(const AValue: string): TACBrOpenDeliveryOrderRequestCancellation;
+begin
+  Result := Self;
+  SetLength(FOutOfStockItems, Length(FOutOfStockItems) + 1);
+  FOutOfStockItems[Length(FOutOfStockItems) - 1] := AValue;
+end;
+
+procedure TACBrOpenDeliveryOrderRequestCancellation.Clear;
+begin
+  inherited;
+  FOrderId := '';
+  FReason := '';
+  FCode := crcSystemicIssues;
+  FMode := crmAuto;
+  FInvalidItems := [];
+  FOutOfStockItems := [];
+end;
+
+procedure TACBrOpenDeliveryOrderRequestCancellation.DefinirDadosMsg;
+var
+  LJSON: TACBrJSONObject;
+begin
+  LJSON := TACBrJSONObject.Create;
+  try
+    LJSON
+      .AddPair('reason', FReason)
+      .AddPair('code', CancelRequestCodeToStr(FCode))
+      .AddPair('mode', CancelRequestModeToStr(FMode))
+      .AddPair('outOfStockItems', FOutOfStockItems)
+      .AddPair('invalidItems', FInvalidItems);
+
+    FRequest.Body(LJSON, False);
+  finally
+    LJSON.Free;
+  end;
+end;
+
+procedure TACBrOpenDeliveryOrderRequestCancellation.DefinirRecurso;
+var
+  LResource: string;
+  LComponent: TACBrOpenDelivery;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  LResource := StringReplace(LComponent.Resources.OrderRequestCancellation,
+    '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  FRequest.POST.Resource(LResource);
+end;
+
+function TACBrOpenDeliveryOrderRequestCancellation.TratarResposta: Boolean;
+begin
+  Result := True;
+end;
+
+{ TACBrOpenDeliveryOrderAcceptCancellation }
+
+procedure TACBrOpenDeliveryOrderAcceptCancellation.Clear;
+begin
+  inherited;
+  FOrderId := '';
+end;
+
+procedure TACBrOpenDeliveryOrderAcceptCancellation.DefinirRecurso;
+var
+  LResource: string;
+  LComponent: TACBrOpenDelivery;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  LResource := StringReplace(LComponent.Resources.OrderAcceptCancellation,
+    '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  FRequest.POST.Resource(LResource);
+end;
+
+function TACBrOpenDeliveryOrderAcceptCancellation.TratarResposta: Boolean;
+begin
+  Result := True;
+end;
+
+{ TACBrOpenDeliveryOrderDenyCancellation }
+
+procedure TACBrOpenDeliveryOrderDenyCancellation.Clear;
+begin
+  inherited;
+  FOrderId := '';
+  FReason := '';
+  FCode := dccDishAlreadyDone;
+end;
+
+procedure TACBrOpenDeliveryOrderDenyCancellation.DefinirDadosMsg;
+var
+  LJSON: TACBrJSONObject;
+begin
+  LJSON := TACBrJSONObject.Create;
+  try
+    LJSON
+      .AddPair('reason', FReason)
+      .AddPair('code', DenyCancelCodeToStr(FCode));
+
+    FRequest.Body(LJSON, False);
+  finally
+    LJSON.Free;
+  end;
+end;
+
+procedure TACBrOpenDeliveryOrderDenyCancellation.DefinirRecurso;
+var
+  LResource: string;
+  LComponent: TACBrOpenDelivery;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  LResource := StringReplace(LComponent.Resources.OrderDenyCancellation,
+    '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  FRequest.POST.Resource(LResource);
+end;
+
+function TACBrOpenDeliveryOrderDenyCancellation.TratarResposta: Boolean;
+begin
   Result := True;
 end;
 

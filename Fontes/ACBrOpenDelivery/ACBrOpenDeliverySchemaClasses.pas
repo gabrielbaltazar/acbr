@@ -78,9 +78,9 @@ type
 
   TACBrOpenDeliverySchemaAccessToken = class(TACBrOpenDeliverySchema)
   private
-    FaccessToken: String;
-    FexpiresIn: Integer;
-    FexpiresAt: TDateTime;
+    FAccessToken: string;
+    FExpiresIn: Integer;
+    FExpiresAt: TDateTime;
 
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
@@ -91,16 +91,16 @@ type
     function IsEmpty: Boolean; override;
     function IsValid: Boolean;
 
-    property accessToken: String read FaccessToken write FaccessToken;
-    property expiresIn: Integer read FexpiresIn write FexpiresIn;
-    property expiresAt: TDateTime read FexpiresAt write FexpiresAt;
+    property AccessToken: string read FAccessToken write FAccessToken;
+    property ExpiresIn: Integer read FExpiresIn write FExpiresIn;
+    property ExpiresAt: TDateTime read FExpiresAt write FExpiresAt;
   end;
 
   TACBrOpenDeliverySchemaAcknowledgment = class(TACBrOpenDeliverySchema)
   private
-    Fid: String;
-    ForderId: String;
-    FeventType: TACBrODEventType;
+    FId: string;
+    FOrderId: string;
+    FEventType: TACBrODEventType;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
@@ -109,9 +109,9 @@ type
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property id: String read Fid write Fid;
-    property orderId: String read ForderId write ForderId;
-    property eventType: TACBrODEventType read FeventType write FeventType;
+    property Id: string read FId write FId;
+    property OrderId: string read FOrderId write FOrderId;
+    property EventType: TACBrODEventType read FEventType write FEventType;
   end;
 
   TACBrOpenDeliverySchemaAcknowledgmentCollection = class(TACBrOpenDeliverySchemaArray)
@@ -1558,6 +1558,7 @@ begin
     .AddPairJSONObject('logoImage', FlogoImage.AsJSON)
     .AddPairJSONObject('bannerImage', FbannerImage.AsJSON)
     .AddPairISODateTime('createdAt', FcreatedAt);
+
 end;
 
 function TACBrOpenDeliverySchemaBasicInfo.IsEmpty: Boolean;
@@ -1826,8 +1827,10 @@ procedure TACBrOpenDeliverySchemaGeoRadius.DoWriteToJSon(AJSon: TACBrJSONObject)
 begin
   AJSon
     .AddPair('geoMidpointLatitude', FgeoMidpointLatitude)
-    .AddPair('geoMidpointLongitude', FgeoMidpointLongitude)
-    .AddPair('radius', Fradius.ToJSonArray);
+    .AddPair('geoMidpointLongitude', FgeoMidpointLongitude);
+//    .AddPair('radius', Fradius.ToJSonArray);
+
+  Fradius.WriteToJSon(AJson);
 end;
 
 function TACBrOpenDeliverySchemaGeoRadius.IsEmpty: Boolean;
@@ -1992,8 +1995,10 @@ procedure TACBrOpenDeliverySchemaServiceArea.DoWriteToJSon(AJSon: TACBrJSONObjec
 begin
   AJson
     .AddPair('id', Fid)
-    .AddPair('polygon', Fpolygon.ToJSonArray)
-    .AddPairJSONObject('geoRadius', FgeoRadius.AsJSON);
+    .AddPair('polygon', Fpolygon.ToJSonArray);
+//    .AddPairJSONObject('geoRadius', FgeoRadius.AsJSON);
+
+  FgeoRadius.WriteToJSon(AJSon);
 end;
 
 function TACBrOpenDeliverySchemaServiceArea.IsEmpty: Boolean;
@@ -3162,42 +3167,42 @@ end;
 
 procedure TACBrOpenDeliverySchemaAccessToken.Clear;
 begin
-  FaccessToken := '';
-  FexpiresIn := 0;
+  FAccessToken := '';
+  FExpiresIn := 0;
 end;
 
 procedure TACBrOpenDeliverySchemaAccessToken.DoReadFromJSon(AJSon: TACBrJSONObject);
 begin
   AJSon
-    .Value('access_token', FaccessToken)
-    .Value('expires_in', FexpiresIn);
+    .Value('access_token', FAccessToken)
+    .Value('expires_in', FExpiresIn);
 end;
 
 procedure TACBrOpenDeliverySchemaAccessToken.DoWriteToJSon(AJSon: TACBrJSONObject);
 begin
   AJSon
-    .AddPair('access_token', FaccessToken)
-    .AddPair('expires_in', FexpiresIn);
+    .AddPair('access_token', FAccessToken)
+    .AddPair('expires_in', FExpiresIn);
 
 end;
 
 function TACBrOpenDeliverySchemaAccessToken.IsEmpty: Boolean;
 begin
-  Result := (FaccessToken = '') and (FexpiresIn = 0);
+  Result := (FAccessToken = '') and (FExpiresIn = 0);
 end;
 
 function TACBrOpenDeliverySchemaAccessToken.IsValid: Boolean;
 begin
-  Result := (FaccessToken <> '') and (not (FexpiresAt < Now));
+  Result := (FAccessToken <> '') and (not (FExpiresAt < Now));
 end;
 
 { TACBrOpenDeliverySchemaAcknowledgment }
 
 procedure TACBrOpenDeliverySchemaAcknowledgment.Clear;
 begin
-  Fid := '';
-  ForderId := '';
-  FeventType := etCreated;
+  FId := '';
+  FOrderId := '';
+  FEventType := etCreated;
 end;
 
 procedure TACBrOpenDeliverySchemaAcknowledgment.DoReadFromJSon(AJSon: TACBrJSONObject);
@@ -3205,26 +3210,26 @@ var
   LStr: string;
 begin
   AJSon
-    .Value('id', Fid)
-    .Value('orderId', ForderId)
+    .Value('id', FId)
+    .Value('orderId', FOrderId)
     .Value('eventType', LStr);
 
-  FeventType := StrToEventType(LStr);
+  FEventType := StrToEventType(LStr);
 end;
 
 procedure TACBrOpenDeliverySchemaAcknowledgment.DoWriteToJSon(AJSon: TACBrJSONObject);
 begin
   AJSon
-    .AddPair('id', Fid)
-    .AddPair('orderId', ForderId)
-    .AddPair('eventType', EventTypeToStr(FeventType));
+    .AddPair('id', FId)
+    .AddPair('orderId', FOrderId)
+    .AddPair('eventType', EventTypeToStr(FEventType));
 end;
 
 function TACBrOpenDeliverySchemaAcknowledgment.IsEmpty: Boolean;
 begin
-  Result := (Fid = '') and
-            (ForderId = '') and
-            (FeventType = etCreated);
+  Result := (FId = '') and
+            (FOrderId = '') and
+            (FEventType = etCreated);
 end;
 
 { TACBrOpenDeliverySchemaAcknowledgmentCollection }

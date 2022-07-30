@@ -387,7 +387,7 @@ end;
 
 function TACBrOpenDeliveryHTTPResponse.GetJSONObject: TACBrJSONObject;
 begin
-  if not Assigned(FJSONObject) then
+  if (not Assigned(FJSONObject)) and (GetContent <> '') then
     FJSONObject := TACBrJSONObject.Parse(GetContent);
   Result := FJSONObject;
 end;

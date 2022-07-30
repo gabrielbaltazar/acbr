@@ -2060,8 +2060,8 @@ end;
 procedure TTestAccessToken.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('22222', FSchema.accessToken);
-  CheckEquals(900, FSchema.expiresIn);
+  CheckEquals('22222', FSchema.AccessToken);
+  CheckEquals(900, FSchema.ExpiresIn);
 end;
 
 procedure TTestAccessToken.SetUp;

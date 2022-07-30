@@ -222,8 +222,8 @@ begin
     if Assigned(FOnTokenGet) then
     begin
       FOnTokenGet(Credenciais.ClientId, LToken, LExpiresAt);
-      WebServices.Auth.AccessToken.accessToken := LToken;
-      WebServices.Auth.AccessToken.expiresAt := LExpiresAt;
+      WebServices.Auth.AccessToken.AccessToken := LToken;
+      WebServices.Auth.AccessToken.ExpiresAt := LExpiresAt;
       LIsValidToken := WebServices.Auth.AccessToken.IsValid;
     end;
   end;
@@ -231,13 +231,13 @@ begin
   if not LIsValidToken then
   begin
     WebServices.Auth.Executar;
-    LToken := WebServices.Auth.AccessToken.accessToken;
-    LExpiresAt := WebServices.Auth.AccessToken.expiresAt;
+    LToken := WebServices.Auth.AccessToken.AccessToken;
+    LExpiresAt := WebServices.Auth.AccessToken.ExpiresAt;
     if Assigned(FOnTokenSave) then
       FOnTokenSave(Credenciais.ClientId, LToken, LExpiresAt);
   end;
 
-  Result := WebServices.Auth.AccessToken.accessToken;
+  Result := WebServices.Auth.AccessToken.AccessToken;
 end;
 
 function TACBrOpenDelivery.GetWebServices: TACBrOpenDeliveryWebServices;
