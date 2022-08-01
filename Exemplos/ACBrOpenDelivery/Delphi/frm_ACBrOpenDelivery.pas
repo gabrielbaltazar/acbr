@@ -9,7 +9,7 @@ uses
   pcnConversaoOD,
   ACBrBase,
   ACBrOpenDeliveryHTTP,
-  ACBrOpenDelivery, Vcl.Menus;
+  ACBrOpenDelivery, Vcl.Menus, Vcl.ExtCtrls;
 
 type
   TForm1 = class(TForm)
@@ -52,6 +52,19 @@ type
     btnOrderDenyCancellation: TButton;
     Label7: TLabel;
     edtOrderReason: TEdit;
+    tsMerchantUpdate: TTabSheet;
+    pnlLink: TPanel;
+    Label8: TLabel;
+    Panel1: TPanel;
+    Label9: TLabel;
+    Panel2: TPanel;
+    Label10: TLabel;
+    rgUpdateType: TRadioGroup;
+    Label11: TLabel;
+    edtMerchantUpdateId: TEdit;
+    chkMerchantStatus: TCheckBox;
+    rgUpdateEntity: TRadioGroup;
+    btnMerchantUpdate: TButton;
     procedure ACBrOpenDelivery1HTTPEnviar(ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio);
     procedure ACBrOpenDelivery1HTTPRetornar(ALogResposta: TACBrOpenDeliveryHTTPLogResposta);
     procedure btnGetTokenClick(Sender: TObject);
@@ -68,7 +81,10 @@ type
     procedure btnOrderRequestCancellationClick(Sender: TObject);
     procedure btnOrderAcceptCancellationClick(Sender: TObject);
     procedure btnOrderDenyCancellationClick(Sender: TObject);
+    procedure Label8Click(Sender: TObject);
+    procedure btnMerchantUpdateClick(Sender: TObject);
   private
+    procedure OpenLink(ALabel: TLabel);
     procedure ConfigurarComponente;
     { Private declarations }
   public
@@ -79,6 +95,9 @@ var
   Form1: TForm1;
 
 implementation
+
+uses
+  Winapi.ShellAPI;
 
 {$R *.dfm}
 
@@ -135,6 +154,27 @@ begin
   ConfigurarComponente;
   LToken := ACBrOpenDelivery1.GetToken;
   ShowMessage(LToken);
+end;
+
+procedure TForm1.btnMerchantUpdateClick(Sender: TObject);
+var
+  LUpdateType: TACBrODMerchantUpdateType;
+  LUpdateEntity: TACBrODMerchantUpdateEntity;
+  LStatus: TACBrODStatus;
+begin
+  ConfigurarComponente;
+  LUpdateType := TACBrODMerchantUpdateType(rgUpdateType.ItemIndex);
+  LUpdateEntity := TACBrODMerchantUpdateEntity(rgUpdateEntity.ItemIndex);
+  LStatus := sAvailable;
+  if not chkMerchantStatus.Checked then
+    LStatus := sUnavailable;
+
+  ACBrOpenDelivery1.WebServices.MerchantUpdate.UpdateType := LUpdateType;
+  ACBrOpenDelivery1.WebServices.MerchantUpdate.EntityType := LUpdateEntity;
+  ACBrOpenDelivery1.WebServices.MerchantUpdate.Merchant.id := edtMerchantUpdateId.Text;
+  ACBrOpenDelivery1.WebServices.MerchantUpdate.Merchant.status := LStatus;
+  ACBrOpenDelivery1.WebServices.MerchantUpdate.Executar;
+  ShowMessage('Atualizado!');
 end;
 
 procedure TForm1.btnOrderAcceptCancellationClick(Sender: TObject);
@@ -232,6 +272,16 @@ begin
   ACBrOpenDelivery1.BaseUrl := edtBaseUrl.Text;
   ACBrOpenDelivery1.Credenciais.ClientId := edtClientId.Text;
   ACBrOpenDelivery1.Credenciais.ClientSecret := edtClientSecret.Text;
+end;
+
+procedure TForm1.Label8Click(Sender: TObject);
+begin
+  OpenLink(Sender as TLabel);
+end;
+
+procedure TForm1.OpenLink(ALabel: TLabel);
+begin
+  ShellExecute(Handle, 'open', PWideChar(ALabel.Caption), nil, nil, SW_SHOWMAXIMIZED);
 end;
 
 initialization

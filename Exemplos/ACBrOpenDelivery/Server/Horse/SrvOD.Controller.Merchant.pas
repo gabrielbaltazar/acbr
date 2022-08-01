@@ -77,8 +77,25 @@ procedure GetInformationOfAMerchant(Req: THorseRequest; Res: THorseResponse);
 var
   LJSONObject: TACBrJSONObject;
   LAPIKey: string;
+
+  procedure SaveRequest;
+  var
+    LFileName: string;
+  begin
+    LFileName := ExtractFilePath(GetModuleName(HInstance)) +
+      FormatDateTime('yyyyMMdd_hhmmss', Now) + LAPIKey + '.txt';
+    with TStringList.Create do
+    try
+      Text := LFileName;
+      SaveToFile(LFileName);
+    finally
+      Free;
+    end;
+  end;
 begin
   LAPIKey := Req.Headers.Field('X-API-KEY').AsString;
+  SaveRequest;
+
   if LAPIKey.ToLower = API_KEY_ACBR.ToLower then
     LJSONObject := LoadJSON('MERCHANT_ACBR')
   else

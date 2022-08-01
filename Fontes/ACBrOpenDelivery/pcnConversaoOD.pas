@@ -62,6 +62,11 @@ type
 
   TACBrODMerchantType = (mtRestaurant);
 
+  TACBrODMerchantUpdateType = (mutEmptyBody, mutOnlyStatus, mutEntityType, mutStatusEntityType);
+
+  TACBrODMerchantUpdateEntity = (mueService, mueMenu, mueCategory, mueItem, mueItemOffer,
+    mueOptionGroup, mueAvailability);
+
   TACBrODPaymentMethod = (pmCredit, pmDebit, pmMealVoucher, pmFoodVoucher,
     pmDigitalWallet, pmPix, pmCash, pmCreditDebit, pmCoupon, pmRedeem,
     pmPrepaidRedeem, pmOther);

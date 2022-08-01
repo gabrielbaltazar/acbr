@@ -81,11 +81,9 @@ type
     FAccessToken: string;
     FExpiresIn: Integer;
     FExpiresAt: TDateTime;
-
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
@@ -104,7 +102,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
@@ -118,7 +115,6 @@ type
   private
     function GetItem(Index: Integer): TACBrOpenDeliverySchemaAcknowledgment;
     procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaAcknowledgment);
-
   protected
     function NewSchema: TACBrOpenDeliverySchema; override;
   public
@@ -130,58 +126,54 @@ type
   private
     Fdistrict: string;
     Flatitude: Double;
-    Fstreet: String;
-    FpostalCode: String;
-    Fstate: String;
-    Fcomplement: String;
-    Fnumber: String;
-    Fcountry: String;
-    Fcity: String;
-    Freference: String;
+    Fstreet: string;
+    FpostalCode: string;
+    Fstate: string;
+    Fcomplement: string;
+    Fnumber: string;
+    Fcountry: string;
+    Fcity: string;
+    Freference: string;
     Flongitude: Double;
-
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property country: String read Fcountry write Fcountry;
-    property state: String read Fstate write Fstate;
-    property city: String read Fcity write Fcity;
+    property country: string read Fcountry write Fcountry;
+    property state: string read Fstate write Fstate;
+    property city: string read Fcity write Fcity;
     property district: string read Fdistrict write Fdistrict;
-    property street: String read Fstreet write Fstreet;
-    property number: String read Fnumber write Fnumber;
-    property postalCode: String read FpostalCode write FpostalCode;
-    property complement: String read Fcomplement write Fcomplement;
-    property reference: String read Freference write Freference;
+    property street: string read Fstreet write Fstreet;
+    property number: string read Fnumber write Fnumber;
+    property postalCode: string read FpostalCode write FpostalCode;
+    property complement: string read Fcomplement write Fcomplement;
+    property reference: string read Freference write Freference;
     property latitude: Double read Flatitude write Flatitude;
     property longitude: Double read Flongitude write Flongitude;
   end;
 
   TACBrOpenDeliverySchemaAvailability = class(TACBrOpenDeliverySchema)
   private
-    Fid: String;
+    Fid: string;
     FstartDate: TDateTime;
     FendDate: TDateTime;
     Fhours: TACBrOpenDeliverySchemaHourCollection;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property id: String read Fid write Fid;
+    property id: string read Fid write Fid;
     property startDate: TDateTime read FstartDate write FstartDate;
     property endDate: TDateTime read FendDate write FendDate;
     property hours: TACBrOpenDeliverySchemaHourCollection read Fhours write Fhours;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaAvailabilityCollection = class(TACBrOpenDeliverySchemaArray)
@@ -197,9 +189,9 @@ type
 
   TACBrOpenDeliverySchemaBasicInfo = class(TACBrOpenDeliverySchema)
   private
-    Fname: String;
-    Fdocument: String;
-    FcorporateName: String;
+    Fname: string;
+    Fdocument: string;
+    FcorporateName: string;
     Fdescription: string;
     FaverageTicket: Double;
     FaveragePreparationTime: Integer;
@@ -212,17 +204,18 @@ type
     FlogoImage: TACBrOpenDeliverySchemaImage;
     FbannerImage: TACBrOpenDeliverySchemaImage;
     FcreatedAt: TDateTime;
-
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
-    property name: String read Fname write Fname;
-    property document: String read Fdocument write Fdocument;
-    property corporateName: String read FcorporateName write FcorporateName;
+
+    property name: string read Fname write Fname;
+    property document: string read Fdocument write Fdocument;
+    property corporateName: string read FcorporateName write FcorporateName;
     property description: string read Fdescription write Fdescription;
     property averageTicket: Double read FaverageTicket write FaverageTicket;
     property averagePreparationTime: Integer read FaveragePreparationTime write FaveragePreparationTime;
@@ -235,18 +228,15 @@ type
     property logoImage: TACBrOpenDeliverySchemaImage read FlogoImage write FlogoImage;
     property bannerImage: TACBrOpenDeliverySchemaImage read FbannerImage write FbannerImage;
     property createdAt: TDateTime read FcreatedAt write FcreatedAt;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaCategory = class(TACBrOpenDeliverySchema)
   private
-    Fid: String;
+    Fid: string;
     Findex: Integer;
-    Fname: String;
-    Fdescription: String;
-    FexternalCode: String;
+    Fname: string;
+    Fdescription: string;
+    FexternalCode: string;
     Fstatus: TACBrODStatus;
     FavailabilityId: TSplitResult;
     FitemOfferId: TSplitResult;
@@ -254,23 +244,21 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property id: String read Fid write Fid;
+    property id: string read Fid write Fid;
     property index: Integer read Findex write Findex;
-    property name: String read Fname write Fname;
-    property description: String read Fdescription write Fdescription;
-    property externalCode: String read FexternalCode write FexternalCode;
+    property name: string read Fname write Fname;
+    property description: string read Fdescription write Fdescription;
+    property externalCode: string read FexternalCode write FexternalCode;
     property status: TACBrODStatus read Fstatus write Fstatus;
     property availabilityId: TSplitResult read FavailabilityId write FavailabilityId;
     property itemOfferId: TSplitResult read FitemOfferId write FitemOfferId;
     property image: TACBrOpenDeliverySchemaImage read Fimage write Fimage;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaCategoryCollection = class(TACBrOpenDeliverySchemaArray)
@@ -286,34 +274,32 @@ type
 
   TACBrOpenDeliverySchemaContactPhone = class(TACBrOpenDeliverySchema)
   private
-    FcommercialNumber: String;
+    FcommercialNumber: string;
     FwhatsappNumber: string;
-
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property commercialNumber: String read FcommercialNumber write FcommercialNumber;
+    property commercialNumber: string read FcommercialNumber write FcommercialNumber;
     property whatsappNumber: string read FwhatsappNumber write FwhatsappNumber;
   end;
 
   TACBrOpenDeliverySchemaError = class(TACBrOpenDeliverySchema)
   private
-    FTitle: String;
+    FTitle: string;
     FStatus: Integer;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
+
     property Status: Integer read FStatus write FStatus;
-    property Title: String read FTitle write FTitle;
+    property Title: string read FTitle write FTitle;
   end;
 
   TACBrOpenDeliverySchemaEvent = class(TACBrOpenDeliverySchema)
@@ -323,12 +309,10 @@ type
     FOrderId: string;
     FOrderURL: string;
     FCreatedAt: TDateTime;
-    FSourceAppId: String;
-
+    FSourceAppId: string;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
@@ -338,7 +322,7 @@ type
     property OrderId: string read FOrderId write FOrderId;
     property OrderURL: string read FOrderURL write FOrderURL;
     property CreatedAt: TDateTime read FCreatedAt write FCreatedAt;
-    property SourceAppId: String read FSourceAppId write FSourceAppId;
+    property SourceAppId: string read FSourceAppId write FSourceAppId;
   end;
 
   TACBrOpenDeliverySchemaEventCollection = class(TACBrOpenDeliverySchemaArray)
@@ -359,7 +343,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
@@ -387,37 +370,32 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
     property geoMidpointLatitude: Double read FgeoMidpointLatitude write FgeoMidpointLatitude;
     property geoMidpointLongitude: Double read FgeoMidpointLongitude write FgeoMidpointLongitude;
     property radius: TACBrOpenDeliverySchemaRadiusCollection read Fradius write Fradius;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaHolidayHour = class(TACBrOpenDeliverySchema)
   private
     Fdate: TDateTime;
     FtimePeriods: TACBrOpenDeliverySchemaTimePeriod;
-
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
     property date: TDateTime read Fdate write Fdate;
     property timePeriods: TACBrOpenDeliverySchemaTimePeriod read FtimePeriods write FtimePeriods;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaHolidayHourCollection = class(TACBrOpenDeliverySchemaArray)
@@ -433,50 +411,47 @@ type
 
   TACBrOpenDeliverySchemaImage = class(TACBrOpenDeliverySchema)
   private
-    FURL: String;
-    FCRC_32: String;
+    FURL: string;
+    FCRC_32: string;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
-    property URL: String read FURL write FURL;
-    property CRC_32: String read FCRC_32 write FCRC_32;
+    property URL: string read FURL write FURL;
+    property CRC_32: string read FCRC_32 write FCRC_32;
   end;
 
   TACBrOpenDeliverySchemaItem = class(TACBrOpenDeliverySchema)
   private
-    Fid: String;
-    Fname: String;
-    Fdescription: String;
-    FexternalCode: String;
+    Fid: string;
+    Fname: string;
+    Fdescription: string;
+    FexternalCode: string;
     Fimage: TACBrOpenDeliverySchemaImage;
     FnutritionalInfo: TACBrOpenDeliverySchemaNutritionalInfo;
     Fserving: Integer;
-    Funit: String;
-    Fean: String;
-
+    Funit: string;
+    Fean: string;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
-    property id: String read Fid write Fid;
-    property name: String read Fname write Fname;
-    property description: String read Fdescription write Fdescription;
-    property externalCode: String read FexternalCode write FexternalCode;
+
+    property id: string read Fid write Fid;
+    property name: string read Fname write Fname;
+    property description: string read Fdescription write Fdescription;
+    property externalCode: string read FexternalCode write FexternalCode;
     property image: TACBrOpenDeliverySchemaImage read Fimage write Fimage;
     property nutritionalInfo: TACBrOpenDeliverySchemaNutritionalInfo read FnutritionalInfo write FnutritionalInfo;
     property serving: Integer read Fserving write Fserving;
-    property &unit: String read Funit write Funit;
-    property ean: String read Fean write Fean;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
+    property &unit: string read Funit write Funit;
+    property ean: string read Fean write Fean;
   end;
 
   TACBrOpenDeliverySchemaItemCollection = class(TACBrOpenDeliverySchemaArray)
@@ -492,8 +467,8 @@ type
 
   TACBrOpenDeliverySchemaItemOffer = class(TACBrOpenDeliverySchema)
   private
-    Fid: String;
-    FitemId: String;
+    Fid: string;
+    FitemId: string;
     Findex: Integer;
     Fprice: TACBrOpenDeliverySchemaPrice;
     FavailabilityId: TSplitResult;
@@ -501,20 +476,18 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property id: String read Fid write Fid;
-    property itemId: String read FitemId write FitemId;
+    property id: string read Fid write Fid;
+    property itemId: string read FitemId write FitemId;
     property index: Integer read Findex write Findex;
     property price: TACBrOpenDeliverySchemaPrice read Fprice write Fprice;
     property availabilityId: TSplitResult read FavailabilityId write FavailabilityId;
     property optionGroupsId: TSplitResult read FoptionGroupsId write FoptionGroupsId;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaItemOfferCollection = class(TACBrOpenDeliverySchemaArray)
@@ -530,27 +503,26 @@ type
 
   TACBrOpenDeliverySchemaMenu = class(TACBrOpenDeliverySchema)
   private
-    Fid: String;
-    Fname: String;
-    Fdescription: String;
-    FexternalCode: String;
-    Fdisclaimer: String;
-    FdisclaimerUrl: String;
+    Fid: string;
+    Fname: string;
+    Fdescription: string;
+    FexternalCode: string;
+    Fdisclaimer: string;
+    FdisclaimerUrl: string;
     FcategoryId: TSplitResult;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property id: String read Fid write Fid;
-    property name: String read Fname write Fname;
-    property description: String read Fdescription write Fdescription;
-    property externalCode: String read FexternalCode write FexternalCode;
-    property disclaimer: String read Fdisclaimer write Fdisclaimer;
-    property disclaimerUrl: String read FdisclaimerUrl write FdisclaimerUrl;
+    property id: string read Fid write Fid;
+    property name: string read Fname write Fname;
+    property description: string read Fdescription write Fdescription;
+    property externalCode: string read FexternalCode write FexternalCode;
+    property disclaimer: string read Fdisclaimer write Fdisclaimer;
+    property disclaimerUrl: string read FdisclaimerUrl write FdisclaimerUrl;
     property categoryId: TSplitResult read FcategoryId write FcategoryId;
   end;
 
@@ -568,7 +540,7 @@ type
   TACBrOpenDeliverySchemaMerchant = class(TACBrOpenDeliverySchema)
   private
     FlastUpdate: TDateTime;
-    Fid: String;
+    Fid: string;
     FTTL: Integer;
     Fstatus: TACBrODStatus;
     FbasicInfo: TACBrOpenDeliverySchemaBasicInfo;
@@ -582,14 +554,15 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
     property lastUpdate: TDateTime read FlastUpdate write FlastUpdate;
     property TTL: Integer read FTTL write FTTL;
-    property id: String read Fid write Fid;
+    property id: string read Fid write Fid;
     property status: TACBrODStatus read Fstatus write Fstatus;
     property basicInfo: TACBrOpenDeliverySchemaBasicInfo read FbasicInfo write FbasicInfo;
     property services: TACBrOpenDeliverySchemaServiceCollection read Fservices write Fservices;
@@ -599,15 +572,12 @@ type
     property itemOffers: TACBrOpenDeliverySchemaItemOfferCollection read FitemOffers write FitemOffers;
     property optionGroups: TACBrOpenDeliverySchemaOptionGroupCollection read FoptionGroups write FoptionGroups;
     property availabilities: TACBrOpenDeliverySchemaAvailabilityCollection read Favailabilities write Favailabilities;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaNutritionalInfo = class(TACBrOpenDeliverySchema)
   private
-    Fdescription: String;
-    Fcalories: String;
+    Fdescription: string;
+    Fcalories: string;
     Fallergen: TACBrODAllergenArray;
     Fadditives: TSplitResult;
     FsuitableDiet: TACBrODSuitableDietArray;
@@ -615,13 +585,12 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property description: String read Fdescription write Fdescription;
-    property calories: String read Fcalories write Fcalories;
+    property description: string read Fdescription write Fdescription;
+    property calories: string read Fcalories write Fcalories;
     property allergen: TACBrODAllergenArray read Fallergen write Fallergen;
     property additives: TSplitResult read Fadditives write Fadditives;
     property suitableDiet: TACBrODSuitableDietArray read FsuitableDiet write FsuitableDiet;
@@ -630,27 +599,25 @@ type
 
   TACBrOpenDeliverySchemaOption = class(TACBrOpenDeliverySchema)
   private
-    Fid: String;
-    FitemId: String;
+    Fid: string;
+    FitemId: string;
     Findex: Integer;
     Fprice: TACBrOpenDeliverySchemaPrice;
     FmaxPermitted: Integer;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property id: String read Fid write Fid;
-    property itemId: String read FitemId write FitemId;
+    property id: string read Fid write Fid;
+    property itemId: string read FitemId write FitemId;
     property index: Integer read Findex write Findex;
     property price: TACBrOpenDeliverySchemaPrice read Fprice write Fprice;
     property maxPermitted: Integer read FmaxPermitted write FmaxPermitted;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaOptionCollection = class(TACBrOpenDeliverySchemaArray)
@@ -666,11 +633,11 @@ type
 
   TACBrOpenDeliverySchemaOptionGroup = class(TACBrOpenDeliverySchema)
   private
-    Fid: String;
+    Fid: string;
     Findex: Integer;
-    Fname: String;
-    Fdescription: String;
-    FexternalCode: String;
+    Fname: string;
+    Fdescription: string;
+    FexternalCode: string;
     Fstatus: TACBrODStatus;
     FminPermitted: Integer;
     FmaxPermitted: Integer;
@@ -678,22 +645,21 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
-    property id: String read Fid write Fid;
+
+    property id: string read Fid write Fid;
     property index: Integer read Findex write Findex;
-    property name: String read Fname write Fname;
-    property description: String read Fdescription write Fdescription;
-    property externalCode: String read FexternalCode write FexternalCode;
+    property name: string read Fname write Fname;
+    property description: string read Fdescription write Fdescription;
+    property externalCode: string read FexternalCode write FexternalCode;
     property status: TACBrODStatus read Fstatus write Fstatus;
     property minPermitted: Integer read FminPermitted write FminPermitted;
     property maxPermitted: Integer read FmaxPermitted write FmaxPermitted;
     property options: TACBrOpenDeliverySchemaOptionCollection read Foptions write Foptions;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaOptionGroupCollection = class(TACBrOpenDeliverySchemaArray)
@@ -729,7 +695,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
@@ -758,36 +723,34 @@ type
   TACBrOpenDeliverySchemaOrderAddress = class(TACBrOpenDeliverySchema)
   private
     Fdistrict: string;
-    Fstreet: String;
+    Fstreet: string;
     Fcoordinates: TACBrOpenDeliverySchemaGeoCoordinate;
-    FpostalCode: String;
-    Fstate: String;
-    Fcomplement: String;
-    Fnumber: String;
-    Fcountry: String;
-    Fcity: String;
-    Freference: String;
+    FpostalCode: string;
+    Fstate: string;
+    Fcomplement: string;
+    Fnumber: string;
+    Fcountry: string;
+    Fcity: string;
+    Freference: string;
     FformattedAddress: string;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
-
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property country: String read Fcountry write Fcountry;
-    property state: String read Fstate write Fstate;
-    property city: String read Fcity write Fcity;
+    property country: string read Fcountry write Fcountry;
+    property state: string read Fstate write Fstate;
+    property city: string read Fcity write Fcity;
     property district: string read Fdistrict write Fdistrict;
-    property street: String read Fstreet write Fstreet;
-    property number: String read Fnumber write Fnumber;
-    property postalCode: String read FpostalCode write FpostalCode;
-    property complement: String read Fcomplement write Fcomplement;
-    property reference: String read Freference write Freference;
+    property street: string read Fstreet write Fstreet;
+    property number: string read Fnumber write Fnumber;
+    property postalCode: string read FpostalCode write FpostalCode;
+    property complement: string read Fcomplement write Fcomplement;
+    property reference: string read Freference write Freference;
     property formattedAddress: string read FformattedAddress write FformattedAddress;
     property coordinates: TACBrOpenDeliverySchemaGeoCoordinate read Fcoordinates write Fcoordinates;
   end;
@@ -803,10 +766,11 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
+    function AddOutOfStockItems(const AValue: string): TACBrOpenDeliverySchemaOrderCancelRequest;
+    function AddInvalidItems(const AValue: string): TACBrOpenDeliverySchemaOrderCancelRequest;
 
     property orderId: string read ForderId write ForderId;
     property reason: string read Freason write Freason;
@@ -814,9 +778,6 @@ type
     property mode: TACBrODCancelRequestMode read Fmode write Fmode;
     property outOfStockItems: TSplitResult read FoutOfStockItems write FoutOfStockItems;
     property invalidItems: TSplitResult read FinvalidItems write FinvalidItems;
-
-    function AddOutOfStockItems(const AValue: string): TACBrOpenDeliverySchemaOrderCancelRequest;
-    function AddInvalidItems(const AValue: string): TACBrOpenDeliverySchemaOrderCancelRequest;
   end;
 
   TACBrOpenDeliverySchemaOrderCancelDenyRequest = class(TACBrOpenDeliverySchema)
@@ -827,7 +788,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
@@ -846,7 +806,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
@@ -867,7 +826,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
@@ -888,7 +846,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
@@ -906,7 +863,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
@@ -928,7 +884,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
@@ -945,10 +900,8 @@ type
   private
     function GetItem(Index: Integer): TACBrOpenDeliverySchemaOrderDiscount;
     procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaOrderDiscount);
-
   protected
     function NewSchema: TACBrOpenDeliverySchema; override;
-
   public
     function New: TACBrOpenDeliverySchemaOrderDiscount;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaOrderDiscount read GetItem write SetItem; default;
@@ -961,7 +914,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
@@ -976,10 +928,8 @@ type
   private
     function GetItem(Index: Integer): TACBrOpenDeliverySchemaOrderDiscountSponsor;
     procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaOrderDiscountSponsor);
-
   protected
     function NewSchema: TACBrOpenDeliverySchema; override;
-
   public
     function New: TACBrOpenDeliverySchemaOrderDiscountSponsor;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaOrderDiscountSponsor read GetItem write SetItem; default;
@@ -996,7 +946,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
@@ -1015,10 +964,8 @@ type
   private
     function GetItem(Index: Integer): TACBrOpenDeliverySchemaOrderFee;
     procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaOrderFee);
-
   protected
     function NewSchema: TACBrOpenDeliverySchema; override;
-
   public
     function New: TACBrOpenDeliverySchemaOrderFee;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaOrderFee read GetItem write SetItem; default;
@@ -1041,7 +988,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
@@ -1066,10 +1012,8 @@ type
   private
     function GetItem(Index: Integer): TACBrOpenDeliverySchemaOrderItem;
     procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaOrderItem);
-
   protected
     function NewSchema: TACBrOpenDeliverySchema; override;
-
   public
     function New: TACBrOpenDeliverySchemaOrderItem;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaOrderItem read GetItem write SetItem; default;
@@ -1090,7 +1034,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
@@ -1113,10 +1056,8 @@ type
   private
     function GetItem(Index: Integer): TACBrOpenDeliverySchemaOrderItemOption;
     procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaOrderItemOption);
-
   protected
     function NewSchema: TACBrOpenDeliverySchema; override;
-
   public
     function New: TACBrOpenDeliverySchemaOrderItemOption;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaOrderItemOption read GetItem write SetItem; default;
@@ -1129,7 +1070,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
@@ -1145,7 +1085,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
@@ -1160,10 +1099,8 @@ type
   private
     function GetItem(Index: Integer): TACBrOpenDeliverySchemaOrderPayment;
     procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaOrderPayment);
-
   protected
     function NewSchema: TACBrOpenDeliverySchema; override;
-
   public
     function New: TACBrOpenDeliverySchemaOrderPayment;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaOrderPayment read GetItem write SetItem; default;
@@ -1180,7 +1117,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
@@ -1198,10 +1134,8 @@ type
   private
     function GetItem(Index: Integer): TACBrOpenDeliverySchemaOrderPaymentMethod;
     procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaOrderPaymentMethod);
-
   protected
     function NewSchema: TACBrOpenDeliverySchema; override;
-
   public
     function New: TACBrOpenDeliverySchemaOrderPaymentMethod;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaOrderPaymentMethod read GetItem write SetItem; default;
@@ -1211,11 +1145,9 @@ type
   private
     Fmode: TACBrODTakeoutMode;
     FtakeoutDateTime: TDateTime;
-
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
@@ -1233,7 +1165,6 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     constructor Create(const AObjectName: string = ''); override;
     destructor Destroy; override;
@@ -1254,27 +1185,23 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
     property geoCoordinates: TACBrOpenDeliverySchemaGeoCoordinateCollection read FgeoCoordinates write FgeoCoordinates;
     property price: TACBrOpenDeliverySchemaPrice read Fprice write Fprice;
     property estimateDeliveryTime: Integer read FestimateDeliveryTime write FestimateDeliveryTime;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaPolygonCollection = class(TACBrOpenDeliverySchemaArray)
   private
     function GetItem(Index: Integer): TACBrOpenDeliverySchemaPolygon;
     procedure SetItem(Index: Integer; Value: TACBrOpenDeliverySchemaPolygon);
-
   protected
     function NewSchema: TACBrOpenDeliverySchema; override;
-
   public
     function New: TACBrOpenDeliverySchemaPolygon;
     property Items[Index: Integer]: TACBrOpenDeliverySchemaPolygon read GetItem write SetItem; default;
@@ -1283,17 +1210,16 @@ type
   TACBrOpenDeliverySchemaPrice = class(TACBrOpenDeliverySchema)
   private
     Fvalue: Currency;
-    Fcurrency: String;
+    Fcurrency: string;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
     property value: Currency read Fvalue write Fvalue;
-    property &currency: String read Fcurrency write Fcurrency;
+    property &currency: string read Fcurrency write Fcurrency;
   end;
 
   TACBrOpenDeliverySchemaRadius = class(TACBrOpenDeliverySchema)
@@ -1304,18 +1230,15 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-  public
     property size: Integer read Fsize write Fsize;
     property price: TACBrOpenDeliverySchemaPrice read Fprice write Fprice;
     property estimateDeliveryTime: Integer read FestimateDeliveryTime write FestimateDeliveryTime;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaRadiusCollection = class(TACBrOpenDeliverySchemaArray)
@@ -1331,29 +1254,27 @@ type
 
   TACBrOpenDeliverySchemaService = class(TACBrOpenDeliverySchema)
   private
-    Fid: String;
+    Fid: string;
     Fstatus: TACBrODStatus;
     FserviceType: TACBrODServiceType;
-    FmenuId: String;
+    FmenuId: string;
     FserviceArea: TACBrOpenDeliverySchemaServiceArea;
     FserviceHours: TACBrOpenDeliverySchemaServiceHour;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property id: String read Fid write Fid;
+    property id: string read Fid write Fid;
     property status: TACBrODStatus read Fstatus write Fstatus;
     property serviceType: TACBrODServiceType read FserviceType write FserviceType;
-    property menuId: String read FmenuId write FmenuId;
+    property menuId: string read FmenuId write FmenuId;
     property serviceArea: TACBrOpenDeliverySchemaServiceArea read FserviceArea write FserviceArea;
     property serviceHours: TACBrOpenDeliverySchemaServiceHour read FserviceHours write FserviceHours;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaServiceCollection = class(TACBrOpenDeliverySchemaArray)
@@ -1369,45 +1290,40 @@ type
 
   TACBrOpenDeliverySchemaServiceArea = class(TACBrOpenDeliverySchema)
   private
-    Fid: String;
+    Fid: string;
     Fpolygon: TACBrOpenDeliverySchemaPolygonCollection;
     FgeoRadius: TACBrOpenDeliverySchemaGeoRadius;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-  public
-    property id: String read Fid write Fid;
+    property id: string read Fid write Fid;
     property polygon: TACBrOpenDeliverySchemaPolygonCollection read Fpolygon write Fpolygon;
     property geoRadius: TACBrOpenDeliverySchemaGeoRadius read FgeoRadius write FgeoRadius;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaServiceHour = class(TACBrOpenDeliverySchema)
   private
     FweekHours: TACBrOpenDeliverySchemaHourCollection;
     FholidayHours: TACBrOpenDeliverySchemaHolidayHourCollection;
-    Fid: String;
+    Fid: string;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-    property id: String read Fid write Fid;
+    property id: string read Fid write Fid;
     property weekHours: TACBrOpenDeliverySchemaHourCollection read FweekHours write FweekHours;
     property holidayHours: TACBrOpenDeliverySchemaHolidayHourCollection read FholidayHours write FholidayHours;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaServiceHourCollection = class(TACBrOpenDeliverySchemaArray)
@@ -1428,12 +1344,10 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-  public
     property startTime: TDateTime read FstartTime write FstartTime;
     property endTime: TDateTime read FendTime write FendTime;
   end;
@@ -1445,17 +1359,14 @@ type
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
-
   public
+    constructor Create(const AObjectName: string = ''); override;
+    destructor Destroy; override;
     procedure Clear; override;
     function IsEmpty: Boolean; override;
 
-  public
     property dayOfWeek: TACBrODDayOfWeekArray read FdayOfWeek write FdayOfWeek;
     property timePeriods : TACBrOpenDeliverySchemaTimePeriod read FtimePeriods write FtimePeriods;
-
-    constructor Create(const AObjectName: string = ''); override;
-    destructor Destroy; override;
   end;
 
   TACBrOpenDeliverySchemaHourCollection = class(TACBrOpenDeliverySchemaArray)
@@ -2238,7 +2149,7 @@ end;
 
 procedure TACBrOpenDeliverySchemaService.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
-  LStrEnum: String;
+  LStrEnum: string;
 begin
   AJson
     .Value('id', Fid)
@@ -2398,7 +2309,7 @@ end;
 
 procedure TACBrOpenDeliverySchemaCategory.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
-  LStrStatus: String;
+  LStrStatus: string;
 begin
   AJSon
     .Value('id', Fid)
@@ -2806,7 +2717,7 @@ end;
 
 procedure TACBrOpenDeliverySchemaOptionGroup.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
-  LStrStatus: String;
+  LStrStatus: string;
 begin
   Foptions.Clear;
   AJSon
@@ -3014,7 +2925,7 @@ end;
 
 procedure TACBrOpenDeliverySchemaMerchant.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
-  LStrStatus: String;
+  LStrStatus: string;
 begin
   AJSon
     .ValueISODateTime('lastUpdate', FlastUpdate)
@@ -3387,7 +3298,7 @@ end;
 
 procedure TACBrOpenDeliverySchemaOrderDelivery.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
-  LStr: String;
+  LStr: string;
 begin
   AJSon
     .Value('deliveredBy', LStr)
@@ -4210,7 +4121,7 @@ end;
 
 procedure TACBrOpenDeliverySchemaOrder.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
-  LStrType: String;
+  LStrType: string;
 begin
   AJSon
     .Value('id', Fid)

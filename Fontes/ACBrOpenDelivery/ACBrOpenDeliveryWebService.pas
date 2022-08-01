@@ -17,6 +17,7 @@ type
   TACBrOpenDeliveryAuth = class;
   TACBrOpenDeliveryPolling = class;
   TACBrOpenDeliveryAcknowledgment = class;
+  TACBrOpenDeliveryMerchantUpdate = class;
   TACBrOpenDeliveryOrderDetails = class;
   TACBrOpenDeliveryOrderConfirm = class;
   TACBrOpenDeliveryOrderReadyForPickup = class;
@@ -31,6 +32,7 @@ type
     FAuth: TACBrOpenDeliveryAuth;
     FAcknowledgment: TACBrOpenDeliveryAcknowledgment;
     FPolling: TACBrOpenDeliveryPolling;
+    FMerchantUpdate: TACBrOpenDeliveryMerchantUpdate;
     FOrderDetails: TACBrOpenDeliveryOrderDetails;
     FOrderConfirm: TACBrOpenDeliveryOrderConfirm;
     FOrderReadyForPickup: TACBrOpenDeliveryOrderReadyForPickup;
@@ -48,12 +50,14 @@ type
     function GetOrderAcceptCancellation: TACBrOpenDeliveryOrderAcceptCancellation;
     function GetOrderDenyCancellation: TACBrOpenDeliveryOrderDenyCancellation;
     function GetOrderRequestCancellation: TACBrOpenDeliveryOrderRequestCancellation;
+    function GetMerchantUpdate: TACBrOpenDeliveryMerchantUpdate;
   public
     constructor Create(AOwner: TACBrComponent);
     destructor Destroy; override;
 
     property Auth: TACBrOpenDeliveryAuth read GetAuth;
     property Acknowledgment: TACBrOpenDeliveryAcknowledgment read GetAcknowledgment;
+    property MerchantUpdate: TACBrOpenDeliveryMerchantUpdate read GetMerchantUpdate;
     property OrderDetails: TACBrOpenDeliveryOrderDetails read GetOrderDetails;
     property OrderConfirm: TACBrOpenDeliveryOrderConfirm read GetOrderConfirm;
     property OrderReadyForPickup: TACBrOpenDeliveryOrderReadyForPickup read GetOrderReadyForPickup;
@@ -112,6 +116,29 @@ type
     constructor Create(AOwner: TACBrComponent); override;
     destructor Destroy; override;
     property AccessToken: TACBrOpenDeliverySchemaAccessToken read GetAccessToken;
+  end;
+
+  { TACBrOpenDeliveryMerchantUpdate }
+
+  TACBrOpenDeliveryMerchantUpdate = class(TACBrOpenDeliveryWebService)
+  private
+    FMerchant: TACBrOpenDeliverySchemaMerchant;
+    FUpdateType: TACBrODMerchantUpdateType;
+    FEntityType: TACBrODMerchantUpdateEntity;
+
+    function GetBody: TACBrJSONObject;
+  protected
+    procedure DefinirDadosMsg; override;
+    procedure DefinirRecurso; override;
+    function TratarResposta: Boolean; override;
+  public
+    constructor Create(AOwner: TACBrComponent); override;
+    destructor Destroy; override;
+    procedure Clear;
+
+    property Merchant: TACBrOpenDeliverySchemaMerchant read FMerchant write FMerchant;
+    property UpdateType: TACBrODMerchantUpdateType read FUpdateType write FUpdateType;
+    property EntityType: TACBrODMerchantUpdateEntity read FEntityType write FEntityType;
   end;
 
   { TACBrOpenDeliveryPolling }
@@ -564,6 +591,7 @@ begin
   FAuth.Free;
   FAcknowledgment.Free;
   FPolling.Free;
+  FMerchantUpdate.Free;
   FOrderDetails.Free;
   FOrderConfirm.Free;
   FOrderDispatch.Free;
@@ -586,6 +614,13 @@ begin
   if not Assigned(FAuth) then
     FAuth := TACBrOpenDeliveryAuth.Create(FOwner);
   Result := FAuth;
+end;
+
+function TACBrOpenDeliveryWebServices.GetMerchantUpdate: TACBrOpenDeliveryMerchantUpdate;
+begin
+  if not Assigned(FMerchantUpdate) then
+    FMerchantUpdate := TACBrOpenDeliveryMerchantUpdate.Create(FOwner);
+  Result := FMerchantUpdate;
 end;
 
 function TACBrOpenDeliveryWebServices.GetOrderAcceptCancellation: TACBrOpenDeliveryOrderAcceptCancellation;
@@ -993,6 +1028,85 @@ begin
 end;
 
 function TACBrOpenDeliveryOrderDenyCancellation.TratarResposta: Boolean;
+begin
+  Result := True;
+end;
+
+{ TACBrOpenDeliveryMerchantUpdate }
+
+procedure TACBrOpenDeliveryMerchantUpdate.Clear;
+begin
+  FEntityType := mueService;
+  FUpdateType := mutEmptyBody;
+end;
+
+constructor TACBrOpenDeliveryMerchantUpdate.Create(AOwner: TACBrComponent);
+begin
+  inherited;
+  FMerchant := TACBrOpenDeliverySchemaMerchant.Create;
+end;
+
+procedure TACBrOpenDeliveryMerchantUpdate.DefinirDadosMsg;
+var
+  LJSON: TACBrJSONObject;
+begin
+  LJSON := GetBody;
+  try
+    if Assigned(LJSON) then
+      FRequest.Body(LJSON, False);
+  finally
+    LJSON.Free;
+  end;
+end;
+
+procedure TACBrOpenDeliveryMerchantUpdate.DefinirRecurso;
+var
+  LResource: string;
+  LComponent: TACBrOpenDelivery;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  LResource := StringReplace(LComponent.Resources.MerchantUpdate,
+    '{merchantId}', FMerchant.id, [rfReplaceAll, rfIgnoreCase]);
+  FRequest.POST.Resource(LResource);
+end;
+
+destructor TACBrOpenDeliveryMerchantUpdate.Destroy;
+begin
+  FMerchant.Free;
+  inherited;
+end;
+
+function TACBrOpenDeliveryMerchantUpdate.GetBody: TACBrJSONObject;
+var
+  LJSONArray: TACBrJSONArray;
+begin
+  // https://abrasel-nacional.github.io/docs/#tag/merchantUpdate/operation/menuUpdated
+  Result := TACBrJSONObject.Create;
+  try
+    if FUpdateType in [mutOnlyStatus, mutStatusEntityType] then
+      Result.AddPair('merchantStatus', StatusToStr(FMerchant.status));
+
+    if FUpdateType in [mutEntityType, mutStatusEntityType] then
+    begin
+      case FEntityType of
+        mueService: LJSONArray := FMerchant.services.ToJSonArray;
+        mueMenu: LJSONArray := FMerchant.menus.ToJSonArray;
+        mueCategory: LJSONArray := FMerchant.categories.ToJSonArray;
+        mueItem: LJSONArray := FMerchant.items.ToJSonArray;
+        mueItemOffer: LJSONArray := FMerchant.itemOffers.ToJSonArray;
+        mueOptionGroup: LJSONArray := FMerchant.optionGroups.ToJSonArray;
+        mueAvailability: LJSONArray := FMerchant.availabilities.ToJSonArray;
+      end;
+
+      Result.AddPair('updateObjects', LJSONArray);
+    end;
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TACBrOpenDeliveryMerchantUpdate.TratarResposta: Boolean;
 begin
   Result := True;
 end;

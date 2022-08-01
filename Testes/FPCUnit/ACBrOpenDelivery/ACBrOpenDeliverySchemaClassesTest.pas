@@ -528,17 +528,17 @@ end;
 procedure TTestAddress.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('BR', FSchema.country);
-  CheckEquals('BR-SP', FSchema.state);
-  CheckEquals('São Paulo', FSchema.city);
-  CheckEquals('Moema', FSchema.district);
-  CheckEquals('Plaza Avenue', FSchema.street);
-  CheckEquals('100', FSchema.number);
-  CheckEquals('20111-000', FSchema.postalCode);
-  CheckEquals('BL 02 AP 31', FSchema.complement);
-  CheckEquals('Yellow House', FSchema.reference);
-  CheckEquals('-23,54809', FloatToStr(FSchema.latitude));
-  CheckEquals('-46,63638', FloatToStr(FSchema.longitude));
+  CheckEquals('BR', FSchema.Country);
+  CheckEquals('BR-SP', FSchema.State);
+  CheckEquals('São Paulo', FSchema.City);
+  CheckEquals('Moema', FSchema.District);
+  CheckEquals('Plaza Avenue', FSchema.Street);
+  CheckEquals('100', FSchema.Number);
+  CheckEquals('20111-000', FSchema.PostalCode);
+  CheckEquals('BL 02 AP 31', FSchema.Complement);
+  CheckEquals('Yellow House', FSchema.Reference);
+  CheckEquals('-23,54809', FloatToStr(FSchema.Latitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.Longitude));
 end;
 
 { TTestContactPhone }
@@ -546,8 +546,8 @@ end;
 procedure TTestContactPhone.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('1234567', FSchema.whatsappNumber);
-  CheckEquals('7654321', FSchema.commercialNumber);
+  CheckEquals('1234567', FSchema.WhatsappNumber);
+  CheckEquals('7654321', FSchema.CommercialNumber);
 end;
 
 procedure TTestContactPhone.ObjectToJSON;
@@ -654,44 +654,44 @@ end;
 procedure TTestBasicInfo.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('Pizza Plaza', FSchema.name);
-  CheckEquals('22815773000169', FSchema.document);
-  CheckEquals('Food Company', FSchema.corporateName);
-  CheckEquals('Food company specializing in pizzas.', FSchema.description);
-  CheckEquals('90', FloatToStr(FSchema.averageTicket));
-  CheckEquals('20', IntToStr(FSchema.averagePreparationTime));
-  CheckEquals('BRL', FSchema.minOrderValue.&currency);
-  CheckEquals('40', FloatToStr(FSchema.minOrderValue.value));
-  CheckEquals('RESTAURANT', MerchantTypeToStr(FSchema.merchantType));
-  CheckEquals(3, Length(FSchema.merchantCategories));
-  CheckEquals('PIZZA', MerchantCategoriesToStr(FSchema.merchantCategories[0]));
-  CheckEquals('FAMILY_MEALS', MerchantCategoriesToStr(FSchema.merchantCategories[1]));
-  CheckEquals('PREMIUM', MerchantCategoriesToStr(FSchema.merchantCategories[2]));
-  CheckEquals('BR', FSchema.address.country);
-  CheckEquals('BR-SP', FSchema.address.state);
-  CheckEquals('São Paulo', FSchema.address.city);
-  CheckEquals('Moema', FSchema.address.district);
-  CheckEquals('Plaza Avenue', FSchema.address.street);
-  CheckEquals('100', FSchema.address.number);
-  CheckEquals('20111-000', FSchema.address.postalCode);
-  CheckEquals('BL 02 AP 31', FSchema.address.complement);
-  CheckEquals('Yellow House', FSchema.address.reference);
-  CheckEquals('-23,54809', FloatToStr(FSchema.address.latitude));
-  CheckEquals('-46,63638', FloatToStr(FSchema.address.longitude));
-  CheckEquals(2, Length(FSchema.contactEmails));
-  CheckEquals('food@company.com', FSchema.contactEmails[0]);
-  CheckEquals('food@acbr.com', FSchema.contactEmails[1]);
+  CheckEquals('Pizza Plaza', FSchema.Name);
+  CheckEquals('22815773000169', FSchema.Document);
+  CheckEquals('Food Company', FSchema.CorporateName);
+  CheckEquals('Food company specializing in pizzas.', FSchema.Description);
+  CheckEquals('90', FloatToStr(FSchema.AverageTicket));
+  CheckEquals('20', IntToStr(FSchema.AveragePreparationTime));
+  CheckEquals('BRL', FSchema.MinOrderValue.&currency);
+  CheckEquals('40', FloatToStr(FSchema.MinOrderValue.value));
+  CheckEquals('RESTAURANT', MerchantTypeToStr(FSchema.MerchantType));
+  CheckEquals(3, Length(FSchema.MerchantCategories));
+  CheckEquals('PIZZA', MerchantCategoriesToStr(FSchema.MerchantCategories[0]));
+  CheckEquals('FAMILY_MEALS', MerchantCategoriesToStr(FSchema.MerchantCategories[1]));
+  CheckEquals('PREMIUM', MerchantCategoriesToStr(FSchema.MerchantCategories[2]));
+  CheckEquals('BR', FSchema.Address.Country);
+  CheckEquals('BR-SP', FSchema.Address.State);
+  CheckEquals('São Paulo', FSchema.Address.City);
+  CheckEquals('Moema', FSchema.Address.District);
+  CheckEquals('Plaza Avenue', FSchema.Address.Street);
+  CheckEquals('100', FSchema.Address.Number);
+  CheckEquals('20111-000', FSchema.Address.PostalCode);
+  CheckEquals('BL 02 AP 31', FSchema.Address.Complement);
+  CheckEquals('Yellow House', FSchema.Address.Reference);
+  CheckEquals('-23,54809', FloatToStr(FSchema.Address.Latitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.Address.Longitude));
+  CheckEquals(2, Length(FSchema.ContactEmails));
+  CheckEquals('food@company.com', FSchema.ContactEmails[0]);
+  CheckEquals('food@acbr.com', FSchema.ContactEmails[1]);
 
-  CheckEquals('11999999999', FSchema.contactPhones.commercialNumber);
-  CheckEquals('11998888888', FSchema.contactPhones.whatsappNumber);
+  CheckEquals('11999999999', FSchema.ContactPhones.CommercialNumber);
+  CheckEquals('11998888888', FSchema.ContactPhones.WhatsappNumber);
 
-  CheckEquals('https://food-company.com/image.jpg', FSchema.logoImage.URL);
-  CheckEquals('96b41025', FSchema.logoImage.CRC_32);
+  CheckEquals('https://food-company.com/image.jpg', FSchema.LogoImage.URL);
+  CheckEquals('96b41025', FSchema.LogoImage.CRC_32);
 
-  CheckEquals('https://food-company.com/image.jpg', FSchema.bannerImage.URL);
-  CheckEquals('96b41025', FSchema.bannerImage.CRC_32);
+  CheckEquals('https://food-company.com/image.jpg', FSchema.BannerImage.URL);
+  CheckEquals('96b41025', FSchema.BannerImage.CRC_32);
 
-  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.createdAt));
+  CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.CreatedAt));
 end;
 
 procedure TTestBasicInfo.ObjectToJSON;
@@ -706,7 +706,7 @@ begin
   CheckEquals('90', FloatToStr(FJSONObject.AsFloat['averageTicket']));
   CheckEquals('20', IntToStr(FJSONObject.AsInteger['averagePreparationTime']));
   CheckEquals('BRL', FJSONObject.AsJSONObject['minOrderValue'].AsString['currency']);
-  CheckEquals('40', FloatToStr(FSchema.minOrderValue.value));
+  CheckEquals('40', FloatToStr(FSchema.MinOrderValue.value));
   CheckEquals('RESTAURANT', FJSONObject.AsString['merchantType']);
   CheckEquals(3, FJSONObject.AsJSONArray['merchantCategories'].Count);
   CheckEquals('PIZZA', FJSONObject.AsJSONArray['merchantCategories'].Items[0]);
@@ -849,18 +849,18 @@ end;
 procedure TTestGeoRadius.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('-23,54809', FloatToStr(FSchema.geoMidpointLatitude));
-  CheckEquals('-46,63638', FloatToStr(FSchema.geoMidpointLongitude));
-  CheckEquals(2, FSchema.radius.Count);
-  CheckEquals(3, FSchema.radius[0].size);
-  CheckEquals('5', FloatToStr(FSchema.radius[0].price.value));
-  CheckEquals('BRL', FSchema.radius[0].price.&currency);
-  CheckEquals(2, FSchema.radius[0].estimateDeliveryTime);
+  CheckEquals('-23,54809', FloatToStr(FSchema.GeoMidpointLatitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.GeoMidpointLongitude));
+  CheckEquals(2, FSchema.Radius.Count);
+  CheckEquals(3, FSchema.Radius[0].size);
+  CheckEquals('5', FloatToStr(FSchema.Radius[0].price.value));
+  CheckEquals('BRL', FSchema.Radius[0].price.&currency);
+  CheckEquals(2, FSchema.Radius[0].estimateDeliveryTime);
 
-  CheckEquals(4, FSchema.radius[1].size);
-  CheckEquals('6', FloatToStr(FSchema.radius[1].price.value));
-  CheckEquals('US$', FSchema.radius[1].price.&currency);
-  CheckEquals(8, FSchema.radius[1].estimateDeliveryTime);
+  CheckEquals(4, FSchema.Radius[1].size);
+  CheckEquals('6', FloatToStr(FSchema.Radius[1].price.value));
+  CheckEquals('US$', FSchema.Radius[1].price.&currency);
+  CheckEquals(8, FSchema.Radius[1].estimateDeliveryTime);
 end;
 
 procedure TTestGeoRadius.ObjectToJSON;
@@ -923,8 +923,8 @@ end;
 procedure TTestGeoCoordinate.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('-23,54809', FloatToStr(FSchema.latitude));
-  CheckEquals('-46,63638', FloatToStr(FSchema.longitude));
+  CheckEquals('-23,54809', FloatToStr(FSchema.Latitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.Longitude));
 end;
 
 procedure TTestGeoCoordinate.ObjectToJSON;
@@ -961,8 +961,8 @@ begin
   FSchema.AsJSON := FJSON;
   CheckEquals(3, FSchema.estimateDeliveryTime);
   CheckEquals(1, FSchema.geoCoordinates.Count);
-  CheckEquals('-23,54809', FloatToStr(FSchema.geoCoordinates[0].latitude));
-  CheckEquals('-46,63638', FloatToStr(FSchema.geoCoordinates[0].longitude));
+  CheckEquals('-23,54809', FloatToStr(FSchema.geoCoordinates[0].Latitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.geoCoordinates[0].Longitude));
   CheckEquals('BRL', FSchema.price.&currency);
   CheckEquals('5', FloatToStr(FSchema.price.value));
 end;
@@ -1014,18 +1014,18 @@ begin
   CheckEquals(1, FSchema.polygon.Count);
   CheckEquals(3, FSchema.polygon[0].estimateDeliveryTime);
   CheckEquals(1, FSchema.polygon[0].geoCoordinates.Count);
-  CheckEquals('-23,54809', FloatToStr(FSchema.polygon[0].geoCoordinates[0].latitude));
-  CheckEquals('-46,63638', FloatToStr(FSchema.polygon[0].geoCoordinates[0].longitude));
+  CheckEquals('-23,54809', FloatToStr(FSchema.polygon[0].geoCoordinates[0].Latitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.polygon[0].geoCoordinates[0].Longitude));
   CheckEquals('BRL', FSchema.polygon[0].price.&currency);
   CheckEquals('5', FloatToStr(FSchema.polygon[0].price.value));
 
-  CheckEquals('-23,54809', FloatToStr(FSchema.geoRadius.geoMidpointLatitude));
-  CheckEquals('-46,63638', FloatToStr(FSchema.geoRadius.geoMidpointLongitude));
-  CheckEquals(1, FSchema.geoRadius.radius.Count);
-  CheckEquals(0, FSchema.geoRadius.radius[0].size);
-  CheckEquals('0', FloatToStr(FSchema.geoRadius.radius[0].price.value));
-  CheckEquals('', FSchema.geoRadius.radius[0].price.&currency);
-  CheckEquals(0, FSchema.geoRadius.radius[0].estimateDeliveryTime);
+  CheckEquals('-23,54809', FloatToStr(FSchema.geoRadius.GeoMidpointLatitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.geoRadius.GeoMidpointLongitude));
+  CheckEquals(1, FSchema.geoRadius.Radius.Count);
+  CheckEquals(0, FSchema.geoRadius.Radius[0].size);
+  CheckEquals('0', FloatToStr(FSchema.geoRadius.Radius[0].price.value));
+  CheckEquals('', FSchema.geoRadius.Radius[0].price.&currency);
+  CheckEquals(0, FSchema.geoRadius.Radius[0].estimateDeliveryTime);
 end;
 
 procedure TTestServiceArea.ObjectToJSON;
@@ -1182,7 +1182,7 @@ end;
 procedure TTestHolidayHour.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('2021-07-04', FormatDateTime('yyyy-MM-dd', FSchema.date));
+  CheckEquals('2021-07-04', FormatDateTime('yyyy-MM-dd', FSchema.Date));
   CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FSchema.timePeriods.startTime));
   CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.timePeriods.endTime));
 end;
@@ -1231,7 +1231,7 @@ begin
   CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.weekHours[0].timePeriods.endTime));
 
   CheckEquals(1, FSchema.holidayHours.Count);
-  CheckEquals('2021-07-04', FormatDateTime('yyyy-MM-dd', FSchema.holidayHours[0].date));
+  CheckEquals('2021-07-04', FormatDateTime('yyyy-MM-dd', FSchema.holidayHours[0].Date));
   CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FSchema.holidayHours[0].timePeriods.startTime));
   CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.holidayHours[0].timePeriods.endTime));
 end;
@@ -1302,18 +1302,18 @@ begin
   CheckEquals(1, FSchema.serviceArea.polygon.Count);
   CheckEquals(1, FSchema.serviceArea.polygon[0].estimateDeliveryTime);
   CheckEquals(1, FSchema.serviceArea.polygon[0].geoCoordinates.Count);
-  CheckEquals('-23,54809', FloatToStr(FSchema.serviceArea.polygon[0].geoCoordinates[0].latitude));
-  CheckEquals('-46,63638', FloatToStr(FSchema.serviceArea.polygon[0].geoCoordinates[0].longitude));
+  CheckEquals('-23,54809', FloatToStr(FSchema.serviceArea.polygon[0].geoCoordinates[0].Latitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.serviceArea.polygon[0].geoCoordinates[0].Longitude));
   CheckEquals('BRL', FSchema.serviceArea.polygon[0].price.&currency);
   CheckEquals('5', FloatToStr(FSchema.serviceArea.polygon[0].price.value));
 
-  CheckEquals('-23,54809', FloatToStr(FSchema.serviceArea.geoRadius.geoMidpointLatitude));
-  CheckEquals('-46,63638', FloatToStr(FSchema.serviceArea.geoRadius.geoMidpointLongitude));
-  CheckEquals(1, FSchema.serviceArea.geoRadius.radius.Count);
-  CheckEquals(1, FSchema.serviceArea.geoRadius.radius[0].size);
-  CheckEquals('5', FloatToStr(FSchema.serviceArea.geoRadius.radius[0].price.value));
-  CheckEquals('BRL', FSchema.serviceArea.geoRadius.radius[0].price.&currency);
-  CheckEquals(1, FSchema.serviceArea.geoRadius.radius[0].estimateDeliveryTime);
+  CheckEquals('-23,54809', FloatToStr(FSchema.serviceArea.geoRadius.GeoMidpointLatitude));
+  CheckEquals('-46,63638', FloatToStr(FSchema.serviceArea.geoRadius.GeoMidpointLongitude));
+  CheckEquals(1, FSchema.serviceArea.geoRadius.Radius.Count);
+  CheckEquals(1, FSchema.serviceArea.geoRadius.Radius[0].size);
+  CheckEquals('5', FloatToStr(FSchema.serviceArea.geoRadius.Radius[0].price.value));
+  CheckEquals('BRL', FSchema.serviceArea.geoRadius.Radius[0].price.&currency);
+  CheckEquals(1, FSchema.serviceArea.geoRadius.Radius[0].estimateDeliveryTime);
 
   // Service Hours
   CheckEquals('fb093d8c-2ca5-40fb-afcf-472fbdae81cc', FSchema.serviceHours.id);
@@ -1325,7 +1325,7 @@ begin
   CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.serviceHours.weekHours[0].timePeriods.endTime));
 
   CheckEquals(1, FSchema.serviceHours.holidayHours.Count);
-  CheckEquals('2021-04-07', FormatDateTime('yyyy-MM-dd', FSchema.serviceHours.holidayHours[0].date));
+  CheckEquals('2021-04-07', FormatDateTime('yyyy-MM-dd', FSchema.serviceHours.holidayHours[0].Date));
   CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FSchema.serviceHours.holidayHours[0].timePeriods.startTime));
   CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.serviceHours.holidayHours[0].timePeriods.endTime));
 end;
@@ -1459,15 +1459,15 @@ end;
 procedure TTestMenu.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('f627ccdc-6789-456f-a782-148538d5035b', FSchema.id);
-  CheckEquals('Pizzas', FSchema.name);
-  CheckEquals('Pizza menu', FSchema.description);
-  CheckEquals('123', FSchema.externalCode);
-  CheckEquals('Lorem Ipsum is simply dummy text of the printing and typesetting industry.', FSchema.disclaimer);
-  CheckEquals('http://example.com', FSchema.disclaimerUrl);
-  CheckEquals(2, Length(FSchema.categoryId));
-  CheckEquals('92fad022-2c28-4239-a026-989f5b555cb7', FSchema.categoryId[0]);
-  CheckEquals('6bb71850-1d40-49f9-8046-b13e068c0cca', FSchema.categoryId[1]);
+  CheckEquals('f627ccdc-6789-456f-a782-148538d5035b', FSchema.Id);
+  CheckEquals('Pizzas', FSchema.Name);
+  CheckEquals('Pizza menu', FSchema.Description);
+  CheckEquals('123', FSchema.ExternalCode);
+  CheckEquals('Lorem Ipsum is simply dummy text of the printing and typesetting industry.', FSchema.Disclaimer);
+  CheckEquals('http://example.com', FSchema.DisclaimerUrl);
+  CheckEquals(2, Length(FSchema.CategoryId));
+  CheckEquals('92fad022-2c28-4239-a026-989f5b555cb7', FSchema.CategoryId[0]);
+  CheckEquals('6bb71850-1d40-49f9-8046-b13e068c0cca', FSchema.CategoryId[1]);
 end;
 
 procedure TTestMenu.ObjectToJSON;
@@ -1518,18 +1518,18 @@ procedure TTestCategory.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
   CheckEquals('92fad022-2c28-4239-a026-989f5b555cb7', FSchema.id);
-  CheckEquals(2, FSchema.index);
-  CheckEquals('Salted Pizza', FSchema.name);
-  CheckEquals('Salted pizza flavors.', FSchema.description);
-  CheckEquals('13', FSchema.externalCode);
-  CheckEquals('AVAILABLE', StatusToStr(FSchema.status));
+  CheckEquals(2, FSchema.Index);
+  CheckEquals('Salted Pizza', FSchema.Name);
+  CheckEquals('Salted pizza flavors.', FSchema.Description);
+  CheckEquals('13', FSchema.ExternalCode);
+  CheckEquals('AVAILABLE', StatusToStr(FSchema.Status));
 
-  CheckEquals('https://food-company.com/category1.png', FSchema.image.URL);
-  CheckEquals('09345UIHF98', FSchema.image.CRC_32);
-  CheckEquals(1, Length(FSchema.availabilityId));
-  CheckEquals(1, Length(FSchema.itemOfferId));
-  CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FSchema.availabilityId[0]);
-  CheckEquals('f080cfb3-5c4a-4eb7-907d-2de3bbb5dfb9', FSchema.itemOfferId[0]);
+  CheckEquals('https://food-company.com/category1.png', FSchema.Image.URL);
+  CheckEquals('09345UIHF98', FSchema.Image.CRC_32);
+  CheckEquals(1, Length(FSchema.AvailabilityId));
+  CheckEquals(1, Length(FSchema.ItemOfferId));
+  CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FSchema.AvailabilityId[0]);
+  CheckEquals('f080cfb3-5c4a-4eb7-907d-2de3bbb5dfb9', FSchema.ItemOfferId[0]);
 end;
 
 procedure TTestCategory.ObjectToJSON;
@@ -1591,15 +1591,15 @@ procedure TTestItemOffer.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
 
-  CheckEquals('f080cfb3-5c4a-4eb7-907d-2de3bbb5dfb9', FSchema.id);
-  CheckEquals('732bd31e-77fc-47ee-88ee-a0437f97b198', FSchema.itemId);
-  CheckEquals(1, FSchema.index);
-  CheckEquals('43', FloatToStr(FSchema.price.value));
-  CheckEquals('BRL', FSchema.price.&currency);
-  CheckEquals(1, Length(FSchema.availabilityId));
-  CheckEquals(1, Length(FSchema.optionGroupsId));
-  CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FSchema.availabilityId[0]);
-  CheckEquals('fe67e551-f42f-499a-8afb-0ed893c71fa3', FSchema.optionGroupsId[0]);
+  CheckEquals('f080cfb3-5c4a-4eb7-907d-2de3bbb5dfb9', FSchema.Id);
+  CheckEquals('732bd31e-77fc-47ee-88ee-a0437f97b198', FSchema.ItemId);
+  CheckEquals(1, FSchema.Index);
+  CheckEquals('43', FloatToStr(FSchema.Price.value));
+  CheckEquals('BRL', FSchema.Price.&currency);
+  CheckEquals(1, Length(FSchema.AvailabilityId));
+  CheckEquals(1, Length(FSchema.OptionGroupsId));
+  CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FSchema.AvailabilityId[0]);
+  CheckEquals('fe67e551-f42f-499a-8afb-0ed893c71fa3', FSchema.OptionGroupsId[0]);
 end;
 
 procedure TTestItemOffer.ObjectToJSON;
@@ -1653,15 +1653,15 @@ end;
 procedure TTestNutritionalInfo.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('Contains preservatives', FSchema.description);
-  CheckEquals('2000 Cal', FSchema.calories);
-  CheckEquals(1, Length(FSchema.allergen));
-  CheckEquals(1, Length(FSchema.additives));
-  CheckEquals(1, Length(FSchema.suitableDiet));
-  CheckEquals('GLUTEN', AllergenToStr(FSchema.allergen[0]));
-  CheckEquals('teste', FSchema.additives[0]);
-  CheckEquals('GLUTEN_FREE', SuitableDietToStr(FSchema.suitableDiet[0]));
-  CheckFalse(FSchema.isAlcoholic);
+  CheckEquals('Contains preservatives', FSchema.Description);
+  CheckEquals('2000 Cal', FSchema.Calories);
+  CheckEquals(1, Length(FSchema.Allergen));
+  CheckEquals(1, Length(FSchema.Additives));
+  CheckEquals(1, Length(FSchema.SuitableDiet));
+  CheckEquals('GLUTEN', AllergenToStr(FSchema.Allergen[0]));
+  CheckEquals('teste', FSchema.Additives[0]);
+  CheckEquals('GLUTEN_FREE', SuitableDietToStr(FSchema.SuitableDiet[0]));
+  CheckFalse(FSchema.IsAlcoholic);
 end;
 
 procedure TTestNutritionalInfo.ObjectToJSON;
@@ -1677,7 +1677,7 @@ begin
   CheckEquals('GLUTEN', FJSONObject.AsJSONArray['allergen'].Items[0]);
   CheckEquals('teste', FJSONObject.AsJSONArray['additives'].Items[0]);
   CheckEquals('GLUTEN_FREE', FJSONObject.AsJSONArray['suitableDiet'].Items[0]);
-  CheckFalse(FSchema.isAlcoholic);
+  CheckFalse(FSchema.IsAlcoholic);
 end;
 
 procedure TTestNutritionalInfo.SetUp;
@@ -1712,15 +1712,15 @@ end;
 procedure TTestItem.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FSchema.id);
-  CheckEquals('1/2 Mozzarella', FSchema.name);
-  CheckEquals('Delicious mozzarella pizza.', FSchema.description);
-  CheckEquals('24', FSchema.externalCode);
+  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FSchema.Id);
+  CheckEquals('1/2 Mozzarella', FSchema.Name);
+  CheckEquals('Delicious mozzarella pizza.', FSchema.Description);
+  CheckEquals('24', FSchema.ExternalCode);
   CheckEquals('unit', FSchema.&unit);
-  CheckEquals('https://www.food-place.com/images/mozzarella.png', FSchema.image.URL);
-  CheckEquals('09345UIHF98', FSchema.image.CRC_32);
-  CheckEquals('Contains preservatives', FSchema.nutritionalInfo.description);
-  CheckEquals('2500 Cal', FSchema.nutritionalInfo.calories);
+  CheckEquals('https://www.food-place.com/images/mozzarella.png', FSchema.Image.URL);
+  CheckEquals('09345UIHF98', FSchema.Image.CRC_32);
+  CheckEquals('Contains preservatives', FSchema.NutritionalInfo.Description);
+  CheckEquals('2500 Cal', FSchema.NutritionalInfo.Calories);
 end;
 
 procedure TTestItem.ObjectToJSON;
@@ -1777,12 +1777,12 @@ end;
 procedure TTestOption.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
-  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87b', FSchema.id);
-  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FSchema.itemId);
-  CheckEquals(1, FSchema.index);
-  CheckEquals('43', FloatToStr(FSchema.price.value));
-  CheckEquals('BRL', FSchema.price.&currency);
-  CheckEquals(1, FSchema.maxPermitted);
+  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87b', FSchema.Id);
+  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FSchema.ItemId);
+  CheckEquals(1, FSchema.Index);
+  CheckEquals('43', FloatToStr(FSchema.Price.value));
+  CheckEquals('BRL', FSchema.Price.&currency);
+  CheckEquals(1, FSchema.MaxPermitted);
 end;
 
 procedure TTestOption.ObjectToJSON;
@@ -1830,28 +1830,28 @@ procedure TTestOptionGroup.JSONToObject;
 begin
   FSchema.AsJSON := FJSON;
 
-  CheckEquals('fe67e551-f42f-499a-8afb-0ed893c71fa3', FSchema.id);
-  CheckEquals(0, FSchema.index);
-  CheckEquals('Choose your salted pizza flavor', FSchema.name);
-  CheckEquals('Choose your salted pizza flavor.', FSchema.description);
-  CheckEquals('12', FSchema.externalCode);
-  CheckEquals('AVAILABLE', StatusToStr(FSchema.status));
-  CheckEquals(2, FSchema.minPermitted);
-  CheckEquals(2, FSchema.maxPermitted);
-  CheckEquals(2, FSchema.options.Count);
-  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87a', FSchema.options[0].id);
-  CheckEquals('502ecf11-0509-48ed-b63c-6211c48fd9b9', FSchema.options[0].itemId);
-  CheckEquals(0, FSchema.options[0].index);
-  CheckEquals('50', FloatToStr(FSchema.options[0].price.value));
-  CheckEquals('BRL', FSchema.options[0].price.&currency);
-  CheckEquals(1, FSchema.options[0].maxPermitted);
+  CheckEquals('fe67e551-f42f-499a-8afb-0ed893c71fa3', FSchema.Id);
+  CheckEquals(0, FSchema.Index);
+  CheckEquals('Choose your salted pizza flavor', FSchema.Name);
+  CheckEquals('Choose your salted pizza flavor.', FSchema.Description);
+  CheckEquals('12', FSchema.ExternalCode);
+  CheckEquals('AVAILABLE', StatusToStr(FSchema.Status));
+  CheckEquals(2, FSchema.MinPermitted);
+  CheckEquals(2, FSchema.MaxPermitted);
+  CheckEquals(2, FSchema.Options.Count);
+  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87a', FSchema.Options[0].Id);
+  CheckEquals('502ecf11-0509-48ed-b63c-6211c48fd9b9', FSchema.Options[0].ItemId);
+  CheckEquals(0, FSchema.Options[0].Index);
+  CheckEquals('50', FloatToStr(FSchema.Options[0].Price.value));
+  CheckEquals('BRL', FSchema.Options[0].Price.&currency);
+  CheckEquals(1, FSchema.Options[0].MaxPermitted);
 
-  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87b', FSchema.options[1].id);
-  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FSchema.options[1].itemId);
-  CheckEquals(1, FSchema.options[1].index);
-  CheckEquals('43', FloatToStr(FSchema.options[1].price.value));
-  CheckEquals('BRL', FSchema.options[1].price.&currency);
-  CheckEquals(1, FSchema.options[1].maxPermitted);
+  CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87b', FSchema.Options[1].Id);
+  CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FSchema.Options[1].ItemId);
+  CheckEquals(1, FSchema.Options[1].Index);
+  CheckEquals('43', FloatToStr(FSchema.Options[1].Price.value));
+  CheckEquals('BRL', FSchema.Options[1].Price.&currency);
+  CheckEquals(1, FSchema.Options[1].MaxPermitted);
 end;
 
 procedure TTestOptionGroup.ObjectToJSON;
@@ -1941,14 +1941,14 @@ begin
   FSchema.AsJSON := FJSON;
 
   CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FSchema.id);
-  CheckEquals('2021-05-01', FormatDateTime('yyyy-MM-dd', FSchema.startDate));
-  CheckEquals('2021-05-30', FormatDateTime('yyyy-MM-dd', FSchema.endDate));
-  CheckEquals(1, FSchema.hours.Count);
-  CheckEquals(7, Length(FSchema.hours[0].dayOfWeek));
-  CheckEquals('MONDAY', DayOfWeekToStr(FSchema.hours[0].dayOfWeek[0]));
-  CheckEquals('SUNDAY', DayOfWeekToStr(FSchema.hours[0].dayOfWeek[6]));
-  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FSchema.hours[0].timePeriods.startTime));
-  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.hours[0].timePeriods.endTime));
+  CheckEquals('2021-05-01', FormatDateTime('yyyy-MM-dd', FSchema.StartDate));
+  CheckEquals('2021-05-30', FormatDateTime('yyyy-MM-dd', FSchema.EndDate));
+  CheckEquals(1, FSchema.Hours.Count);
+  CheckEquals(7, Length(FSchema.Hours[0].dayOfWeek));
+  CheckEquals('MONDAY', DayOfWeekToStr(FSchema.Hours[0].dayOfWeek[0]));
+  CheckEquals('SUNDAY', DayOfWeekToStr(FSchema.Hours[0].dayOfWeek[6]));
+  CheckEquals('10:00:00', FormatDateTime('hh:mm:ss', FSchema.Hours[0].timePeriods.startTime));
+  CheckEquals('18:00:00', FormatDateTime('hh:mm:ss', FSchema.Hours[0].timePeriods.endTime));
 end;
 
 procedure TTestAvailability.ObjectToJson;
@@ -2164,8 +2164,8 @@ begin
   CheckEquals('20111-000', FSchema.postalCode);
   CheckEquals('BL 02 AP 31', FSchema.complement);
   CheckEquals('Yellow House', FSchema.reference);
-  CheckEquals('-23,54823', FloatToStr(FSchema.coordinates.latitude));
-  CheckEquals('-46,63632', FloatToStr(FSchema.coordinates.longitude));
+  CheckEquals('-23,54823', FloatToStr(FSchema.coordinates.Latitude));
+  CheckEquals('-46,63632', FloatToStr(FSchema.coordinates.Longitude));
 end;
 
 procedure TTestOrderAddress.ObjectToJson;
@@ -2232,8 +2232,8 @@ begin
   CheckEquals('20111-000', FSchema.deliveryAddress.postalCode);
   CheckEquals('BL 02 AP 31', FSchema.deliveryAddress.complement);
   CheckEquals('Yellow House', FSchema.deliveryAddress.reference);
-  CheckEquals('-23,54823', FloatToStr(FSchema.deliveryAddress.coordinates.latitude));
-  CheckEquals('-46,63632', FloatToStr(FSchema.deliveryAddress.coordinates.longitude));
+  CheckEquals('-23,54823', FloatToStr(FSchema.deliveryAddress.coordinates.Latitude));
+  CheckEquals('-46,63632', FloatToStr(FSchema.deliveryAddress.coordinates.Longitude));
 end;
 
 procedure TTestOrderDelivery.ObjectToJson;
@@ -2454,8 +2454,8 @@ begin
   CheckEquals('Yellow House', FSchema.delivery.deliveryAddress.reference);
   CheckEquals('Plaza Avenue, 100, BL 02 AP 31, Moema - São Paulo, SP - Brazil', FSchema.delivery.deliveryAddress.formattedAddress);
   CheckEquals('20111-000', FSchema.delivery.deliveryAddress.postalCode);
-  CheckEquals('-23,54823', FloatToStr(FSchema.delivery.deliveryAddress.coordinates.latitude));
-  CheckEquals('-46,63632', FloatToStr(FSchema.delivery.deliveryAddress.coordinates.longitude));
+  CheckEquals('-23,54823', FloatToStr(FSchema.delivery.deliveryAddress.coordinates.Latitude));
+  CheckEquals('-46,63632', FloatToStr(FSchema.delivery.deliveryAddress.coordinates.Longitude));
   CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.delivery.estimatedDeliveryDateTime));
   CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.delivery.deliveryDateTime));
 
