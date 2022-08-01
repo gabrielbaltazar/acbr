@@ -18,7 +18,7 @@ object Form1: TForm1
     Top = 0
     Width = 827
     Height = 552
-    ActivePage = tsMerchantUpdate
+    ActivePage = tsOrder
     Align = alClient
     TabOrder = 0
     object tsConfig: TTabSheet

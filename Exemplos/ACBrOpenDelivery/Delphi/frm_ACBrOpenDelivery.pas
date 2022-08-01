@@ -217,7 +217,13 @@ begin
   ACBrOpenDelivery1.WebServices.OrderDetails.OrderId := edtOrderOrderId.Text;
   ACBrOpenDelivery1.WebServices.OrderDetails.Executar;
 
-  mmoOrder.Lines.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.AsJSON;
+  mmoOrder.Lines.Clear;
+  with ACBrOpenDelivery1.WebServices.OrderDetails do
+  begin
+    mmoOrder.Lines.Add('DisplayId: ' + Order.displayId);
+    mmoOrder.Lines.Add('Customer Name: ' + Order.customer.name);
+    mmoOrder.Lines.Add('Total: ' + CurrToStr(Order.total.orderAmount.value));
+  end;
 end;
 
 procedure TForm1.btnOrderReadyForPickupClick(Sender: TObject);
