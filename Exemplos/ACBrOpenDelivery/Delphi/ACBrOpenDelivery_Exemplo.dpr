@@ -2,7 +2,8 @@ program ACBrOpenDelivery_Exemplo;
 
 uses
   Vcl.Forms,
-  frm_ACBrOpenDelivery in 'frm_ACBrOpenDelivery.pas' {Form1};
+  frm_ACBrOpenDelivery in 'frm_ACBrOpenDelivery.pas' {Form1},
+  ACBrOpenDeliveryMarketPlace in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryMarketPlace.pas';
 
 {$R *.res}
 

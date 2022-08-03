@@ -4,6 +4,7 @@ interface
 
 uses
   ACBrBase,
+  ACBrOpenDeliveryMarketPlace,
   ACBrOpenDeliverySchemaClasses,
   ACBrOpenDeliveryException,
   ACBrOpenDeliveryWebService,
@@ -12,9 +13,7 @@ uses
   SysUtils;
 
 type
-  TACBrOpenDeliveryCredential = class;
   TACBrOpenDeliveryProxy = class;
-  TACBrOpenDeliveryResources = class;
 
   TOnTokenGet = procedure(AClientId: string; var AToken: string; var AExpiresAt: TDateTime) of object;
   TOnTokenSave = procedure(AClientId, AToken: string; AExpiresAt: TDateTime) of object;
@@ -24,21 +23,20 @@ type
   {$ENDIF RTL230_UP}
   TACBrOpenDelivery = class(TACBrComponent)
   private
+    FMarketPlace: TACBrOpenDeliveryMarketPlace;
     FTimeOut: Integer;
     FProxy: TACBrOpenDeliveryProxy;
-    FCredenciais: TACBrOpenDeliveryCredential;
-    FBaseUrl: string;
     FWebServices: TACBrOpenDeliveryWebServices;
     FOnGerarLog: TACBrGravarLog;
     FOnHTTPEnviar: TACBrOpenDeliveryOnHTTPEnviar;
     FOnHTTPRetornar: TACBrOpenDeliveryOnHTTPRetornar;
-    FResources: TACBrOpenDeliveryResources;
     FOnTokenGet: TOnTokenGet;
     FOnTokenSave: TOnTokenSave;
     function GetWebServices: TACBrOpenDeliveryWebServices;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Assign(ASource: TACBrOpenDelivery); reintroduce;
 
     function GetToken: string;
     procedure FazerLog(const AMsg: String; out ATratado: Boolean);
@@ -46,10 +44,8 @@ type
 
     property WebServices: TACBrOpenDeliveryWebServices read GetWebServices;
   published
-    property BaseUrl: string read FBaseUrl write FBaseUrl;
-    property Credenciais: TACBrOpenDeliveryCredential read FCredenciais write FCredenciais;
+    property MarketPlace: TACBrOpenDeliveryMarketPlace read FMarketPlace write FMarketPlace;
     property Proxy: TACBrOpenDeliveryProxy read FProxy write FProxy;
-    property Resources: TACBrOpenDeliveryResources read FResources write FResources;
     property TimeOut: Integer read FTimeOut write FTimeOut;
 
     property OnGerarLog: TACBrGravarLog read FOnGerarLog write FOnGerarLog;
@@ -57,19 +53,6 @@ type
     property OnHTTPRetornar: TACBrOpenDeliveryOnHTTPRetornar read FOnHTTPRetornar write FOnHTTPRetornar;
     property OnTokenGet: TOnTokenGet read FOnTokenGet write FOnTokenGet;
     property OnTokenSave: TOnTokenSave read FOnTokenSave write FOnTokenSave;
-  end;
-
-  TACBrOpenDeliveryCredential = class(TPersistent)
-  private
-    FClientId: string;
-    FClientSecret: string;
-  public
-    constructor Create;
-    procedure Clear;
-    procedure Assign(ASource: TACBrOpenDeliveryCredential); reintroduce;
-  published
-    property ClientId: string read FClientId write FClientId;
-    property ClientSecret: string read FClientSecret write FClientSecret;
   end;
 
   TACBrOpenDeliveryProxy = class(TPersistent)
@@ -87,39 +70,6 @@ type
     property Port: string read FPort write FPort;
     property User: string read FUser write FUser;
     property Pass: string read FPass write FPass;
-  end;
-
-  TACBrOpenDeliveryResources = class(TPersistent)
-  private
-    FAuthentication: string;
-    FMerchantUpdate: string;
-    FMerchantStatus: string;
-    FEventPolling: string;
-    FEventAcknowledgment: string;
-    FOrderDetails: string;
-    FOrderConfirm: string;
-    FOrderReadyForPickup: string;
-    FOrderDispatch: string;
-    FOrderRequestCancellation: string;
-    FOrderAcceptCancellation: string;
-    FOrderDenyCancellation: string;
-  public
-    constructor Create;
-    procedure Clear;
-    procedure Assign(ASource: TACBrOpenDeliveryResources); reintroduce;
-  published
-    property Authentication: string read FAuthentication write FAuthentication;
-    property MerchantUpdate: string read FMerchantUpdate write FMerchantUpdate;
-    property MerchantStatus: string read FMerchantStatus write FMerchantStatus;
-    property EventPolling: string read FEventPolling write FEventPolling;
-    property EventAcknowledgment: string read FEventAcknowledgment write FEventAcknowledgment;
-    property OrderDetails: string read FOrderDetails write FOrderDetails;
-    property OrderConfirm: string read FOrderConfirm write FOrderConfirm;
-    property OrderReadyForPickup: string read FOrderReadyForPickup write FOrderReadyForPickup;
-    property OrderDispatch: string read FOrderDispatch write FOrderDispatch;
-    property OrderRequestCancellation: string read FOrderRequestCancellation write FOrderRequestCancellation;
-    property OrderAcceptCancellation: string read FOrderAcceptCancellation write FOrderAcceptCancellation;
-    property OrderDenyCancellation: string read FOrderDenyCancellation write FOrderDenyCancellation;
   end;
 
 implementation
@@ -165,20 +115,25 @@ end;
 
 { TACBrOpenDelivery }
 
+procedure TACBrOpenDelivery.Assign(ASource: TACBrOpenDelivery);
+begin
+  FTimeOut := ASource.TimeOut;
+  FMarketPlace.Assign(ASource.MarketPlace);
+  FProxy.Assign(ASource.Proxy);
+end;
+
 constructor TACBrOpenDelivery.Create(AOwner: TComponent);
 begin
   inherited;
-  FCredenciais := TACBrOpenDeliveryCredential.Create;
+  FMarketPlace := TACBrOpenDeliveryMarketPlace.Create(Self);
   FProxy := TACBrOpenDeliveryProxy.Create;
-  FResources := TACBrOpenDeliveryResources.Create;
   FTimeOut := CHttpTimeOutDef;
 end;
 
 destructor TACBrOpenDelivery.Destroy;
 begin
-  FCredenciais.Free;
+  FMarketPlace.Free;
   FProxy.Free;
-  FResources.Free;
   FWebServices.Free;
   inherited;
 end;
@@ -217,11 +172,12 @@ begin
   LToken := '';
   LExpiresAt := 0;
   LIsValidToken := WebServices.Auth.AccessToken.IsValid;
+  FMarketPlace.Credenciais.Validar;
   if not LIsValidToken then
   begin
     if Assigned(FOnTokenGet) then
     begin
-      FOnTokenGet(Credenciais.ClientId, LToken, LExpiresAt);
+      FOnTokenGet(FMarketPlace.Credenciais.ClientId, LToken, LExpiresAt);
       WebServices.Auth.AccessToken.AccessToken := LToken;
       WebServices.Auth.AccessToken.ExpiresAt := LExpiresAt;
       LIsValidToken := WebServices.Auth.AccessToken.IsValid;
@@ -234,7 +190,7 @@ begin
     LToken := WebServices.Auth.AccessToken.AccessToken;
     LExpiresAt := WebServices.Auth.AccessToken.ExpiresAt;
     if Assigned(FOnTokenSave) then
-      FOnTokenSave(Credenciais.ClientId, LToken, LExpiresAt);
+      FOnTokenSave(FMarketPlace.Credenciais.ClientId, LToken, LExpiresAt);
   end;
 
   Result := WebServices.Auth.AccessToken.AccessToken;
@@ -245,77 +201,6 @@ begin
   if not Assigned(FWebServices) then
     FWebServices := TACBrOpenDeliveryWebServices.Create(Self);
   Result := FWebServices;
-end;
-
-{ TACBrOpenDeliveryCredential }
-
-procedure TACBrOpenDeliveryCredential.Assign(ASource: TACBrOpenDeliveryCredential);
-begin
-  FClientId := ASource.ClientId;
-  FClientSecret := ASource.ClientSecret;
-end;
-
-procedure TACBrOpenDeliveryCredential.Clear;
-begin
-  FClientId := '';
-  FClientSecret := '';
-end;
-
-constructor TACBrOpenDeliveryCredential.Create;
-begin
-  inherited Create;
-  Clear;
-end;
-
-{ TACBrOpenDeliveryResources }
-
-procedure TACBrOpenDeliveryResources.Assign(ASource: TACBrOpenDeliveryResources);
-begin
-  FAuthentication := ASource.Authentication;
-  FMerchantUpdate := ASource.MerchantUpdate;
-  FMerchantStatus := ASource.MerchantStatus;
-  FEventPolling := ASource.EventPolling;
-  FEventAcknowledgment := ASource.EventAcknowledgment;
-  FOrderDetails := ASource.OrderDetails;
-  FOrderConfirm := ASource.OrderConfirm;
-  FOrderDispatch := ASource.OrderDispatch;
-  FOrderReadyForPickup := ASource.OrderReadyForPickup;
-  FOrderDenyCancellation := ASource.OrderDenyCancellation;
-  FOrderAcceptCancellation := ASource.OrderAcceptCancellation;
-  FOrderRequestCancellation := ASource.OrderRequestCancellation;
-end;
-
-procedure TACBrOpenDeliveryResources.Clear;
-begin
-  FAuthentication := '';
-  FMerchantUpdate := '';
-  FMerchantStatus := '';
-  FEventPolling := '';
-  FEventAcknowledgment := '';
-  FOrderDetails := '';
-  FOrderConfirm := '';
-  FOrderDispatch := '';
-  FOrderReadyForPickup := '';
-  FOrderDenyCancellation := '';
-  FOrderAcceptCancellation := '';
-  FOrderRequestCancellation := '';
-end;
-
-constructor TACBrOpenDeliveryResources.Create;
-begin
-  inherited Create;
-  FAuthentication := CEndPointAuthentication;
-  FMerchantUpdate := CEndPointMerchantUpdate;
-  FMerchantStatus := CEndPointMerchantStatus;
-  FEventPolling := CEndPointEventPolling;
-  FEventAcknowledgment := CEndPointEventAcknowledgment;
-  FOrderDetails := CEndPointOrderDetails;
-  FOrderConfirm := CEndPointOrderConfirm;
-  FOrderDispatch := CEndPointOrderDispatch;
-  FOrderReadyForPickup := CEndPointOrderReadyForPickup;
-  FOrderRequestCancellation := CEndPointOrderRequestCancellation;
-  FOrderAcceptCancellation := CEndPointOrderAcceptCancellation;
-  FOrderDenyCancellation := CEndPointOrderDenyCancellation;
 end;
 
 end.

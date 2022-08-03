@@ -275,9 +275,9 @@ end;
 
 procedure TForm1.ConfigurarComponente;
 begin
-  ACBrOpenDelivery1.BaseUrl := edtBaseUrl.Text;
-  ACBrOpenDelivery1.Credenciais.ClientId := edtClientId.Text;
-  ACBrOpenDelivery1.Credenciais.ClientSecret := edtClientSecret.Text;
+  ACBrOpenDelivery1.MarketPlace.BaseUrl := edtBaseUrl.Text;
+  ACBrOpenDelivery1.MarketPlace.Credenciais.ClientId := edtClientId.Text;
+  ACBrOpenDelivery1.MarketPlace.Credenciais.ClientSecret := edtClientSecret.Text;
 end;
 
 procedure TForm1.Label8Click(Sender: TObject);

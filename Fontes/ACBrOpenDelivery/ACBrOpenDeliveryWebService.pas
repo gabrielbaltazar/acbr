@@ -10,6 +10,7 @@ uses
   ACBrOpenDeliveryHTTP,
   ACBrOpenDeliveryHTTPClientDetails,
   ACBrUtil.Strings,
+  DateUtils,
   pcnConversaoOD,
   SysUtils;
 
@@ -340,7 +341,7 @@ var
   LComponent: TACBrOpenDelivery;
 begin
   LComponent := GetACBrOpenDelivery(FOwner);
-  LResource := StringReplace(LComponent.Resources.OrderDetails, '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  LResource := LComponent.MarketPlace.Resources.GetOrderDetails(FOrderId, '');
   FRequest.GET.Resource(LResource);
 end;
 
@@ -498,7 +499,7 @@ begin
   FRequest
     .OnHTTPEnvio(LComponent.OnHTTPEnviar)
     .OnHTTPResposta(LComponent.OnHTTPRetornar)
-    .BaseURL(LComponent.BaseUrl)
+    .BaseURL(LComponent.MarketPlace.BaseUrl)
     .TimeOut(LComponent.TimeOut)
     .ProxyHost(LComponent.Proxy.Host)
     .ProxyPort(LComponent.Proxy.Port)
@@ -540,8 +541,8 @@ begin
   FIssuedAt := Now;
   FRequest
     .AddOrSetUrlEncoded('grant_type', 'client_credentials')
-    .AddOrSetUrlEncoded('client_id', LComponent.Credenciais.ClientId)
-    .AddOrSetUrlEncoded('client_secret', LComponent.Credenciais.ClientSecret);
+    .AddOrSetUrlEncoded('client_id', LComponent.MarketPlace.Credenciais.ClientId)
+    .AddOrSetUrlEncoded('client_secret', LComponent.MarketPlace.Credenciais.ClientSecret);
 end;
 
 procedure TACBrOpenDeliveryAuth.DefinirRecurso;
@@ -551,7 +552,7 @@ begin
   LComponent := GetACBrOpenDelivery(FOwner);
   FRequest
     .POST
-    .Resource(LComponent.Resources.Authentication);
+    .Resource(LComponent.MarketPlace.Resources.GetAuthentication(''));
 end;
 
 destructor TACBrOpenDeliveryAuth.Destroy;
@@ -574,7 +575,7 @@ begin
   AccessToken.Clear;
   LJSON := FResponse.GetJSONObject;
   AccessToken.AsJSON := LJSON.ToJSON;
-  AccessToken.expiresAt := FIssuedAt + AccessToken.expiresIn;
+  AccessToken.expiresAt := IncSecond(FIssuedAt, AccessToken.expiresIn);
   Result := True;
 end;
 
@@ -743,7 +744,7 @@ begin
   LComponent := GetACBrOpenDelivery(FOwner);
   FRequest
     .GET
-    .Resource(LComponent.Resources.EventPolling);
+    .Resource(LComponent.MarketPlace.Resources.GetEventPolling(''));
 end;
 
 destructor TACBrOpenDeliveryPolling.Destroy;
@@ -801,7 +802,7 @@ begin
   LComponent := GetACBrOpenDelivery(FOwner);
   FRequest
     .POST
-    .Resource(LComponent.Resources.EventAcknowledgment);
+    .Resource(LComponent.MarketPlace.Resources.GetEventAcknowledgment(''));
 end;
 
 destructor TACBrOpenDeliveryAcknowledgment.Destroy;
@@ -849,7 +850,7 @@ var
   LComponent: TACBrOpenDelivery;
 begin
   LComponent := GetACBrOpenDelivery(FOwner);
-  LResource := StringReplace(LComponent.Resources.OrderConfirm, '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  LResource := LComponent.MarketPlace.Resources.GetOrderConfirm(FOrderId, '');
   FRequest.POST.Resource(LResource);
 end;
 
@@ -872,7 +873,7 @@ var
   LComponent: TACBrOpenDelivery;
 begin
   LComponent := GetACBrOpenDelivery(FOwner);
-  LResource := StringReplace(LComponent.Resources.OrderReadyForPickup, '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  LResource := LComponent.MarketPlace.Resources.GetOrderReadyForPickup(FOrderId, '');
   FRequest.POST.Resource(LResource);
 end;
 
@@ -895,7 +896,8 @@ var
   LComponent: TACBrOpenDelivery;
 begin
   LComponent := GetACBrOpenDelivery(FOwner);
-  LResource := StringReplace(LComponent.Resources.OrderDispatch, '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  LResource := LComponent.MarketPlace.Resources
+    .GetOrderDispatch(FOrderId, '');
   FRequest.POST.Resource(LResource);
 end;
 
@@ -956,8 +958,8 @@ var
   LComponent: TACBrOpenDelivery;
 begin
   LComponent := GetACBrOpenDelivery(FOwner);
-  LResource := StringReplace(LComponent.Resources.OrderRequestCancellation,
-    '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  LResource := LComponent.MarketPlace.Resources
+    .GetOrderRequestCancellation(FOrderId, '');
   FRequest.POST.Resource(LResource);
 end;
 
@@ -980,8 +982,8 @@ var
   LComponent: TACBrOpenDelivery;
 begin
   LComponent := GetACBrOpenDelivery(FOwner);
-  LResource := StringReplace(LComponent.Resources.OrderAcceptCancellation,
-    '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  LResource := LComponent.MarketPlace.Resources
+    .GetOrderAcceptCancellation(FOrderId, '');
   FRequest.POST.Resource(LResource);
 end;
 
@@ -1022,8 +1024,8 @@ var
   LComponent: TACBrOpenDelivery;
 begin
   LComponent := GetACBrOpenDelivery(FOwner);
-  LResource := StringReplace(LComponent.Resources.OrderDenyCancellation,
-    '{orderId}', FOrderId, [rfReplaceAll, rfIgnoreCase]);
+  LResource := LComponent.MarketPlace.Resources
+    .GetOrderDenyCancellation(FOrderId, '');
   FRequest.POST.Resource(LResource);
 end;
 
@@ -1065,8 +1067,8 @@ var
   LComponent: TACBrOpenDelivery;
 begin
   LComponent := GetACBrOpenDelivery(FOwner);
-  LResource := StringReplace(LComponent.Resources.MerchantUpdate,
-    '{merchantId}', FMerchant.id, [rfReplaceAll, rfIgnoreCase]);
+  LResource := LComponent.MarketPlace.Resources
+    .GetMerchantUpdate(FMerchant.id);
   FRequest.POST.Resource(LResource);
 end;
 

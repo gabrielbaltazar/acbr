@@ -18,7 +18,7 @@ object Form1: TForm1
     Top = 0
     Width = 827
     Height = 552
-    ActivePage = tsOrder
+    ActivePage = tsConfig
     Align = alClient
     TabOrder = 0
     object tsConfig: TTabSheet
@@ -171,8 +171,8 @@ object Form1: TForm1
         object Label9: TLabel
           Left = 0
           Top = 0
-          Width = 819
-          Height = 41
+          Width = 321
+          Height = 15
           Cursor = crHandPoint
           Align = alClient
           Caption = 'https://abrasel-nacional.github.io/docs/#tag/ordersPolling'
@@ -185,8 +185,6 @@ object Form1: TForm1
           ParentFont = False
           Layout = tlCenter
           OnClick = Label8Click
-          ExplicitWidth = 321
-          ExplicitHeight = 15
         end
       end
     end
@@ -304,8 +302,8 @@ object Form1: TForm1
         object Label10: TLabel
           Left = 0
           Top = 0
-          Width = 819
-          Height = 41
+          Width = 319
+          Height = 15
           Cursor = crHandPoint
           Align = alClient
           Caption = 'https://abrasel-nacional.github.io/docs/#tag/ordersStatus'
@@ -318,8 +316,6 @@ object Form1: TForm1
           ParentFont = False
           Layout = tlCenter
           OnClick = Label8Click
-          ExplicitWidth = 319
-          ExplicitHeight = 15
         end
       end
     end
@@ -344,8 +340,8 @@ object Form1: TForm1
         object Label8: TLabel
           Left = 0
           Top = 0
-          Width = 819
-          Height = 41
+          Width = 487
+          Height = 15
           Cursor = crHandPoint
           Align = alClient
           Caption = 
@@ -360,8 +356,6 @@ object Form1: TForm1
           ParentFont = False
           Layout = tlCenter
           OnClick = Label8Click
-          ExplicitWidth = 487
-          ExplicitHeight = 15
         end
       end
       object rgUpdateType: TRadioGroup
@@ -448,18 +442,21 @@ object Form1: TForm1
     end
   end
   object ACBrOpenDelivery1: TACBrOpenDelivery
-    Resources.Authentication = 'license-manager/api/v1/oauth/token'
-    Resources.MerchantUpdate = 'merchants/api/v1/{merchantId}/merchantUpdate'
-    Resources.MerchantStatus = 'merchantStatus'
-    Resources.EventPolling = 'orders/api/v1/events:polling'
-    Resources.EventAcknowledgment = 'orders/api/v1/events/acknowledgment'
-    Resources.OrderDetails = 'orders/api/v1/{orderId}'
-    Resources.OrderConfirm = 'orders/api/v1/{orderId}/confirm'
-    Resources.OrderReadyForPickup = 'orders/api/v1/{orderId}/readyForPickup'
-    Resources.OrderDispatch = 'orders/api/v1/{orderId}/dispatch'
-    Resources.OrderRequestCancellation = 'orders/api/v1/{orderId}/requestCancellation'
-    Resources.OrderAcceptCancellation = 'orders/api/v1/{orderId}/acceptCancellation'
-    Resources.OrderDenyCancellation = 'orders/api/v1/{orderId}/denyCancellation'
+    MarketPlace.Name = mpHubDelivery
+    MarketPlace.Description = 'Hub Delivery'
+    MarketPlace.BaseUrl = 'https://sandbox.myhubdelivery.io'
+    MarketPlace.Resources.Authentication = 'license-manager/api/v1/oauth/token'
+    MarketPlace.Resources.MerchantUpdate = 'merchants/api/v1/{merchantId}/merchantUpdate'
+    MarketPlace.Resources.MerchantStatus = 'merchants/api/v1/{merchantId}/merchantStatus'
+    MarketPlace.Resources.EventPolling = 'orders/api/v1/events:polling'
+    MarketPlace.Resources.EventAcknowledgment = 'orders/api/v1/events/acknowledgment'
+    MarketPlace.Resources.OrderDetails = 'orders/api/v1/{orderId}'
+    MarketPlace.Resources.OrderConfirm = 'orders/api/v1/{orderId}/confirm'
+    MarketPlace.Resources.OrderReadyForPickup = 'orders/api/v1/{orderId}/readyForPickup'
+    MarketPlace.Resources.OrderDispatch = 'orders/api/v1/{orderId}/dispatch'
+    MarketPlace.Resources.OrderRequestCancellation = 'orders/api/v1/{orderId}/requestCancellation'
+    MarketPlace.Resources.OrderAcceptCancellation = 'orders/api/v1/{orderId}/acceptCancellation'
+    MarketPlace.Resources.OrderDenyCancellation = 'orders/api/v1/{orderId}/denyCancellation'
     TimeOut = 90000
     OnHTTPEnviar = ACBrOpenDelivery1HTTPEnviar
     OnHTTPRetornar = ACBrOpenDelivery1HTTPRetornar
