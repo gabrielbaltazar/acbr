@@ -31,7 +31,10 @@ package ACBr_OpenDelivery;
 
 requires
   rtl,
-  vcl;
+  vcl,
+  ACBr_Comum,
+  ACBr_synapse,
+  ACBr_Diversos;
 
 contains
   ACBrOpenDelivery in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDelivery.pas',

@@ -1,0 +1,696 @@
+{
+	"info": {
+		"_postman_id": "3801ea1b-5588-4d4f-a4ce-dc60890f6a70",
+		"name": "Hub Delivery",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10059643"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "client_id",
+									"value": "{{clientIdACBr}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{clientSecretACBr}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/license-manager/api/v1/oauth/token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"license-manager",
+								"api",
+								"v1",
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Merchant",
+			"item": [
+				{
+					"name": "List Merchants",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/merchants/api/v1/search?limit=100&id={{merchantIdACBr}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"merchants",
+								"api",
+								"v1",
+								"search"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "100"
+								},
+								{
+									"key": "id",
+									"value": "{{merchantIdACBr}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Merchant Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/merchants/api/v1/{{merchantIdACBr}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"merchants",
+								"api",
+								"v1",
+								"{{merchantIdACBr}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Merchant Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/merchants/api/v1/{{merchantIdACBr}}/merchantUpdate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"merchants",
+								"api",
+								"v1",
+								"{{merchantIdACBr}}",
+								"merchantUpdate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Sales Channel",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/merchants/api/v1/{{merchantId}}/saleChannels",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"merchants",
+								"api",
+								"v1",
+								"{{merchantId}}",
+								"saleChannels"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Merchant Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"AVAILABLE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/merchants/api/v1/{{merchantId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"merchants",
+								"api",
+								"v1",
+								"{{merchantId}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Alterar Merchant Tipo Aceite",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"orderAcceptType\": \"MANUAL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/merchants/api/v1/{{merchantId}}/orderAcceptType",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"merchants",
+								"api",
+								"v1",
+								"{{merchantId}}",
+								"orderAcceptType"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Novo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"document\": \"17767999000100\",\r\n    \"email\": \"signup@hubdelivery.com.br\",\r\n    \"name\": \"Hub Delivery\",\r\n    \"corporateName\": \"CBSD - COMPANHIA BRASILEIRA DE SOFTWARE PARA DELIVERY LTDA\",\r\n    \"phoneNumberMobile\": \"11910588280\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/license-manager/api/v1/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"license-manager",
+								"api",
+								"v1",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Logistic Operators",
+			"item": [
+				{
+					"name": "Logistic Operators",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/merchants/api/v1/{{merchantId}}/saleChannels",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"merchants",
+								"api",
+								"v1",
+								"{{merchantId}}",
+								"saleChannels"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Order",
+			"item": [
+				{
+					"name": "Polling",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-polling-merchants",
+								"value": "{{merchantIdACBr}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/api/v1/events:polling",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"api",
+								"v1",
+								"events:polling"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Gerar Fake",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"saleChannelId\": \"JjVg9oBbxK\",\r\n  \"sourceAppId\": \"0babcbcf2d5c4c69a9d1b6677cb4f593\",\r\n  \"type\": \"DELIVERY\",\r\n  \"scheduled\": false,\r\n  \"extraInfo\": \"Pedido Teste\",\r\n  \"items\": [\r\n    {\r\n      \"name\": \"X-Burger\",\r\n      \"externalCode\": \"0101\",\r\n      \"quantity\": 1,\r\n      \"unitPrice\": 10,\r\n      \"specialInstructions\": \"Remover mostarda\",\r\n      \"options\": [\r\n        {\r\n          \"name\": \"Coca-Cola\",\r\n          \"externalCode\": \"COC\",\r\n          \"quantity\": 1,\r\n          \"unitPrice\": 0,\r\n          \"specialInstructions\": \"\"\r\n        }\r\n      ]\r\n    }\r\n  ], \r\n  \"customer\": {\r\n        \"phone\": {\r\n            \"number\": \"21998495213\",\r\n            \"extension\": \"0101\"\r\n        },\r\n        \"documentNumber\": \"13155767758\",\r\n        \"name\": \"GABRIEL BALTAZAR\",\r\n        \"ordersCountOnMerchant\": 0\r\n    },\r\n    \"delivery\": {\r\n        \"deliveredBy\": \"MARKETPLACE\",\r\n        \"deliveryAddress\": {\r\n            \"country\": \"BR\",\r\n            \"street\": \"Rua Professor Otacilio\",\r\n            \"formattedAddress\": \"Rua Professor Otacilio, 112, Apto 702\",\r\n            \"number\": \"112\",\r\n            \"city\": \"Niterói\",\r\n            \"postalCode\": \"24240670\",\r\n            \"coordinates\": {\r\n                \"latitude\": 0,\r\n                \"longitude\": 0\r\n            },\r\n            \"district\": \"Santa Rosa\",\r\n            \"state\": \"RJ\",\r\n            \"complement\": \"Apto 702\",\r\n            \"deliveryDateTime\": \"0001-01-01T00:00:00\"\r\n        },\r\n        \"estimatedDeliveryDateTime\": \"2022-07-30T09:51:30.6477074Z\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/api/v1/{{merchantIdACBr}}/fake",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"api",
+								"v1",
+								"{{merchantIdACBr}}",
+								"fake"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Gerar Fake ACBr",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"saleChannelId\": \"JjVg9oBbxK\",\r\n  \"sourceAppId\": \"0babcbcf2d5c4c69a9d1b6677cb4f593\",\r\n  \"type\": \"DELIVERY\",\r\n  \"scheduled\": false,\r\n  \"extraInfo\": \"Pedido Teste\",\r\n  \"items\": [\r\n    {\r\n      \"name\": \"Big Burguer\",\r\n      \"externalCode\": \"584f4e82\",\r\n      \"quantity\": 1,\r\n      \"unitPrice\": 10,\r\n      \"specialInstructions\": \"Remover mostarda\",\r\n      \"options\": [\r\n        {\r\n          \"name\": \"Coca-Cola\",\r\n          \"externalCode\": \"COC\",\r\n          \"quantity\": 1,\r\n          \"unitPrice\": 0,\r\n          \"specialInstructions\": \"\"\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/api/v1/{{merchantIdACBr}}/fake",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"api",
+								"v1",
+								"{{merchantIdACBr}}",
+								"fake"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Detalhes Pedido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/api/v1/7ec100c9-0d78-4a27-9d2b-5cfd3a02fab9",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"api",
+								"v1",
+								"7ec100c9-0d78-4a27-9d2b-5cfd3a02fab9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirmar Pedido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reason\": \"Pedido Aceito com sucesso.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/api/v1/7ec100c9-0d78-4a27-9d2b-5cfd3a02fab9/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"api",
+								"v1",
+								"7ec100c9-0d78-4a27-9d2b-5cfd3a02fab9",
+								"confirm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Aceitar Cancelamento",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reason\": \"Pedido Aceito com sucesso.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/api/v1/7ec100c9-0d78-4a27-9d2b-5cfd3a02fab9/acceptCancellation",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"api",
+								"v1",
+								"7ec100c9-0d78-4a27-9d2b-5cfd3a02fab9",
+								"acceptCancellation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dispachar Pedido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reason\": \"Pedido Aceito com sucesso.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/api/v1/001d1b9c-d802-4c13-ba04-06f32b1b8f37/dispatch",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"api",
+								"v1",
+								"001d1b9c-d802-4c13-ba04-06f32b1b8f37",
+								"dispatch"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBY2NvdW50SWQiOiJKV3pnTm5nVjlaIiwiQWNjb3VudFNsdWciOiJzYW5kYm94IiwiTWVyY2hhbnRzIjoiW10iLCJyb2xlIjoiQXBpUHVibGljIiwiQXBpUHVibGljIjoidHJ1ZSIsIlNjb3BlcyI6ImlvLmFsbCIsIm5iZiI6MTY1NTQ3MjE3MCwiZXhwIjoxNjU1NTU4NTcwLCJpYXQiOjE2NTU0NzIxNzB9.X2tOUzc-r5GWszWn-Rl_EebmxW0e4fXEsSH27mxzpnc",
+			"type": "string"
+		},
+		{
+			"key": "baseUrl",
+			"value": "https://sandbox.myhubdelivery.io",
+			"type": "string"
+		},
+		{
+			"key": "clientId",
+			"value": "aed8c1fc054c46a895cc4926da52f6f8",
+			"type": "string"
+		},
+		{
+			"key": "clientSecret",
+			"value": "$%ivY@ennlWR",
+			"type": "string"
+		},
+		{
+			"key": "merchantId",
+			"value": "oyLgw2lE7j",
+			"type": "string"
+		},
+		{
+			"key": "clientIdACBr",
+			"value": "d01e2f0b3d91468db3e9613f37c416d8",
+			"type": "string"
+		},
+		{
+			"key": "clientSecretACBr",
+			"value": "Q7@%^12Lnvh9",
+			"type": "string"
+		},
+		{
+			"key": "merchantIdACBr",
+			"value": "X2V8QrBKZy",
+			"type": "string"
+		}
+	]
+}

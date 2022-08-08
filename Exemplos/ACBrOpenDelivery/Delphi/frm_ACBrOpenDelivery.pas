@@ -3,13 +3,24 @@ unit frm_ACBrOpenDelivery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls,
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.StdCtrls,
+  Vcl.ComCtrls,
   IniFiles,
   pcnConversaoOD,
   ACBrBase,
   ACBrOpenDeliveryHTTP,
-  ACBrOpenDelivery, Vcl.Menus, Vcl.ExtCtrls;
+  ACBrOpenDelivery,
+  Vcl.Menus,
+  Vcl.ExtCtrls;
 
 type
   TForm1 = class(TForm)
@@ -83,12 +94,12 @@ type
     procedure btnOrderDenyCancellationClick(Sender: TObject);
     procedure Label8Click(Sender: TObject);
     procedure btnMerchantUpdateClick(Sender: TObject);
-  private
-    procedure OpenLink(ALabel: TLabel);
-    procedure ConfigurarComponente;
-    { Private declarations }
-  public
-    { Public declarations }
+    private
+      procedure OpenLink(ALabel: TLabel);
+      procedure ConfigurarComponente;
+      { Private declarations }
+    public
+      { Public declarations }
   end;
 
 var
@@ -100,6 +111,7 @@ uses
   Winapi.ShellAPI;
 
 {$R *.dfm}
+
 
 procedure TForm1.ACBrOpenDelivery1HTTPEnviar(ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio);
 begin
@@ -127,7 +139,7 @@ var
 begin
   LIniFile := TIniFile.Create(ExtractFilePath(Application.ExeName) + 'OpenDeliveryDemo.ini');
   try
-    AToken := LIniFile.ReadString(AClientId, 'TOKEN', '');
+    AToken     := LIniFile.ReadString(AClientId, 'TOKEN', '');
     AExpiresAt := StrToDateTimeDef(LIniFile.ReadString(AClientId, 'EXPIRES_AT', ''), 0);
   finally
     LIniFile.Free;
@@ -158,22 +170,23 @@ end;
 
 procedure TForm1.btnMerchantUpdateClick(Sender: TObject);
 var
-  LUpdateType: TACBrODMerchantUpdateType;
+  LUpdateType:   TACBrODMerchantUpdateType;
   LUpdateEntity: TACBrODMerchantUpdateEntity;
-  LStatus: TACBrODStatus;
+  LStatus:       TACBrODStatus;
 begin
   ConfigurarComponente;
-  LUpdateType := TACBrODMerchantUpdateType(rgUpdateType.ItemIndex);
+  LUpdateType   := TACBrODMerchantUpdateType(rgUpdateType.ItemIndex);
   LUpdateEntity := TACBrODMerchantUpdateEntity(rgUpdateEntity.ItemIndex);
-  LStatus := sAvailable;
+  LStatus       := sAvailable;
   if not chkMerchantStatus.Checked then
     LStatus := sUnavailable;
 
-  ACBrOpenDelivery1.WebServices.MerchantUpdate.UpdateType := LUpdateType;
-  ACBrOpenDelivery1.WebServices.MerchantUpdate.EntityType := LUpdateEntity;
-  ACBrOpenDelivery1.WebServices.MerchantUpdate.Merchant.id := edtMerchantUpdateId.Text;
-  ACBrOpenDelivery1.WebServices.MerchantUpdate.Merchant.status := LStatus;
+  ACBrOpenDelivery1.WebServices.MerchantUpdate.UpdateType      := LUpdateType;
+  ACBrOpenDelivery1.WebServices.MerchantUpdate.EntityType      := LUpdateEntity;
+  ACBrOpenDelivery1.WebServices.MerchantUpdate.Merchant.Id     := edtMerchantUpdateId.Text;
+  ACBrOpenDelivery1.WebServices.MerchantUpdate.Merchant.Status := LStatus;
   ACBrOpenDelivery1.WebServices.MerchantUpdate.Executar;
+
   ShowMessage('Atualizado!');
 end;
 
@@ -187,10 +200,10 @@ end;
 procedure TForm1.btnOrderConfirmClick(Sender: TObject);
 begin
   ConfigurarComponente;
-  ACBrOpenDelivery1.WebServices.OrderConfirm.OrderId := edtOrderOrderId.Text;
-  ACBrOpenDelivery1.WebServices.OrderConfirm.Reason := 'Free field for more information about the order confirmation';
+  ACBrOpenDelivery1.WebServices.OrderConfirm.OrderId           := edtOrderOrderId.Text;
+  ACBrOpenDelivery1.WebServices.OrderConfirm.Reason            := 'Free field for more information about the order confirmation';
   ACBrOpenDelivery1.WebServices.OrderConfirm.OrderExternalCode := '';
-  ACBrOpenDelivery1.WebServices.OrderConfirm.CreatedAt := Now;
+  ACBrOpenDelivery1.WebServices.OrderConfirm.CreatedAt         := Now;
 
   ACBrOpenDelivery1.WebServices.OrderConfirm.Executar;
 end;
@@ -199,8 +212,8 @@ procedure TForm1.btnOrderDenyCancellationClick(Sender: TObject);
 begin
   ConfigurarComponente;
   ACBrOpenDelivery1.WebServices.OrderDenyCancellation.OrderId := edtOrderOrderId.Text;
-  ACBrOpenDelivery1.WebServices.OrderDenyCancellation.Reason := edtOrderReason.Text;
-  ACBrOpenDelivery1.WebServices.OrderDenyCancellation.Code := dccOutForDelivery;
+  ACBrOpenDelivery1.WebServices.OrderDenyCancellation.Reason  := edtOrderReason.Text;
+  ACBrOpenDelivery1.WebServices.OrderDenyCancellation.Code    := dccOutForDelivery;
   ACBrOpenDelivery1.WebServices.OrderDenyCancellation.Executar;
 end;
 
@@ -224,6 +237,8 @@ begin
     mmoOrder.Lines.Add('Customer Name: ' + Order.customer.name);
     mmoOrder.Lines.Add('Total: ' + CurrToStr(Order.total.orderAmount.value));
   end;
+
+  // ACBrOpenDelivery1.WebServices.OrderDetails.
 end;
 
 procedure TForm1.btnOrderReadyForPickupClick(Sender: TObject);
@@ -237,9 +252,9 @@ procedure TForm1.btnOrderRequestCancellationClick(Sender: TObject);
 begin
   ConfigurarComponente;
   ACBrOpenDelivery1.WebServices.OrderRequestCancellation.OrderId := edtOrderOrderId.Text;
-  ACBrOpenDelivery1.WebServices.OrderRequestCancellation.Reason := edtOrderReason.Text;
-  ACBrOpenDelivery1.WebServices.OrderRequestCancellation.Code := crcUnavailableItem;
-  ACBrOpenDelivery1.WebServices.OrderRequestCancellation.Mode := crmAuto;
+  ACBrOpenDelivery1.WebServices.OrderRequestCancellation.Reason  := edtOrderReason.Text;
+  ACBrOpenDelivery1.WebServices.OrderRequestCancellation.Code    := crcUnavailableItem;
+  ACBrOpenDelivery1.WebServices.OrderRequestCancellation.Mode    := crmAuto;
   ACBrOpenDelivery1.WebServices.OrderRequestCancellation.Executar;
 end;
 
@@ -247,7 +262,7 @@ procedure TForm1.btnPollingAckClick(Sender: TObject);
 begin
   ConfigurarComponente;
   ACBrOpenDelivery1.WebServices.Acknowledgment.Events.New;
-  ACBrOpenDelivery1.WebServices.Acknowledgment.Events[0].Id := edtPollingAddEventId.Text;
+  ACBrOpenDelivery1.WebServices.Acknowledgment.Events[0].Id      := edtPollingAddEventId.Text;
   ACBrOpenDelivery1.WebServices.Acknowledgment.Events[0].OrderId := edtPollingOrderId.Text;
 
   ACBrOpenDelivery1.WebServices.Acknowledgment.Executar;
@@ -275,8 +290,8 @@ end;
 
 procedure TForm1.ConfigurarComponente;
 begin
-  ACBrOpenDelivery1.MarketPlace.BaseUrl := edtBaseUrl.Text;
-  ACBrOpenDelivery1.MarketPlace.Credenciais.ClientId := edtClientId.Text;
+  ACBrOpenDelivery1.MarketPlace.BaseUrl                  := edtBaseUrl.Text;
+  ACBrOpenDelivery1.MarketPlace.Credenciais.ClientId     := edtClientId.Text;
   ACBrOpenDelivery1.MarketPlace.Credenciais.ClientSecret := edtClientSecret.Text;
 end;
 
@@ -291,6 +306,7 @@ begin
 end;
 
 initialization
-  ReportMemoryLeaksOnShutdown := True;
+
+ReportMemoryLeaksOnShutdown := True;
 
 end.
