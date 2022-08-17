@@ -6,6 +6,7 @@ uses
   ACBrBase,
   ACBrOpenDelivery,
   ACBrOpenDeliveryHTTP,
+  ACBrOpenDeliverySchemaClasses,
   IniFiles,
   pcnConversaoOD,
 
@@ -82,7 +83,6 @@ type
     btnOrderRequestCancellation: TButton;
     btnOrderAcceptCancellation: TButton;
     btnOrderDenyCancellation: TButton;
-    mmoOrder: TMemo;
     Label12: TLabel;
     Label13: TLabel;
     edtMerchantUpdateId: TEdit;
@@ -110,7 +110,112 @@ type
     Label14: TLabel;
     Label15: TLabel;
     gridItens: TStringGrid;
+    edtID: TEdit;
+    edtType: TEdit;
+    edtCreateAt: TEdit;
+    Label18: TLabel;
+    Label19: TLabel;
+    Label20: TLabel;
+    Label21: TLabel;
+    gridPolling: TStringGrid;
+    StringColumn1: TStringColumn;
+    StringColumn2: TStringColumn;
+    StringColumn3: TStringColumn;
+    StringColumn4: TStringColumn;
+    StringColumn5: TStringColumn;
+    StringColumn6: TStringColumn;
+    edtDisplayId: TEdit;
+    Label17: TLabel;
+    edtOrderTiming: TEdit;
+    StringColumn7: TStringColumn;
+    StringColumn8: TStringColumn;
+    StringColumn9: TStringColumn;
+    StringColumn10: TStringColumn;
+    StringColumn11: TStringColumn;
+    StringColumn12: TStringColumn;
+    StringColumn13: TStringColumn;
+    StringColumn14: TStringColumn;
+    StringColumn15: TStringColumn;
+    StringColumn16: TStringColumn;
+    gridOptions: TStringGrid;
+    StringColumn17: TStringColumn;
+    StringColumn19: TStringColumn;
+    StringColumn20: TStringColumn;
+    StringColumn21: TStringColumn;
+    StringColumn22: TStringColumn;
+    StringColumn23: TStringColumn;
+    StringColumn24: TStringColumn;
+    StringColumn18: TStringColumn;
+    StringColumn25: TStringColumn;
+    StringColumn26: TStringColumn;
+    StringColumn27: TStringColumn;
+    StringColumn28: TStringColumn;
+    Label23: TLabel;
+    lytItemsPrice: TLayout;
+    Rectangle1: TRectangle;
+    lblItemsPriceCurr: TLabel;
+    lblItemsPriceValue: TLabel;
+    lytothersFees: TLayout;
+    Rectangle2: TRectangle;
+    Label24: TLabel;
+    lblothersFeesCurr: TLabel;
+    lblothersFeesValue: TLabel;
+    lytDiscount: TLayout;
+    Rectangle3: TRectangle;
+    Label25: TLabel;
+    lblDiscountCurr: TLabel;
+    lblDiscountValue: TLabel;
+    lytOtherAmount: TLayout;
+    Rectangle4: TRectangle;
+    Label26: TLabel;
+    lblorderAmountCurr: TLabel;
+    lblorderAmountValue: TLabel;
+    tabOrderDetails: TTabControl;
+    tbiItems: TTabItem;
+    tbiOptions: TTabItem;
+    tbiPayments: TTabItem;
+    Layout1: TLayout;
+    Rectangle5: TRectangle;
     Label16: TLabel;
+    lblCusomerName: TLabel;
+    lblTitCusomerName: TLabel;
+    Layout2: TLayout;
+    Layout3: TLayout;
+    Label22: TLabel;
+    lblCusomerPhone: TLabel;
+    Layout4: TLayout;
+    Label28: TLabel;
+    lblCusomerDocument: TLabel;
+    tbiCustomerAddress: TTabItem;
+    Label27: TLabel;
+    lblDeliveryStreet: TLabel;
+    Label30: TLabel;
+    lblDeliveryNumber: TLabel;
+    Label32: TLabel;
+    lblDeliveryCity: TLabel;
+    Label34: TLabel;
+    lblDeliveryPostalCode: TLabel;
+    Label36: TLabel;
+    Label37: TLabel;
+    lblDeliveryDistrict: TLabel;
+    lblDeliveryState: TLabel;
+    Label40: TLabel;
+    lblDeliveryComplement: TLabel;
+    Label29: TLabel;
+    lblPaymentsPending: TLabel;
+    gridPayments: TStringGrid;
+    StringColumn29: TStringColumn;
+    StringColumn30: TStringColumn;
+    StringColumn31: TStringColumn;
+    StringColumn32: TStringColumn;
+    StringColumn33: TStringColumn;
+    StringColumn34: TStringColumn;
+    TabControl1: TTabControl;
+    TabItem1: TTabItem;
+    TabItem6: TTabItem;
+    TabItem7: TTabItem;
+    mmoOrder: TMemo;
+    procedure FormCreate(Sender: TObject);
     procedure ACBrOpenDelivery1HTTPEnviar(ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio);
     procedure ACBrOpenDelivery1HTTPRetornar(ALogResposta:
         TACBrOpenDeliveryHTTPLogResposta);
@@ -130,6 +235,7 @@ type
     procedure btnPollingAckClick(Sender: TObject);
     procedure btnPollingAddMerchantIdClick(Sender: TObject);
     procedure btnPollingClick(Sender: TObject);
+    procedure gridPollingCellClick(const Column: TColumn; const Row: Integer);
     procedure MenuItem1Click(Sender: TObject);
     private
       { Private declarations }
@@ -146,6 +252,11 @@ implementation
 
 {$R *.fmx}
 
+
+procedure TFMain.FormCreate(Sender: TObject);
+begin
+  tabGeral.ActiveTab := tbiConfiguracoes;
+end;
 
 procedure TFMain.ACBrOpenDelivery1HTTPEnviar(ALogEnvio:
     TACBrOpenDeliveryHTTPLogEnvio);
@@ -442,6 +553,7 @@ begin
   ACBrOpenDelivery1.WebServices.OrderDetails.Executar;
 
   mmoOrder.Lines.Clear;
+  mmoOrder.Lines.Add(TJson.Format(TJSONObject.ParseJSONValue(ACBrOpenDelivery1.WebServices.OrderDetails.Order.AsJSON) as TJSONValue));
   with ACBrOpenDelivery1.WebServices.OrderDetails do
   begin
     mmoOrder.Lines.Add('DisplayId: ' + Order.displayId);
@@ -451,18 +563,87 @@ begin
     edtMerchantIDOrder.Text  := Order.merchant.id;
     edtMerchantNameOrder.Text := Order.merchant.name;
     edtMerchantUpdateId.Text := Order.merchant.id;
+    edtID.Text := Order.id;
+
+    edtType.Text := ServiceTypeToStr(Order.&type);
+
+    edtDisplayId.Text := Order.displayId;
+    edtCreateAt.Text := FormatDateTime('YYYY-MM-DD hh:mm:ss', Order.createdAt);
+    edtOrderTiming.Text := Order.orderTiming;
+
+    //Total
+    lblItemsPriceValue.Text   := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.itemsPrice.value.ToString;
+    lblItemsPriceCurr.Text    := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.itemsPrice.currency;
+
+    lblothersFeesValue.Text   := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.otherFees.value.ToString;
+    lblothersFeesCurr.Text    := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.otherFees.currency;
+
+    lblDiscountValue.Text     := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.discount.value.ToString;
+    lblDiscountCurr.Text      := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.discount.currency;
+
+    lblorderAmountValue.Text  := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.orderAmount.value.ToString;
+    lblorderAmountCurr.Text   := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.orderAmount.currency;
+
+    //Customer
+    lblCusomerName.Text       := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.name;
+    lblCusomerDocument.Text   := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.documentNumber;
+    lblCusomerPhone.Text      := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.phone.number;
+
+    //Delivery
+    lblDeliveryStreet.Text    := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.street;
+    lblDeliveryNumber.Text    := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.number;
+    lblDeliveryCity.Text      := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.city;
+    lblDeliveryPostalCode.Text:= ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.postalCode;
+    lblDeliveryDistrict.Text  := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.district;
+    lblDeliveryState.Text     := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.state;
+    lblDeliveryComplement.Text:= ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.complement;
 
     //Fill Itens
     for var I: Integer := 0 to Pred(ACBrOpenDelivery1.WebServices.OrderDetails.Order.items.Count) do
     begin
-      //Add Itens to Rows
-      //gridItens.
+      gridItens.Cells[0 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].id;
+      gridItens.Cells[1 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].index.ToString;
+      gridItens.Cells[2 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].name;
+      gridItens.Cells[3 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].externalCode;
+      gridItens.Cells[4 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].&unit;
+      gridItens.Cells[5 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].quantity.ToString;
+      gridItens.Cells[6 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].specialInstructions;
+      gridItens.Cells[7 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].unitPrice.value.ToString;
+      gridItens.Cells[8 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].unitPrice.currency;
+      gridItens.Cells[9 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].optionsPrice.value.ToString;
+      gridItens.Cells[10, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].totalPrice.value.ToString;
+      gridItens.Cells[11, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].totalPrice.currency;
     end;
+
+    //Fill Options
+    for var I: Integer := 0 to Pred(ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[0].options.Count) do
+    begin
+      gridOptions.Cells[0, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].id;
+      gridOptions.Cells[1, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].name;
+      gridOptions.Cells[2, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].externalCode;
+      gridOptions.Cells[3, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].&unit;
+      gridOptions.Cells[4, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].quantity.ToString;
+      gridOptions.Cells[5, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].unitPrice.value.ToString;
+      gridOptions.Cells[6, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].unitPrice.currency;
+      gridOptions.Cells[7, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].totalPrice.value.ToString;
+      gridOptions.Cells[8, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].totalPrice.currency;
+      gridOptions.Cells[9, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].specialInstructions;
+    end;
+
+    //Paymentsd
+    lblPaymentsPending.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.pending.ToString;
+    for var I : Integer := 0 to Pred(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods.Count) do
+    begin
+      gridPayments.Cells[0, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].value.ToString;
+      gridPayments.Cells[1, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].currency;
+      gridPayments.Cells[2, I] := PaymentMethodToStr(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].method);
+      gridPayments.Cells[3, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].methodInfo;
+      gridPayments.Cells[4, I] := PaymentTypeToStr(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].&type);
+      gridPayments.Cells[5, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].changeFor.ToString;
+    end;
+
   end;
 
-
-
-  // ACBrOpenDelivery1.WebServices.OrderDetails.
 end;
 
 procedure TFMain.btnOrderReadyForPickupClick(Sender: TObject);
@@ -500,6 +681,8 @@ begin
 end;
 
 procedure TFMain.btnPollingClick(Sender: TObject);
+var
+  I: Integer;
 begin
   {$REGION '<JSON Exemplo Retorno EVENTS>'}
   (*
@@ -524,6 +707,30 @@ begin
   edtOrderOrderId.Text := ACBrOpenDelivery1.WebServices.Polling.Events[0].OrderId;
 
   mmoPolling.Lines.Text := TJson.Format(TJSONObject.ParseJSONValue(ACBrOpenDelivery1.WebServices.Polling.Events.AsJSON) as TJSONValue);
+
+  for I := 0 to Pred(ACBrOpenDelivery1.WebServices.Polling.Events.Count) do
+  begin
+    gridPolling.Cells[0, I] := ACBrOpenDelivery1.WebServices.Polling.Events[I].EventId;
+
+    case ACBrOpenDelivery1.WebServices.Polling.Events[I].EventType of
+      etCreated                    : gridPolling.Cells[1, I] := 'Created';
+      etConfirmed                  : gridPolling.Cells[1, I] := 'Confirmed';
+      etDispatched                 : gridPolling.Cells[1, I] := 'Dispatched';
+      etReadyForPickup             : gridPolling.Cells[1, I] := 'ReadyForPickup';
+      etPickupAreaAssigned         : gridPolling.Cells[1, I] := 'PickupAreaAssigned';
+      etConcluded                  : gridPolling.Cells[1, I] := 'Concluded';
+      etCancellationRequested      : gridPolling.Cells[1, I] := 'CancellationRequested';
+      etCancellationRequestDenied  : gridPolling.Cells[1, I] := 'CancellationRequestDenied';
+      etCancelled                  : gridPolling.Cells[1, I] := 'Cancelled';
+      etOrderCancellationRequest   : gridPolling.Cells[1, I] := 'OrderCancellationRequest';
+    end;
+
+    gridPolling.Cells[2, I] := ACBrOpenDelivery1.WebServices.Polling.Events[I].OrderId;
+    gridPolling.Cells[3, I] := ACBrOpenDelivery1.WebServices.Polling.Events[I].OrderURL;
+    gridPolling.Cells[4, I] := FormatDateTime('YYYY-MM-DD hh:mm:ss', ACBrOpenDelivery1.WebServices.Polling.Events[I].CreatedAt);
+    gridPolling.Cells[5, I] := ACBrOpenDelivery1.WebServices.Polling.Events[I].SourceAppId;
+  end;
+
 end;
 
 procedure TFMain.ConfigurarComponente;
@@ -531,6 +738,13 @@ begin
   ACBrOpenDelivery1.MarketPlace.BaseUrl                  := edtBaseUrl.Text;
   ACBrOpenDelivery1.MarketPlace.Credenciais.ClientId     := edtClientId.Text;
   ACBrOpenDelivery1.MarketPlace.Credenciais.ClientSecret := edtClientSecret.Text;
+end;
+
+procedure TFMain.gridPollingCellClick(const Column: TColumn; const Row:
+    Integer);
+begin
+  edtOrderOrderId.Text := gridPolling.Cells[2, Row];
+  edtPollingOrderId.Text := gridPolling.Cells[2, Row];
 end;
 
 procedure TFMain.MenuItem1Click(Sender: TObject);
