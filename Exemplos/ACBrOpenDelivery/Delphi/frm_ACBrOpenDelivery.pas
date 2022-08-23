@@ -3,13 +3,24 @@ unit frm_ACBrOpenDelivery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls,
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.StdCtrls,
+  Vcl.ComCtrls,
   IniFiles,
   pcnConversaoOD,
   ACBrBase,
   ACBrOpenDeliveryHTTP,
-  ACBrOpenDelivery, Vcl.Menus, Vcl.ExtCtrls;
+  ACBrOpenDelivery,
+  Vcl.Menus,
+  Vcl.ExtCtrls;
 
 type
   TForm1 = class(TForm)
@@ -83,12 +94,12 @@ type
     procedure btnOrderDenyCancellationClick(Sender: TObject);
     procedure Label8Click(Sender: TObject);
     procedure btnMerchantUpdateClick(Sender: TObject);
-  private
-    procedure OpenLink(ALabel: TLabel);
-    procedure ConfigurarComponente;
-    { Private declarations }
-  public
-    { Public declarations }
+    private
+      procedure OpenLink(ALabel: TLabel);
+      procedure ConfigurarComponente;
+      { Private declarations }
+    public
+      { Public declarations }
   end;
 
 var
@@ -100,6 +111,7 @@ uses
   Winapi.ShellAPI;
 
 {$R *.dfm}
+
 
 procedure TForm1.ACBrOpenDelivery1HTTPEnviar(ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio);
 begin
@@ -171,9 +183,10 @@ begin
 
   ACBrOpenDelivery1.WebServices.MerchantUpdate.UpdateType := LUpdateType;
   ACBrOpenDelivery1.WebServices.MerchantUpdate.EntityType := LUpdateEntity;
-  ACBrOpenDelivery1.WebServices.MerchantUpdate.Merchant.id := edtMerchantUpdateId.Text;
-  ACBrOpenDelivery1.WebServices.MerchantUpdate.Merchant.status := LStatus;
+  ACBrOpenDelivery1.WebServices.MerchantUpdate.Merchant.Id := edtMerchantUpdateId.Text;
+  ACBrOpenDelivery1.WebServices.MerchantUpdate.Merchant.Status := LStatus;
   ACBrOpenDelivery1.WebServices.MerchantUpdate.Executar;
+
   ShowMessage('Atualizado!');
 end;
 
@@ -224,6 +237,8 @@ begin
     mmoOrder.Lines.Add('Customer Name: ' + Order.customer.name);
     mmoOrder.Lines.Add('Total: ' + CurrToStr(Order.total.orderAmount.value));
   end;
+
+  // ACBrOpenDelivery1.WebServices.OrderDetails.
 end;
 
 procedure TForm1.btnOrderReadyForPickupClick(Sender: TObject);

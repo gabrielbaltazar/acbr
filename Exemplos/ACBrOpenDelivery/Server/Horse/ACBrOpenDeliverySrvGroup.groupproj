@@ -21,6 +21,9 @@
         <Projects Include="..\..\Delphi\ACBrOpenDelivery_Exemplo.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="..\..\Delphi\FMX\ACROpenDelivery_FMXSimpleSample.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -83,14 +86,23 @@
     <Target Name="ACBrOpenDelivery_Exemplo:Make">
         <MSBuild Projects="..\..\Delphi\ACBrOpenDelivery_Exemplo.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ACROpenDelivery_FMXSimpleSample">
+        <MSBuild Projects="..\..\Delphi\FMX\ACROpenDelivery_FMXSimpleSample.dproj"/>
+    </Target>
+    <Target Name="ACROpenDelivery_FMXSimpleSample:Clean">
+        <MSBuild Projects="..\..\Delphi\FMX\ACROpenDelivery_FMXSimpleSample.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ACROpenDelivery_FMXSimpleSample:Make">
+        <MSBuild Projects="..\..\Delphi\FMX\ACROpenDelivery_FMXSimpleSample.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv;ACBrOpenDelivery_WinSrv;ACBrOpenDeliveryTest;ACBr_OpenDelivery;DCLACBr_OpenDelivery;ACBrOpenDelivery_Exemplo"/>
+        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv;ACBrOpenDelivery_WinSrv;ACBrOpenDeliveryTest;ACBr_OpenDelivery;DCLACBr_OpenDelivery;ACBrOpenDelivery_Exemplo;ACROpenDelivery_FMXSimpleSample"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Clean;ACBrOpenDelivery_WinSrv:Clean;ACBrOpenDeliveryTest:Clean;ACBr_OpenDelivery:Clean;DCLACBr_OpenDelivery:Clean;ACBrOpenDelivery_Exemplo:Clean"/>
+        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Clean;ACBrOpenDelivery_WinSrv:Clean;ACBrOpenDeliveryTest:Clean;ACBr_OpenDelivery:Clean;DCLACBr_OpenDelivery:Clean;ACBrOpenDelivery_Exemplo:Clean;ACROpenDelivery_FMXSimpleSample:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Make;ACBrOpenDelivery_WinSrv:Make;ACBrOpenDeliveryTest:Make;ACBr_OpenDelivery:Make;DCLACBr_OpenDelivery:Make;ACBrOpenDelivery_Exemplo:Make"/>
+        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Make;ACBrOpenDelivery_WinSrv:Make;ACBrOpenDeliveryTest:Make;ACBr_OpenDelivery:Make;DCLACBr_OpenDelivery:Make;ACBrOpenDelivery_Exemplo:Make;ACROpenDelivery_FMXSimpleSample:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
