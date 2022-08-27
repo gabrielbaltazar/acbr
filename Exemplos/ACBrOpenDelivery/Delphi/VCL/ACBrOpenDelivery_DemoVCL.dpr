@@ -2,13 +2,13 @@ program ACBrOpenDelivery_DemoVCL;
 
 uses
   Vcl.Forms,
-  UntMain in 'UntMain.pas' {Form3};
+  UntMain in 'UntMain.pas' {FMain};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.CreateForm(TForm3, Form3);
+  Application.CreateForm(TFMain, FMain);
   Application.Run;
 end.

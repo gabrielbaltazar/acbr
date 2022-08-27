@@ -86,6 +86,9 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <DCC_UnitSearchPath>..\..\..\Fontes\ACBrComum;..\..\..\Fontes\ACBrOpenDelivery;..\..\..\Fontes\Terceiros\json4delphi\src;..\..\..\Fontes\Terceiros\JsonDataObjects\Source;..\..\..\Fontes\Terceiros\synalist;..\..\..\Fontes\Terceiros\FastStringReplace;..\..\..\Fontes\Terceiros\GZIPUtils;..\..\..\..\Fontes\ACBrComum;..\..\..\..\Fontes\ACBrOpenDelivery;..\..\..\..\Fontes\Terceiros\json4delphi\src;..\..\..\..\Fontes\Terceiros\JsonDataObjects\Source;..\..\..\..\Fontes\Terceiros\synalist;..\..\..\..\Fontes\Terceiros\FastStringReplace;..\..\..\..\Fontes\Terceiros\GZIPUtils;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -102,7 +105,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="UntMain.pas">
-            <Form>Form3</Form>
+            <Form>FMain</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Base">
@@ -125,6 +128,9 @@
                 <Source>
                     <Source Name="MainSource">ACBrOpenDelivery_DemoVCL.dpr</Source>
                 </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclrtl280.bpl">Embarcadero - RTL Component Editors</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
                 <DeployFile LocalName="Win32\Debug\ACBrOpenDelivery_DemoVCL.exe" Configuration="Debug" Class="ProjectOutput">

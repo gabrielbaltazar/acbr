@@ -18,7 +18,7 @@ object Form1: TForm1
     Top = 0
     Width = 827
     Height = 552
-    ActivePage = tsOrder
+    ActivePage = tsLog
     Align = alClient
     TabOrder = 0
     object tsConfig: TTabSheet
@@ -171,8 +171,8 @@ object Form1: TForm1
         object Label9: TLabel
           Left = 0
           Top = 0
-          Width = 321
-          Height = 15
+          Width = 819
+          Height = 41
           Cursor = crHandPoint
           Align = alClient
           Caption = 'https://abrasel-nacional.github.io/docs/#tag/ordersPolling'
@@ -185,6 +185,8 @@ object Form1: TForm1
           ParentFont = False
           Layout = tlCenter
           OnClick = Label8Click
+          ExplicitWidth = 321
+          ExplicitHeight = 15
         end
       end
     end
@@ -342,8 +344,8 @@ object Form1: TForm1
         object Label8: TLabel
           Left = 0
           Top = 0
-          Width = 487
-          Height = 15
+          Width = 819
+          Height = 41
           Cursor = crHandPoint
           Align = alClient
           Caption = 
@@ -358,6 +360,8 @@ object Form1: TForm1
           ParentFont = False
           Layout = tlCenter
           OnClick = Label8Click
+          ExplicitWidth = 487
+          ExplicitHeight = 15
         end
       end
       object rgUpdateType: TRadioGroup

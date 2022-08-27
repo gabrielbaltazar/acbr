@@ -47,10 +47,10 @@ type
     Image2: TImage;
     tabGeral: TTabControl;
     tbiConfiguracoes: TTabItem;
-    TabItem2: TTabItem;
-    TabItem3: TTabItem;
-    TabItem4: TTabItem;
-    TabItem5: TTabItem;
+    tbiPolling: TTabItem;
+    tbiOrder: TTabItem;
+    tbiMerchant: TTabItem;
+    tbiLog: TTabItem;
     ACBrOpenDelivery1: TACBrOpenDelivery;
     Label1: TLabel;
     Label2: TLabel;
@@ -746,5 +746,8 @@ procedure TFMain.OpenLink(ALabel: TLabel);
 begin
   ShellExecute(0, 'open', PWideChar(ALabel.Text), nil, nil, SW_SHOWMAXIMIZED);
 end;
+
+initialization
+  ReportMemoryLeaksOnShutdown := True;
 
 end.

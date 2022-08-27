@@ -3,24 +3,27 @@ unit frm_ACBrOpenDelivery;
 interface
 
 uses
-  Winapi.Windows,
-  Winapi.Messages,
-  System.SysUtils,
-  System.Variants,
-  System.Classes,
-  Vcl.Graphics,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.Dialogs,
-  Vcl.StdCtrls,
-  Vcl.ComCtrls,
+  ACBrBase,
+  ACBrOpenDelivery,
+  ACBrOpenDeliveryHTTP,
   IniFiles,
   pcnConversaoOD,
-  ACBrBase,
-  ACBrOpenDeliveryHTTP,
-  ACBrOpenDelivery,
+
+  System.Classes,
+  System.SysUtils,
+  System.Variants,
+
+  Vcl.ComCtrls,
+  Vcl.Controls,
+  Vcl.Dialogs,
+  Vcl.ExtCtrls,
+  Vcl.Forms,
+  Vcl.Graphics,
   Vcl.Menus,
-  Vcl.ExtCtrls;
+  Vcl.StdCtrls,
+
+  Winapi.Messages,
+  Winapi.Windows;
 
 type
   TForm1 = class(TForm)
