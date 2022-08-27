@@ -1,3 +1,5 @@
+{$I ACBr.inc}
+
 unit ACBrOpenDelivery;
 
 interface
@@ -9,14 +11,14 @@ uses
   ACBrOpenDeliveryException,
   ACBrOpenDeliveryWebService,
   ACBrOpenDeliveryHTTP,
+  ACBrOpenDeliveryEvents,
   Classes,
   SysUtils;
 
 type
   TACBrOpenDeliveryProxy = class;
-
-  TOnTokenGet = procedure(AClientId: string; var AToken: string; var AExpiresAt: TDateTime) of object;
-  TOnTokenSave = procedure(AClientId, AToken: string; AExpiresAt: TDateTime) of object;
+  TACBrOpenDeliveryHTTPLogEnvio = ACBrOpenDeliveryHTTP.TACBrOpenDeliveryHTTPLogEnvio;
+  TACBrOpenDeliveryHTTPLogResposta = ACBrOpenDeliveryHTTP.TACBrOpenDeliveryHTTPLogResposta;
 
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
@@ -32,6 +34,16 @@ type
     FOnHTTPRetornar: TACBrOpenDeliveryOnHTTPRetornar;
     FOnTokenGet: TOnTokenGet;
     FOnTokenSave: TOnTokenSave;
+    FOnEventConfirmed: TACBrOpenDeliveryOnEventStatus;
+    FOnEventDispatched: TACBrOpenDeliveryOnEventStatus;
+    FOnEventReadyForPickup: TACBrOpenDeliveryOnEventStatus;
+    FOnEventPickupAreaAssigned: TACBrOpenDeliveryOnEventStatus;
+    FOnEventConcluded: TACBrOpenDeliveryOnEventStatus;
+    FOnEventCancellationRequested: TACBrOpenDeliveryOnEventStatus;
+    FOnEventCancellationRequestDenied: TACBrOpenDeliveryOnEventStatus;
+    FOnEventCancelled: TACBrOpenDeliveryOnEventStatus;
+    FOnEventOrderCancellationRequest: TACBrOpenDeliveryOnEventStatus;
+    FOnEventOrderPlaced: TACBrOpenDeliveryOnEventOrder;
     function GetWebServices: TACBrOpenDeliveryWebServices;
   public
     constructor Create(AOwner: TComponent); override;
@@ -47,6 +59,17 @@ type
     property MarketPlace: TACBrOpenDeliveryMarketPlace read FMarketPlace write FMarketPlace;
     property Proxy: TACBrOpenDeliveryProxy read FProxy write FProxy;
     property TimeOut: Integer read FTimeOut write FTimeOut;
+
+    property OnEventOrderPlaced: TACBrOpenDeliveryOnEventOrder read FOnEventOrderPlaced write FOnEventOrderPlaced;
+    property OnEventConfirmed: TACBrOpenDeliveryOnEventStatus read FOnEventConfirmed write FOnEventConfirmed;
+    property OnEventDispatched: TACBrOpenDeliveryOnEventStatus read FOnEventDispatched write FOnEventDispatched;
+    property OnEventReadyForPickup: TACBrOpenDeliveryOnEventStatus read FOnEventReadyForPickup write FOnEventReadyForPickup;
+    property OnEventPickupAreaAssigned: TACBrOpenDeliveryOnEventStatus read FOnEventPickupAreaAssigned write FOnEventPickupAreaAssigned;
+    property OnEventConcluded: TACBrOpenDeliveryOnEventStatus read FOnEventConcluded write FOnEventConcluded;
+    property OnEventCancellationRequested: TACBrOpenDeliveryOnEventStatus read FOnEventCancellationRequested write FOnEventCancellationRequested;
+    property OnEventCancellationRequestDenied: TACBrOpenDeliveryOnEventStatus read FOnEventCancellationRequestDenied write FOnEventCancellationRequestDenied;
+    property OnEventCancelled: TACBrOpenDeliveryOnEventStatus read FOnEventCancelled write FOnEventCancelled;
+    property OnEventOrderCancellationRequest: TACBrOpenDeliveryOnEventStatus read FOnEventOrderCancellationRequest write FOnEventOrderCancellationRequest;
 
     property OnGerarLog: TACBrGravarLog read FOnGerarLog write FOnGerarLog;
     property OnHTTPEnviar: TACBrOpenDeliveryOnHTTPEnviar read FOnHTTPEnviar write FOnHTTPEnviar;

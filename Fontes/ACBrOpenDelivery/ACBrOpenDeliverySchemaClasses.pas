@@ -450,7 +450,7 @@ type
     property image: TACBrOpenDeliverySchemaImage read Fimage write Fimage;
     property nutritionalInfo: TACBrOpenDeliverySchemaNutritionalInfo read FnutritionalInfo write FnutritionalInfo;
     property serving: Integer read Fserving write Fserving;
-    property &unit: string read Funit write Funit;
+    property _unit: string read Funit write Funit;
     property ean: string read Fean write Fean;
   end;
 
@@ -702,7 +702,7 @@ type
     function IsEmpty: Boolean; override;
 
     property id: string read Fid write Fid;
-    property &type: TACBrODServiceType read Ftype write Ftype;
+    property _type: TACBrODServiceType read Ftype write Ftype;
     property displayId: string read FdisplayId write FdisplayId;
     property sourceAppId: string read FsourceAppId write FsourceAppId;
     property createdAt: TDateTime read FcreatedAt write FcreatedAt;
@@ -953,7 +953,7 @@ type
     function IsEmpty: Boolean; override;
 
     property name: string read Fname write Fname;
-    property &type: TACBrODFeeType read Ftype write Ftype;
+    property _type: TACBrODFeeType read Ftype write Ftype;
     property receivedBy: TACBrODFeeReceivedBy read FreceivedBy write FreceivedBy;
     property receiverDocument: string read FreceiverDocument write FreceiverDocument;
     property price: TACBrOpenDeliverySchemaPrice read Fprice write Fprice;
@@ -998,7 +998,7 @@ type
     property id: string read Fid write Fid;
     property name: string read Fname write Fname;
     property externalCode: string read FexternalCode write FexternalCode;
-    property &unit: string read Funit write Funit;
+    property _unit: string read Funit write Funit;
     property ean: string read Fean write Fean;
     property quantity: Double read Fquantity write Fquantity;
     property specialInstructions: string read FspecialInstructions write FspecialInstructions;
@@ -1044,7 +1044,7 @@ type
     property id: string read Fid write Fid;
     property name: string read Fname write Fname;
     property externalCode: string read FexternalCode write FexternalCode;
-    property &unit: string read Funit write Funit;
+    property _unit: string read Funit write Funit;
     property ean: string read Fean write Fean;
     property quantity: Double read Fquantity write Fquantity;
     property unitPrice: TACBrOpenDeliverySchemaPrice read FunitPrice write FunitPrice;
@@ -1123,8 +1123,8 @@ type
     function ChangeValue: Currency;
 
     property value: Currency read Fvalue write Fvalue;
-    property &currency: string read Fcurrency write Fcurrency;
-    property &type: TACBrODPaymentType read Ftype write Ftype;
+    property currency: string read Fcurrency write Fcurrency;
+    property _type: TACBrODPaymentType read Ftype write Ftype;
     property method: TACBrODPaymentMethod read Fmethod write Fmethod;
     property methodInfo: string read FmethodInfo write FmethodInfo;
     property changeFor: Currency read FchangeFor write FchangeFor;
@@ -1219,7 +1219,7 @@ type
     function IsEmpty: Boolean; override;
 
     property value: Currency read Fvalue write Fvalue;
-    property &currency: string read Fcurrency write Fcurrency;
+    property currency: string read Fcurrency write Fcurrency;
   end;
 
   TACBrOpenDeliverySchemaRadius = class(TACBrOpenDeliverySchema)
@@ -1393,8 +1393,8 @@ begin
   FaverageTicket := 0;
   FaveragePreparationTime := 0;
   FcreatedAt := 0;
-  FmerchantCategories := [];
-  FcontactEmails := [];
+  SetLength(FmerchantCategories, 0);
+  SetLength(FcontactEmails, 0);
 
   FminOrderValue.Clear;
   Faddress.Clear;
@@ -1951,7 +1951,7 @@ end;
 
 procedure TACBrOpenDeliverySchemaHour.Clear;
 begin
-  FdayOfWeek := [];
+  SetLength(FdayOfWeek, 0);
   FtimePeriods.Clear;
 end;
 
@@ -2219,7 +2219,7 @@ begin
   FexternalCode := '';
   Fdisclaimer := '';
   FdisclaimerUrl := '';
-  FcategoryId := [];
+  SetLength(FcategoryId, 0);
 end;
 
 procedure TACBrOpenDeliverySchemaMenu.DoReadFromJSon(AJSon: TACBrJSONObject);
@@ -2290,8 +2290,8 @@ begin
   Fdescription := '';
   FexternalCode := '';
   Fstatus := sAvailable;
-  FavailabilityId := [];
-  FitemOfferId := [];
+  SetLength(FavailabilityId, 0);
+  SetLength(FitemOfferId, 0);
   Fimage.Clear;
 end;
 
@@ -2382,8 +2382,8 @@ begin
   Fid := '';
   FitemId := '';
   Findex := 0;
-  FavailabilityId := [];
-  FoptionGroupsId := [];
+  SetLength(FavailabilityId, 0);
+  SetLength(FoptionGroupsId, 0);
   Fprice.Clear;
 end;
 
@@ -2461,9 +2461,9 @@ procedure TACBrOpenDeliverySchemaNutritionalInfo.Clear;
 begin
   Fdescription := '';
   Fcalories := '';
-  Fallergen := [];
-  Fadditives := [];
-  FsuitableDiet := [];
+  SetLength(Fallergen, 0);
+  SetLength(Fadditives, 0);
+  SetLength(FsuitableDiet, 0);
   FisAlcoholic := False;
 end;
 
@@ -4245,8 +4245,8 @@ begin
   Freason := '';
   Fcode := crcSystemicIssues;
   Fmode := crmAuto;
-  FoutOfStockItems := [];
-  FinvalidItems := [];
+  SetLength(FoutOfStockItems, 0);
+  SetLength(FinvalidItems, 0);
 end;
 
 procedure TACBrOpenDeliverySchemaOrderCancelRequest.DoReadFromJSon(AJSon: TACBrJSONObject);

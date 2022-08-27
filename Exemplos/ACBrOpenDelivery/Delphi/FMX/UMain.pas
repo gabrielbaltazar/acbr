@@ -567,7 +567,7 @@ begin
     edtMerchantUpdateId.Text := Order.merchant.id;
     edtID.Text := Order.id;
 
-    edtType.Text := ServiceTypeToStr(Order.&type);
+    edtType.Text := ServiceTypeToStr(Order._type);
 
     edtDisplayId.Text := Order.displayId;
     edtCreateAt.Text := FormatDateTime('YYYY-MM-DD hh:mm:ss', Order.createdAt);
@@ -607,7 +607,7 @@ begin
       gridItens.Cells[1 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].index.ToString;
       gridItens.Cells[2 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].name;
       gridItens.Cells[3 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].externalCode;
-      gridItens.Cells[4 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].&unit;
+      gridItens.Cells[4 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I]._unit;
       gridItens.Cells[5 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].quantity.ToString;
       gridItens.Cells[6 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].specialInstructions;
       gridItens.Cells[7 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].unitPrice.value.ToString;
@@ -623,7 +623,7 @@ begin
       gridOptions.Cells[0, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].id;
       gridOptions.Cells[1, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].name;
       gridOptions.Cells[2, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].externalCode;
-      gridOptions.Cells[3, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].&unit;
+      gridOptions.Cells[3, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I]._unit;
       gridOptions.Cells[4, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].quantity.ToString;
       gridOptions.Cells[5, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].unitPrice.value.ToString;
       gridOptions.Cells[6, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].unitPrice.currency;
@@ -640,7 +640,7 @@ begin
       gridPayments.Cells[1, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].currency;
       gridPayments.Cells[2, I] := PaymentMethodToStr(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].method);
       gridPayments.Cells[3, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].methodInfo;
-      gridPayments.Cells[4, I] := PaymentTypeToStr(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].&type);
+      gridPayments.Cells[4, I] := PaymentTypeToStr(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I]._type);
       gridPayments.Cells[5, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].changeFor.ToString;
     end;
   end;

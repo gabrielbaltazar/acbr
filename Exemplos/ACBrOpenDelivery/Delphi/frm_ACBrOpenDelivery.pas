@@ -15,10 +15,10 @@ uses
   Vcl.StdCtrls,
   Vcl.ComCtrls,
   IniFiles,
-  pcnConversaoOD,
   ACBrBase,
-  ACBrOpenDeliveryHTTP,
   ACBrOpenDelivery,
+  ACBrOpenDeliverySchemaClasses,
+  pcnConversaoOD,
   Vcl.Menus,
   Vcl.ExtCtrls;
 
@@ -94,6 +94,9 @@ type
     procedure btnOrderDenyCancellationClick(Sender: TObject);
     procedure Label8Click(Sender: TObject);
     procedure btnMerchantUpdateClick(Sender: TObject);
+    procedure ACBrOpenDelivery1EventOrderPlaced(
+      AEvent: TACBrOpenDeliverySchemaEvent;
+      AOrder: TACBrOpenDeliverySchemaOrder; var Ack: Boolean);
     private
       procedure OpenLink(ALabel: TLabel);
       procedure ConfigurarComponente;
@@ -112,6 +115,13 @@ uses
 
 {$R *.dfm}
 
+
+procedure TForm1.ACBrOpenDelivery1EventOrderPlaced(
+  AEvent: TACBrOpenDeliverySchemaEvent;
+  AOrder: TACBrOpenDeliverySchemaOrder; var Ack: Boolean);
+begin
+//
+end;
 
 procedure TForm1.ACBrOpenDelivery1HTTPEnviar(ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio);
 begin

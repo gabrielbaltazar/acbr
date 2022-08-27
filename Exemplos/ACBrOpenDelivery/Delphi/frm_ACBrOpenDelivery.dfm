@@ -460,6 +460,7 @@ object Form1: TForm1
     MarketPlace.Resources.OrderAcceptCancellation = 'orders/api/v1/{orderId}/acceptCancellation'
     MarketPlace.Resources.OrderDenyCancellation = 'orders/api/v1/{orderId}/denyCancellation'
     TimeOut = 90000
+    OnEventOrderPlaced = ACBrOpenDelivery1EventOrderPlaced
     OnHTTPEnviar = ACBrOpenDelivery1HTTPEnviar
     OnHTTPRetornar = ACBrOpenDelivery1HTTPRetornar
     OnTokenGet = ACBrOpenDelivery1TokenGet

@@ -660,7 +660,7 @@ begin
   CheckEquals('Food company specializing in pizzas.', FSchema.Description);
   CheckEquals('90', FloatToStr(FSchema.AverageTicket));
   CheckEquals('20', IntToStr(FSchema.AveragePreparationTime));
-  CheckEquals('BRL', FSchema.MinOrderValue.&currency);
+  CheckEquals('BRL', FSchema.MinOrderValue.currency);
   CheckEquals('40', FloatToStr(FSchema.MinOrderValue.value));
   CheckEquals('RESTAURANT', MerchantTypeToStr(FSchema.MerchantType));
   CheckEquals(3, Length(FSchema.MerchantCategories));
@@ -854,12 +854,12 @@ begin
   CheckEquals(2, FSchema.Radius.Count);
   CheckEquals(3, FSchema.Radius[0].size);
   CheckEquals('5', FloatToStr(FSchema.Radius[0].price.value));
-  CheckEquals('BRL', FSchema.Radius[0].price.&currency);
+  CheckEquals('BRL', FSchema.Radius[0].price.currency);
   CheckEquals(2, FSchema.Radius[0].estimateDeliveryTime);
 
   CheckEquals(4, FSchema.Radius[1].size);
   CheckEquals('6', FloatToStr(FSchema.Radius[1].price.value));
-  CheckEquals('US$', FSchema.Radius[1].price.&currency);
+  CheckEquals('US$', FSchema.Radius[1].price.currency);
   CheckEquals(8, FSchema.Radius[1].estimateDeliveryTime);
 end;
 
@@ -963,7 +963,7 @@ begin
   CheckEquals(1, FSchema.geoCoordinates.Count);
   CheckEquals('-23,54809', FloatToStr(FSchema.geoCoordinates[0].Latitude));
   CheckEquals('-46,63638', FloatToStr(FSchema.geoCoordinates[0].Longitude));
-  CheckEquals('BRL', FSchema.price.&currency);
+  CheckEquals('BRL', FSchema.price.currency);
   CheckEquals('5', FloatToStr(FSchema.price.value));
 end;
 
@@ -1016,7 +1016,7 @@ begin
   CheckEquals(1, FSchema.polygon[0].geoCoordinates.Count);
   CheckEquals('-23,54809', FloatToStr(FSchema.polygon[0].geoCoordinates[0].Latitude));
   CheckEquals('-46,63638', FloatToStr(FSchema.polygon[0].geoCoordinates[0].Longitude));
-  CheckEquals('BRL', FSchema.polygon[0].price.&currency);
+  CheckEquals('BRL', FSchema.polygon[0].price.currency);
   CheckEquals('5', FloatToStr(FSchema.polygon[0].price.value));
 
   CheckEquals('-23,54809', FloatToStr(FSchema.geoRadius.GeoMidpointLatitude));
@@ -1024,7 +1024,7 @@ begin
   CheckEquals(1, FSchema.geoRadius.Radius.Count);
   CheckEquals(0, FSchema.geoRadius.Radius[0].size);
   CheckEquals('0', FloatToStr(FSchema.geoRadius.Radius[0].price.value));
-  CheckEquals('', FSchema.geoRadius.Radius[0].price.&currency);
+  CheckEquals('', FSchema.geoRadius.Radius[0].price.currency);
   CheckEquals(0, FSchema.geoRadius.Radius[0].estimateDeliveryTime);
 end;
 
@@ -1304,7 +1304,7 @@ begin
   CheckEquals(1, FSchema.serviceArea.polygon[0].geoCoordinates.Count);
   CheckEquals('-23,54809', FloatToStr(FSchema.serviceArea.polygon[0].geoCoordinates[0].Latitude));
   CheckEquals('-46,63638', FloatToStr(FSchema.serviceArea.polygon[0].geoCoordinates[0].Longitude));
-  CheckEquals('BRL', FSchema.serviceArea.polygon[0].price.&currency);
+  CheckEquals('BRL', FSchema.serviceArea.polygon[0].price.currency);
   CheckEquals('5', FloatToStr(FSchema.serviceArea.polygon[0].price.value));
 
   CheckEquals('-23,54809', FloatToStr(FSchema.serviceArea.geoRadius.GeoMidpointLatitude));
@@ -1312,7 +1312,7 @@ begin
   CheckEquals(1, FSchema.serviceArea.geoRadius.Radius.Count);
   CheckEquals(1, FSchema.serviceArea.geoRadius.Radius[0].size);
   CheckEquals('5', FloatToStr(FSchema.serviceArea.geoRadius.Radius[0].price.value));
-  CheckEquals('BRL', FSchema.serviceArea.geoRadius.Radius[0].price.&currency);
+  CheckEquals('BRL', FSchema.serviceArea.geoRadius.Radius[0].price.currency);
   CheckEquals(1, FSchema.serviceArea.geoRadius.Radius[0].estimateDeliveryTime);
 
   // Service Hours
@@ -1595,7 +1595,7 @@ begin
   CheckEquals('732bd31e-77fc-47ee-88ee-a0437f97b198', FSchema.ItemId);
   CheckEquals(1, FSchema.Index);
   CheckEquals('43', FloatToStr(FSchema.Price.value));
-  CheckEquals('BRL', FSchema.Price.&currency);
+  CheckEquals('BRL', FSchema.Price.currency);
   CheckEquals(1, Length(FSchema.AvailabilityId));
   CheckEquals(1, Length(FSchema.OptionGroupsId));
   CheckEquals('11d063c4-73a7-4f87-a0eb-71636cc02029', FSchema.AvailabilityId[0]);
@@ -1716,7 +1716,7 @@ begin
   CheckEquals('1/2 Mozzarella', FSchema.Name);
   CheckEquals('Delicious mozzarella pizza.', FSchema.Description);
   CheckEquals('24', FSchema.ExternalCode);
-  CheckEquals('unit', FSchema.&unit);
+  CheckEquals('unit', FSchema._unit);
   CheckEquals('https://www.food-place.com/images/mozzarella.png', FSchema.Image.URL);
   CheckEquals('09345UIHF98', FSchema.Image.CRC_32);
   CheckEquals('Contains preservatives', FSchema.NutritionalInfo.Description);
@@ -1781,7 +1781,7 @@ begin
   CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FSchema.ItemId);
   CheckEquals(1, FSchema.Index);
   CheckEquals('43', FloatToStr(FSchema.Price.value));
-  CheckEquals('BRL', FSchema.Price.&currency);
+  CheckEquals('BRL', FSchema.Price.currency);
   CheckEquals(1, FSchema.MaxPermitted);
 end;
 
@@ -1843,14 +1843,14 @@ begin
   CheckEquals('502ecf11-0509-48ed-b63c-6211c48fd9b9', FSchema.Options[0].ItemId);
   CheckEquals(0, FSchema.Options[0].Index);
   CheckEquals('50', FloatToStr(FSchema.Options[0].Price.value));
-  CheckEquals('BRL', FSchema.Options[0].Price.&currency);
+  CheckEquals('BRL', FSchema.Options[0].Price.currency);
   CheckEquals(1, FSchema.Options[0].MaxPermitted);
 
   CheckEquals('e5232f14-430c-4a94-8ff6-289d5a16a87b', FSchema.Options[1].Id);
   CheckEquals('7e507cab-7235-4f75-a0c2-e955fb2f2048', FSchema.Options[1].ItemId);
   CheckEquals(1, FSchema.Options[1].Index);
   CheckEquals('43', FloatToStr(FSchema.Options[1].Price.value));
-  CheckEquals('BRL', FSchema.Options[1].Price.&currency);
+  CheckEquals('BRL', FSchema.Options[1].Price.currency);
   CheckEquals(1, FSchema.Options[1].MaxPermitted);
 end;
 
@@ -2349,7 +2349,7 @@ begin
   FSchema.AsJSON := FJSON;
 
   CheckEquals('1111', FSchema.id);
-  CheckEquals('DELIVERY', ServiceTypeToStr(FSchema.&type));
+  CheckEquals('DELIVERY', ServiceTypeToStr(FSchema._type));
   CheckEquals('01111', FSchema.displayId);
   CheckEquals('001111', FSchema.sourceAppId);
   CheckEquals('2019-08-24 14:15:22', FormatDateTime('yyyy-MM-dd hh:mm:ss', FSchema.createdAt));
@@ -2366,60 +2366,60 @@ begin
   CheckEquals(0, FSchema.items[0].index);
   CheckEquals('item 1', FSchema.items[0].name);
   CheckEquals('111', FSchema.items[0].externalCode);
-  CheckEquals('UNIT', FSchema.items[0].&unit);
+  CheckEquals('UNIT', FSchema.items[0]._unit);
   CheckEquals('99999', FSchema.items[0].ean);
   CheckEquals('2', FloatToStr(FSchema.items[0].quantity));
   CheckEquals('no onion', FSchema.items[0].specialInstructions);
   CheckEquals('40', FloatToStr(FSchema.items[0].unitPrice.value));
-  CheckEquals('BRL', FSchema.items[0].unitPrice.&currency);
+  CheckEquals('BRL', FSchema.items[0].unitPrice.currency);
   CheckEquals('40', FloatToStr(FSchema.items[0].optionsPrice.value));
-  CheckEquals('BRL', FSchema.items[0].optionsPrice.&currency);
+  CheckEquals('BRL', FSchema.items[0].optionsPrice.currency);
   CheckEquals('120', FloatToStr(FSchema.items[0].totalPrice.value));
-  CheckEquals('BRL', FSchema.items[0].totalPrice.&currency);
+  CheckEquals('BRL', FSchema.items[0].totalPrice.currency);
 
   // Options
   CheckEquals('111', FSchema.items[0].options[0].id);
   CheckEquals(0, FSchema.items[0].options[0].index);
   CheckEquals('option 1', FSchema.items[0].options[0].name);
   CheckEquals('1111', FSchema.items[0].options[0].externalCode);
-  CheckEquals('UNIT', FSchema.items[0].options[0].&unit);
+  CheckEquals('UNIT', FSchema.items[0].options[0]._unit);
   CheckEquals('22222', FSchema.items[0].options[0].ean);
   CheckEquals('1', FloatToStr(FSchema.items[0].options[0].quantity));
   CheckEquals('no onion', FSchema.items[0].options[0].specialInstructions);
   CheckEquals('40', FloatToStr(FSchema.items[0].options[0].unitPrice.value));
-  CheckEquals('BRL', FSchema.items[0].options[0].unitPrice.&currency);
+  CheckEquals('BRL', FSchema.items[0].options[0].unitPrice.currency);
   CheckEquals('40', FloatToStr(FSchema.items[0].options[0].totalPrice.value));
-  CheckEquals('BRL', FSchema.items[0].options[0].totalPrice.&currency);
+  CheckEquals('BRL', FSchema.items[0].options[0].totalPrice.currency);
 
   // OtherFees
   CheckEquals(1, FSchema.otherFees.Count);
   CheckEquals('ENTREGA', FSchema.otherFees[0].name);
-  CheckEquals('DELIVERY_FEE', FeeTypeToStr(FSchema.otherFees[0].&type));
+  CheckEquals('DELIVERY_FEE', FeeTypeToStr(FSchema.otherFees[0]._type));
   CheckEquals('MARKETPLACE', FeeReceivedByToStr(FSchema.otherFees[0].receivedBy));
   CheckEquals('5555', FSchema.otherFees[0].receiverDocument);
   CheckEquals('string', FSchema.otherFees[0].observation);
-  CheckEquals('BRL', FSchema.otherFees[0].price.&currency);
+  CheckEquals('BRL', FSchema.otherFees[0].price.currency);
   CheckEquals('10', FloatToStr(FSchema.otherFees[0].price.value));
 
   // Discounts
   CheckEquals(1, FSchema.discounts.Count);
   CheckEquals('CART', DiscountTargetToStr(FSchema.discounts[0].target));
   CheckEquals('string', FSchema.discounts[0].targetId);
-  CheckEquals('BRL', FSchema.discounts[0].amount.&currency);
+  CheckEquals('BRL', FSchema.discounts[0].amount.currency);
   CheckEquals('5', FloatToStr(FSchema.discounts[0].amount.value));
   CheckEquals(1, FSchema.discounts[0].sponsorshipValues.Count);
   CheckEquals('MARKETPLACE', FSchema.discounts[0].sponsorshipValues[0].name);
-  CheckEquals('BRL', FSchema.discounts[0].sponsorshipValues[0].amount.&currency);
+  CheckEquals('BRL', FSchema.discounts[0].sponsorshipValues[0].amount.currency);
   CheckEquals('5', FloatToStr(FSchema.discounts[0].sponsorshipValues[0].amount.value));
 
   // Total
-  CheckEquals('BRL', FSchema.total.itemsPrice.&currency);
+  CheckEquals('BRL', FSchema.total.itemsPrice.currency);
   CheckEquals('120', FloatToStr(FSchema.total.itemsPrice.value));
-  CheckEquals('BRL', FSchema.total.otherFees.&currency);
+  CheckEquals('BRL', FSchema.total.otherFees.currency);
   CheckEquals('10', FloatToStr(FSchema.total.otherFees.value));
-  CheckEquals('BRL', FSchema.total.discount.&currency);
+  CheckEquals('BRL', FSchema.total.discount.currency);
   CheckEquals('5', FloatToStr(FSchema.total.discount.value));
-  CheckEquals('BRL', FSchema.total.orderAmount.&currency);
+  CheckEquals('BRL', FSchema.total.orderAmount.currency);
   CheckEquals('125', FloatToStr(FSchema.total.orderAmount.value));
 
   // Payments
@@ -2427,8 +2427,8 @@ begin
   CheckEquals('0', FloatToStr(FSchema.payments.pending));
   CheckEquals(1, FSchema.payments.methods.Count);
   CheckEquals('125', FloatToStr(FSchema.payments.methods[0].value));
-  CheckEquals('BRL', FSchema.payments.methods[0].&currency);
-  CheckEquals('PREPAID', PaymentTypeToStr(FSchema.payments.methods[0].&type));
+  CheckEquals('BRL', FSchema.payments.methods[0].currency);
+  CheckEquals('PREPAID', PaymentTypeToStr(FSchema.payments.methods[0]._type));
   CheckEquals('DEBIT', PaymentMethodToStr(FSchema.payments.methods[0].method));
   CheckEquals('Cash', FSchema.payments.methods[0].methodInfo);
   CheckEquals('150', FloatToStr(FSchema.payments.methods[0].changeFor));

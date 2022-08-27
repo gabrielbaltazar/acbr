@@ -6,9 +6,9 @@ uses
   ACBrBase,
   ACBrJSON,
   ACBrOpenDeliverySchemaClasses,
+  ACBrOpenDeliveryEvents,
   ACBrOpenDeliveryException,
   ACBrOpenDeliveryHTTP,
-  ACBrOpenDeliveryHTTPClientDetails,
   ACBrUtil.Strings,
   DateUtils,
   pcnConversaoOD,
@@ -135,7 +135,7 @@ type
   public
     constructor Create(AOwner: TACBrComponent); override;
     destructor Destroy; override;
-    procedure Clear;
+    procedure Clear; override;
 
     property Merchant: TACBrOpenDeliverySchemaMerchant read FMerchant write FMerchant;
     property UpdateType: TACBrODMerchantUpdateType read FUpdateType write FUpdateType;
@@ -149,6 +149,10 @@ type
     FEventType: TACBrODEventTypeArray;
     FXPollingMerchants: TSplitResult;
     FEvents: TACBrOpenDeliverySchemaEventCollection;
+
+    procedure InvokeEvents;
+    procedure InvokeOrderPlaced(AEvent: TACBrOpenDeliverySchemaEvent; var AAck: Boolean);
+    procedure Acknowledgment(AEvents: array of TACBrOpenDeliverySchemaEvent);
   protected
     procedure DefinirDadosMsg; override;
     procedure DefinirRecurso; override;
@@ -682,6 +686,27 @@ end;
 
 { TACBrOpenDeliveryPolling }
 
+procedure TACBrOpenDeliveryPolling.Acknowledgment(AEvents: array of TACBrOpenDeliverySchemaEvent);
+var
+  LWebService: TACBrOpenDeliveryAcknowledgment;
+  I: Integer;
+begin
+  LWebService := TACBrOpenDeliveryAcknowledgment.Create(FOwner);
+  try
+    for I := 0 to Pred(Length(AEvents)) do
+    begin
+      LWebService.Events.New;
+      LWebService.Events[I].Id := AEvents[I].EventId;
+      LWebService.Events[I].OrderId := AEvents[I].OrderId;
+      LWebService.Events[I].EventType := AEvents[I].EventType;
+    end;
+
+    LWebService.Executar;
+  finally
+    LWebService.Free;
+  end;
+end;
+
 function TACBrOpenDeliveryPolling.AddEventType(const AValue: TACBrODEventType): TACBrOpenDeliveryPolling;
 begin
   Result := Self;
@@ -753,6 +778,75 @@ begin
   inherited;
 end;
 
+procedure TACBrOpenDeliveryPolling.InvokeEvents;
+var
+  I: Integer;
+  LComponent: TACBrOpenDelivery;
+  LEvent: TACBrOpenDeliverySchemaEvent;
+  LEventStatus: TACBrOpenDeliveryOnEventStatus;
+
+  LEventsToAck: array of TACBrOpenDeliverySchemaEvent;
+  LAck: Boolean;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  for I := 0 to Pred(FEvents.Count) do
+  begin
+    LAck := False;
+    LEventStatus := nil;
+    LEvent := FEvents[I];
+    case LEvent.EventType of
+      etCreated: InvokeOrderPlaced(LEvent, LAck);
+      etConfirmed: LEventStatus := LComponent.OnEventConfirmed;
+      etDispatched: LEventStatus := LComponent.OnEventDispatched;
+      etReadyForPickup: LEventStatus := LComponent.OnEventReadyForPickup;
+      etPickupAreaAssigned: LEventStatus := LComponent.OnEventPickupAreaAssigned;
+      etConcluded: LEventStatus := LComponent.OnEventConcluded;
+      etCancellationRequested: LEventStatus := LComponent.OnEventCancellationRequested;
+      etCancellationRequestDenied: LEventStatus := LComponent.OnEventCancellationRequestDenied;
+      etCancelled: LEventStatus := LComponent.OnEventCancelled;
+      etOrderCancellationRequest: LEventStatus := LComponent.OnEventOrderCancellationRequest;
+    end;
+
+    if Assigned(LEventStatus) then
+    begin
+      LAck := False;
+      LEventStatus(LEvent, LAck);
+    end;
+
+    if LAck then
+    begin
+      SetLength(LEventsToAck, Length(LEventsToAck) + 1);
+      LEventsToAck[Length(LEventsToAck) - 1] := LEvent;
+    end;
+  end;
+  Acknowledgment(LEventsToAck);
+end;
+
+procedure TACBrOpenDeliveryPolling.InvokeOrderPlaced(AEvent: TACBrOpenDeliverySchemaEvent; var AAck: Boolean);
+var
+  LComponent: TACBrOpenDelivery;
+  LEvent: TACBrOpenDeliveryOnEventOrder;
+  LWebService: TACBrOpenDeliveryOrderDetails;
+  LOrder: TACBrOpenDeliverySchemaOrder;
+begin
+  LComponent := GetACBrOpenDelivery(FOwner);
+  LEvent := LComponent.OnEventOrderPlaced;
+  if Assigned(LEvent) then
+  begin
+    LWebService := TACBrOpenDeliveryOrderDetails.Create(FOwner);
+    try
+      LWebService.OrderId := AEvent.OrderId;
+      if LWebService.Executar then
+      begin
+        LOrder := LWebService.Order;
+        LEvent(AEvent, LOrder, AAck);
+      end;
+    finally
+      LWebService.Free;
+    end;
+  end;
+end;
+
 function TACBrOpenDeliveryPolling.TratarResposta: Boolean;
 var
   LJSON: TACBrJSONArray;
@@ -761,6 +855,7 @@ begin
   Events.Clear;
   Events.AsJSON := LJSON.ToJSON;
   Result := True;
+  InvokeEvents;
 end;
 
 { TACBrOpenDeliveryAcknowledgment }
@@ -1038,6 +1133,7 @@ end;
 
 procedure TACBrOpenDeliveryMerchantUpdate.Clear;
 begin
+  inherited;
   FEntityType := mueService;
   FUpdateType := mutEmptyBody;
 end;
@@ -1090,6 +1186,7 @@ begin
 
     if FUpdateType in [mutEntityType, mutStatusEntityType] then
     begin
+      LJSONArray := nil;
       case FEntityType of
         mueService: LJSONArray := FMerchant.services.ToJSonArray;
         mueMenu: LJSONArray := FMerchant.menus.ToJSonArray;
@@ -1100,7 +1197,8 @@ begin
         mueAvailability: LJSONArray := FMerchant.availabilities.ToJSonArray;
       end;
 
-      Result.AddPair('updateObjects', LJSONArray);
+      if Assigned(LJSONArray) then
+        Result.AddPair('updateObjects', LJSONArray);
     end;
   except
     Result.Free;

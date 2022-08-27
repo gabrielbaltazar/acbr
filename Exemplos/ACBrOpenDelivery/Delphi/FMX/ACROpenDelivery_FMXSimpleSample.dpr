@@ -3,7 +3,8 @@ program ACROpenDelivery_FMXSimpleSample;
 uses
   System.StartUpCopy,
   FMX.Forms,
-  UMain in 'UMain.pas' {FMain};
+  UMain in 'UMain.pas' {FMain},
+  ACBrOpenDeliveryEvents in '..\..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryEvents.pas';
 
 {$R *.res}
 
