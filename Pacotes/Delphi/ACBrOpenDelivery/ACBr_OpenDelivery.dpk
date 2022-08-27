@@ -36,16 +36,12 @@ requires
 contains
   ACBrOpenDelivery in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDelivery.pas',
   ACBrOpenDeliveryHTTP in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTP.pas',
-  ACBrOpenDeliveryHTTPClient in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClient.pas',
-  ACBrOpenDeliveryHTTPClientActions in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientActions.pas',
-  ACBrOpenDeliveryHTTPClientAuth in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientAuth.pas',
-  ACBrOpenDeliveryHTTPClientDetails in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientDetails.pas',
-  ACBrOpenDeliveryHTTPClientEvents in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientEvents.pas',
   ACBrOpenDeliveryHTTPSynapse in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPSynapse.pas',
   ACBrOpenDeliverySchema in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas',
   ACBrOpenDeliverySchemaClasses in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas',
   ACBrOpenDeliveryWebService in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryWebService.pas',
   pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas',
-  ACBrOpenDeliveryException in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryException.pas';
+  ACBrOpenDeliveryException in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryException.pas',
+  ACBrOpenDeliveryMarketPlace in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryMarketPlace.pas';
 
 end.

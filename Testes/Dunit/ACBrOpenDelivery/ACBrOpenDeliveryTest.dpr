@@ -40,14 +40,13 @@ uses
   ACBrOpenDeliverySchema in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas',
   ACBrOpenDeliverySchemaClasses in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas',
   pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas',
-  ACBrOpenDelivery in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDelivery.pas';
+  ACBrOpenDelivery in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDelivery.pas',
+  ACBrOpenDeliveryEvents in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryEvents.pas',
+  ACBrOpenDeliveryException in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryException.pas',
+  ACBrOpenDeliveryMarketPlace in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryMarketPlace.pas';
 
 begin
-  {$IF CompilerVersion >= 30.0}
-    ReportMemoryLeaksOnShutdown := True;
-  {$ENDIF};
-
-  {$DEFINE USE_JSONDATAOBJECTS_UNIT}
+//  {$DEFINE USE_JSONDATAOBJECTS_UNIT}
   ACBrRunTests;
 
 end.

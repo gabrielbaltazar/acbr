@@ -34,17 +34,20 @@ type
     FOnHTTPRetornar: TACBrOpenDeliveryOnHTTPRetornar;
     FOnTokenGet: TOnTokenGet;
     FOnTokenSave: TOnTokenSave;
-    FOnEventConfirmed: TACBrOpenDeliveryOnEventStatus;
-    FOnEventDispatched: TACBrOpenDeliveryOnEventStatus;
-    FOnEventReadyForPickup: TACBrOpenDeliveryOnEventStatus;
-    FOnEventPickupAreaAssigned: TACBrOpenDeliveryOnEventStatus;
-    FOnEventConcluded: TACBrOpenDeliveryOnEventStatus;
-    FOnEventCancellationRequested: TACBrOpenDeliveryOnEventStatus;
-    FOnEventCancellationRequestDenied: TACBrOpenDeliveryOnEventStatus;
-    FOnEventCancelled: TACBrOpenDeliveryOnEventStatus;
-    FOnEventOrderCancellationRequest: TACBrOpenDeliveryOnEventStatus;
-    FOnEventOrderPlaced: TACBrOpenDeliveryOnEventOrder;
+    FOnEventConfirmed: TOnEventStatus;
+    FOnEventDispatched: TOnEventStatus;
+    FOnEventReadyForPickup: TOnEventStatus;
+    FOnEventPickupAreaAssigned: TOnEventStatus;
+    FOnEventConcluded: TOnEventStatus;
+    FOnEventCancellationRequested: TOnEventStatus;
+    FOnEventCancellationRequestDenied: TOnEventStatus;
+    FOnEventCancelled: TOnEventStatus;
+    FOnEventOrderCancellationRequest: TOnEventStatus;
+    FOnEventOrderPlaced: TOnEventOrder;
+    FOnPollingEnd: TOnPollingEnd;
     function GetWebServices: TACBrOpenDeliveryWebServices;
+    function GetOrder: TACBrOpenDeliverySchemaOrder;
+    function GetEvents: TACBrOpenDeliverySchemaEventCollection;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -54,22 +57,25 @@ type
     procedure FazerLog(const AMsg: String; out ATratado: Boolean);
     procedure GerarException(const AMsg: String; AErro: Exception = nil);
 
+    property Events: TACBrOpenDeliverySchemaEventCollection read GetEvents;
+    property Order: TACBrOpenDeliverySchemaOrder read GetOrder;
     property WebServices: TACBrOpenDeliveryWebServices read GetWebServices;
   published
     property MarketPlace: TACBrOpenDeliveryMarketPlace read FMarketPlace write FMarketPlace;
     property Proxy: TACBrOpenDeliveryProxy read FProxy write FProxy;
     property TimeOut: Integer read FTimeOut write FTimeOut;
 
-    property OnEventOrderPlaced: TACBrOpenDeliveryOnEventOrder read FOnEventOrderPlaced write FOnEventOrderPlaced;
-    property OnEventConfirmed: TACBrOpenDeliveryOnEventStatus read FOnEventConfirmed write FOnEventConfirmed;
-    property OnEventDispatched: TACBrOpenDeliveryOnEventStatus read FOnEventDispatched write FOnEventDispatched;
-    property OnEventReadyForPickup: TACBrOpenDeliveryOnEventStatus read FOnEventReadyForPickup write FOnEventReadyForPickup;
-    property OnEventPickupAreaAssigned: TACBrOpenDeliveryOnEventStatus read FOnEventPickupAreaAssigned write FOnEventPickupAreaAssigned;
-    property OnEventConcluded: TACBrOpenDeliveryOnEventStatus read FOnEventConcluded write FOnEventConcluded;
-    property OnEventCancellationRequested: TACBrOpenDeliveryOnEventStatus read FOnEventCancellationRequested write FOnEventCancellationRequested;
-    property OnEventCancellationRequestDenied: TACBrOpenDeliveryOnEventStatus read FOnEventCancellationRequestDenied write FOnEventCancellationRequestDenied;
-    property OnEventCancelled: TACBrOpenDeliveryOnEventStatus read FOnEventCancelled write FOnEventCancelled;
-    property OnEventOrderCancellationRequest: TACBrOpenDeliveryOnEventStatus read FOnEventOrderCancellationRequest write FOnEventOrderCancellationRequest;
+    property OnEventOrderPlaced: TOnEventOrder read FOnEventOrderPlaced write FOnEventOrderPlaced;
+    property OnEventConfirmed: TOnEventStatus read FOnEventConfirmed write FOnEventConfirmed;
+    property OnEventDispatched: TOnEventStatus read FOnEventDispatched write FOnEventDispatched;
+    property OnEventReadyForPickup: TOnEventStatus read FOnEventReadyForPickup write FOnEventReadyForPickup;
+    property OnEventPickupAreaAssigned: TOnEventStatus read FOnEventPickupAreaAssigned write FOnEventPickupAreaAssigned;
+    property OnEventConcluded: TOnEventStatus read FOnEventConcluded write FOnEventConcluded;
+    property OnEventCancellationRequested: TOnEventStatus read FOnEventCancellationRequested write FOnEventCancellationRequested;
+    property OnEventCancellationRequestDenied: TOnEventStatus read FOnEventCancellationRequestDenied write FOnEventCancellationRequestDenied;
+    property OnEventCancelled: TOnEventStatus read FOnEventCancelled write FOnEventCancelled;
+    property OnEventOrderCancellationRequest: TOnEventStatus read FOnEventOrderCancellationRequest write FOnEventOrderCancellationRequest;
+    property OnPollingEnd: TOnPollingEnd read FOnPollingEnd write FOnPollingEnd;
 
     property OnGerarLog: TACBrGravarLog read FOnGerarLog write FOnGerarLog;
     property OnHTTPEnviar: TACBrOpenDeliveryOnHTTPEnviar read FOnHTTPEnviar write FOnHTTPEnviar;
@@ -184,6 +190,16 @@ begin
   FazerLog('ERRO: ' + LMsgErro, LTratado);
   if not LTratado then
     raise EACBrOpenDeliveryException.CreateDef(LMsgErro);
+end;
+
+function TACBrOpenDelivery.GetEvents: TACBrOpenDeliverySchemaEventCollection;
+begin
+  Result := WebServices.Polling.Events;
+end;
+
+function TACBrOpenDelivery.GetOrder: TACBrOpenDeliverySchemaOrder;
+begin
+  Result := WebServices.OrderDetails.Order;
 end;
 
 function TACBrOpenDelivery.GetToken: string;

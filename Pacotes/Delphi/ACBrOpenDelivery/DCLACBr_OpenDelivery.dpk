@@ -31,6 +31,9 @@ package DCLACBr_OpenDelivery;
 
 requires
   rtl,
+  {$IFNDEF FPC}
+  designide,
+  {$ENDIF}
   ACBr_OpenDelivery;
 
 contains

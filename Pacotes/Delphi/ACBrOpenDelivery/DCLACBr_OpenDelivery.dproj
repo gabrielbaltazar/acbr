@@ -102,6 +102,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="designide.dcp"/>
         <DCCReference Include="ACBr_OpenDelivery.dcp"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryReg.pas"/>
         <BuildConfiguration Include="Base">

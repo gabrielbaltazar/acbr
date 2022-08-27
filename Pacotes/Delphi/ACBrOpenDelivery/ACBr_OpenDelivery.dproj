@@ -89,17 +89,13 @@
         <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDelivery.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTP.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClient.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientActions.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientAuth.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientDetails.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPClientEvents.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPSynapse.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryWebService.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryException.pas"/>
+        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryMarketPlace.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -121,7 +117,6 @@
                     <Source Name="MainSource">ACBr_OpenDelivery.dpk</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\DCLACBr_OpenDelivery.bpl">ACBr - (design-time) OpenDelivery - (http://www.projetoacbr.com.br/)</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>

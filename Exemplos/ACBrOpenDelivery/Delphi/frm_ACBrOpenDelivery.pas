@@ -241,14 +241,9 @@ begin
   ACBrOpenDelivery1.WebServices.OrderDetails.Executar;
 
   mmoOrder.Lines.Clear;
-  with ACBrOpenDelivery1.WebServices.OrderDetails do
-  begin
-    mmoOrder.Lines.Add('DisplayId: ' + Order.displayId);
-    mmoOrder.Lines.Add('Customer Name: ' + Order.customer.name);
-    mmoOrder.Lines.Add('Total: ' + CurrToStr(Order.total.orderAmount.value));
-  end;
-
-  // ACBrOpenDelivery1.WebServices.OrderDetails.
+  mmoOrder.Lines.Add('DisplayId: ' + ACBrOpenDelivery1.Order.displayId);
+  mmoOrder.Lines.Add('Customer Name: ' + ACBrOpenDelivery1.Order.customer.name);
+  mmoOrder.Lines.Add('Total: ' + CurrToStr(ACBrOpenDelivery1.Order.total.orderAmount.value));
 end;
 
 procedure TForm1.btnOrderReadyForPickupClick(Sender: TObject);
@@ -289,7 +284,7 @@ procedure TForm1.btnPollingClick(Sender: TObject);
 begin
   ConfigurarComponente;
   ACBrOpenDelivery1.WebServices.Polling.Executar;
-  mmoPolling.Lines.Text := ACBrOpenDelivery1.WebServices.Polling.Events.AsJSON;
+  mmoPolling.Lines.Text := ACBrOpenDelivery1.Events.AsJSON;
 end;
 
 procedure TForm1.Clear1Click(Sender: TObject);

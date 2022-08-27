@@ -109,6 +109,9 @@
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas"/>
         <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDelivery.pas"/>
+        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryEvents.pas"/>
+        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryException.pas"/>
+        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryMarketPlace.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

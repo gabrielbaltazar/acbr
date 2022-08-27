@@ -783,12 +783,16 @@ var
   I: Integer;
   LComponent: TACBrOpenDelivery;
   LEvent: TACBrOpenDeliverySchemaEvent;
-  LEventStatus: TACBrOpenDeliveryOnEventStatus;
-
+  LEventStatus: TOnEventStatus;
+  LPollingEnd: TOnPollingEnd;
   LEventsToAck: array of TACBrOpenDeliverySchemaEvent;
   LAck: Boolean;
 begin
   LComponent := GetACBrOpenDelivery(FOwner);
+  LPollingEnd := LComponent.OnPollingEnd;
+  if Assigned(LPollingEnd) then
+    LPollingEnd(Now, FEvents);
+
   for I := 0 to Pred(FEvents.Count) do
   begin
     LAck := False;
@@ -825,7 +829,7 @@ end;
 procedure TACBrOpenDeliveryPolling.InvokeOrderPlaced(AEvent: TACBrOpenDeliverySchemaEvent; var AAck: Boolean);
 var
   LComponent: TACBrOpenDelivery;
-  LEvent: TACBrOpenDeliveryOnEventOrder;
+  LEvent: TOnEventOrder;
   LWebService: TACBrOpenDeliveryOrderDetails;
   LOrder: TACBrOpenDeliverySchemaOrder;
 begin
