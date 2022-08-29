@@ -1,7 +1,7 @@
 program ACBrOpenDelivery_DemoVCL;
 
 uses
-  Vcl.Forms,
+  Forms,
   UntMain in 'UntMain.pas' {FMain},
   UntDM in 'UntDM.pas' {DM: TDataModule};
 
@@ -9,7 +9,6 @@ uses
 
 begin
   Application.Initialize;
-  Application.MainFormOnTaskbar := True;
   Application.CreateForm(TDM, DM);
   Application.CreateForm(TFMain, FMain);
   Application.Run;
