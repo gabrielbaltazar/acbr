@@ -53,21 +53,21 @@
 // Descomente a linha abaixo, se você quer que seu Executável NÃO dependa das DLLs LibXML2. (NAO RECOMENDADO)
 {.$DEFINE DFE_SEM_LIBXML2}
 // Descomente a linha abaixo, se você não utiliza a obsoleta Capicom para Criptografia (RECOMENDADO)
-{.$DEFINE DFE_SEM_CAPICOM}
+{$DEFINE DFE_SEM_CAPICOM}
 // Descomente a linha abaixo, se você não utiliza a obsoleta MSXML para Assinatura de XML (RECOMENDADO)
 {.$DEFINE DFE_SEM_MSXML}
 // Descomente a linha abaixo, se você não deseja adicionar a Dependência da INDY nos seus Projetos
 {.$DEFINE DFE_SEM_INDY}
 
 // Descomente essa linha, para usar a carga de DLL tardia, nas Units do OpenSSL  (Apenas Delphi)
-{.$DEFINE USE_DELAYED}
+{$DEFINE USE_DELAYED}
 
 // Descomente essa linha, para usar ZLibExGZ de \ACBr\Fontes\Terceiros\ZLibExGZ
 // ZLib de D7 contém bugs e está incompleta. Caso contrário usará compactação nativa, unit "ZLib"
 {.$DEFINE USE_ZLibExGZ}
 
 // Para Remover Warnings de CAST causados por WideString/String/AnsiString, descomente a linha abaixo. (Apenas Delphi)
-{.$DEFINE REMOVE_CAST_WARN}
+{$DEFINE REMOVE_CAST_WARN}
 
 // Para usar CLX no Windows / Delphi descomente essa linha
 //------------------------------------------------------------------------------

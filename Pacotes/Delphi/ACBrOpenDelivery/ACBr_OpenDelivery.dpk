@@ -1,47 +1,46 @@
 package ACBr_OpenDelivery;
 
 {$R *.res}
-{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO OFF}
+{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION OFF}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES ON}
+{$STACKFRAMES OFF}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DEFINE DEBUG}
-{$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'ACBr - OpenDelivery - (http://www.projetoacbr.com.br/)'}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
 
 requires
+  ACBr_OpenSSL,
   rtl,
-  vcl;
+  vcl,
+  ACBr_Diversos;
 
 contains
   ACBrOpenDelivery in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDelivery.pas',
+  ACBrOpenDeliveryEvents in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryEvents.pas',
+  ACBrOpenDeliveryException in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryException.pas',
   ACBrOpenDeliveryHTTP in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTP.pas',
   ACBrOpenDeliveryHTTPSynapse in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPSynapse.pas',
+  ACBrOpenDeliveryMarketPlace in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryMarketPlace.pas',
   ACBrOpenDeliverySchema in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas',
   ACBrOpenDeliverySchemaClasses in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas',
   ACBrOpenDeliveryWebService in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryWebService.pas',
-  pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas',
-  ACBrOpenDeliveryException in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryException.pas',
-  ACBrOpenDeliveryMarketPlace in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryMarketPlace.pas';
+  pcnConversaoOD in '..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas';
 
 end.
