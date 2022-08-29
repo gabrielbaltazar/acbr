@@ -1941,17 +1941,12 @@ begin
         end;
       end;
     end;
-
-    if fpDANFe.ImprimeTotalLiquido then
-    begin
-      txtValorTotal.Caption := FormatFloatBr(fpDANFe.ManterVDesc(Prod.vDesc, Prod.vUnCom, Prod.qCom));
-      txtValorDesconto.Caption := FormatFloatBr(Prod.vProd - fpDANFe.ManterVDesc(Prod.vDesc, Prod.vUnCom, Prod.qCom));
-    end
-    else
-    begin
-      txtValorTotal.Caption := FormatFloatBr(Prod.vProd);
-      txtValorDesconto.Caption := FormatFloatBr(fpDANFe.ManterVDesc(Prod.vDesc, Prod.vUnCom, Prod.qCom));
-    end;
+    {
+    txtValorTotal.Caption := fpDANFe.ManterVprod(Prod.vProd, Prod.vDesc);
+    txtValorDesconto.Caption := FormatFloatBr(fpDANFe.ManterVDesc(Prod.vDesc, Prod.vUnCom, Prod.qCom));
+    }
+    txtValorTotal.Caption := FormatFloatBr(Prod.vProd);
+    txtValorDesconto.Caption := FormatFloatBr(Prod.vDesc);
 
     txtBaseICMS.Caption := FormatFloatBr(Imposto.ICMS.VBC);
     txtValorICMS.Caption := FormatFloatBr(Imposto.ICMS.VICMS);
@@ -1982,7 +1977,7 @@ begin
     crtSimplesNacional:
       lblCST.Caption := 'CSOSN';
   end;
-
+  {
   if fpDANFe.ImprimeDescPorPercentual then
   begin
     lblPercValorDesc.Caption := 'PERC.(%)';
@@ -1996,6 +1991,9 @@ begin
     lblValorTotal.Caption := 'DESCONTO';
     lblPercValorDesc1.Caption := ACBrStr('LÍQUIDO');
   end;
+  }
+  lblPercValorDesc.Caption := 'DESCONTO';
+  lblValorTotal.Caption := 'VALOR';
 end;
 
 function TfrlDANFeRLRetrato.ManterBandinfAdProd(const sInforAdicProduto: String): String;

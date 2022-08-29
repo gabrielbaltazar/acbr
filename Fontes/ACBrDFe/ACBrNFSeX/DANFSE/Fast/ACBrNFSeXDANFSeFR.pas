@@ -110,7 +110,8 @@ implementation
 
 uses
   StrUtils, Math,
-  ACBrUtil, ACBrDFeUtil,
+  ACBrUtil.Strings, ACBrDFeUtil,
+  ACBrUtil.Math, ACBrUtil.FilesIO, ACBrUtil.Base, ACBrUtil.DateTime, ACBrUtil.XMLHTML,
   ACBrNFSeXConversao, ACBrNFSeXInterface;
 
 constructor TACBrNFSeXDANFSeFR.Create(AOwner: TComponent);
@@ -549,7 +550,7 @@ begin
     with FieldDefs do
     begin
       Clear;
-      Add('DiscriminacaoServico', ftString, 256);
+      Add('DiscriminacaoServico', ftString, 2000);
       Add('Quantidade', ftString, 10);
       Add('ValorUnitario', ftString, 30);
       Add('ValorTotal', ftString, 30);

@@ -133,7 +133,7 @@ function ExtrairDigitoChaveAcesso(const AChave: string): Integer;
 
 function TimeZoneConf: TTimeZoneConf;
 
-function ValidarCodigoDFe(AcDF, AnDF: Integer): Boolean;
+function ValidarCodigoDFe(AcDF, AnDF: Integer; ADigitos: Integer = 8): Boolean;
 function ValidarProtocolo(const AProtocolo: string): Boolean;
 function ValidarRecibo(const ARecibo: string): Boolean;
 
@@ -861,9 +861,11 @@ function ExtrairCNPJCPFChaveAcesso(const AChave: String): String;
 var
   AModelo: string;
   ASerie: Integer;
+  ATpEmis: Integer;
 begin
   AModelo := ExtrairModeloChaveAcesso(AChave);
   ASerie := ExtrairSerieChaveAcesso(AChave);
+  ATpEmis := ExtrairTipoEmissaoChaveAcesso(AChave);
   case StrToIntDef(AModelo, 0) of
     55, 65: begin  // NFe, NFCe
       case ASerie of
@@ -876,6 +878,14 @@ begin
           Result := Copy(AChave, 10, 11);
       else
         // Outras possíveis Séries futuras, assume CNPJ
+        Result := Copy(AChave, 7, 14);
+      end;
+    end;
+    57: begin
+      case ATpEmis of
+        3: // NFF
+          Result := Copy(AChave, 10, 11);
+      else
         Result := Copy(AChave, 7, 14);
       end;
     end;
@@ -920,10 +930,13 @@ var
  VChave: string;
 begin
   VChave:= OnlyNumber(AChave);
-  if ExtrairModeloChaveAcesso(VChave) = '59' then  //SAT
+  if ExtrairModeloChaveAcesso(VChave) = '59' then  // SAT
     Result := StrToIntDef(Copy(VChave, 38, 6), 0)
   else
-    Result := StrToIntDef(Copy(VChave, 36, 8), 0);
+    if ExtrairModeloChaveAcesso(VChave) = '66' then  // NF3-e
+      Result := StrToIntDef(Copy(VChave, 37, 7), 0)
+    else
+      Result := StrToIntDef(Copy(VChave, 36, 8), 0); // Demais DF-e
 end;
 
 function ExtrairTipoEmissaoChaveAcesso(const AChave: String): Integer;
@@ -1024,12 +1037,17 @@ begin
   end;
 end;
 
-function ValidarCodigoDFe(AcDF, AnDF: Integer): Boolean;
+function ValidarCodigoDFe(AcDF, AnDF: Integer; ADigitos: Integer = 8): Boolean;
 const
-  CCodigosDFeInvalidos: array[0..19] of Integer =  (0, 11111111, 22222222,
-     33333333, 44444444, 55555555, 66666666, 77777777, 88888888, 99999999,
-     12345678, 23456789, 34567890, 45678901, 56789012, 67890123, 78901234,
-     89012345, 90123456, 01234567);
+  CCodigosDFeInvalidos: array[7..8, 0..19] of Integer =
+      ((0, 1111111, 2222222,
+           3333333, 4444444, 5555555, 6666666, 7777777, 8888888, 9999999,
+           1234567, 2345678, 3456789, 4567890, 5678901, 6789012, 7890123,
+           8901234, 9012345, 0123456),
+       (0, 11111111, 22222222,
+           33333333, 44444444, 55555555, 66666666, 77777777, 88888888, 99999999,
+           12345678, 23456789, 34567890, 45678901, 56789012, 67890123, 78901234,
+           89012345, 90123456, 01234567));
 var
   i: Integer;
 begin
@@ -1037,7 +1055,7 @@ begin
   i := 0;
   while Result and (i < 20) do
   begin
-    Result := (AcDF <> CCodigosDFeInvalidos[i]);
+    Result := (AcDF <> CCodigosDFeInvalidos[ADigitos, i]);
     Inc(i);
   end;
 end;

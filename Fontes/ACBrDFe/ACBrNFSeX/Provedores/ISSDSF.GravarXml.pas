@@ -39,7 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils, synacode,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnAuxiliar, pcnConsts,
+  pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
 
 type
@@ -62,9 +62,7 @@ type
 implementation
 
 uses
-  ACBrUtil,
-  ACBrUtil.Strings,
-  ACBrUtil.Math;
+  ACBrUtil.Strings, ACBrUtil.Math;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -307,7 +305,7 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'RazaoSocialTomador', 1, 120, 1,
                                                  NFSe.Tomador.RazaoSocial, ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'DocTomadorEstrangeiro', 0, 20, 1,
+  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'DocTomadorEstrangeiro', 0, 20, 0,
                   NFSe.Tomador.IdentificacaoTomador.DocTomadorEstrangeiro, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'TipoLogradouroTomador', 0, 10, 1,

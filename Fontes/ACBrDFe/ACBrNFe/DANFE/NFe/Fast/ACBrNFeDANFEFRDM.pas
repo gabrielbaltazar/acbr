@@ -185,7 +185,9 @@ implementation
 uses
   StrUtils, Math, DateUtils,
   ACBrNFe, ACBrNFeDANFEFR, ACBrDFeUtil,
-  ACBrUtil, ACBrValidador, ACBrImage, ACBrDelphiZXingQRCode,
+  ACBrUtil.Strings, 
+  ACBrUtil.Math, ACBrUtil.FilesIO, ACBrUtil.Base, ACBrUtil.DateTime, ACBrUtil.XMLHTML,
+  ACBrValidador, ACBrImage, ACBrDelphiZXingQRCode,
   pcnConversaoNFe;
 
 { TACBrNFeFRClass }
@@ -1427,6 +1429,7 @@ begin
     begin
       wObs := TACBrNFeDANFEClass(FDANFEClassOwner).ManterDocreferenciados(FNFe) +
               TACBrNFeDANFEClass(FDANFEClassOwner).ManterPagamentos(FNFe) +
+              TACBrNFeDANFEClass(FDANFEClassOwner).ManterSuframa(FNFe) +
               FDANFEClassOwner.ManterInfAdFisco(FNFe) +
               FDANFEClassOwner.ManterObsFisco(FNFe) +
               FDANFEClassOwner.ManterProcreferenciado(FNFe) +

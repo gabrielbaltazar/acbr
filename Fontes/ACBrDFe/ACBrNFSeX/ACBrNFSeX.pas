@@ -167,6 +167,9 @@ type
       const ACodCancelamento: string; const AMotCancelamento: String = '';
       const ANumLote: String = ''; const ACodVerificacao: String = '');
 
+    // Usado pelos provedores que geram token por WebService
+    procedure GerarToken;
+
     function LinkNFSe(ANumNFSe: String; const ACodVerificacao: String;
       const AChaveAcesso: String = ''; const AValorServico: String = ''): String;
 
@@ -383,7 +386,6 @@ begin
   if not Assigned(FProvider) then
     raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
-
   FWebService.Emite.Clear;
   FWebService.Emite.Lote := aLote;
   FWebService.Emite.ModoEnvio := aModoEnvio;
@@ -516,6 +518,9 @@ begin
     NumeroLote := aInfConsultaNFSe.NumeroLote;
     Pagina := aInfConsultaNFSe.Pagina;
     CadEconomico := aInfConsultaNFSe.CadEconomico;
+    CodServ := aInfConsultaNFSe.CodServ;
+    CodVerificacao := aInfConsultaNFSe.CodVerificacao;
+    Tipo:= aInfConsultaNFSe.Tipo;
   end;
 
   ConsultarNFSe;
@@ -811,6 +816,8 @@ begin
     email := aInfCancelamento.email;
     NumeroNFSeSubst := aInfCancelamento.NumeroNFSeSubst;
     SerieNFSeSubst := aInfCancelamento.SerieNFSeSubst;
+    CodServ := aInfCancelamento.CodServ;
+    Tipo:= aInfCancelamento.Tipo;
 
     if (ChaveNFSe <> '') and (NumeroNFSe = '') then
       NumeroNFSe := Copy(ChaveNFSe, 22, 9);
@@ -856,6 +863,7 @@ begin
     raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
   FWebService.SubstituiNFSe.Clear;
+
   with FWebService.SubstituiNFSe.InfCancelamento do
   begin
     NumeroNFSe := aNumNFSe;
@@ -867,6 +875,15 @@ begin
   end;
 
   FProvider.SubstituiNFSe;
+end;
+
+procedure TACBrNFSeX.GerarToken;
+begin
+  if not Assigned(FProvider) then raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
+
+  FWebService.GerarToken.Clear;
+
+  FProvider.GerarToken;
 end;
 
 function TACBrNFSeX.LinkNFSe(ANumNFSe: String; const ACodVerificacao,

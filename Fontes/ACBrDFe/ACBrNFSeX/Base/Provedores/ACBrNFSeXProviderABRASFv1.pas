@@ -48,8 +48,10 @@ type
     FpFormatoDataEmissao: TACBrTipoCampo;
     FpFormatoDataHora: TACBrTipoCampo;
 
-    function PreencherNotaResposta(Node, parentNode: TACBrXmlNode): Boolean;
-    procedure LerCancelamento(ANode: TACBrXmlNode; Response: TNFSeConsultaNFSeporRpsResponse);
+    function PreencherNotaResposta(Node, parentNode: TACBrXmlNode;
+      Response: TNFSeConsultaLoteRpsResponse): Boolean;
+    procedure LerCancelamento(ANode: TACBrXmlNode;
+      Response: TNFSeConsultaNFSeporRpsResponse);
 
     procedure Configuracao; override;
 
@@ -87,6 +89,11 @@ type
     procedure GerarMsgDadosSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse;
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse); override;
+
+    procedure PrepararGerarToken(Response: TNFSeGerarTokenResponse); override;
+    procedure GerarMsgDadosGerarToken(Response: TNFSeGerarTokenResponse;
+      Params: TNFSeParamsResponse); override;
+    procedure TratarRetornoGerarToken(Response: TNFSeGerarTokenResponse); override;
 
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
@@ -136,18 +143,28 @@ begin
 end;
 
 function TACBrNFSeProviderABRASFv1.PreencherNotaResposta(Node,
-  parentNode: TACBrXmlNode): Boolean;
+  parentNode: TACBrXmlNode; Response: TNFSeConsultaLoteRpsResponse): Boolean;
 var
-  NumRps: String;
+  NumNFSe, CodVerif, NumRps, SerieRps: String;
   ANota: TNotaFiscal;
+  AResumo: TNFSeResumoCollectionItem;
 begin
-  Result := False; 
-  
+  Result := False;
+
   if Node <> nil then
   begin
     Node := Node.Childrens.FindAnyNs('InfNfse');
+    NumNFSe := ObterConteudoTag(Node.Childrens.FindAnyNs('Numero'), tcStr);
+    CodVerif := ObterConteudoTag(Node.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
     Node := Node.Childrens.FindAnyNs('IdentificacaoRps');
     NumRps := ObterConteudoTag(Node.Childrens.FindAnyNs('Numero'), tcStr);
+    SerieRps := ObterConteudoTag(Node.Childrens.FindAnyNs('Serie'), tcStr);
+
+    AResumo := Response.Resumos.New;
+    AResumo.NumeroNota := NumNFSe;
+    AResumo.CodigoVerificacao := CodVerif;
+    AResumo.NumeroRps := NumRps;
+    AResumo.SerieRps := SerieRps;
 
     ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
@@ -670,7 +687,7 @@ begin
         begin
           AuxNode := ANode.Childrens.FindAnyNs('Nfse');
 
-          if PreencherNotaResposta(AuxNode, ANode) then
+          if PreencherNotaResposta(AuxNode, ANode, Response) then
             Response.Situacao := '4' // Processado com sucesso pois retornou a nota
           else
           begin
@@ -689,7 +706,7 @@ begin
             ANode2 := AuxNodeArray[J];
             AuxNode := ANode2.Childrens.FindAnyNs('Nfse');
 
-            if PreencherNotaResposta(AuxNode, ANode2) then
+            if PreencherNotaResposta(AuxNode, ANode2, Response) then
               Response.Situacao := '4' // Processado com sucesso pois retornou a nota
             else
             begin
@@ -1419,6 +1436,28 @@ end;
 procedure TACBrNFSeProviderABRASFv1.TratarRetornoSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse);
 begin
   raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv1.GerarMsgDadosGerarToken(
+  Response: TNFSeGerarTokenResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv1.PrepararGerarToken(
+  Response: TNFSeGerarTokenResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv1.TratarRetornoGerarToken(
+  Response: TNFSeGerarTokenResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;
 
 procedure TACBrNFSeProviderABRASFv1.ProcessarMensagemErros(RootNode: TACBrXmlNode;

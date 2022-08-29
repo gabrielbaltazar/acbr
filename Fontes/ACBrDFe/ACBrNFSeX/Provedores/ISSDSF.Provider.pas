@@ -324,6 +324,7 @@ var
   ANodeArray: TACBrXmlNodeArray;
   AErro: TNFSeEventoCollectionItem;
   AAlerta: TNFSeEventoCollectionItem;
+  Codigo, Descricao: string;
 begin
   ANode := RootNode.Childrens.FindAnyNs(AListTag);
 
@@ -331,15 +332,22 @@ begin
     ANode := RootNode;
 
   ANodeArray := ANode.Childrens.FindAllAnyNs(AMessageTag);
+
   for I := Low(ANodeArray) to High(ANodeArray) do
   begin
-    AErro := Response.Erros.New;
-    AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr);
-    AErro.Correcao := '';
+    Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
+    Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr);
 
-    if AErro.Descricao = '' then
-      AErro.Descricao := ANodeArray[I].AsString;
+    if (Codigo <> '') or (Descricao <> '') then
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := Codigo;
+      AErro.Descricao := Descricao;
+      AErro.Correcao := '';
+
+      if AErro.Descricao = '' then
+        AErro.Descricao := ANodeArray[I].AsString;
+    end;
   end;
 
   ANode := RootNode.Childrens.FindAnyNs('Alertas');
@@ -348,15 +356,22 @@ begin
     ANode := RootNode;
 
   ANodeArray := ANode.Childrens.FindAllAnyNs('Alerta');
+
   for I := Low(ANodeArray) to High(ANodeArray) do
   begin
-    AAlerta := Response.Alertas.New;
-    AAlerta.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-    AAlerta.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr);
-    AAlerta.Correcao := '';
+    Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
+    Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr);
 
-    if AAlerta.Descricao = '' then
-      AAlerta.Descricao := ANodeArray[I].AsString;
+    if (Codigo <> '') or (Descricao <> '') then
+    begin
+      AAlerta := Response.Alertas.New;
+      AAlerta.Codigo := Codigo;
+      AAlerta.Descricao := Descricao;
+      AAlerta.Correcao := '';
+
+      if AAlerta.Descricao = '' then
+        AAlerta.Descricao := ANodeArray[I].AsString;
+    end;
   end;
 end;
 
@@ -596,8 +611,7 @@ begin
         with Response do
         begin
           Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr) = 'true';
-          Lote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroLote'), tcStr);
-          Protocolo := Lote;
+          Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroLote'), tcStr);
 
           { Verificar se mais alguma dessas informações são necessárias
           with InformacoesLote do
@@ -728,7 +742,7 @@ begin
                                '</CPFCNPJRemetente>' +
                                '<Versao>1</Versao>' +
                                '<NumeroLote>' +
-                                 Response.Lote +
+                                 Response.Protocolo +
                                '</NumeroLote>' +
                              '</Cabecalho>' +
                            '</' + Prefixo + 'ReqConsultaLote>';
@@ -742,6 +756,7 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   i: Integer;
+  AResumo: TNFSeResumoCollectionItem;
 //  ANota: TNotaFiscal;
 //  NumRps, NumNFSe: String;
 begin
@@ -761,7 +776,10 @@ begin
 
       Document.LoadFromXml(Response.ArquivoRetorno);
 
-      ANode := Document.Root.Childrens.FindAnyNs('RetornoConsultaLote');
+      if (Document.Root.Name = 'RetornoConsultaLote') then
+        ANode := Document.Root
+      else
+        ANode := Document.Root.Childrens.FindAnyNs('RetornoConsultaLote');
 
       if not Assigned(ANode) then
       begin
@@ -781,8 +799,7 @@ begin
 
         with Response do
         begin
-          Lote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroLote'), tcStr);
-          Protocolo := Lote;
+          Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroLote'), tcStr);
           Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr) = 'true';
 
           { Verificar se mais alguma dessas informações são necessárias
@@ -819,6 +836,12 @@ begin
         for i := Low(ANodeArray) to High(ANodeArray) do
         begin
           ANode := ANodeArray[i];
+
+          AResumo := Response.Resumos.New;
+          AResumo.NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroNFe'), tcStr);
+          AResumo.CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+          AResumo.NumeroRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroRPS'), tcStr);
+          AResumo.SerieRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('SerieRPS'), tcStr);
 
           with Response do
           begin

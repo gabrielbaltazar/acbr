@@ -37,6 +37,58 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+18/08/2022
+-- ACBrUtil.DateTime --
+[*] Criadas funções para testar se uma String é ou possui TimeZone.
+    (Exemplos de TimeZones: 'Z', '-03:00', '+01:00')
+	Por: Elias César
+
+18/08/2022
+-- ACBrUtil.DateTime --
+[*] Alteração para remover o TimeZone do parâmetro enviado para a função 'StringToDateTime()'.
+[*] Modificada função 'ParseDataHora()' para também tratar TimeZones positivos (Exemplo: '+01:00').
+    Por: Elias César
+
+10/08/2022
+-- ACBrUtil.DateTime --
+[+] Adicionado função DateTimeUniversal - Retorna ADateTime com hora convertida para TimeZone Universal, baseado no
+  TimeZone passado por parâmetro ou no TimeZone Local.
+   por: José M S Junior
+
+10/08/2022
+-- ACBrJSON --
+[*] Alterações para compatibilizar unit com fpjsons(Lazarus).
+[*] Movidas units Jsons e JsonDataObjects_ACBr do pacote ACBrDiversos para ACBrComum
+[+] Inclusão da unit ACBrJSON no pacote ACBrComum.
+    Por: Elias César
+
+08/08/2022
+-- ACBrUtil.FilesIO --
+[+] Implementado a procedure ParseNomeArquivo e alterado o nome da função 
+    DefinirNomePDF para DefinirNomeArquivo e ajustado a assinatura da mesma.
+   Por: Italo Giurizzato Junior
+-- ACBrUtil.DateTime --
+[*] Correção para ler corretamente datas no formato AAAA-MM.
+   Por: Cleverton Martins
+
+02/08/2022
+-- ACBrUtil.FilesIO --
+[+] Acrescentado a função DefinirNomePDF recebendo como parâmetro:
+    Path, NomePadrao, Sufixo e NomeOpcional (opcional), se NomeOpcional for
+    informado será considerado ele em vez de NomePadrao.
+   Por: Pandaaa/Italo Giurizzato Junior
+
+11/07/2022
+-- ACBrUtil.DateTime --
+[-] Correção de AV ao enviar uma string vazia para função 'TimezoneToBias()'
+[*] Remoção de warning
+
+11/07/2022
+-- ACBrUtil.DateTime --
+[+] Inclusão de funções para conversões entre a string em Timezone e Bias 
+    (Bias = minutos de diferença entre UTC e o horário local)
+	Por: Elias César
+
 29/06/2022
 -- ACBrUtil.DateTime --
 [*] Possível correção para datas que estejam no formato: "2022-06-27-03:00".

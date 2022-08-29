@@ -72,8 +72,7 @@ type
 implementation
 
 uses
-  StrUtils,
-  ACBrUtil;
+  StrUtils, ACBrUtil.Strings, ACBrUtil.XMLHTML;
 
 constructor TACBrPOSPGWebPrinter.Create(AOwner: TACBrPosPrinter;
   AACBrPOS: TACBrPOS);

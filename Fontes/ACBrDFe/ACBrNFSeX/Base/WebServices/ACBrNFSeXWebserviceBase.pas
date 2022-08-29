@@ -134,6 +134,7 @@ type
     function GerarNFSe(ACabecalho, AMSG: String): string; virtual;
     function RecepcionarSincrono(ACabecalho, AMSG: String): string; virtual;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; virtual;
+    function GerarToken(ACabecalho, AMSG: String): string; virtual;
     function AbrirSessao(ACabecalho, AMSG: String): string; virtual;
     function FecharSessao(ACabecalho, AMSG: String): string; virtual;
     function TesteEnvio(ACabecalho, AMSG: String): string; virtual;
@@ -235,9 +236,11 @@ type
    FPagina: Integer;
    FtpConsulta: TtpConsulta;
    FtpPeriodo: TtpPeriodo;
-   FTipo: String;
+   FTipo: TTipoDoc;
    FCadEconomico: String;
    FSerieNFSe: String;
+   FCodServ: String;
+   FCodVerificacao: String;
 
  public
    constructor Create;
@@ -259,9 +262,11 @@ type
    property Pagina: Integer         read FPagina        write FPagina;
    property tpConsulta: TtpConsulta read FtpConsulta    write FtpConsulta;
    property tpPeriodo: TtpPeriodo   read FtpPeriodo     write FtpPeriodo;
-   property Tipo: String            read FTipo          write FTipo;
+   property Tipo: TTipoDoc          read FTipo          write FTipo;
    property CadEconomico: String    read FCadEconomico  write FCadEconomico;
    property SerieNFSe: String       read FSerieNFSe     write FSerieNFSe;
+   property CodServ: String         read FCodServ       write FCodServ;
+   property CodVerificacao: String  read FCodVerificacao write FCodVerificacao;
  end;
 
   TInfCancelamento = class
@@ -280,6 +285,8 @@ type
     Femail: string;
     FNumeroNFSeSubst: string;
     FSerieNFSeSubst: string;
+    FCodServ: string;
+    FTipo: TTipoDoc;
 
   public
     constructor Create;
@@ -300,6 +307,8 @@ type
     property email: string           read Femail           write Femail;
     property NumeroNFSeSubst: string read FNumeroNFSeSubst write FNumeroNFSeSubst;
     property SerieNFSeSubst: string  read FSerieNFSeSubst  write FSerieNFSeSubst;
+    property CodServ: string         read FCodServ         write FCodServ;
+    property Tipo: TTipoDoc          read FTipo            write FTipo;
 
   end;
 
@@ -407,6 +416,12 @@ begin
       begin
         FPArqEnv := 'ped-sub';
         FPArqResp := 'sub';
+      end;
+
+    tmGerarToken:
+      begin
+        FPArqEnv := 'ped-token';
+        FPArqResp := 'ret-token';
       end;
 
     tmAbrirSessao:
@@ -533,6 +548,9 @@ begin
   if FPDFeOwner.Configuracoes.WebServices.Salvar then
   begin
     ArqEnv := Prefixo + '-' + FPArqResp + '-soap.xml';
+
+    if not XmlEhUTF8(ADadosSoap) then
+      ADadosSoap := RemoverDeclaracaoXML(ADadosSoap);
 
     FPDFeOwner.Gravar(ArqEnv, ADadosSoap);
   end;
@@ -879,6 +897,12 @@ begin
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
+function TACBrNFSeXWebservice.GerarToken(ACabecalho, AMSG: String): string;
+begin
+  Result := '';
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
 function TACBrNFSeXWebservice.AbrirSessao(ACabecalho, AMSG: String): string;
 begin
   Result := '';
@@ -1144,8 +1168,10 @@ begin
   RazaoInter    := '';
   CadEconomico  := '';
   SerieNFSe     := '';
+  CodServ       := '';
+  CodVerificacao:= '';
   Pagina        := 1;
-  Tipo          := '';
+  Tipo          := tdNFSe;
 end;
 
 function TInfConsultaNFSe.LerFromIni(const AIniString: String): Boolean;
@@ -1180,9 +1206,11 @@ begin
     CNPJInter     := INIRec.ReadString(sSecao, 'CNPJInter', '');
     IMInter       := INIRec.ReadString(sSecao, 'IMInter', '');
     RazaoInter    := INIRec.ReadString(sSecao, 'RazaoInter', '');
-    Tipo          := INIRec.ReadString(sSecao, 'Tipo', '');
+    Tipo          := StrToTipoDoc(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
     CadEconomico  := INIRec.ReadString(sSecao, 'CadEconomico', '');
     SerieNFSe     := INIRec.ReadString(sSecao, 'SerieNFSe', '');
+    CodServ       := INIRec.ReadString(sSecao, 'CodServ', '');
+    CodVerificacao:= INIRec.ReadString(sSecao, 'CodVerificacao', '');
 
     Pagina        := INIRec.ReadInteger(sSecao, 'Pagina', 1);
 
@@ -1210,12 +1238,15 @@ begin
   Femail := '';
   FNumeroNFSeSubst := '';
   FSerieNFSeSubst := '';
+  FCodServ := '';
+  FTipo := tdNFSe;
 end;
 
 function TInfCancelamento.LerFromIni(const AIniString: String): Boolean;
 var
   sSecao: String;
   INIRec: TMemIniFile;
+  Ok: Boolean;
 begin
 {$IFNDEF COMPILER23_UP}
   Result := False;
@@ -1241,6 +1272,8 @@ begin
     email           := INIRec.ReadString(sSecao, 'email', '');
     NumeroNFSeSubst := INIRec.ReadString(sSecao, 'NumeroNFSeSubst', '');
     SerieNFSeSubst  := INIRec.ReadString(sSecao, 'SerieNFSeSubst', '');
+    CodServ         := INIRec.ReadString(sSecao, 'CodServ', '');
+    Tipo            := StrToTipoDoc(Ok, INIRec.ReadString(sSecao, 'Tipo', '1'));
 
     Result := True;
   finally

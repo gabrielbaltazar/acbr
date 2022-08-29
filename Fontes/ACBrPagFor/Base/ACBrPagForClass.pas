@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -69,10 +69,13 @@ type
     FBanco: TBanco;
     FSubstitutaBanco: TBanco;
     FidTributo: TIndTributo;
+    FAmbienteCliente: string;
   public
     property Banco: TBanco read FBanco write FBanco;
     property SubstitutaBanco: TBanco read FSubstitutaBanco write FSubstitutaBanco;
     property idTributo: TIndTributo read FidTributo write FidTributo;
+    // Usado pela Caixa
+    property AmbienteCliente: string read FAmbienteCliente write FAmbienteCliente;
   end;
 
   TInscricao = class(TObject)
@@ -141,12 +144,15 @@ type
     FHoraGeracao: TDateTime; // HHMMSS
     FSequencia: Integer;
     FDensidade: Integer;
+    FParamTransm: string;
   public
     property Codigo: TTipoArquivo read FCodigo write FCodigo;
     property DataGeracao: TDateTime read FDataGeracao write FDataGeracao;
     property HoraGeracao: TDateTime read FHoraGeracao write FHoraGeracao;
     property Sequencia: Integer read FSequencia write FSequencia;
     property Densidade: Integer read FDensidade write FDensidade;
+    // Usado pela Caixa
+    property ParamTransm: string read FParamTransm write FParamTransm;
   end;
 
   TTotais = class(TObject)
@@ -332,6 +338,11 @@ type
     FNossoNumero: string; // Tamanho 20
     FDataReal: TDateTime; // DDMMAAAA
     FValorReal: Double;
+    FQtdeParcelas: Integer;
+    FIndBloqueio: string;
+    FFormaParcelamento: Integer;
+    FDiaVencimento: Integer;
+    FNumParcela: Integer;
   public
     constructor Create;
     destructor Destroy; override;
@@ -343,6 +354,12 @@ type
     property NossoNumero: string read FNossoNumero write FNossoNumero;
     property DataReal: TDateTime read FDataReal write FDataReal;
     property ValorReal: Double read FValorReal write FValorReal;
+    // Usado pela Caixa
+    property QtdeParcelas: Integer read FQtdeParcelas write FQtdeParcelas;
+    property IndBloqueio: string read FIndBloqueio write FIndBloqueio;
+    property FormaParcelamento: Integer read FFormaParcelamento write FFormaParcelamento;
+    property DiaVencimento: Integer read FDiaVencimento write FDiaVencimento;
+    property NumParcela: Integer read FNumParcela write FNumParcela;
   end;
 
   TAviso = class(TObject)
@@ -426,6 +443,8 @@ type
     FStatus: string;
     FTipoMoeda: string;
     FSequencia: Integer;
+    FTipoCompromisso: Integer;
+    FCodigoCompromisso: Integer;
   public
     constructor Create;
     destructor Destroy; override;
@@ -445,6 +464,9 @@ type
     property Status: string read FStatus write FStatus;
     property TipoMoeda: string read FTipoMoeda write FTipoMoeda;
     property Sequencia: Integer read FSequencia write FSequencia;
+    // Usado pela Caixa
+    property TipoCompromisso: Integer read FTipoCompromisso write FTipoCompromisso;
+    property CodigoCompromisso: Integer read FCodigoCompromisso write FCodigoCompromisso;
   end;
 
   // Estrutura do Registro 5 utilizado para os Serviços
@@ -1015,31 +1037,32 @@ type
   private
     FTipoMovimento: TTipoMovimento;
     FCodMovimento: TInstrucaoMovimento;
-    FCodigoBarras    : string;
-    FNomeCedente     : string;
-    FDataVencimento  : TDateTime;
-    FValorTitulo     : Double;
-    FDesconto        : Double;
-    FAcrescimo       : Double;
-    FDataPagamento   : TDateTime;
-    FValorPagamento  : Double;
-    FQtdeMoeda       : Double;
+    FCodigoBarras: string;
+    FNomeCedente: string;
+    FDataVencimento: TDateTime;
+    FValorTitulo: Double;
+    FDesconto: Double;
+    FAcrescimo: Double;
+    FDataPagamento: TDateTime;
+    FValorPagamento: Double;
+    FQtdeMoeda: Double;
     FReferenciaSacado: string;
-    FCodigoMoeda     : Integer;
-    FCodOcorrencia : string;
+    FCodigoMoeda: Integer;
+    FCodOcorrencia: string;
     FSegmentoJ52: TSegmentoJ52List;
     FSegmentoJ99: TSegmentoJ99List;
 //    FSegmentoB: TSegmentoBList;
 //    FSegmentoC: TSegmentoCList;
-//    FSegmentoZ: TSegmentoZList;
+    FSegmentoZ: TSegmentoZList;
     FDescOcorrencia: string;
     FNossoNumero: string;
+    FSeuNumero: string;
 
     procedure SetSegmentoJ52(const Value: TSegmentoJ52List);
     procedure SetSegmentoJ99(const Value: TSegmentoJ99List);
 //    procedure SetSegmentoB(const Value: TSegmentoBList);
 //    procedure SetSegmentoC(const Value: TSegmentoCList);
-//    procedure SetSegmentoZ(const Value: TSegmentoZList);
+    procedure SetSegmentoZ(const Value: TSegmentoZList);
     function GetPagamentoLiberado: Boolean;
   public
     constructor Create;
@@ -1066,7 +1089,9 @@ type
     property SegmentoJ99: TSegmentoJ99List read FSegmentoJ99 write SetSegmentoJ99;
 //    property SegmentoB: TSegmentoBList read FSegmentoB write SetSegmentoB;
 //    property SegmentoC: TSegmentoCList read FSegmentoC write SetSegmentoC;
-//    property SegmentoZ: TSegmentoZList read FSegmentoZ write SetSegmentoZ;
+    property SegmentoZ: TSegmentoZList read FSegmentoZ write SetSegmentoZ;
+    // Usado pela Caixa
+    property SeuNumero: string read FSeuNumero write FSeuNumero;
   end;
 
   TSegmentoJList = class(TObjectList)
@@ -2052,7 +2077,7 @@ begin
   FSegmentoJ99 := TSegmentoJ99List.Create;
 //  FSegmentoB := TSegmentoBList.Create;
 //  FSegmentoC := TSegmentoCList.Create;
-//  FSegmentoZ := TSegmentoZList.Create;
+  FSegmentoZ := TSegmentoZList.Create;
 end;
 
 destructor TSegmentoJ.Destroy;
@@ -2061,7 +2086,7 @@ begin
   FSegmentoJ99.Free;
 //  FSegmentoB.Free;
 //  FSegmentoC.Free;
-//  FSegmentoZ.Free;
+  FSegmentoZ.Free;
 
   inherited Destroy;
 end;
@@ -2107,12 +2132,12 @@ procedure TSegmentoJ.SetSegmentoJ99(const Value: TSegmentoJ99List);
 begin
   FSegmentoJ99 := Value;
 end;
-{
+
 procedure TSegmentoJ.SetSegmentoZ(const Value: TSegmentoZList);
 begin
   FSegmentoZ := Value;
 end;
-}
+
 { TSegmentoJList }
 
 function TSegmentoJList.New: TSegmentoJ;

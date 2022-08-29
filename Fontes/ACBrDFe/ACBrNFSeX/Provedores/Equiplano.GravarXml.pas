@@ -38,9 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnAuxiliar, pcnConsts,
+  pcnConsts,
   ACBrNFSeXClass,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
 

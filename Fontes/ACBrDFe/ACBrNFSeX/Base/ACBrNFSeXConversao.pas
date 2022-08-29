@@ -49,7 +49,7 @@ type
                      stNFSeConsulta, stNFSeCancelamento, stNFSeSubstituicao,
                      stNFSeImprimir, stNFSeEmail, stNFSeAbrirSessao,
                      stNFSeFecharSessao, stNFSeAguardaProcesso,
-                     stNFSeEnvioWebService);
+                     stNFSeEnvioWebService, stNFSeGerarToken);
 
   TVersaoNFSe = (ve100, ve101, ve103,
                  ve200, ve201, ve202, ve203, ve204);
@@ -84,7 +84,8 @@ type
                                    retMicroempresarioIndividual, retMicroempresarioEmpresaPP,
                                    retLucroReal, retLucroPresumido, retSimplesNacional,
                                    retImune, retEmpresaIndividualRELI, retEmpresaPP,
-                                   retMicroEmpresario, retOutros);
+                                   retMicroEmpresario, retOutros, retMovimentoMensal,
+                                   retISSQNAutonomos, retISSQNSociedade);
 
   TnfseSimNao = (snSim, snNao);
 
@@ -106,12 +107,12 @@ type
                    proAbaco, proABase, proActcon, proAdm, proADPM, proAEG,
                    proAgili, proAssessorPublico, proAsten, proBetha, proBHISS,
                    proCenti, proCIGA, proCitta, proConam, proCoplan, proCTA,
-                   proDataSmart, proDBSeller, proDeISS, proDesenvolve, proDigifred,
-                   proDSF, proeGoverneISS, proEL, proEloTech, proEquiplano,
-                   proeReceita, proEtherium, proFGMaiss, profintelISS, proFiorilli,
-                   proFisco, proFISSLex, proFuturize, proGeisWeb, progeNFe, proGiap,
-                   proGinfes, proGiss, proGovBR, proGovDigital, proGoverna, proHorus,
-                   proiiBrasil, proInfisc, proIPM, proISSBarueri, proISSCambe,
+                   proCTAConsult, proDataSmart, proDBSeller, proDeISS, proDesenvolve,
+                   proDigifred, proDSF, proeGoverneISS, proEL, proEloTech, proEquiplano,
+                   proeReceita, proEtherium, proFacundo, proFGMaiss, profintelISS,
+                   proFiorilli, proFisco, proFISSLex, proFuturize, proGeisWeb, progeNFe,
+                   proGiap, proGinfes, proGiss, proGovBR, proGovDigital, proGoverna,
+                   proHorus, proiiBrasil, proInfisc, proIPM, proISSBarueri, proISSCambe,
                    proISSCuritiba, proISSDigital, proISSDSF, proISSe, proISSFortaleza,
                    proISSGoiania, proISSIntel, proISSJoinville, proISSLencois,
                    proISSNatal, proISSNet, proISSPortoVelho, proISSRecife, proISSRio,
@@ -119,7 +120,7 @@ type
                    proLexsom, proLink3, proMegaSoft, proMetropolisWeb, proMitra,
                    proModernizacaoPublica, proNEAInformatica, proNFSeBrasil,
                    proNotaInteligente, proProdata, proPronim, proPublica, proRLZ,
-                   proSaatri, proSafeWeb, proSH3, proSiam, proSiapNet,
+                   proSaatri, proSafeWeb, proSH3, proSiam, proSiapNet, proSiappa,
                    proSiapSistemas, proSiat, proSigCorp, proSigep, proSigISS,
                    proSilTecnologia, proSimple, proSimplISS, proSintese, proSisPMJP,
                    proSistemas4R, proSmarAPD, proSoftPlan, proSpeedGov,
@@ -141,7 +142,8 @@ type
 
   TTipoTributacaoRPS = (ttTribnoMun, ttTribforaMun, ttTribnoMunIsento,
                         ttTribforaMunIsento, ttTribnoMunImune, ttTribforaMunImune,
-                        ttTribnoMunSuspensa, ttTribforaMunSuspensa, ttExpServicos);
+                        ttTribnoMunSuspensa, ttTribforaMunSuspensa, ttExpServicos,
+                        ttSimplesNacional, ttRetidonoMun);
 
   TLogradouroLocalPrestacaoServico = (llpTomador, llpPrestador);
 
@@ -169,11 +171,13 @@ type
              tmConsultarNFSePorFaixa, tmConsultarNFSeServicoPrestado,
              tmConsultarNFSeServicoTomado, tmCancelarNFSe,
              tmGerar, tmGerarLote, tmRecepcionarSincrono, tmSubstituirNFSe,
-             tmAbrirSessao, tmFecharSessao, tmTeste, tmTodos);
+             tmAbrirSessao, tmFecharSessao, tmTeste, tmTodos,
+             tmGerarToken);
 
   TFormatoItemListaServico = (filsComFormatacao, filsSemFormatacao,
                               filsComFormatacaoSemZeroEsquerda,
-                              filsSemFormatacaoSemZeroEsquerda);
+                              filsSemFormatacaoSemZeroEsquerda,
+                              filsNaoSeAplica);
 
   TSituacaoTrib = (tsTributadaNoPrestador, tsTibutadaNoTomador, tsIsenta, tsImune,
                    tsNaoTributada, tsFixo, tsOutroMunicipio);
@@ -189,10 +193,12 @@ type
   TmodoEnvio = (meAutomatico, meLoteAssincrono, meLoteSincrono, meUnitario,
                 meTeste);
 
-  TtpXML = (txmlRPS, txmlNFSe);
+  TtpXML = (txmlRPS, txmlNFSe, txmlEspelho);
 
   TTipoLancamento = (tlDevidoNoMunicPrestador, tlDevidoNoMunicTomador,
                      tlSimplesNacional, tlIsentoImune, tlCancelado);
+
+  TTipoDoc = (tdNFSe, tdRPS);
 
 function StatusRPSToStr(const t: TStatusRPS): string;
 function StrToStatusRPS(out ok: boolean; const s: string): TStatusRPS;
@@ -286,6 +292,9 @@ function ModoEnvioToStr(const t: TmodoEnvio): string;
 
 function TipoLancamentoToStr(const t: TTipoLancamento): string;
 function StrToTipoLancamento(out ok: boolean; const s: string): TTipoLancamento;
+
+function TipoDocToStr(const t: TTipoDoc): string;
+function StrToTipoDoc(out ok: boolean; const s: string): TTipoDoc;
 
 implementation
 
@@ -18260,13 +18269,15 @@ begin
                         'ConsultarNFSePorFaixa', 'ConsultarNFSeServicoPrestado',
                         'ConsultarNFSeServicoTomado', 'CancelarNFSe',
                         'Gerar', 'GerarLote', 'RecepcionarSincrono', 'SubstituirNFSe',
-                        'AbrirSessao', 'FecharSessao', 'Teste', 'Todos'],
+                        'AbrirSessao', 'FecharSessao', 'Teste', 'Todos',
+                        'GerarToken'],
                        [tmRecepcionar, tmConsultarSituacao, tmConsultarLote,
                         tmConsultarNFSePorRps, tmConsultarNFSe,
                         tmConsultarNFSePorFaixa, tmConsultarNFSeServicoPrestado,
                         tmConsultarNFSeServicoTomado, tmCancelarNFSe,
                         tmGerar, tmGerarLote, tmRecepcionarSincrono, tmSubstituirNFSe,
-                        tmAbrirSessao, tmFecharSessao, tmTeste, tmTodos]);
+                        tmAbrirSessao, tmFecharSessao, tmTeste, tmTodos,
+                        tmGerarToken]);
 end;
 
 function ModoEnvioToStr(const t: TmodoEnvio): string;
@@ -18290,6 +18301,16 @@ begin
   Result := StrToEnumerado(ok, s, ['N', 'T', 'P', 'R', 'C'],
                          [tlDevidoNoMunicPrestador, tlDevidoNoMunicTomador,
                           tlSimplesNacional, tlIsentoImune, tlCancelado]);
+end;
+
+function TipoDocToStr(const t: TTipoDoc): string;
+begin
+  Result := EnumeradoToStr(t, ['1', '2'], [tdNFSe, tdRPS]);
+end;
+
+function StrToTipoDoc(out ok: boolean; const s: string): TTipoDoc;
+begin
+  Result := StrToEnumerado(ok, s, ['1', '2'], [tdNFSe, tdRPS]);
 end;
 
 end.

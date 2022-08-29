@@ -160,11 +160,11 @@ end;
 
 function FormatarGUID(const AString: String): String;
 begin
-  Result := copy(AString, 1, 8) + '-' +
-            copy(AString, 9, 4) + '-' +
-            copy(AString,13, 4) + '-' +
-            copy(AString,17, 4) + '-' +
-            copy(AString,21, 8);
+  Result := AString;
+  Insert('-', Result, 9);
+  Insert('-', Result, 14);
+  Insert('-', Result, 19);
+  Insert('-', Result, 24);
 end;
 
 function ValidarTxId(const ATxId: String; MaiorTamanho: Integer;
@@ -216,7 +216,7 @@ var
   s: String;
 begin
   s := FormatFloatBr(AValor, FloatMask(2,False));
-  Result := StringReplace(s, DecimalSeparator, '.', []);
+  Result := StringReplace(s, {$IFDEF HAS_FORMATSETTINGS}FormatSettings.{$ENDIF}DecimalSeparator, '.', []);
 end;
 
 function Crc16BRCode(const AString: String): String;

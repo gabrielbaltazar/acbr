@@ -63,19 +63,20 @@ type
   TACBrNFSeProviderISSJoinville204 = class (TACBrNFSeProviderABRASFv2)
   protected
     procedure Configuracao; override;
-    function GetSchemaPath: string; override;
 
     function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; override;
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
     procedure TratarRetornoConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
+  public
+    function GetSchemaPath: string; override;
   end;
 
 implementation
 
 uses
-  ACBrUtil, ACBrDFeException,
+  ACBrDFeException,
   ACBrXmlDocument, ACBrXmlReader,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXNotasFiscais, ACBrNFSeXConsts,
   ISSJoinville.GravarXml, ISSJoinville.LerXml;

@@ -429,6 +429,7 @@ begin
       end;
 
       InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('InscricaoMunicipal'), tcStr);
+      InscricaoEstadual := ObterConteudo(AuxNode.Childrens.FindAnyNs('InscricaoEstadual'), tcStr);
     end;
 
     if NFSe.Tomador.RazaoSocial = '' then
@@ -483,7 +484,8 @@ begin
   begin
     LerRps(AuxNode);
 
-    NFSe.Competencia := LerCompetencia(AuxNode);
+    if NFSe.Competencia = 0 then
+      NFSe.Competencia := LerCompetencia(AuxNode);
 
     LerListaServicos(AuxNode);
     LerServico(AuxNode);
@@ -526,6 +528,7 @@ begin
     NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('OutrasInformacoes'), tcStr);
     NFSe.InformacoesComplementares := ObterConteudo(AuxNode.Childrens.FindAnyNs('InformacoesComplementares'), tcStr);
     NFSe.Link := ObterConteudo(AuxNode.Childrens.FindAnyNs('UrlNfse'), tcStr);
+    NFSe.Competencia := LerCompetencia(AuxNode);
 
     if NFSe.Link = '' then
       NFSe.Link := ObterConteudo(AuxNode.Childrens.FindAnyNs('LinkNota'), tcStr);
@@ -536,6 +539,7 @@ begin
 
     NFSe.ValorCredito := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorCredito'), tcDe2);
 
+    LerIdentificacaoRps(AuxNode);
     LerServico(AuxNode);
 
     LerTomadorServico(AuxNode);
@@ -777,6 +781,7 @@ begin
         ValorDeducoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorDeducoes'), tcDe2);
         ValorIss := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorIss'), tcDe2);
         Aliquota := ObterConteudo(AuxNode.Childrens.FindAnyNs('Aliquota'), tcDe4);
+        Aliquota := NormatizarAliquota(Aliquota);
         BaseCalculo := ObterConteudo(AuxNode.Childrens.FindAnyNs('BaseCalculo'), tcDe2);
       end;
 
@@ -859,6 +864,9 @@ begin
       CodigoTributacaoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoTributacaoMunicipio'), tcStr);
       Discriminacao             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Discriminacao'), tcStr);
       CodigoMunicipio           := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoMunicipio'), tcStr);
+
+      if CodigoMunicipio = '' then
+        CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('MunicipioPrestacaoServico'), tcStr);
 
       CodigoPais          := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoPais'), tcInt);
       ExigibilidadeISS    := FpAOwner.StrToExigibilidadeISS(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('ExigibilidadeISS'), tcStr));
@@ -1002,6 +1010,8 @@ begin
       if Aliquota = 0 then
         Aliquota := ObterConteudo(AuxNode.Childrens.FindAnyNs('Aliquota'), tcDe4);
 
+      Aliquota := NormatizarAliquota(Aliquota);
+
       if NFSe.ValoresNfse.ValorLiquidoNfse = 0 then
       begin
         ValorLiquidoNfse := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorLiquidoNfse'), tcDe2);
@@ -1028,6 +1038,7 @@ begin
     begin
       BaseCalculo      := ObterConteudo(AuxNode.Childrens.FindAnyNs('BaseCalculo'), tcDe2);
       Aliquota         := ObterConteudo(AuxNode.Childrens.FindAnyNs('Aliquota'), tcDe4);
+      Aliquota         := NormatizarAliquota(Aliquota);
       ValorIss         := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorIss'), tcDe2);
       ValorLiquidoNfse := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorLiquidoNfse'), tcDe2);
     end;

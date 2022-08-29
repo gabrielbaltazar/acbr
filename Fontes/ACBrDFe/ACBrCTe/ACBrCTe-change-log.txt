@@ -44,6 +44,16 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+10/08/2022
+-- ACBrCTeConhecimentos --
+[*] Atualizado função ValidarRegrasdeNegocios, utilizando a função DataHoraTimeZoneModoDeteccao para validar a DataHora com TimeZone informado no XML
+   por: José M S Junior
+
+15/07/2022
+-- ACBrCTeWebServices --
+[-] Ajuste para gravar em arquivo o XML de GTVe no método DistribuicaoDFe.
+  Por: BigWings
+
 28/06/2022
 -- ACBrCTeConhecimentos --
 [*] Ajuste na leitura do campo CST.

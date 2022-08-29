@@ -231,10 +231,10 @@ procedure TACBrNFSeProviderGiap.TratarRetornoEmitir(Response: TNFSeEmiteResponse
 var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
+  AResumo: TNFSeResumoCollectionItem;
   ANodeArray: TACBrXmlNodeArray;
   ANode: TACBrXmlNode;
   i: Integer;
-  NumRps: String;
   ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
@@ -277,15 +277,20 @@ begin
           Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('statusEmissao'), tcStr);
           Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('link'), tcStr);
           NumeroRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroRps'), tcStr);
+
+          AResumo := Response.Resumos.New;
+          AResumo.NumeroNota := NumeroNota;
+          AResumo.CodigoVerificacao := CodVerificacao;
+          AResumo.NumeroRps := NumeroRps;
+          AResumo.Link := Link;
+          AResumo.Situacao := Situacao;
         end;
-
-        NumRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroRps'), tcStr);
-
-        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
         // GIAP Não retorna o XML da Nota sendo necessário imprimir a Nota já
         // gerada. Se Não der erro, passo a Nota de Envio para ser impressa já
         // que não deu erro na emissão.
+
+        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(Response.NumeroRps);
         ANota := CarregarXmlNfse(ANota, Response.XmlEnvio);
         SalvarXmlNfse(ANota);
       end;
@@ -359,12 +364,13 @@ begin
       begin
         Response.CodVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
 
-        // Como não existe o método Nota Existe, jogo o valor da nota existente
-        // na situação, para saber se achou a nota ou não = Retorna "Sim" ou "Não"
         if ObterConteudoTag(ANode.Childrens.FindAnyNs('notaExiste'), tcStr) = 'Sim' then
-          Response.Situacao := '200' // Encontrado
+          Response.DescSituacao := 'Nota Autorizada'
         else
-          Response.Situacao := '404'; // Não Encontado
+        if ObterConteudoTag(ANode.Childrens.FindAnyNs('notaExiste'), tcStr) = 'Cancelada' then
+          Response.DescSituacao := 'Nota Cancelada'
+        else
+          Response.DescSituacao := 'Nota não Encontrada';
 
         Response.NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroNota'), tcStr);
       end;

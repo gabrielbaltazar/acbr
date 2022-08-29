@@ -49,6 +49,70 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+26/08/2022
+--ACBrBoleto.pas--
+[*] TK-3001 Ajuste SetNumCopias para aplicações ISAPI
+  por : Windsoft
+
+18/08/2022
+[*] --ACBrBoletoBradesco-- Sequencia Trailer 240 Bradesco 
+  por : Pandaaa
+
+17/08/2022
+--ACBrBoleto, ACBrBoletoWS--
+[*] Refatoração do Componente na camada de integração Web do ACBrBoleto
+  Leia em: https://www.projetoacbr.com.br/forum/topic/68560-altera%C3%A7%C3%B5es-na-transmiss%C3%A3o-de-boletos-por-webservice/
+  Por : José M S Junior
+
+17/08/2022
+--ACBrBoletoBradesco--
+[*] TK-2896 Bradesco Proteção na geração do segmento R, gerar somente quando desconto2 ou desconto3 <> tdNaoCondederDesconto
+  Por : Pandaaa
+
+11/08/2022
+--ACBrBoletoCresol--
+[*] TK-2971 Cresol (133), CNAB 240, Segmento T do Nosso Número
+  Por: Farol TI
+
+09/08/2022
+--ACBrBoleto--
+[*] Adicionado campos de Pagamento Parcelado na leitura do arquivo .ini
+  Por : Jose M S Junior
+
+08/08/2022
+--ACBrBoletoUniprimeNortePR--
+[*] TK-2948 Ajuste no campo de intrução de dias para protesto
+  Por : Pandaaa
+
+03/08/2022
+--ACBrBoletoWCaixa--
+[*] Ajuste na geração das tags de Juros_Mora, seguindo especificação do manual
+   por : José M S Junior
+
+26/07/2022
+--ACBrBoletoBRB--
+[*] ACBrBoleto - Ajuste remessa BRB quanto as instruções 1 e 2
+  Por : Pandaaa / JJ / JT / Igor Cibiac
+
+22/07/2022
+--ACBrUniprimeNortePR--
+[*] Atualização do registro 2 de Mensagens conforme especificação do manual.
+
+21/07/2022
+--ACBrBancoC6--
+  [-]ACBrBoleto - Ajuste  montagem código de barras para o C6
+  Por: Pandaaa / Altemar
+
+11/07/2022
+--ACBrBancoBRB--
+  [*] TK-2852 ACBrBoletoBRB Pemissão de Informar a versão do Layout para geração do arquivo
+  Por: Pandaaa
+
+05/07/2022
+--ACBrBancoItau--
+  [-] ACBrBoleto Itau CNAB400 Registro 2 / 5 - Layout Fora do Padrão
+  Por : Paulo C. L. Vicente
+
 28/06/2022
 --ACBrBancoCaixaEconomica--
  [-] TK-2844 Leitura CNAB400 Correção de leitura de Codigo de Carteira

@@ -491,7 +491,7 @@ var
   end;
 
 begin
-  Agora := Now;
+  Agora := DataHoraTimeZoneModoDeteccao( TACBrCTe(TConhecimentos(Collection).ACBrCTe ));   //Converte o DateTime do Sistema para o TimeZone configurado, para evitar divergência de Fuso Horário.
   GravaLog('Inicio da Validação');
 
   with TACBrCTe(TConhecimentos(Collection).ACBrCTe) do
@@ -1542,7 +1542,7 @@ begin
       Emit.IE    := INIRec.ReadString('emit','IE','');
       Emit.xNome := INIRec.ReadString('emit','xNome','');
       Emit.xFant := INIRec.ReadString('emit','xFant','');
-      Emit.CRT   := StrToCRTCTe(ok, INIRec.ReadString(sSecao,'CRT', ''));
+      Emit.CRT   := StrToCRTCTe(ok, INIRec.ReadString('emit','CRT', ''));
 
       Emit.enderEmit.xLgr    := INIRec.ReadString('emit','xLgr','');
       Emit.enderEmit.nro     := INIRec.ReadString('emit','nro','');

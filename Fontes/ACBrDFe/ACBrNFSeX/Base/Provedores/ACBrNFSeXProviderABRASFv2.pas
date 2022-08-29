@@ -104,6 +104,11 @@ type
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse); override;
 
+    procedure PrepararGerarToken(Response: TNFSeGerarTokenResponse); override;
+    procedure GerarMsgDadosGerarToken(Response: TNFSeGerarTokenResponse;
+      Params: TNFSeParamsResponse); override;
+    procedure TratarRetornoGerarToken(Response: TNFSeGerarTokenResponse); override;
+
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'ListaMensagemRetorno';
@@ -844,7 +849,7 @@ end;
 procedure TACBrNFSeProviderABRASFv2.TratarRetornoConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse);
 var
   Document: TACBrXmlDocument;
-  ANode, AuxNode, AuxNodeConf: TACBrXmlNode;
+  ANode, AuxNode, AuxNodeConf, AuxNodeSubs: TACBrXmlNode;
   AErro: TNFSeEventoCollectionItem;
   ANota: TNotaFiscal;
   NumNFSe, NumRps: String;
@@ -897,6 +902,19 @@ begin
 
         if Response.DataCanc > 0 then
           Response.DescSituacao := 'Nota Cancelada';
+      end;
+
+      AuxNode := ANode.Childrens.FindAnyNs('NfseSubstituicao');
+
+      if AuxNode <> nil then
+      begin
+        AuxNodeSubs := AuxNode.Childrens.FindAnyNs('SubstituicaoNfse');
+
+        if AuxNodeSubs <> nil then
+          Response.NumNotaSubstituidora := ObterConteudoTag(AuxNodeSubs.Childrens.FindAnyNs('NfseSubstituidora'), tcStr);
+
+        if Response.NumNotaSubstituidora <> '' then
+          Response.DescSituacao := 'Nota Substituida';
       end;
 
       AuxNode := ANode.Childrens.FindAnyNs('Nfse');
@@ -2178,7 +2196,7 @@ end;
 procedure TACBrNFSeProviderABRASFv2.TratarRetornoSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse);
 var
   Document: TACBrXmlDocument;
-  ANode, AuxNode: TACBrXmlNode;
+  ANode, AuxNode, ANodeSubstituida: TACBrXmlNode;
   AErro: TNFSeEventoCollectionItem;
 
   function LocalizarNFSeRetorno(const RootNode: TACBrXmlNode): string;
@@ -2257,6 +2275,25 @@ begin
       else
       begin
         Response.NumNotaSubstituida := LocalizarNFSeRetorno(AuxNode);
+
+        ANodeSubstituida := AuxNode.Childrens.FindAnyNs('CompNfse');
+        if not Assigned(ANodeSubstituida) then
+        begin
+          AErro := Response.Erros.New;
+          AErro.Codigo := Cod203;
+          AErro.Descricao := Desc203;
+          Exit;
+        end;
+
+        ANodeSubstituida := ANodeSubstituida.Childrens.FindAnyNs('Nfse');
+        ANodeSubstituida := ANodeSubstituida.Childrens.FindAnyNs('InfNfse');
+
+        with Response do
+        begin
+          CodVerificacao := ObterConteudoTag(ANodeSubstituida.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+          Data := ObterConteudoTag(ANodeSubstituida.Childrens.FindAnyNs('DataEmissao'), FpFormatoDataEmissao);
+        end;
+
         {
         ANode := ANode.Childrens.FindAnyNs('CompNfse');
         if not Assigned(ANode) then
@@ -2331,6 +2368,28 @@ begin
   finally
     FreeAndNil(Document);
   end;
+end;
+
+procedure TACBrNFSeProviderABRASFv2.GerarMsgDadosGerarToken(
+  Response: TNFSeGerarTokenResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv2.PrepararGerarToken(
+  Response: TNFSeGerarTokenResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderABRASFv2.TratarRetornoGerarToken(
+  Response: TNFSeGerarTokenResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;
 
 procedure TACBrNFSeProviderABRASFv2.ProcessarMensagemErros(RootNode: TACBrXmlNode;
@@ -2409,7 +2468,7 @@ begin
 
         if Mensagem <> '' then
         begin
-          AAlerta := Response.Erros.New;
+          AAlerta := Response.Alertas.New;
           AAlerta.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
           AAlerta.Descricao := Mensagem;
           AAlerta.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr);
@@ -2422,7 +2481,7 @@ begin
 
       if Mensagem <> '' then
       begin
-        AAlerta := Response.Erros.New;
+        AAlerta := Response.Alertas.New;
         AAlerta.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Codigo'), tcStr);
         AAlerta.Descricao := Mensagem;
         AAlerta.Correcao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr);

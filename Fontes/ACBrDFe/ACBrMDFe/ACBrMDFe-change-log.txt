@@ -42,9 +42,20 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+10/08/2022
+-- ACBrMDFeManifestos --
+[*] Atualizado função ValidarRegrasdeNegocios, utilizando a função DataHoraTimeZoneModoDeteccao para validar a DataHora com TimeZone informado no XML
+   por: José M S Junior
+
 14/03/2022
 -- Diversos  --
 [*] Alterações visando atender a NT 2022/001
+   Por: Italo Giurizzato Junior
+
+27/07/2022
+-- ACBrMDFeDAMDFeRLClass --
+[*] Ao gerar o PDF não estava levando em consideração a propriedade NomeDocumento,
+    onde podemos especificar um nome para o PDF diferente do padrão.
    Por: Italo Giurizzato Junior
 
 12/08/2021

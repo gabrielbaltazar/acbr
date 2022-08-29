@@ -38,6 +38,23 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+15/07/2022
+-- pcnRetDistDFeInt --
+[*] Inclui a verificação se o documento retornado é um GTVeProc
+  Por: Douglas WF
+
+05/07/2022
+-- pcnAuxiliar --
+[*] Inclui um segundo parâmetro na função ValidarCodigoDFe visando atender a
+    NF3e
+  Por: Italo Giurizzato Junior
+
+04/07/2022
+-- pcnAuxiliar --
+[-] Método "ValidarChave" falhava quando validando chave de CTe emitido pela NFF
+    (emitente CPF).
+  Por: BigWings
+
 31/05/2022
 -- pcnGerador --
 [+] Inclusão do tipo tcDe5 para geração de campos decimais com 5 casas decimais.

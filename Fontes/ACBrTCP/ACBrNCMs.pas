@@ -39,12 +39,8 @@ uses
   Classes, SysUtils,
   {$IF DEFINED(HAS_SYSTEM_GENERICS)}
    System.Generics.Collections, System.Generics.Defaults,
-  {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
-   System.Contnrs,
-  {$Else}
-   Contnrs,
   {$IfEnd}
-  ACBrBase, ACBrSocket;
+  ACBrJSON, ACBrBase, ACBrSocket;
 
 const
   CNCM_ARQUIVO_CACHE = 'ACBrNCM.json';
@@ -134,6 +130,7 @@ type
     function DownloadArquivo: String;
     function CarregarCache: String;
     function RenomearCacheErro: Boolean;
+    function CriarEValidarJson(aJsonStr: String): TACBrJSONObject;
 
     procedure GravarCache(const aJsonStr: String);
     procedure CarregarJson(const aJsonStr: String);
@@ -144,7 +141,7 @@ type
     procedure Clear;
 
     procedure ListarNcms(const aCodigoCapitulo: String = '');  // Procedure mantida para retrocompatibilidade
-    procedure ObterNCMs;
+    procedure ObterNCMs(aForcarDownload: Boolean = False);
 
     function Validar(const aCodigoNcm: String): Boolean;
     function DescricaoNcm(const aCodigoNcm: String): String;
@@ -171,11 +168,6 @@ type
 implementation
 
 uses
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-    JsonDataObjects_ACBr,
-  {$Else}
-    {$IfDef FPC}fpjson{$Else}Jsons{$EndIf},
-  {$EndIf}
   DateUtils,
   synautil,
   ACBrCompress,
@@ -427,6 +419,7 @@ end;
 
 procedure TACBrNCMs.HTTPGetCompressed(const AURL: String);
 begin
+  HTTPSend.Headers.Clear;
   HTTPSend.Headers.Add('Accept-Encoding: deflate, gzip');
   HTTPMethod( 'GET', AURL );
 end;
@@ -458,141 +451,60 @@ end;
 procedure TACBrNCMs.CarregarJson(const aJsonStr: String);
 var
   I: Integer;
-  wJSonArr: TJsonArray;
-  wJSon, wJsonNCM: TJsonObject;
-
-  function CriarEValidarJson: TJSONObject;
-  begin
-    Result := Nil;
-    try
-      {$IfDef USE_JSONDATAOBJECTS_UNIT}
-      Result := TJsonObject.Parse(aJSonStr) as TJsonObject;;
-      {$Else}
-      {$IfDef FPC}
-      Result := GetJSON(aJsonStr) as TJSONObject;
-      {$Else}
-      Result := TJsonObject.Create;
-      Result.Parse(aJsonStr);
-      {$EndIf}
-      {$EndIf}
-    except
-      On E: Exception do
-      begin
-        if Assigned(Result) then
-          Result.Free;
-
-        if RenomearCacheErro then
-          raise EACBrNcmException.Create('Cache local invalido. Renomeado para: ' +
-            QuotedStr(ChangeFileExt(fCacheArquivo, '.err')))
-        else
-          raise EACBrNcmException.Create('Arquivo Json invalido');
-      end;
-    end;
-  end;
-
+  wJSonArr: TACBrJSONArray;
+  wJSon, wJsonNCM: TACBrJSONObject;
 begin
   if (aJsonStr = EmptyStr) then
     Exit;
 
   NCMs.Clear;
 
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-  wJSon := CriarEValidarJson;
+  wJSon := CriarEValidarJson(aJsonStr);
   try
-    fUltimaAtualizacao := StringToDateTime(wJSon.S['Data_Ultima_Atualizacao_NCM']);
-    wJSonArr := wJSon.A['Nomenclaturas'];
+    fUltimaAtualizacao := StringToDateTimeDef(wJson.AsString['Data_Ultima_Atualizacao_NCM'], 0, 'dd/mm/yyyy');
+    wJSonArr := wJSon.AsJSONArray['Nomenclaturas'];
 
     for I := 0 to wJSonArr.Count - 1 do
     begin
-      wJSonNCM := wJSonArr.Items[I].ObjectValue;
-
+      wJsonNCM := wJSonArr.ItemAsJSONObject[I];
       with NCMs.New do
       begin
-        CodigoNcm := OnlyNumber(wJsonNCM.S['Codigo']);
-        DescricaoNcm := LimparDescricao(wJsonNCM.S['Descricao']);
-        DataInicio := StringToDateTimeDef(wJsonNCM.S['Data_Inicio'], 0, 'dd/mm/yyyy');
-        DataFim := StringToDateTimeDef(wJsonNCM.S['Data_Fim'], 0, 'dd/mm/yyyy');
-        TipoAto := wJsonNCM.S['Tipo_Ato'];
-        NumeroAto := wJsonNCM.S['Numero_Ato'];
-        AnoAto := wJsonNCM.I['Ano_Ato'];
-      end;
-    end;
-  finally
-    wJSon.Free;
-  end;
-  {$Else}
-  {$IfDef FPC}
-  wJSon := CriarEValidarJson;
-  try
-    fUltimaAtualizacao := StringToDateTimeDef(wJson.Strings['Data_Ultima_Atualizacao_NCM'], 0, 'dd/mm/yyyy');
-    wJSonArr := wJSon.Arrays['Nomenclaturas'];
-
-    for I := 0 to wJSonArr.Count - 1 do
-    begin
-      wJsonNCM := wJSonArr.Objects[I];
-      with NCMs.New do
-      begin
-        CodigoNcm := OnlyNumber(wJsonNCM.Strings['Codigo']);
-        DescricaoNcm := LimparDescricao(wJsonNCM.Strings['Descricao']);
-        DataInicio := StringToDateTimeDef(wJsonNCM.Strings['Data_Inicio'], 0, 'dd/mm/yyyy');
-        DataFim := StringToDateTimeDef(wJsonNCM.Strings['Data_Fim'], 0, 'dd/mm/yyyy');
-        TipoAto := wJsonNCM.Strings['Tipo_Ato'];
-        NumeroAto := wJsonNCM.Strings['Numero_Ato'];
-        AnoAto := wJsonNCM.Integers['Ano_Ato'];
-      end;
-    end;
-  finally
-    wJSon.Free;
-  end;
-  {$Else}
-  wJSon := CriarEValidarJson;
-  try
-    fUltimaAtualizacao := StringToDateTimeDef(wJson.Values['Data_Ultima_Atualizacao_NCM'].AsString, 0, 'dd/mm/yyyy');
-    wJSonArr := wJSon.Values['Nomenclaturas'].AsArray;
-
-    for I := 0 to wJSonArr.Count - 1 do
-    begin
-      wJsonNCM := wJSonArr.Items[I].AsObject;
-      with NCMs.New do
-      begin
-        CodigoNcm := OnlyNumber(wJsonNCM.Values['Codigo'].AsString);
-        DescricaoNcm := LimparDescricao(wJsonNCM.Values['Descricao'].AsString);
-        DataInicio := StringToDateTimeDef(wJsonNCM.Values['Data_Inicio'].AsString, 0, 'dd/mm/yyyy');
-        DataFim := StringToDateTimeDef(wJsonNCM.Values['Data_Fim'].AsString, 0, 'dd/mm/yyyy');
-        TipoAto := wJsonNCM.Values['Tipo_Ato'].AsString;
-        NumeroAto := wJsonNCM.Values['Numero_Ato'].AsString;
-        AnoAto := wJsonNCM.Values['Ano_Ato'].AsInteger;
+        CodigoNcm := OnlyNumber(wJsonNCM.AsString['Codigo']);
+        DescricaoNcm := LimparDescricao(wJsonNCM.AsString['Descricao']);
+        DataInicio := StringToDateTimeDef(wJsonNCM.AsString['Data_Inicio'], 0, 'dd/mm/yyyy');
+        DataFim := StringToDateTimeDef(wJsonNCM.AsString['Data_Fim'], 0, 'dd/mm/yyyy');
+        TipoAto := wJsonNCM.AsString['Tipo_Ato'];
+        NumeroAto := wJsonNCM.AsString['Numero_Ato'];
+        AnoAto := wJsonNCM.AsInteger['Ano_Ato'];
       end;
     end;
   finally
     wJSon.Free
   end;
-  {$EndIf}
-  {$EndIf}
 end;
 
 procedure TACBrNCMs.CarregarListaNCMs;
 var
-  aJsonStr: String;
+  wJsonStr: String;
 begin
-  aJsonStr := EmptyStr;
+  wJsonStr := EmptyStr;
 
   if (NCMs.Count > 0) then  // Já obteve os NCMs ?  ...Sai
     Exit;
 
   if Assigned(OnGetJson) then
-    OnGetJson(aJsonStr);
+    OnGetJson(wJsonStr);
 
-  if EstaVazio(aJsonStr) then  // Carregou no Evento ?
-    aJsonStr := CarregarCache;
+  if EstaVazio(wJsonStr) then  // Carregou no Evento ?
+    wJsonStr := CarregarCache;
 
-  if EstaVazio(aJsonStr) then  // Carregou do Cache ?
+  if EstaVazio(wJsonStr) then  // Carregou do Cache ?
   begin
-    aJsonStr := DownloadArquivo;
-    GravarCache(aJsonStr);
+    wJsonStr := DownloadArquivo;
+    GravarCache(wJsonStr);
   end;
 
-  CarregarJson(aJsonStr);
+  CarregarJson(wJsonStr);
 end;
 
 procedure TACBrNCMs.ListarNcms(const aCodigoCapitulo: String);
@@ -607,41 +519,38 @@ function TACBrNCMs.CarregarCache: String;
 var
   wArq: String;
   wSL: TStringList;
+  wJson: TACBrJSONObject;
   wDataCache: TDateTime;
 begin
   Clear;
-  wDataCache := 0;
+  wJson := Nil;
   Result := EmptyStr;
   wArq := CacheArquivo;
 
   if (wArq = EmptyStr) or (not FileExists(wArq)) then
     Exit;
 
-  if (CacheDiasValidade > 0) then
-  begin
-    {$IFDEF FPC}
-    FileAge(wArq, wDataCache);
-    {$ELSE}
-      {$IFDEF DELPHI2007_UP}
-      FileAge(wArq, wDataCache);
-      {$ELSE}
-      wDataCache := FileDateToDateTime(FileAge(wArq));
-      {$ENDIF}
-    {$ENDIF}
-
-    if (DaysBetween(Now, wDataCache) > CacheDiasValidade) then
-    begin
-      DeleteFile(wArq);
-      Exit;
-    end;
-  end;
-
-  wSL := TStringList.Create;
   try
-    wSL.LoadFromFile(wArq);
-    Result := wSL.Text;
-  finally
-    wSL.Free;
+    wSL := TStringList.Create;
+    try
+      wSL.LoadFromFile(wArq); 
+      wJson := CriarEValidarJson(wSL.Text);
+
+      wDataCache := StringToDateTimeDef(wJson.AsString['DataCache'], 0, 'dd/mm/yyyy');
+
+      if (CacheDiasValidade > 0) and (DaysBetween(Now, wDataCache) > CacheDiasValidade) then
+      begin
+        DeleteFile(wArq);
+        Exit;
+      end;
+
+      Result := wSL.Text;
+    finally
+      wJson.Free;
+      wSL.Free;
+    end;
+  except
+    DeleteFile(wArq);
   end;
 end;
 
@@ -656,19 +565,57 @@ begin
     RenameFile(wArq, ChangeFileExt(wArq, '.err'));
 end;
 
+function TACBrNCMs.CriarEValidarJson(aJsonStr: String): TACBrJSONObject;
+begin
+  Result := Nil;
+  try
+    Result := TACBrJSONObject.Parse(aJsonStr);
+  except
+    On E: Exception do
+    begin
+      if Assigned(Result) then
+        Result.Free;
+
+      if RenomearCacheErro then
+        raise EACBrNcmException.Create('Cache local invalido. Renomeado para: ' +
+          QuotedStr(ChangeFileExt(fCacheArquivo, '.err')))
+      else
+        raise EACBrNcmException.Create('Arquivo Json invalido');
+    end;
+  end;
+end;
+
 procedure TACBrNCMs.GravarCache(const aJsonStr: String);
 var
-  wArq: String;
+  wArq, wJsonStr: String;
+  wJson: TACBrJSONObject;
 begin
   wArq := CacheArquivo;
   if (Length(wArq) = 0) or (Length(aJsonStr) = 0) then
     Exit;
 
-  WriteToFile(wArq, aJsonStr, True);
+  wJson := CriarEValidarJson(aJsonStr);
+  try
+    wJson.AddPair('DataCache', FormatDateTime('dd/mm/yyyy', Today));
+    wJsonStr := wJson.ToJSON;
+  finally
+    wJson.Free
+  end;
+
+  WriteToFile(wArq, wJsonStr, True);
 end;
 
-procedure TACBrNCMs.ObterNCMs;
+procedure TACBrNCMs.ObterNCMs(aForcarDownload: Boolean);
+var
+  wArq: String;
 begin
+  if aForcarDownload then
+  begin
+    wArq := CacheArquivo;
+    if NaoEstaVazio(wArq) and FileExists(wArq) then
+      DeleteFile(wArq);
+  end;
+
   Clear;
   CarregarListaNCMs;
 end;

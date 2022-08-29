@@ -53,12 +53,14 @@ type
     procedure ConsultaNFSe;
     procedure CancelaNFSe;
     procedure SubstituiNFSe;
+    procedure GerarToken;
 
     function GetConfigGeral: TConfigGeral;
     function GetConfigWebServices: TConfigWebServices;
     function GetConfigMsgDados: TConfigMsgDados;
     function GetConfigAssinar: TConfigAssinar;
     function GetConfigSchemas: TConfigSchemas;
+    function GetSchemaPath: string;
 
     property ConfigGeral: TConfigGeral read GetConfigGeral;
     property ConfigWebServices: TConfigWebServices read GetConfigWebServices;

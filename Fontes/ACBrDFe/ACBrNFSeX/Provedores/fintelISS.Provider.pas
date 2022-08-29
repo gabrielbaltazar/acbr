@@ -66,7 +66,7 @@ type
     function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; override;
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
-
+  public
     function GetSchemaPath: string; override;
   end;
 
@@ -96,8 +96,6 @@ uses
 procedure TACBrNFSeProviderfintelISS200.Configuracao;
 begin
   inherited Configuracao;
-
-  ConfigGeral.DetalharServico := True;
 
   with ConfigAssinar do
   begin
@@ -345,6 +343,8 @@ end;
 procedure TACBrNFSeProviderfintelISS202.Configuracao;
 begin
   inherited Configuracao;
+
+  ConfigGeral.DetalharServico := True;
 
   with ConfigAssinar do
   begin

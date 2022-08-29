@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
@@ -39,7 +39,6 @@ interface
 uses
   SysUtils, Classes, StrUtils, MaskUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnAuxiliar, pcnConsts,
   ACBrNFSeXInterface, ACBrNFSeXWebserviceBase,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
 
@@ -81,7 +80,7 @@ begin
     '1'+ // Tipo do Registro S Numérico 1 1 1 1
     PadRight(OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal), 7, ' ')+ // Inscrição do Contribuinte S Texto 7 2 8 Inscrição do Prestador de Serviço
     'PMB002'+ // Versão do Lay-Out S Texto 6 9 14 Versão do Lay-Out "PMB002"
-    PadRight(AIdentificacaoRemessa, 11, '0') // Identificação da Remessa do Contribuinte
+    PadLeft(AIdentificacaoRemessa, 11, '0') // Identificação da Remessa do Contribuinte
   );
 end;
 
