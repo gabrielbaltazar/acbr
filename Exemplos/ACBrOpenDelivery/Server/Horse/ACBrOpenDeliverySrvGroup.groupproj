@@ -21,7 +21,10 @@
         <Projects Include="..\..\Delphi\ACBrOpenDelivery_Exemplo.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="..\..\Delphi\FMX\ACROpenDelivery_FMXSimpleSample.dproj">
+        <Projects Include="..\..\Delphi\FMX\ACBrOpenDelivery_DemoFMX.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\Delphi\VCL\ACBrOpenDelivery_DemoVCL.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -86,23 +89,32 @@
     <Target Name="ACBrOpenDelivery_Exemplo:Make">
         <MSBuild Projects="..\..\Delphi\ACBrOpenDelivery_Exemplo.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ACROpenDelivery_FMXSimpleSample">
-        <MSBuild Projects="..\..\Delphi\FMX\ACROpenDelivery_FMXSimpleSample.dproj"/>
+    <Target Name="ACBrOpenDelivery_DemoFMX">
+        <MSBuild Projects="..\..\Delphi\FMX\ACBrOpenDelivery_DemoFMX.dproj"/>
     </Target>
-    <Target Name="ACROpenDelivery_FMXSimpleSample:Clean">
-        <MSBuild Projects="..\..\Delphi\FMX\ACROpenDelivery_FMXSimpleSample.dproj" Targets="Clean"/>
+    <Target Name="ACBrOpenDelivery_DemoFMX:Clean">
+        <MSBuild Projects="..\..\Delphi\FMX\ACBrOpenDelivery_DemoFMX.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="ACROpenDelivery_FMXSimpleSample:Make">
-        <MSBuild Projects="..\..\Delphi\FMX\ACROpenDelivery_FMXSimpleSample.dproj" Targets="Make"/>
+    <Target Name="ACBrOpenDelivery_DemoFMX:Make">
+        <MSBuild Projects="..\..\Delphi\FMX\ACBrOpenDelivery_DemoFMX.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ACBrOpenDelivery_DemoVCL">
+        <MSBuild Projects="..\..\Delphi\VCL\ACBrOpenDelivery_DemoVCL.dproj"/>
+    </Target>
+    <Target Name="ACBrOpenDelivery_DemoVCL:Clean">
+        <MSBuild Projects="..\..\Delphi\VCL\ACBrOpenDelivery_DemoVCL.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ACBrOpenDelivery_DemoVCL:Make">
+        <MSBuild Projects="..\..\Delphi\VCL\ACBrOpenDelivery_DemoVCL.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv;ACBrOpenDelivery_WinSrv;ACBrOpenDeliveryTest;ACBr_OpenDelivery;DCLACBr_OpenDelivery;ACBrOpenDelivery_Exemplo;ACROpenDelivery_FMXSimpleSample"/>
+        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv;ACBrOpenDelivery_WinSrv;ACBrOpenDeliveryTest;ACBr_OpenDelivery;DCLACBr_OpenDelivery;ACBrOpenDelivery_Exemplo;ACBrOpenDelivery_DemoFMX;ACBrOpenDelivery_DemoVCL"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Clean;ACBrOpenDelivery_WinSrv:Clean;ACBrOpenDeliveryTest:Clean;ACBr_OpenDelivery:Clean;DCLACBr_OpenDelivery:Clean;ACBrOpenDelivery_Exemplo:Clean;ACROpenDelivery_FMXSimpleSample:Clean"/>
+        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Clean;ACBrOpenDelivery_WinSrv:Clean;ACBrOpenDeliveryTest:Clean;ACBr_OpenDelivery:Clean;DCLACBr_OpenDelivery:Clean;ACBrOpenDelivery_Exemplo:Clean;ACBrOpenDelivery_DemoFMX:Clean;ACBrOpenDelivery_DemoVCL:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Make;ACBrOpenDelivery_WinSrv:Make;ACBrOpenDeliveryTest:Make;ACBr_OpenDelivery:Make;DCLACBr_OpenDelivery:Make;ACBrOpenDelivery_Exemplo:Make;ACROpenDelivery_FMXSimpleSample:Make"/>
+        <CallTarget Targets="ACBrOpenDelivery_ConsoleSrv:Make;ACBrOpenDelivery_WinSrv:Make;ACBrOpenDeliveryTest:Make;ACBr_OpenDelivery:Make;DCLACBr_OpenDelivery:Make;ACBrOpenDelivery_Exemplo:Make;ACBrOpenDelivery_DemoFMX:Make;ACBrOpenDelivery_DemoVCL:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
