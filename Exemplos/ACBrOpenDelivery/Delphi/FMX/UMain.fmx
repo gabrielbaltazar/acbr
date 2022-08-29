@@ -2685,7 +2685,7 @@ object FMain: TFMain
         Size.PlatformDefault = False
         TextSettings.Font.Size = 40.000000000000000000
         TextSettings.Font.StyleExt = {00070000000000000004000000}
-        Text = 'Exemplo'
+        Text = 'DEMO FMX'
         TabOrder = 2
       end
     end
@@ -2695,7 +2695,7 @@ object FMain: TFMain
       Size.Height = 718.000000000000000000
       Size.PlatformDefault = False
       TabHeight = 49.000000000000000000
-      TabIndex = 2
+      TabIndex = 3
       TabOrder = 2
       TabPosition = PlatformDefault
       Sizes = (
@@ -2988,7 +2988,7 @@ object FMain: TFMain
         CustomIcon = <
           item
           end>
-        IsSelected = True
+        IsSelected = False
         Size.Width = 103.000000000000000000
         Size.Height = 49.000000000000000000
         Size.PlatformDefault = False
@@ -3545,7 +3545,7 @@ object FMain: TFMain
           Size.Width = 1051.000000000000000000
           Size.Height = 297.000000000000000000
           Size.PlatformDefault = False
-          TabIndex = 0
+          TabIndex = 2
           TabOrder = 35
           TabPosition = PlatformDefault
           Sizes = (
@@ -3563,7 +3563,7 @@ object FMain: TFMain
             CustomIcon = <
               item
               end>
-            IsSelected = True
+            IsSelected = False
             Size.Width = 143.000000000000000000
             Size.Height = 26.000000000000000000
             Size.PlatformDefault = False
@@ -3715,7 +3715,7 @@ object FMain: TFMain
             CustomIcon = <
               item
               end>
-            IsSelected = False
+            IsSelected = True
             Size.Width = 202.000000000000000000
             Size.Height = 26.000000000000000000
             Size.PlatformDefault = False
@@ -4223,7 +4223,7 @@ object FMain: TFMain
         CustomIcon = <
           item
           end>
-        IsSelected = False
+        IsSelected = True
         Size.Width = 168.000000000000000000
         Size.Height = 49.000000000000000000
         Size.PlatformDefault = False
@@ -4271,7 +4271,7 @@ object FMain: TFMain
           Size.PlatformDefault = False
           Text = 'Update Type'
           TabOrder = 8
-          object RadioButton1: TRadioButton
+          object rdEmptyBody: TRadioButton
             GroupName = 'UpdateType'
             IsChecked = True
             Position.X = 17.000000000000000000
@@ -4279,14 +4279,14 @@ object FMain: TFMain
             TabOrder = 38
             Text = 'Empty Body'
           end
-          object RadioButton2: TRadioButton
+          object rdOnlyStatus: TRadioButton
             GroupName = 'UpdateType'
             Position.X = 17.000000000000000000
             Position.Y = 59.000000000000000000
             TabOrder = 39
             Text = 'Only Status'
           end
-          object RadioButton3: TRadioButton
+          object rdEntityType: TRadioButton
             GroupName = 'UpdateType'
             Position.X = 17.000000000000000000
             Position.Y = 86.000000000000000000
@@ -4296,7 +4296,7 @@ object FMain: TFMain
             TabOrder = 40
             Text = 'Entity Type'
           end
-          object RadioButton4: TRadioButton
+          object rdStatusEntity: TRadioButton
             GroupName = 'UpdateType'
             Position.X = 17.000000000000000000
             Position.Y = 115.000000000000000000
@@ -4315,7 +4315,7 @@ object FMain: TFMain
           Size.PlatformDefault = False
           Text = 'Update Entity'
           TabOrder = 9
-          object RadioButton5: TRadioButton
+          object rdService: TRadioButton
             GroupName = 'UpdateEntity'
             IsChecked = True
             Position.X = 17.000000000000000000
@@ -4323,42 +4323,42 @@ object FMain: TFMain
             TabOrder = 38
             Text = 'Service'
           end
-          object RadioButton6: TRadioButton
+          object rdMenu: TRadioButton
             GroupName = 'UpdateEntity'
             Position.X = 17.000000000000000000
             Position.Y = 48.000000000000000000
             TabOrder = 39
             Text = 'Menu'
           end
-          object RadioButton7: TRadioButton
+          object rdCategory: TRadioButton
             GroupName = 'UpdateEntity'
             Position.X = 17.000000000000000000
             Position.Y = 72.000000000000000000
             TabOrder = 40
             Text = 'Category'
           end
-          object RadioButton9: TRadioButton
+          object rdItemOffer: TRadioButton
             GroupName = 'UpdateEntity'
             Position.X = 17.000000000000000000
             Position.Y = 120.000000000000000000
             TabOrder = 41
             Text = 'Item Offer'
           end
-          object RadioButton10: TRadioButton
+          object rdOptionGroup: TRadioButton
             GroupName = 'UpdateEntity'
             Position.X = 17.000000000000000000
             Position.Y = 144.000000000000000000
             TabOrder = 42
             Text = 'Option Group'
           end
-          object RadioButton11: TRadioButton
+          object rdAvailability: TRadioButton
             GroupName = 'UpdateEntity'
             Position.X = 17.000000000000000000
             Position.Y = 168.000000000000000000
             TabOrder = 43
             Text = 'Availability'
           end
-          object RadioButton8: TRadioButton
+          object rdItem: TRadioButton
             GroupName = 'UpdateEntity'
             Position.X = 17.000000000000000000
             Position.Y = 96.000000000000000000

@@ -130,7 +130,6 @@ type
     DBGrid2: TDBGrid;
     DBGrid3: TDBGrid;
     DBGrid4: TDBGrid;
-    DBGrid5: TDBGrid;
     Label21: TLabel;
     Label22: TLabel;
     Label23: TLabel;
@@ -145,6 +144,22 @@ type
     edtDisplayId: TDBEdit;
     edtCreateAt: TDBEdit;
     edtOrderTiming: TDBEdit;
+    Label28: TLabel;
+    Label29: TLabel;
+    Label30: TLabel;
+    Label31: TLabel;
+    Label32: TLabel;
+    Label33: TLabel;
+    Label34: TLabel;
+    lblDeliveryStreet: TLabel;
+    lblDeliveryNumber: TLabel;
+    lblDeliveryCity: TLabel;
+    lblDeliveryPostalCode: TLabel;
+    lblDeliveryDistrict: TLabel;
+    lblDeliveryState: TLabel;
+    lblDeliveryComplement: TLabel;
+    Label35: TLabel;
+    lblPaymentsPending: TLabel;
     procedure btnGetTokenClick(Sender: TObject);
     procedure btnMerchantUpdateClick(Sender: TObject);
     procedure btnOrderAcceptCancellationClick(Sender: TObject);
@@ -441,6 +456,10 @@ begin
   ACBrOpenDelivery1.WebServices.OrderDetails.Executar;
 
   DM.ResetClientDataSet(DM.cdsOrder);
+  DM.ResetClientDataSet(DM.cdsCustomer);
+  DM.ResetClientDataSet(DM.cdsItems);
+  DM.ResetClientDataSet(DM.cdsOptions);
+  DM.ResetClientDataSet(DM.cdsPayments);
 
   mmoOrder.Lines.Clear;
   mmoOrder.Lines.Add(TJson.Format(TJSONObject.ParseJSONValue(ACBrOpenDelivery1.WebServices.OrderDetails.Order.AsJSON) as TJSONValue));
@@ -459,95 +478,94 @@ begin
     DM.cdsOrdercreatedAt.AsDateTime := Order.createdAt;
     DM.cdsOrderorderTiming.AsString := Order.orderTiming;
 
-//    edtDisplayId.Text := Order.displayId;
-//    edtCreateAt.Text := FormatDateTime('YYYY-MM-DD hh:mm:ss', Order.createdAt);
-//    edtOrderTiming.Text := Order.orderTiming;
-
-//    //Customer
-//    lblCusomerName.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.name;
-//    lblCusomerDocument.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.documentNumber;
-//    lblCusomerPhone.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.phone.number;
-
+    //Customer
+    DM.cdsCustomer.Append;
+    DM.cdsCustomerID.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.id;
+    DM.cdsCustomerphoneNumber.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.phone.number;
+    DM.cdsCustomerdocumentNumber.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.documentNumber;
+    DM.cdsCustomername.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.name;
+    DM.cdsCustomer.Post;
 
     DM.cdsOrder.Post;
+    //Total
+    lblItemsPriceValue.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.itemsPrice.value.ToString;
+    lblItemsPriceCurr.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.itemsPrice.currency;
 
-//
-//    edtType.Text := ServiceTypeToStr(Order.&type);
-//
-//    edtDisplayId.Text := Order.displayId;
-//    edtCreateAt.Text := FormatDateTime('YYYY-MM-DD hh:mm:ss', Order.createdAt);
-//    edtOrderTiming.Text := Order.orderTiming;
+    lblothersFeesValue.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.otherFees.value.ToString;
+    lblothersFeesCurr.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.otherFees.currency;
 
-//    //Customer
-//    lblCusomerName.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.name;
-//    lblCusomerDocument.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.documentNumber;
-//    lblCusomerPhone.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.customer.phone.number;
-//
-//    //Total
-//    lblItemsPriceValue.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.itemsPrice.value.ToString;
-//    lblItemsPriceCurr.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.itemsPrice.currency;
-//
-//    lblothersFeesValue.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.otherFees.value.ToString;
-//    lblothersFeesCurr.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.otherFees.currency;
-//
-//    lblDiscountValue.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.discount.value.ToString;
-//    lblDiscountCurr.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.discount.currency;
-//
-//    lblorderAmountValue.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.orderAmount.value.ToString;
-//    lblorderAmountCurr.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.orderAmount.currency;
+    lblDiscountValue.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.discount.value.ToString;
+    lblDiscountCurr.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.discount.currency;
+
+    lblorderAmountValue.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.orderAmount.value.ToString;
+    lblorderAmountCurr.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.total.orderAmount.currency;
 
     //Delivery
-//    lblDeliveryStreet.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.street;
-//    lblDeliveryNumber.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.number;
-//    lblDeliveryCity.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.city;
-//    lblDeliveryPostalCode.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.postalCode;
-//    lblDeliveryDistrict.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.district;
-//    lblDeliveryState.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.state;
-//    lblDeliveryComplement.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.complement;
+    lblDeliveryStreet.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.street;
+    lblDeliveryNumber.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.number;
+    lblDeliveryCity.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.city;
+    lblDeliveryPostalCode.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.postalCode;
+    lblDeliveryDistrict.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.district;
+    lblDeliveryState.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.state;
+    lblDeliveryComplement.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.delivery.deliveryAddress.complement;
 
     //Fill Itens
-//    for I := 0 to Pred(ACBrOpenDelivery1.WebServices.OrderDetails.Order.items.Count) do
-//    begin
-//      gridItens.Cells[0 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].id;
-//      gridItens.Cells[1 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].index.ToString;
-//      gridItens.Cells[2 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].name;
-//      gridItens.Cells[3 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].externalCode;
-//      gridItens.Cells[4 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].&unit;
-//      gridItens.Cells[5 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].quantity.ToString;
-//      gridItens.Cells[6 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].specialInstructions;
-//      gridItens.Cells[7 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].unitPrice.value.ToString;
-//      gridItens.Cells[8 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].unitPrice.currency;
-//      gridItens.Cells[9 , I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].optionsPrice.value.ToString;
-//      gridItens.Cells[10, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].totalPrice.value.ToString;
-//      gridItens.Cells[11, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].totalPrice.currency;
-//    end;
+    for I := 0 to Pred(ACBrOpenDelivery1.WebServices.OrderDetails.Order.items.Count) do
+    begin
+      DM.cdsItems.Append;
+
+      DM.cdsItemsID.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].id;
+      DM.cdsItemsIndex.AsInteger := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].index;
+      DM.cdsItemsName.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].name;
+      DM.cdsItemsexternalCode.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].externalCode;
+      DM.cdsItemsUnit.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].&unit;
+      DM.cdsItemsQuantity.AsFloat := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].quantity;
+      DM.cdsItemsspecialInstructions.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].specialInstructions;
+      DM.cdsItemsunitPriceValue.AsCurrency := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].unitPrice.value;
+      DM.cdsItemsunitPriceCurrency.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].unitPrice.currency;
+      DM.cdsItemsoptionsPrice.AsCurrency := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].optionsPrice.value;
+      DM.cdsItemstotalPriceValue.AsCurrency := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].totalPrice.value;
+      DM.cdsItemstotalPriceCurrency.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].totalPrice.currency;
+
+      DM.cdsItems.Post;
+    end;
 
     //Fill Options
-//    for I := 0 to Pred(ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[0].options.Count) do
-//    begin
-//      gridOptions.Cells[0, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].id;
-//      gridOptions.Cells[1, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].name;
-//      gridOptions.Cells[2, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].externalCode;
-//      gridOptions.Cells[3, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].&unit;
-//      gridOptions.Cells[4, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].quantity.ToString;
-//      gridOptions.Cells[5, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].unitPrice.value.ToString;
-//      gridOptions.Cells[6, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].unitPrice.currency;
-//      gridOptions.Cells[7, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].totalPrice.value.ToString;
-//      gridOptions.Cells[8, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].totalPrice.currency;
-//      gridOptions.Cells[9, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.Items[I].specialInstructions;
-//    end;
+    for I := 0 to Pred(ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[0].options.Count) do
+    begin
+      DM.cdsOptions.Append;
+
+      DM.cdsOptionsID.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].id;
+      DM.cdsOptionsName.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].name;
+      DM.cdsOptionsexternalCode.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].externalCode;
+      DM.cdsOptionsUnit.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].&unit;
+      DM.cdsOptionsQuantity.AsFloat := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].quantity;
+      DM.cdsOptionsunitPriceValue.AsCurrency := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].unitPrice.value;
+      DM.cdsOptionsunitPriceCurrency.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].unitPrice.currency;
+      DM.cdsOptionstotalPriceValue.AsCurrency := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].totalPrice.value;
+      DM.cdsOptionstotalPriceCurrency.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].totalPrice.currency;
+      DM.cdsOptionsspecialInstructions.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.items[I].options[I].specialInstructions;
+
+      DM.cdsOptions.Post;
+    end;
 
     //Paymentsd
-//    lblPaymentsPending.Text := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.pending.ToString;
-//    for I := 0 to Pred(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods.Count) do
-//    begin
-//      gridPayments.Cells[0, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].value.ToString;
-//      gridPayments.Cells[1, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].currency;
-//      gridPayments.Cells[2, I] := PaymentMethodToStr(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].method);
-//      gridPayments.Cells[3, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].methodInfo;
-//      gridPayments.Cells[4, I] := PaymentTypeToStr(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].&type);
-//      gridPayments.Cells[5, I] := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].changeFor.ToString;
-//    end;
+    lblPaymentsPending.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.prepaid.ToString;
+    lblPaymentsPending.Caption := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.pending.ToString;
+    for I := 0 to Pred(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods.Count) do
+    begin
+      DM.cdsPayments.Append;
+      DM.cdsPaymentsprepaid.AsCurrency := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.prepaid;
+      DM.cdsPaymentspending.AsCurrency := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.pending;
+      DM.cdsPaymentsmethodsValue.AsCurrency := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].value;
+      DM.cdsPaymentsmethodsCurrency.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].currency;
+      DM.cdsPaymentsmethodsMethod.AsString := PaymentMethodToStr(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].method);
+      DM.cdsPaymentsmethodsMethodInfo.AsString := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].methodInfo;
+      DM.cdsPaymentsmethodsType.AsString := PaymentTypeToStr(ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].&type);
+      DM.cdsPaymentsmethodsChangeFor.AsCurrency := ACBrOpenDelivery1.WebServices.OrderDetails.Order.payments.methods[I].value;
+
+      DM.cdsPayments.Post;
+    end;
   end;
 
 end;

@@ -2796,7 +2796,7 @@ object FMain: TFMain
       Width = 884
       Height = 90
       Align = alClient
-      Caption = 'Exemplo'
+      Caption = ' DEMO VCL'
       Color = clBlack
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -2805,7 +2805,7 @@ object FMain: TFMain
       Font.Style = [fsBold]
       ParentColor = False
       ParentFont = False
-      ExplicitWidth = 161
+      ExplicitWidth = 212
       ExplicitHeight = 54
     end
   end
@@ -2822,7 +2822,7 @@ object FMain: TFMain
       Top = 0
       Width = 1064
       Height = 679
-      ActivePage = tbiOrder
+      ActivePage = tbiConfiguracoes
       Align = alClient
       TabOrder = 0
       ExplicitTop = 3
@@ -3345,12 +3345,75 @@ object FMain: TFMain
               Width = 1048
               Height = 235
               Align = alClient
+              DataSource = DM.dtsItems
               TabOrder = 0
               TitleFont.Charset = DEFAULT_CHARSET
               TitleFont.Color = clWindowText
               TitleFont.Height = -12
               TitleFont.Name = 'Segoe UI'
               TitleFont.Style = []
+              Columns = <
+                item
+                  Expanded = False
+                  FieldName = 'ID'
+                  Width = 150
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'Index'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'Name'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'externalCode'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'Unit'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'specialInstructions'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'unitPriceValue'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'optionsPrice'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'totalPriceValue'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'totalPriceCurrency'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'unitPriceCurrency'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'Quantity'
+                  Visible = True
+                end>
             end
           end
           object tbOptions: TTabSheet
@@ -3362,23 +3425,98 @@ object FMain: TFMain
               Width = 1048
               Height = 235
               Align = alClient
+              DataSource = DM.dtsOptions
               TabOrder = 0
               TitleFont.Charset = DEFAULT_CHARSET
               TitleFont.Color = clWindowText
               TitleFont.Height = -12
               TitleFont.Name = 'Segoe UI'
               TitleFont.Style = []
+              Columns = <
+                item
+                  Expanded = False
+                  FieldName = 'ID'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'Name'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'externalCode'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'Unit'
+                  Width = 150
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'Quantity'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'unitPriceValue'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'unitPriceCurrency'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'totalPriceValue'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'totalPriceCurrency'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'specialInstructions'
+                  Width = 200
+                  Visible = True
+                end>
             end
           end
           object tbPayments: TTabSheet
             Caption = 'Payments (Op'#231#245'es de Pagamento)'
             ImageIndex = 2
+            object Label35: TLabel
+              Left = 8
+              Top = 8
+              Width = 48
+              Height = 15
+              Caption = 'pending:'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -12
+              Font.Name = 'Segoe UI'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object lblPaymentsPending: TLabel
+              Left = 88
+              Top = 8
+              Width = 109
+              Height = 15
+              Caption = 'lblPaymentsPending'
+            end
             object DBGrid4: TDBGrid
               Left = 0
-              Top = 0
+              Top = 32
               Width = 1048
-              Height = 235
-              Align = alClient
+              Height = 203
+              Align = alBottom
+              DataSource = DM.dtsPayments
               TabOrder = 0
               TitleFont.Charset = DEFAULT_CHARSET
               TitleFont.Color = clWindowText
@@ -3390,18 +3528,145 @@ object FMain: TFMain
           object TabSheet4: TTabSheet
             Caption = 'Customer Address (Endere'#231'o do Cliente)'
             ImageIndex = 3
-            object DBGrid5: TDBGrid
-              Left = 0
-              Top = 0
-              Width = 1048
-              Height = 235
-              Align = alClient
-              TabOrder = 0
-              TitleFont.Charset = DEFAULT_CHARSET
-              TitleFont.Color = clWindowText
-              TitleFont.Height = -12
-              TitleFont.Name = 'Segoe UI'
-              TitleFont.Style = []
+            object Label28: TLabel
+              Left = 8
+              Top = 8
+              Width = 37
+              Height = 15
+              Caption = 'street:'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -12
+              Font.Name = 'Segoe UI'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object Label29: TLabel
+              Left = 8
+              Top = 27
+              Width = 47
+              Height = 15
+              Caption = 'number:'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -12
+              Font.Name = 'Segoe UI'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object Label30: TLabel
+              Left = 8
+              Top = 46
+              Width = 23
+              Height = 15
+              Caption = 'city:'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -12
+              Font.Name = 'Segoe UI'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object Label31: TLabel
+              Left = 8
+              Top = 65
+              Width = 55
+              Height = 15
+              Caption = 'postCode:'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -12
+              Font.Name = 'Segoe UI'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object Label32: TLabel
+              Left = 8
+              Top = 84
+              Width = 42
+              Height = 15
+              Caption = 'district:'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -12
+              Font.Name = 'Segoe UI'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object Label33: TLabel
+              Left = 8
+              Top = 103
+              Width = 31
+              Height = 15
+              Caption = 'state:'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -12
+              Font.Name = 'Segoe UI'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object Label34: TLabel
+              Left = 8
+              Top = 122
+              Width = 74
+              Height = 15
+              Caption = 'complement:'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -12
+              Font.Name = 'Segoe UI'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object lblDeliveryStreet: TLabel
+              Left = 128
+              Top = 8
+              Width = 85
+              Height = 15
+              Caption = 'lblDeliveryStreet'
+            end
+            object lblDeliveryNumber: TLabel
+              Left = 128
+              Top = 27
+              Width = 99
+              Height = 15
+              Caption = 'lblDeliveryNumber'
+            end
+            object lblDeliveryCity: TLabel
+              Left = 128
+              Top = 46
+              Width = 76
+              Height = 15
+              Caption = 'lblDeliveryCity'
+            end
+            object lblDeliveryPostalCode: TLabel
+              Left = 128
+              Top = 65
+              Width = 115
+              Height = 15
+              Caption = 'lblDeliveryPostalCode'
+            end
+            object lblDeliveryDistrict: TLabel
+              Left = 128
+              Top = 84
+              Width = 92
+              Height = 15
+              Caption = 'lblDeliveryDistrict'
+            end
+            object lblDeliveryState: TLabel
+              Left = 128
+              Top = 103
+              Width = 81
+              Height = 15
+              Caption = 'lblDeliveryState'
+            end
+            object lblDeliveryComplement: TLabel
+              Left = 128
+              Top = 122
+              Width = 125
+              Height = 15
+              Caption = 'lblDeliveryComplement'
             end
           end
           object tbJSONOrder: TTabSheet
@@ -3503,18 +3768,24 @@ object FMain: TFMain
             Top = 50
             Width = 340
             Height = 17
+            DataField = 'name'
+            DataSource = DM.dtsCustomer
           end
           object lblCusomerDocument: TDBText
             Left = 72
             Top = 71
             Width = 340
             Height = 17
+            DataField = 'documentNumber'
+            DataSource = DM.dtsCustomer
           end
           object lblCusomerPhone: TDBText
             Left = 72
             Top = 92
             Width = 340
             Height = 17
+            DataField = 'phoneNumber'
+            DataSource = DM.dtsCustomer
           end
         end
         object Panel3: TPanel
@@ -3851,9 +4122,9 @@ object FMain: TFMain
         object btnMerchantUpdate: TButton
           Left = 432
           Top = 92
-          Width = 129
+          Width = 289
           Height = 25
-          Caption = 'Merchant Update'
+          Caption = 'Merchant Update (Atualizar Estabelecimento)'
           TabOrder = 3
           OnClick = btnMerchantUpdateClick
         end
