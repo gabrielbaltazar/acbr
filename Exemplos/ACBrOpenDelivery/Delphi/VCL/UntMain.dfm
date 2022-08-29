@@ -2822,7 +2822,7 @@ object FMain: TFMain
       Top = 0
       Width = 1064
       Height = 679
-      ActivePage = tbiOrder
+      ActivePage = tbiConfiguracoes
       Align = alClient
       TabOrder = 0
       object tbiConfiguracoes: TTabSheet
@@ -3329,7 +3329,7 @@ object FMain: TFMain
           Top = 384
           Width = 1056
           Height = 265
-          ActivePage = TabSheet4
+          ActivePage = tbItems
           Align = alBottom
           TabOrder = 10
           object tbItems: TTabSheet

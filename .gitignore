@@ -70,3 +70,4 @@ modules/
 Testes/Dunit/ACBrOpenDelivery/dunit.ini
 Testes/Dunit/ACBrComum/Win32/Debug/dunit.ini
 Exemplos/ACBrOpenDelivery/Delphi/OpenDeliveryDemo.ini
+Exemplos/ACBrOpenDelivery/Delphi/FMX/Win32/Debug/OpenDeliveryDemo.ini

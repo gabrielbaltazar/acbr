@@ -58,7 +58,6 @@ type
     edtBaseUrl: TEdit;
     edtClientId: TEdit;
     edtClientSecret: TEdit;
-    btnGetToken: TButton;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
@@ -223,7 +222,6 @@ type
         AExpiresAt: TDateTime);
     procedure ACBrOpenDelivery1TokenSave(AClientId, AToken: string; AExpiresAt:
         TDateTime);
-    procedure btnGetTokenClick(Sender: TObject);
     procedure btnMerchantUpdateClick(Sender: TObject);
     procedure btnOrderAcceptCancellationClick(Sender: TObject);
     procedure btnOrderConfirmClick(Sender: TObject);
@@ -306,15 +304,6 @@ begin
   finally
     LIniFile.Free;
   end;
-end;
-
-procedure TFMain.btnGetTokenClick(Sender: TObject);
-var
-  LToken: string;
-begin
-  ConfigurarComponente;
-  LToken := ACBrOpenDelivery1.GetToken;
-  ShowMessage(LToken);
 end;
 
 procedure TFMain.btnMerchantUpdateClick(Sender: TObject);
