@@ -691,19 +691,22 @@ var
   LWebService: TACBrOpenDeliveryAcknowledgment;
   I: Integer;
 begin
-  LWebService := TACBrOpenDeliveryAcknowledgment.Create(FOwner);
-  try
-    for I := 0 to Pred(Length(AEvents)) do
-    begin
-      LWebService.Events.New;
-      LWebService.Events[I].Id := AEvents[I].EventId;
-      LWebService.Events[I].OrderId := AEvents[I].OrderId;
-      LWebService.Events[I].EventType := AEvents[I].EventType;
-    end;
+  if Length(AEvents) > 0 then
+  begin
+    LWebService := TACBrOpenDeliveryAcknowledgment.Create(FOwner);
+    try
+      for I := 0 to Pred(Length(AEvents)) do
+      begin
+        LWebService.Events.New;
+        LWebService.Events[I].Id := AEvents[I].EventId;
+        LWebService.Events[I].OrderId := AEvents[I].OrderId;
+        LWebService.Events[I].EventType := AEvents[I].EventType;
+      end;
 
-    LWebService.Executar;
-  finally
-    LWebService.Free;
+      LWebService.Executar;
+    finally
+      LWebService.Free;
+    end;
   end;
 end;
 
@@ -934,7 +937,7 @@ begin
   try
     LJSON
       .AddPair('reason', FReason)
-      .AddPairISODateTime('createdAt', FCreatedAt)
+      .AddPairISODateTime('createdAt', FCreatedAt, False)
       .AddPair('orderExternalCode', FOrderExternalCode);
 
     FRequest.Body(LJSON, False);

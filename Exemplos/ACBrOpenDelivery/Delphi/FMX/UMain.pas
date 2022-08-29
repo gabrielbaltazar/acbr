@@ -235,6 +235,9 @@ type
     procedure btnPollingClick(Sender: TObject);
     procedure gridPollingCellClick(const Column: TColumn; const Row: Integer);
     procedure MenuItem1Click(Sender: TObject);
+    procedure ACBrOpenDelivery1EventOrderPlaced(
+      AEvent: TACBrOpenDeliverySchemaEvent;
+      AOrder: TACBrOpenDeliverySchemaOrder; var Ack: Boolean);
     private
       { Private declarations }
     public
@@ -254,6 +257,22 @@ implementation
 procedure TFMain.FormCreate(Sender: TObject);
 begin
   tabGeral.ActiveTab := tbiConfiguracoes;
+end;
+
+procedure TFMain.ACBrOpenDelivery1EventOrderPlaced(
+  AEvent: TACBrOpenDeliverySchemaEvent;
+  AOrder: TACBrOpenDeliverySchemaOrder; var Ack: Boolean);
+begin
+  // Para Integrar e Confirmar automaticamente
+//  try
+//    ShowMessage(AOrder.customer.name);
+//    ACBrOpenDelivery1.WebServices.OrderConfirm.OrderId := AOrder.id;
+//    ACBrOpenDelivery1.WebServices.OrderConfirm.Reason := 'Aceito com sucesso.';
+//    if ACBrOpenDelivery1.WebServices.OrderConfirm.Executar then
+//      Ack := True;
+//  except
+//    Ack := False;
+//  end;
 end;
 
 procedure TFMain.ACBrOpenDelivery1HTTPEnviar(ALogEnvio:
@@ -340,9 +359,8 @@ procedure TFMain.btnOrderConfirmClick(Sender: TObject);
 begin
   ConfigurarComponente;
   ACBrOpenDelivery1.WebServices.OrderConfirm.OrderId := edtOrderOrderId.Text;
-  ACBrOpenDelivery1.WebServices.OrderConfirm.Reason := 'Free field for more information about the order confirmation';
+  ACBrOpenDelivery1.WebServices.OrderConfirm.Reason := 'Campo livre para informacoes da confirmacao do pedido';
   ACBrOpenDelivery1.WebServices.OrderConfirm.OrderExternalCode := '';
-  ACBrOpenDelivery1.WebServices.OrderConfirm.CreatedAt := Now;
 
   ACBrOpenDelivery1.WebServices.OrderConfirm.Executar;
 end;
