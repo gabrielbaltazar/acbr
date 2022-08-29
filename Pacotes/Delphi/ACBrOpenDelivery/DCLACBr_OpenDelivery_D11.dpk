@@ -1,4 +1,4 @@
-package DCLACBr_OpenDelivery;
+package DCLACBr_OpenDelivery_D11;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -31,10 +31,8 @@ package DCLACBr_OpenDelivery;
 
 requires
   rtl,
-  {$IFNDEF FPC}
   designide,
-  {$ENDIF}
-  ACBr_OpenDelivery;
+  ACBr_OpenDelivery_D11;
 
 contains
   ACBrOpenDeliveryReg in '..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryReg.pas';

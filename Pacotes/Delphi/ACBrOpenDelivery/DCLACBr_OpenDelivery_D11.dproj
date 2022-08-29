@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{67B816E6-45BD-49E1-B627-0B7AFB9E3F00}</ProjectGuid>
-        <MainSource>ACBr_OpenDelivery.dpk</MainSource>
+        <ProjectGuid>{45C2DAFD-0920-4260-BCE4-02B7C3036240}</ProjectGuid>
+        <MainSource>DCLACBr_OpenDelivery_D11.dpk</MainSource>
         <ProjectVersion>19.4</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
@@ -13,8 +13,18 @@
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Linux64' and '$(Base)'=='true') or '$(Base_Linux64)'!=''">
+        <Base_Linux64>true</Base_Linux64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
         <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
@@ -43,15 +53,17 @@
         <DCC_K>false</DCC_K>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
-        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;DUnitX.Loggers.GUI;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <SanitizedProjectName>ACBr_OpenDelivery</SanitizedProjectName>
+        <SanitizedProjectName>DCLACBr_OpenDelivery_D11</SanitizedProjectName>
         <VerInfo_Locale>1046</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <DCC_Description>ACBr - OpenDelivery - (http://www.projetoacbr.com.br/)</DCC_Description>
-        <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
-        <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
+        <DCC_Description>ACBr - (design-time) OpenDelivery - (http://www.projetoacbr.com.br/)</DCC_Description>
+        <DesignOnlyPackage>true</DesignOnlyPackage>
         <DCC_UnitSearchPath>..\..\..\Fontes\ACBrComum;..\..\..\Fontes\ACBrOpenDelivery;..\..\..\Fontes\Terceiros\json4delphi\src;..\..\..\Fontes\Terceiros\JsonDataObjects\Source;..\..\..\Fontes\Terceiros\synalist;..\..\..\Fontes\Terceiros\FastStringReplace;..\..\..\Fontes\Terceiros\GZIPUtils;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Linux64)'!=''">
+        <DCC_UsePackage>rtl;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -59,6 +71,10 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_UsePackage>rtl;ACBr_OpenDelivery_D11;$(DCC_UsePackage)</DCC_UsePackage>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <DCC_UsePackage>rtl;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -86,16 +102,9 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
-        <DCCReference Include="vcl.dcp"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDelivery.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTP.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryHTTPSynapse.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchema.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliverySchemaClasses.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryWebService.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\pcnConversaoOD.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryException.pas"/>
-        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryMarketPlace.pas"/>
+        <DCCReference Include="designide.dcp"/>
+        <DCCReference Include="ACBr_OpenDelivery_D11.dcp"/>
+        <DCCReference Include="..\..\..\Fontes\ACBrOpenDelivery\ACBrOpenDeliveryReg.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -114,7 +123,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">ACBr_OpenDelivery.dpk</Source>
+                    <Source Name="MainSource">DCLACBr_OpenDelivery_D11.dpk</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
@@ -137,9 +146,9 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\ACBr_OpenDelivery.bpl" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\DCLACBr_OpenDelivery_D11.bpl" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>ACBr_OpenDelivery.bpl</RemoteName>
+                        <RemoteName>DCLACBr_OpenDelivery_D11.bpl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
