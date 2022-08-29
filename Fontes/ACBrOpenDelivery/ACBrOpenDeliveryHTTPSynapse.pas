@@ -266,7 +266,7 @@ constructor TACBrOpenDeliveryHTTPResponseSynapse.Create(AHTTPSend: THTTPSend);
       LResp := DeCompress(AHTTPSend.Document);
 
     {$IF CompilerVersion <= 34.0}
-      Exit(UTF8ToNativeString(Resp));
+      Exit(UTF8ToNativeString(LResp));
     {$ENDIF}
     LCT := LowerCase( GetHeaderValue('Content-Type:', AHTTPSend) );
     LRespIsUTF8 := (pos('utf-8', LCT) > 0);
