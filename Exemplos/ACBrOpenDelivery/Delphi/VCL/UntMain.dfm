@@ -1,18 +1,16 @@
 object FMain: TFMain
   Left = 547
   Top = 279
-  Width = 1080
-  Height = 808
   Caption = 'ACBrOpenDelivery - Demo VCL'
+  ClientHeight = 769
+  ClientWidth = 1064
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
-  PixelsPerInch = 96
   TextHeight = 15
   object pnlTop: TPanel
     Left = 0
@@ -55,6 +53,8 @@ object FMain: TFMain
       Font.Style = [fsBold]
       ParentColor = False
       ParentFont = False
+      ExplicitWidth = 212
+      ExplicitHeight = 54
     end
   end
   object pnlGeral: TPanel
@@ -140,6 +140,8 @@ object FMain: TFMain
             ParentFont = False
             Layout = tlCenter
             OnClick = Label9Click
+            ExplicitWidth = 321
+            ExplicitHeight = 15
           end
         end
         object edtPollingMerchantId: TEdit
@@ -398,8 +400,8 @@ object FMain: TFMain
           object Label10: TLabel
             Left = 0
             Top = 0
-            Width = 319
-            Height = 15
+            Width = 1056
+            Height = 41
             Cursor = crHandPoint
             Align = alClient
             Caption = 'https://abrasel-nacional.github.io/docs/#tag/ordersStatus'
@@ -412,6 +414,8 @@ object FMain: TFMain
             ParentFont = False
             Layout = tlCenter
             OnClick = Label10Click
+            ExplicitWidth = 319
+            ExplicitHeight = 15
           end
         end
         object edtOrderOrderId: TEdit
@@ -497,7 +501,7 @@ object FMain: TFMain
           Top = 384
           Width = 1056
           Height = 265
-          ActivePage = tbItems
+          ActivePage = tbPayments
           Align = alBottom
           TabOrder = 10
           object tbItems: TTabSheet
@@ -535,49 +539,41 @@ object FMain: TFMain
                 item
                   Expanded = False
                   FieldName = 'externalCode'
-                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'Unit'
-                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'specialInstructions'
-                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'unitPriceValue'
-                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'optionsPrice'
-                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'totalPriceValue'
-                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'totalPriceCurrency'
-                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'unitPriceCurrency'
-                  Width = 64
                   Visible = True
                 end
                 item
@@ -617,7 +613,6 @@ object FMain: TFMain
                 item
                   Expanded = False
                   FieldName = 'externalCode'
-                  Width = 64
                   Visible = True
                 end
                 item
@@ -634,25 +629,21 @@ object FMain: TFMain
                 item
                   Expanded = False
                   FieldName = 'unitPriceValue'
-                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'unitPriceCurrency'
-                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'totalPriceValue'
-                  Width = 64
                   Visible = True
                 end
                 item
                   Expanded = False
                   FieldName = 'totalPriceCurrency'
-                  Width = 64
                   Visible = True
                 end
                 item
@@ -1233,8 +1224,8 @@ object FMain: TFMain
           object Label11: TLabel
             Left = 0
             Top = 0
-            Width = 487
-            Height = 15
+            Width = 1056
+            Height = 41
             Cursor = crHandPoint
             Align = alClient
             Caption = 
@@ -1249,6 +1240,8 @@ object FMain: TFMain
             ParentFont = False
             Layout = tlCenter
             OnClick = Label11Click
+            ExplicitWidth = 487
+            ExplicitHeight = 15
           end
         end
         object edtMerchantUpdateId: TEdit

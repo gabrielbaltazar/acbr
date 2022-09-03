@@ -1,5 +1,4 @@
 object DM: TDM
-  OldCreateOrder = True
   Height = 480
   Width = 640
   object cdsPolling: TClientDataSet
@@ -244,6 +243,9 @@ object DM: TDM
     object cdsPaymentsmethodsMethodInfo: TStringField
       FieldName = 'methodsMethodInfo'
       Size = 30
+    end
+    object cdsPaymentsmethodsChangeValue: TCurrencyField
+      FieldName = 'methodsChangeValue'
     end
   end
   object dtsPayments: TDataSource

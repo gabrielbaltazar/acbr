@@ -360,7 +360,8 @@ begin
     DM.cdsPaymentsmethodsMethod.AsString := PaymentMethodToStr(ACBrOpenDelivery1.Order.payments.methods[I].method);
     DM.cdsPaymentsmethodsMethodInfo.AsString := ACBrOpenDelivery1.Order.payments.methods[I].methodInfo;
     DM.cdsPaymentsmethodsType.AsString := PaymentTypeToStr(ACBrOpenDelivery1.Order.payments.methods[I]._type);
-    DM.cdsPaymentsmethodsChangeFor.AsCurrency := ACBrOpenDelivery1.Order.payments.methods[I].value;
+    DM.cdsPaymentsmethodsChangeFor.AsCurrency := ACBrOpenDelivery1.Order.payments.methods[I].changeFor;
+    DM.cdsPaymentsmethodsChangeValue.AsCurrency := ACBrOpenDelivery1.Order.payments.methods[I].changeValue;
 
     DM.cdsPayments.Post;
   end;
@@ -484,7 +485,7 @@ end;
 
 procedure TFMain.OpenLink(ALabel: TLabel);
 begin
-  ShellExecute(Handle, 'open', PAnsiChar(ALabel.Caption), nil, nil, SW_SHOWMAXIMIZED);
+  //ShellExecute(Handle, 'open', PAnsiChar(ALabel.Caption), nil, nil, SW_SHOWMAXIMIZED);
 end;
 
 procedure TFMain.ACBrOpenDelivery1HTTPEnviar(ALogEnvio: TACBrOpenDeliveryHTTPLogEnvio);
