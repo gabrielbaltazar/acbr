@@ -85,7 +85,7 @@ begin
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Agencia.Codigo, 4, tcInt);
   GravarCampo(PagFor.Registro0.Empresa.Convenio, 12, tcStrZero);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Agencia.Codigo, 5, tcInt);
-  GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Conta.TipoConta, 1, tcInt);
+  GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Agencia.DV, 1, tcStr);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Conta.Numero, 12, tcInt);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Conta.DV, 1, tcStr);
   GravarCampo(' ', 1, tcStr);
@@ -154,7 +154,7 @@ begin
   GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.Nome, 30, tcStr, True);
   GravarCampo(PagFor.Lote.Items[I].Registro1.Informacao1, 40, tcStr, True);
   GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.Logradouro, 30, tcStr, True);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.Numero, 5, tcStr);
+  GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.Numero, 5, tcStrZero);
   GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.Complemento, 15, tcStr, True);
   GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.Cidade, 20, tcStr, True);
   GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.CEP, 8, tcInt);
@@ -283,7 +283,7 @@ begin
       GravarCampo(TpInscricaoToStr(Inscricao.Tipo), 1, tcStr);
       GravarCampo(Inscricao.Numero, 14, tcStrZero);
       GravarCampo(Endereco.Logradouro, 30, tcStr, True);
-      GravarCampo(Endereco.Numero, 5, tcStr);
+      GravarCampo(Endereco.Numero, 5, tcStrZero);
       GravarCampo(Endereco.Complemento, 15, tcStr, True);
       GravarCampo(Endereco.Bairro, 15, tcStr, True);
       GravarCampo(Endereco.Cidade, 20, tcStr, True);

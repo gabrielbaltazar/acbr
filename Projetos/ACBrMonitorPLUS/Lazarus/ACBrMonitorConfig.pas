@@ -35,7 +35,7 @@ unit ACBrMonitorConfig;
 interface
 
 uses
-  Classes, SysUtils, IniFiles, ACBrMonitorConsts, ACBrUtil, Graphics;
+  Classes, SysUtils, IniFiles, ACBrMonitorConsts, Graphics;
 
 type
 
@@ -356,6 +356,10 @@ type
     TamanhoPapel                     : Integer;
   end;
 
+  TDAMFE = record
+    ExibirMunicipioDescarregamento   : Boolean;
+  end;
+
   TDFeDiretorios = record
     Salvar                       : Boolean;
     PastaMensal                  : Boolean;
@@ -400,6 +404,7 @@ type
     DANFE       : TDANFE;
     NFCe        : TNFCe;
     DACTE       : TDACTE;
+    DAMFE       : TDAMFe;
   end;
 
   TeSocial = record
@@ -442,6 +447,7 @@ type
   end;
 
   TSATExtrato = record
+    MostrarStatus               : Boolean;
     ParamsString                : String;
     ImprimeDescAcrescItem       : Boolean;
     ImprimeEmUmaLinha           : Boolean;
@@ -640,6 +646,8 @@ type
     CodTransmissao             : String ;
     RemoveAcentos              : Boolean;
     PrefixArqRemessa           : String;
+    VersaoArquivo              : String;
+    VersaoLote                 : String;
   end;
 
   TBoletoRelatorio = record
@@ -1205,6 +1213,11 @@ begin
       Ini.WriteInteger( CSecDACTE,  CKeyDACTETamanhoPapel           , TamanhoPapel );
     end;
 
+    with DFe.Impressao.DAMFE do
+    begin
+      Ini.WriteBool( CSecDAMFE,  CKeyDAMFEExibirMunicipioDescar, ExibirMunicipioDescarregamento );
+    end;
+
     with DFe.Diretorios do
     begin
       Ini.WriteBool(CSecArquivos,    CKeyArquivosSalvar,                      Salvar                      );
@@ -1259,6 +1272,7 @@ begin
 
     with SAT.SATImpressao.SATExtrato do
     begin
+      ini.WriteBool(    CSecSATExtrato, CKeySATExtMostrarStatus           , MostrarStatus        );
       ini.WriteString(  CSecSATExtrato, CKeySATExtParamsString           , ParamsString          );
       ini.WriteBool(    CSecSATExtrato, CKeySATExtImprimeDescAcrescItem  , ImprimeDescAcrescItem );
       ini.WriteBool(    CSecSATExtrato, CKeySATExtImprimeEmUmaLinha      , ImprimeEmUmaLinha     );
@@ -1442,6 +1456,8 @@ begin
       ini.WriteString( CSecBOLETO, CKeyBOLETOCodTransmissao,CodTransmissao);
       Ini.WriteBool(   CSecBOLETO, CKeyBOLETORemoveAcentos, RemoveAcentos      );
       ini.WriteString( CSecBOLETO, CKeyBoletoPrefixArqRemessa, PrefixArqRemessa );
+      ini.WriteString( CSecBOLETO, CKeyBOLETOVersaoArquivo, VersaoArquivo);
+      ini.WriteString( CSecBOLETO, CKeyBOLETOVersaoLote, VersaoLote);
     end;
 
     with BOLETO.Relatorio do
@@ -1921,6 +1937,11 @@ begin
       TamanhoPapel              :=  Ini.ReadInteger( CSecDACTE,  CKeyDACTETamanhoPapel , TamanhoPapel );
     end;
 
+    with DFe.Impressao.DAMFE do
+    begin
+      ExibirMunicipioDescarregamento := Ini.ReadBool( CSecDAMFE,  CKeyDAMFEExibirMunicipioDescar, ExibirMunicipioDescarregamento );
+    end;
+
     with DFe.Diretorios do
     begin
       Salvar                     := Ini.ReadBool( CSecArquivos,    CKeyArquivosSalvar,                      Salvar                      );
@@ -1996,6 +2017,7 @@ begin
 
     with SAT.SATImpressao.SATExtrato do
     begin
+      MostrarStatus          := ini.ReadBool(  CSecSATExtrato, CKeySATExtMostrarStatus          , MostrarStatus         );
       ParamsString           := ini.ReadString(  CSecSATExtrato, CKeySATExtParamsString           , ParamsString          );
       ImprimeDescAcrescItem  := ini.ReadBool(    CSecSATExtrato, CKeySATExtImprimeDescAcrescItem  , ImprimeDescAcrescItem );
       ImprimeEmUmaLinha      := ini.ReadBool(    CSecSATExtrato, CKeySATExtImprimeEmUmaLinha      , ImprimeEmUmaLinha     );
@@ -2181,6 +2203,8 @@ begin
       CodTransmissao         :=  ini.ReadString( CSecBOLETO, CKeyBOLETOCodTransmissao,     ini.ReadString( CSecBOLETO,CKeyBOLETOCedenteCodTransmissao,'') );
       RemoveAcentos          :=  Ini.ReadBool(   CSecBOLETO, CKeyBOLETORemoveAcentos,      RemoveAcentos      );
       PrefixArqRemessa       :=  Ini.ReadString( CSecBOLETO, CKeyBoletoPrefixArqRemessa,   PrefixArqRemessa );
+      VersaoArquivo          :=  ini.ReadString( CSecBOLETO, CKeyBOLETOVersaoArquivo,       VersaoArquivo);
+      VersaoLote             :=  Ini.ReadString( CSecBOLETO, CKeyBOLETOVersaoLote,          VersaoLote);
     end;
 
     with BOLETO.Relatorio do
@@ -2627,6 +2651,11 @@ begin
     TamanhoPapel              :=  0;
   end;
 
+  with DFe.Impressao.DAMFE do
+  begin
+    ExibirMunicipioDescarregamento :=  False;
+  end;
+
   with DFe.Diretorios do
   begin
     Salvar                     :=  True;
@@ -2701,6 +2730,7 @@ begin
 
   with SAT.SATImpressao.SATExtrato do
   begin
+    MostrarStatus          := False;
     ParamsString           := '';
     ImprimeDescAcrescItem  := True;
     ImprimeEmUmaLinha      := False;

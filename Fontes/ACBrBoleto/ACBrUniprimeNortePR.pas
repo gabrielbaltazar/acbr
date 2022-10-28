@@ -173,7 +173,7 @@ var
      begin
 
         {Primeira instrução vai no registro 1}
-        if Mensagem.Count <= 1 then
+        if Mensagem.Count < 1 then
         begin
            Result := '';
            Exit;
@@ -181,34 +181,29 @@ var
 
         Result := sLineBreak +
                   '2'               +                                    // IDENTIFICAÇÃO DO LAYOUT PARA O REGISTRO
-                  Copy(PadRight(Mensagem[1], 80, ' '), 1, 80);               // CONTEÚDO DA 1ª LINHA DE IMPRESSÃO DA ÁREA "INSTRUÇÕES” DO BOLETO
+                  Copy(PadRight(Mensagem[0], 80, ' '), 1, 80);               // CONTEÚDO DA 1ª LINHA DE IMPRESSÃO DA ÁREA "INSTRUÇÕES” DO BOLETO
+
+        if Mensagem.Count >= 2 then
+           Result := Result +
+                     Copy(PadRight(Mensagem[1], 80, ' '), 1, 80)              // CONTEÚDO DA 2ª LINHA DE IMPRESSÃO DA ÁREA "INSTRUÇÕES” DO BOLETO
+        else
+           Result := Result + PadRight('', 80, ' ');                          // CONTEÚDO DO RESTANTE DAS LINHAS
 
         if Mensagem.Count >= 3 then
            Result := Result +
-                     Copy(PadRight(Mensagem[2], 80, ' '), 1, 80)              // CONTEÚDO DA 2ª LINHA DE IMPRESSÃO DA ÁREA "INSTRUÇÕES” DO BOLETO
+                     Copy(PadRight(Mensagem[2], 80, ' '), 1, 80)              // CONTEÚDO DA 3ª LINHA DE IMPRESSÃO DA ÁREA "INSTRUÇÕES” DO BOLETO
         else
            Result := Result + PadRight('', 80, ' ');                          // CONTEÚDO DO RESTANTE DAS LINHAS
 
         if Mensagem.Count >= 4 then
            Result := Result +
-                     Copy(PadRight(Mensagem[3], 80, ' '), 1, 80)              // CONTEÚDO DA 3ª LINHA DE IMPRESSÃO DA ÁREA "INSTRUÇÕES” DO BOLETO
-        else
-           Result := Result + PadRight('', 80, ' ');                          // CONTEÚDO DO RESTANTE DAS LINHAS
-
-        if Mensagem.Count >= 5 then
-           Result := Result +
-                     Copy(PadRight(Mensagem[4], 80, ' '), 1, 80)              // CONTEÚDO DA 4ª LINHA DE IMPRESSÃO DA ÁREA "INSTRUÇÕES” DO BOLETO
+                     Copy(PadRight(Mensagem[3], 80, ' '), 1, 80)              // CONTEÚDO DA 4ª LINHA DE IMPRESSÃO DA ÁREA "INSTRUÇÕES” DO BOLETO
         else
            Result := Result + PadRight('', 80, ' ');                          // CONTEÚDO DO RESTANTE DAS LINHAS
 
 
         Result := Result                                              +
-                  space(45)                                           +  // COMPLEMENTO DO REGISTRO
-                  aCarteira                                           +
-                  aAgencia                                            +
-                  aConta                                              +
-                  Cedente.ContaDigito                                 +
-                  ANossoNumero + DigitoNossoNumero                    +
+                  space(73)                                           +  // COMPLEMENTO DO REGISTRO
                   IntToStrZero( aRemessa.Count + 2, 6);                  // Nº SEQÜENCIAL DO REGISTRO NO ARQUIVO
      end;
   end;
@@ -284,13 +279,14 @@ begin
          aEspecie := EspecieDoc;
 
       {Pegando campo Intruções}
-      if (DataProtesto > 0) and (DataProtesto > Vencimento) then
-         Protesto := '06' + IntToStrZero(DaysBetween(DataProtesto,Vencimento),2)
-      else if Ocorrencia = '31' then
-         Protesto := '9999'
-      else
-         Protesto := PadLeft(trim(Instrucao1),2,'0') + PadLeft(trim(Instrucao2),2,'0');
-
+      //01, 02, 07 [05..55]
+      case StrToIntDef(trim(Instrucao1),0) of
+        1,2,7 :
+               Protesto := PadLeft(trim(Instrucao1),2,'0') + IntToStrZero(DaysBetween(DataProtesto,Vencimento),2);
+        3  :   Protesto := '0300';
+        99 :   Protesto := '9900';
+        else   Protesto := '0000';
+      end;
       {Pegando Tipo de Sacado}
       case Sacado.Pessoa of
          pFisica   : TipoSacado := '01';
@@ -323,7 +319,8 @@ begin
                   IntToStrZero( Round( ValorDocumento * 100 ), 13)        +  // 127 a 139 - Valo Titulo
                   StringOfChar(' ',8) + PadRight(aEspecie,2) + 'N'        +  // 140 a 150 - BRANCOS + Especie do documento + Idntificação(valor fixo N)
                   FormatDateTime( 'ddmmyy', DataDocumento )               +  // 151 a 156 - Data de Emissão
-                  StringOfChar('0',4)                                     +  // 157 a 160 - ZEROS
+                  Protesto                                                +
+                  //StringOfChar('0',4)                                     +  // 157 a 160 - ZEROS
                   IntToStrZero( round(ValorMoraJuros * 100 ), 13)         +  // 161 a 173 - Valor a ser cobrado por dia de atraso
                   IfThen(DataDesconto < EncodeDate(2000,01,01),'000000',
                          FormatDateTime( 'ddmmyy', DataDesconto))         +  // 174 a 179 - Data limite para concessão desconto

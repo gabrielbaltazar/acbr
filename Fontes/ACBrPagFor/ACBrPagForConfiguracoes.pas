@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -129,6 +129,7 @@ type
     fpConfiguracoes: TConfiguracoes;
   public
     constructor Create(AConfiguracoes: TConfiguracoes); reintroduce; overload; virtual;
+    destructor Destroy; override;
 
     procedure Assign(DeGeralConf: TGeralConf); reintroduce; virtual;
   published
@@ -274,6 +275,13 @@ begin
   FEmpresa := TEmpresaConfNFSe.Create;
 
   FUsarDadosConfig := False;
+end;
+
+destructor TGeralConf.Destroy;
+begin
+  FEmpresa.Free;
+
+  inherited;
 end;
 
 procedure TGeralConf.SetBanco(const Value: TBanco);

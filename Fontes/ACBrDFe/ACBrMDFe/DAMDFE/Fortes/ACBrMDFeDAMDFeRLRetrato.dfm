@@ -1428,16 +1428,17 @@ inherited frlDAMDFeRLRetrato: TfrlDAMDFeRLRetrato
         Left = 0
         Top = 0
         Width = 742
-        Height = 49
+        Height = 38
         Background.Height = 487
         Background.Width = 865
         AfterPrint = rlbItensAfterPrint
         BeforePrint = rlbItensBeforePrint
         object rlmChave1: TRLMemo
-          Left = 3
-          Top = 30
-          Width = 354
+          Left = 0
+          Top = 14
+          Width = 361
           Height = 16
+          Align = faLeftTop
           AutoSize = False
           Behavior = [beSiteExpander]
           Color = clWhite
@@ -1452,10 +1453,11 @@ inherited frlDAMDFeRLRetrato: TfrlDAMDFeRLRetrato
           ParentFont = False
         end
         object rlmChave2: TRLMemo
-          Left = 381
-          Top = 30
-          Width = 354
+          Left = 377
+          Top = 14
+          Width = 365
           Height = 16
+          Align = faRightTop
           AutoSize = False
           Behavior = [beSiteExpander]
           Color = clWhite

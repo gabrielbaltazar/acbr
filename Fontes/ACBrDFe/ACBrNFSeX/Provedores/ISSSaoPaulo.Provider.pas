@@ -49,19 +49,20 @@ uses
 type
   TACBrNFSeXWebserviceISSSaoPaulo = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function TesteEnvio(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(ACabecalho, AMSG: string): string; override;
+    function GerarNFSe(ACabecalho, AMSG: string): string; override;
+    function TesteEnvio(ACabecalho, AMSG: string): string; override;
+    function ConsultarSituacao(ACabecalho, AMSG: string): string; override;
+    function ConsultarLote(ACabecalho, AMSG: string): string; override;
+    function ConsultarNFSePorRps(ACabecalho, AMSG: string): string; override;
+    function ConsultarNFSe(ACabecalho, AMSG: string): string; override;
+    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: string): string; override;
+    function Cancelar(ACabecalho, AMSG: string): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
-  TACBrNFSeProviderISSSaoPaulo = class (TACBrNFSeProviderProprio)
+  TACBrNFSeProviderISSSaoPaulo = class(TACBrNFSeProviderProprio)
   protected
     procedure Configuracao; override;
 
@@ -89,11 +90,15 @@ type
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
+    procedure PrepararConsultaNFSeServicoTomado(Response: TNFSeConsultaNFSeResponse); override;
+
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = '';
                                      const AMessageTag: string = 'Erro'); override;
 
+    function LerChaveNFe(ANode: TACBrXmlNode): string;
+    function LerChaveRPS(ANode: TACBrXmlNode): string;
   end;
 
 implementation
@@ -109,7 +114,7 @@ uses
 procedure TACBrNFSeProviderISSSaoPaulo.AssinaturaAdicional(Nota: TNotaFiscal);
 var
   sSituacao, sISSRetido, sCPFCNPJTomador, sIndTomador, sTomador,
-  sCPFCNPJInter, sIndInter, sISSRetidoInter, sInter, sAssinatura: String;
+  sCPFCNPJInter, sIndInter, sISSRetidoInter, sInter, sAssinatura: string;
 begin
   with Nota do
   begin
@@ -129,10 +134,10 @@ begin
       else
         sIndTomador := '3';
 
-    sTomador := sIndTomador + ACBrUtil.Strings.Poem_Zeros(sCPFCNPJTomador, 14);
+    sTomador := sIndTomador + Poem_Zeros(sCPFCNPJTomador, 14);
 
     // Prestador Intermediario
-    sCPFCNPJInter := OnlyNumber(NFSe.IntermediarioServico.CpfCnpj);
+    sCPFCNPJInter := OnlyNumber(NFSe.Intermediario.Identificacao.CpfCnpj);
 
     if Length(sCPFCNPJInter) = 11 then
       sIndInter := '1'
@@ -142,24 +147,24 @@ begin
       else
         sIndInter := '3';
 
-    sISSRetidoInter := EnumeradoToStr(NFSe.IntermediarioServico.IssRetido,
+    sISSRetidoInter := EnumeradoToStr(NFSe.Intermediario.IssRetido,
                                       ['N', 'S'], [stNormal, stRetencao]);
 
     if sIndInter <> '3' then
-      sInter := sIndInter + ACBrUtil.Strings.Poem_Zeros(sCPFCNPJInter, 14) + sISSRetidoInter
+      sInter := sIndInter + Poem_Zeros(sCPFCNPJInter, 14) + sISSRetidoInter
     else
       sInter := '';
 
-    sAssinatura := ACBrUtil.Strings.Poem_Zeros(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, 8) +
-                   PadRight(NFSe.IdentificacaoRps.Serie, 5 , ' ') +
-                   ACBrUtil.Strings.Poem_Zeros(NFSe.IdentificacaoRps.Numero, 12) +
+    sAssinatura := Poem_Zeros(NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, 8) +
+                   PadRight(NFSe.IdentificacaoRps.Serie, 5, ' ') +
+                   Poem_Zeros(NFSe.IdentificacaoRps.Numero, 12) +
                    FormatDateTime('yyyymmdd', NFse.DataEmissao) +
                    TipoTributacaoRPSToStr(NFSe.TipoTributacaoRPS) +
                    sSituacao +
                    sISSRetido +
-                   ACBrUtil.Strings.Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorServicos)), 15 ) +
-                   ACBrUtil.Strings.Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorDeducoes)), 15 ) +
-                   ACBrUtil.Strings.Poem_Zeros(OnlyNumber(NFSe.Servico.ItemListaServico ), 5 ) +
+                   Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorServicos)), 15) +
+                   Poem_Zeros(OnlyNumber(FormatFloat('#0.00', NFSe.Servico.Valores.ValorDeducoes)), 15) +
+                   Poem_Zeros(OnlyNumber(NFSe.Servico.ItemListaServico), 5) +
                    sTomador +
                    sInter;
 
@@ -175,7 +180,7 @@ begin
   with ConfigGeral do
   begin
     Identificador := '';
-    QuebradeLinha := '|';
+    QuebradeLinha := ';';
     ModoEnvio := meLoteAssincrono;
   end;
 
@@ -188,6 +193,7 @@ begin
     ConsultarNFSe := True;
     CancelarNFSe := True;
     LoteGerarNFSe := True;
+    ConsultarNFSeServicoTomado := true;
 
     IncluirURI := False;
 
@@ -243,6 +249,12 @@ begin
       DocElemento := 'PedidoEnvioRPS';
     end;
 
+    with ConsultarNFSeServicoTomado do
+    begin
+      InfElemento := '';
+      DocElemento := 'ConsultarNFSeServicoTomado';
+    end;
+
     DadosCabecalho := '1';
   end;
 
@@ -256,6 +268,7 @@ begin
     ConsultarNFSe := 'PedidoConsultaNFe_v01.xsd';
     CancelarNFSe := 'PedidoCancelamentoNFe_v01.xsd';
     GerarNFSe := 'PedidoEnvioRPS_v01.xsd';
+    ConsultarNFSeServicoTomado := 'PedidoConsultaNFePeriodo_v01.xsd';
   end;
 end;
 
@@ -289,6 +302,32 @@ begin
     else
       raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
   end;
+end;
+
+function TACBrNFSeProviderISSSaoPaulo.LerChaveNFe(ANode: TACBrXmlNode): string;
+var
+  AuxNode: TACBrXmlNode;
+begin
+  if ANode = nil then
+    Exit;
+
+  AuxNode := ANode.Childrens.FindAnyNs('ChaveNFe');
+
+  if AuxNode <> nil then
+    Result := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroNFe'), tcStr);
+end;
+
+function TACBrNFSeProviderISSSaoPaulo.LerChaveRPS(ANode: TACBrXmlNode): string;
+var
+  AuxNode: TACBrXmlNode;
+begin
+  if ANode = nil then
+    Exit;
+
+  AuxNode := ANode.Childrens.FindAnyNs('ChaveRPS');
+
+  if AuxNode <> nil then
+    Result := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroRPS'), tcStr);
 end;
 
 procedure TACBrNFSeProviderISSSaoPaulo.ProcessarMensagemErros(
@@ -331,7 +370,7 @@ begin
 
       if Mensagem <> '' then
       begin
-        AAlerta := Response.Erros.New;
+        AAlerta := Response.Alertas.New;
         AAlerta.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
         AAlerta.Descricao := Mensagem;
 
@@ -375,7 +414,8 @@ begin
                        IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count);
   end;
 
-  if Response.Erros.Count > 0 then Exit;
+  if Response.Erros.Count > 0 then
+    Exit;
 
   ListaRps := '';
 
@@ -389,7 +429,7 @@ begin
   vTotServicos := 0;
   vTotDeducoes := 0;
 
-  for I := 0 to TACBrNFSeX(FAOwner).NotasFiscais.Count -1 do
+  for I := 0 to TACBrNFSeX(FAOwner).NotasFiscais.Count - 1 do
   begin
     Nota := TACBrNFSeX(FAOwner).NotasFiscais.Items[I];
 
@@ -409,7 +449,7 @@ begin
 
     SalvarXmlRps(Nota);
 
-    if i = 0 then
+    if I = 0 then
     begin
       DataInicial := Nota.NFSe.DataEmissao;
       DataFinal := DataInicial;
@@ -437,22 +477,20 @@ begin
 
   case Response.ModoEnvio of
     meUnitario:
-    begin
-      TagEnvio := 'PedidoEnvioRPS';
+      begin
+        TagEnvio := 'PedidoEnvioRPS';
 
-      xCabecalho := '<Cabecalho xmlns="" Versao="1">' +
-                      '<CPFCNPJRemetente>' +
-                        '<CNPJ>' +
-                          OnlyNumber(Emitente.CNPJ) +
-                        '</CNPJ>' +
-                      '</CPFCNPJRemetente>' +
-                    '</Cabecalho>';
+        xCabecalho := '<Cabecalho xmlns="" Versao="1">' +
+                        '<CPFCNPJRemetente>' +
+                          '<CNPJ>' + OnlyNumber(Emitente.CNPJ) + '</CNPJ>' +
+                        '</CPFCNPJRemetente>' +
+                      '</Cabecalho>';
 
-      if EstaVazio(ConfigMsgDados.GerarNFSe.xmlns) then
-        NameSpace := ''
-      else
-        NameSpace := ' xmlns="' + ConfigMsgDados.GerarNFSe.xmlns + '"';
-    end;
+        if EstaVazio(ConfigMsgDados.GerarNFSe.xmlns) then
+          NameSpace := ''
+        else
+          NameSpace := ' xmlns="' + ConfigMsgDados.GerarNFSe.xmlns + '"';
+      end;
   else
     begin
       TagEnvio := 'PedidoEnvioLoteRPS';
@@ -484,23 +522,21 @@ begin
 
       xCabecalho := '<Cabecalho xmlns="" Versao="1">' +
                       '<CPFCNPJRemetente>' +
-                        '<CNPJ>' +
-                          OnlyNumber(Emitente.CNPJ) +
-                        '</CNPJ>' +
+                        '<CNPJ>' + OnlyNumber(Emitente.CNPJ) + '</CNPJ>' +
                       '</CPFCNPJRemetente>' +
                       '<transacao>' +
-                         LowerCase(BoolToStr(TACBrNFSeX(FAOwner).NotasFiscais.Transacao, True)) +
+                        LowerCase(BoolToStr(TACBrNFSeX(FAOwner).NotasFiscais.Transacao, True)) +
                       '</transacao>' +
                       '<dtInicio>' + xDataI + '</dtInicio>' +
                       '<dtFim>' + xDataF + '</dtFim>' +
                       '<QtdRPS>' +
-                         IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count) +
+                        IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count) +
                       '</QtdRPS>' +
                       '<ValorTotalServicos>' +
-                         xTotServicos +
+                        xTotServicos +
                       '</ValorTotalServicos>' +
                       '<ValorTotalDeducoes>' +
-                         xTotDeducoes +
+                        xTotDeducoes +
                       '</ValorTotalDeducoes>' +
                     '</Cabecalho>';
 
@@ -512,8 +548,8 @@ begin
   end;
 
   Response.ArquivoEnvio := '<' + TagEnvio + NameSpace + '>' +
-                              xCabecalho +
-                              ListaRps +
+                             xCabecalho +
+                             ListaRps +
                            '</' + TagEnvio + '>';
 end;
 
@@ -611,7 +647,7 @@ begin
         end;
       end;
     except
-      on E:Exception do
+      on E: Exception do
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
@@ -648,13 +684,9 @@ begin
   Response.ArquivoEnvio := '<PedidoInformacoesLote' + NameSpace + '>' +
                              '<Cabecalho xmlns="" Versao="1">' +
                                '<CPFCNPJRemetente>' +
-                                 '<CNPJ>' +
-                                   OnlyNumber(Emitente.CNPJ) +
-                                 '</CNPJ>' +
+                                 '<CNPJ>' + OnlyNumber(Emitente.CNPJ) + '</CNPJ>' +
                                '</CPFCNPJRemetente>' +
-                               '<NumeroLote>' +
-                                 Response.Lote +
-                               '</NumeroLote>' +
+                               '<NumeroLote>' + Response.Lote + '</NumeroLote>' +
                                '<InscricaoPrestador>' +
                                  OnlyNumber(Emitente.InscMun) +
                                '</InscricaoPrestador>' +
@@ -729,7 +761,7 @@ begin
         end;
       end;
     except
-      on E:Exception do
+      on E: Exception do
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
@@ -766,13 +798,9 @@ begin
   Response.ArquivoEnvio := '<PedidoConsultaLote' + NameSpace + '>' +
                              '<Cabecalho xmlns="" Versao="1">' +
                                '<CPFCNPJRemetente>' +
-                                 '<CNPJ>' +
-                                   OnlyNumber(Emitente.CNPJ) +
-                                 '</CNPJ>' +
+                                 '<CNPJ>' + OnlyNumber(Emitente.CNPJ) + '</CNPJ>' +
                                '</CPFCNPJRemetente>' +
-                               '<NumeroLote>' +
-                                 Response.Lote +
-                               '</NumeroLote>' +
+                               '<NumeroLote>' + Response.Lote + '</NumeroLote>' +
                              '</Cabecalho>' +
                            '</PedidoConsultaLote>';
 end;
@@ -785,10 +813,12 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   i: Integer;
-  NumRps: String;
+  NumRps, NumNFSe: string;
   ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
+  NumRps := '';
+  NumNFSe := '';
 
   try
     try
@@ -830,27 +860,20 @@ begin
       for i := Low(ANodeArray) to High(ANodeArray) do
       begin
         ANode := ANodeArray[i];
-        AuxNode := ANode.Childrens.FindAnyNs('ChaveRPS');
 
-        if AuxNode <> nil then
-        begin
-          NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroRPS'), tcStr);
+        NumRps := LerChaveRPS(ANode);
+        NumNFSe := LerChaveNFe(ANode);
 
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
-          if Assigned(ANota) then
-            ANota.XmlNfse := ANode.OuterXml
-          else
-          begin
-            TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-            ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-          end;
+        if ANota = nil then
+          ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
-          SalvarXmlNfse(ANota);
-        end;
+        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
+        SalvarXmlNfse(ANota);
       end;
     except
-      on E:Exception do
+      on E: Exception do
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
@@ -895,9 +918,7 @@ begin
   Response.ArquivoEnvio := '<PedidoConsultaNFe' + NameSpace + '>' +
                              '<Cabecalho xmlns="" Versao="1">' +
                                '<CPFCNPJRemetente>' +
-                                 '<CNPJ>' +
-                                   OnlyNumber(Emitente.CNPJ) +
-                                 '</CNPJ>' +
+                                 '<CNPJ>' + OnlyNumber(Emitente.CNPJ) + '</CNPJ>' +
                                '</CPFCNPJRemetente>' +
                              '</Cabecalho>' +
                              '<Detalhe xmlns="">' +
@@ -912,6 +933,71 @@ begin
                            '</PedidoConsultaNFe>';
 end;
 
+procedure TACBrNFSeProviderISSSaoPaulo.PrepararConsultaNFSeServicoTomado(
+  Response: TNFSeConsultaNFSeResponse);
+var
+  AErro: TNFSeEventoCollectionItem;
+  Emitente: TEmitenteConfNFSe;
+  NameSpace: string;
+begin
+  if EstaVazio(Response.InfConsultaNFSe.CNPJTomador) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod127;
+    AErro.Descricao := Desc127;
+    Exit;
+  end;
+
+  if Response.InfConsultaNFSe.DataInicial = 0 then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod115;
+    AErro.Descricao := Desc115;
+    Exit;
+  end;
+
+  if Response.InfConsultaNFSe.DataFinal = 0 then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod116;
+    AErro.Descricao := Desc116;
+    Exit;
+  end;
+
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  Response.Metodo := tmConsultarNFSeServicoTomado;
+
+  if EstaVazio(ConfigMsgDados.ConsultarNFSe.xmlns) then
+    NameSpace := ''
+  else
+    NameSpace := ' xmlns="' + ConfigMsgDados.ConsultarNFSe.xmlns + '"';
+
+  Response.ArquivoEnvio := '<PedidoConsultaNFePeriodo' + NameSpace + '>' +
+                              '<Cabecalho xmlns="" Versao="1">' +
+                                '<CPFCNPJRemetente>' +
+                                  '<CNPJ>' + OnlyNumber(Emitente.CNPJ) + '</CNPJ>' +
+                                '</CPFCNPJRemetente>' +
+                                '<CPFCNPJ>' +
+                                  '<CNPJ>' +
+                                    Response.InfConsultaNFSe.CNPJTomador +
+                                  '</CNPJ>' +
+                                '</CPFCNPJ>' +
+                                '<dtInicio>' +
+                                  FormatDateTime('yyyy-mm-dd', Response.InfConsultaNFSe.DataInicial) +
+                                '</dtInicio>' +
+                                '<dtFim>' +
+                                  FormatDateTime('yyyy-mm-dd', Response.InfConsultaNFSe.DataFinal) +
+                                '</dtFim>' +
+                                '<NumeroPagina>' +
+                                  IntToStr(Response.InfConsultaNFSe.Pagina) +
+                                '</NumeroPagina>' +
+                              '</Cabecalho>' +
+                           '</PedidoConsultaNFePeriodo>';
+
+  ConfigMsgDados.ConsultarNFSe.DocElemento  := 'PedidoConsultaNFePeriodo';
+end;
+
 procedure TACBrNFSeProviderISSSaoPaulo.TratarRetornoConsultaNFSeporRps(
   Response: TNFSeConsultaNFSeporRpsResponse);
 var
@@ -920,10 +1006,12 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   i: Integer;
-  NumRps: String;
+  NumRps, NumNFSe: string;
   ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
+  NumRps := '';
+  NumNFSe := '';
 
   try
     try
@@ -965,27 +1053,20 @@ begin
       for i := Low(ANodeArray) to High(ANodeArray) do
       begin
         ANode := ANodeArray[i];
-        AuxNode := ANode.Childrens.FindAnyNs('ChaveRPS');
 
-        if AuxNode <> nil then
-        begin
-          NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroRPS'), tcStr);
+        NumRps := LerChaveRPS(ANode);
+        NumNFSe := LerChaveNFe(ANode);
 
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
-          if Assigned(ANota) then
-            ANota.XmlNfse := ANode.OuterXml
-          else
-          begin
-            TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-            ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-          end;
+        if ANota = nil then
+          ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
-          SalvarXmlNfse(ANota);
-        end;
+        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
+        SalvarXmlNfse(ANota);
       end;
     except
-      on E:Exception do
+      on E: Exception do
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
@@ -1004,6 +1085,15 @@ var
   Emitente: TEmitenteConfNFSe;
   NameSpace: string;
 begin
+
+  case Response.InfConsultaNFSe.tpConsulta of
+    tcServicoTomado:
+      begin
+        PrepararConsultaNFSeServicoTomado(Response);
+        exit;
+      end;
+  end;
+
   if EstaVazio(Response.InfConsultaNFSe.NumeroIniNFSe) then
   begin
     AErro := Response.Erros.New;
@@ -1024,9 +1114,7 @@ begin
   Response.ArquivoEnvio := '<PedidoConsultaNFe' + NameSpace + '>' +
                              '<Cabecalho xmlns="" Versao="1">' +
                                '<CPFCNPJRemetente>' +
-                                 '<CNPJ>' +
-                                   OnlyNumber(Emitente.CNPJ) +
-                                 '</CNPJ>' +
+                                 '<CNPJ>' + OnlyNumber(Emitente.CNPJ) + '</CNPJ>' +
                                '</CPFCNPJRemetente>' +
                              '</Cabecalho>' +
                              '<Detalhe xmlns="">' +
@@ -1035,7 +1123,7 @@ begin
                                    OnlyNumber(Emitente.InscMun) +
                                  '</InscricaoPrestador>' +
                                  '<NumeroNFe>' +
-                                    Response.InfConsultaNFSe.NumeroIniNFSe +
+                                   Response.InfConsultaNFSe.NumeroIniNFSe +
                                  '</NumeroNFe>' +
                                '</ChaveNFe>' +
                              '</Detalhe>' +
@@ -1050,10 +1138,12 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   i: Integer;
-  NumRps: String;
+  NumRps, NumNFSe: string;
   ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
+  NumRps := '';
+  NumNFSe := '';
 
   try
     try
@@ -1095,27 +1185,20 @@ begin
       for i := Low(ANodeArray) to High(ANodeArray) do
       begin
         ANode := ANodeArray[i];
-        AuxNode := ANode.Childrens.FindAnyNs('ChaveRPS');
 
-        if AuxNode <> nil then
-        begin
-          NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumerRPS'), tcStr);
+        NumRps := LerChaveRPS(ANode);
+        NumNFSe := LerChaveNFe(ANode);
 
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
-          if Assigned(ANota) then
-            ANota.XmlNfse := ANode.OuterXml
-          else
-          begin
-            TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-            ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-          end;
+        if ANota = nil then
+          ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
-          SalvarXmlNfse(ANota);
-        end;
+        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
+        SalvarXmlNfse(ANota);
       end;
     except
-      on E:Exception do
+      on E: Exception do
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
@@ -1164,8 +1247,7 @@ begin
   InscMun := OnlyNumber(Emitente.InscMun);
   NumeroNFSe := OnlyNumber(Response.InfCancelamento.NumeroNFSe);
 
-  sAssinatura := ACBrUtil.Strings.Poem_Zeros(InscMun, 8) +
-                 ACBrUtil.Strings.Poem_Zeros(NumeroNFSe, 12);
+  sAssinatura := Poem_Zeros(InscMun, 8) + Poem_Zeros(NumeroNFSe, 12);
 
   sAssinatura := string(TACBrNFSeX(FAOwner).SSL.CalcHash(AnsiString(sAssinatura),
                                                     dgstSHA1, outBase64, True));
@@ -1173,9 +1255,7 @@ begin
   Response.ArquivoEnvio := '<PedidoCancelamentoNFe' + NameSpace + '>' +
                              '<Cabecalho xmlns="" Versao="1">' +
                                '<CPFCNPJRemetente>' +
-                                 '<CNPJ>' +
-                                   OnlyNumber(Emitente.CNPJ) +
-                                 '</CNPJ>' +
+                                 '<CNPJ>' + OnlyNumber(Emitente.CNPJ) + '</CNPJ>' +
                                '</CPFCNPJRemetente>' +
                                '<transacao>false</transacao>' +
                              '</Cabecalho>' +
@@ -1184,12 +1264,10 @@ begin
                                  '<InscricaoPrestador>' +
                                    InscMun +
                                  '</InscricaoPrestador>' +
-                                 '<NumeroNFe>' +
-                                    NumeroNFSe +
-                                 '</NumeroNFe>' +
+                                 '<NumeroNFe>' + NumeroNFSe + '</NumeroNFe>' +
                                '</ChaveNFe>' +
                                '<AssinaturaCancelamento>' +
-                                  sAssinatura +
+                                 sAssinatura +
                                '</AssinaturaCancelamento>' +
                              '</Detalhe>' +
                            '</PedidoCancelamentoNFe>';
@@ -1232,7 +1310,7 @@ begin
         end;
       end;
     except
-      on E:Exception do
+      on E: Exception do
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
@@ -1247,7 +1325,7 @@ end;
 { TACBrNFSeXWebserviceISSSaoPaulo }
 
 function TACBrNFSeXWebserviceISSSaoPaulo.Recepcionar(ACabecalho,
-  AMSG: String): string;
+  AMSG: string): string;
 var
   Request: string;
 begin
@@ -1263,7 +1341,8 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.GerarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSSaoPaulo.GerarNFSe(ACabecalho,
+  AMSG: string): string;
 var
   Request: string;
 begin
@@ -1279,7 +1358,8 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.TesteEnvio(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSSaoPaulo.TesteEnvio(ACabecalho,
+  AMSG: string): string;
 var
   Request: string;
 begin
@@ -1296,7 +1376,7 @@ begin
 end;
 
 function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarSituacao(ACabecalho,
-  AMSG: String): string;
+  AMSG: string): string;
 var
   Request: string;
 begin
@@ -1313,7 +1393,7 @@ begin
 end;
 
 function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarLote(ACabecalho,
-  AMSG: String): string;
+  AMSG: string): string;
 var
   Request: string;
 begin
@@ -1330,7 +1410,7 @@ begin
 end;
 
 function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarNFSePorRps(ACabecalho,
-  AMSG: String): string;
+  AMSG: string): string;
 var
   Request: string;
 begin
@@ -1346,7 +1426,25 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarNFSeServicoTomado(ACabecalho,
+  AMSG: string): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfe:ConsultaNFeRecebidasRequest>';
+  Request := Request + '<nfe:VersaoSchema>' + ACabecalho + '</nfe:VersaoSchema>';
+  Request := Request + '<nfe:MensagemXML>' + XmlToStr(AMSG) + '</nfe:MensagemXML>';
+  Request := Request + '</nfe:ConsultaNFeRecebidasRequest>';
+
+  Result := Executar('http://www.prefeitura.sp.gov.br/nfe/ws/consultaNFeRecebidas', Request,
+                     ['RetornoXML', 'RetornoConsulta'],
+                     ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
+end;
+
+function TACBrNFSeXWebserviceISSSaoPaulo.ConsultarNFSe(ACabecalho,
+  AMSG: string): string;
 var
   Request: string;
 begin
@@ -1362,7 +1460,8 @@ begin
                      ['xmlns:nfe="http://www.prefeitura.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSSaoPaulo.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSSaoPaulo.Cancelar(ACabecalho,
+  AMSG: string): string;
 var
   Request: string;
 begin

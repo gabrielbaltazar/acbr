@@ -40,7 +40,7 @@ interface
 uses
   Classes, SysUtils, ACBrConsultaCNPJ, ACBrMonitorConsts, ACBrMonitorConfig,
   ACBrLibResposta,  ACBrLibConsultaCNPJRespostas,
-  CmdUnit, ACBrUtil;
+  CmdUnit, ACBrUtil.FilesIO, ACBrUtil.Strings;
 
 Const
   CCAPTCHA_CNPJ = 'CaptchaCNPJ';
@@ -219,7 +219,7 @@ begin
       Resp.CEP:= CEP;
       Resp.Situacao:= Situacao;
       Resp.CNAE1:= CNAE1;
-      Resp.CNAE2:= CNAE2;
+      Resp.CNAE2:= StringReplace(CNAE2.Text, #13#10,' | ',[rfReplaceAll]);
       Resp.NaturezaJuridica:= NaturezaJuridica;
 
       fpCmd.Resposta := sLineBreak + Resp.Gerar;

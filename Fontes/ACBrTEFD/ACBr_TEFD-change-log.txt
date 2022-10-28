@@ -46,6 +46,48 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+18/10/2022
+-- ACBrTEFAndroidPayGo --
+[*] Correção de erro de grafia em "QuandoFinalizarTransacaoAPI"
+
+-- ACBrTEFAPIComum --
+[*] Método "TACBrTEFAPIComumClass.AtualizarHeader", modificado de Private para
+    Protected
+[*] Inserido no texto, observações sobre Pontos de Parada, para testes de homologação
+
+-- ACBrTEFPayGoAndroidAPI --
+[-] Correção em "TACBrTEFPGWebAndroid.GetURI_Input", para usar o valor do
+    parâmetro "PWINFO_CURRENCY", quando o mesmo for informado
+(por: DSA)
+
+14/10/2022
+-- ACBrTEFPayGoComum --
+[-] Correção para definição do conteúdo de 'TextoEspecialOperador", quando
+    ocorrer falha na Transação, e não houver valor em "PWINFO_CNCDSPMSG", usar
+    "PWINFO_RESULTMSG"
+[*] Método "PWINFOToString", mapeando "PWINFO_RET (0)"
+
+-- ACBrTEFAPIComum --
+[-] Correção em "TACBrTEFAPIComumClass.ProcessarRespostaOperacaoTEF", para
+    chamar evento "QuandoFinalizarOperacao", mesmo quando transação não obtiver
+    Sucesso
+[*] Melhorias nos Logs
+
+-- ACBrTEFPayGoAndroidAPI --
+[*] Ajustes para compatibilizar com o novo APK da PayGo
+[*] Desligando Flag "EmTransacao", quando Inicializar ou DesInicializar
+[*] Melhorias nos Logs
+
+18/08/2022
+-- ACBrPOSPGWebPrinter --
+[-] Correção de erro na compilação. Inclusão das units ACBrUtil.Strings e ACBrUtil.XMLHTML
+    Por: Antonio Carlos
+    
+23/06/2022
+-- ACBrTEFCliSiTefComum --
+[*] Melhoria para leitura da resposta no TEF SiTEF para voucher
+    Por: Antonio Carlos
+
 05/05/22
 -- ACBrTEFAPIComum --
 [*] Propriedade "ImprimeViaClienteReduzida: Boolean", modificada de Default "True"

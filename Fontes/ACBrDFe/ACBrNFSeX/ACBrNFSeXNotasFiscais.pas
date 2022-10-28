@@ -62,6 +62,7 @@ type
     FConfirmada: Boolean;
     FXmlRps: String;
     FXmlNfse: String;
+    FXmlEspelho: String;
 
     function CalcularNomeArquivo: String;
     function CalcularPathArquivo: String;
@@ -96,6 +97,7 @@ type
 
     property XmlRps: String read FXmlRps write FXmlRps;
     property XmlNfse: String read FXmlNfse write SetXmlNfse;
+    property XmlEspelho: String read FXmlEspelho write FXmlEspelho;
 
     property Confirmada: Boolean read FConfirmada write FConfirmada;
     property Alertas: String     read FAlertas;
@@ -164,9 +166,7 @@ implementation
 uses
   synautil, IniFiles, StrUtilsEx,
   pcnAuxiliar,
-  ACBrUtil.Base,
-  ACBrUtil.Strings,
-  ACBrUtil.FilesIO,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.FilesIO,
   ACBrDFeUtil,
   ACBrNFSeX, ACBrNFSeXInterface;
 
@@ -342,7 +342,7 @@ begin
           Numero := INIRec.ReadString(sSecao, 'Numero', '');
           Bairro := INIRec.ReadString(sSecao, 'Bairro', '');
           CodigoMunicipio := INIRec.ReadString(sSecao, 'CodigoMunicipio', '');
-          xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
+          xMunicipio := INIRec.ReadString(sSecao, 'xMunicipio', '');
           UF := INIRec.ReadString(sSecao, 'UF', '');
           CodigoPais := INIRec.ReadInteger(sSecao, 'CodigoPais', 0);
           xPais := INIRec.ReadString(sSecao, 'xPais', '');
@@ -378,7 +378,7 @@ begin
           Complemento := INIRec.ReadString(sSecao, 'Complemento', '');
           Bairro := INIRec.ReadString(sSecao, 'Bairro', '');
           CodigoMunicipio := INIRec.ReadString(sSecao, 'CodigoMunicipio', '');
-          xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
+          xMunicipio := INIRec.ReadString(sSecao, 'xMunicipio', '');
           UF := INIRec.ReadString(sSecao, 'UF', '');
           CodigoPais := INIRec.ReadInteger(sSecao, 'CodigoPais', 0);
           CEP := INIRec.ReadString(sSecao, 'CEP', '');
@@ -398,10 +398,10 @@ begin
 
       sSecao := 'Intermediario';
 
-      with IntermediarioServico do
+      with Intermediario do
       begin
-        CpfCnpj := INIRec.ReadString(sSecao, 'CNPJCPF', '');
-        InscricaoMunicipal := INIRec.ReadString(sSecao, 'InscricaoMunicipal', '');
+        Identificacao.CpfCnpj := INIRec.ReadString(sSecao, 'CNPJCPF', '');
+        Identificacao.InscricaoMunicipal := INIRec.ReadString(sSecao, 'InscricaoMunicipal', '');
         RazaoSocial := INIRec.ReadString(sSecao, 'RazaoSocial', '');
       end;
 
@@ -579,7 +579,10 @@ begin
   if TipoXml = txmlNFSe then
     FXmlNfse := XmlTratado
   else
-    FXmlRps := XmlTratado;
+    if TipoXml = txmlEspelho then
+      FXmlEspelho := XmlTratado
+    else
+      FXmlRps := XmlTratado;
 end;
 
 procedure TNotaFiscal.SetXmlNfse(const Value: String);

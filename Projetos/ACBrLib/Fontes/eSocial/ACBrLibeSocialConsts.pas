@@ -41,7 +41,7 @@ uses
 
 const
   CLibeSocialNome = 'ACBrLibeSocial';
-  CLibeSocialVersao = '0.0.1';
+  CLibeSocialVersao = '0.0.1.33';
 
   CSessaoRespEnvio = 'Envio';
   CSessaoRespConsulta = 'Consulta';
@@ -49,8 +49,14 @@ const
   CSessaoRespConsultaTot = 'Tot';
   CSessaoRespConsultaIdentEventos = 'ConsultaIdentEventos';
   CSessaoRespConsultaIdentEventosRecibo = 'ConsultaIdentEventoRecibo';
+  CErroeSocialAbrir = 'Erro ao abrir o arquivo do eSocial';
 
-  CSessaoeSocial = 'eSocial';
+
+Resourcestring
+  SErroeSocialAbrir = 'Erro ao abrir o arquivo do eSocial: %s';
+  SMsgeSocialEventoAdicionado = 'Evento Adicionado: %s';
+  SErroeSocialConsulta = 'Erro ao Consultar Evento - Parâmetro não Preenchido';
+  SInfEventosCarregados = '%d Evento(s) Carregado(s)';
 
 implementation
 

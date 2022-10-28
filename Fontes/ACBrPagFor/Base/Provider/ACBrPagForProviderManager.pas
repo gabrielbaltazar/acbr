@@ -55,10 +55,12 @@ uses
   PagFor.BancoCECRED.Provider,
   PagFor.BancodoBrasil.Provider,
   PagFor.Bradesco.Provider,
+  PagFor.Caixa.Provider,
   PagFor.HSBC.Provider,
   PagFor.Itau.Provider,
   PagFor.Safra.Provider,
   PagFor.Santander.Provider,
+  PagFor.Sicoob.Provider,
   PagFor.Sicredi.Provider;
 
   { TACBrPagForProviderManager }
@@ -77,6 +79,9 @@ begin
       pagBradesco:
         Result := TACBrPagForProviderBradesco.Create(ACBrPagFor);
 
+      pagCaixaEconomica:
+        Result := TACBrPagForProviderCaixa.Create(ACBrPagFor);
+
       pagHSBC:
         Result := TACBrPagForProviderHSBC.Create(ACBrPagFor);
 
@@ -88,6 +93,9 @@ begin
 
       pagSantander:
         Result := TACBrPagForProviderSantander.Create(ACBrPagFor);
+
+      pagBanCooB:
+        Result := TACBrPagForProviderSicoob.Create(ACBrPagFor);
 
       pagSicredi:
         Result := TACBrPagForProviderSicredi.Create(ACBrPagFor);

@@ -37,7 +37,7 @@ unit ACBrBoletoRet_Credisis;
 interface
 
 uses
-  Classes, SysUtils, ACBrBoleto, ACBrBoletoWS, ACBrBoletoRetorno, pcnConversao;
+  Classes, SysUtils, ACBrBoleto, ACBrBoletoWS, ACBrBoletoRetorno, DateUtils, pcnConversao;
 
 type
 
@@ -49,8 +49,8 @@ type
   public
     constructor Create(ABoletoWS: TACBrBoleto); override;
     destructor  Destroy; Override;
-    function LerRetorno: Boolean;override;
-    function RetornoEnvio: Boolean; override;
+    function LerRetorno(const ARetornoWS: TACBrBoletoRetornoWS): Boolean;override;
+    function RetornoEnvio(const AIndex: Integer): Boolean; override;
 
   end;
 
@@ -60,7 +60,7 @@ type
 implementation
 
 uses
-  ACBrBoletoConversao, ACBrUtil.XMLHTML;
+  ACBrUtil.XMLHTML;
 
 { TRetornoEnvio_Credisis }
 
@@ -74,9 +74,8 @@ begin
   inherited Destroy;
 end;
 
-function TRetornoEnvio_Credisis.LerRetorno: Boolean;
+function TRetornoEnvio_Credisis.LerRetorno(const ARetornoWS: TACBrBoletoRetornoWS): Boolean;
 var
-    RetornoCredisis: TRetEnvio;
     lXML: String;
 begin
     Result := True;
@@ -86,17 +85,16 @@ begin
     Leitor.Arquivo := lXML;
     Leitor.Grupo   := Leitor.Arquivo;
 
-    RetornoCredisis:= ACBrBoleto.CriarRetornoWebNaLista;
     try
       if leitor.rExtrai(1, 'gerarBoletosResponse') <> '' then
       begin
-          RetornoCredisis.DadosRet.ControleNegocial.NSU := Leitor.rCampo(tcStr, 'numeroSequencial');
-          RetornoCredisis.DadosRet.IDBoleto.NossoNum    := Leitor.rCampo(tcStr, 'nossonumero');
-          RetornoCredisis.DadosRet.IDBoleto.LinhaDig    := Leitor.rCampo(tcStr, 'linhaDigitavel');
-          RetornoCredisis.DadosRet.IDBoleto.CodBarras   := Leitor.rCampo(tcStr, 'codigoBarras');
+          ARetornoWS.DadosRet.ControleNegocial.NSU := Leitor.rCampo(tcStr, 'numeroSequencial');
+          ARetornoWS.DadosRet.IDBoleto.NossoNum    := Leitor.rCampo(tcStr, 'nossonumero');
+          ARetornoWS.DadosRet.IDBoleto.LinhaDig    := Leitor.rCampo(tcStr, 'linhaDigitavel');
+          ARetornoWS.DadosRet.IDBoleto.CodBarras   := Leitor.rCampo(tcStr, 'codigoBarras');
 
-          RetornoCredisis.CodRetorno       := Leitor.rCampo(tcStr, 'code');
-          RetornoCredisis.DadosRet.Excecao := Leitor.rCampo(tcStr, 'message');
+          ARetornoWS.CodRetorno       := Leitor.rCampo(tcStr, 'code');
+          ARetornoWS.DadosRet.Excecao := Leitor.rCampo(tcStr, 'message');
       end;
     except
       Result := False;
@@ -104,7 +102,7 @@ begin
 
   end;
 
-function TRetornoEnvio_Credisis.RetornoEnvio: Boolean;
+function TRetornoEnvio_Credisis.RetornoEnvio(const AIndex: Integer): Boolean;
 var
   lRetornoWS: String;
 begin
@@ -112,7 +110,7 @@ begin
   lRetornoWS := RetWS;
   RetWS := SeparaDados(lRetornoWS, 'SOAP-ENV:Body');
 
-  Result:=inherited RetornoEnvio;
+  Result:=inherited RetornoEnvio(AIndex);
 
 end;
 

@@ -52,6 +52,7 @@ type
     function MontarCampoNossoNumero(const ACBrTitulo: TACBrTitulo): String; Override;
     function GerarRegistroTransacao240(ACBrTitulo : TACBrTitulo): String; Override;
     procedure LerRetorno240(ARetorno: TStringList); Override;
+    function DefinePosicaoNossoNumeroRetorno: Integer; Override;
   end;
 
 
@@ -208,6 +209,15 @@ begin
         end;
      end;
   end;
+end;
+
+function TACBrBancoCresol.DefinePosicaoNossoNumeroRetorno: Integer;
+begin
+  if ACBrBanco.ACBrBoleto.LayoutRemessa = c240 then
+    Result := 38
+  else
+    Result := 71;
+
 end;
 
 function TACBrBancoCresol.GerarRegistroTransacao240(ACBrTitulo: TACBrTitulo): String;
@@ -410,7 +420,7 @@ begin
               '0'                                                       + //224 - Código de Baixa
               space(3)                                                  + //225 a 227 - Dias para baixa
               '09'                                                      + //228 a 229 - Código da Moeda
-              '0000000000 ';
+              '00000000000';                                              //230 a 240 zeros
     Inc(FNumeroSequencialRegistroNoLote);
 
     {SEGMENTO Q}

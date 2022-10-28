@@ -49,6 +49,186 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+27/10/2022
+--ACBrBoleto--
+[-]TK-3132 - Parâmetro ImprimirMensagemPadrao não está surtindo efeito / Outros
+  por : Antonio Carlos / Elton / Pandaaa
+
+26/10/2022
+--ACBrBoletoRet_Sicredi_API--
+[*]ACBrBoleto API Sicredi Consulta em lista
+  por: Victor H Gonzales - Pandaaa
+
+10/10/2022
+--ACBrBoletoRetorno ACBrBoletoRet_Sicredi_API ACBrBoletoRet_PenseBank_API ACBrBoletoRet_BancoBrasil_API ACBrBoletoWS--
+[+]TK-3090 ACBrBoleto - Ajuste  integração via API, adicionado propriedade de JSON Envio
+  por: Victor H Gonzales - Pandaaa / Brunocogoo
+
+06/10/2022
+-- ACBrBoletoW_Sicredi_API ACBrBoletoRet_Sicredi_API --
+[*] TK3084 Boleto WS Sicredi - Metodo de alteração
+  https://www.projetoacbr.com.br/forum/topic/69046-boleto-ws-sicredi-altera%C3%A7%C3%A3o-de-vencimento/
+  por : Thiago S
+
+06/10/2022
+-- ACBrBancoBTGPactual --
+[-] TK-3050-1-1 Ajustes Campo Livre e Nosso Número
+  por Pandaaa / Daniel Moraes / Luizhbr
+
+30/09/2022
+--ACBrBancoInter--
+[*] TK-3115 ACbrBoleto - Ajuste leitura retorno CNAB400 do Banco Inter Motivo de Rejeição
+  por : Daniel Infocotidiano / Michel Ouriques
+
+--ACBrBancoBTGPactual--
+[+] TK-3050 ACBrBoleto - Inclusão do Banco 208 BTG Pactual
+  por : Daniel Infocotidiano / Victor H Gonzales - Pandaaa / Luizhbr
+
+--ACBrBoletoW_Sicredi_API-- 
+[-] TK-3116 ACBrBoleto - Ajuste na integração via API com Sicredi parametro url nossoNumero camelCase
+  por : Sergio Mattos
+
+23/09/2022
+-- ACBrBancoUnicredES --
+[*] TK-2030 ACBrBoleto - Ajuste leitura retorno CNAB400 quanto ao método CodMotivoRejeicaoToDescricao
+  Por : Pandaaa / José Luiz
+
+-- ACBrBoletoRetorno ACBrBoletoRet_BancoBrasil_API --
+[*] TK-3089 ACBrBoleto - Ajuste integração por API do BB para leitura de mais campos
+  Por : Aggille Sistemas de Gestão / Pandaaa
+
+19/09/2022
+--ACBrBoletoRet_BancoBrasil_API--
+TK-3033 Alimentar propriedades Outros Valores Retorno Banco do Brasil API (tpConsultaDetalhada)  ValorRecebido,ValorMoraJuros,ValorDesconto,ValorOutrosCreditos,ValorIOF 
+  Por : Pandaaa
+
+13/09/2022
+--ACBrBoletoWS.pas--
+[-] TK-3054 ACBrBoleto Geração de LOG Forcando gerar diretório mesmo inativo
+  Por : Pandaaa
+
+12/09/2022
+--ACBrBoletoWS.pas--
+[-] ACBrBoleto SCOPE Vazio (AV)
+  Por : Pandaaa
+
+03/09/2022
+[*] TK-3020 ACBrBoleto -Ajuste remessa CNAB240 Cresol
+  por : Grupo FS
+
+03/09/2022
+--ACBrBoletoW_BancoBrasil_API--
+[*] TK-3026 ACBrBoleto - Ajuste consulta API do BB quanto campo DV cnpjPagador (CPF)
+  por : ifcrus / brunocogoo
+
+31/08/2022
+--ACBrBoletoBradesco--
+[*] TK-2896 Bradesco Proteção na geração do segmento R, gerar somente quando desconto2 ou desconto3 <> tdNaoCondederDesconto e valorPercentual > 0
+  Por : Pandaaa
+
+26/08/2022
+--ACBrBoleto.pas--
+[*] TK-3001 Ajuste SetNumCopias para aplicações ISAPI
+  por : Windsoft
+
+18/08/2022
+[*] --ACBrBoletoBradesco-- Sequencia Trailer 240 Bradesco 
+  por : Pandaaa
+
+17/08/2022
+--ACBrBoleto, ACBrBoletoWS--
+[*] Refatoração do Componente na camada de integração Web do ACBrBoleto
+  Leia em: https://www.projetoacbr.com.br/forum/topic/68560-altera%C3%A7%C3%B5es-na-transmiss%C3%A3o-de-boletos-por-webservice/
+  Por : José M S Junior
+
+17/08/2022
+--ACBrBoletoBradesco--
+[*] TK-2896 Bradesco Proteção na geração do segmento R, gerar somente quando desconto2 ou desconto3 <> tdNaoCondederDesconto
+  Por : Pandaaa
+
+11/08/2022
+--ACBrBoletoCresol--
+[*] TK-2971 Cresol (133), CNAB 240, Segmento T do Nosso Número
+  Por: Farol TI
+
+09/08/2022
+--ACBrBoleto--
+[*] Adicionado campos de Pagamento Parcelado na leitura do arquivo .ini
+  Por : Jose M S Junior
+
+08/08/2022
+--ACBrBoletoUniprimeNortePR--
+[*] TK-2948 Ajuste no campo de intrução de dias para protesto
+  Por : Pandaaa
+
+03/08/2022
+--ACBrBoletoWCaixa--
+[*] Ajuste na geração das tags de Juros_Mora, seguindo especificação do manual
+   por : José M S Junior
+
+26/07/2022
+--ACBrBoletoBRB--
+[*] ACBrBoleto - Ajuste remessa BRB quanto as instruções 1 e 2
+  Por : Pandaaa / JJ / JT / Igor Cibiac
+
+22/07/2022
+--ACBrUniprimeNortePR--
+[*] Atualização do registro 2 de Mensagens conforme especificação do manual.
+
+21/07/2022
+--ACBrBancoC6--
+  [-]ACBrBoleto - Ajuste  montagem código de barras para o C6
+  Por: Pandaaa / Altemar
+
+11/07/2022
+--ACBrBancoBRB--
+  [*] TK-2852 ACBrBoletoBRB Pemissão de Informar a versão do Layout para geração do arquivo
+  Por: Pandaaa
+
+05/07/2022
+--ACBrBancoItau--
+  [-] ACBrBoleto Itau CNAB400 Registro 2 / 5 - Layout Fora do Padrão
+  Por : Paulo C. L. Vicente
+
+28/06/2022
+--ACBrBancoCaixaEconomica--
+ [-] TK-2844 Leitura CNAB400 Correção de leitura de Codigo de Carteira
+ Por: Pandaaa
+
+27/06/2022
+--ACBrBancoItau--
+[*] TK-2804 ACBrBoleto - Ajuste para considerar o Desconto 2 e Desconto 3 no Itau
+  Por : Allanbrrj
+
+24/06/2022
+--ACBrBoletoRet_CrediSis--
+[*] TK-2790 Ajustes no metodo LerRetorno do banco CredSis
+  Por : Odeon Tecnologia 
+
+20/06/2022
+--ACBrBancoBanestes--
+[*] TK-2768- Ajuste na geracao CNAB240 pos. 42 Reg.P, alterado para usar campo CarteiraEnvio, seguindo o padrão dos demais bancos.
+    por: Atual Sistemas
+    https://www.projetoacbr.com.br/forum/topic/67698-remessa-banestes-cnab-240-segmento-p-posi%C3%A7%C3%A3o-62/
+
+17/06/2022
+--ACBrBoletoCaixa--
+[-] TK-2780 ACBrBoleto - Erro leitura do retorno CNAB240 Caixa
+  Por : Pandaaa / Innovae Brasil Engenharia
+
+15/06/2022
+--ACBrBoletoW_BancoBrasil_API--
+[*] TK-2784 BBAPI Ajuste no tratamento de caracteres nas mensagens de envio
+  Por : Pandaaa / Aggille Sistemas de Gestão
+
+--ACBrBoletoBancoob--
+[*] TK-2791 Ajuste na Leitura Bancoob CNAB400
+  Por : Leandroaoa
+
+--ACBrBoletoW_BancoBrasil_API--
+[-] TK-2794 BBAPI Copy do DigitoPagador errado.
+  Por : Tiago Tecchio
+
 10/06/2022
 --ACBrBancoPenseBank, ACBrBoleto, ACBrBancoBrasil, ACBrBoletoWS, ACBrBoletoW_PenseBankAPI, ACBrBoletoRet_PenseBank, ACBrBoletoConversao, ACBrBoletoRetorno--
 [+] Adicionado as Classe do PenseBank API.

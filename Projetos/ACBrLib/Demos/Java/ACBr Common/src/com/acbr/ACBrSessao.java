@@ -40,6 +40,10 @@ public enum  ACBrSessao {
     BoletoBancoConfig,
     BoletoDiretorioConfig,
     BoletoBancoFCFortesConfig,
+    BoletoCedenteWS,
+    BoletoWebSevice,
     IBGE,
-    Sedex,;
+    Sedex,
+    eSocial,
+    GTIN;
 }

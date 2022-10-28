@@ -52,7 +52,7 @@ uses
   {$IFDEF FPC}
     LResources,
   {$ENDIF}
-  ACBrUtil, ACBrSpedPisCofins, ACBrEPCBlocos,
+  ACBrUtil.Strings, ACBrSpedPisCofins, ACBrEPCBlocos,
   ACBrEPCBase,
   ACBrEPCBloco_0_Importar,
   ACBrEPCBloco_1_Importar,
@@ -134,6 +134,11 @@ begin
     for I := 0 to FileStr.Count - 1 do
     begin
       LinhaAtual := FileStr[I];
+
+      // Verificar se é uma linha válida do SPED e não a assinatura do arquivo
+      if (LeftStrNativeString(LinhaAtual, 1) <> '|') and
+         (RightStrNativeString(LinhaAtual, 1) <> '|') then
+        Continue;
 
       if Assigned(FAntesDeInserirLinha) then
         FAntesDeInserirLinha(LinhaAtual, I);

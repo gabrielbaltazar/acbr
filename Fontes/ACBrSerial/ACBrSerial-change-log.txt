@@ -38,6 +38,111 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+14/10/2022
+-- ACBrPosPrinterAndroidHelper, ACBrPosPrinterGEDI, ACBrPosPrinterElginE1Lib --
+[*] Refactoring para reaproveitamento de códigos em comum
+
+-- ACBrPosPrinterTecToySunmiLib --
+[+] Adição de nova Classe Externa para ACBrPosPrinter. Compatibilizando o
+    Serviço de impressão da Sunmi com as Tags do ACBrPosPrinter
+(por: DSA)
+
+13/10/2022
+-- ACBrPosPrinter, ACBrEscPosEpson, ACBrEscBematech, ACBrEscDaruma,
+   ACBrEscCustomPos, ACBrEscDatecs, ACBrEscDiebold, ACBrEscElgin,
+   ACBrEscPosStar, ACBrEscSunmi --
+[*] Refactoring e Padronização na rotina "LerInfo"
+
+-- ACBrPosPrinter --
+[*] Ajuste na criação para definição de um tempo padrão para:
+    ACBrPosPrinter.Device.TimeOutMilissegundos em 300
+[*] Ajuste no metodo "TACBrPosPrinter.TxRx", para usar o TimeOut definido em:
+    "ACBrPosPrinter.Device.TimeOutMilissegundos"
+[*] Método "TxRx", modificado, para receber como Default o parâmetro "TimeOut=0",
+    situação onde será utilizado o valor de "Device.TimeOutMilissegundos"
+[*] Método "TACBrPosPrinter.Zerar", modificado para desligar Flag de "FonteB"
+
+-- ACBrEscPosStar --
+[-] Método "ComandoImprimirImagemRasterStr", modificado para gerar imagens sem a
+    quebra de linha
+[+] Adicionada sobrecarga nos métodos:
+    - procedure LerStatus(var AStatus: TACBrPosPrinterStatus);
+    - function LerInfo: String;
+
+-- ACBrEscSunmi --
+[-] Comando "Zera", modificado, para resetar letra em "Fonte A"
+[-] Remoção de Tags não suportadas "cTagLigaCondensado", "cTagDesligaCondensado"
+[-] Remoção de método "Configurar", que forçava CodePage em UTF8.
+    ( Use sunmi-cloud-printer-setup.exe, para ajustar CodePage )
+[*] Método "TACBrEscSunmi.ComandoFonte", ajustado para processar Tag "FonteB"
+[-] Método "TACBrEscSunmi.ComandoPaginaCodigo", modificado para desligar
+    Caracteres chineses e informar a Pagina de Código
+(por: DSA)
+
+12/10/2022
+-- ACBrPosPrinter --
+[*] Ajuste em "TACBrPosPrinter.TxRx", para permitir leitura de Dados sem o envio
+    de algo
+
+-- ACBrPosPrinterElginE1Lib, ACBrPosPrinterElginE1Service, ACBrPosPrinterGEDI --
+[*] Correção de quebras de linhas nos fontes
+
+-- ACBrPosPrinterElginE1Lib --
+[-] Correção de A.V. em "TE1LibPrinter.FinalizarImpressao", quando não havia uso
+    da classe
+
+-- ACBrWinUSBDevice --
+[*] Ajuste no método "TACBrUSBWinDevice.GetDeviceName", para sempre preferir o
+    Nome definido em "ACBrUSBID.ini", ao invez do "FrendlyName do dispositivo USB
+
+-- ACBrUSBID --
+[*] Ajuste no modelo "Sunmi, NT210", para deixar a escolha do protocolo livre
+(por: DSA)
+
+12/09/2022
+-- ACBrBAL, ACBrBALClass, ACBrBALToledo --
+[+] Inclusão de função para envio do preço/kg para balança.
+    (Utilizado para mostrar no visor da balança o Total do Produto pesado)
+    Por: Athos Desenvolvimento
+
+01/08/2022
+-- ACBrETQZplII --
+[*] Alteração para corrigir o carregamento de imagem
+    https://www.projetoacbr.com.br/forum/topic/68234-problema-ao-carregar-imagem-no-acbretq/
+	Por: Elias César
+
+21/07/2022
+-- ACBrLCB --
+[+] TK-2908 Adicionado a propriedade de prefixo
+    Por: Pedro E. Braga
+
+13/07/2022
+-- ACBrEscSunmi --
+[+] Adicionada informação de Tags não suportadas pela impressora, como Impressão
+    em modo Condensado e Programação de Logotipo
+[*] Melhoria na leitura de Informações para funcionamento por TCP
+    (por: DSA)
+
+08/07/2022
+-- ACBrPosPrinter --
+[+] Adicionado o modelo "ppEscSunmi"
+[*] Ajuste em "TACBrPosPrinter.Imprimir", para não adicionar uma quebra de Linha
+    após a última linha do relatório, pois isso pode atrapalhar a detecção de
+    Fim de relatório em alguns equipamentos
+
+-- ACBrEscSunmi --
+[+] Novo protocolo de Impressão, para a linha de impressoras da Sunmi
+
+-- ACBrUSBID.ini --
+[+] Adicionado fabricante 324f=Sunmi
+[+] Adicionada a Impressora 00d2=NT312, da Sunmi
+
+-- ACBrEscPosEpson --
+[*] Remoção de variável não utilizada "FInfo"
+
+-- ACBrEscPosStar --
+[+] Adicionado suporte ao comando de Abertura de Gaveta
+
 05/05/2022
 -- ACBrWinUSBDevice --
 [+] Adicionado o método "Purge", para limpar dados enviados e recebidos da USB

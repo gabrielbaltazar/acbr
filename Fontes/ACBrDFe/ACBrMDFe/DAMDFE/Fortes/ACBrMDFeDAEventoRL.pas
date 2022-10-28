@@ -37,11 +37,31 @@ unit ACBrMDFeDAEventoRL;
 interface
 
 uses
-  SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls,
-  {$IFDEF BORLAND}DB, DBClient, {$ELSE}BufDataset, DB, RLFilters, {$ENDIF}
-  RLReport, RLPDFFilter, RLPrinters,
-  ACBrMDFe, ACBrMDFeDAMDFeRLClass, ACBrDFeReportFortes,
-  pmdfeMDFe, pcnConversao, pmdfeEnvEventoMDFe;
+  SysUtils, 
+  Variants, 
+  Classes, 
+  Graphics, 
+  Controls, 
+  Forms, 
+  Dialogs, 
+  ExtCtrls,
+  {$IFDEF BORLAND}
+	DB, 
+	DBClient, 
+  {$ELSE}
+	BufDataset, 
+	DB, 
+	RLFilters, 
+  {$ENDIF}
+  RLReport, 
+  RLPDFFilter, 
+  RLPrinters,
+  ACBrMDFe, 
+  ACBrMDFeDAMDFeRLClass, 
+  ACBrDFeReportFortes,
+  pmdfeMDFe, 
+  pcnConversao, 
+  pmdfeEnvEventoMDFe;
 
 type
 
@@ -68,7 +88,7 @@ type
 implementation
 
 uses
-  ACBrUtil;
+  ACBrUtil.Strings;
 
 {$ifdef FPC}
  {$R *.lfm}

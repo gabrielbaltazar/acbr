@@ -134,27 +134,41 @@ begin
   GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
   GravarCampo(FQtdeLotes, 4, tcInt);
   GravarCampo(1, 1, tcInt);
-  GravarCampo(TpOperacaoToStr(PagFor.Lote.Items[I].Registro1.Servico.Operacao), 1, tcStr);
-  GravarCampo(TpServicoToStr(PagFor.Lote.Items[I].Registro1.Servico.TipoServico), 2, tcStr);
-  GravarCampo(FmLancamentoToStr(PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento), 2, tcStr);
+
+  with PagFor.Lote.Items[I].Registro1.Servico do
+  begin
+    GravarCampo(TpOperacaoToStr(Operacao), 1, tcStr);
+    GravarCampo(TpServicoToStr(TipoServico), 2, tcStr);
+    GravarCampo(FmLancamentoToStr(FormaLancamento), 2, tcStr);
+  end;
+
   GravarCampo('042', 3, tcStr);
   GravarCampo(' ', 1, tcStr);
-  GravarCampo(TpInscricaoToStr(PagFor.Lote.Items[I].Registro1.Empresa.Inscricao.Tipo), 1, tcStr);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.Inscricao.Numero, 14, tcStrZero);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.Convenio, 20, tcStr);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Agencia.Codigo, 5, tcInt);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Agencia.DV, 1, tcStr);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Conta.Numero, 12, tcInt);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Conta.DV, 1, tcStr);
-  GravarCampo(' ', 1, tcStr);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.Nome, 30, tcStr, True);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Informacao1, 40, tcStr, True);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.Logradouro, 30, tcStr, True);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.Numero, 5, tcStr);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.Complemento, 15, tcStr, True);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.Cidade, 20, tcStr, True);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.CEP, 8, tcInt);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Endereco.Estado, 2, tcStr);
+
+  with PagFor.Lote.Items[I].Registro1.Empresa do
+  begin
+    GravarCampo(TpInscricaoToStr(Inscricao.Tipo), 1, tcStr);
+    GravarCampo(Inscricao.Numero, 14, tcStrZero);
+    GravarCampo(Convenio, 20, tcStr);
+    GravarCampo(ContaCorrente.Agencia.Codigo, 5, tcInt);
+    GravarCampo(ContaCorrente.Agencia.DV, 1, tcStr);
+    GravarCampo(ContaCorrente.Conta.Numero, 12, tcInt);
+    GravarCampo(ContaCorrente.Conta.DV, 1, tcStr);
+    GravarCampo(' ', 1, tcStr);
+    GravarCampo(Nome, 30, tcStr, True);
+  end;
+
+  with PagFor.Lote.Items[I].Registro1 do
+  begin
+    GravarCampo(Informacao1, 40, tcStr, True);
+    GravarCampo(Endereco.Logradouro, 30, tcStr, True);
+    GravarCampo(Endereco.Numero, 5, tcStrZero);
+    GravarCampo(Endereco.Complemento, 15, tcStr, True);
+    GravarCampo(Endereco.Cidade, 20, tcStr, True);
+    GravarCampo(Endereco.CEP, 8, tcInt);
+    GravarCampo(Endereco.Estado, 2, tcStr);
+  end;
+
   GravarCampo(' ', 2, tcStr);
   GravarCampo(' ', 6, tcStr);
   GravarCampo(' ', 10, tcStr);
@@ -292,7 +306,7 @@ begin
         GravarCampo(TpInscricaoToStr(Inscricao.Tipo), 1, tcStr);
         GravarCampo(Inscricao.Numero, 14, tcStrZero);
         GravarCampo(Endereco.Logradouro, 30, tcStr, True);
-        GravarCampo(Endereco.Numero, 5, tcStr);
+        GravarCampo(Endereco.Numero, 5, tcStrZero);
         GravarCampo(Endereco.Complemento, 15, tcStr, True);
         GravarCampo(Endereco.Bairro, 15, tcStr, True);
         GravarCampo(Endereco.Cidade, 20, tcStr, True);
@@ -347,7 +361,7 @@ begin
       //Conforme orientado pelo sicredi o J-52 sempre sera 01
       //o codigo do movimento na remessa
       GravarCampo('01', 2, tcStr);
-      GravarCampo('J2', 2, tcStr);
+      GravarCampo('52', 2, tcStr);
       GravarCampo(TpInscricaoToStr(Pagador.Inscricao.Tipo), 1, tcStr);
       GravarCampo(Pagador.Inscricao.Numero, 15, tcStrZero);
       GravarCampo(Pagador.Nome, 40, tcStr, True);
@@ -375,13 +389,8 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN1.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN, I, J);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
@@ -414,13 +423,8 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN2.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN, I, J);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
@@ -455,20 +459,15 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN3.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN, I, J);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
       GravarCampo('18', 2, tcStr);
       GravarCampo(Periodo, 8, tcDat);
       GravarCampo(ReceitaBruta, 15, tcDe2);
-      GravarCampo(Percentual, 6, tcDe2);
+      GravarCampo(Percentual, 7, tcDe2);
       GravarCampo(ValorPrincipal, 15, tcDe2);
       GravarCampo(Multa, 15, tcDe2);
       GravarCampo(Juros, 15, tcDe2);
@@ -496,13 +495,8 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN4.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN, I, J);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
@@ -539,13 +533,8 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN567.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN, I, J);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
@@ -609,13 +598,8 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN8.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN, I, J);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
@@ -650,7 +634,7 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN9.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN, I, J);
+      GeraSegmentoN(SegmentoN);
 
       GravarCampo(' ', 120, tcStr);
       GravarCampo(' ', 10, tcStr);

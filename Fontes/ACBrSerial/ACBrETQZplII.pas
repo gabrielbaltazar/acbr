@@ -258,7 +258,9 @@ begin
   begin
     aNome := aNomeImagem;
     if (aTipo = '') then
-      aTipo := 'GRF';
+      aTipo := 'GRF'
+    else
+      aTipo := UpperCase(LeftStr(OnlyAlphaNum(aTipo), 3));
   end;
 
   if (aTipo = 'BMP') then

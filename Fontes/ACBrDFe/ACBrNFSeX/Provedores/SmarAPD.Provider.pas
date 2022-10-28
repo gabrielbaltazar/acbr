@@ -430,14 +430,7 @@ begin
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
-          if Assigned(ANota) then
-            ANota.XmlNfse := ANode.OuterXml
-          else
-          begin
-            TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-            ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-          end;
-
+          ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
           SalvarXmlNfse(ANota);
         end;
       end;
@@ -610,10 +603,10 @@ function TACBrNFSeXWebserviceSmarAPD.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
+  Result := RemoverCaracteresDesnecessarios(Result);
   Result := ParseText(AnsiString(Result), True, False);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
-  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 { TACBrNFSeProviderSmarAPD203 }
@@ -838,10 +831,10 @@ function TACBrNFSeXWebserviceSmarAPD203.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
+  Result := RemoverCaracteresDesnecessarios(Result);
   Result := ParseText(AnsiString(Result), True, False);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
-  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 { TACBrNFSeProviderSmarAPD204 }
@@ -1081,10 +1074,10 @@ function TACBrNFSeXWebserviceSmarAPD204.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
+  Result := RemoverCaracteresDesnecessarios(Result);
   Result := ParseText(AnsiString(Result));
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
-  Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
 end.

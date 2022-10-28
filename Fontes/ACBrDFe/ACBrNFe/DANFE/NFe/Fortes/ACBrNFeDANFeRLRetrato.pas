@@ -913,6 +913,8 @@ begin
         begin
           rllXmotivo.Caption := 'NF-e CANCELADA';
           rllDadosVariaveis3_Descricao.Caption := ACBrStr('PROTOCOLO DE HOMOLOGAÇÃO DE CANCELAMENTO');
+          rlbCanceladaDenegada.Visible := True;
+          RLLCanceladaDenegada.Caption := 'NF-e CANCELADA';
         end;
 
         110, 205, 301, 302:
@@ -1197,8 +1199,7 @@ begin
       sTemp := sTemp + ' - CEP:' + FormatarCEP(CEP) + ' - ' + XMun + ' - ' + UF;
       rlmEndereco.Lines.add(sTemp);
 
-      sTemp := 'TEL: ' + FormatarFone(Fone) +
-        IfThen(NaoEstaVazio(fpDANFe.Fax), ' - FAX: ' + FormatarFone(fpDANFe.Fax), '');
+      sTemp := 'TEL: ' + FormatarFone(Fone);
       rlmEndereco.Lines.add(sTemp);
     end;
   end;
@@ -1259,7 +1260,7 @@ begin
     //115 460 143
     // Exibe o Valor total dos tributos se vTotTrib for informado
     // e ajusta a posição dos outros campos para "abrir espaço" para ele.
-    if (vTotTrib > 0) then
+    if (vTotTrib > 0) and (fpDANFe.ImprimeTributos = trbNormal)  then
     begin
       rllTotalTributos.Caption := FormatFloatBr(vTotTrib);
       rliDivImposto4.Visible := True;
@@ -1942,17 +1943,12 @@ begin
         end;
       end;
     end;
-
-    if fpDANFe.ImprimeTotalLiquido then
-    begin
-      txtValorTotal.Caption := FormatFloatBr(fpDANFe.ManterVDesc(Prod.vDesc, Prod.vUnCom, Prod.qCom));
-      txtValorDesconto.Caption := FormatFloatBr(Prod.vProd - fpDANFe.ManterVDesc(Prod.vDesc, Prod.vUnCom, Prod.qCom));
-    end
-    else
-    begin
-      txtValorTotal.Caption := FormatFloatBr(Prod.vProd);
-      txtValorDesconto.Caption := FormatFloatBr(fpDANFe.ManterVDesc(Prod.vDesc, Prod.vUnCom, Prod.qCom));
-    end;
+    {
+    txtValorTotal.Caption := fpDANFe.ManterVprod(Prod.vProd, Prod.vDesc);
+    txtValorDesconto.Caption := FormatFloatBr(fpDANFe.ManterVDesc(Prod.vDesc, Prod.vUnCom, Prod.qCom));
+    }
+    txtValorTotal.Caption := FormatFloatBr(Prod.vProd);
+    txtValorDesconto.Caption := FormatFloatBr(Prod.vDesc);
 
     txtBaseICMS.Caption := FormatFloatBr(Imposto.ICMS.VBC);
     txtValorICMS.Caption := FormatFloatBr(Imposto.ICMS.VICMS);
@@ -1983,7 +1979,7 @@ begin
     crtSimplesNacional:
       lblCST.Caption := 'CSOSN';
   end;
-
+  {
   if fpDANFe.ImprimeDescPorPercentual then
   begin
     lblPercValorDesc.Caption := 'PERC.(%)';
@@ -1997,6 +1993,10 @@ begin
     lblValorTotal.Caption := 'DESCONTO';
     lblPercValorDesc1.Caption := ACBrStr('LÍQUIDO');
   end;
+  }
+  lblPercValorDesc.Caption := 'DESCONTO';
+  lblPercValorDesc1.Caption := '';
+//  lblValorTotal.Caption := 'VALOR';
 end;
 
 function TfrlDANFeRLRetrato.ManterBandinfAdProd(const sInforAdicProduto: String): String;

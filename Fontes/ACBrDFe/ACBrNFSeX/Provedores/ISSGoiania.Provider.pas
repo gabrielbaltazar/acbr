@@ -68,8 +68,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings,
-  ACBrUtil.XMLHTML,
+  ACBrUtil.Strings, ACBrUtil.XMLHTML,
   ACBrDFeException, ACBrNFSeX, ACBrNFSeXNotasFiscais,
   ISSGoiania.GravarXml, ISSGoiania.LerXml;
 
@@ -89,7 +88,6 @@ begin
   with ConfigAssinar do
   begin
     LoteGerarNFSe := True;
-//    ConsultarNFSeRps := True;
     IncluirURI := False;
   end;
 
@@ -207,14 +205,7 @@ begin
           end;
         end;
 
-        if Assigned(ANota) then
-          ANota.XmlNfse := ANode.OuterXml
-        else
-        begin
-          TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-        end;
-
+        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
         SalvarXmlNfse(ANota);
       end
       else
@@ -308,14 +299,7 @@ begin
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
-          if Assigned(ANota) then
-            ANota.XmlNfse := ANode.OuterXml
-          else
-          begin
-            TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(ANode.OuterXml, False);
-            ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-          end;
-
+          ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
           SalvarXmlNfse(ANota);
         end;
 
@@ -391,8 +375,7 @@ begin
   Request := Request + '</ws:ConsultarNfseRps>';
 
   Result := Executar('http://nfse.goiania.go.gov.br/ws/ConsultarNfseRps', Request,
-                     ['ConsultarNfseRpsResult', 'GerarNfseResposta'],
-//                     ['ConsultarNfseRpsResult', 'ConsultarNfseRpsResposta'],
+                     ['ConsultarNfseRpsResult', 'ConsultarNfseRpsResposta'],
                      ['xmlns:ws="http://nfse.goiania.go.gov.br/ws/"']);
 end;
 

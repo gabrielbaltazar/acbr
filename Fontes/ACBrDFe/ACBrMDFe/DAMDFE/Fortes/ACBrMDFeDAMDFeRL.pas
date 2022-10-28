@@ -37,9 +37,22 @@ unit ACBrMDFeDAMDFeRL;
 interface
 
 uses
-  SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls,
-  RLReport, RLFilters, RLPrinters, RLPDFFilter, RLConsts,
-  pmdfeMDFe, ACBrMDFe, ACBrMDFeDAMDFeRLClass, ACBrDFeReportFortes;
+  SysUtils, 
+  Variants, 
+  Classes, 
+  Graphics, 
+  Controls, 
+  Forms, 
+  ExtCtrls,
+  RLReport, 
+  RLFilters, 
+  RLPrinters, 
+  RLPDFFilter, 
+  RLConsts,
+  pmdfeMDFe, 
+  ACBrMDFe, 
+  ACBrMDFeDAMDFeRLClass, 
+  ACBrDFeReportFortes;
 
 type
 
@@ -69,7 +82,7 @@ type
 implementation
 
 uses
-  ACBrUtil;
+  ACBrUtil.Strings;
 
 {$ifdef FPC}
  {$R *.lfm}
@@ -131,7 +144,11 @@ begin
     TDFeReportFortes.AjustarMargem(Report, ADAMDFe);
 
     if ADAMDFe.MostraPreview then
+    begin
+      if Assigned(DAMDFeReport) then
+        SelectedFilter := DAMDFeReport.RLPDFFilter1;
       Report.PreviewModal
+    end
     else
       Report.Print;
   finally

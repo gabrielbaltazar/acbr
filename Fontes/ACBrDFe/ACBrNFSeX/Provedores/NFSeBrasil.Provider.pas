@@ -403,8 +403,8 @@ begin
   ListaRps := ChangeLineBreak(ListaRps, '');
 
   aParams := TNFSeParamsResponse.Create;
-  aParams.Clear;
   try
+    aParams.Clear;
     aParams.Xml := ListaRps;
     aParams.TagEnvio := TagEnvio;
     aParams.Prefixo := Prefixo;
@@ -572,14 +572,7 @@ begin
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumRps);
 
-          if Assigned(ANota) then
-            ANota.XmlNfse := AuxNode.OuterXml
-          else
-          begin
-            TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(AuxNode.OuterXml, False);
-            ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-          end;
-
+          ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
           SalvarXmlNfse(ANota);
 
           Response.Situacao := '4'; // Processado com sucesso pois retornou a nota
@@ -687,14 +680,7 @@ begin
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumRps);
 
-          if Assigned(ANota) then
-            ANota.XmlNfse := AuxNode.OuterXml
-          else
-          begin
-            TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(AuxNode.OuterXml, False);
-            ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
-          end;
-
+          ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
           SalvarXmlNfse(ANota);
 
           Response.Situacao := '4'; // Processado com sucesso pois retornou a nota

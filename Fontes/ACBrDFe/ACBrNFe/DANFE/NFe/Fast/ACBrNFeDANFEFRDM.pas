@@ -185,7 +185,9 @@ implementation
 uses
   StrUtils, Math, DateUtils,
   ACBrNFe, ACBrNFeDANFEFR, ACBrDFeUtil,
-  ACBrUtil, ACBrValidador, ACBrImage, ACBrDelphiZXingQRCode,
+  ACBrUtil.Strings, 
+  ACBrUtil.Math, ACBrUtil.FilesIO, ACBrUtil.Base, ACBrUtil.DateTime, ACBrUtil.XMLHTML,
+  ACBrValidador, ACBrImage, ACBrDelphiZXingQRCode,
   pcnConversaoNFe;
 
 { TACBrNFeFRClass }
@@ -274,6 +276,7 @@ begin
         FieldDefs.Add('HoraSaida', ftString, 10);
         FieldDefs.Add('MensagemFiscal', ftString, 200);
         FieldDefs.Add('URL', ftString, 1000);
+        FieldDefs.Add('xPed', ftString, 20);
         CreateDataSet;
      end;
    end;
@@ -435,7 +438,6 @@ begin
         FieldDefs.Add('Imagem', ftString, 256);
         FieldDefs.Add('Sistema', ftString, 300);
         FieldDefs.Add('Usuario', ftString, 60);
-        FieldDefs.Add('Fax', ftString, 60);
         FieldDefs.Add('Site', ftString, 60);
         FieldDefs.Add('Email', ftString, 60);
         FieldDefs.Add('Desconto', ftString, 60);
@@ -934,12 +936,16 @@ begin
       FieldByName('VCOFINS').AsFloat      := VCOFINS;
       FieldByName('VOutro').AsFloat       := VOutro;
       FieldByName('VNF').AsFloat          := VNF;
-      FieldByName('VTotTrib').AsFloat     := VTotTrib;
+
+      if (FDANFEClassOwner.ImprimeTributos = trbNormal) or (FNFe.Ide.Modelo = 65)  then
+        FieldByName('VTotTrib').AsFloat     := VTotTrib;
+
       FieldByName('ValorApagar').AsFloat  := VNF;
       FieldByName('VFCP').AsFloat         := VFCP;
       FieldByName('VFCPST').AsFloat       := VFCPST;
       FieldByName('VFCPSTRet').AsFloat    := vFCPSTRet;
       FieldByName('VIPIDevol').AsFloat    := vIPIDevol;
+
       if (FDANFEClassOwner is TACBrNFeDANFEClass) then
         FieldByName('VTribPerc').AsFloat := TACBrNFeDANFEClass(FDANFEClassOwner).ManterVTribPerc(VTotTrib, VProd, VNF);
 
@@ -1242,8 +1248,7 @@ begin
                                                                 Trim(FieldByName('XMun').AsString) + ' - ' +
                                                                 Trim(FieldByName('UF').AsString) +
                                                                 ' - CEP: ' + Trim(FieldByName('CEP').AsString) + #13 +
-		  	  				  				                                    ' Fone: ' + Trim(FieldByName('Fone').AsString) +
-                                                                IfThen(trim(FDANFEClassOwner.Fax) <> '', ' - FAX: ' + FormatarFone(Trim(FDANFEClassOwner.Fax)),'');
+		  	  				  				                                    ' Fone: ' + Trim(FieldByName('Fone').AsString);
       if NaoEstaVazio(Trim(FDANFEClassOwner.Site)) then
         cdsEmitente.FieldByName('DADOS_ENDERECO').AsString  := cdsEmitente.FieldByName('DADOS_ENDERECO').AsString + #13 +
                                                                 trim(FDANFEClassOwner.Site);
@@ -1377,6 +1382,7 @@ begin
     FieldByName('FinNFe').AsString  := FinNFeToStr( FNFe.Ide.FinNFe );
     FieldByName('ProcEmi').AsString := procEmiToStr( FNFe.Ide.ProcEmi );
     FieldByName('VerProc').AsString := FNFe.Ide.VerProc;
+
     if FNFe.infNFe.versao = 2.00 then
       FieldByName('HoraSaida').AsString := ifthen(FNFe.ide.hSaiEnt = 0, '', TimeToStr(FNFe.ide.hSaiEnt))
     else
@@ -1406,7 +1412,9 @@ begin
     begin
       FieldByName('MensagemFiscal').AsString := '';
       FieldByName('URL').AsString            := '';
+      FieldByName('xPed').AsString           := FNFe.Compra.xPed;
     end;
+
     Post;
   end;
 end;
@@ -1429,6 +1437,7 @@ begin
     begin
       wObs := TACBrNFeDANFEClass(FDANFEClassOwner).ManterDocreferenciados(FNFe) +
               TACBrNFeDANFEClass(FDANFEClassOwner).ManterPagamentos(FNFe) +
+              TACBrNFeDANFEClass(FDANFEClassOwner).ManterSuframa(FNFe) +
               FDANFEClassOwner.ManterInfAdFisco(FNFe) +
               FDANFEClassOwner.ManterObsFisco(FNFe) +
               FDANFEClassOwner.ManterProcreferenciado(FNFe) +
@@ -1730,7 +1739,6 @@ begin
     FieldByName('LogoExpandido').AsString               := IfThen( FDANFEClassOwner.ExpandeLogoMarca, '1' , '0' );
     FieldByName('Sistema').AsString                     := IfThen( FDANFEClassOwner.Sistema <> '' , FDANFEClassOwner.Sistema, 'Projeto ACBr - http://acbr.sf.net');
     FieldByName('Usuario').AsString                     := IfThen( FDANFEClassOwner.Usuario <> '' , ' - ' + FDANFEClassOwner.Usuario , '' );
-    FieldByName('Fax').AsString                         := IfThen( FDANFEClassOwner.Fax     <> '' , ' - FAX ' + FDANFEClassOwner.Fax , '');
     FieldByName('Site').AsString                        := FDANFEClassOwner.Site;
     FieldByName('Email').AsString                       := FDANFEClassOwner.Email;
     FieldByName('Desconto').AsString                    := IfThen( (FDANFEClassOwner is TACBrNFeDANFEClass) and TACBrNFeDANFEClass(FDANFEClassOwner).ImprimeDescPorPercentual , '%' , 'VALOR');

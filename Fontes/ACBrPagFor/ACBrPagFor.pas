@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -37,11 +37,22 @@ unit ACBrPagFor;
 interface
 
 uses
-  Classes, SysUtils, Contnrs,
-  {$IFDEF CLX} QDialogs,{$ELSE} Dialogs,{$ENDIF}
+  Classes, 
+  SysUtils, 
+  Contnrs,
+  {$IFNDEF NOGUI}
+	  {$IFDEF CLX} 
+		QDialogs,
+	  {$ELSE} 
+		Dialogs,
+	  {$ENDIF}
+  {$ENDIF}
   ACBrBase,
-  ACBrPagForClass, ACBrPagForConversao,
-  ACBrPagForArquivo, ACBrPagForArquivoClass, ACBrPagForConfiguracoes,
+  ACBrPagForClass, 
+  ACBrPagForConversao,
+  ACBrPagForArquivo, 
+  ACBrPagForArquivoClass, 
+  ACBrPagForConfiguracoes,
   ACBrPagForInterface;
 
 resourcestring

@@ -98,7 +98,7 @@ type
     procedure SetBufferSize(AValue: Integer);
 
   private
-    fPassword: AnsiString;
+    //fPassword: AnsiString;
     procedure FreeKeys;
     Procedure FreePrivateKey;
     Procedure FreePublicKey;
@@ -126,6 +126,11 @@ type
       OutputType: TACBrOpenSSLStrType = sttHexa; Sign: Boolean = False): AnsiString;
     function CalcHashFromFile(const AFile: String; Algorithm: TACBrOpenSSLAlgorithm;
       OutputType: TACBrOpenSSLStrType = sttHexa; Sign: Boolean = False): AnsiString;
+
+   function HMACFromString(const BinaryString: AnsiString; const aKey: AnsiString;
+      const aDigest: TACBrOpenSSLAlgorithm): AnsiString;
+   function HMACFromFile(const aFile: String; const aKey: AnsiString;
+      const aDigest: TACBrOpenSSLAlgorithm): AnsiString;
 
     function MD5FromFile(const AFile: String): String;
     function MD5FromString(const AString: AnsiString): String;
@@ -165,6 +170,12 @@ type
       C_CountryName: String = ''; EMAIL_EmailAddress: String = '';
       Algorithm: TACBrOpenSSLAlgorithm = algSHA512): String;
 
+    function CreateSelfSignedCert(const CN_CommonName: String;
+      O_OrganizationName: String = ''; OU_OrganizationalUnitName: String = '';
+      L_Locality: String = ''; ST_StateOrProvinceName: String = '';
+      C_CountryName: String = ''; EMAIL_EmailAddress: String = '';
+      Algorithm: TACBrOpenSSLAlgorithm = algSHA512): String;
+
     property PrivateKeyAsString: AnsiString read GetPrivateKeyAsString;
     property PublicKeyAsString: AnsiString read GetPublicKeyAsString;
     property PublicKeyAsOpenSSH: AnsiString read GetPublicKeyAsOpenSSH;
@@ -190,6 +201,9 @@ function ExtractModulusAndExponentFromKey(AKey: PEVP_PKEY;
 procedure SetModulusAndExponentToKey(AKey: PEVP_PKEY;
   const Modulus: String; const Exponent: String);
 
+function StringIsPEM(aStr: String): Boolean;
+
+function ConvertPEMToASN1(aPEM: String): AnsiString;
 function ConvertPEMToOpenSSH(APubKey: PEVP_PKEY): String;
 function ConvertOpenSSHToPEM(const AOpenSSHKey: String): String;
 
@@ -279,6 +293,7 @@ Var
   s: AnsiString ;
 begin
   Result := '';
+  s := EmptyStr;
   SetLength(s, 1024);
   repeat
     n := BioRead(ABio, s, 1024);
@@ -298,7 +313,6 @@ begin
   InitOpenSSL;
   Modulus := '';
   Exponent := '';
-  Result := False;
   bio := BioNew(BioSMem);
   RsaKey := EvpPkeyGet1RSA(AKey);
   try
@@ -363,6 +377,49 @@ begin
     raise EACBrOpenSSLException.Create(sErrSettingRSAKey + sLineBreak + GetLastOpenSSLError);
 end;
 
+function StringIsPEM(aStr: String): Boolean;
+var
+  b: Integer;
+begin
+  b := Pos('BEGIN', aStr);
+  Result := (b > 0) and (PosFrom('END', aStr, b) > 0);
+end;
+
+function ConvertPEMToASN1(aPEM: String): AnsiString;
+var
+  sl: TStringList;
+  b64: Boolean;
+  I: Integer;
+begin
+  Result := EmptyStr;
+  if (not StringIsPEM(aPEM)) then
+    Exit;
+
+  sl := TStringList.Create;
+  try
+    sl.Text := aPEM;
+    b64 := False;
+
+    for I := 0 to sl.Count - 1 do
+    begin
+      if (Pos('BEGIN', UpperCase(sl[I])) > 0) then
+      begin
+        b64 := True;
+        Continue;
+      end
+      else if b64 and (Pos('END', UpperCase(sl[I])) > 0) then
+        Break;
+
+      if b64 then
+        Result := Result + sl[I];
+    end;
+
+    Result := DecodeBase64(Result);
+  finally
+    sl.Free;
+  end;
+end;
+
 // https://www.netmeister.org/blog/ssh2pkcs8.html
 function ConvertPEMToOpenSSH(APubKey: PEVP_PKEY): String;
   function EncodeHexaSSH(const HexaStr: String): AnsiString;
@@ -405,7 +462,6 @@ function ConvertOpenSSHToPEM(const AOpenSSHKey: String): String;
 var
   s, m, e: AnsiString;
   ps, pe: Integer;
-  bio: PBIO;
   key: PEVP_PKEY;
 begin
   ps := pos(' ', AOpenSSHKey);
@@ -453,8 +509,8 @@ var
 begin
   Result := '';
   bio := BioNew(BioSMem);
+  rsa := EvpPkeyGet1RSA(APrivKey);
   try
-    rsa := EvpPkeyGet1RSA(APrivKey);
     if (Password <> '') then
       ret := PEM_write_bio_RSAPrivateKey( bio, rsa,
                                           EVP_aes_256_cbc,
@@ -526,6 +582,7 @@ var
   e: LongInt;
   s: AnsiString;
 begin
+  s := EmptyStr;
   e := ErrGetError;
   SetLength(s,1024);
   ErrErrorString(e, s, 1024);
@@ -682,8 +739,8 @@ begin
 end;
 
 function TACBrOpenSSLUtils.CalcHashFromFile(const AFile: String;
-  Algorithm: TACBrOpenSSLAlgorithm; OutputType: TACBrOpenSSLStrType; Sign: Boolean
-  ): AnsiString;
+  Algorithm: TACBrOpenSSLAlgorithm; OutputType: TACBrOpenSSLStrType;
+  Sign: Boolean): AnsiString;
 Var
   fs: TFileStream ;
 begin
@@ -694,6 +751,49 @@ begin
   finally
     fs.Free ;
   end ;
+end;
+
+function TACBrOpenSSLUtils.HMACFromString(const BinaryString: AnsiString;
+  const aKey: AnsiString; const aDigest: TACBrOpenSSLAlgorithm): AnsiString;
+var
+  ipad, opad, s, k: AnsiString;
+  n: Integer;
+begin
+  if (Length(AKey) > 64) then
+    k := CalcHashFromString(AKey, aDigest, sttBinary)
+  else
+    k := AKey;
+
+  ipad := StringOfChar(#$36, 64);
+  opad := StringOfChar(#$5C, 64);
+  for n := 1 to Length(k) do
+  begin
+    ipad[n] := AnsiChar(Byte(ipad[n]) xor Byte(k[n]));
+    opad[n] := AnsiChar(Byte(opad[n]) xor Byte(k[n]));
+  end;
+
+  s := CalcHashFromString(ipad + BinaryString, aDigest, sttBinary);
+  Result := LowerCase(CalcHashFromString(opad + s, aDigest, sttHexa));
+end;
+
+function TACBrOpenSSLUtils.HMACFromFile(const aFile: String;
+  const aKey: AnsiString; const aDigest: TACBrOpenSSLAlgorithm): AnsiString;
+var
+  wStr: AnsiString;  
+  wMS: TMemoryStream;
+begin
+  wStr := EmptyStr;
+  wMS := TMemoryStream.Create;
+  try
+    wMS.LoadFromFile(aFile);
+    wMS.Position := 0;
+    SetLength(wStr, wMS.Size);
+    wMS.ReadBuffer(PAnsiChar(wStr)^, wMS.Size);
+  finally
+    wMS.Free;
+  end;
+
+  Result := HMACFromString(wStr, aKey, aDigest);
 end;
 
 function TACBrOpenSSLUtils.MD5FromFile(const AFile: String): String;
@@ -1048,6 +1148,64 @@ begin
   end;
 end;
 
+function TACBrOpenSSLUtils.CreateSelfSignedCert(const CN_CommonName: String;
+  O_OrganizationName: String; OU_OrganizationalUnitName: String;
+  L_Locality: String; ST_StateOrProvinceName: String; C_CountryName: String;
+  EMAIL_EmailAddress: String; Algorithm: TACBrOpenSSLAlgorithm): String;
+var
+  x: pX509;
+  wName: PX509_NAME;
+  bio: PBIO;
+  md: PEVP_MD;
+begin
+  Result := EmptyStr;
+  CheckPrivateKeyIsLoaded;
+  CheckPublicKeyIsLoaded;
+
+  x := X509New;
+  try
+    wName := X509_NAME_new;
+    try
+      if (EMAIL_EmailAddress <> '') then
+        X509NameAddEntryByTxt(wName, 'EMAIL', MBSTRING_ASC, EMAIL_EmailAddress, -1, -1, 0);
+      if (C_CountryName <> '') then
+        X509NameAddEntryByTxt(wName, 'C', MBSTRING_ASC, C_CountryName, -1, -1, 0);
+      if (ST_StateOrProvinceName <> '') then
+        X509NameAddEntryByTxt(wName, 'ST', MBSTRING_ASC, ST_StateOrProvinceName, -1, -1, 0);
+      if (L_Locality <> '') then
+        X509NameAddEntryByTxt(wName, 'L', MBSTRING_ASC, L_Locality, -1, -1, 0);
+      if (OU_OrganizationalUnitName <> '') then
+        X509NameAddEntryByTxt(wName, 'OU', MBSTRING_ASC, OU_OrganizationalUnitName, -1, -1, 0);
+      if (O_OrganizationName <> '') then
+        X509NameAddEntryByTxt(wName, 'O', MBSTRING_ASC, O_OrganizationName, -1, -1, 0);
+      X509NameAddEntryByTxt(wName, 'CN', MBSTRING_ASC, CN_CommonName, -1, -1, 0);
+
+      if (X509SetIssuerName(x, wName) <> 1) then
+        raise EACBrOpenSSLException.Create('X509SetIssuerName' + sLineBreak + GetLastOpenSSLError);
+    finally
+      X509_NAME_free(wName);
+    end;
+
+    if (X509SetPubkey(x, fEVP_PublicKey) <> 1) then
+      raise EACBrOpenSSLException.Create('X509SetPubkey' + sLineBreak + GetLastOpenSSLError);
+
+    md := GetEVPAlgorithmByName(Algorithm);
+    if (X509Sign(x, fEVP_PrivateKey, md) = 0) then
+      raise EACBrOpenSSLException.Create('X509Sign' + sLineBreak + GetLastOpenSSLError);
+
+    bio := BioNew(BioSMem);
+    try
+      if (PEM_write_bio_X509(bio, x) <> 1) then
+        raise EACBrOpenSSLException.Create('PEM_write_bio_X509' + sLineBreak + GetLastOpenSSLError);
+      Result := BioToStr(bio);
+    finally
+      BioFreeAll(bio);
+    end;
+  finally
+    X509Free(x);
+  end;
+end;
+
 function TACBrOpenSSLUtils.GetEVPAlgorithmByName(Algorithm: TACBrOpenSSLAlgorithm): PEVP_MD;
 var
   s: AnsiString;
@@ -1205,35 +1363,3 @@ finalization
   FreeOpenSSL;
 
 end.
-
-property KeyPassword: String read fKeyPassword write fKeyPassword;
-
-property PFXFile: String read fPFXFile write fPFXFile;
-property CertificateFile: String read fCertificateFile write fCertificateFile;
-property PrivateKeyFile: String read fPrivateKeyFile write fPrivateKeyFile;
-property PublicKeyFile: String read fPublicKeyFile write fPublicKeyFile;
-
-property PFXStr: AnsiString read fPFXStr write fPFXStr;
-property CertificateStr: AnsiString read fCertificateStr write fCertificateStr;
-property PrivateKeyStr: AnsiString read fPrivateKeyStr write fPrivateKeyStr;
-property PublicKeyStr: AnsiString read fPublicKeyStr write fPublicKeyStr;
-
-fCertificateFile: String;
-fCertificateStr: AnsiString;
-fPFXFile: String;
-fPFXStr: AnsiString;
-fPrivateKeyFile: String;
-fPrivateKeyStr: AnsiString;
-fPublicKeyFile: String;
-fPublicKeyStr: AnsiString;
-
-fKeyPassword := '';
-fCertificateFile := '';
-fCertificateStr := '';
-fPFXFile := '';
-fPFXStr := '';
-fPrivateKeyFile := '';
-fPrivateKeyStr := '';
-fPublicKeyFile := '';
-fPublicKeyStr := '';
-

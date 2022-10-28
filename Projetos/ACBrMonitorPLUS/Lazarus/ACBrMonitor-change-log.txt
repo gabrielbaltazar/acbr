@@ -44,6 +44,61 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+04/10/2022
+-- ACBrMonitorPLUS.iss --
+[-] Correção para incluir os arquivos de Schemas do GTIN no instalador
+    por: Elias César
+
+03/10/2022
+-- ACBrMonitor1 --
+[*] Inclusão campos Versão Arquivo e Versão Lote na tela de configuração do Boleto
+    Por: Antonio Carlos
+
+03/10/2022
+-- ACBrMonitor1 --
+[-] Correção de caminhos dos fontes libGTIN para compilação em release
+    Por: Elias César
+
+29/09/2022
+-- ACBrMonitor1 --
+[+] Inclusão da consulta de códigos GTIN na aba "DFe > Testes > GTIN"
+    Por: Elias César
+
+28/09/2022
+-- ACBrMonitor1 --
+[*] Alterações para funcionamento da consulta de GTIN por INI e TCP/IP
+
+-- DoACBrGTIN --
+[+] Inclusão do GTIN no ACBrMonitor
+    Por: Elias César
+
+06/09/2022
+-- ACBrMonitor1 --
+[*] Inclusão de checkbox para possibilitar atualização do cache local da lista de NCMs.
+
+17/08/2022
+--- DoBoletoUnit ---
+[*] Atualização das chamadas de envio por API e atualização das classes resposta baseado no refactory do componente boleto
+
+17/08/2022
+---DoACBreSocialUnit---
+[*] Refatoração das Respostas baseado na classe da ACBrLibeSocial
+
+11/07/2022
+[*] Remoção de Warning @deprecated ref. ACBrUtils do ACBrLib
+
+28/06/2022
+--- ACBrMonitor1, ACBrMonitorConfig, ACBrMonitorConsts---
+[+] Adicionado propriedade ExibirMunicipioDescarregamento para impressão do DAMDFe
+
+20/06/2022
+--- DoCNPJUnit---
+[*] Ajustes de leitura do retorno usando métodos unificados da ACBrLib.
+
+15/06/2022
+--- ACBrMonior1 ---
+[*] Remoção do campo FAX por estar em desuso.
+
 13/06/2022
 --- ACBrMoniorConfig ---
 [*] Alterado a versão do layout padrão do e-social

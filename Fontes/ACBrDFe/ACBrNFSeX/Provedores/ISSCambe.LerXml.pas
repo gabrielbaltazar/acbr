@@ -69,9 +69,8 @@ type
 implementation
 
 uses
-  ACBrUtil.Base,
-  ACBrUtil.Strings,
-  ACBrUtil.DateTime;
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime,
+  ACBrDFeUtil;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -227,7 +226,6 @@ begin
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomadorCEP'), tcStr);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomadorMunicipio'), tcStr);
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomadorUF'), tcStr);
-      xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
       CodigoPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomadorPais'), tcInt);
     end;
 
@@ -263,7 +261,6 @@ begin
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('prestadorCEP'), tcStr);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('prestadorMunicipio'), tcStr);
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('prestadorUF'), tcStr);
-      xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
     end;
 
     with NFSe.Prestador.Contato do

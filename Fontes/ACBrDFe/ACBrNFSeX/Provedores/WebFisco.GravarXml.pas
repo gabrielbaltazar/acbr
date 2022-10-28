@@ -173,21 +173,39 @@ begin
                                                          '', '', True, xAtrib));
     NFSeNode.AppendChild(AddNode(tcStr, '#', 'f' + IntToStr(i) + 'd', 1, 10, 1,
                                                          '', '', True, xAtrib));
-    NFSeNode.AppendChild(AddNode(tcDe2, '#', 'f' + IntToStr(i) + 'v', 1, 12, 1,
+    NFSeNode.AppendChild(AddNode(tcStr, '#', 'f' + IntToStr(i) + 'v', 1, 12, 1,
+                                                         '', '', True, xAtrib));
+  end;
+
+  for i := 0 to 2 do
+  begin
+    if i <= NFSe.Servico.ItemServico.Count -1 then
+      NFSeNode.AppendChild(AddNode(tcStr, '#', 'item' + IntToStr(i+1), 1, 5, 1,
+        NFSe.Servico.ItemServico.Items[i].ItemListaServico, '', True, xAtrib))
+    else
+      NFSeNode.AppendChild(AddNode(tcStr, '#', 'item' + IntToStr(i+1), 1, 5, 1,
+                                                         '', '', True, xAtrib));
+  end;
+
+  for i := 0 to 2 do
+  begin
+    if i <= NFSe.Servico.ItemServico.Count -1 then
+      NFSeNode.AppendChild(AddNode(tcDe2, '#', 'aliq' + IntToStr(i+1), 1, 5, 1,
+                NFSe.Servico.ItemServico.Items[i].Aliquota, '', True, xAtrib))
+    else
+      NFSeNode.AppendChild(AddNode(tcDe2, '#', 'aliq' + IntToStr(i+1), 1, 5, 1,
                                                           0, '', True, xAtrib));
   end;
 
-  for i := 1 to NFSe.Servico.ItemServico.Count do
-    NFSeNode.AppendChild(AddNode(tcStr, '#', 'item' + IntToStr(i), 1, 5, 1,
-         NFSe.Servico.ItemServico.Items[i-1].ItemListaServico, '', True, xAtrib));
-
-  for i := 1 to NFSe.Servico.ItemServico.Count do
-    NFSeNode.AppendChild(AddNode(tcDe2, '#', 'aliq' + IntToStr(i), 1, 5, 1,
-                 NFSe.Servico.ItemServico.Items[i-1].Aliquota, '', True, xAtrib));
-
-  for i := 1 to NFSe.Servico.ItemServico.Count do
-    NFSeNode.AppendChild(AddNode(tcDe2, '#', 'val' + IntToStr(i), 1, 12, 1,
-            NFSe.Servico.ItemServico.Items[i-1].ValorUnitario, '', True, xAtrib));
+  for i := 0 to 2 do
+  begin
+    if i <= NFSe.Servico.ItemServico.Count -1 then
+      NFSeNode.AppendChild(AddNode(tcDe2, '#', 'val' + IntToStr(i+1), 1, 12, 1,
+           NFSe.Servico.ItemServico.Items[i].ValorUnitario, '', True, xAtrib))
+    else
+      NFSeNode.AppendChild(AddNode(tcDe2, '#', 'val' + IntToStr(i+1), 1, 12, 1,
+                                                          0, '', True, xAtrib));
+  end;
 
   // Código da localidade de execução do serviço, se no local do estabelecimento
   // do prestador, deixar como 0000...
@@ -227,8 +245,6 @@ begin
   NFSeNode.AppendChild(AddNode(tcDe2, '#', 'bcsll', 1, 12, 1,
                                                           0, '', True, xAtrib));
   NFSeNode.AppendChild(AddNode(tcDe2, '#', 'bpis', 1, 12, 1,
-                                                          0, '', True, xAtrib));
-  NFSeNode.AppendChild(AddNode(tcDe2, '#', 'bcofins', 1, 12, 1,
                                                           0, '', True, xAtrib));
   NFSeNode.AppendChild(AddNode(tcDe2, '#', 'bcofins', 1, 12, 1,
                                                           0, '', True, xAtrib));
@@ -319,6 +335,32 @@ begin
     NFSeNode.AppendChild(AddNode(tcStr, '#', 'itemsaq' + IntToStr(i), 1, 60, 1,
                                                          '', '', True, xAtrib));
     NFSeNode.AppendChild(AddNode(tcStr, '#', 'itemsav' + IntToStr(i), 1, 60, 1,
+                                                         '', '', True, xAtrib));
+    // A tag abaixo foi incluida para atender o provedor FGMaiss
+    NFSeNode.AppendChild(AddNode(tcStr, '#', 'itemsat' + IntToStr(i), 1, 60, 1,
+                                                         '', '', True, xAtrib));
+  end;
+
+  // A tag abaixo foi incluida para atender o provedor FGMaiss
+  NFSeNode.AppendChild(AddNode(tcStr, '#', 'sslimite', 1, 6, 1,
+                                                      'NAO', '', True, xAtrib));
+
+  // A tag abaixo foi incluida para atender o provedor FGMaiss
+  if NFSe.Servico.Valores.OutrosDescontos > 0 then
+    NFSeNode.AppendChild(AddNode(tcDe2, '#', 'descoutros', 1, 12, 1,
+                        NFSe.Servico.Valores.OutrosDescontos, '', True, xAtrib))
+  else
+    NFSeNode.AppendChild(AddNode(tcStr, '#', 'descoutros', 1, 12, 1,
+                                                         '', '', True, xAtrib));
+
+  // As tag abaixo foram incluidas para atender o provedor FGMaiss
+  for i := 7 to 12 do
+  begin
+    NFSeNode.AppendChild(AddNode(tcStr, '#', 'f' + IntToStr(i) + 'n', 1, 15, 1,
+                                                         '', '', True, xAtrib));
+    NFSeNode.AppendChild(AddNode(tcStr, '#', 'f' + IntToStr(i) + 'd', 1, 10, 1,
+                                                         '', '', True, xAtrib));
+    NFSeNode.AppendChild(AddNode(tcStr, '#', 'f' + IntToStr(i) + 'v', 1, 12, 1,
                                                          '', '', True, xAtrib));
   end;
 

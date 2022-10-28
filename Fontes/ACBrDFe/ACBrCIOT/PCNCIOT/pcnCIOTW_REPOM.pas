@@ -38,14 +38,22 @@ interface
 
 uses
 {$IFDEF FPC}
-  LResources, Controls, Graphics, Dialogs,
+  LResources, 
+  Controls,
 {$ELSE}
 
 {$ENDIF}
-  SysUtils, Classes, StrUtils,
-  synacode, ACBrConsts,
-  pcnCIOTW, pcnCIOTR,
-  pcnAuxiliar, pcnConversao, pcnGerador, pcnLeitor,
+  SysUtils, 
+  Classes, 
+  StrUtils,
+  synacode, 
+  ACBrConsts,
+  pcnCIOTW, 
+  pcnCIOTR,
+  pcnAuxiliar, 
+  pcnConversao, 
+  pcnGerador, 
+  pcnLeitor,
   pcnCIOT, pcnConversaoCIOT, pcnConsts;
 
 type
@@ -104,9 +112,6 @@ const
   NAME_SPACE_REPOM_PROPRIETARIOS_REPOM = 'xmlns="http://schemas.ipc.adm.br/REPOM/proprietarios/objects"';
   }
 implementation
-
-uses
-  ACBrUtil;
 
 constructor TCIOTW_REPOM.Create(ACIOTW: TCIOTW);
 begin

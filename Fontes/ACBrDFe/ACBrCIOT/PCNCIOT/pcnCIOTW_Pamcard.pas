@@ -38,15 +38,25 @@ interface
 
 uses
 {$IFDEF FPC}
-  LResources, Controls, Graphics, Dialogs,
+  LResources, 
+  Controls, 
 {$ELSE}
 
 {$ENDIF}
-  SysUtils, Classes, StrUtils,
-  synacode, ACBrConsts,
-  pcnCIOTW, pcnCIOTR,
-  pcnAuxiliar, pcnConversao, pcnGerador, pcnLeitor,
-  pcnCIOT, pcnConversaoCIOT, pcnConsts;
+  SysUtils, 
+  Classes, 
+  StrUtils,
+  synacode, 
+  ACBrConsts,
+  pcnCIOTW, 
+  pcnCIOTR,
+  pcnAuxiliar, 
+  pcnConversao, 
+  pcnGerador, 
+  pcnLeitor,
+  pcnCIOT, 
+  pcnConversaoCIOT, 
+  pcnConsts;
 
 type
   { TCIOTW_Pamcard }
@@ -104,9 +114,6 @@ const
   NAME_SPACE_EFRETE_PROPRIETARIOS_EFRETE = 'xmlns="http://schemas.ipc.adm.br/efrete/proprietarios/objects"';
 
 implementation
-
-uses
-  ACBrUtil;
 
 constructor TCIOTW_Pamcard.Create(ACIOTW: TCIOTW);
 begin

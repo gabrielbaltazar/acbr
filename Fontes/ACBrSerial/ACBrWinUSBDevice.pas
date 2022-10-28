@@ -47,7 +47,7 @@ uses
   {$IfDef FPC}
    ,dynlibs
   {$EndIf}
-  ,ACBrUtil, ACBrBase;
+  ,ACBrUtil.Base, ACBrBase;
 
 const
   CUSBIDDataBaseResourceName = 'ACBrUSBID';
@@ -532,10 +532,10 @@ end;
 
 function TACBrUSBWinDevice.GetDeviceName: String;
 begin
+  Result := DeviceACBrName;
   if (FrendlyName <> '') then
-    Result := FrendlyName
-  else
-    Result := DeviceACBrName;;
+    if StrIsHexa(Copy(Result,1,4)) and (Copy(Result,5,1) = ',') and StrIsHexa(Copy(Result,7,4)) then
+      Result := FrendlyName
 end;
 
 function TACBrUSBWinDevice.GetDeviceACBrName: String;

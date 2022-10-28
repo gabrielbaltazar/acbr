@@ -40,7 +40,8 @@ uses
   {$IFDEF FPC}
     LResources,
   {$ENDIF}
-  ACBrUtil, ACBrSpedFiscal, ACBrEFDBlocos,
+  ACBrUtil.Strings,
+  ACBrSpedFiscal, ACBrEFDBlocos,
   ACBrEFDBase,
   ACBrEFDBloco_0_Importar,
   ACBrEFDBloco_C_Importar,
@@ -120,7 +121,11 @@ begin
     for I := 0 to FileStr.Count - 1 do
     begin
       LinhaAtual := FileStr[I];
-      if pos('|', LinhaAtual) = 0 then continue;
+
+      // Verificar se é uma linha válida do SPED e não a assinatura do arquivo
+      if (LeftStrNativeString(LinhaAtual, 1) <> '|') and
+         (RightStrNativeString(LinhaAtual, 1) <> '|') then
+        Continue;
 
       if Assigned(FAntesDeInserirLinha) then
         FAntesDeInserirLinha(LinhaAtual, I);
