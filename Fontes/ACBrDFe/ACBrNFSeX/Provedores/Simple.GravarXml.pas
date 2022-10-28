@@ -71,16 +71,16 @@ begin
   Result := CreateElement('tTomador');
 
   Result.AppendChild(AddNode(tcStr, '#1', 'sCPFTomador', 1, 14, 0,
-                                NFSe.Tomador.IdentificacaoTomador.CpfCnpj, ''));
+                    OnlyNumber(NFSe.Tomador.IdentificacaoTomador.CpfCnpj), ''));
 
   Result.AppendChild(AddNode(tcStr, '#2', 'sNomeTomador', 1, 60, 0,
                                                  NFSe.Tomador.RazaoSocial, ''));
 
   Result.AppendChild(AddNode(tcStr, '#2', 'sCidadeTomador', 1, 70, 0,
-   CodIBGEToCidade(StrToIntDef(NFSe.Tomador.Endereco.CodigoMunicipio, 0)), ''));
+                                         NFSe.Tomador.Endereco.xMunicipio, ''));
 
   Result.AppendChild(AddNode(tcStr, '#2', 'sEnderecoTomador', 1, 80, 0,
-                                        NFSe.Tomador.Endereco.Endereco, ''));
+                                           NFSe.Tomador.Endereco.Endereco, ''));
 
   Result.AppendChild(AddNode(tcStr, '#2', 'sEmailTomador', 1, 50, 0,
                                                NFSe.Tomador.Contato.Email, ''));
@@ -175,7 +175,7 @@ begin
                                                                        '', ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'sContribuinte', 1, 14, 1,
-                            NFSe.Prestador.IdentificacaoPrestador.CpfCnpj, ''));
+                OnlyNumber(NFSe.Prestador.IdentificacaoPrestador.CpfCnpj), ''));
 
   NFSeNode.AppendChild(AddNode(tcInt, '#1', 'iRecibo', 1, 8, 1,
                                              NFSe.IdentificacaoRps.Numero, ''));
@@ -183,8 +183,7 @@ begin
   NFSeNode.AppendChild(AddNode(tcDat, '#1', 'dDataRecibo', 1, 10, 1,
                                                          NFSe.DataEmissao, ''));
 
-  NFSeNode.AppendChild(AddNode(tcInt, '#1', 'iNota', 1, 8, 1,
-                                             NFSe.IdentificacaoRps.Numero, ''));
+  NFSeNode.AppendChild(AddNode(tcInt, '#1', 'iNota', 1, 8, 1, 0, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'sSerie', 1, 2, 1,
                                               NFSe.IdentificacaoRps.Serie, ''));
@@ -201,12 +200,14 @@ begin
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'sSt', 1, 1, 1, 'N', ''));
 
-  Situacao := EnumeradoToStr(NFSe.TipoTributacaoRPS, ['N', 'C'], [srNormal, srCancelado]);
+  Situacao := EnumeradoToStr(NFSe.TipoTributacaoRPS, ['N', 'S', 'I', 'R', 'P', 'T'],
+    [ttTribnoMun, ttSimplesNacional, ttTribnoMunIsento, ttRetidonoMun,
+     ttTribforaMun, ttExpServicos]);
 
   // N - Normal, S - Simples Nacional, I - Isento, R - Iss Retido
   // P - Pago em Outro Município, T - Substituição Tributaria
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'sTributacao', 1, 1, 1,
-                           'N', ''));
+                                                                 Situacao, ''));
 
   NFSeNode.AppendChild(AddNode(tcDe2, '#1', 'nValorTotal', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorServicos, ''));

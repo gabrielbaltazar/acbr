@@ -45,5 +45,7 @@
         GNRe,
         Guia,
         Sedex,
+        eSocial,
+        GTIN,
     }
 }

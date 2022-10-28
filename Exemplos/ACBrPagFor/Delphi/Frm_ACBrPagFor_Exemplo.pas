@@ -3,9 +3,9 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -439,6 +439,10 @@ begin
                            tsPagamentoRemuneracao, tsPagamentoRepresentantes,
                            tsPagamentoBeneficios, tsPagamentosDiversos);
       }
+
+      // Usado pela caixa (T=Teste; P=Produção)
+      Geral.AmbienteCliente := 'T';
+
       Geral.Banco := Configuracoes.Geral.Banco;
       // Utilizado Somente quando houver o segmento C
       Geral.SubstitutaBanco := Configuracoes.Geral.SubstitutaBanco;
@@ -470,6 +474,10 @@ begin
       Registro0.Arquivo.HoraGeracao := Time;
       Registro0.Arquivo.Sequencia := 1;
       Registro0.Arquivo.Densidade := 01600;
+
+      // Usado pela Caixa (Parâmetro de Transmissão) Código Informado pelo Banco
+      Registro0.Arquivo.ParamTransm := '00';
+
       Registro0.ReservadoBanco := '';
       Registro0.ReservadoEmpresa := '';
 
@@ -524,6 +532,10 @@ begin
         }
         Registro1.IndFormaPag := ifpDebitoContaCorrente;
 
+        // Usado pela Caixa
+        Registro1.TipoCompromisso := 1;
+        Registro1.CodigoCompromisso := 1;
+
         ////////////////////////////////////////////////////////////////////////
         // Segmento A - Exemplo de pagamento via DOC
         ////////////////////////////////////////////////////////////////////////
@@ -558,6 +570,13 @@ begin
             NossoNumero    := '';
             DataReal       := StrToDate('25/07/2016');
             ValorReal      := 100.0;
+
+            // Usado pela Caixa
+            QtdeParcelas   := 1;
+            IndBloqueio    := 'N';
+            FormaParcelamento := 1;
+            DiaVencimento  := 5;
+            NumParcela := 0;
           end;
 
           Informacao2 := '';
@@ -763,7 +782,7 @@ begin
             I = Código do ISPB (8 dígitos)
             R = Tipo de Conta  (2 dígitos = 01 – Conta corrente)
           }
-          Informacao2 := '00008201178971' + '12345678' + '01';
+          Informacao2 := '00008201178971' + BancoToIspb(Geral.Banco) + '01';
           CodigoDOC   := '';
           CodigoTED   := '';
           CodigoComp  := '';
@@ -782,7 +801,7 @@ begin
               Numero := '08201178971';
             end;
 
-            CodigoISPB := 0;
+            CodigoISPB := StrToInt(BancoToIspb(Geral.Banco));
             PixTipoChave := tcpCPFCNPJ;
             PixMensagem := '';
             PixTXID := '';
@@ -867,6 +886,51 @@ begin
           QtdeMoeda := 0.0;
           ReferenciaSacado := '';
           CodigoMoeda := 09;
+
+          // Usado pela Caixa
+          SeuNumero := '123456';
+          NossoNumero := '123456';
+
+          with SegmentoJ52.New do
+          begin
+            CodMovimento := imInclusaoRegistroDetalheLiberado;
+
+            with Pagador do
+            begin
+              with Inscricao do
+              begin
+                Tipo := tiCNPJ;
+                Numero := '12345678000123';
+              end;
+
+              Nome := 'Nome do Pagador';
+            end;
+
+            with Beneficiario do
+            begin
+              with Inscricao do
+              begin
+                Tipo := tiCNPJ;
+                Numero := '12345678000123';
+              end;
+
+              Nome := 'Nome do Beneficiario';
+            end;
+
+            with SacadorAvalista do
+            begin
+              with Inscricao do
+              begin
+                Tipo := tiCNPJ;
+                Numero := '12345678000123';
+              end;
+
+              Nome := 'Nome do Sacador/Avalista';
+            end;
+
+            Chave := '';
+            TXID := '';
+          end;
 
           TotalLote := TotalLote + ValorPagamento;
         end;
@@ -957,7 +1021,7 @@ end;
 procedure TfrmACBrPagFor_Exemplo.btnLerClick(Sender: TObject);
 var
   NomeArquivo: String;
-  i: Integer;
+  i, k: Integer;
 begin
   OpenDialog1.Title := 'Selecione o Arquivo de Retorno';
   OpenDialog1.DefaultExt := '*.txt';
@@ -982,13 +1046,16 @@ begin
 
     for i := 0 to ACBrPagFor1.Arquivos.Count -1 do
     begin
-      with ACBrPagFor1.Arquivos.Items[0].PagFor.Registro0.Aviso.Items[i] do
+      for k := 0 to ACBrPagFor1.Arquivos.Items[i].PagFor.Registro0.Aviso.Count -1 do
       begin
-        LogMsg.Lines.Add('Código........:' + CodigoRetorno);
-        LogMsg.Lines.Add('Mensagem......:' + MensagemRetorno);
-        LogMsg.Lines.Add('Segmento......:' + Segmento);
-        LogMsg.Lines.Add('Segmento Filho:' + SegmentoFilho);
-        LogMsg.Lines.Add('Seu Numero....:' + SeuNumero);
+        with ACBrPagFor1.Arquivos.Items[i].PagFor.Registro0.Aviso.Items[k] do
+        begin
+          LogMsg.Lines.Add('Código........:' + CodigoRetorno);
+          LogMsg.Lines.Add('Mensagem......:' + MensagemRetorno);
+          LogMsg.Lines.Add('Segmento......:' + Segmento);
+          LogMsg.Lines.Add('Segmento Filho:' + SegmentoFilho);
+          LogMsg.Lines.Add('Seu Numero....:' + SeuNumero);
+        end;
       end;
     end;
   end;

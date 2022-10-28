@@ -47,6 +47,8 @@ Public Const SESSAO_MDFe                      As String = "MDFe"
 Public Const SESSAO_DAMDFe                    As String = "DAMDFe"
 Public Const SESSAO_BOLETOCONFIG              As String = "BoletoConfig"
 Public Const SESSAO_BOLETOCEDENTECONFIG       As String = "BoletoCedenteConfig"
+Public Const SESSAO_BOLETOCEDENTEWS           As String = "BoletoCedenteWS"
+Public Const SESSAO_BOLETOWEBSERVICE          As String = "BoletoWebSevice"
 Public Const SESSAO_BOLETOBANCOCONFIG         As String = "BoletoBancoConfig"
 Public Const SESSAO_BOLETODIRETORIOCONFIG     As String = "BoletoDiretorioConfig"
 Public Const SESSAO_BOLETOBANCOFCFORTESCONFIG As String = "BoletoBancoFCFortesConfig"
@@ -57,6 +59,8 @@ Public Const SESSAO_GUIA                      As String = "Guia"
 Public Const SESSAO_CEP                       As String = "CEP"
 Public Const SESSAO_IBGE                      As String = "IBGE"
 Public Const SESSAO_Sedex                     As String = "Sedex"
+Public Const SESSAO_eSocial                   As String = "eSocial"
+Public Const SESSAO_GTIN                      As String = "GTIN"
 
 Public Enum NivelLog
     logNenhum = 0
@@ -130,6 +134,16 @@ Public Enum ETQModelo
     etqPplb = 2
     etqZPLII = 3
     etqEpl2 = 4
+End Enum
+
+Public Enum ETQPaginaCodigo
+    pceNone = 0
+    pce437 = 1
+    pce850 = 2
+    pce852 = 3
+    pce860 = 4
+    pce1250 = 5
+    pce1252 = 6
 End Enum
 
 Public Enum ETQUnidade
@@ -470,6 +484,32 @@ Public Enum BancoBoleto
     cobBS2 = 44
 End Enum
 
+Public Enum IndicadorPix
+    Nao = 0
+    Sim = 1
+End Enum
+
+Public Enum LogRegistro
+    Nao = 0
+    Sim = 1
+End Enum
+
+Public Enum AmbienteWebServiceBoleto
+    taProducao = 0
+    taHomologacao = 1
+End Enum
+
+Public Enum Operacao
+    tpInclui = 0
+    tpAltera = 1
+    tpBaixa = 2
+    tpConsulta = 3
+    tpConsultaDetalhe = 4
+    tpPIXCriar = 5
+    tpPIXCancelar = 6
+    tpPIXConsultar = 7
+End Enum
+
 Public Enum CNABBoleto
     CNAB240 = 0
     CNAB400 = 1
@@ -564,6 +604,28 @@ End Enum
 Public Enum IgnorarCaixaEAcentos
     Nao = 0
     Sim = 1
+End Enum
+
+Public Enum VersaoDFeSocial
+    ve02_04_01 = 0
+    ve02_04_02 = 1
+    ve02_05_00 = 2
+    veS01_00_00 = 3
+End Enum
+
+Public Enum TipoEmpregadoreSocial
+    tePessoaJuridica = 0
+    teOrgaoPublico = 1
+    tePessoaFisica = 2
+    teOrgaoPublicoExecutivoFederal = 3
+    teOrgaoPublicoLegislativoFederal = 4
+    teOrgaoPublicoJudiciarioFederal = 5
+    teOrgaoPublicoAutonomoFederal = 6
+End Enum
+
+Public Enum AmbienteeSocial
+    taProducao = 0
+    taProducaoRestrita = 1
 End Enum
 
 Public Function HasPosTipoStatus(Check As ACBrPosTipoStatus, Flag As ACBrPosTipoStatus) As Boolean

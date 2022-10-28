@@ -10,10 +10,8 @@ object frmACBrNFSe: TfrmACBrNFSe
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMenus: TPanel
     Left = 0
@@ -471,7 +469,7 @@ object frmACBrNFSe: TfrmACBrNFSe
                 Height = 21
                 TabOrder = 6
               end
-              object ckSalvar: TCheckBox
+              object chkSalvarGer: TCheckBox
                 Left = 8
                 Top = 146
                 Width = 209
@@ -647,7 +645,7 @@ object frmACBrNFSe: TfrmACBrNFSe
                   'Homologa'#231#227'o')
                 TabOrder = 0
               end
-              object cbxSalvarSOAP: TCheckBox
+              object chkSalvarSOAP: TCheckBox
                 Left = 10
                 Top = 92
                 Width = 153
@@ -1345,7 +1343,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 13
               Caption = 'Pasta Arquivos NFSe'
             end
-            object cbxSalvarArqs: TCheckBox
+            object chkSalvarArq: TCheckBox
               Left = 6
               Top = 0
               Width = 210
@@ -1681,312 +1679,14 @@ object frmACBrNFSe: TfrmACBrNFSe
     Height = 612
     Align = alClient
     TabOrder = 1
-    object pgcBotoes: TPageControl
-      Left = 1
-      Top = 1
-      Width = 567
-      Height = 136
-      ActivePage = tsEnvios
-      Align = alTop
-      TabOrder = 0
-      object tsEnvios: TTabSheet
-        Caption = 'Envios'
-        ImageIndex = 2
-        object btnGerarEnviarLote: TButton
-          Left = 10
-          Top = 41
-          Width = 177
-          Height = 25
-          Caption = 'Enviar Lote RPS (Ass'#237'ncrono)'
-          TabOrder = 3
-          OnClick = btnGerarEnviarLoteClick
-        end
-        object btnGerarEnviarNFSe: TButton
-          Left = 193
-          Top = 40
-          Width = 177
-          Height = 25
-          Caption = 'Enviar um RPS'
-          TabOrder = 4
-          OnClick = btnGerarEnviarNFSeClick
-        end
-        object btnGerarEnviarSincrono: TButton
-          Left = 376
-          Top = 40
-          Width = 177
-          Height = 25
-          Caption = 'Enviar Lote RPS (S'#237'ncrono)'
-          TabOrder = 5
-          OnClick = btnGerarEnviarSincronoClick
-        end
-        object btnImprimir: TButton
-          Left = 193
-          Top = 10
-          Width = 177
-          Height = 25
-          Caption = 'Imprimir DANFSe'
-          TabOrder = 1
-          OnClick = btnImprimirClick
-        end
-        object btnEnviaremail: TButton
-          Left = 376
-          Top = 10
-          Width = 177
-          Height = 25
-          Caption = 'Enviar e-mail'
-          TabOrder = 2
-          OnClick = btnEnviarEmailClick
-        end
-        object btnLinkNFSe: TButton
-          Left = 193
-          Top = 72
-          Width = 177
-          Height = 25
-          Caption = 'Link NFSe'
-          TabOrder = 7
-          OnClick = btnLinkNFSeClick
-        end
-        object btnGerarLoteRPS: TButton
-          Left = 376
-          Top = 72
-          Width = 177
-          Height = 25
-          Caption = 'Gerar Lote RPS'
-          TabOrder = 8
-          OnClick = btnGerarLoteRPSClick
-        end
-        object btnSubsNFSe: TButton
-          Left = 10
-          Top = 72
-          Width = 177
-          Height = 25
-          Caption = 'Substituir NFSe'
-          TabOrder = 6
-          OnClick = btnSubsNFSeClick
-        end
-        object btnEmitir: TButton
-          Left = 10
-          Top = 10
-          Width = 177
-          Height = 25
-          Caption = 'Emitir Nota (Novo)'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-          TabOrder = 0
-          OnClick = btnEmitirClick
-        end
-      end
-      object tsConsultas: TTabSheet
-        Caption = 'Consultas'
-        ImageIndex = 3
-        object btnConsultarSitLote: TButton
-          Left = 3
-          Top = 10
-          Width = 177
-          Height = 25
-          Caption = 'Consultar Situa'#231#227'o do Lote'
-          TabOrder = 0
-          OnClick = btnConsultarSitLoteClick
-        end
-        object btnConsultarLote: TButton
-          Left = 186
-          Top = 10
-          Width = 177
-          Height = 25
-          Caption = 'Consultar Lote'
-          TabOrder = 1
-          OnClick = btnConsultarLoteClick
-        end
-        object btnConsultarNFSeRPS: TButton
-          Left = 369
-          Top = 10
-          Width = 177
-          Height = 25
-          Caption = 'Consultar NFSe por RPS'
-          TabOrder = 2
-          OnClick = btnConsultarNFSeRPSClick
-        end
-        object btnConsultarNFSePeriodo: TButton
-          Left = 186
-          Top = 41
-          Width = 177
-          Height = 25
-          Caption = 'Consultar NFSe por Per'#237'odo'
-          TabOrder = 4
-          OnClick = btnConsultarNFSePeriodoClick
-        end
-        object btnConsultarNFSePeloNumero: TButton
-          Left = 3
-          Top = 41
-          Width = 177
-          Height = 25
-          Caption = 'Consultar NFSe por numero '
-          TabOrder = 3
-          OnClick = btnConsultarNFSePeloNumeroClick
-        end
-        object btnConsultarNFSeFaixa: TButton
-          Left = 369
-          Top = 41
-          Width = 177
-          Height = 25
-          Caption = 'Consultar NFSe por Faixa'
-          TabOrder = 5
-          OnClick = btnConsultarNFSeFaixaClick
-        end
-        object btnConsultarNFSeGenerico: TButton
-          Left = 3
-          Top = 72
-          Width = 177
-          Height = 25
-          Caption = 'Consultar NFSe Gen'#233'rico'
-          TabOrder = 6
-          OnClick = btnConsultarNFSeGenericoClick
-        end
-      end
-      object tsConsServPrest: TTabSheet
-        Caption = 'Consultas Servi'#231'os Prestados'
-        ImageIndex = 4
-        object btnConsultarNFSeServicoPrestadoPorNumero: TButton
-          Left = 3
-          Top = 10
-          Width = 238
-          Height = 25
-          Caption = 'Consultar NFSe Servi'#231'o Prestado Por N'#250'mero'
-          TabOrder = 0
-          OnClick = btnConsultarNFSeServicoPrestadoPorNumeroClick
-        end
-        object btnConsultarNFSeServicoPrestadoPorPeriodo: TButton
-          Left = 259
-          Top = 10
-          Width = 262
-          Height = 25
-          Caption = 'Consultar NFSe Servi'#231'o Prestado Por Periodo'
-          TabOrder = 1
-          OnClick = btnConsultarNFSeServicoPrestadoPorPeriodoClick
-        end
-        object btnConsultarNFSeServicoPrestadoPorTomador: TButton
-          Left = 3
-          Top = 41
-          Width = 238
-          Height = 25
-          Caption = 'Consultar NFSe Servi'#231'o Prestado Por Tomador'
-          TabOrder = 2
-          OnClick = btnConsultarNFSeServicoPrestadoPorTomadorClick
-        end
-        object btnConsultarNFSeServicoPrestadoPorIntermediario: TButton
-          Left = 259
-          Top = 41
-          Width = 262
-          Height = 25
-          Caption = 'Consultar NFSe Servi'#231'o Prestado Por Intermedi'#225'rio'
-          TabOrder = 3
-          OnClick = btnConsultarNFSeServicoPrestadoPorIntermediarioClick
-        end
-      end
-      object tsConsServTom: TTabSheet
-        Caption = 'Consultas Servi'#231'os Tomados'
-        ImageIndex = 5
-        object btnConsultarNFSeServicoTomadoPorNumero: TButton
-          Left = 3
-          Top = 10
-          Width = 238
-          Height = 25
-          Caption = 'Consultar NFSe Servi'#231'o Tomado Por N'#250'mero'
-          TabOrder = 0
-          OnClick = btnConsultarNFSeServicoTomadoPorNumeroClick
-        end
-        object btnConsultarNFSeServicoTomadoPorPeriodo: TButton
-          Left = 259
-          Top = 10
-          Width = 262
-          Height = 25
-          Caption = 'Consultar NFSe Servi'#231'o Tomado Por Periodo'
-          TabOrder = 1
-          OnClick = btnConsultarNFSeServicoTomadoPorPeriodoClick
-        end
-        object btnConsultarNFSeServicoTomadoPorPrestador: TButton
-          Left = 3
-          Top = 41
-          Width = 238
-          Height = 25
-          Caption = 'Consultar NFSe Servi'#231'o Tomado Por Prestador'
-          TabOrder = 2
-          OnClick = btnConsultarNFSeServicoTomadoPorPrestadorClick
-        end
-        object btnConsultarNFSeServicoTomadoPorIntermediario: TButton
-          Left = 259
-          Top = 41
-          Width = 262
-          Height = 25
-          Caption = 'Consultar NFSe Servi'#231'o Tomado Por Intermedi'#225'rio'
-          TabOrder = 3
-          OnClick = btnConsultarNFSeServicoTomadoPorIntermediarioClick
-        end
-        object btnConsultarNFSeServicoTomadoPorTomador: TButton
-          Left = 3
-          Top = 72
-          Width = 238
-          Height = 25
-          Caption = 'Consultar NFSe Servi'#231'o Tomado Por Tomador'
-          TabOrder = 4
-          OnClick = btnConsultarNFSeServicoTomadoPorTomadorClick
-        end
-      end
-      object tsCancelamento: TTabSheet
-        Caption = 'Cancelamento'
-        ImageIndex = 4
-        object btnCancNFSe: TButton
-          Left = 3
-          Top = 10
-          Width = 177
-          Height = 25
-          Caption = 'Cancelar NFSe'
-          TabOrder = 0
-          OnClick = btnCancNFSeClick
-        end
-      end
-      object tsTeste: TTabSheet
-        Caption = 'Teste'
-        ImageIndex = 3
-        object btnGerarEnviarTeste_SP: TButton
-          Left = 3
-          Top = 10
-          Width = 177
-          Height = 25
-          Caption = 'Enviar Lote RPS (Teste)'
-          TabOrder = 0
-          OnClick = btnGerarEnviarTeste_SPClick
-        end
-        object mmoObs: TMemo
-          Left = 3
-          Top = 56
-          Width = 553
-          Height = 50
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clRed
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Lines.Strings = (
-            'Somente para os provedores: ISSDSF, Siat e SP.')
-          ParentFont = False
-          ReadOnly = True
-          TabOrder = 1
-        end
-      end
-    end
     object pgRespostas: TPageControl
       Left = 1
-      Top = 137
+      Top = 164
       Width = 567
-      Height = 474
+      Height = 447
       ActivePage = TabSheet8
       Align = alClient
-      TabOrder = 1
+      TabOrder = 0
       object TabSheet8: TTabSheet
         Caption = 'Log'
         ImageIndex = 2
@@ -1994,7 +1694,7 @@ object frmACBrNFSe: TfrmACBrNFSe
           Left = 0
           Top = 0
           Width = 559
-          Height = 446
+          Height = 419
           Align = alClient
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -2013,11 +1713,11 @@ object frmACBrNFSe: TfrmACBrNFSe
           Left = 0
           Top = 0
           Width = 559
-          Height = 446
+          Height = 419
           Align = alClient
           TabOrder = 0
           ControlData = {
-            4C000000C6390000182E00000000000000000000000000000000000000000000
+            4C000000C63900004E2B00000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
             2B2E126200000000000000004C0000000114020000000000C000000000000046
             8000000000000000000000000000000000000000000000000000000000000000
@@ -2031,11 +1731,11 @@ object frmACBrNFSe: TfrmACBrNFSe
           Left = 0
           Top = 0
           Width = 559
-          Height = 446
+          Height = 419
           Align = alClient
           TabOrder = 0
           ControlData = {
-            4C000000C6390000182E00000000000000000000000000000000000000000000
+            4C000000C63900004E2B00000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
             2B2E126200000000000000004C0000000114020000000000C000000000000046
             8000000000000000000000000000000000000000000000000000000000000000
@@ -2048,15 +1748,518 @@ object frmACBrNFSe: TfrmACBrNFSe
           Left = 0
           Top = 0
           Width = 559
-          Height = 446
+          Height = 419
           Align = alClient
           TabOrder = 0
           ControlData = {
-            4C000000C6390000182E00000000000000000000000000000000000000000000
+            4C000000C63900004E2B00000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
             2B2E126200000000000000004C0000000114020000000000C000000000000046
             8000000000000000000000000000000000000000000000000000000000000000
             00000000000000000100000000000000000000000000000000000000}
+        end
+      end
+    end
+    object pgcProvedores: TPageControl
+      Left = 1
+      Top = 1
+      Width = 567
+      Height = 163
+      ActivePage = tsDemais
+      Align = alTop
+      TabOrder = 1
+      object tsDemais: TTabSheet
+        Caption = 'Demais Provedores'
+        object pgcBotoes: TPageControl
+          Left = 0
+          Top = 0
+          Width = 559
+          Height = 135
+          ActivePage = tsEnvios
+          Align = alClient
+          TabOrder = 0
+          object tsEnvios: TTabSheet
+            Caption = 'Envios'
+            ImageIndex = 2
+            object btnGerarEnviarLote: TButton
+              Left = 1
+              Top = 41
+              Width = 177
+              Height = 25
+              Caption = 'Enviar Lote RPS (Ass'#237'ncrono)'
+              TabOrder = 3
+              OnClick = btnGerarEnviarLoteClick
+            end
+            object btnGerarEnviarNFSe: TButton
+              Left = 184
+              Top = 40
+              Width = 177
+              Height = 25
+              Caption = 'Enviar um RPS'
+              TabOrder = 4
+              OnClick = btnGerarEnviarNFSeClick
+            end
+            object btnGerarEnviarSincrono: TButton
+              Left = 367
+              Top = 40
+              Width = 177
+              Height = 25
+              Caption = 'Enviar Lote RPS (S'#237'ncrono)'
+              TabOrder = 5
+              OnClick = btnGerarEnviarSincronoClick
+            end
+            object btnImprimir: TButton
+              Left = 184
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Imprimir DANFSe'
+              TabOrder = 1
+              OnClick = btnImprimirClick
+            end
+            object btnEnviaremail: TButton
+              Left = 367
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Enviar e-mail'
+              TabOrder = 2
+              OnClick = btnEnviarEmailClick
+            end
+            object btnLinkNFSe: TButton
+              Left = 184
+              Top = 72
+              Width = 177
+              Height = 25
+              Caption = 'Link NFSe'
+              TabOrder = 7
+              OnClick = btnLinkNFSeClick
+            end
+            object btnGerarLoteRPS: TButton
+              Left = 367
+              Top = 72
+              Width = 177
+              Height = 25
+              Caption = 'Gerar Lote RPS'
+              TabOrder = 8
+              OnClick = btnGerarLoteRPSClick
+            end
+            object btnSubsNFSe: TButton
+              Left = 1
+              Top = 72
+              Width = 177
+              Height = 25
+              Caption = 'Substituir NFSe'
+              TabOrder = 6
+              OnClick = btnSubsNFSeClick
+            end
+            object btnEmitir: TButton
+              Left = 1
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Emitir Nota (Novo)'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -13
+              Font.Name = 'Tahoma'
+              Font.Style = [fsBold]
+              ParentFont = False
+              TabOrder = 0
+              OnClick = btnEmitirClick
+            end
+          end
+          object tsConsultas: TTabSheet
+            Caption = 'Consultas'
+            ImageIndex = 3
+            object btnConsultarSitLote: TButton
+              Left = 3
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Consultar Situa'#231#227'o do Lote'
+              TabOrder = 0
+              OnClick = btnConsultarSitLoteClick
+            end
+            object btnConsultarLote: TButton
+              Left = 186
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Consultar Lote'
+              TabOrder = 1
+              OnClick = btnConsultarLoteClick
+            end
+            object btnConsultarNFSeRPS: TButton
+              Left = 369
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Consultar NFSe por RPS'
+              TabOrder = 2
+              OnClick = btnConsultarNFSeRPSClick
+            end
+            object btnConsultarNFSePeriodo: TButton
+              Left = 186
+              Top = 41
+              Width = 177
+              Height = 25
+              Caption = 'Consultar NFSe por Per'#237'odo'
+              TabOrder = 4
+              OnClick = btnConsultarNFSePeriodoClick
+            end
+            object btnConsultarNFSePeloNumero: TButton
+              Left = 3
+              Top = 41
+              Width = 177
+              Height = 25
+              Caption = 'Consultar NFSe por numero '
+              TabOrder = 3
+              OnClick = btnConsultarNFSePeloNumeroClick
+            end
+            object btnConsultarNFSeFaixa: TButton
+              Left = 369
+              Top = 41
+              Width = 177
+              Height = 25
+              Caption = 'Consultar NFSe por Faixa'
+              TabOrder = 5
+              OnClick = btnConsultarNFSeFaixaClick
+            end
+            object btnConsultarNFSeGenerico: TButton
+              Left = 3
+              Top = 72
+              Width = 177
+              Height = 25
+              Caption = 'Consultar NFSe Gen'#233'rico'
+              TabOrder = 6
+              OnClick = btnConsultarNFSeGenericoClick
+            end
+          end
+          object tsConsServPrest: TTabSheet
+            Caption = 'Cons. Serv. Prestados'
+            ImageIndex = 4
+            object btnConsultarNFSeServicoPrestadoPorNumero: TButton
+              Left = 3
+              Top = 10
+              Width = 238
+              Height = 25
+              Caption = 'Consultar NFSe Servi'#231'o Prestado Por N'#250'mero'
+              TabOrder = 0
+              OnClick = btnConsultarNFSeServicoPrestadoPorNumeroClick
+            end
+            object btnConsultarNFSeServicoPrestadoPorPeriodo: TButton
+              Left = 259
+              Top = 10
+              Width = 262
+              Height = 25
+              Caption = 'Consultar NFSe Servi'#231'o Prestado Por Periodo'
+              TabOrder = 1
+              OnClick = btnConsultarNFSeServicoPrestadoPorPeriodoClick
+            end
+            object btnConsultarNFSeServicoPrestadoPorTomador: TButton
+              Left = 3
+              Top = 41
+              Width = 238
+              Height = 25
+              Caption = 'Consultar NFSe Servi'#231'o Prestado Por Tomador'
+              TabOrder = 2
+              OnClick = btnConsultarNFSeServicoPrestadoPorTomadorClick
+            end
+            object btnConsultarNFSeServicoPrestadoPorIntermediario: TButton
+              Left = 259
+              Top = 41
+              Width = 262
+              Height = 25
+              Caption = 'Consultar NFSe Servi'#231'o Prestado Por Intermedi'#225'rio'
+              TabOrder = 3
+              OnClick = btnConsultarNFSeServicoPrestadoPorIntermediarioClick
+            end
+          end
+          object tsConsServTom: TTabSheet
+            Caption = 'Cons. Serv. Tomados'
+            ImageIndex = 5
+            object btnConsultarNFSeServicoTomadoPorNumero: TButton
+              Left = 3
+              Top = 10
+              Width = 238
+              Height = 25
+              Caption = 'Consultar NFSe Servi'#231'o Tomado Por N'#250'mero'
+              TabOrder = 0
+              OnClick = btnConsultarNFSeServicoTomadoPorNumeroClick
+            end
+            object btnConsultarNFSeServicoTomadoPorPeriodo: TButton
+              Left = 259
+              Top = 10
+              Width = 262
+              Height = 25
+              Caption = 'Consultar NFSe Servi'#231'o Tomado Por Periodo'
+              TabOrder = 1
+              OnClick = btnConsultarNFSeServicoTomadoPorPeriodoClick
+            end
+            object btnConsultarNFSeServicoTomadoPorPrestador: TButton
+              Left = 3
+              Top = 41
+              Width = 238
+              Height = 25
+              Caption = 'Consultar NFSe Servi'#231'o Tomado Por Prestador'
+              TabOrder = 2
+              OnClick = btnConsultarNFSeServicoTomadoPorPrestadorClick
+            end
+            object btnConsultarNFSeServicoTomadoPorIntermediario: TButton
+              Left = 259
+              Top = 41
+              Width = 262
+              Height = 25
+              Caption = 'Consultar NFSe Servi'#231'o Tomado Por Intermedi'#225'rio'
+              TabOrder = 3
+              OnClick = btnConsultarNFSeServicoTomadoPorIntermediarioClick
+            end
+            object btnConsultarNFSeServicoTomadoPorTomador: TButton
+              Left = 3
+              Top = 72
+              Width = 238
+              Height = 25
+              Caption = 'Consultar NFSe Servi'#231'o Tomado Por Tomador'
+              TabOrder = 4
+              OnClick = btnConsultarNFSeServicoTomadoPorTomadorClick
+            end
+          end
+          object tsCancelamento: TTabSheet
+            Caption = 'Cancelamento'
+            ImageIndex = 4
+            object btnCancNFSe: TButton
+              Left = 3
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Cancelar NFSe'
+              TabOrder = 0
+              OnClick = btnCancNFSeClick
+            end
+          end
+          object tsTeste: TTabSheet
+            Caption = 'Teste'
+            ImageIndex = 3
+            object btnGerarEnviarTeste_SP: TButton
+              Left = 3
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Enviar Lote RPS (Teste)'
+              TabOrder = 0
+              OnClick = btnGerarEnviarTeste_SPClick
+            end
+            object mmoObs: TMemo
+              Left = 3
+              Top = 56
+              Width = 540
+              Height = 50
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clRed
+              Font.Height = -13
+              Font.Name = 'Tahoma'
+              Font.Style = [fsBold]
+              Lines.Strings = (
+                'Somente para os provedores: ISSDSF, Siat e ISSSaoPaulo.')
+              ParentFont = False
+              ReadOnly = True
+              TabOrder = 1
+            end
+          end
+          object tsOutros: TTabSheet
+            Caption = 'Outros'
+            ImageIndex = 6
+            object btnGerarToken: TButton
+              Left = 3
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Gerar Token'
+              TabOrder = 0
+              OnClick = btnGerarTokenClick
+            end
+          end
+        end
+      end
+      object tsPadraoNacional: TTabSheet
+        Caption = 'Provedor Padr'#227'o Nacional'
+        ImageIndex = 1
+        object pgcBotoes1: TPageControl
+          Left = 0
+          Top = 0
+          Width = 559
+          Height = 136
+          ActivePage = tsEnvios1
+          Align = alTop
+          TabOrder = 0
+          object tsEnvios1: TTabSheet
+            Caption = 'Envios'
+            ImageIndex = 2
+            object btnImprimirPN: TButton
+              Left = 186
+              Top = 9
+              Width = 177
+              Height = 25
+              Caption = 'Imprimir DANFSe'
+              TabOrder = 1
+            end
+            object btnEnviaremailPN: TButton
+              Left = 369
+              Top = 9
+              Width = 177
+              Height = 25
+              Caption = 'Enviar e-mail'
+              TabOrder = 2
+            end
+            object btnEmitirPN: TButton
+              Left = 3
+              Top = 9
+              Width = 177
+              Height = 25
+              Caption = 'Emitir Nota'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -13
+              Font.Name = 'Tahoma'
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 0
+            end
+          end
+          object tsEventos1: TTabSheet
+            Caption = 'Eventos'
+            ImageIndex = 7
+            object btnEventoCancNFSePN: TButton
+              Left = 4
+              Top = 13
+              Width = 177
+              Height = 25
+              Caption = 'Cancelar NFSe'
+              TabOrder = 0
+              OnClick = btnEventoCancNFSePNClick
+            end
+            object btnEventoCancPorSubPN: TButton
+              Left = 187
+              Top = 13
+              Width = 177
+              Height = 25
+              Caption = 'Cancelar por Substitui'#231#227'o'
+              TabOrder = 1
+              OnClick = btnEventoCancPorSubPNClick
+            end
+            object btnEventoAnaliseCancPN: TButton
+              Left = 368
+              Top = 13
+              Width = 177
+              Height = 25
+              Caption = 'Analise para Cancelamento'
+              TabOrder = 2
+              OnClick = btnEventoAnaliseCancPNClick
+            end
+            object btnEventoConfPrestPN: TButton
+              Left = 4
+              Top = 44
+              Width = 177
+              Height = 25
+              Caption = 'Confirma'#231#227'o Prestador'
+              TabOrder = 3
+              OnClick = btnEventoConfPrestPNClick
+            end
+            object btnEventoConfTomPN: TButton
+              Left = 187
+              Top = 44
+              Width = 177
+              Height = 25
+              Caption = 'Confirma'#231#227'o Tomador'
+              TabOrder = 4
+              OnClick = btnEventoConfTomPNClick
+            end
+            object btnEventoConfInterPN: TButton
+              Left = 368
+              Top = 43
+              Width = 177
+              Height = 25
+              Caption = 'Confirma'#231#227'o Intermedi'#225'rio'
+              TabOrder = 5
+              OnClick = btnEventoConfInterPNClick
+            end
+            object btnEventoRejPrestPN: TButton
+              Left = 4
+              Top = 75
+              Width = 177
+              Height = 25
+              Caption = 'Rejei'#231#227'o Prestador'
+              TabOrder = 6
+              OnClick = btnEventoRejPrestPNClick
+            end
+            object btnEventoRejTomPN: TButton
+              Left = 187
+              Top = 75
+              Width = 177
+              Height = 25
+              Caption = 'Rejei'#231#227'o Tomador'
+              TabOrder = 7
+              OnClick = btnEventoRejTomPNClick
+            end
+            object btnEventoRejInterPN: TButton
+              Left = 368
+              Top = 75
+              Width = 177
+              Height = 25
+              Caption = 'Rejei'#231#227'o Intermedi'#225'rio'
+              TabOrder = 8
+              OnClick = btnEventoRejInterPNClick
+            end
+          end
+          object tsConsultas1: TTabSheet
+            Caption = 'Consultas'
+            ImageIndex = 3
+            object btnConsultarNFSeRPSPN: TButton
+              Left = 3
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Consultar NFSe por DPS'
+              TabOrder = 0
+              OnClick = btnConsultarNFSeRPSPNClick
+            end
+            object btnConsultarNFSePeloNumeroPN: TButton
+              Left = 186
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Consultar NFSe por Chave'
+              TabOrder = 1
+            end
+            object btnObterPDFdoDANFSEPN: TButton
+              Left = 3
+              Top = 72
+              Width = 177
+              Height = 25
+              Caption = 'Obter PDF do DANFSE'
+              TabOrder = 2
+              OnClick = btnObterPDFdoDANFSEPNClick
+            end
+            object btnConsEventoChavPN: TButton
+              Left = 3
+              Top = 41
+              Width = 177
+              Height = 25
+              Caption = 'Consultar Evento por Chave'
+              TabOrder = 3
+              OnClick = btnConsEventoChavPNClick
+            end
+            object btnConsultarDFe: TButton
+              Left = 186
+              Top = 41
+              Width = 177
+              Height = 25
+              Caption = 'Consultar DFe'
+              TabOrder = 4
+              OnClick = btnConsultarDFeClick
+            end
+          end
         end
       end
     end
@@ -2068,7 +2271,7 @@ object frmACBrNFSe: TfrmACBrNFSe
       'dos os Arquivos (*.*)|*.*'
     Title = 'Selecione a NFe'
     Left = 336
-    Top = 168
+    Top = 208
   end
   object ACBrMail1: TACBrMail
     Host = '127.0.0.1'
@@ -2079,7 +2282,7 @@ object frmACBrNFSe: TfrmACBrNFSe
     DefaultCharset = UTF_8
     IDECharset = CP1252
     Left = 336
-    Top = 272
+    Top = 320
   end
   object ACBrNFSeX1: TACBrNFSeX
     MAIL = ACBrMail1
@@ -2095,13 +2298,12 @@ object frmACBrNFSe: TfrmACBrNFSe
     Configuracoes.Geral.Versao = ve100
     Configuracoes.Geral.Emitente.DadosEmitente.Email = 'contato@provedor.com.br'
     Configuracoes.Arquivos.OrdenacaoPath = <>
-    Configuracoes.Arquivos.TabServicosExt = True
     Configuracoes.WebServices.UF = 'SP'
     Configuracoes.WebServices.AguardarConsultaRet = 0
     Configuracoes.WebServices.QuebradeLinha = '|'
     DANFSE = ACBrNFSeXDANFSeRL1
     Left = 334
-    Top = 225
+    Top = 265
   end
   object ACBrNFSeXDANFSeRL1: TACBrNFSeXDANFSeRL
     Sistema = 'Projeto ACBr - www.projetoacbr.com.br'
@@ -2127,6 +2329,6 @@ object frmACBrNFSe: TfrmACBrNFSe
     FormatarNumeroDocumentoNFSe = True
     Producao = snSim
     Left = 470
-    Top = 225
+    Top = 265
   end
 end

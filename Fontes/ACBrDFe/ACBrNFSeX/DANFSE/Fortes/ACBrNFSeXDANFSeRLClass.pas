@@ -37,7 +37,7 @@ unit ACBrNFSeXDANFSeRLClass;
 interface
 
 uses
-  Dialogs, Forms, SysUtils, Classes,
+  SysUtils, Classes,
   ACBrBase,
   ACBrNFSeXClass, ACBrNFSeXDANFSeClass;
 
@@ -48,7 +48,7 @@ type
   TACBrNFSeXDANFSeRL = class(TACBrNFSeXDANFSeClass)
   protected
     FDetalharServico: Boolean;
-	
+
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -64,9 +64,9 @@ type
 implementation
 
 uses
-  ACBrUtil,
   ACBrUtil.FilesIO,
-  ACBrNFSeX, ACBrNFSeXDANFSeRLRetrato;
+  ACBrNFSeX, ACBrNFSeXConversao, ACBrNFSeXDANFSeRL,
+  ACBrNFSeXDANFSeRLRetrato, ACBrNFSeXDANFSeRLSimplISS;
 
 constructor TACBrNFSeXDANFSeRL.Create(AOwner: TComponent);
 begin
@@ -84,8 +84,16 @@ procedure TACBrNFSeXDANFSeRL.ImprimirDANFSe(NFSe: TNFSe);
 var
   i: Integer;
   Notas: array of TNFSe;
+  fqrXDANFSeRLRetrato: TfrlXDANFSeRL;
 begin
-  TfrlXDANFSeRLRetrato.QuebradeLinha(TACBrNFSeX(ACBrNFSe).Provider.ConfigGeral.QuebradeLinha);
+  case TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor of
+    proSimplISS:
+      fqrXDANFSeRLRetrato := TfrlXDANFSeRLSimplISS.Create(Self);
+  else
+    fqrXDANFSeRLRetrato := TfrlXDANFSeRLRetrato.Create(Self);
+  end;
+
+  fqrXDANFSeRLRetrato.QuebradeLinha(TACBrNFSeX(ACBrNFSe).Provider.ConfigGeral.QuebradeLinha);
 
   if (NFSe = nil) then
   begin
@@ -100,64 +108,72 @@ begin
     Notas[0] := NFSe;
   end;
 
-  TfrlXDANFSeRLRetrato.Imprimir(Self, Notas);
+  fqrXDANFSeRLRetrato.Imprimir(Self, Notas);
+
+  fqrXDANFSeRLRetrato.Free;
 end;
 
 procedure TACBrNFSeXDANFSeRL.ImprimirDANFSePDF(NFSe: TNFSe);
 var
   i: integer;
+  fqrXDANFSeRLRetrato: TfrlXDANFSeRL;
 begin
-  TfrlXDANFSeRLRetrato.QuebradeLinha(TACBrNFSeX(ACBrNFSe).Provider.ConfigGeral.QuebradeLinha);
+  case TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor of
+    proSimplISS:
+      fqrXDANFSeRLRetrato := TfrlXDANFSeRLSimplISS.Create(Self);
+  else
+    fqrXDANFSeRLRetrato := TfrlXDANFSeRLRetrato.Create(Self);
+  end;
+
+  fqrXDANFSeRLRetrato.QuebradeLinha(TACBrNFSeX(ACBrNFSe).Provider.ConfigGeral.QuebradeLinha);
 
   if NFSe = nil then
   begin
     for i := 0 to TACBrNFSeX(ACBrNFSe).NotasFiscais.Count - 1 do
     begin
-      if Trim(self.NomeDocumento) <> ''  then
-      begin
-        FPArquivoPDF := PathWithDelim(Self.PathPDF) + self.NomeDocumento;
+      FPArquivoPDF := DefinirNomeArquivo(Self.PathPDF,
+       TACBrNFSeX(ACBrNFSe).NumID[TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[i].NFSe] + '-nfse.pdf',
+       self.NomeDocumento);
 
-        if Pos('.pdf', LowerCase(FPArquivoPDF)) = 0 then
-          FPArquivoPDF := FPArquivoPDF + '.pdf';
-      end
-      else
-        FPArquivoPDF := PathWithDelim(Self.PathPDF) +
-          TACBrNFSeX(ACBrNFSe).NumID[TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[i].NFSe] + '-nfse.pdf';
-
-      TfrlXDANFSeRLRetrato.SalvarPDF(Self, TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[i].NFSe, FPArquivoPDF);
+      fqrXDANFSeRLRetrato.SalvarPDF(Self, TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[i].NFSe, FPArquivoPDF);
     end;
   end
   else
   begin
-    if Trim(self.NomeDocumento) <> ''  then
-    begin
-      FPArquivoPDF := PathWithDelim(Self.PathPDF) + self.NomeDocumento;
+    FPArquivoPDF := DefinirNomeArquivo(Self.PathPDF,
+     TACBrNFSeX(ACBrNFSe).NumID[NFSe] + '-nfse.pdf', self.NomeDocumento);
 
-      if Pos('.pdf', LowerCase(FPArquivoPDF)) = 0 then
-        FPArquivoPDF := FPArquivoPDF + '.pdf';
-    end
-    else
-      FPArquivoPDF := PathWithDelim(Self.PathPDF) + TACBrNFSeX(ACBrNFSe).NumID[NFSe] + '-nfse.pdf';
-
-    TfrlXDANFSeRLRetrato.SalvarPDF(Self, NFSe, FPArquivoPDF);
+    fqrXDANFSeRLRetrato.SalvarPDF(Self, NFSe, FPArquivoPDF);
   end;
+
+  fqrXDANFSeRLRetrato.Free;
 end;
 
 procedure TACBrNFSeXDANFSeRL.ImprimirDANFSePDF(AStream: TStream; NFSe: TNFSe);
 var
   i: integer;
+  fqrXDANFSeRLRetrato: TfrlXDANFSeRL;
 begin
-  TfrlXDANFSeRLRetrato.QuebradeLinha(TACBrNFSeX(ACBrNFSe).Provider.ConfigGeral.QuebradeLinha);
+  case TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor of
+    proSimplISS:
+      fqrXDANFSeRLRetrato := TfrlXDANFSeRLSimplISS.Create(Self);
+  else
+    fqrXDANFSeRLRetrato := TfrlXDANFSeRLRetrato.Create(Self);
+  end;
+
+  fqrXDANFSeRLRetrato.QuebradeLinha(TACBrNFSeX(ACBrNFSe).Provider.ConfigGeral.QuebradeLinha);
 
   if NFSe = nil then
   begin
     for i := 0 to TACBrNFSeX(ACBrNFSe).NotasFiscais.Count - 1 do
-      TfrlXDANFSeRLRetrato.SalvarPDF(Self, TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[i].NFSe, AStream);
+      fqrXDANFSeRLRetrato.SalvarPDF(Self, TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[i].NFSe, AStream);
   end
   else
   begin
-    TfrlXDANFSeRLRetrato.SalvarPDF(Self, NFSe, AStream);
+    fqrXDANFSeRLRetrato.SalvarPDF(Self, NFSe, AStream);
   end;
+
+  fqrXDANFSeRLRetrato.Free;
 end;
 
 end.

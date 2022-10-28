@@ -52,12 +52,21 @@ echo "****************************************"
 echo.
 
 :PIXCD
-%1\tools\lazres.exe ACBrPIXCD.lrs TACBrPixCD.png TACBrPSPItau.png TACBrPSPBancoDoBrasil.png TACBrPSPSantander.png TACBrPSPShipay.png
+%1\tools\lazres.exe ACBrPIXCD.lrs TACBrPixCD.png TACBrPSPItau.png TACBrPSPBancoDoBrasil.png TACBrPSPSantander.png TACBrPSPShipay.png TACBrPSPSicredi.png TACBrPSPSicoob.png
 move ACBrPIXCD.lrs ..\ACBrPIXCD
 echo.
 echo "****************************************"
 echo "* Arquivo   ACBrPIXCD.lrs   gerado     *"
 echo "****************************************"
+echo.
+
+:OpenDelivery
+%1\tools\lazres.exe ACBrOpenDelivery.lrs TACBrOpenDelivery.png
+move ACBrOpenDelivery.lrs ..\ACBrOpenDelivery
+echo.
+echo "***********************************************"
+echo "* Arquivo   ACBrOpenDelivery.lrs   gerado     *"
+echo "***********************************************"
 echo.
 
 :TCP
@@ -229,11 +238,20 @@ move ACBrCTe.lrs ..\ACBrDFe\ACBrCTe
 %1\tools\lazres.exe ACBrCTeDACTeRL.lrs TACBrCTeDACTeRL.png 
 move ACBrCTeDACTeRL.lrs ..\ACBrDFe\ACBrCTe\DACTE\Fortes
 
-
 echo.
 echo "***********************************************"
 echo "* Arquivo    ACBrCTe.lrs     gerado           *"
 echo "* Arquivo    ACBrCTeDACTeRL.lrs     gerado    *"
+echo "***********************************************"
+echo.
+
+:GTIN
+%1\tools\lazres.exe ACBrGTIN.lrs TACBrGTIN.png 
+move ACBrGTIN.lrs ..\ACBrDFe\ACBrGTIN
+
+echo.
+echo "***********************************************"
+echo "* Arquivo    ACBrGTIN.lrs     gerado          *"
 echo "***********************************************"
 echo.
 

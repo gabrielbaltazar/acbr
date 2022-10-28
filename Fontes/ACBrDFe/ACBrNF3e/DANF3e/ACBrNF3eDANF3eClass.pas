@@ -3,9 +3,9 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -38,7 +38,7 @@ interface
 
 uses
   SysUtils, Classes, ACBrBase,
-  pcnNF3e, pcnConversao, ACBrDFeReport;
+  ACBrNF3eClass, pcnConversao, ACBrDFeReport;
 
 type
 
@@ -87,7 +87,7 @@ type
 implementation
 
 uses
-  ACBrNF3e, ACBrUtil;
+  ACBrNF3e;
 
 { TACBrNF3eDANF3eClass }
 

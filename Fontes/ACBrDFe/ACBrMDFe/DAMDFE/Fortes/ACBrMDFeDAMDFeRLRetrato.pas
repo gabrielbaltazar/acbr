@@ -37,9 +37,21 @@ unit ACBrMDFeDAMDFeRLRetrato;
 interface
 
 uses
-  SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls,
-  RLReport, RLBarcode, RLPDFFilter, RLFilters,
-  pcnConversao, pmdfeConversaoMDFe, ACBrMDFeDAMDFeRL, ACBrMDFeDAMDFeClass;
+  SysUtils, 
+  Variants, 
+  Classes, 
+  Graphics, 
+  Controls, 
+  Forms, 
+  ExtCtrls,
+  RLReport, 
+  RLBarcode, 
+  RLPDFFilter, 
+  RLFilters,
+  pcnConversao, 
+  pmdfeConversaoMDFe, 
+  ACBrMDFeDAMDFeRL, 
+  ACBrMDFeDAMDFeClass;
 
 type
 
@@ -192,7 +204,10 @@ implementation
 uses
   StrUtils, DateUtils,
   pmdfeMDFe,
-  ACBrUtil, ACBrDFeUtil, ACBrValidador, ACBrImage, ACBrDelphiZXingQRCode,
+  ACBrUtil.Strings,
+  ACBrUtil.DateTime,
+  ACBrUtil.Base,
+  ACBrDFeUtil, ACBrValidador, ACBrImage, ACBrDelphiZXingQRCode,
   ACBrDFeReportFortes;
 
 {$ifdef FPC}

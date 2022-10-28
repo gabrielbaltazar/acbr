@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2021 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo:                                                 }
 {                                                                              }
@@ -60,7 +60,7 @@ type
     fAutorizador: String;
 
     procedure QuandoIniciarTransacaoAPI(AIntent: JIntent);
-    procedure QuandoFianlizarTransacaoAPI(AIntent: JIntent);
+    procedure QuandoFinalizarTransacaoAPI(AIntent: JIntent);
     procedure QuandoGravarLogAPI(const ALogLine: String; var Tratado: Boolean);
     procedure QuandoAvaliarTransacaoPendenteAPI(pszReqNum: String; pszLocRef: String;
       pszExtRef: String; pszVirtMerch: String; pszAuthSyst: String);
@@ -136,7 +136,7 @@ begin
 
   fTEFPayGoAPI := TACBrTEFPGWebAndroid.Create;
   fTEFPayGoAPI.OnGravarLog := QuandoGravarLogAPI;
-  fTEFPayGoAPI.OnDepoisTerminarTransacao := QuandoFianlizarTransacaoAPI;
+  fTEFPayGoAPI.OnDepoisTerminarTransacao := QuandoFinalizarTransacaoAPI;
   fTEFPayGoAPI.OnAntesIniciarTransacao := QuandoIniciarTransacaoAPI;
 end;
 
@@ -265,7 +265,7 @@ begin
   fpACBrTEFAPI.ProcessarTransacaoPendente(MsgErro);
 end;
 
-procedure TACBrTEFAndroidPayGoClass.QuandoFianlizarTransacaoAPI(AIntent: JIntent);
+procedure TACBrTEFAndroidPayGoClass.QuandoFinalizarTransacaoAPI(AIntent: JIntent);
 begin
   Self.ProcessarRespostaOperacaoTEF;
 end;

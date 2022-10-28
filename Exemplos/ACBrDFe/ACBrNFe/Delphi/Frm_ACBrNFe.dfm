@@ -10,10 +10,8 @@ object frmACBrNFe: TfrmACBrNFe
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMenus: TPanel
     Left = 0
@@ -36,7 +34,7 @@ object frmACBrNFe: TfrmACBrNFe
           Top = 0
           Width = 287
           Height = 516
-          ActivePage = TabSheet3
+          ActivePage = TabSheet12
           Align = alClient
           MultiLine = True
           TabOrder = 0
@@ -196,8 +194,8 @@ object frmACBrNFe: TfrmACBrNFe
                 TabOrder = 2
               end
               object edtNumSerie: TEdit
-                Left = 6
-                Top = 155
+                Left = 7
+                Top = 156
                 Width = 193
                 Height = 21
                 TabOrder = 3
@@ -1595,7 +1593,7 @@ object frmACBrNFe: TfrmACBrNFe
       Top = 1
       Width = 567
       Height = 197
-      ActivePage = tsEnvios
+      ActivePage = tsDistribuicao
       Align = alTop
       TabOrder = 0
       object tsEnvios: TTabSheet
@@ -1901,9 +1899,27 @@ object frmACBrNFe: TfrmACBrNFe
           Top = 40
           Width = 178
           Height = 25
-          Caption = 'Manif. Dest. - Recusa da opera'#231#227'o'
+          Caption = 'Manif. Dest. - Desconhecimento'
           TabOrder = 4
-          OnClick = btnManifDestDesconnhecimentoClick
+          OnClick = btnManifDestConfirmacaoClick
+        end
+        object btnManifDestCiencia: TButton
+          Left = 377
+          Top = 40
+          Width = 178
+          Height = 25
+          Caption = 'Manif. Dest. - Ci'#234'ncia'
+          TabOrder = 5
+          OnClick = btnManifDestConfirmacaoClick
+        end
+        object btnManifDestOperNaoRealizada: TButton
+          Left = 8
+          Top = 71
+          Width = 178
+          Height = 25
+          Caption = 'Manif. Dest. - Oper. N'#227'o Realizada'
+          TabOrder = 6
+          OnClick = btnManifDestConfirmacaoClick
         end
       end
     end
@@ -2054,20 +2070,20 @@ object frmACBrNFe: TfrmACBrNFe
     Sistema = 'Projeto ACBr - www.projetoacbr.com.br'
     MargemInferior = 0.800000000000000000
     MargemSuperior = 0.800000000000000000
-    MargemEsquerda = 0.200000000000000000
-    MargemDireita = 0.200000000000000000
+    MargemEsquerda = 0.600000000000000000
+    MargemDireita = 0.510000000000000000
     ExpandeLogoMarcaConfig.Altura = 0
     ExpandeLogoMarcaConfig.Esquerda = 0
     ExpandeLogoMarcaConfig.Topo = 0
     ExpandeLogoMarcaConfig.Largura = 0
     ExpandeLogoMarcaConfig.Dimensionar = False
     ExpandeLogoMarcaConfig.Esticar = True
-    CasasDecimais.Formato = tdetMascara
+    CasasDecimais.Formato = tdetInteger
     CasasDecimais.qCom = 2
     CasasDecimais.vUnCom = 2
     CasasDecimais.MaskqCom = '###,###,###,##0.00'
     CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
-    TipoDANFE = tiNFCe
+    TipoDANFE = tiSemGeracao
     ImprimeNomeFantasia = True
     FormularioContinuo = True
     FonteLinhaItem.Charset = DEFAULT_CHARSET

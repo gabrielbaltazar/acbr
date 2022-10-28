@@ -141,7 +141,6 @@ type
   TACBrBRCode = class(TACBrEMVList)
   private
     fIgnoreErrors: Boolean;
-    fPixKeyType: TACBrPIXTipoChave;
     fAdditionalDataField: TACBrEMVList;
     fMerchantAccountInformation: TACBrEMVList;
     fMerchantAccountOtherInformation: TACBrEMVList;
@@ -153,6 +152,7 @@ type
     function GetPointOfInformationMethod: byte;
     function GetMerchantAccountInformationCards: String;
     function GetPixKey: String;
+    function GetPixKeyType: TACBrPIXTipoChave;
     function GetAdditionalInfo: String;
     function GetPss: Integer;
     function GetURL: String;
@@ -190,6 +190,7 @@ type
   protected
     function ComputeCRC: String;
     procedure ValidateCRC;
+    procedure ValidateTxID(const aTxID: String); virtual;
 
     property MerchantAccountInformation: TACBrEMVList  // 26
       read fMerchantAccountInformation;
@@ -201,7 +202,7 @@ type
       read fUnreservedTemplates;
 
     property PixKey: String read GetPixKey write SetPixKey;
-    property PixKeyType: TACBrPIXTipoChave read fPixKeyType;  // 26-01
+    property PixKeyType: TACBrPIXTipoChave read GetPixKeyType;  // 26-01
     property AdditionalInfo: String read GetAdditionalInfo write SetAdditionalInfo;  // 26-02
     property pss: Integer read GetPss write SetPss;  // 26-03 Prestador de serviço de saque
 
@@ -245,6 +246,8 @@ type
   TACBrPIXQRCodeEstatico = class(TACBrBRCode)
   private
     function GetAsString: String; override;
+  protected
+    procedure ValidateTxID(const aTxID: String); override;
   public
     procedure AddDefaultValues; override;
     property PixKey;
@@ -258,6 +261,8 @@ type
   TACBrPIXQRCodeDinamico = class(TACBrBRCode)
   private
     function GetAsString: String; override;
+  protected
+    procedure ValidateTxID(const aTxID: String); override;
   public
     procedure AddDefaultValues; override;
     property URL;
@@ -442,7 +447,6 @@ begin
   fMerchantAccountOtherInformation.Clear;
   fAdditionalDataField.Clear;
   fUnreservedTemplates.Clear;
-  fPixKeyType := tchNenhuma;
   AddDefaultValues;
 end;
 
@@ -458,7 +462,6 @@ end;
 procedure TACBrBRCode.Assign(Source: TACBrBRCode);
 begin
   inherited Assign(Source);
-  fPixKeyType := Source.PixKeyType;
   fIgnoreErrors := Source.IgnoreErrors;
   fMerchantAccountInformation.Assign(Source.MerchantAccountInformation);
   fMerchantAccountOtherInformation.Assign(Source.MerchantAccountOtherInformation);
@@ -489,6 +492,11 @@ begin
     RaiseError(sErrCRCInvalid);
 end;
 
+procedure TACBrBRCode.ValidateTxID(const aTxID: String);
+begin
+  // Validação deve ser feita pelas classes filhas
+end;
+
 procedure TACBrBRCode.RaiseError(const e: String);
 begin
   if fIgnoreErrors then Exit;
@@ -498,6 +506,11 @@ end;
 function TACBrBRCode.GetPixKey: String;
 begin
   Result := fMerchantAccountInformation.ID[cID_PixKey];
+end;
+
+function TACBrBRCode.GetPixKeyType: TACBrPIXTipoChave;
+begin
+  Result := DetectarTipoChave(PixKey);
 end;
 
 function TACBrBRCode.GetAdditionalInfo: String;
@@ -542,7 +555,7 @@ end;
 
 function TACBrBRCode.GetTransactionAmount: currency;
 begin
-  Result := StrToIntDef(ID[cID_TransactionAmount], 0) / 100;
+  Result := StringToFloatDef(ID[cID_TransactionAmount], 0);
 end;
 
 function TACBrBRCode.GetCountryCode: String;
@@ -594,7 +607,6 @@ begin
     RaiseError(Format(ACBrStr(sErroChaveInvalida), [AValue]));
 
   fMerchantAccountInformation.ID[cID_PixKey] := Trim(AValue);
-  fPixKeyType := TipoChave;
 end;
 
 procedure TACBrBRCode.SetPointOfInformationMethod(AValue: byte);
@@ -682,17 +694,14 @@ end;
 
 procedure TACBrBRCode.SetTxId(const AValue: String);
 var
-  e, s: String;
+  s: String;
 begin
   s := Trim(AValue);
   if (s = cMPMValueNotInformed) or (s = '') then
     fAdditionalDataField.ID[cID_TxId] := cMPMValueNotInformed
   else
   begin
-    e := ValidarTxId(s, 25);
-    if (e <> '') then
-      RaiseError(ACBrStr(e));
-
+    ValidateTxID(s);
     fAdditionalDataField.ID[cID_TxId] := s;
   end;
 end;
@@ -793,6 +802,15 @@ begin
   Result := inherited GetAsString;
 end;
 
+procedure TACBrPIXQRCodeEstatico.ValidateTxID(const aTxID: String);
+var
+  e: String;
+begin
+  e := ValidarTxId(aTxID, 25);
+  if NaoEstaVazio(e) then
+    RaiseError(ACBrStr(e));
+end;
+
 procedure TACBrPIXQRCodeEstatico.AddDefaultValues;
 begin
   inherited AddDefaultValues;
@@ -807,6 +825,15 @@ begin
     RaiseError(Format(ACBrStr(sErrMandatoryFieldNotInformed),['URL']));
 
   Result := inherited GetAsString;
+end;
+
+procedure TACBrPIXQRCodeDinamico.ValidateTxID(const aTxID: String);
+var
+  e: String;
+begin
+  e := ValidarTxId(aTxID, 35, 26);
+  if NaoEstaVazio(e) then
+    RaiseError(ACBrStr(e));
 end;
 
 procedure TACBrPIXQRCodeDinamico.AddDefaultValues;

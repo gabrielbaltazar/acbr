@@ -1,9 +1,9 @@
 object Form1: TForm1
-  Left = 641
-  Top = 148
+  Left = 448
+  Top = 188
+  Width = 1024
+  Height = 691
   Caption = 'ACBrPIXCD Teste'
-  ClientHeight = 598
-  ClientWidth = 1008
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -89,11 +89,13 @@ object Form1: TForm1
     0000000000000000000000000000000000000000000000000000000000000000
     0000000000000000000000000000000000000000000000000000000000000000
     0000}
+  OldCreateOrder = True
   OnCreate = FormCreate
+  PixelsPerInch = 96
   TextHeight = 13
   object lURLTEF: TLabel
     Left = 0
-    Top = 578
+    Top = 632
     Width = 1008
     Height = 20
     Cursor = crHandPoint
@@ -110,20 +112,495 @@ object Form1: TForm1
     ParentFont = False
     Transparent = False
     OnClick = lURLTEFClick
-    ExplicitWidth = 234
   end
   object pgPrincipal: TPageControl
     Left = 0
     Top = 0
     Width = 1008
-    Height = 578
-    ActivePage = tsTestes
+    Height = 632
+    ActivePage = tsFluxoPagto
     Align = alClient
     Images = ImageList1
     TabHeight = 30
     TabOrder = 0
-    TabWidth = 400
+    TabWidth = 335
     OnChange = pgPrincipalChange
+    object tsFluxoPagto: TTabSheet
+      Caption = 'Fluxo de Pagamento'
+      ImageIndex = 1
+      object pnFluxoBackground: TPanel
+        Left = 0
+        Top = 0
+        Width = 1000
+        Height = 592
+        Align = alClient
+        BevelOuter = bvNone
+        Color = 15263976
+        ParentBackground = False
+        TabOrder = 0
+        object pnFluxoPagto: TPanel
+          Left = 30
+          Top = 15
+          Width = 938
+          Height = 547
+          BevelOuter = bvNone
+          Color = 15263976
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          object gbFluxoCliente: TGroupBox
+            Left = 0
+            Top = 81
+            Width = 938
+            Height = 80
+            Align = alTop
+            Caption = 'CLIENTE'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Arial'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+            object pnFluxoCliente: TPanel
+              Left = 2
+              Top = 16
+              Width = 934
+              Height = 62
+              Align = alClient
+              BevelOuter = bvNone
+              TabOrder = 0
+              object lbFluxoClienteNome: TLabel
+                Left = 312
+                Top = 0
+                Width = 27
+                Height = 14
+                Caption = 'Nome'
+              end
+              object lbFluxoClienteDoc: TLabel
+                Left = 24
+                Top = 0
+                Width = 47
+                Height = 14
+                Caption = 'CPF/CNPJ'
+              end
+              object edFluxoClienteNome: TEdit
+                Left = 312
+                Top = 15
+                Width = 600
+                Height = 31
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clWindowText
+                Font.Height = -20
+                Font.Name = 'Arial'
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 0
+                Text = 'Elias Cesar Vieira'
+              end
+              object edFluxoClienteDoc: TEdit
+                Left = 24
+                Top = 15
+                Width = 264
+                Height = 31
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clWindowText
+                Font.Height = -20
+                Font.Name = 'Arial'
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 1
+                Text = '67751079002'
+              end
+            end
+          end
+          object gbFluxoItens: TGroupBox
+            Left = 0
+            Top = 171
+            Width = 938
+            Height = 155
+            Align = alTop
+            Caption = 'ITENS'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Arial'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 2
+            object pnFluxoDadosItem: TPanel
+              Left = 2
+              Top = 16
+              Width = 312
+              Height = 137
+              Align = alLeft
+              BevelOuter = bvNone
+              TabOrder = 0
+              object lbFluxoItemEAN: TLabel
+                Left = 24
+                Top = 48
+                Width = 21
+                Height = 14
+                Caption = 'EAN'
+              end
+              object lbFluxoItemValor: TLabel
+                Left = 166
+                Top = 48
+                Width = 25
+                Height = 14
+                Caption = 'Valor'
+              end
+              object lbFluxoItemDescricao: TLabel
+                Left = 24
+                Top = 0
+                Width = 49
+                Height = 14
+                Caption = 'Descri'#231#227'o'
+              end
+              object edFluxoItemEAN: TEdit
+                Left = 24
+                Top = 63
+                Width = 122
+                Height = 22
+                TabOrder = 1
+              end
+              object edFluxoItemDescricao: TEdit
+                Left = 24
+                Top = 15
+                Width = 264
+                Height = 22
+                TabOrder = 0
+              end
+              object btFluxoItemIncluir: TBitBtn
+                Left = 24
+                Top = 100
+                Width = 122
+                Height = 26
+                Caption = 'Incluir'
+                TabOrder = 3
+                OnClick = btFluxoItemIncluirClick
+              end
+              object btFluxoItemExcluir: TBitBtn
+                Left = 166
+                Top = 100
+                Width = 122
+                Height = 26
+                Caption = 'Excluir'
+                TabOrder = 4
+                OnClick = btFluxoItemExcluirClick
+              end
+              object edFluxoItemValor: TEdit
+                Left = 166
+                Top = 63
+                Width = 122
+                Height = 22
+                TabOrder = 2
+                Text = '0,00'
+              end
+            end
+            object gdFluxoItens: TStringGrid
+              Left = 314
+              Top = 16
+              Width = 600
+              Height = 137
+              Align = alLeft
+              ColCount = 3
+              FixedCols = 0
+              RowCount = 2
+              TabOrder = 1
+              ColWidths = (
+                140
+                188
+                133)
+            end
+          end
+          object gbFluxoStatus: TGroupBox
+            Left = 0
+            Top = 0
+            Width = 938
+            Height = 66
+            Align = alTop
+            Caption = 'Status'
+            TabOrder = 0
+            object pnFluxoStatus: TPanel
+              Left = 2
+              Top = 16
+              Width = 934
+              Height = 48
+              Align = alClient
+              BevelOuter = bvNone
+              Caption = 'VENDENDO'
+              Color = clMenuHighlight
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWhite
+              Font.Height = -24
+              Font.Name = 'Tahoma'
+              Font.Style = [fsBold]
+              ParentBackground = False
+              ParentFont = False
+              TabOrder = 0
+            end
+          end
+          object pnFluxoRodape: TPanel
+            Left = 0
+            Top = 341
+            Width = 938
+            Height = 202
+            Align = alTop
+            AutoSize = True
+            BevelOuter = bvNone
+            TabOrder = 3
+            object pnFluxoQRCode: TPanel
+              Left = 312
+              Top = 0
+              Width = 352
+              Height = 140
+              Align = alClient
+              BevelOuter = bvNone
+              TabOrder = 1
+              object imFluxoQRCode: TImage
+                Left = 0
+                Top = 0
+                Width = 352
+                Height = 140
+                Align = alClient
+                Center = True
+                Constraints.MinHeight = 140
+                Proportional = True
+                Stretch = True
+              end
+            end
+            object pnFluxoBotoes: TPanel
+              Left = 664
+              Top = 0
+              Width = 274
+              Height = 140
+              Align = alRight
+              Anchors = [akLeft, akTop, akRight, akBottom]
+              BevelOuter = bvNone
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Arial'
+              Font.Style = [fsBold]
+              ParentFont = False
+              TabOrder = 2
+              object pnFluxoBotoesErroConsultar: TPanel
+                Left = 0
+                Top = 0
+                Width = 250
+                Height = 140
+                Align = alClient
+                BevelOuter = bvNone
+                TabOrder = 2
+                Visible = False
+                object btFluxoTentarNovamente: TBitBtn
+                  Left = 0
+                  Top = 0
+                  Width = 250
+                  Height = 32
+                  Caption = 'Tentar Novamente'
+                  TabOrder = 0
+                end
+                object btFluxoCancelarConsulta: TBitBtn
+                  Left = 0
+                  Top = 32
+                  Width = 250
+                  Height = 32
+                  Caption = 'Cancelar'
+                  TabOrder = 1
+                end
+                object btFluxoFecharVenda: TBitBtn
+                  Left = 0
+                  Top = 64
+                  Width = 250
+                  Height = 32
+                  Caption = 'Fechar Venda'
+                  TabOrder = 2
+                end
+              end
+              object pnFluxoBotoesRight: TPanel
+                Left = 250
+                Top = 0
+                Width = 24
+                Height = 140
+                Align = alRight
+                BevelOuter = bvNone
+                TabOrder = 1
+              end
+              object pnFluxoBotoesPrincipais: TPanel
+                Left = 0
+                Top = 0
+                Width = 250
+                Height = 140
+                Align = alClient
+                BevelOuter = bvNone
+                TabOrder = 0
+                object btFluxoPagar: TBitBtn
+                  Left = 0
+                  Top = 0
+                  Width = 250
+                  Height = 30
+                  Caption = 'PAGAR'
+                  TabOrder = 0
+                  OnClick = btFluxoPagarClick
+                end
+                object btFluxoEstornarPagto: TBitBtn
+                  Left = 0
+                  Top = 62
+                  Width = 250
+                  Height = 30
+                  Caption = 'Estornar Pagamento'
+                  TabOrder = 1
+                  OnClick = btFluxoEstornarPagtoClick
+                end
+                object btFluxoNovaVenda: TBitBtn
+                  Left = 0
+                  Top = 92
+                  Width = 250
+                  Height = 30
+                  Caption = 'Nova Venda'
+                  TabOrder = 2
+                  OnClick = btFluxoNovaVendaClick
+                end
+                object btFluxoCancelarCobranca: TBitBtn
+                  Left = 0
+                  Top = 30
+                  Width = 250
+                  Height = 32
+                  Caption = 'Cancelar Cobran'#231'a'
+                  TabOrder = 3
+                  OnClick = btFluxoCancelarCobrancaClick
+                end
+              end
+            end
+            object pnFluxoTotal: TPanel
+              Left = 0
+              Top = 0
+              Width = 312
+              Height = 140
+              Align = alLeft
+              BevelOuter = bvNone
+              TabOrder = 0
+              object gbFluxoTotal: TGroupBox
+                Left = 0
+                Top = 0
+                Width = 312
+                Height = 80
+                Align = alTop
+                Caption = 'TOTAL'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clWindowText
+                Font.Height = -11
+                Font.Name = 'Tahoma'
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 0
+                object pnFluxoTotalStr: TPanel
+                  Left = 2
+                  Top = 15
+                  Width = 308
+                  Height = 61
+                  Align = alTop
+                  BevelOuter = bvNone
+                  Caption = 'R$ 999,99'
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clWindowText
+                  Font.Height = -35
+                  Font.Name = 'Tahoma'
+                  Font.Style = [fsBold]
+                  ParentFont = False
+                  TabOrder = 0
+                end
+              end
+            end
+            object pnFluxoDiv7: TPanel
+              Left = 0
+              Top = 192
+              Width = 938
+              Height = 10
+              Align = alBottom
+              BevelOuter = bvNone
+              TabOrder = 3
+            end
+            object pnFluxoCopiaECola: TPanel
+              Left = 0
+              Top = 140
+              Width = 938
+              Height = 52
+              Align = alBottom
+              BevelOuter = bvNone
+              TabOrder = 4
+              Visible = False
+              object lbFluxoCopiaECola: TLabel
+                Left = 26
+                Top = 0
+                Width = 88
+                Height = 14
+                Caption = 'PIX Copia e Cola'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clWindowText
+                Font.Height = -11
+                Font.Name = 'Arial'
+                Font.Style = [fsBold]
+                ParentFont = False
+              end
+              object btFluxoCopiaECola: TSpeedButton
+                Left = 888
+                Top = 16
+                Width = 26
+                Height = 27
+                OnClick = btFluxoCopiaEColaClick
+              end
+              object edFluxoCopiaECola: TEdit
+                Left = 26
+                Top = 16
+                Width = 856
+                Height = 27
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clWindowText
+                Font.Height = -17
+                Font.Name = 'Arial'
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 0
+              end
+            end
+          end
+          object pnFluxoDiv1: TPanel
+            Left = 0
+            Top = 66
+            Width = 938
+            Height = 15
+            Align = alTop
+            BevelOuter = bvNone
+            TabOrder = 4
+          end
+          object pnFluxoDiv2: TPanel
+            Left = 0
+            Top = 161
+            Width = 938
+            Height = 10
+            Align = alTop
+            BevelOuter = bvNone
+            TabOrder = 5
+          end
+          object pnFluxoDiv3: TPanel
+            Left = 0
+            Top = 326
+            Width = 938
+            Height = 15
+            Align = alTop
+            BevelOuter = bvNone
+            TabOrder = 6
+          end
+        end
+      end
+    end
     object tsTestes: TTabSheet
       Caption = 'Testes'
       ImageIndex = 14
@@ -131,14 +608,14 @@ object Form1: TForm1
         Left = 632
         Top = 0
         Width = 5
-        Height = 538
+        Height = 592
         Align = alRight
       end
       object pgTestes: TPageControl
         Left = 0
         Top = 0
         Width = 632
-        Height = 538
+        Height = 592
         ActivePage = tsEndPoints
         Align = alClient
         Images = ImageList1
@@ -152,7 +629,7 @@ object Form1: TForm1
             Left = 0
             Top = 0
             Width = 624
-            Height = 503
+            Height = 557
             ActivePage = tsEndPointPix
             Align = alClient
             TabOrder = 0
@@ -163,8 +640,8 @@ object Form1: TForm1
                 Left = 0
                 Top = 0
                 Width = 616
-                Height = 475
-                ActivePage = tsConsultarDevolucaoPix
+                Height = 529
+                ActivePage = tsConsultarPix
                 Align = alClient
                 TabOrder = 0
                 object tsConsultarPix: TTabSheet
@@ -173,13 +650,13 @@ object Form1: TForm1
                     Left = 0
                     Top = 0
                     Width = 608
-                    Height = 112
+                    Height = 88
                     Align = alTop
                     BevelOuter = bvNone
                     TabOrder = 0
                     DesignSize = (
                       608
-                      112)
+                      88)
                     object lConsultarPixE2eid: TLabel
                       Left = 16
                       Top = 16
@@ -190,14 +667,14 @@ object Form1: TForm1
                     object edtConsultarPixE2eid: TEdit
                       Left = 16
                       Top = 36
-                      Width = 576
+                      Width = 464
                       Height = 21
                       Anchors = [akLeft, akTop, akRight]
                       TabOrder = 0
                     end
                     object btConsultarPix: TBitBtn
                       Left = 495
-                      Top = 72
+                      Top = 33
                       Width = 97
                       Height = 26
                       Anchors = [akTop, akRight]
@@ -208,15 +685,16 @@ object Form1: TForm1
                   end
                   object mConsultarPix: TMemo
                     Left = 0
-                    Top = 112
+                    Top = 88
                     Width = 608
-                    Height = 306
+                    Height = 384
                     Align = alClient
+                    ScrollBars = ssBoth
                     TabOrder = 1
                   end
                   object Panel3: TPanel
                     Left = 0
-                    Top = 418
+                    Top = 472
                     Width = 608
                     Height = 29
                     Align = alBottom
@@ -225,9 +703,9 @@ object Form1: TForm1
                       608
                       29)
                     object btLimparConsultarPix: TBitBtn
-                      Left = 465
-                      Top = 1
-                      Width = 83
+                      Left = 495
+                      Top = 0
+                      Width = 97
                       Height = 26
                       Anchors = [akTop]
                       Caption = 'Limpar'
@@ -242,16 +720,16 @@ object Form1: TForm1
                     Left = 0
                     Top = 0
                     Width = 608
-                    Height = 152
+                    Height = 128
                     Align = alTop
                     BevelOuter = bvNone
                     TabOrder = 0
                     DesignSize = (
                       608
-                      152)
+                      128)
                     object lE2eid: TLabel
                       Left = 8
-                      Top = 60
+                      Top = 56
                       Width = 157
                       Height = 13
                       Caption = 'Identificador da Transa'#231#227'o (TxId)'
@@ -271,24 +749,24 @@ object Form1: TForm1
                       Caption = 'Fim'
                     end
                     object lCPFCPNJ: TLabel
-                      Left = 354
-                      Top = 60
+                      Left = 328
+                      Top = 56
                       Width = 58
                       Height = 13
                       Anchors = [akTop, akRight]
                       Caption = 'CPF / CNPJ'
                     end
                     object lPagina: TLabel
-                      Left = 523
-                      Top = 60
+                      Left = 495
+                      Top = 8
                       Width = 33
                       Height = 13
                       Anchors = [akTop, akRight]
                       Caption = 'P'#225'gina'
                     end
                     object lPagina1: TLabel
-                      Left = 523
-                      Top = 8
+                      Left = 328
+                      Top = 5
                       Width = 63
                       Height = 13
                       Anchors = [akTop, akRight]
@@ -297,14 +775,14 @@ object Form1: TForm1
                     object edtConsultarPixRecebidosTxId: TEdit
                       Left = 8
                       Top = 75
-                      Width = 323
-                      Height = 21
+                      Width = 297
+                      Height = 23
                       Anchors = [akLeft, akTop, akRight]
                       TabOrder = 2
                     end
                     object btConsultarPixRecebidos: TBitBtn
                       Left = 495
-                      Top = 112
+                      Top = 72
                       Width = 97
                       Height = 26
                       Anchors = [akTop, akRight]
@@ -317,9 +795,9 @@ object Form1: TForm1
                       Top = 24
                       Width = 137
                       Height = 23
-                      Date = 44568.000000000000000000
-                      Time = 44568.000000000000000000
-                      MaxDate = 2958465.999988426000000000
+                      Date = 44568.565578831020000000
+                      Time = 44568.565578831020000000
+                      MaxDate = 2958465.000000000000000000
                       MinDate = -53780.000000000000000000
                       TabOrder = 0
                     end
@@ -328,27 +806,27 @@ object Form1: TForm1
                       Top = 24
                       Width = 137
                       Height = 23
-                      Date = 44568.000000000000000000
-                      Time = 44568.000000000000000000
-                      MaxDate = 2958465.999988426000000000
+                      Date = 44568.565578831020000000
+                      Time = 44568.565578831020000000
+                      MaxDate = 2958465.000000000000000000
                       MinDate = -53780.000000000000000000
                       TabOrder = 1
                     end
                     object edtConsultarPixRecebidosCPFCNPJ: TEdit
-                      Left = 354
+                      Left = 328
                       Top = 75
                       Width = 145
-                      Height = 21
+                      Height = 23
                       Anchors = [akTop, akRight]
                       TabOrder = 3
                       OnChange = edtConsultarPixRecebidosCPFCNPJChange
                       OnKeyPress = edOnlyNumbersKeyPress
                     end
                     object seConsultarPixRecebidosPagina: TSpinEdit
-                      Left = 523
-                      Top = 75
-                      Width = 66
-                      Height = 22
+                      Left = 495
+                      Top = 27
+                      Width = 97
+                      Height = 23
                       Anchors = [akTop, akRight]
                       MaxValue = 9999
                       MinValue = 0
@@ -356,10 +834,10 @@ object Form1: TForm1
                       Value = 1
                     end
                     object seConsultarPixRecebidosItensPagina: TSpinEdit
-                      Left = 523
-                      Top = 27
-                      Width = 66
-                      Height = 22
+                      Left = 328
+                      Top = 24
+                      Width = 145
+                      Height = 23
                       Anchors = [akTop, akRight]
                       MaxValue = 100
                       MinValue = 0
@@ -369,15 +847,15 @@ object Form1: TForm1
                   end
                   object mConsultarPixRecebidos: TMemo
                     Left = 0
-                    Top = 152
+                    Top = 128
                     Width = 608
-                    Height = 266
+                    Height = 344
                     Align = alClient
                     TabOrder = 1
                   end
                   object Panel4: TPanel
                     Left = 0
-                    Top = 418
+                    Top = 472
                     Width = 608
                     Height = 29
                     Align = alBottom
@@ -386,9 +864,9 @@ object Form1: TForm1
                       608
                       29)
                     object btLimparConsultarPixRecebidos: TBitBtn
-                      Left = 465
+                      Left = 495
                       Top = 1
-                      Width = 83
+                      Width = 97
                       Height = 26
                       Anchors = [akTop]
                       Caption = 'Limpar'
@@ -412,14 +890,14 @@ object Form1: TForm1
                       168)
                     object lConsultarDevolucaoPixE2eid2: TLabel
                       Left = 16
-                      Top = 22
+                      Top = 16
                       Width = 27
                       Height = 13
                       Caption = 'E2eid'
                     end
                     object lConsultarDevolucaoPixIdentificadorDevolucao1: TLabel
                       Left = 328
-                      Top = 22
+                      Top = 16
                       Width = 113
                       Height = 13
                       Anchors = [akTop, akRight]
@@ -427,21 +905,21 @@ object Form1: TForm1
                     end
                     object Label1: TLabel
                       Left = 16
-                      Top = 75
+                      Top = 72
                       Width = 24
                       Height = 13
                       Caption = 'Valor'
                     end
                     object Label37: TLabel
                       Left = 144
-                      Top = 75
+                      Top = 72
                       Width = 98
                       Height = 13
                       Caption = 'Natureza Devolu'#231'ao'
                     end
                     object lConsultarDevolucaoPixE2eid3: TLabel
                       Left = 326
-                      Top = 75
+                      Top = 72
                       Width = 48
                       Height = 13
                       Caption = 'Descri'#231#227'o'
@@ -450,7 +928,7 @@ object Form1: TForm1
                       Left = 16
                       Top = 36
                       Width = 290
-                      Height = 21
+                      Height = 23
                       Anchors = [akLeft, akTop, akRight]
                       TabOrder = 0
                     end
@@ -461,14 +939,14 @@ object Form1: TForm1
                       Height = 26
                       Anchors = [akTop, akRight]
                       Caption = 'Solicitar'
-                      TabOrder = 2
+                      TabOrder = 4
                       OnClick = btSolicitarDevolucaoPixClick
                     end
                     object edtSolicitarDevolucaoPix_id: TEdit
                       Left = 328
                       Top = 36
                       Width = 264
-                      Height = 21
+                      Height = 23
                       Anchors = [akTop, akRight]
                       TabOrder = 1
                     end
@@ -478,36 +956,37 @@ object Form1: TForm1
                       Width = 160
                       Height = 21
                       Style = csDropDownList
-                      TabOrder = 3
+                      ItemHeight = 13
+                      TabOrder = 2
                     end
                     object edtSolicitarDevolucaoPix_Descricao: TEdit
                       Left = 328
                       Top = 89
                       Width = 266
-                      Height = 21
+                      Height = 23
                       Anchors = [akLeft, akTop, akRight]
-                      TabOrder = 4
+                      TabOrder = 3
                     end
                     object feSolicitarDevolucaoPix_Valor: TEdit
                       Left = 16
                       Top = 89
-                      Width = 105
-                      Height = 21
+                      Width = 104
+                      Height = 23
                       TabOrder = 5
-                      Text = '1,00'
+                      Text = '0,00'
                     end
                   end
                   object mSolicitarDevolucaoPix: TMemo
                     Left = 0
                     Top = 168
                     Width = 608
-                    Height = 250
+                    Height = 304
                     Align = alClient
                     TabOrder = 1
                   end
                   object Panel6: TPanel
                     Left = 0
-                    Top = 418
+                    Top = 472
                     Width = 608
                     Height = 29
                     Align = alBottom
@@ -516,9 +995,9 @@ object Form1: TForm1
                       608
                       29)
                     object btLimparSolicitarDevolucaoPix: TBitBtn
-                      Left = 465
+                      Left = 506
                       Top = 1
-                      Width = 83
+                      Width = 86
                       Height = 26
                       Anchors = [akTop]
                       Caption = 'Limpar'
@@ -542,14 +1021,14 @@ object Form1: TForm1
                       168)
                     object lConsultarDevolucaoPixE2eid1: TLabel
                       Left = 16
-                      Top = 20
+                      Top = 16
                       Width = 27
                       Height = 13
                       Caption = 'E2eid'
                     end
                     object lConsultarDevolucaoPixIdentificadorDevolucao: TLabel
                       Left = 16
-                      Top = 76
+                      Top = 72
                       Width = 113
                       Height = 13
                       Caption = 'Identificador Devolu'#231#227'o'
@@ -558,7 +1037,7 @@ object Form1: TForm1
                       Left = 16
                       Top = 36
                       Width = 576
-                      Height = 21
+                      Height = 23
                       Anchors = [akLeft, akTop, akRight]
                       TabOrder = 0
                     end
@@ -576,7 +1055,7 @@ object Form1: TForm1
                       Left = 16
                       Top = 92
                       Width = 576
-                      Height = 21
+                      Height = 23
                       Anchors = [akLeft, akTop, akRight]
                       TabOrder = 1
                     end
@@ -585,13 +1064,13 @@ object Form1: TForm1
                     Left = 0
                     Top = 168
                     Width = 608
-                    Height = 250
+                    Height = 304
                     Align = alClient
                     TabOrder = 1
                   end
                   object Panel5: TPanel
                     Left = 0
-                    Top = 418
+                    Top = 472
                     Width = 608
                     Height = 29
                     Align = alBottom
@@ -619,7 +1098,7 @@ object Form1: TForm1
                 Left = 0
                 Top = 0
                 Width = 616
-                Height = 475
+                Height = 529
                 ActivePage = tsCriarCobrancaImediata
                 Align = alClient
                 TabOrder = 0
@@ -629,7 +1108,7 @@ object Form1: TForm1
                     Left = 464
                     Top = 168
                     Width = 144
-                    Height = 250
+                    Height = 304
                     Align = alRight
                     Center = True
                     Proportional = True
@@ -639,7 +1118,7 @@ object Form1: TForm1
                     Left = 459
                     Top = 168
                     Width = 5
-                    Height = 250
+                    Height = 304
                     Align = alRight
                   end
                   object pCriarCobrancaImediata: TPanel
@@ -654,7 +1133,7 @@ object Form1: TForm1
                       608
                       168)
                     object Label3: TLabel
-                      Left = 296
+                      Left = 298
                       Top = 56
                       Width = 24
                       Height = 13
@@ -691,7 +1170,7 @@ object Form1: TForm1
                     end
                     object sbCriarCobrancaImediata_GerarTxId: TSpeedButton
                       Left = 282
-                      Top = 125
+                      Top = 123
                       Width = 24
                       Height = 23
                       Flat = True
@@ -704,7 +1183,7 @@ object Form1: TForm1
                       Height = 26
                       Anchors = [akTop, akRight]
                       Caption = 'Criar'
-                      TabOrder = 3
+                      TabOrder = 5
                       OnClick = btCriarCobrancaImediataClick
                     end
                     object edtCriarCobrancaImediata_NomeDevedor: TEdit
@@ -733,21 +1212,21 @@ object Form1: TForm1
                       Width = 115
                       Height = 19
                       Caption = 'Pode Alterar Valor'
-                      TabOrder = 4
+                      TabOrder = 3
                     end
                     object edtCriarCobrancaImediata_SolicitacaoAoPagador: TEdit
                       Left = 16
                       Top = 73
-                      Width = 264
+                      Width = 266
                       Height = 21
                       TabOrder = 2
                     end
                     object edtCriarCobrancaImediata_TxId: TEdit
                       Left = 16
-                      Top = 125
-                      Width = 264
+                      Top = 123
+                      Width = 266
                       Height = 21
-                      TabOrder = 5
+                      TabOrder = 4
                     end
                     object feCriarCobrancaImediatax_Valor: TEdit
                       Left = 298
@@ -755,20 +1234,20 @@ object Form1: TForm1
                       Width = 145
                       Height = 21
                       TabOrder = 6
-                      Text = '1,00'
+                      Text = '0,00'
                     end
                   end
                   object mCriarCobrancaImediata: TMemo
                     Left = 0
                     Top = 168
                     Width = 459
-                    Height = 250
+                    Height = 304
                     Align = alClient
                     TabOrder = 1
                   end
                   object Panel9: TPanel
                     Left = 0
-                    Top = 418
+                    Top = 472
                     Width = 608
                     Height = 29
                     Align = alBottom
@@ -820,7 +1299,7 @@ object Form1: TForm1
                       Left = 16
                       Top = 36
                       Width = 450
-                      Height = 21
+                      Height = 23
                       Anchors = [akLeft, akTop, akRight]
                       TabOrder = 0
                     end
@@ -838,7 +1317,7 @@ object Form1: TForm1
                       Left = 495
                       Top = 36
                       Width = 97
-                      Height = 22
+                      Height = 23
                       Anchors = [akTop, akRight]
                       MaxValue = 9999
                       MinValue = 0
@@ -850,13 +1329,13 @@ object Form1: TForm1
                     Left = 0
                     Top = 112
                     Width = 608
-                    Height = 306
+                    Height = 360
                     Align = alClient
                     TabOrder = 1
                   end
                   object Panel10: TPanel
                     Left = 0
-                    Top = 418
+                    Top = 472
                     Width = 608
                     Height = 29
                     Align = alBottom
@@ -865,9 +1344,9 @@ object Form1: TForm1
                       608
                       29)
                     object btLimparConsultarCobrancaImediata: TBitBtn
-                      Left = 465
+                      Left = 495
                       Top = 1
-                      Width = 83
+                      Width = 97
                       Height = 26
                       Anchors = [akTop]
                       Caption = 'Limpar'
@@ -949,9 +1428,9 @@ object Form1: TForm1
                       Top = 24
                       Width = 137
                       Height = 23
-                      Date = 44568.000000000000000000
-                      Time = 44568.000000000000000000
-                      MaxDate = 2958465.999988426000000000
+                      Date = 44568.565578831020000000
+                      Time = 44568.565578831020000000
+                      MaxDate = 2958465.000000000000000000
                       MinDate = -53780.000000000000000000
                       TabOrder = 0
                     end
@@ -960,9 +1439,9 @@ object Form1: TForm1
                       Top = 73
                       Width = 137
                       Height = 23
-                      Date = 44568.000000000000000000
-                      Time = 44568.000000000000000000
-                      MaxDate = 2958465.999988426000000000
+                      Date = 44568.565578831020000000
+                      Time = 44568.565578831020000000
+                      MaxDate = 2958465.000000000000000000
                       MinDate = -53780.000000000000000000
                       TabOrder = 1
                     end
@@ -1012,6 +1491,7 @@ object Form1: TForm1
                       Width = 160
                       Height = 21
                       Style = csDropDownList
+                      ItemHeight = 13
                       TabOrder = 3
                     end
                   end
@@ -1019,13 +1499,13 @@ object Form1: TForm1
                     Left = 0
                     Top = 152
                     Width = 608
-                    Height = 266
+                    Height = 320
                     Align = alClient
                     TabOrder = 1
                   end
                   object Panel11: TPanel
                     Left = 0
-                    Top = 418
+                    Top = 472
                     Width = 608
                     Height = 29
                     Align = alBottom
@@ -1045,10 +1525,711 @@ object Form1: TForm1
                     end
                   end
                 end
+                object tsCancelarCobranca: TTabSheet
+                  Caption = 'CancelarCobranca'
+                  object pnCancelarCobranca: TPanel
+                    Left = 0
+                    Top = 0
+                    Width = 608
+                    Height = 88
+                    Align = alTop
+                    BevelOuter = bvNone
+                    TabOrder = 0
+                    DesignSize = (
+                      608
+                      88)
+                    object lbCancelarCobrancaTxID: TLabel
+                      Left = 16
+                      Top = 16
+                      Width = 21
+                      Height = 13
+                      Caption = 'TxId'
+                    end
+                    object edCancelarCobrancaTxID: TEdit
+                      Left = 16
+                      Top = 36
+                      Width = 450
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      TabOrder = 0
+                    end
+                    object btCancelarCobranca: TBitBtn
+                      Left = 496
+                      Top = 33
+                      Width = 96
+                      Height = 26
+                      Anchors = [akTop, akRight]
+                      Caption = 'Cancelar'
+                      TabOrder = 1
+                      OnClick = btCancelarCobrancaClick
+                    end
+                  end
+                  object mmCancelarCobranca: TMemo
+                    Left = 0
+                    Top = 88
+                    Width = 608
+                    Height = 384
+                    Align = alClient
+                    TabOrder = 1
+                  end
+                  object pnCancelarCobrancaRodape: TPanel
+                    Left = 0
+                    Top = 472
+                    Width = 608
+                    Height = 29
+                    Align = alBottom
+                    TabOrder = 2
+                    DesignSize = (
+                      608
+                      29)
+                    object btCancelarCobrancaLimparMemo: TBitBtn
+                      Left = 496
+                      Top = 0
+                      Width = 96
+                      Height = 26
+                      Anchors = [akTop]
+                      Caption = 'Limpar'
+                      TabOrder = 0
+                      OnClick = btCancelarCobrancaLimparMemoClick
+                    end
+                  end
+                end
               end
             end
             object tsEndPointCobV: TTabSheet
               Caption = '/cobv'
+              object pgTestesEndPointCobV: TPageControl
+                Left = 0
+                Top = 0
+                Width = 616
+                Height = 529
+                ActivePage = tsCobVConsultarCobrancas
+                Align = alClient
+                TabOrder = 0
+                object tsCobVCriarCobranca: TTabSheet
+                  Caption = 'Criar Cobran'#231'a Vencimento'
+                  object btCobVCopiaECola: TSpeedButton
+                    Left = 542
+                    Top = 446
+                    Width = 26
+                    Height = 26
+                    Visible = False
+                    OnClick = btCobVCopiaEColaClick
+                  end
+                  object imCobVQRCode: TImage
+                    Left = 15
+                    Top = 368
+                    Width = 165
+                    Height = 104
+                    Center = True
+                    Proportional = True
+                    Stretch = True
+                    Visible = False
+                  end
+                  object lbCobVCopiaECola: TLabel
+                    Left = 204
+                    Top = 433
+                    Width = 60
+                    Height = 13
+                    Caption = 'Copia e Cola'
+                    Visible = False
+                  end
+                  object lbCobVValor: TLabel
+                    Left = 398
+                    Top = 305
+                    Width = 73
+                    Height = 13
+                    Caption = 'Valor Cobran'#231'a'
+                  end
+                  object lbCobVDiasPagar: TLabel
+                    Left = 204
+                    Top = 304
+                    Width = 120
+                    Height = 13
+                    Hint = 
+                      'Quantidade de dias corridos ap'#243's a data de vencimento, em que a ' +
+                      'cobran'#231'a poder'#225' ser paga'
+                    Caption = 'Dias pagar (Ap'#243's vencto)'
+                  end
+                  object lbCobVVencimento: TLabel
+                    Left = 15
+                    Top = 304
+                    Width = 56
+                    Height = 13
+                    Caption = 'Vencimento'
+                  end
+                  object edCobVCopiaECola: TEdit
+                    Left = 204
+                    Top = 449
+                    Width = 332
+                    Height = 23
+                    TabOrder = 0
+                    Visible = False
+                  end
+                  object btCriarCobV: TBitBtn
+                    Left = 398
+                    Top = 368
+                    Width = 170
+                    Height = 26
+                    Caption = 'Criar'
+                    TabOrder = 1
+                    OnClick = btCriarCobVClick
+                  end
+                  object edCobVValor: TEdit
+                    Left = 398
+                    Top = 320
+                    Width = 170
+                    Height = 23
+                    TabOrder = 2
+                    Text = '0,50'
+                  end
+                  object edCobVDiasPagar: TSpinEdit
+                    Left = 204
+                    Top = 320
+                    Width = 170
+                    Height = 23
+                    MaxValue = 0
+                    MinValue = 0
+                    TabOrder = 3
+                    Value = 7
+                  end
+                  object edCobVVencimento: TDateTimePicker
+                    Left = 15
+                    Top = 320
+                    Width = 165
+                    Height = 23
+                    BiDiMode = bdLeftToRight
+                    Date = 44713.393125636580000000
+                    Time = 44713.393125636580000000
+                    MaxDate = 2958465.000000000000000000
+                    MinDate = -53780.000000000000000000
+                    ParentBiDiMode = False
+                    TabOrder = 4
+                  end
+                  object gbCobVMulta: TGroupBox
+                    Left = 0
+                    Top = 216
+                    Width = 608
+                    Height = 72
+                    Align = alTop
+                    Caption = 'Multa'
+                    TabOrder = 5
+                    object pnCobVMulta: TPanel
+                      Left = 2
+                      Top = 15
+                      Width = 604
+                      Height = 55
+                      Align = alClient
+                      BevelOuter = bvNone
+                      TabOrder = 0
+                      object lbCobVMultaModalidade: TLabel
+                        Left = 15
+                        Top = 0
+                        Width = 55
+                        Height = 13
+                        Caption = 'Modalidade'
+                      end
+                      object lbCobVMultaValor: TLabel
+                        Left = 398
+                        Top = 0
+                        Width = 80
+                        Height = 13
+                        Caption = 'Valor/Percentual'
+                      end
+                      object edCobVMultaValor: TEdit
+                        Left = 398
+                        Top = 15
+                        Width = 170
+                        Height = 23
+                        TabOrder = 1
+                        Text = '0,00'
+                      end
+                      object cbCobVMultaModalidade: TComboBox
+                        Left = 15
+                        Top = 15
+                        Width = 356
+                        Height = 21
+                        Style = csDropDownList
+                        ItemHeight = 13
+                        TabOrder = 0
+                      end
+                    end
+                  end
+                  object gbCobVJuros: TGroupBox
+                    Left = 0
+                    Top = 144
+                    Width = 608
+                    Height = 72
+                    Align = alTop
+                    Caption = 'Juros'
+                    TabOrder = 6
+                    object pnCobVJuros: TPanel
+                      Left = 2
+                      Top = 15
+                      Width = 604
+                      Height = 55
+                      Align = alClient
+                      BevelOuter = bvNone
+                      TabOrder = 0
+                      object lbCobVJurosModalidade: TLabel
+                        Left = 15
+                        Top = 0
+                        Width = 55
+                        Height = 13
+                        Caption = 'Modalidade'
+                      end
+                      object lbCobVJurosValor: TLabel
+                        Left = 398
+                        Top = 0
+                        Width = 80
+                        Height = 13
+                        Caption = 'Valor/Percentual'
+                      end
+                      object edCobVJurosValor: TEdit
+                        Left = 398
+                        Top = 15
+                        Width = 170
+                        Height = 23
+                        TabOrder = 1
+                        Text = '0,00'
+                      end
+                      object cbCobVJurosModalidade: TComboBox
+                        Left = 15
+                        Top = 15
+                        Width = 356
+                        Height = 21
+                        Style = csDropDownList
+                        ItemHeight = 13
+                        TabOrder = 0
+                      end
+                    end
+                  end
+                  object gbCobVDesconto: TGroupBox
+                    Left = 0
+                    Top = 72
+                    Width = 608
+                    Height = 72
+                    Align = alTop
+                    Caption = 'Desconto'
+                    TabOrder = 7
+                    object pnCobVDesconto: TPanel
+                      Left = 2
+                      Top = 15
+                      Width = 604
+                      Height = 55
+                      Align = alClient
+                      BevelOuter = bvNone
+                      TabOrder = 0
+                      object lbCobVDescModalidade: TLabel
+                        Left = 15
+                        Top = 0
+                        Width = 55
+                        Height = 13
+                        Caption = 'Modalidade'
+                      end
+                      object lbCobVDescValor: TLabel
+                        Left = 398
+                        Top = 0
+                        Width = 80
+                        Height = 13
+                        Caption = 'Valor/Percentual'
+                      end
+                      object edCobVDescValor: TEdit
+                        Left = 398
+                        Top = 15
+                        Width = 170
+                        Height = 23
+                        TabOrder = 1
+                        Text = '0,00'
+                      end
+                      object cbCobVDescModalidade: TComboBox
+                        Left = 15
+                        Top = 15
+                        Width = 356
+                        Height = 21
+                        Style = csDropDownList
+                        ItemHeight = 13
+                        TabOrder = 0
+                      end
+                    end
+                  end
+                  object gbCobVComprador: TGroupBox
+                    Left = 0
+                    Top = 0
+                    Width = 608
+                    Height = 72
+                    Align = alTop
+                    Caption = 'Comprador'
+                    TabOrder = 8
+                    object pnCobVComprador: TPanel
+                      Left = 0
+                      Top = 0
+                      Width = 604
+                      Height = 52
+                      Align = alClient
+                      BevelOuter = bvNone
+                      TabOrder = 0
+                      object lbCobVCompradorNome: TLabel
+                        Left = 15
+                        Top = 0
+                        Width = 28
+                        Height = 13
+                        Caption = 'Nome'
+                      end
+                      object lbCobVCompradorDoc: TLabel
+                        Left = 398
+                        Top = 0
+                        Width = 52
+                        Height = 13
+                        Caption = 'CPF/CNPJ'
+                      end
+                      object edCobVCompradorNome: TEdit
+                        Left = 15
+                        Top = 15
+                        Width = 356
+                        Height = 23
+                        TabOrder = 0
+                        Text = 'Elias Cesar Vieira'
+                      end
+                      object edCobVCompradorDoc: TEdit
+                        Left = 398
+                        Top = 15
+                        Width = 170
+                        Height = 23
+                        TabOrder = 1
+                        Text = '67751079002'
+                      end
+                    end
+                  end
+                end
+                object tsCobVConsultarCobranca: TTabSheet
+                  Caption = 'Consultar Cobran'#231'a Vencto'
+                  object pnConsultarCobrancaVencto: TPanel
+                    Left = 0
+                    Top = 0
+                    Width = 608
+                    Height = 112
+                    Align = alTop
+                    BevelOuter = bvNone
+                    TabOrder = 0
+                    DesignSize = (
+                      608
+                      112)
+                    object lbCobVConsultarTxID: TLabel
+                      Left = 16
+                      Top = 16
+                      Width = 21
+                      Height = 13
+                      Caption = 'TxId'
+                    end
+                    object lbCobVConsultarRevisao: TLabel
+                      Left = 495
+                      Top = 16
+                      Width = 39
+                      Height = 13
+                      Anchors = [akTop, akRight]
+                      Caption = 'Revis'#227'o'
+                    end
+                    object edCobVConsultarTxID: TEdit
+                      Left = 16
+                      Top = 32
+                      Width = 450
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      TabOrder = 0
+                    end
+                    object btCobVConsultar: TBitBtn
+                      Left = 495
+                      Top = 72
+                      Width = 97
+                      Height = 26
+                      Anchors = [akTop, akRight]
+                      Caption = 'Consultar'
+                      TabOrder = 1
+                      OnClick = btCobVConsultarClick
+                    end
+                    object edCobVConsultarRevisao: TSpinEdit
+                      Left = 495
+                      Top = 32
+                      Width = 97
+                      Height = 23
+                      Anchors = [akTop, akRight]
+                      MaxValue = 9999
+                      MinValue = 0
+                      TabOrder = 2
+                      Value = 0
+                    end
+                  end
+                  object mmCobVConsultar: TMemo
+                    Left = 0
+                    Top = 112
+                    Width = 608
+                    Height = 349
+                    Align = alClient
+                    TabOrder = 1
+                  end
+                  object pnCobVConsultarRodape: TPanel
+                    Left = 0
+                    Top = 461
+                    Width = 608
+                    Height = 40
+                    Align = alBottom
+                    TabOrder = 2
+                    DesignSize = (
+                      608
+                      40)
+                    object btCobVConsultarLimpar: TBitBtn
+                      Left = 495
+                      Top = 6
+                      Width = 97
+                      Height = 26
+                      Anchors = [akTop]
+                      Caption = 'Limpar'
+                      TabOrder = 0
+                      OnClick = btCobVConsultarLimparClick
+                    end
+                  end
+                end
+                object tsCobVConsultarCobrancas: TTabSheet
+                  Caption = 'Consultar Cobran'#231'as'
+                  object CobVConsultarRodapeLista: TPanel
+                    Left = 0
+                    Top = 461
+                    Width = 608
+                    Height = 40
+                    Align = alBottom
+                    TabOrder = 0
+                    DesignSize = (
+                      608
+                      40)
+                    object btCobVConsultarListaLimpar: TBitBtn
+                      Left = 496
+                      Top = 6
+                      Width = 97
+                      Height = 26
+                      Anchors = [akTop]
+                      Caption = 'Limpar'
+                      TabOrder = 0
+                      OnClick = btCobVConsultarListaLimparClick
+                    end
+                  end
+                  object mmCobVConsultarLista: TMemo
+                    Left = 0
+                    Top = 128
+                    Width = 608
+                    Height = 333
+                    Align = alClient
+                    TabOrder = 1
+                  end
+                  object pnCobVConsultarParams: TPanel
+                    Left = 0
+                    Top = 0
+                    Width = 608
+                    Height = 128
+                    Align = alTop
+                    BevelOuter = bvNone
+                    TabOrder = 2
+                    DesignSize = (
+                      608
+                      128)
+                    object lbCobVConsultarInicio: TLabel
+                      Left = 8
+                      Top = 16
+                      Width = 27
+                      Height = 13
+                      Caption = 'In'#237'cio'
+                    end
+                    object lbCobVConsultarFim: TLabel
+                      Left = 8
+                      Top = 65
+                      Width = 16
+                      Height = 13
+                      Caption = 'Fim'
+                    end
+                    object lbCobVConsultarCPFCNPJ: TLabel
+                      Left = 178
+                      Top = 16
+                      Width = 58
+                      Height = 13
+                      Anchors = [akTop, akRight]
+                      Caption = 'CPF / CNPJ'
+                    end
+                    object lbCobVConsultarPagina: TLabel
+                      Left = 344
+                      Top = 65
+                      Width = 33
+                      Height = 13
+                      Anchors = [akTop, akRight]
+                      Caption = 'P'#225'gina'
+                    end
+                    object lbCobVConsultarItensPag: TLabel
+                      Left = 344
+                      Top = 16
+                      Width = 63
+                      Height = 13
+                      Anchors = [akTop, akRight]
+                      Caption = 'Itens por P'#225'g'
+                    end
+                    object lbCobVConsultarStatus: TLabel
+                      Left = 178
+                      Top = 65
+                      Width = 30
+                      Height = 13
+                      Caption = 'Status'
+                    end
+                    object btCobVConsultarLista: TBitBtn
+                      Left = 496
+                      Top = 78
+                      Width = 97
+                      Height = 26
+                      Anchors = [akTop, akRight]
+                      Caption = 'Consultar'
+                      TabOrder = 7
+                      OnClick = btCobVConsultarListaClick
+                    end
+                    object edCobVConsultarInicio: TDateTimePicker
+                      Left = 8
+                      Top = 32
+                      Width = 137
+                      Height = 23
+                      Date = 44568.565578831020000000
+                      Time = 44568.565578831020000000
+                      MaxDate = 2958465.000000000000000000
+                      MinDate = -53780.000000000000000000
+                      TabOrder = 0
+                    end
+                    object edCobVConsultarFim: TDateTimePicker
+                      Left = 8
+                      Top = 81
+                      Width = 137
+                      Height = 23
+                      Date = 44568.565578831020000000
+                      Time = 44568.565578831020000000
+                      MaxDate = 2958465.000000000000000000
+                      MinDate = -53780.000000000000000000
+                      TabOrder = 1
+                    end
+                    object edCobVConsultarCPFCNPJ: TEdit
+                      Left = 178
+                      Top = 32
+                      Width = 137
+                      Height = 23
+                      Anchors = [akTop, akRight]
+                      TabOrder = 2
+                      OnChange = edtConsultarPixRecebidosCPFCNPJChange
+                      OnKeyPress = edOnlyNumbersKeyPress
+                    end
+                    object edCobVConsultarPagina: TSpinEdit
+                      Left = 344
+                      Top = 81
+                      Width = 137
+                      Height = 23
+                      Anchors = [akTop, akRight]
+                      MaxValue = 9999
+                      MinValue = 0
+                      TabOrder = 6
+                      Value = 1
+                    end
+                    object edCobVConsultarItensPag: TSpinEdit
+                      Left = 344
+                      Top = 32
+                      Width = 137
+                      Height = 23
+                      Anchors = [akTop, akRight]
+                      MaxValue = 100
+                      MinValue = 0
+                      TabOrder = 5
+                      Value = 10
+                    end
+                    object cbCobVConsultarLocation: TCheckBox
+                      Left = 496
+                      Top = 36
+                      Width = 95
+                      Height = 19
+                      Caption = 'Com Location'
+                      TabOrder = 4
+                    end
+                    object cbCobVConsultarStatus: TComboBox
+                      Left = 178
+                      Top = 81
+                      Width = 137
+                      Height = 21
+                      Style = csDropDownList
+                      ItemHeight = 13
+                      TabOrder = 3
+                    end
+                  end
+                end
+                object tsCobVCancelarCobranca: TTabSheet
+                  Caption = 'Cancelar Cobran'#231'a'
+                  object pnCobVCancelarParams: TPanel
+                    Left = 0
+                    Top = 0
+                    Width = 608
+                    Height = 80
+                    Align = alTop
+                    BevelOuter = bvNone
+                    TabOrder = 0
+                    DesignSize = (
+                      608
+                      80)
+                    object lbCobVCancelarTxID: TLabel
+                      Left = 16
+                      Top = 16
+                      Width = 21
+                      Height = 13
+                      Caption = 'TxId'
+                    end
+                    object edCobVCancelarTxID: TEdit
+                      Left = 16
+                      Top = 32
+                      Width = 456
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      TabOrder = 0
+                    end
+                    object btCobVCancelar: TBitBtn
+                      Left = 496
+                      Top = 29
+                      Width = 96
+                      Height = 26
+                      Anchors = [akTop, akRight]
+                      Caption = 'Cancelar'
+                      TabOrder = 1
+                      OnClick = btCobVCancelarClick
+                    end
+                  end
+                  object mmCobVCancelar: TMemo
+                    Left = 0
+                    Top = 80
+                    Width = 608
+                    Height = 381
+                    Align = alClient
+                    TabOrder = 1
+                  end
+                  object pnCobVCancelarRodape: TPanel
+                    Left = 0
+                    Top = 461
+                    Width = 608
+                    Height = 40
+                    Align = alBottom
+                    TabOrder = 2
+                    DesignSize = (
+                      608
+                      40)
+                    object btCobVCancelarLimpar: TBitBtn
+                      Left = 496
+                      Top = 6
+                      Width = 96
+                      Height = 26
+                      Anchors = [akTop]
+                      Caption = 'Limpar'
+                      TabOrder = 0
+                      OnClick = btCobVCancelarLimparClick
+                    end
+                  end
+                end
+              end
             end
             object tsBBTestes: TTabSheet
               Caption = 'Banco do Brasil'
@@ -1056,7 +2237,7 @@ object Form1: TForm1
                 Left = 0
                 Top = 0
                 Width = 616
-                Height = 475
+                Height = 529
                 ActivePage = tsBBSimularPagamento
                 Align = alClient
                 TabOrder = 0
@@ -1064,7 +2245,7 @@ object Form1: TForm1
                   Caption = 'Simula Pagamento de Pix'
                   object Panel12: TPanel
                     Left = 0
-                    Top = 418
+                    Top = 472
                     Width = 608
                     Height = 29
                     Align = alBottom
@@ -1073,9 +2254,9 @@ object Form1: TForm1
                       608
                       29)
                     object btBBSimulaPagamento_Limpar: TBitBtn
-                      Left = 465
+                      Left = 508
                       Top = 1
-                      Width = 83
+                      Width = 84
                       Height = 26
                       Anchors = [akTop]
                       Caption = 'Limpar'
@@ -1085,9 +2266,9 @@ object Form1: TForm1
                   end
                   object mBBSimulaPagamento: TMemo
                     Left = 0
-                    Top = 112
+                    Top = 88
                     Width = 608
-                    Height = 306
+                    Height = 384
                     Align = alClient
                     TabOrder = 1
                   end
@@ -1095,13 +2276,13 @@ object Form1: TForm1
                     Left = 0
                     Top = 0
                     Width = 608
-                    Height = 112
+                    Height = 88
                     Align = alTop
                     BevelOuter = bvNone
                     TabOrder = 2
                     DesignSize = (
                       608
-                      112)
+                      88)
                     object lConsultarPixE2eid2: TLabel
                       Left = 16
                       Top = 16
@@ -1112,15 +2293,15 @@ object Form1: TForm1
                     object edtBBSimulaPagamento_pixCopiaECola: TEdit
                       Left = 16
                       Top = 36
-                      Width = 576
-                      Height = 21
+                      Width = 472
+                      Height = 23
                       Anchors = [akLeft, akTop, akRight]
                       TabOrder = 0
                     end
                     object btBBSimulaPagamento_Executar: TBitBtn
-                      Left = 516
-                      Top = 72
-                      Width = 76
+                      Left = 508
+                      Top = 33
+                      Width = 84
                       Height = 26
                       Anchors = [akTop, akRight]
                       Caption = 'Pagar'
@@ -1140,7 +2321,7 @@ object Form1: TForm1
             Left = 0
             Top = 0
             Width = 624
-            Height = 503
+            Height = 557
             ActivePage = tsQRCodeEstatico
             Align = alClient
             TabOrder = 0
@@ -1166,58 +2347,68 @@ object Form1: TForm1
                   Caption = 'Valor'
                 end
                 object Label34: TLabel
-                  Left = 16
-                  Top = 74
+                  Left = 185
+                  Top = 15
                   Width = 99
                   Height = 13
                   Caption = 'Informa'#231#227'o Adicional'
                 end
                 object Label35: TLabel
                   Left = 16
-                  Top = 134
+                  Top = 72
                   Width = 157
                   Height = 13
                   Caption = 'Identificador da Transa'#231#227'o (TxId)'
                 end
                 object edtQREInfoAdicional: TEdit
+                  Left = 185
+                  Top = 32
+                  Width = 415
+                  Height = 21
+                  Anchors = [akLeft, akTop, akRight]
+                  TabOrder = 0
+                  OnChange = QuandoMudarDadosQRCode
+                end
+                object edtQRETxId: TEdit
                   Left = 16
-                  Top = 88
+                  Top = 92
                   Width = 584
                   Height = 21
                   Anchors = [akLeft, akTop, akRight]
                   TabOrder = 1
                   OnChange = QuandoMudarDadosQRCode
                 end
-                object edtQRETxId: TEdit
-                  Left = 16
-                  Top = 148
-                  Width = 584
-                  Height = 21
-                  Anchors = [akLeft, akTop, akRight]
-                  TabOrder = 0
-                  OnChange = QuandoMudarDadosQRCode
-                end
                 object fleQREValor: TEdit
                   Left = 16
-                  Top = 28
-                  Width = 185
+                  Top = 32
+                  Width = 145
                   Height = 21
                   TabOrder = 2
-                  Text = '1,00'
+                  Text = '0,00'
+                end
+                object btQREGerar: TBitBtn
+                  Left = 440
+                  Top = 132
+                  Width = 161
+                  Height = 49
+                  Anchors = [akBottom]
+                  Caption = 'Gerar QRCode'
+                  TabOrder = 3
+                  OnClick = btQREGerarClick
                 end
               end
               object pQREGerado: TPanel
                 Left = 0
                 Top = 200
                 Width = 616
-                Height = 275
+                Height = 329
                 Align = alClient
                 TabOrder = 1
                 object imgQRE: TImage
                   Left = 1
                   Top = 1
                   Width = 298
-                  Height = 241
+                  Height = 295
                   Align = alLeft
                   Center = True
                   Proportional = True
@@ -1227,38 +2418,25 @@ object Form1: TForm1
                   Left = 299
                   Top = 1
                   Width = 316
-                  Height = 241
+                  Height = 295
                   Align = alClient
                   BevelOuter = bvNone
                   TabOrder = 0
-                  DesignSize = (
-                    316
-                    241)
                   object mQRE: TMemo
                     Left = 0
-                    Top = 103
+                    Top = 0
                     Width = 316
-                    Height = 138
-                    Align = alBottom
+                    Height = 295
+                    Align = alClient
                     Alignment = taCenter
                     TabOrder = 0
                     WantReturns = False
                     OnChange = mQREChange
                   end
-                  object btQREGerar: TBitBtn
-                    Left = 75
-                    Top = 31
-                    Width = 161
-                    Height = 49
-                    Anchors = [akBottom]
-                    Caption = 'Gerar QRCode'
-                    TabOrder = 1
-                    OnClick = btQREGerarClick
-                  end
                 end
                 object Panel1: TPanel
                   Left = 1
-                  Top = 242
+                  Top = 296
                   Width = 614
                   Height = 32
                   Align = alBottom
@@ -1302,20 +2480,46 @@ object Form1: TForm1
                 DesignSize = (
                   616
                   152)
-                object Label44: TLabel
+                object lbQRDLocation: TLabel
                   Left = 16
-                  Top = 48
+                  Top = 28
                   Width = 68
                   Height = 13
                   Caption = 'URL (location)'
                 end
-                object edtQRDLocation: TEdit
+                object lbQRDTxID: TLabel
                   Left = 16
-                  Top = 64
+                  Top = 85
+                  Width = 308
+                  Height = 13
+                  Caption = 'TxId (Campo apenas informativo. TxID considerado ser'#225' da URL)'
+                end
+                object edQRDLocation: TEdit
+                  Left = 16
+                  Top = 44
                   Width = 584
                   Height = 21
                   Anchors = [akLeft, akTop, akRight]
                   TabOrder = 0
+                  OnChange = QuandoMudarDadosQRCode
+                end
+                object btQRDGerar: TBitBtn
+                  Left = 439
+                  Top = 85
+                  Width = 161
+                  Height = 49
+                  Anchors = [akBottom]
+                  Caption = 'Gerar QRCode'
+                  TabOrder = 1
+                  OnClick = btQRDGerarClick
+                end
+                object edQRDTxID: TEdit
+                  Left = 16
+                  Top = 100
+                  Width = 409
+                  Height = 21
+                  Anchors = [akLeft, akTop, akRight]
+                  TabOrder = 2
                   OnChange = QuandoMudarDadosQRCode
                 end
               end
@@ -1323,14 +2527,14 @@ object Form1: TForm1
                 Left = 0
                 Top = 152
                 Width = 616
-                Height = 323
+                Height = 377
                 Align = alClient
                 TabOrder = 1
                 object imgQRD: TImage
                   Left = 1
                   Top = 1
                   Width = 298
-                  Height = 289
+                  Height = 343
                   Align = alLeft
                   Center = True
                   Proportional = True
@@ -1340,38 +2544,25 @@ object Form1: TForm1
                   Left = 299
                   Top = 1
                   Width = 316
-                  Height = 289
+                  Height = 343
                   Align = alClient
                   BevelOuter = bvNone
                   TabOrder = 0
-                  DesignSize = (
-                    316
-                    289)
                   object mQRD: TMemo
                     Left = 0
-                    Top = 151
+                    Top = 0
                     Width = 316
-                    Height = 138
-                    Align = alBottom
+                    Height = 343
+                    Align = alClient
                     Alignment = taCenter
                     TabOrder = 0
                     WantReturns = False
                     OnChange = mQREChange
                   end
-                  object btQRDGerar: TBitBtn
-                    Left = 75
-                    Top = 79
-                    Width = 161
-                    Height = 49
-                    Anchors = [akBottom]
-                    Caption = 'Gerar QRCode'
-                    TabOrder = 1
-                    OnClick = btQRDGerarClick
-                  end
                 end
                 object Panel8: TPanel
                   Left = 1
-                  Top = 290
+                  Top = 344
                   Width = 614
                   Height = 32
                   Align = alBottom
@@ -1379,7 +2570,7 @@ object Form1: TForm1
                   DesignSize = (
                     614
                     32)
-                  object btQREColar1: TBitBtn
+                  object btQRDColar: TBitBtn
                     Left = 424
                     Top = 3
                     Width = 81
@@ -1387,9 +2578,9 @@ object Form1: TForm1
                     Anchors = [akTop]
                     Caption = 'Copiar'
                     TabOrder = 0
-                    OnClick = btQREColarClick
+                    OnClick = btQRDColarClick
                   end
-                  object btQREAnalisar2: TBitBtn
+                  object btQRDAnalisar: TBitBtn
                     Left = 509
                     Top = 3
                     Width = 88
@@ -1397,7 +2588,7 @@ object Form1: TForm1
                     Anchors = [akTop]
                     Caption = 'Analisar'
                     TabOrder = 1
-                    OnClick = btQREAnalisarClick
+                    OnClick = btQRDAnalisarClick
                   end
                 end
               end
@@ -1409,7 +2600,7 @@ object Form1: TForm1
         Left = 637
         Top = 0
         Width = 363
-        Height = 538
+        Height = 592
         Align = alRight
         TabOrder = 1
         object Label2: TLabel
@@ -1419,20 +2610,19 @@ object Form1: TForm1
           Height = 13
           Align = alTop
           Caption = 'Log das Opera'#231#245'es'
-          ExplicitWidth = 93
         end
         object mLog: TMemo
           Left = 1
           Top = 14
           Width = 361
-          Height = 491
+          Height = 545
           Align = alClient
           ReadOnly = True
           TabOrder = 0
         end
         object Panel2: TPanel
           Left = 1
-          Top = 505
+          Top = 559
           Width = 361
           Height = 32
           Align = alBottom
@@ -1440,7 +2630,7 @@ object Form1: TForm1
           DesignSize = (
             361
             32)
-          object btQREAnalisar1: TBitBtn
+          object btLogLimpar: TBitBtn
             Left = 259
             Top = 1
             Width = 83
@@ -1448,7 +2638,7 @@ object Form1: TForm1
             Anchors = [akTop]
             Caption = 'Limpar'
             TabOrder = 0
-            OnClick = btQREAnalisar1Click
+            OnClick = btLogLimparClick
           end
         end
       end
@@ -1460,7 +2650,7 @@ object Form1: TForm1
         Left = 0
         Top = 0
         Width = 1000
-        Height = 501
+        Height = 555
         ActivePage = tsPIX
         Align = alClient
         Images = ImageList1
@@ -1471,10 +2661,10 @@ object Form1: TForm1
           Caption = 'PIX'
           DesignSize = (
             992
-            466)
+            520)
           object pConfPIX: TPanel
             Left = 208
-            Top = 8
+            Top = 34
             Width = 592
             Height = 440
             Anchors = []
@@ -1487,128 +2677,141 @@ object Form1: TForm1
               Height = 120
               Caption = 'Recebedor'
               TabOrder = 0
-              DesignSize = (
-                560
-                120)
-              object imgErrCEP: TImage
-                Left = 532
-                Top = 19
-                Width = 16
-                Height = 16
-                Anchors = [akTop, akRight]
-                Visible = False
-              end
-              object Label14: TLabel
-                Left = 8
-                Top = 21
-                Width = 28
-                Height = 13
-                Caption = 'Nome'
-              end
-              object Label16: TLabel
-                Left = 8
-                Top = 64
-                Width = 33
-                Height = 13
-                Caption = 'Cidade'
-              end
-              object Label18: TLabel
-                Left = 416
-                Top = 21
-                Width = 21
-                Height = 13
-                Anchors = [akTop, akRight]
-                Caption = 'CEP'
-              end
-              object Label19: TLabel
-                Left = 416
-                Top = 64
-                Width = 23
-                Height = 13
-                Anchors = [akTop, akRight]
-                Caption = 'MCC'
-              end
-              object imgInfoMCC: TImage
-                Left = 532
-                Top = 84
-                Width = 16
-                Height = 16
-                Cursor = crHandPoint
-                Anchors = [akTop, akRight]
-                OnClick = imgInfoMCCClick
-              end
-              object sbConsultaCEP: TSpeedButton
-                Left = 529
-                Top = 37
-                Width = 24
-                Height = 23
-                Anchors = [akTop, akRight]
-                Flat = True
-                Visible = False
-                OnClick = sbConsultaCEPClick
-              end
-              object imgErrNome: TImage
-                Left = 394
-                Top = 40
-                Width = 16
-                Height = 16
-                Anchors = [akTop, akRight]
-                Visible = False
-              end
-              object Label42: TLabel
-                Left = 343
-                Top = 64
-                Width = 14
-                Height = 13
-                Caption = 'UF'
-              end
-              object edtRecebedorNome: TEdit
-                Left = 8
-                Top = 37
-                Width = 384
-                Height = 21
-                Anchors = [akLeft, akTop, akRight]
+              object pnRecebedor: TPanel
+                Left = 2
+                Top = 15
+                Width = 556
+                Height = 103
+                Align = alClient
+                BevelOuter = bvNone
                 TabOrder = 0
-                OnChange = edtRecebedorNomeChange
-              end
-              object edtRecebedorCidade: TEdit
-                Left = 8
-                Top = 80
-                Width = 328
-                Height = 21
-                Anchors = [akLeft, akTop, akRight]
-                TabOrder = 2
-              end
-              object edtRecebedorCEP: TEdit
-                Left = 416
-                Top = 37
-                Width = 113
-                Height = 21
-                Anchors = [akTop, akRight]
-                TabOrder = 1
-                OnChange = edtRecebedorCEPChange
-                OnExit = edtRecebedorCEPExit
-                OnKeyPress = edOnlyNumbersKeyPress
-              end
-              object seRecebedorMCC: TSpinEdit
-                Left = 416
-                Top = 80
-                Width = 113
-                Height = 22
-                Anchors = [akTop, akRight]
-                MaxValue = 99999999
-                MinValue = 0
-                TabOrder = 3
-                Value = 0
-              end
-              object cbxRecebedorUF: TComboBox
-                Left = 343
-                Top = 80
-                Width = 49
-                Height = 21
-                Style = csDropDownList
-                TabOrder = 4
-                OnChange = cbxPSPAtualChange
+                DesignSize = (
+                  556
+                  103)
+                object imgErrCEP: TImage
+                  Left = 532
+                  Top = 19
+                  Width = 16
+                  Height = 16
+                  Anchors = [akTop, akRight]
+                  Visible = False
+                end
+                object Label14: TLabel
+                  Left = 8
+                  Top = 0
+                  Width = 28
+                  Height = 13
+                  Caption = 'Nome'
+                end
+                object Label16: TLabel
+                  Left = 8
+                  Top = 48
+                  Width = 33
+                  Height = 13
+                  Caption = 'Cidade'
+                end
+                object Label18: TLabel
+                  Left = 416
+                  Top = 0
+                  Width = 21
+                  Height = 13
+                  Anchors = [akTop, akRight]
+                  Caption = 'CEP'
+                end
+                object Label19: TLabel
+                  Left = 416
+                  Top = 48
+                  Width = 23
+                  Height = 13
+                  Anchors = [akTop, akRight]
+                  Caption = 'MCC'
+                  Visible = False
+                end
+                object imgInfoMCC: TImage
+                  Left = 532
+                  Top = 68
+                  Width = 16
+                  Height = 16
+                  Cursor = crHandPoint
+                  Anchors = [akTop, akRight]
+                  Visible = False
+                  OnClick = imgInfoMCCClick
+                end
+                object sbConsultaCEP: TSpeedButton
+                  Left = 529
+                  Top = 16
+                  Width = 24
+                  Height = 23
+                  Anchors = [akTop, akRight]
+                  Flat = True
+                  Visible = False
+                  OnClick = sbConsultaCEPClick
+                end
+                object imgErrNome: TImage
+                  Left = 394
+                  Top = 19
+                  Width = 16
+                  Height = 16
+                  Anchors = [akTop, akRight]
+                  Visible = False
+                end
+                object Label42: TLabel
+                  Left = 343
+                  Top = 48
+                  Width = 14
+                  Height = 13
+                  Caption = 'UF'
+                end
+                object edtRecebedorNome: TEdit
+                  Left = 8
+                  Top = 16
+                  Width = 384
+                  Height = 21
+                  Anchors = [akLeft, akTop, akRight]
+                  TabOrder = 0
+                  OnChange = edtRecebedorNomeChange
+                end
+                object edtRecebedorCidade: TEdit
+                  Left = 8
+                  Top = 64
+                  Width = 328
+                  Height = 21
+                  Anchors = [akLeft, akTop, akRight]
+                  TabOrder = 2
+                end
+                object edtRecebedorCEP: TEdit
+                  Left = 416
+                  Top = 16
+                  Width = 113
+                  Height = 21
+                  Anchors = [akTop, akRight]
+                  TabOrder = 1
+                  OnChange = edtRecebedorCEPChange
+                  OnExit = edtRecebedorCEPExit
+                  OnKeyPress = edOnlyNumbersKeyPress
+                end
+                object seRecebedorMCC: TSpinEdit
+                  Left = 416
+                  Top = 64
+                  Width = 113
+                  Height = 22
+                  Anchors = [akTop, akRight]
+                  MaxValue = 99999999
+                  MinValue = 0
+                  TabOrder = 4
+                  Value = 0
+                  Visible = False
+                end
+                object cbxRecebedorUF: TComboBox
+                  Left = 343
+                  Top = 64
+                  Width = 49
+                  Height = 21
+                  Style = csDropDownList
+                  ItemHeight = 13
+                  TabOrder = 3
+                  OnChange = cbxPSPAtualChange
+                end
               end
             end
             object gbProxy: TGroupBox
@@ -1618,98 +2821,94 @@ object Form1: TForm1
               Height = 108
               Caption = 'Proxy'
               TabOrder = 2
-              DesignSize = (
-                280
-                108)
-              object Label8: TLabel
-                Left = 8
-                Top = 16
-                Width = 22
-                Height = 13
-                Caption = 'Host'
-              end
-              object Label9: TLabel
-                Left = 168
-                Top = 16
-                Width = 25
-                Height = 13
-                Anchors = [akTop, akRight]
-                Caption = 'Porta'
-              end
-              object Label10: TLabel
-                Left = 8
-                Top = 58
-                Width = 36
-                Height = 13
-                Caption = 'Usu'#225'rio'
-              end
-              object Label36: TLabel
-                Left = 168
-                Top = 56
-                Width = 31
-                Height = 13
-                Anchors = [akTop, akRight]
-                Caption = 'Senha'
-              end
-              object sbVerSenhaProxy: TSpeedButton
-                Left = 244
-                Top = 74
-                Width = 23
-                Height = 23
-                AllowAllUp = True
-                Anchors = [akTop, akRight]
-                GroupIndex = 1
-                Flat = True
-                Glyph.Data = {
-                  76010000424D7601000000000000760000002800000020000000100000000100
-                  04000000000000010000130B0000130B00001000000000000000000000000000
-                  800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
-                  FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0033333333B333
-                  333B33FF33337F3333F73BB3777BB7777BB3377FFFF77FFFF77333B000000000
-                  0B3333777777777777333330FFFFFFFF07333337F33333337F333330FFFFFFFF
-                  07333337F3FF3FFF7F333330F00F000F07333337F77377737F333330FFFFFFFF
-                  07333FF7F3FFFF3F7FFFBBB0F0000F0F0BB37777F7777373777F3BB0FFFFFFFF
-                  0BBB3777F3FF3FFF77773330F00F000003333337F773777773333330FFFF0FF0
-                  33333337F3FF7F37F3333330F08F0F0B33333337F7737F77FF333330FFFF003B
-                  B3333337FFFF77377FF333B000000333BB33337777777F3377FF3BB3333BB333
-                  3BB33773333773333773B333333B3333333B7333333733333337}
-                OnClick = sbVerSenhaProxyClick
-              end
-              object edtProxyHost: TEdit
-                Left = 8
-                Top = 32
-                Width = 146
-                Height = 21
-                Anchors = [akLeft, akTop, akRight]
+              object pnProxy: TPanel
+                Left = 2
+                Top = 15
+                Width = 276
+                Height = 91
+                Align = alClient
+                BevelOuter = bvNone
                 TabOrder = 0
-              end
-              object edtProxyUser: TEdit
-                Left = 8
-                Top = 74
-                Width = 146
-                Height = 21
-                Anchors = [akLeft, akTop, akRight]
-                TabOrder = 1
-              end
-              object edtProxySenha: TEdit
-                Left = 168
-                Top = 74
-                Width = 74
-                Height = 21
-                Anchors = [akTop, akRight]
-                PasswordChar = '*'
-                TabOrder = 2
-              end
-              object seProxyPorta: TSpinEdit
-                Left = 168
-                Top = 32
-                Width = 74
-                Height = 22
-                Anchors = [akTop, akRight]
-                MaxValue = 999999
-                MinValue = 0
-                TabOrder = 3
-                Value = 0
+                DesignSize = (
+                  276
+                  91)
+                object Label8: TLabel
+                  Left = 8
+                  Top = 0
+                  Width = 22
+                  Height = 13
+                  Caption = 'Host'
+                end
+                object Label9: TLabel
+                  Left = 168
+                  Top = 0
+                  Width = 25
+                  Height = 13
+                  Anchors = [akTop, akRight]
+                  Caption = 'Porta'
+                end
+                object Label10: TLabel
+                  Left = 8
+                  Top = 42
+                  Width = 36
+                  Height = 13
+                  Caption = 'Usu'#225'rio'
+                end
+                object Label36: TLabel
+                  Left = 168
+                  Top = 40
+                  Width = 31
+                  Height = 13
+                  Anchors = [akTop, akRight]
+                  Caption = 'Senha'
+                end
+                object sbVerSenhaProxy: TSpeedButton
+                  Left = 244
+                  Top = 58
+                  Width = 23
+                  Height = 23
+                  AllowAllUp = True
+                  Anchors = [akTop, akRight]
+                  GroupIndex = 1
+                  Flat = True
+                  OnClick = sbVerSenhaProxyClick
+                end
+                object edtProxyHost: TEdit
+                  Left = 8
+                  Top = 16
+                  Width = 146
+                  Height = 21
+                  Anchors = [akLeft, akTop, akRight]
+                  TabOrder = 0
+                end
+                object edtProxyUser: TEdit
+                  Left = 8
+                  Top = 58
+                  Width = 146
+                  Height = 21
+                  Anchors = [akLeft, akTop, akRight]
+                  TabOrder = 1
+                end
+                object edtProxySenha: TEdit
+                  Left = 168
+                  Top = 58
+                  Width = 74
+                  Height = 21
+                  Anchors = [akTop, akRight]
+                  PasswordChar = '*'
+                  TabOrder = 2
+                end
+                object seProxyPorta: TSpinEdit
+                  Left = 168
+                  Top = 16
+                  Width = 74
+                  Height = 22
+                  Anchors = [akTop, akRight]
+                  MaxValue = 999999
+                  MinValue = 0
+                  TabOrder = 3
+                  Value = 0
+                end
               end
             end
             object gbLog: TGroupBox
@@ -1719,62 +2918,72 @@ object Form1: TForm1
               Height = 108
               Caption = 'Log'
               TabOrder = 3
-              DesignSize = (
-                256
-                108)
-              object Label11: TLabel
-                Left = 16
-                Top = 16
-                Width = 36
-                Height = 13
-                Caption = 'Arquivo'
-              end
-              object Label12: TLabel
-                Left = 16
-                Top = 58
-                Width = 26
-                Height = 13
-                Caption = 'N'#237'vel'
-              end
-              object sbArqLog: TSpeedButton
-                Left = 229
-                Top = 32
-                Width = 24
-                Height = 23
-                Hint = 'Abrir Arquivo de Log'
-                Font.Charset = DEFAULT_CHARSET
-                Font.Color = clWindowText
-                Font.Height = -11
-                Font.Name = 'MS Sans Serif'
-                Font.Style = []
-                ParentFont = False
-                ParentShowHint = False
-                ShowHint = True
-                OnClick = sbArqLogClick
-              end
-              object edtArqLog: TEdit
-                Left = 16
-                Top = 32
-                Width = 210
-                Height = 21
-                Anchors = [akLeft, akTop, akRight]
+              object pnLog: TPanel
+                Left = 2
+                Top = 15
+                Width = 252
+                Height = 91
+                Align = alClient
+                BevelOuter = bvNone
                 TabOrder = 0
-              end
-              object cbxNivelLog: TComboBox
-                Left = 16
-                Top = 77
-                Width = 210
-                Height = 21
-                Style = csDropDownList
-                ItemIndex = 2
-                TabOrder = 1
-                Text = 'Normal'
-                Items.Strings = (
-                  'Nenhum'
-                  'Baixo'
-                  'Normal'
-                  'Alto'
-                  'Muito Alto')
+                DesignSize = (
+                  252
+                  91)
+                object Label11: TLabel
+                  Left = 8
+                  Top = 0
+                  Width = 36
+                  Height = 13
+                  Caption = 'Arquivo'
+                end
+                object Label12: TLabel
+                  Left = 8
+                  Top = 42
+                  Width = 26
+                  Height = 13
+                  Caption = 'N'#237'vel'
+                end
+                object sbArqLog: TSpeedButton
+                  Left = 225
+                  Top = 16
+                  Width = 24
+                  Height = 23
+                  Hint = 'Abrir Arquivo de Log'
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clWindowText
+                  Font.Height = -11
+                  Font.Name = 'MS Sans Serif'
+                  Font.Style = []
+                  ParentFont = False
+                  ParentShowHint = False
+                  ShowHint = True
+                  OnClick = sbArqLogClick
+                end
+                object edtArqLog: TEdit
+                  Left = 8
+                  Top = 16
+                  Width = 210
+                  Height = 21
+                  Anchors = [akLeft, akTop, akRight]
+                  TabOrder = 0
+                end
+                object cbxNivelLog: TComboBox
+                  Left = 8
+                  Top = 61
+                  Width = 210
+                  Height = 21
+                  Style = csDropDownList
+                  ItemHeight = 13
+                  ItemIndex = 2
+                  TabOrder = 1
+                  Text = 'Normal'
+                  Items.Strings = (
+                    'Nenhum'
+                    'Baixo'
+                    'Normal'
+                    'Alto'
+                    'Muito Alto')
+                end
               end
             end
             object gbPSP: TGroupBox
@@ -1784,66 +2993,77 @@ object Form1: TForm1
               Height = 72
               Caption = 'PSP'
               TabOrder = 1
-              DesignSize = (
-                560
-                72)
-              object Label13: TLabel
-                Left = 8
-                Top = 16
-                Width = 48
-                Height = 13
-                Caption = 'PSP Atual'
-              end
-              object Label15: TLabel
-                Left = 224
-                Top = 16
-                Width = 44
-                Height = 13
-                Caption = 'Ambiente'
-              end
-              object Label17: TLabel
-                Left = 416
-                Top = 19
-                Width = 38
-                Height = 13
-                Caption = 'Timeout'
-              end
-              object imgErrPSP: TImage
-                Left = 192
-                Top = 39
-                Width = 16
-                Height = 16
-                Anchors = [akTop, akRight]
-                Visible = False
-              end
-              object cbxPSPAtual: TComboBox
-                Left = 8
-                Top = 35
-                Width = 182
-                Height = 21
-                Style = csDropDownList
+              object pnPSP: TPanel
+                Left = 2
+                Top = 15
+                Width = 556
+                Height = 55
+                Align = alClient
+                BevelOuter = bvNone
                 TabOrder = 0
-                OnChange = cbxPSPAtualChange
-              end
-              object cbxAmbiente: TComboBox
-                Left = 224
-                Top = 35
-                Width = 170
-                Height = 21
-                Style = csDropDownList
-                TabOrder = 1
-                OnChange = cbxAmbienteChange
-              end
-              object seTimeout: TSpinEdit
-                Left = 416
-                Top = 35
-                Width = 106
-                Height = 22
-                Increment = 10
-                MaxValue = 999999
-                MinValue = 0
-                TabOrder = 2
-                Value = 0
+                DesignSize = (
+                  556
+                  55)
+                object Label13: TLabel
+                  Left = 8
+                  Top = 0
+                  Width = 48
+                  Height = 13
+                  Caption = 'PSP Atual'
+                end
+                object Label15: TLabel
+                  Left = 224
+                  Top = 0
+                  Width = 44
+                  Height = 13
+                  Caption = 'Ambiente'
+                end
+                object Label17: TLabel
+                  Left = 416
+                  Top = 3
+                  Width = 38
+                  Height = 13
+                  Caption = 'Timeout'
+                end
+                object imgErrPSP: TImage
+                  Left = 192
+                  Top = 23
+                  Width = 16
+                  Height = 16
+                  Anchors = [akTop, akRight]
+                  Visible = False
+                end
+                object cbxPSPAtual: TComboBox
+                  Left = 8
+                  Top = 19
+                  Width = 182
+                  Height = 21
+                  Style = csDropDownList
+                  ItemHeight = 13
+                  TabOrder = 0
+                  OnChange = cbxPSPAtualChange
+                end
+                object cbxAmbiente: TComboBox
+                  Left = 224
+                  Top = 19
+                  Width = 170
+                  Height = 21
+                  Style = csDropDownList
+                  ItemHeight = 13
+                  TabOrder = 1
+                  OnChange = cbxAmbienteChange
+                end
+                object seTimeout: TSpinEdit
+                  Left = 416
+                  Top = 19
+                  Width = 106
+                  Height = 22
+                  Increment = 10
+                  MaxValue = 999999
+                  MinValue = 0
+                  TabOrder = 2
+                  Value = 0
+                end
               end
             end
             object gbCobranca: TGroupBox
@@ -1853,23 +3073,32 @@ object Form1: TForm1
               Height = 72
               Caption = 'Cobran'#231'a'
               TabOrder = 4
-              object Label47: TLabel
-                Left = 8
-                Top = 20
-                Width = 47
-                Height = 13
-                Caption = 'Expira'#231#227'o'
-              end
-              object seCobrancaExpiracao: TSpinEdit
-                Left = 8
-                Top = 38
-                Width = 106
-                Height = 22
-                Increment = 10
-                MaxValue = 999999
-                MinValue = 0
+              object pnCobranca: TPanel
+                Left = 2
+                Top = 15
+                Width = 556
+                Height = 55
+                Align = alClient
+                BevelOuter = bvNone
                 TabOrder = 0
-                Value = 3600
+                object Label47: TLabel
+                  Left = 8
+                  Top = 0
+                  Width = 47
+                  Height = 13
+                  Caption = 'Expira'#231#227'o'
+                end
+                object seCobrancaExpiracao: TSpinEdit
+                  Left = 8
+                  Top = 19
+                  Width = 106
+                  Height = 22
+                  Increment = 10
+                  MaxValue = 999999
+                  MinValue = 0
+                  TabOrder = 0
+                  Value = 3600
+                end
               end
             end
           end
@@ -1881,7 +3110,7 @@ object Form1: TForm1
             Left = 0
             Top = 0
             Width = 992
-            Height = 466
+            Height = 520
             ActivePage = tsShipay
             Align = alClient
             TabOrder = 0
@@ -1890,10 +3119,10 @@ object Form1: TForm1
               Caption = 'Shipay'
               DesignSize = (
                 984
-                438)
+                492)
               object pConfPSPBB3: TPanel
                 Left = 26
-                Top = 91
+                Top = 117
                 Width = 928
                 Height = 240
                 Anchors = [akLeft, akRight]
@@ -1953,10 +3182,10 @@ object Form1: TForm1
               Caption = 'Banco do Brasil'
               DesignSize = (
                 984
-                438)
+                492)
               object pConfPSPBB: TPanel
                 Left = 26
-                Top = 91
+                Top = 117
                 Width = 928
                 Height = 240
                 Anchors = [akLeft, akRight]
@@ -2025,6 +3254,7 @@ object Form1: TForm1
                   Height = 21
                   Style = csDropDownList
                   Anchors = [akTop, akRight]
+                  ItemHeight = 13
                   TabOrder = 0
                   TabStop = False
                 end
@@ -2058,13 +3288,13 @@ object Form1: TForm1
               Caption = 'Ita'#250
               DesignSize = (
                 984
-                438)
+                492)
               object pgPSPItau: TPageControl
                 Left = 16
                 Top = 24
                 Width = 946
-                Height = 390
-                ActivePage = tsItauCertificado
+                Height = 444
+                ActivePage = tsItauChave
                 Anchors = [akLeft, akTop, akRight, akBottom]
                 Images = ImageList1
                 TabOrder = 0
@@ -2072,18 +3302,18 @@ object Form1: TForm1
                   Caption = 'Chave e Client ID'
                   DesignSize = (
                     938
-                    361)
+                    415)
                   object pConfPSPBB1: TPanel
                     Left = 0
-                    Top = 56
+                    Top = 82
                     Width = 928
-                    Height = 240
+                    Height = 206
                     Anchors = [akLeft, akRight]
                     BevelOuter = bvNone
                     TabOrder = 0
                     DesignSize = (
                       928
-                      240)
+                      206)
                     object Label25: TLabel
                       Left = 48
                       Top = 21
@@ -2112,13 +3342,6 @@ object Form1: TForm1
                       Width = 60
                       Height = 13
                       Caption = 'Client Secret'
-                    end
-                    object Label29: TLabel
-                      Left = 48
-                      Top = 184
-                      Width = 74
-                      Height = 13
-                      Caption = 'X Correlation ID'
                     end
                     object imgItauErroChavePIX: TImage
                       Left = 29
@@ -2157,6 +3380,7 @@ object Form1: TForm1
                       Height = 21
                       Style = csDropDownList
                       Anchors = [akTop, akRight]
+                      ItemHeight = 13
                       TabOrder = 0
                       TabStop = False
                     end
@@ -2178,26 +3402,18 @@ object Form1: TForm1
                       TabOrder = 3
                       OnChange = edtItauClientSecretChange
                     end
-                    object edtItauXCorrelationId: TEdit
-                      Left = 48
-                      Top = 203
-                      Width = 856
-                      Height = 21
-                      Anchors = [akLeft, akTop, akRight]
-                      TabOrder = 4
-                    end
                   end
                 end
                 object tsItauCertificado: TTabSheet
                   Caption = 'Chave  e Certificado'
                   DesignSize = (
                     938
-                    361)
+                    415)
                   object pgPSPItauChaveCertificado: TPageControl
                     Left = 19
                     Top = 24
                     Width = 900
-                    Height = 327
+                    Height = 374
                     ActivePage = tsItauChaveCertificadoArquivos
                     Anchors = [akLeft, akTop, akRight, akBottom]
                     TabOrder = 0
@@ -2206,7 +3422,7 @@ object Form1: TForm1
                       Caption = 'Arquivos'
                       DesignSize = (
                         892
-                        299)
+                        346)
                       object lItauAvisoChaveCertificadoDesabilitado: TLabel
                         Left = 35
                         Top = 16
@@ -2223,7 +3439,7 @@ object Form1: TForm1
                       end
                       object Panel7: TPanel
                         Left = 35
-                        Top = 50
+                        Top = 76
                         Width = 801
                         Height = 186
                         Anchors = [akLeft, akRight]
@@ -2347,20 +3563,20 @@ object Form1: TForm1
                       Caption = 'Gerar Chave e Certificado'
                       DesignSize = (
                         892
-                        299)
+                        346)
                       object pgPSPItauGerarChaveCertificado: TPageControl
                         Left = 16
                         Top = 16
                         Width = 842
-                        Height = 279
-                        ActivePage = tsItauCertPasso3
+                        Height = 326
+                        ActivePage = tsItauCertPasso1
                         Anchors = [akLeft, akTop, akRight, akBottom]
                         TabOrder = 0
                         object tsItauCertPasso1: TTabSheet
                           Caption = 'Passo 1 - Definir Chave Privada'
                           DesignSize = (
                             834
-                            251)
+                            298)
                           object Label39: TLabel
                             Left = 16
                             Top = 24
@@ -2371,8 +3587,8 @@ object Form1: TForm1
                           object edtItauArqChavePrivada2: TEdit
                             Left = 16
                             Top = 40
-                            Width = 594
-                            Height = 21
+                            Width = 626
+                            Height = 23
                             TabStop = False
                             Anchors = [akLeft, akTop, akRight]
                             ReadOnly = True
@@ -2393,7 +3609,7 @@ object Form1: TForm1
                             Left = 16
                             Top = 72
                             Width = 794
-                            Height = 162
+                            Height = 209
                             Anchors = [akLeft, akTop, akRight, akBottom]
                             Font.Charset = DEFAULT_CHARSET
                             Font.Color = clWindowText
@@ -2440,7 +3656,7 @@ object Form1: TForm1
                             object edtItauArqCertificado2: TEdit
                               Left = 16
                               Top = 21
-                              Width = 610
+                              Width = 632
                               Height = 23
                               TabStop = False
                               Anchors = [akLeft, akTop, akRight]
@@ -2462,11 +3678,10 @@ object Form1: TForm1
                             object lTokenTemporario: TLabel
                               Left = 0
                               Top = 0
-                              Width = 834
+                              Width = 87
                               Height = 13
                               Align = alTop
                               Caption = 'Token Tempor'#225'rio'
-                              ExplicitWidth = 87
                             end
                             object mItauTokenTemporario: TMemo
                               Left = 0
@@ -2487,24 +3702,23 @@ object Form1: TForm1
                             Left = 0
                             Top = 136
                             Width = 834
-                            Height = 115
+                            Height = 162
                             Align = alClient
                             BevelOuter = bvNone
                             TabOrder = 2
                             object Label6: TLabel
                               Left = 0
                               Top = 0
-                              Width = 834
+                              Width = 99
                               Height = 13
                               Align = alTop
                               Caption = 'Certificado Recebido'
-                              ExplicitWidth = 99
                             end
                             object mItauCertificadoPEM: TMemo
                               Left = 0
                               Top = 13
                               Width = 834
-                              Height = 102
+                              Height = 156
                               Align = alClient
                               Font.Charset = DEFAULT_CHARSET
                               Font.Color = clWindowText
@@ -2520,97 +3734,1045 @@ object Form1: TForm1
                         end
                       end
                     end
+                    object tsItauRenovarChaveCertificado: TTabSheet
+                      Caption = 'Renovar Certificado'
+                      object pnItauRenovarCertificadoPEM: TPanel
+                        Left = 16
+                        Top = 56
+                        Width = 862
+                        Height = 284
+                        BevelOuter = bvNone
+                        TabOrder = 0
+                        object lbItauRenovarCertificadoPEM: TLabel
+                          Left = 0
+                          Top = 0
+                          Width = 128
+                          Height = 13
+                          Align = alTop
+                          Caption = 'Novo Certificado Recebido'
+                        end
+                        object mmItauRenovarCertificadoPEM: TMemo
+                          Left = 0
+                          Top = 15
+                          Width = 862
+                          Height = 269
+                          Align = alClient
+                          Font.Charset = DEFAULT_CHARSET
+                          Font.Color = clWindowText
+                          Font.Height = -11
+                          Font.Name = 'Lucida Console'
+                          Font.Style = []
+                          ParentFont = False
+                          ReadOnly = True
+                          TabOrder = 0
+                          WantReturns = False
+                        end
+                      end
+                      object pItauEditCertificado1: TPanel
+                        Left = 0
+                        Top = 0
+                        Width = 892
+                        Height = 56
+                        Align = alTop
+                        BevelOuter = bvNone
+                        TabOrder = 1
+                        DesignSize = (
+                          892
+                          56)
+                        object lbItauRenovarCertificadoArq: TLabel
+                          Left = 16
+                          Top = 4
+                          Width = 89
+                          Height = 13
+                          Caption = 'Arquivo Certificado'
+                        end
+                        object edItauRenovarCertificadoArq: TEdit
+                          Left = 16
+                          Top = 21
+                          Width = 698
+                          Height = 23
+                          TabStop = False
+                          Anchors = [akLeft, akTop, akRight]
+                          AutoSize = False
+                          ReadOnly = True
+                          TabOrder = 0
+                          Text = 'ItauCertificadoNovo.pem'
+                          OnChange = edtItauArqChavePrivadaChange
+                        end
+                        object btItauRenovarCertificado: TBitBtn
+                          Left = 730
+                          Top = 18
+                          Width = 150
+                          Height = 26
+                          Anchors = [akTop, akRight]
+                          Caption = 'Renovar Certificado'
+                          TabOrder = 1
+                          OnClick = btItauRenovarCertificadoClick
+                        end
+                      end
+                    end
                   end
                 end
               end
             end
             object tsSantander: TTabSheet
               Caption = 'Santander'
-              DesignSize = (
-                984
-                438)
-              object pConfPSPBB2: TPanel
-                Left = 26
-                Top = 91
-                Width = 928
-                Height = 240
-                Anchors = [akLeft, akRight]
-                BevelOuter = bvNone
+              object pgSantander: TPageControl
+                Left = 48
+                Top = 56
+                Width = 888
+                Height = 368
+                ActivePage = tsSantanderCredenciais
                 TabOrder = 0
-                DesignSize = (
-                  928
-                  240)
-                object Label30: TLabel
-                  Left = 24
-                  Top = 21
-                  Width = 51
-                  Height = 13
-                  Caption = 'Chave PIX'
+                object tsSantanderCredenciais: TTabSheet
+                  Caption = 'Credenciais'
+                  object pConfPSPSantander: TPanel
+                    Left = 0
+                    Top = 0
+                    Width = 880
+                    Height = 340
+                    Align = alClient
+                    BevelOuter = bvNone
+                    TabOrder = 0
+                    DesignSize = (
+                      880
+                      340)
+                    object lbSantanderChavePIX: TLabel
+                      Left = 24
+                      Top = 24
+                      Width = 51
+                      Height = 13
+                      Caption = 'Chave PIX'
+                    end
+                    object lbSantanderTipoChave: TLabel
+                      Left = 688
+                      Top = 24
+                      Width = 55
+                      Height = 13
+                      Anchors = [akTop, akRight]
+                      Caption = 'Tipo Chave'
+                    end
+                    object lbSantanderConsumerKey: TLabel
+                      Left = 24
+                      Top = 75
+                      Width = 68
+                      Height = 13
+                      Caption = 'Consumer Key'
+                    end
+                    object lbSantanderConsumerSecret: TLabel
+                      Left = 24
+                      Top = 131
+                      Width = 81
+                      Height = 13
+                      Caption = 'Consumer Secret'
+                    end
+                    object imSantanderErroChavePIX: TImage
+                      Left = 856
+                      Top = 44
+                      Width = 16
+                      Height = 16
+                      Anchors = [akTop, akRight]
+                      Visible = False
+                    end
+                    object imSantanderErroCertificadoPFX: TImage
+                      Left = 3
+                      Top = 200
+                      Width = 16
+                      Height = 16
+                      Visible = False
+                    end
+                    object lbSantanderErroCertificadoPFX: TLabel
+                      Left = 24
+                      Top = 222
+                      Width = 146
+                      Height = 13
+                      Caption = 'lbSantanderErroCertificadoPFX'
+                    end
+                    object lbSantanderArqCertificadoPFX: TLabel
+                      Left = 24
+                      Top = 181
+                      Width = 112
+                      Height = 13
+                      Caption = 'Arquivo Certificado PFX'
+                    end
+                    object sbSantanderAcharCertificadoPFX: TSpeedButton
+                      Left = 640
+                      Top = 197
+                      Width = 24
+                      Height = 23
+                      Anchors = [akTop, akRight]
+                      Flat = True
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clWindowText
+                      Font.Height = -11
+                      Font.Name = 'MS Sans Serif'
+                      Font.Style = []
+                      ParentFont = False
+                      ParentShowHint = False
+                      ShowHint = True
+                      OnClick = sbSantanderAcharCertificadoPFXClick
+                    end
+                    object lbSantanderSenhaCertificado: TLabel
+                      Left = 688
+                      Top = 181
+                      Width = 84
+                      Height = 13
+                      Caption = 'Senha Certificado'
+                    end
+                    object sbSantanderVerSenhaPFX: TSpeedButton
+                      Left = 856
+                      Top = 197
+                      Width = 23
+                      Height = 23
+                      AllowAllUp = True
+                      Anchors = [akTop, akRight]
+                      GroupIndex = 1
+                      Flat = True
+                      OnClick = sbSantanderVerSenhaPFXClick
+                    end
+                    object edSantanderChavePIX: TEdit
+                      Left = 24
+                      Top = 40
+                      Width = 640
+                      Height = 21
+                      Anchors = [akLeft, akTop, akRight]
+                      TabOrder = 1
+                      OnChange = edSantanderChavePIXChange
+                    end
+                    object cbSantanderTipoChave: TComboBox
+                      Left = 688
+                      Top = 40
+                      Width = 164
+                      Height = 21
+                      Style = csDropDownList
+                      Anchors = [akTop, akRight]
+                      ItemHeight = 13
+                      TabOrder = 0
+                      TabStop = False
+                    end
+                    object edSantanderConsumerKey: TEdit
+                      Left = 24
+                      Top = 91
+                      Width = 828
+                      Height = 21
+                      Anchors = [akLeft, akTop, akRight]
+                      TabOrder = 2
+                    end
+                    object edSantanderConsumerSecret: TEdit
+                      Left = 24
+                      Top = 147
+                      Width = 828
+                      Height = 21
+                      Anchors = [akLeft, akTop, akRight]
+                      TabOrder = 3
+                    end
+                    object edSantanderArqCertificadoPFX: TEdit
+                      Left = 24
+                      Top = 197
+                      Width = 616
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      AutoSize = False
+                      TabOrder = 4
+                      OnChange = edSantanderArqCertificadoPFXChange
+                    end
+                    object edSantanderSenhaCertificadoPFX: TEdit
+                      Left = 688
+                      Top = 197
+                      Width = 164
+                      Height = 21
+                      Anchors = [akLeft, akTop, akRight]
+                      PasswordChar = '*'
+                      TabOrder = 5
+                    end
+                  end
                 end
-                object Label31: TLabel
-                  Left = 746
-                  Top = 21
-                  Width = 55
-                  Height = 13
-                  Anchors = [akTop, akRight]
-                  Caption = 'Tipo Chave'
+                object tsSantanderExtrairCertificado: TTabSheet
+                  Caption = 'Extrair Certificado'
+                  ImageIndex = 1
+                  object pnSantanderExtrairCertificado: TPanel
+                    Left = 0
+                    Top = 0
+                    Width = 880
+                    Height = 340
+                    Align = alClient
+                    BevelOuter = bvNone
+                    TabOrder = 0
+                    DesignSize = (
+                      880
+                      340)
+                    object lbSantanderExtrairCertificadoPFX: TLabel
+                      Left = 40
+                      Top = 40
+                      Width = 112
+                      Height = 13
+                      Caption = 'Arquivo Certificado PFX'
+                    end
+                    object sbSantanderExtrairCertificadoPFX: TSpeedButton
+                      Left = 600
+                      Top = 56
+                      Width = 24
+                      Height = 23
+                      Anchors = [akTop, akRight]
+                      Flat = True
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clWindowText
+                      Font.Height = -11
+                      Font.Name = 'MS Sans Serif'
+                      Font.Style = []
+                      ParentFont = False
+                      ParentShowHint = False
+                      ShowHint = True
+                      OnClick = sbSantanderExtrairCertificadoPFXClick
+                    end
+                    object lbSantanderExtrairCertificadoSenhaPFX: TLabel
+                      Left = 640
+                      Top = 40
+                      Width = 84
+                      Height = 13
+                      Caption = 'Senha Certificado'
+                    end
+                    object sbSantanderExtrairCertificadoVerSenhaPFX: TSpeedButton
+                      Left = 808
+                      Top = 56
+                      Width = 23
+                      Height = 23
+                      AllowAllUp = True
+                      Anchors = [akTop, akRight]
+                      GroupIndex = 1
+                      Flat = True
+                      OnClick = sbSantanderExtrairCertificadoVerSenhaPFXClick
+                    end
+                    object lbSantanderExtrairCertificadoPEM: TLabel
+                      Left = 40
+                      Top = 160
+                      Width = 115
+                      Height = 13
+                      Caption = 'Arquivo Certificado PEM'
+                    end
+                    object sbSantanderExtrairCertificadoInfo: TSpeedButton
+                      Left = 224
+                      Top = 104
+                      Width = 30
+                      Height = 30
+                      Anchors = [akTop, akRight]
+                      Flat = True
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clWindowText
+                      Font.Height = -11
+                      Font.Name = 'MS Sans Serif'
+                      Font.Style = []
+                      ParentFont = False
+                      ParentShowHint = False
+                      ShowHint = True
+                      OnClick = sbSantanderExtrairCertificadoInfoClick
+                    end
+                    object edSantanderExtrairCertificadoPFX: TEdit
+                      Left = 40
+                      Top = 56
+                      Width = 560
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      AutoSize = False
+                      TabOrder = 0
+                    end
+                    object edSantanderExtrairCertificadoSenhaPFX: TEdit
+                      Left = 640
+                      Top = 56
+                      Width = 164
+                      Height = 21
+                      Anchors = [akLeft, akTop, akRight]
+                      PasswordChar = '*'
+                      TabOrder = 1
+                    end
+                    object btSantanderExtrairPEM: TBitBtn
+                      Left = 40
+                      Top = 104
+                      Width = 179
+                      Height = 30
+                      Caption = 'Extrair Certificado PEM'
+                      TabOrder = 2
+                      OnClick = btSantanderExtrairPEMClick
+                    end
+                    object edSantanderExtrairCertificadoPEM: TEdit
+                      Left = 40
+                      Top = 176
+                      Width = 791
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      AutoSize = False
+                      TabOrder = 3
+                      Text = 'SantanderCertificado.pem'
+                    end
+                  end
                 end
-                object Label32: TLabel
-                  Left = 24
-                  Top = 72
-                  Width = 68
-                  Height = 13
-                  Caption = 'Consumer Key'
+              end
+            end
+            object tsSicredi: TTabSheet
+              Caption = 'Sicredi'
+              object pgSicredi: TPageControl
+                Left = 48
+                Top = 56
+                Width = 888
+                Height = 368
+                ActivePage = tsSicrediCredenciais
+                TabOrder = 0
+                object tsSicrediCredenciais: TTabSheet
+                  Caption = 'Credenciais'
+                  object pnSicrediCredenciais: TPanel
+                    Left = 0
+                    Top = 0
+                    Width = 880
+                    Height = 340
+                    Align = alClient
+                    BevelOuter = bvNone
+                    TabOrder = 0
+                    DesignSize = (
+                      880
+                      340)
+                    object sbSicrediAcharChavePrivada: TSpeedButton
+                      Left = 836
+                      Top = 197
+                      Width = 24
+                      Height = 23
+                      Anchors = [akTop, akRight]
+                      Flat = True
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clWindowText
+                      Font.Height = -11
+                      Font.Name = 'MS Sans Serif'
+                      Font.Style = []
+                      ParentFont = False
+                      ParentShowHint = False
+                      ShowHint = True
+                      OnClick = sbSicrediAcharChavePrivadaClick
+                    end
+                    object sbSicrediAcharArqCertificado: TSpeedButton
+                      Left = 836
+                      Top = 267
+                      Width = 24
+                      Height = 23
+                      Anchors = [akTop, akRight]
+                      Flat = True
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clWindowText
+                      Font.Height = -11
+                      Font.Name = 'MS Sans Serif'
+                      Font.Style = []
+                      ParentFont = False
+                      ParentShowHint = False
+                      ShowHint = True
+                      OnClick = sbSicrediAcharArqCertificadoClick
+                    end
+                    object lbSicrediTipoChave: TLabel
+                      Left = 675
+                      Top = 24
+                      Width = 55
+                      Height = 13
+                      Anchors = [akTop, akRight]
+                      Caption = 'Tipo Chave'
+                    end
+                    object lbSicrediErroChavePrivada: TLabel
+                      Left = 24
+                      Top = 222
+                      Width = 126
+                      Height = 13
+                      Caption = 'lbSicrediErroChavePrivada'
+                    end
+                    object lbSicrediErroCertificado: TLabel
+                      Left = 24
+                      Top = 294
+                      Width = 109
+                      Height = 13
+                      Caption = 'lbSicrediErroCertificado'
+                    end
+                    object lbSicrediClientSecret: TLabel
+                      Left = 24
+                      Top = 132
+                      Width = 60
+                      Height = 13
+                      Caption = 'Client Secret'
+                    end
+                    object lbSicrediClientID: TLabel
+                      Left = 24
+                      Top = 75
+                      Width = 40
+                      Height = 13
+                      Caption = 'Client ID'
+                    end
+                    object lbSicrediChavePIX: TLabel
+                      Left = 24
+                      Top = 24
+                      Width = 51
+                      Height = 13
+                      Caption = 'Chave PIX'
+                    end
+                    object lbSicrediArqChavePrivada: TLabel
+                      Left = 24
+                      Top = 181
+                      Width = 109
+                      Height = 13
+                      Caption = 'Arquivo Chave Privada'
+                    end
+                    object lbSicrediArqCertificado: TLabel
+                      Left = 24
+                      Top = 251
+                      Width = 221
+                      Height = 13
+                      Caption = 'Arquivo Certificado (GERADO PELO SICREDI)'
+                    end
+                    object imSicrediErroChavePrivada: TImage
+                      Left = 3
+                      Top = 200
+                      Width = 16
+                      Height = 16
+                      Visible = False
+                    end
+                    object imSicrediErroChavePix: TImage
+                      Left = 836
+                      Top = 44
+                      Width = 16
+                      Height = 16
+                      Anchors = [akTop, akRight]
+                      Visible = False
+                    end
+                    object imSicrediErroCertificado: TImage
+                      Left = 3
+                      Top = 271
+                      Width = 16
+                      Height = 16
+                      Visible = False
+                    end
+                    object edSicrediClientSecret: TEdit
+                      Left = 24
+                      Top = 147
+                      Width = 808
+                      Height = 21
+                      Anchors = [akLeft, akTop, akRight]
+                      TabOrder = 0
+                    end
+                    object edSicrediClientID: TEdit
+                      Left = 24
+                      Top = 91
+                      Width = 808
+                      Height = 21
+                      Anchors = [akLeft, akTop, akRight]
+                      TabOrder = 1
+                    end
+                    object edSicrediChavePIX: TEdit
+                      Left = 24
+                      Top = 40
+                      Width = 630
+                      Height = 21
+                      Anchors = [akLeft, akTop, akRight]
+                      TabOrder = 2
+                      OnChange = edSicrediChavePIXChange
+                    end
+                    object edSicrediArqChavePrivada: TEdit
+                      Left = 24
+                      Top = 197
+                      Width = 808
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      AutoSize = False
+                      TabOrder = 3
+                      Text = 'SicrediChavePrivada.key'
+                      OnChange = edSicrediArqsChange
+                      OnExit = edSicrediArqChavePrivadaExit
+                    end
+                    object edSicrediArqCertificado: TEdit
+                      Left = 24
+                      Top = 267
+                      Width = 808
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      AutoSize = False
+                      TabOrder = 4
+                      Text = 'SicrediCertificado.cer'
+                      OnChange = edSicrediArqsChange
+                      OnExit = edSicrediArqCertificadoExit
+                    end
+                    object cbSicrediTipoChave: TComboBox
+                      Left = 675
+                      Top = 40
+                      Width = 157
+                      Height = 21
+                      Style = csDropDownList
+                      Anchors = [akTop, akRight]
+                      ItemHeight = 13
+                      TabOrder = 5
+                      TabStop = False
+                    end
+                  end
                 end
-                object Label33: TLabel
-                  Left = 24
-                  Top = 128
-                  Width = 81
-                  Height = 13
-                  Caption = 'Consumer Secret'
+                object tsSicrediGerarChaveCertificado: TTabSheet
+                  Caption = 'Gerar Chave/Certificado'
+                  ImageIndex = 1
+                  OnShow = tsSicrediGerarChaveCertificadoShow
+                  object pnSicrediGerarChaveCertificado: TPanel
+                    Left = 0
+                    Top = 0
+                    Width = 880
+                    Height = 340
+                    Align = alClient
+                    BevelOuter = bvNone
+                    TabOrder = 0
+                    DesignSize = (
+                      880
+                      340)
+                    object lbSicrediGerarChavePrivada: TLabel
+                      Left = 24
+                      Top = 21
+                      Width = 70
+                      Height = 13
+                      Caption = 'Chave Privada'
+                    end
+                    object lbSicrediGerarCertificado: TLabel
+                      Left = 24
+                      Top = 181
+                      Width = 76
+                      Height = 13
+                      Caption = 'Certificado PEM'
+                    end
+                    object btSicrediGerarChaveInfo: TSpeedButton
+                      Left = 104
+                      Top = 8
+                      Width = 30
+                      Height = 30
+                      Anchors = [akTop, akRight]
+                      Flat = True
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clWindowText
+                      Font.Height = -11
+                      Font.Name = 'MS Sans Serif'
+                      Font.Style = []
+                      ParentFont = False
+                      ParentShowHint = False
+                      ShowHint = True
+                      OnClick = btSicrediGerarChaveCertificadoInfoClick
+                    end
+                    object btSicrediGerarCertificadoInfo: TSpeedButton
+                      Left = 104
+                      Top = 168
+                      Width = 30
+                      Height = 30
+                      Anchors = [akTop, akRight]
+                      Flat = True
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clWindowText
+                      Font.Height = -11
+                      Font.Name = 'MS Sans Serif'
+                      Font.Style = []
+                      ParentFont = False
+                      ParentShowHint = False
+                      ShowHint = True
+                      OnClick = btSicrediGerarChaveCertificadoInfoClick
+                    end
+                    object edSicrediGerarChavePrivada: TEdit
+                      Left = 24
+                      Top = 37
+                      Width = 673
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      AutoSize = False
+                      TabOrder = 0
+                      Text = 'SicrediChavePrivada.key'
+                    end
+                    object mmSicrediGerarChavePrivada: TMemo
+                      Left = 24
+                      Top = 72
+                      Width = 825
+                      Height = 89
+                      Anchors = [akLeft, akTop, akRight, akBottom]
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clWindowText
+                      Font.Height = -11
+                      Font.Name = 'Lucida Console'
+                      Font.Style = []
+                      ParentFont = False
+                      ReadOnly = True
+                      TabOrder = 1
+                      WantReturns = False
+                      WordWrap = False
+                    end
+                    object btSicrediGerarChavePrivada: TBitBtn
+                      Left = 712
+                      Top = 32
+                      Width = 137
+                      Height = 33
+                      Caption = 'Gerar Chave Privada'
+                      TabOrder = 2
+                      OnClick = btSicrediGerarChavePrivadaClick
+                    end
+                    object edSicrediGerarCertificado: TEdit
+                      Left = 24
+                      Top = 197
+                      Width = 665
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      AutoSize = False
+                      TabOrder = 3
+                      Text = 'SicrediCertificado.pem'
+                    end
+                    object mmSicrediGerarCertificado: TMemo
+                      Left = 24
+                      Top = 232
+                      Width = 825
+                      Height = 89
+                      Anchors = [akLeft, akTop, akRight, akBottom]
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clWindowText
+                      Font.Height = -11
+                      Font.Name = 'Lucida Console'
+                      Font.Style = []
+                      ParentFont = False
+                      ReadOnly = True
+                      TabOrder = 4
+                      WantReturns = False
+                      WordWrap = False
+                    end
+                    object btSicrediGerarCertificado: TBitBtn
+                      Left = 712
+                      Top = 192
+                      Width = 137
+                      Height = 33
+                      Caption = 'Gerar Certificado'
+                      TabOrder = 5
+                      OnClick = btSicrediGerarCertificadoClick
+                    end
+                  end
                 end
-                object imgSantanderErroChavePIX: TImage
-                  Left = 908
-                  Top = 44
-                  Width = 16
-                  Height = 16
-                  Anchors = [akTop, akRight]
-                  Visible = False
+              end
+            end
+            object tsSicoob: TTabSheet
+              Caption = 'Sicoob'
+              ImageIndex = 5
+              object pgSicoob: TPageControl
+                Left = 48
+                Top = 56
+                Width = 888
+                Height = 368
+                ActivePage = tsSicoobCredenciais
+                TabOrder = 0
+                object tsSicoobCredenciais: TTabSheet
+                  Caption = 'Credenciais'
+                  object pnSicoobCredenciais: TPanel
+                    Left = 0
+                    Top = 0
+                    Width = 880
+                    Height = 340
+                    Align = alClient
+                    BevelOuter = bvNone
+                    TabOrder = 0
+                    object pnConfPSPSicoob: TPanel
+                      Left = 0
+                      Top = 0
+                      Width = 880
+                      Height = 340
+                      Align = alClient
+                      BevelOuter = bvNone
+                      TabOrder = 0
+                      DesignSize = (
+                        880
+                        340)
+                      object lbSicoobChavePix: TLabel
+                        Left = 24
+                        Top = 24
+                        Width = 51
+                        Height = 13
+                        Caption = 'Chave PIX'
+                      end
+                      object lbSicoobTipoChave: TLabel
+                        Left = 675
+                        Top = 24
+                        Width = 55
+                        Height = 13
+                        Anchors = [akTop, akRight]
+                        Caption = 'Tipo Chave'
+                      end
+                      object lbSicoobClientID: TLabel
+                        Left = 24
+                        Top = 83
+                        Width = 40
+                        Height = 13
+                        Caption = 'Client ID'
+                      end
+                      object lbSicoobArquivoChavePrivada: TLabel
+                        Left = 24
+                        Top = 137
+                        Width = 109
+                        Height = 13
+                        Caption = 'Arquivo Chave Privada'
+                      end
+                      object imSicoobErroChavePrivada: TImage
+                        Left = 3
+                        Top = 156
+                        Width = 16
+                        Height = 16
+                        Visible = False
+                      end
+                      object lbSicoobErroChavePrivada: TLabel
+                        Left = 24
+                        Top = 178
+                        Width = 127
+                        Height = 13
+                        Caption = 'lbSicoobErroChavePrivada'
+                        Visible = False
+                      end
+                      object lbSicoobArquivoCertificado: TLabel
+                        Left = 24
+                        Top = 207
+                        Width = 89
+                        Height = 13
+                        Caption = 'Arquivo Certificado'
+                      end
+                      object imSicoobErroCertificado: TImage
+                        Left = 3
+                        Top = 227
+                        Width = 16
+                        Height = 16
+                        Visible = False
+                      end
+                      object lbSicoobErroCertificado: TLabel
+                        Left = 24
+                        Top = 250
+                        Width = 110
+                        Height = 13
+                        Caption = 'lbSicoobErroCertificado'
+                        Visible = False
+                      end
+                      object imSicoobErroChavePIX: TImage
+                        Left = 836
+                        Top = 42
+                        Width = 16
+                        Height = 16
+                        Anchors = [akTop, akRight]
+                        Visible = False
+                      end
+                      object sbSicoobAcharChavePrivada: TSpeedButton
+                        Left = 836
+                        Top = 153
+                        Width = 24
+                        Height = 23
+                        Anchors = [akTop, akRight]
+                        Flat = True
+                        Font.Charset = DEFAULT_CHARSET
+                        Font.Color = clWindowText
+                        Font.Height = -11
+                        Font.Name = 'MS Sans Serif'
+                        Font.Style = []
+                        ParentFont = False
+                        ParentShowHint = False
+                        ShowHint = True
+                        OnClick = sbSicoobAcharChavePrivadaClick
+                      end
+                      object sbSicoobAcharArqCertificado: TSpeedButton
+                        Left = 836
+                        Top = 223
+                        Width = 24
+                        Height = 23
+                        Anchors = [akTop, akRight]
+                        Flat = True
+                        Font.Charset = DEFAULT_CHARSET
+                        Font.Color = clWindowText
+                        Font.Height = -11
+                        Font.Name = 'MS Sans Serif'
+                        Font.Style = []
+                        ParentFont = False
+                        ParentShowHint = False
+                        ShowHint = True
+                        OnClick = sbSicoobAcharArqCertificadoClick
+                      end
+                      object edSicoobChavePIX: TEdit
+                        Left = 24
+                        Top = 40
+                        Width = 630
+                        Height = 21
+                        Anchors = [akLeft, akTop, akRight]
+                        TabOrder = 0
+                        OnChange = edSicoobChavePIXChange
+                      end
+                      object cbSicoobTipoChave: TComboBox
+                        Left = 675
+                        Top = 40
+                        Width = 157
+                        Height = 21
+                        Style = csDropDownList
+                        Anchors = [akTop, akRight]
+                        ItemHeight = 13
+                        TabOrder = 1
+                        TabStop = False
+                      end
+                      object edSicoobClientID: TEdit
+                        Left = 24
+                        Top = 99
+                        Width = 808
+                        Height = 21
+                        Anchors = [akLeft, akTop, akRight]
+                        TabOrder = 2
+                      end
+                      object edSicoobArqChavePrivada: TEdit
+                        Left = 24
+                        Top = 153
+                        Width = 808
+                        Height = 23
+                        Anchors = [akLeft, akTop, akRight]
+                        AutoSize = False
+                        TabOrder = 3
+                        Text = 'SicoobChavePrivada.pem'
+                        OnChange = edSicoobArqsChange
+                        OnExit = edSicoobArqChavePrivadaExit
+                      end
+                      object edSicoobArqCertificado: TEdit
+                        Left = 24
+                        Top = 223
+                        Width = 808
+                        Height = 23
+                        Anchors = [akLeft, akTop, akRight]
+                        AutoSize = False
+                        TabOrder = 4
+                        Text = 'SicoobCertificado.pem'
+                        OnChange = edSicoobArqsChange
+                        OnExit = edSicoobArqCertificadoExit
+                      end
+                    end
+                  end
                 end
-                object edtSantanderChavePIX: TEdit
-                  Left = 24
-                  Top = 40
-                  Width = 710
-                  Height = 21
-                  Anchors = [akLeft, akTop, akRight]
-                  TabOrder = 1
-                  OnChange = edtSantanderChavePIXChange
-                end
-                object cbxSantanderTipoChave: TComboBox
-                  Left = 746
-                  Top = 40
-                  Width = 158
-                  Height = 21
-                  Style = csDropDownList
-                  Anchors = [akTop, akRight]
-                  TabOrder = 0
-                  TabStop = False
-                end
-                object edtSantanderConsumerKey: TEdit
-                  Left = 24
-                  Top = 91
-                  Width = 880
-                  Height = 21
-                  Anchors = [akLeft, akTop, akRight]
-                  TabOrder = 2
-                end
-                object edtSantanderConsumerSecret: TEdit
-                  Left = 24
-                  Top = 147
-                  Width = 880
-                  Height = 21
-                  Anchors = [akLeft, akTop, akRight]
-                  TabOrder = 3
+                object tsSicoobExtrairChaveCertificado: TTabSheet
+                  Caption = 'Extrair Chave/Certificado'
+                  ImageIndex = 1
+                  object pnSicoobExtrairChaveCertificado: TPanel
+                    Left = 0
+                    Top = 0
+                    Width = 880
+                    Height = 340
+                    Align = alClient
+                    BevelOuter = bvNone
+                    TabOrder = 0
+                    DesignSize = (
+                      880
+                      340)
+                    object lbSicoobExtrairChaveCertificadoArqPFX: TLabel
+                      Left = 40
+                      Top = 40
+                      Width = 112
+                      Height = 13
+                      Caption = 'Arquivo Certificado PFX'
+                    end
+                    object btSicoobExtrairChaveCertificadoArqPFX: TSpeedButton
+                      Left = 600
+                      Top = 56
+                      Width = 24
+                      Height = 23
+                      Anchors = [akTop, akRight]
+                      Flat = True
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clWindowText
+                      Font.Height = -11
+                      Font.Name = 'MS Sans Serif'
+                      Font.Style = []
+                      ParentFont = False
+                      ParentShowHint = False
+                      ShowHint = True
+                      OnClick = btSicoobExtrairChaveCertificadoArqPFXClick
+                    end
+                    object lbSicoobExtrairChaveCertificadoSenhaPFX: TLabel
+                      Left = 640
+                      Top = 40
+                      Width = 84
+                      Height = 13
+                      Caption = 'Senha Certificado'
+                    end
+                    object btSicoobExtrairChaveCertificadoVerSenhaPFX: TSpeedButton
+                      Left = 808
+                      Top = 56
+                      Width = 23
+                      Height = 23
+                      AllowAllUp = True
+                      Anchors = [akTop, akRight]
+                      GroupIndex = 1
+                      Flat = True
+                      OnClick = btSicoobExtrairChaveCertificadoVerSenhaPFXClick
+                    end
+                    object lbSicoobExtrairChavePrivada: TLabel
+                      Left = 40
+                      Top = 160
+                      Width = 109
+                      Height = 13
+                      Caption = 'Arquivo Chave Privada'
+                    end
+                    object btSicoobExtrairChaveCertificadoInfo: TSpeedButton
+                      Left = 224
+                      Top = 104
+                      Width = 30
+                      Height = 30
+                      Anchors = [akTop, akRight]
+                      Flat = True
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clWindowText
+                      Font.Height = -11
+                      Font.Name = 'MS Sans Serif'
+                      Font.Style = []
+                      ParentFont = False
+                      ParentShowHint = False
+                      ShowHint = True
+                      OnClick = btSicoobExtrairChaveCertificadoInfoClick
+                    end
+                    object lbSicoobExtrairCertificado: TLabel
+                      Left = 40
+                      Top = 216
+                      Width = 115
+                      Height = 13
+                      Caption = 'Arquivo Certificado PEM'
+                    end
+                    object edSicoobExtrairChaveCertificadoArqPFX: TEdit
+                      Left = 40
+                      Top = 56
+                      Width = 560
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      AutoSize = False
+                      TabOrder = 0
+                    end
+                    object edSicoobExtrairChaveCertificadoSenhaPFX: TEdit
+                      Left = 640
+                      Top = 56
+                      Width = 164
+                      Height = 21
+                      Anchors = [akLeft, akTop, akRight]
+                      PasswordChar = '*'
+                      TabOrder = 1
+                    end
+                    object btSicoobExtrairChaveCertificado: TBitBtn
+                      Left = 40
+                      Top = 104
+                      Width = 179
+                      Height = 30
+                      Caption = 'Extrair Chave/Certificado'
+                      TabOrder = 2
+                      OnClick = btSicoobExtrairChaveCertificadoClick
+                    end
+                    object edSicoobExtrairChavePrivada: TEdit
+                      Left = 40
+                      Top = 176
+                      Width = 791
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      AutoSize = False
+                      TabOrder = 3
+                      Text = 'SicoobChavePrivada.key'
+                    end
+                    object edSicoobExtrairCertificado: TEdit
+                      Left = 40
+                      Top = 232
+                      Width = 791
+                      Height = 23
+                      Anchors = [akLeft, akTop, akRight]
+                      AutoSize = False
+                      TabOrder = 4
+                      Text = 'SicoobCertificado.pem'
+                    end
+                  end
                 end
               end
             end
@@ -2619,7 +4781,7 @@ object Form1: TForm1
       end
       object pBotoesConfiguracao: TPanel
         Left = 0
-        Top = 501
+        Top = 555
         Width = 1000
         Height = 37
         Align = alBottom
@@ -2646,8 +4808,1334 @@ object Form1: TForm1
     end
   end
   object ImageList1: TImageList
-    Left = 920
+    Left = 880
     Top = 560
+    Bitmap = {
+      494C010122002700040010001000FFFFFFFFFF00FFFFFFFFFFFFFFFF424D3600
+      000000000000360000002800000040000000A0000000010020000000000000A0
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000F2C4F200B2B2B200737373003D3D3D003D3D3D0073737300B2B2B200F5B2
+      F500000000000000000000000000000000000000000000000000000000000000
+      0000FB83FB00BBBBBB0094949400585858005858580094949400BBBBBB00FB83
+      FB00000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000AFAF
+      AF0055555500BDBDBD00E8E8E8000000000000000000E8E8E800BDBDBD005555
+      5500B0B0B000000000000000000000000000000000000000000000000000C5C5
+      C500353535006A6A6A00A3A3A300C5C5C500C5C5C500A3A3A3006A6A6A003535
+      3500C5C5C5000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000008C8C8C009A9A
+      9A00000000000000000000000000000000000000000000000000000000000000
+      0000999999008D8D8D0000000000000000000000000000000000939393002E2E
+      2E00C3C3C3000000000000000000E4E4E400E4E4E4000000000000000000C3C3
+      C3002E2E2E009393930000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000AEAEAE009A9A9A000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000098989800B0B0B0000000000000000000C5C5C5002E2E2E00E8E8
+      E8000000000000000000000000009E9E9E009E9E9E0000000000000000000000
+      0000E8E8E8002E2E2E00C5C5C500000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000F2C4F20056565600000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000055555500F5B2F500FB83FB0035353500C3C3C3000000
+      00000000000000000000D6D6D6004040400045454500E2E2E200000000000000
+      000000000000C3C3C30035353500FB83FB000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000B1B1B100BDBDBD00000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000BCBCBC00B2B2B200BBBBBB006A6A6A00000000000000
+      000000000000000000001C1C1C00A0A0A000A9A9A90038383800000000000000
+      000000000000000000006A6A6A00BCBCBC000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000071717100EBE2EB00000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000E8E8E8007373730094949400A3A3A300000000000000
+      000000000000D6D6D60000000000000000000000000000000000FB83FB000000
+      00000000000000000000A3A3A300949494000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000004040400000000000000000000000
+      0000C5C5C500B6B6B600B6B6B600B6B6B600B6B6B600B6B6B600B6B6B600C5C5
+      C5000000000000000000000000004242420058585800C5C5C500000000000000
+      0000000000000000000000000000CECECE00717171007E7E7E00000000000000
+      00000000000000000000C5C5C500585858000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000003D3D3D0000000000000000000000
+      0000CACACA00C1C1C100C1C1C100C1C1C100C1C1C100C1C1C100C1C1C100CACA
+      CA000000000000000000000000004040400058585800C5C5C500000000000000
+      00000000000000000000A9A9A9002E2E2E00A3A3A30000000000000000000000
+      00000000000000000000C5C5C500585858000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000071717100EBE2EB00000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000E8E8E8007373730094949400A3A3A300000000000000
+      000000000000FB83FB0000000000E4E4E400000000009E9E9E00E4E4E4000000
+      00000000000000000000A3A3A300949494000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000B0B0B000BEBEBE00000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000BDBDBD00B2B2B200BBBBBB006A6A6A00000000000000
+      0000000000000000000000000000D0D0D000CACACA0000000000EED4EE000000
+      000000000000000000006A6A6A00BCBCBC000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000F2C4F20058585800000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000056565600F2C4F200FB83FB0035353500C3C3C3000000
+      00000000000000000000CBCBCB001C1C1C0000000000ADADAD00000000000000
+      000000000000C3C3C30035353500FB83FB000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000ADADAD009B9B9B000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000009A9A9A00AFAFAF000000000000000000C5C5C5002E2E2E00E8E8
+      E8000000000000000000000000009B9B9B009797970000000000000000000000
+      0000E8E8E8002E2E2E00C5C5C500000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000008B8B8B009B9B
+      9B00000000000000000000000000000000000000000000000000000000000000
+      00009A9A9A008C8C8C0000000000000000000000000000000000939393002E2E
+      2E00C3C3C3000000000000000000E4E4E400E4E4E4000000000000000000C3C3
+      C3002E2E2E009393930000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000ADAD
+      AD0056565600BEBEBE00EBE2EB000000000000000000E8E8E800BEBEBE005656
+      5600AEAEAE00000000000000000000000000000000000000000000000000C5C5
+      C500353535006A6A6A00A3A3A300C5C5C500C5C5C500A3A3A3006A6A6A003535
+      3500C5C5C5000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000F2C4F200B0B0B000727272003B3B3B003B3B3B0072727200B0B0B000F2C4
+      F200000000000000000000000000000000000000000000000000000000000000
+      0000FB83FB00BBBBBB0094949400585858005858580094949400BBBBBB00FB83
+      FB00000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000F2C4F200B2B2B200737373003D3D3D003D3D3D0073737300B2B2B200F5B2
+      F500000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000AFAF
+      AF0055555500BDBDBD00E8E8E8000000000000000000E8E8E800BDBDBD005555
+      5500B0B0B0000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000D7D7D7002A2A2A000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000016161600D7D7D700000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000D6D6D600D5D5
+      D500D5D5D50000000000000000000000000000000000000000008C8C8C009A9A
+      9A00000000000000000000000000000000000000000000000000000000000000
+      0000999999008D8D8D0000000000000000000000000000000000FB83FB00BDBD
+      BD00A2A2A200AEAEAE00DDDDDD00000000000000000000000000E5E5E5009C9C
+      9C009C9C9C009C9C9C00C5C5C50000000000000000009F9F9F0081818100D5D5
+      D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5
+      D500D5D5D500818181009F9F9F00000000000000000000000000000000004B4B
+      4B00C3C3C3000000000000000000000000000000000000000000BDBDBD000000
+      000000000000D5D5D500000000000000000000000000AEAEAE009A9A9A000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000098989800B0B0B0000000000000000000CCCCCC00404040006262
+      62009696960081818100222222009B9B9B000000000000000000D5D5D5002A2A
+      2A00979797005D5D5D009C9C9C0000000000000000009C9C9C009C9C9C00E5E5
+      E500D5D5D500D5D5D500E5E5E500000000000000000000000000000000000000
+      0000000000009C9C9C009C9C9C0000000000000000000000000000000000C3C3
+      C3002A2A2A00C2C2C20000000000000000000000000000000000C6C6C6000D0D
+      0D0000000000D5D5D5000000000000000000F2C4F20056565600000000000000
+      0000000000000000000000000000C7C7C700C7C7C70000000000000000000000
+      0000000000000000000055555500F5B2F500DFDFDF002A2A2A00BABABA000000
+      00000000000000000000E1E1E1004F4F4F00ABABAB0000000000D0D0D0004D4D
+      4D00000000009C9C9C009898980000000000000000009C9C9C009C9C9C00A3A3
+      A3004242420042424200A3A3A300000000000000000000000000000000000000
+      0000000000009C9C9C009C9C9C00000000000000000000000000000000000000
+      0000C5C5C5001C1C1C00C2C2C2000000000000000000C4C4C40022222200C4C4
+      C400BDBDBD00D6D6D6000000000000000000B1B1B100BDBDBD00000000000000
+      0000000000000000000000000000BBBBBB00BBBBBB0000000000000000000000
+      00000000000000000000BCBCBC00B2B2B2008F8F8F009393930000000000AFAF
+      AF00515151008282820000000000CECECE001616160042424200353535004D4D
+      4D00000000009C9C9C002222220042424200000000009C9C9C009C9C9C000000
+      00000000000000000000000000000000000000000000ADADAD00CBCBCB000000
+      0000000000009C9C9C009C9C9C00000000000000000000000000000000000000
+      000000000000C6C6C6002E2E2E00C2C2C20000000000A7A7A700C2C2C2000000
+      00000000000000000000000000000000000071717100EBE2EB00000000000000
+      0000000000000000000000000000BBBBBB00BBBBBB0000000000000000000000
+      00000000000000000000E8E8E8007373730040404000CCCCCC00E4E4E4002626
+      2600C0C0C00065656500B0B0B00000000000D5D5D500D5D5D500D5D5D500D9D9
+      D90000000000E5E5E500B2B2B20000000000000000009C9C9C009C9C9C00C5C5
+      C5009C9C9C009C9C9C00C5C5C50000000000ABABAB001C1C1C0022222200CDCD
+      CD00000000009C9C9C009C9C9C00000000000000000000000000000000000000
+      00000000000000000000C2C2C20026262600C5C5C50000000000000000000000
+      0000000000000000000000000000000000004040400000000000000000000000
+      0000C5C5C500B6B6B600B6B6B6008484840084848400B6B6B600B6B6B600C5C5
+      C5000000000000000000000000004242420040404000CCCCCC00E4E4E4002626
+      2600C0C0C00065656500B0B0B00000000000D5D5D500D5D5D500D5D5D500D5D5
+      D500D5D5D500D5D5D500B2B2B20000000000000000009C9C9C009C9C9C00C5C5
+      C5009C9C9C009C9C9C00C5C5C50000000000CECECE00D9D9D900BDBDBD002A2A
+      2A00CBCBCB009B9B9B009C9C9C00000000000000000000000000000000000000
+      0000000000000000000000000000C5C5C50026262600C2C2C200000000000000
+      0000000000000000000000000000000000003D3D3D0000000000000000000000
+      0000CACACA00C1C1C100C1C1C1008D8D8D008D8D8D00C1C1C100C1C1C100CACA
+      CA00000000000000000000000000404040008F8F8F009393930000000000AFAF
+      AF00515151008282820000000000CECECE001616160042424200424242004242
+      420042424200424242004242420042424200000000009C9C9C009C9C9C000000
+      000000000000000000000000000000000000000000000000000000000000BBBB
+      BB00BFBFBF009B9B9B009C9C9C00000000000000000000000000000000000000
+      000000000000C6C6C600A7A7A70000000000C2C2C2002A2A2A00C2C2C2000000
+      00000000000000000000000000000000000071717100EBE2EB00000000000000
+      0000000000000000000000000000BBBBBB00BBBBBB0000000000000000000000
+      00000000000000000000E8E8E80073737300E0E0E0002A2A2A00B7B7B7000000
+      00000000000000000000DFDFDF0045454500AFAFAF0000000000000000000000
+      000000000000000000000000000000000000000000009C9C9C009C9C9C009C9C
+      9C0000000000000000009C9C9C00000000000000000000000000000000000000
+      0000000000009C9C9C009C9C9C00000000000000000000000000000000000000
+      0000C2C2C20016161600C5C5C5000000000000000000C5C5C5001C1C1C00C1C1
+      C100B9B9B900D6D6D6000000000000000000B0B0B000BEBEBE00000000000000
+      0000000000000000000000000000BBBBBB00BBBBBB0000000000000000000000
+      00000000000000000000BDBDBD00B2B2B20000000000CCCCCC00404040006262
+      62009696960081818100222222009C9C9C000000000000000000000000000000
+      000000000000000000000000000000000000000000009C9C9C009C9C9C00E5E5
+      E500D5D5D500D5D5D500E5E5E500000000000000000000000000000000000000
+      0000000000009C9C9C009C9C9C0000000000000000000000000000000000C3C3
+      C3002A2A2A00C2C2C20000000000000000000000000000000000C4C4C4000000
+      000000000000D5D5D5000000000000000000F2C4F20058585800000000000000
+      0000000000000000000000000000C7C7C700C7C7C70000000000000000000000
+      0000000000000000000056565600F2C4F2000000000000000000FB83FB00BDBD
+      BD00A2A2A200AEAEAE00DDDDDD00000000000000000000000000000000000000
+      000000000000000000000000000000000000000000009F9F9F0081818100D5D5
+      D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5
+      D500D5D5D500818181009F9F9F00000000000000000000000000000000004B4B
+      4B00C3C3C3000000000000000000000000000000000000000000BDBDBD000000
+      000000000000D5D5D500000000000000000000000000ADADAD009B9B9B000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000009A9A9A00AFAFAF00000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000D8D8D800515151004242
+      4200424242004242420042424200424242004242420042424200424242004242
+      4200424242004B4B4B00D8D8D800000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000D6D6D600D5D5
+      D500D5D5D50000000000000000000000000000000000000000008B8B8B009B9B
+      9B00000000000000000000000000000000000000000000000000000000000000
+      00009A9A9A008C8C8C0000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000ADAD
+      AD0056565600BEBEBE00EBE2EB000000000000000000E8E8E800BEBEBE005656
+      5600AEAEAE000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000F2C4F200B0B0B000727272003B3B3B003B3B3B0072727200B0B0B000F2C4
+      F200000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000E8E8E800EBE2EB0000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000BFBF
+      BF009C9C9C009C9C9C009C9C9C009C9C9C009C9C9C009C9C9C009C9C9C009C9C
+      9C00BBBBBB000000000000000000000000000000000000000000000000000000
+      000000000000E0E0E000898989001C1C1C00353535008F8F8F00E4E4E4000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000E4E4E400BCBCBC00A1A1A100A3A3A300BEBEBE00E6E6E6000000
+      0000000000000000000000000000000000000000000000000000ADADAD006262
+      62005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D005D5D
+      5D005F5F5F00B4B4B40000000000000000000000000000000000DADADA001616
+      1600000000000000000000000000000000000000000000000000000000000000
+      000032323200E3E3E30000000000000000000000000000000000000000000000
+      0000CFCFCF00474747000000000000000000DEDEDE008D8D8D0051515100D5D5
+      D500000000000000000000000000000000000000000000000000000000000000
+      00009B9B9B003D3D3D007575750097979700969696007171710040404000A1A1
+      A1000000000000000000000000000000000000000000000000005F5F5F000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000006565650000000000000000000000000000000000D5D5D5000000
+      000082828200CACACA004D4D4D00B2B2B200B2B2B2004D4D4D00CACACA008282
+      82001C1C1C00DBDBDB000000000000000000000000000000000000000000E0E0
+      E000323232000000000000000000000000000000000000000000ACACAC004040
+      4000E6E6E6000000000000000000000000000000000000000000000000007878
+      780068686800DBDBDB0000000000000000000000000000000000D7D7D7005F5F
+      5F008383830000000000000000000000000000000000000000005D5D5D000000
+      0000000000009C9C9C00D5D5D500D5D5D5009C9C9C00000000005D5D5D000000
+      0000000000005D5D5D0000000000000000000000000000000000D5D5D5000000
+      000082828200CACACA004D4D4D00D5D5D500D5D5D5004D4D4D00CACACA008282
+      82001C1C1C00DBDBDB0000000000000000000000000000000000000000007070
+      7000000000000000000000000000000000000000000000000000000000009292
+      92007979790000000000000000000000000000000000000000009B9B9B006868
+      6800000000000000000000000000E5E5E500E5E5E50000000000000000000000
+      00005D5D5D00A4A4A400000000000000000000000000000000005D5D5D000000
+      00009C9C9C005D5D5D0081818100818181005D5D5D0094949400353535000000
+      0000000000005F5F5F0000000000000000000000000000000000D5D5D5000000
+      000035353500585858001C1C1C00CACACA00CACACA001C1C1C00585858003535
+      35001C1C1C00DBDBDB0000000000000000000000000000000000CDCDCD001616
+      160000000000000000000000000000000000000000000000000000000000F5B2
+      F50035353500D4D4D400000000000000000000000000E4E4E4003D3D3D00DBDB
+      DB00000000000000000000000000ABABAB00ABABAB0000000000000000000000
+      0000D5D5D50042424200EBE2EB00000000000000000000000000888888000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000008D8D8D0000000000000000000000000000000000D5D5D5000000
+      000094949400E6E6E600585858004D4D4D004D4D4D0058585800E6E6E6009494
+      94001C1C1C00DBDBDB0000000000000000000000000000000000949494000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000909090009F9F9F00000000000000000000000000BCBCBC00757575000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000066666600C5C5C50000000000000000000000000000000000D9D9
+      D900D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500CACACA004D4D4D00B2B2
+      B200DBDBDB000000000000000000000000000000000000000000D5D5D5000000
+      00009C9C9C00000000005D5D5D00B2B2B200B2B2B2005D5D5D00000000009C9C
+      9C001C1C1C00DBDBDB00000000000000000000000000000000006D6D6D000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000C2C2C20076767600000000000000000000000000A2A2A200979797000000
+      0000000000000000000000000000C5C5C500C5C5C50000000000000000000000
+      0000000000008E8E8E00ACACAC00000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000005D5D5D00D5D5
+      D500000000000000000000000000000000000000000000000000D5D5D5000000
+      000082828200CACACA004D4D4D00B2B2B200B2B2B2004D4D4D00CACACA008282
+      82001C1C1C00DBDBDB00000000000000000000000000000000005D5D5D00D5D5
+      D500000000000000000000000000000000000000000000000000000000000000
+      00000000000063636300000000000000000000000000A3A3A300969696000000
+      00000000000000000000000000009C9C9C009C9C9C0000000000000000000000
+      0000000000008D8D8D00ADADAD00000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000007E7E7E00DBDB
+      DB00000000000000000000000000000000000000000000000000D5D5D5000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00001C1C1C00DBDBDB00000000000000000000000000000000005D5D5D00D5D5
+      D500000000000000000000000000000000000000000000000000000000000000
+      0000000000005D5D5D00000000000000000000000000BEBEBE00717171000000
+      00000000000000000000000000009C9C9C009C9C9C0000000000000000000000
+      00000000000063636300C7C7C700000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000DEDEDE002626
+      2600000000000000000000000000000000000000000000000000000000000000
+      00001C1C1C00DBDBDB00000000000000000000000000000000005D5D5D00D5D5
+      D500000000000000000000000000000000000000000000000000000000000000
+      0000000000005D5D5D00000000000000000000000000E6E6E60040404000D7D7
+      D7000000000000000000000000009C9C9C009C9C9C0000000000000000000000
+      0000D1D1D10047474700F2C4F200000000000000000000000000000000000000
+      000000000000000000000000000000000000DEDEDE009A9A9A00CACACA00B2B2
+      B200B6B6B600000000000000000000000000000000000000000000000000C0C0
+      C000000000000000000000000000000000000000000000000000000000000000
+      00001C1C1C00DBDBDB00000000000000000000000000000000005D5D5D00CECE
+      CE00000000000000000000000000000000000000000000000000000000000000
+      0000000000005D5D5D0000000000000000000000000000000000A1A1A1005F5F
+      5F00000000000000000000000000E5E5E500E5E5E5000000000000000000FB83
+      FB0055555500AAAAAA0000000000000000000000000000000000000000000000
+      0000000000000000000000000000CDCDCD00C0C0C000DBDBDB00C4C4C400D2D2
+      D200D5D5D500B1B1B10000000000000000000000000000000000000000000000
+      0000C0C0C0002626260000000000000000000000000000000000000000000000
+      00001C1C1C00DBDBDB0000000000000000000000000000000000868686002A2A
+      2A0097979700DFDFDF0000000000000000000000000000000000000000000000
+      0000262626008888880000000000000000000000000000000000000000008181
+      81005D5D5D00D5D5D50000000000000000000000000000000000D1D1D1005555
+      55008C8C8C000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000C7C7C700949494009C9C9C009595
+      9500B4B4B4000000000000000000000000000000000000000000000000000000
+      000000000000BFBFBF002E2E2E00000000000000000000000000000000000000
+      00002E2E2E00E1E1E1000000000000000000000000000000000000000000D6D6
+      D6008B8B8B004040400083838300CFCFCF000000000000000000383838008F8F
+      8F00D9D9D9000000000000000000000000000000000000000000000000000000
+      0000A4A4A40042424200666666008E8E8E008D8D8D006363630047474700AAAA
+      AA00000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000C7C7C7009C9C9C009C9C9C009C9C9C009C9C9C009C9C
+      9C00CBCBCB000000000000000000000000000000000000000000000000000000
+      000000000000E2E2E200A3A3A3004242420047474700A7A7A700E4E4E4000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000EBE2EB00C5C5C500ACACAC00ADADAD00C7C7C700F2C4F2000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000FD5FFD000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000E5E5E500D5D5D500D5D5D500D5D5D500D5D5D500E5E5E5000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000ABABAB005D5D5D005D5D5D005D5D5D005D5D5D00ABABAB000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000DDDDDD00D5D5
+      D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5
+      D500D5D5D500DBDBDB0000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000C0C0C00080808000636363006363630083838300C5C5C5000000
+      0000000000000000000000000000000000000000000000000000ADADAD006262
+      62005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D005D5D
+      5D005F5F5F00B4B4B400000000000000000000000000B8B8B800222222000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000001C1C1C00C7C7C700000000000000000000000000000000000000
+      0000D8D8D800A0A0A0009C9C9C009C9C9C009C9C9C009C9C9C009E9E9E00D9D9
+      D900000000000000000000000000000000000000000000000000000000000000
+      0000767676004B4B4B00AEAEAE00D1D1D100D0D0D000AAAAAA00454545007E7E
+      7E000000000000000000000000000000000000000000000000005F5F5F00B2B2
+      B200D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5
+      D500B2B2B200656565000000000000000000000000009C9C9C00000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000009C9C9C00000000000000000000000000000000000000
+      00002E2E2E000000000000000000000000000000000000000000000000005A5A
+      5A00000000000000000000000000000000000000000000000000000000007676
+      7600838383000000000000000000000000000000000000000000FD5FFD007A7A
+      7A008080800000000000000000000000000000000000000000005D5D5D00D5D5
+      D500000000000000000000000000000000000000000000000000000000000000
+      0000D5D5D5005D5D5D000000000000000000000000009C9C9C00000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000009C9C9C00000000000000000000000000000000000000
+      0000000000004D4D4D005D5D5D005D5D5D005D5D5D005D5D5D004D4D4D000000
+      0000000000000000000000000000000000000000000000000000C0C0C0004B4B
+      4B0000000000000000000000000000000000000000000000000000000000FB83
+      FB0040404000C8C8C800000000000000000000000000000000005D5D5D00D5D5
+      D500000000000000000000000000000000000000000000000000000000000000
+      0000D5D5D5005D5D5D000000000000000000000000009C9C9C00000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000009C9C9C00000000000000000000000000000000000000
+      000000000000CACACA0000000000000000000000000000000000CACACA000000
+      000000000000000000000000000000000000000000000000000080808000AEAE
+      AE00000000000000000000000000000000000000000000000000000000000000
+      0000A3A3A3008B8B8B00000000000000000000000000000000005D5D5D00D5D5
+      D500000000000000000000000000000000000000000000000000000000000000
+      0000D5D5D5005D5D5D000000000000000000000000009C9C9C00000000000000
+      0000000000000000000022222200A8A8A800A1A1A10016161600000000000000
+      000000000000000000009C9C9C00000000000000000000000000000000000000
+      000000000000D5D5D50000000000000000000000000000000000D5D5D5000000
+      000000000000000000000000000000000000000000000000000063636300D1D1
+      D100000000000000000000000000C5C5C500C5C5C50000000000000000000000
+      0000C9C9C9006C6C6C00000000000000000000000000000000005D5D5D008686
+      8600D1D1D100CDCDCD00A3A3A300D0D0D000CBCBCB00A3A3A300CFCFCF00CDCD
+      CD00858585005D5D5D000000000000000000000000009C9C9C00000000000000
+      0000161616007E7E7E00E1E1E100FB83FB0000000000DDDDDD00767676000D0D
+      0D0000000000000000009C9C9C00000000000000000000000000000000000000
+      000000000000D5D5D50000000000000000000000000000000000D5D5D5000000
+      000000000000000000000000000000000000000000000000000060606000D2D2
+      D2000000000000000000000000009C9C9C009C9C9C0000000000000000000000
+      0000C7C7C7006A6A6A00000000000000000000000000C8C8C800323232008787
+      87001C1C1C0035353500838383002A2A2A0032323200838383002A2A2A002626
+      26008787870032323200D4D4D40000000000000000009C9C9C00000000004D4D
+      4D00C0C0C00000000000C4C4C400515151005A5A5A00CACACA0000000000BBBB
+      BB0047474700000000009C9C9C00000000000000000000000000000000000000
+      000000000000D5D5D50000000000000000000000000000000000D5D5D5000000
+      000000000000000000000000000000000000000000000000000080808000ADAD
+      AD000000000000000000000000009C9C9C009C9C9C0000000000000000000000
+      00009E9E9E008A8A8A000000000000000000000000009F9F9F008F8F8F000000
+      00008585850093939300000000008B8B8B009393930000000000858585009393
+      93000000000085858500AFAFAF0000000000000000009C9C9C0072727200EBE2
+      EB00E1E1E100858585001616160000000000000000001C1C1C008D8D8D00E5E5
+      E500E6E6E600707070009C9C9C00000000000000000000000000000000000000
+      000000000000D5D5D50000000000000000000000000000000000D5D5D5000000
+      0000000000000000000000000000000000000000000000000000C3C3C3004949
+      4900FB83FB0000000000000000009C9C9C009C9C9C000000000000000000EBE2
+      EB003B3B3B00CBCBCB00000000000000000000000000B9B9B9007C7C7C000000
+      0000A9A9A9008C8C8C00000000009C9C9C009C9C9C000000000080808000B3B3
+      B300000000006E6E6E00C3C3C30000000000000000009C9C9C008F8F8F00B2B2
+      B200383838000000000000000000000000000000000000000000000000004040
+      4000B9B9B900919191009C9C9C00000000000000000000000000000000000000
+      000000000000D5D5D50000000000000000000000000000000000D5D5D5000000
+      0000000000000000000000000000000000000000000000000000000000007C7C
+      7C008A8A8A0000000000000000009C9C9C009C9C9C0000000000000000008080
+      80008686860000000000000000000000000000000000DCDCDC003B3B3B000000
+      0000BEBEBE0076767600000000009C9C9C009C9C9C00000000006D6D6D00C7C7
+      C700F89DF8002E2E2E00E2E2E2000000000000000000C4C4C400262626000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000032323200C4C4C400000000000000000000000000000000000000
+      000000000000B2B2B200D5D5D500D5D5D500D5D5D500D5D5D500B2B2B2000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000EBE2EB0000000000000000009C9C9C009C9C9C000000000000000000EBE2
+      EB0000000000000000000000000000000000000000000000000058585800BABA
+      BA00ADADAD0053535300CDCDCD008282820082828200C9C9C90049494900B3B3
+      B300B0B0B0006363630000000000000000000000000000000000DEDEDE00D5D5
+      D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5
+      D500D5D5D500E3E3E30000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000D0D
+      0D00000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000ABABAB00ABABAB0000000000000000000000
+      0000000000000000000000000000000000000000000000000000BABABA006C6C
+      6C00686868006868680068686800686868006868680068686800686868006868
+      68006C6C6C00C0C0C00000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00007F7F7F000000000000000000000000000000000000000000000000008484
+      8400000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000DEDEDE00DDDDDD00DDDDDD00DDDDDD00DDDDDD00E1E1E1000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000E4E4E400BCBCBC00A2A2A200A3A3A300BEBEBE00E6E6E6000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000E4E4E400BCBCBC00A2A2A200A3A3A300BEBEBE00E6E6E6000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00009B9B9B0035353500000000000000000000000000000000003B3B3B00A1A1
+      A100000000000000000000000000000000000000000000000000000000000000
+      00009B9B9B0035353500000000000000000000000000000000003B3B3B00A0A0
+      A00000000000000000000000000000000000000000000000000000000000D7D7
+      D700D5D5D500D5D5D500D5D5D500DADADA000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000007979
+      7900000000000000000000000000000000000000000000000000000000000000
+      0000828282000000000000000000000000000000000000000000000000007878
+      7800000000000000000000000000000000000000000000000000000000000000
+      0000828282000000000000000000000000000000000000000000808080000D0D
+      0D0000000000000000000000000016161600C7C7C70000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000009B9B9B000000
+      00000000000000000000666666002A2A2A000000000000000000000000000000
+      000000000000A4A4A400000000000000000000000000000000009B9B9B000000
+      00000D0D0D006A6A6A001C1C1C00000000000000000022222200696969000D0D
+      0D0000000000A4A4A400000000000000000000000000000000005D5D5D000000
+      0000000000000000000000000000000000009C9C9C00000000005D5D5D000000
+      00009C9C9C000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000E4E4E400353535000000
+      0000000000009191910000000000C0C0C0001C1C1C0000000000000000000000
+      00000000000040404000EBE2EB000000000000000000E4E4E400353535000000
+      00006A6A6A0000000000B2B2B2001C1C1C0022222200B9B9B900000000005F5F
+      5F000000000040404000EBE2EB000000000000000000000000005D5D5D000000
+      0000000000000000000000000000000000009C9C9C0000000000DBDBDB00D5D5
+      D500E5E5E5000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000BCBCBC00000000000000
+      00008F8F8F0000000000E2E2E20000000000BEBEBE0022222200000000000000
+      00000000000000000000C5C5C5000000000000000000BCBCBC00000000000000
+      00001C1C1C00B2B2B20000000000B2B2B200BABABA0000000000AAAAAA001616
+      16000000000000000000C5C5C5000000000000000000000000005D5D5D000000
+      0000000000000000000000000000000000009C9C9C0000000000DBDBDB00D5D5
+      D500D5D5D500DBDBDB0000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000A2A2A200000000008686
+      860000000000CECECE0040404000A6A6A60000000000BEBEBE001C1C1C000000
+      00000000000000000000ACACAC000000000000000000A2A2A200000000000000
+      0000000000001C1C1C00B2B2B2000000000000000000A9A9A900161616000000
+      00000000000000000000ACACAC000000000000000000000000005D5D5D000000
+      0000000000000000000000000000000000009C9C9C00000000005D5D5D000000
+      0000000000005D5D5D0000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000A3A3A300000000007D7D
+      7D00C6C6C600262626000000000000000000A6A6A60000000000C0C0C0002A2A
+      2A000000000000000000ADADAD000000000000000000A3A3A300000000000000
+      00000000000022222200BABABA000000000000000000B2B2B2001C1C1C000000
+      00000000000000000000ADADAD000000000000000000000000005D5D5D000000
+      0000000000000000000000000000000000009C9C9C0000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000BEBEBE00000000000000
+      00000000000000000000000000000000000016161600A8A8A80000000000C0C0
+      C0001C1C1C0000000000C7C7C7000000000000000000BEBEBE00000000000000
+      000022222200B9B9B90000000000A9A9A900B2B2B20000000000B2B2B2001C1C
+      1C000000000000000000C7C7C7000000000000000000000000005D5D5D000000
+      0000000000000000000000000000000000009C9C9C0000000000ABABAB009C9C
+      9C009C9C9C009C9C9C00C5C5C500000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000E6E6E6003B3B3B000000
+      0000000000000000000000000000000000000000000016161600A8A8A8000000
+      0000A3A3A30045454500F2C4F2000000000000000000E6E6E6003B3B3B000000
+      00006969690000000000AAAAAA00161616001C1C1C00B2B2B200FB83FB005D5D
+      5D000000000045454500F2C4F200000000000000000000000000ABABAB009C9C
+      9C009C9C9C009C9C9C009C9C9C009C9C9C00C5C5C50000000000ABABAB009C9C
+      9C009C9C9C009C9C9C00C5C5C500000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000A1A1A1000000
+      0000000000000000000000000000000000000000000000000000161616009595
+      950047474700AAAAAA0000000000000000000000000000000000A0A0A0000000
+      00000D0D0D005F5F5F001616160000000000000000001C1C1C005D5D5D000D0D
+      0D0000000000AAAAAA00000000000000000000000000C5C5C5009C9C9C009C9C
+      9C009C9C9C009C9C9C009C9C9C009C9C9C009C9C9C00E5E5E500000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000008282
+      8200000000000000000000000000000000000000000000000000000000000000
+      00008B8B8B000000000000000000000000000000000000000000000000008181
+      8100000000000000000000000000000000000000000000000000000000000000
+      00008A8A8A0000000000000000000000000000000000C5C5C5009C9C9C007979
+      7900000000000000000026262600929292009C9C9C00E5E5E500000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000A4A4A400404040000000000000000000000000000000000045454500AAAA
+      AA00000000000000000000000000000000000000000000000000000000000000
+      0000A4A4A400404040000000000000000000000000000000000045454500AAAA
+      AA00000000000000000000000000000000000000000000000000000000000000
+      0000D5D5D500D5D5D500DEDEDE00000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000EBE2EB00C5C5C500ADADAD00ADADAD00C7C7C700F2C4F2000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000EBE2EB00C5C5C500ADADAD00ADADAD00C7C7C700F2C4F2000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000D4D4D400D2D2D200D2D2D200D2D2D200D2D2D200D2D2D200D2D2
+      D200D4D4D400E5E5E50000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000727272005555550068686800686868006868680068686800686868006868
+      6800555555000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00005D5D5D00D5D5D50000000000000000000000000000000000000000000000
+      0000D4D4D4001C1C1C00FD5FFD00000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000DDDDDD00D5D5
+      D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5
+      D500D5D5D500DBDBDB0000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00005D5D5D00D5D5D50000000000000000000000000000000000000000000000
+      0000D4D4D4001C1C1C00FD5FFD00000000000000000000000000000000000000
+      000000000000DBDBDB0000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000B6B6B600222222000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000001C1C1C00C7C7C700000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000E5E5E500E2E2E2000000
+      00005D5D5D00D5D5D50000000000000000000000000000000000000000000000
+      0000D4D4D4001C1C1C00FD5FFD00000000000000000000000000000000000000
+      0000000000009C9C9C0063636300D7D7D7000000000000000000000000000000
+      000000000000000000000000000000000000000000009C9C9C009C9C9C000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000009C9C9C009C9C9C000000000000000000C5C5C5009C9C9C009C9C
+      9C009C9C9C009C9C9C00B1B1B100000000000000000000000000000000000000
+      000000000000C3C3C300DBDBDB000000000000000000A7A7A700989898000000
+      00005D5D5D00D5D5D50000000000000000000000000000000000000000000000
+      0000D4D4D4001C1C1C00FD5FFD00000000000000000000000000000000000000
+      0000000000009C9C9C000000000016161600A3A3A300FB83FB00000000000000
+      000000000000000000000000000000000000000000009C9C9C009C9C9C000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000009C9C9C009C9C9C0000000000000000009C9C9C00000000000000
+      0000000000005C5C5C00E1E1E100000000000000000000000000000000000000
+      0000DFDFDF00323232009F9F9F000000000000000000A7A7A700989898000000
+      00005D5D5D00D5D5D50000000000000000000000000000000000000000000000
+      0000D4D4D4001C1C1C00FD5FFD00000000000000000000000000000000000000
+      0000000000009C9C9C0000000000000000000000000060606000CACACA000000
+      000000000000000000000000000000000000000000009C9C9C009C9C9C000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000009C9C9C009C9C9C0000000000000000009C9C9C00000000000000
+      000035353500DCDCDC000000000000000000000000000000000000000000F5B2
+      F500626262004B4B4B00E8E8E8000000000000000000A7A7A700989898000000
+      00005D5D5D00D5D5D50000000000000000000000000000000000000000000000
+      0000D4D4D4001C1C1C00FD5FFD00000000000000000000000000000000000000
+      0000000000009C9C9C0000000000000000000000000000000000222222008C8C
+      8C00FB83FB00000000000000000000000000000000009C9C9C009C9C9C000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000009C9C9C009C9C9C0000000000000000009C9C9C00000000003D3D
+      3D000D0D0D0073737300CFCFCF000000000000000000E8E8E800B7B7B7004040
+      400045454500D5D5D500000000000000000000000000A7A7A700989898000000
+      00005D5D5D00D5D5D50000000000000000000000000000000000000000000000
+      0000D4D4D4001C1C1C00FD5FFD00000000000000000000000000000000000000
+      0000000000009C9C9C0000000000000000000000000000000000262626009797
+      970000000000000000000000000000000000000000009C9C9C00000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000009C9C9C0000000000000000009C9C9C0063636300E3E3
+      E300BBBBBB005656560000000000161616003535350000000000222222007E7E
+      7E00E0E0E00000000000000000000000000000000000A7A7A700989898000000
+      00005D5D5D00D5D5D50000000000000000000000000000000000000000000000
+      0000D4D4D4001C1C1C00FD5FFD00000000000000000000000000000000000000
+      0000000000009C9C9C000000000000000000000000006A6A6A00D2D2D2000000
+      000000000000000000000000000000000000000000009C9C9C00000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000009C9C9C000000000000000000B5B5B500E5E5E5000000
+      00000000000000000000CECECE00AEAEAE00A8A8A800BBBBBB00DDDDDD000000
+      00000000000000000000000000000000000000000000A7A7A700989898000000
+      00005D5D5D00D5D5D50000000000000000000000000000000000000000000000
+      0000D4D4D4001C1C1C00FD5FFD00000000000000000000000000000000000000
+      0000000000009C9C9C000000000022222200ADADAD0000000000000000000000
+      000000000000000000000000000000000000000000009C9C9C005D5D5D009C9C
+      9C009C9C9C009C9C9C009C9C9C009C9C9C009C9C9C009C9C9C009C9C9C009C9C
+      9C009C9C9C005D5D5D009C9C9C00000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000A7A7A700989898000000
+      0000717171004B4B4B005C5C5C005C5C5C005C5C5C005C5C5C005C5C5C005C5C
+      5C00494949001616160000000000000000000000000000000000000000000000
+      0000000000009C9C9C0071717100DDDDDD000000000000000000000000000000
+      000000000000000000000000000000000000000000009C9C9C009C9C9C000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000009C9C9C009C9C9C00000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000A7A7A700989898000000
+      0000DEDEDE00A3A3A3009F9F9F009F9F9F009F9F9F009F9F9F009F9F9F009F9F
+      9F00A2A2A200C1C1C10000000000000000000000000000000000000000000000
+      000000000000E0E0E00000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000C3C3C300262626000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000032323200C3C3C300000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000A8A8A8008E8E8E00FD5F
+      FD00FD5FFD00FD5FFD00FD5FFD00FD5FFD00FD5FFD00FD5FFD00FD5FFD000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000DEDEDE00D5D5
+      D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5
+      D500D5D5D500E3E3E30000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000D4D4D4003B3B3B002626
+      2600262626002626260026262600262626002626260026262600262626000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000D9D9D900D2D2
+      D200D2D2D200D2D2D200D2D2D200D2D2D200D2D2D200D2D2D200D2D2D2000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000CCCCCC000000000000000000000000000000000000000000DFDFDF00D5D5
+      D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5
+      D500D5D5D500E0E0E00000000000000000000000000000000000ADADAD006262
+      62005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D005D5D
+      5D005F5F5F00B4B4B40000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000B9B9
+      B90035353500D6D6D600000000000000000000000000E8E8E800353535000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000003D3D3D00EED4EE000000000000000000000000005F5F5F000000
+      0000000000000000000065656500C8C8C800C5C5C5005C5C5C00000000000000
+      0000000000006565650000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000B6B6B6003232
+      3200C8C8C80000000000000000000000000000000000E5E5E500000000008888
+      8800C5C5C500C5C5C500C5C5C500C5C5C500C5C5C500C5C5C500C5C5C500C5C5
+      C5008888880000000000E5E5E5000000000000000000000000005D5D5D000000
+      00000000000035353500E3E3E3000000000000000000DEDEDE00262626000000
+      0000000000005D5D5D0000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000DBDBDB00ACACAC009E9E9E00BBBBBB00FB83FB00C2C2C2003D3D3D00C5C5
+      C5000000000000000000000000000000000000000000E5E5E50000000000B2B2
+      B200000000000000000000000000000000000000000000000000000000000000
+      0000B2B2B20000000000E5E5E5000000000000000000000000005D5D5D000000
+      00000000000053535300FD5FFD000000000000000000F5B2F500454545000000
+      0000000000005D5D5D00000000000000000000000000D7D7D700C6C6C6000000
+      00000000000000000000000000000000000000000000ADADAD009C9C9C009C9C
+      9C009C9C9C009C9C9C00C5C5C50000000000000000000000000000000000AAAA
+      AA003B3B3B008888880096969600666666005353530078787800CBCBCB000000
+      00000000000000000000000000000000000000000000E5E5E50000000000B2B2
+      B200000000000000000000000000000000000000000000000000000000000000
+      0000B2B2B20000000000E5E5E5000000000000000000000000005D5D5D000000
+      00000000000016161600C2C2C2000000000000000000BBBBBB000D0D0D000000
+      0000000000005D5D5D000000000000000000000000009696960040404000E5E5
+      E5000000000000000000000000000000000000000000DCDCDC00515151000000
+      000000000000000000009C9C9C00000000000000000000000000C7C7C7002A2A
+      2A00DADADA00000000000000000000000000A3A3A3005A5A5A00FD5FFD000000
+      00000000000000000000000000000000000000000000E5E5E50000000000B2B2
+      B200000000000000000000000000000000000000000000000000000000000000
+      0000B2B2B20000000000E5E5E5000000000000000000000000005D5D5D000000
+      000000000000000000002A2A2A007C7C7C007878780026262600000000000000
+      0000000000005D5D5D00000000000000000000000000E4E4E400424242006C6C
+      6C00000000000000000000000000000000000000000000000000D6D6D6002E2E
+      2E0000000000000000009C9C9C0000000000000000000000000078787800ADAD
+      AD00000000000000000000000000000000000000000065656500C1C1C1000000
+      00000000000000000000000000000000000000000000E5E5E50000000000B2B2
+      B200000000000000000000000000000000000000000000000000000000000000
+      0000B2B2B20000000000E5E5E5000000000000000000000000005D5D5D000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000005D5D5D0000000000000000000000000000000000D0D0D0004040
+      400049494900BCBCBC00EED4EE000000000000000000CDCDCD006C6C6C001616
+      16003B3B3B00000000009C9C9C000000000000000000000000005F5F5F00D1D1
+      D100000000000000000000000000000000000000000090909000A9A9A9000000
+      00000000000000000000000000000000000000000000E5E5E500000000009F9F
+      9F00E5E5E500E5E5E500E5E5E500E5E5E500E5E5E500E5E5E500E5E5E500E5E5
+      E5009F9F9F0000000000E5E5E5000000000000000000000000005D5D5D004D4D
+      4D005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D00585858001C1C1C000000
+      0000000000005D5D5D000000000000000000000000000000000000000000DCDC
+      DC00777777001C1C1C000D0D0D003535350022222200000000005C5C5C00C0C0
+      C000DFDFDF005C5C5C009C9C9C000000000000000000000000006D6D6D00C2C2
+      C200000000000000000000000000000000000000000072727200B8B8B8000000
+      00000000000000000000000000000000000000000000E5E5E500000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000026262600E7E7E7000000000000000000000000005D5D5D00CACA
+      CA000000000000000000000000000000000000000000E6E6E600585858000000
+      0000000000005D5D5D0000000000000000000000000000000000000000000000
+      000000000000DBDBDB00B9B9B900A8A8A800AFAFAF00D0D0D000000000000000
+      000000000000E1E1E100B1B1B100000000000000000000000000ADADAD005F5F
+      5F0000000000000000000000000000000000CBCBCB003D3D3D00E3E3E3000000
+      00000000000000000000000000000000000000000000E5E5E500000000000000
+      00000000000000000000000000000000000070707000B2B2B200B2B2B200B2B2
+      B200B2B2B200CACACA00000000000000000000000000000000005D5D5D00D5D5
+      D5000000000000000000000000000000000000000000000000005D5D5D000000
+      0000000000009292920000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000007D7D
+      7D0051515100B5B5B500CACACA00A3A3A30032323200B9B9B900000000000000
+      00000000000000000000000000000000000000000000EBE2EB003D3D3D000000
+      0000000000000000000000000000787878000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000062626200B2B2
+      B200D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500CACACA004D4D4D000000
+      0000909090000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000B2B2B200767676006A6A6A0085858500D2D2D20000000000000000000000
+      0000000000000000000000000000000000000000000000000000E2E2E200D5D5
+      D500D5D5D500D5D5D500D5D5D500000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000B2B2B2006262
+      62005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D005D5D5D009292
+      9200000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000E8E8E800B4B4B400929292008A8A8A00B4B4B400E1E1E1000000
+      00000000000000000000000000000000000000000000E5E5E500E5E5E500E5E5
+      E500E5E5E500E5E5E500E5E5E500E5E5E500E5E5E500E5E5E500E5E5E500E5E5
+      E500E5E5E500E5E5E500E5E5E500000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000D9D9
+      D900D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5
+      D500D6D6D600E2E2E2000000000000000000000000000000000000000000FD5F
+      FD00737373001C1C1C0070707000AAAAAA00B2B2B20070707000262626004545
+      4500FD5FFD00000000000000000000000000E8E8E80040404000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000004B4B4B00F5B2F5000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000C2C2C200515151001616
+      1600000000000000000000000000000000000000000000000000000000000000
+      0000000000002E2E2E008F8F8F00000000000000000000000000000000007C7C
+      7C004D4D4D00D0D0D00000000000000000000000000000000000E0E0E0007373
+      73007C7C7C00FD5FFD00000000000000000000000000B2B2B200000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000BABABA00000000000000000000000000000000000000
+      0000E6E6E600A8A8A8006A6A6A0053535300535353006E6E6E00ACACAC00EBE2
+      EB0000000000000000000000000000000000CECECE000D0D0D00000000000000
+      0000000000000000000026262600C0C0C000C0C0C00026262600000000000000
+      0000000000000000000000000000A8A8A80000000000000000009E9E9E007373
+      7300000000000000000000000000E8E8E800DFDFDF0000000000000000000000
+      0000737373004545450000000000000000000000000000000000686868000000
+      0000000000000000000000000000A9A9A900A9A9A90000000000000000000000
+      000000000000737373000000000000000000000000000000000000000000ABAB
+      AB00000000000000000055555500949494009292920051515100000000001616
+      1600B2B2B2000000000000000000000000007272720000000000000000000000
+      0000000000002E2E2E00BFBFBF000000000000000000BFBFBF002E2E2E000000
+      000000000000000000000000000056565600000000000000000022222200E1E1
+      E100000000000000000000000000B2B2B2008C8C8C0000000000000000000000
+      0000E1E1E10026262600E1E1E100000000000000000000000000CCCCCC002222
+      2200000000000000000000000000000000000000000000000000000000000000
+      000026262600D3D3D30000000000000000000000000000000000939393000000
+      00000000000095959500000000000000000000000000FD5FFD008D8D8D000000
+      00000D0D0D009B9B9B0000000000000000001616160000000000000000000000
+      000026262600BFBFBF0000000000000000000000000000000000BFBFBF002626
+      26000000000000000000000000005858580000000000D5D5D5004F4F4F000000
+      0000000000000000000000000000B2B2B2008C8C8C0000000000000000000000
+      0000000000006E6E6E00B4B4B400000000000000000000000000000000008585
+      85000000000000000000000000009F9F9F009F9F9F0000000000000000000000
+      00008F8F8F0000000000000000000000000000000000B2B2B2000D0D0D000000
+      00005555550000000000D2D2D2007171710073737300D8D8D800FB83FB004B4B
+      4B000000000016161600BBBBBB00000000005555550000000000000000000000
+      00004747470099999900C5C5C5000000000000000000C5C5C500999999004747
+      4700000000000000000000000000AEAEAE0000000000B4B4B4008D8D8D000000
+      0000000000000000000000000000B2B2B2008C8C8C0000000000000000000000
+      000000000000B2B2B2008A8A8A0000000000000000000000000000000000E4E4
+      E4000D0D0D000000000000000000B2B2B200B2B2B20000000000000000001C1C
+      1C00EED4EE00000000000000000000000000F2C4F2003B3B3B00000000000000
+      0000949494000000000071717100000000000000000079797900000000008787
+      8700000000000000000047474700FD5FFD00B6B6B60000000000000000000000
+      000000000000000000009C9C9C0000000000000000009C9C9C00000000000000
+      0000000000003D3D3D009B9B9B000000000000000000B9B9B900868686000000
+      0000000000000000000000000000D9D9D900CACACA0000000000000000000000
+      000000000000ABABAB0091919100000000000000000000000000000000000000
+      0000A7A7A7000000000000000000B2B2B200B2B2B2000000000000000000B1B1
+      B10000000000000000000000000000000000F89DF80040404000000000000000
+      000092929200000000007373730000000000000000007D7D7D00000000008484
+      840000000000000000004D4D4D000000000000000000959595001C1C1C000000
+      0000000000000000000094949400000000000000000094949400000000000000
+      000073737300E8E8E800000000000000000000000000D5D5D5004F4F4F000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000006E6E6E00B4B4B400000000000000000000000000000000000000
+      00000000000056565600000000006A6A6A006A6A6A0000000000626262000000
+      00000000000000000000000000000000000000000000B9B9B9000D0D0D000000
+      000051515100FD5FFD00D8D8D800797979007D7D7D00DDDDDD00F2C4F2004747
+      4700000000001C1C1C00C0C0C000000000000000000000000000D5D5D5009494
+      94000000000000000000353535005D5D5D005D5D5D0035353500000000000000
+      0000C6C6C60000000000000000000000000000000000000000004B4B4B00D0D0
+      D000000000000000000000000000B2B2B2008C8C8C0000000000000000000000
+      0000D0D0D0001C1C1C00E8E8E800000000000000000000000000000000000000
+      000000000000C2C2C2000D0D0D00000000000000000016161600CACACA000000
+      00000000000000000000000000000000000000000000000000009B9B9B000D0D
+      0D00000000008D8D8D00FB83FB000000000000000000F2C4F200858585000000
+      00000D0D0D00A3A3A30000000000000000000000000000000000000000000000
+      00007A7A7A000000000000000000000000000000000000000000000000008888
+      8800000000000000000000000000000000000000000000000000B6B6B6004D4D
+      4D00E0E0E0000000000000000000000000000000000000000000000000000000
+      00004D4D4D007373730000000000000000000000000000000000000000000000
+      0000000000000000000079797900000000000000000083838300000000000000
+      000000000000000000000000000000000000000000000000000000000000B5B5
+      B5001C1C1C00000000004B4B4B00868686008484840047474700000000002626
+      2600BBBBBB000000000000000000000000000000000000000000000000000000
+      000000000000A5A5A5004B4B4B0022222200262626004F4F4F00ADADAD000000
+      0000000000000000000000000000000000000000000000000000000000007C7C
+      7C004D4D4D00D0D0D00000000000000000000000000000000000E0E0E0007373
+      73007C7C7C00FD5FFD0000000000000000000000000000000000000000000000
+      00000000000000000000DADADA002E2E2E0038383800E0E0E000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000F5B2F500B2B2B20078787800585858005A5A5A007C7C7C00B6B6B600FB83
+      FB00000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000DDDDDD00DEDEDE0000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000B6B6B6004949490051515100858585008D8D8D0051515100222222009E9E
+      9E00000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000009A9A9A00A3A3A30000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000D5D5D500B9B9B900B3B3B300D5D5D500000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000FB83FB000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000FD5FFD00F2C4F20000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000F89DF800A9A9A9009A9A9A00F89DF800000000000000
+      000000000000000000000000000000000000000000000000000000000000FD5F
+      FD00FD5FFD00FD5FFD0000000000000000000000000000000000000000000000
+      0000FD5FFD00FD5FFD0000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000E8E8
+      E8005A5A5A0051515100DCDCDC00000000000000000000000000FD5FFD00FD5F
+      FD00FD5FFD00FD5FFD00FD5FFD00FD5FFD00FD5FFD00FD5FFD00FD5FFD00FD5F
+      FD00FD5FFD00FD5FFD0000000000000000000000000000000000000000000000
+      000000000000F5B2F5002E2E2E00000000000000000032323200DDDDDD000000
+      0000000000000000000000000000000000000000000000000000686868002E2E
+      2E002E2E2E000D0D0D000000000000000000DEDEDE004D4D4D0000000000A0A0
+      A0000D0D0D001C1C1C00FD5FFD00000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000E7E7E7006565
+      6500000000000000000053535300FD5FFD0000000000A9A9A9001C1C1C001C1C
+      1C001C1C1C001C1C1C001C1C1C001C1C1C001C1C1C001C1C1C001C1C1C001C1C
+      1C001C1C1C001C1C1C00FD5FFD00000000000000000000000000000000000000
+      000000000000737373000000000000000000000000000000000032323200E7E7
+      E70000000000000000000000000000000000000000000000000068686800D2D2
+      D200CBCBCB006666660000000000D1D1D100AFAFAF00D6D6D600000000009898
+      980083838300D2D2D20000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000E8E8E800656565000000
+      00000000000000000000787878000000000000000000E6E6E600D4D4D400D4D4
+      D400D4D4D400D4D4D400D4D4D400D4D4D400D4D4D400D4D4D400D4D4D400D4D4
+      D400D4D4D400D4D4D40000000000000000000000000000000000000000000000
+      0000D0D0D0009F9F9F00222222000000000000000000000000006D6D6D00C3C3
+      C30000000000000000000000000000000000000000000000000068686800CDCD
+      CD00C7C7C7006363630000000000B2B2B2008C8C8C0000000000474747000000
+      00009F9F9F000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000E7E7E7005A5A5A00000000000000
+      0000000000007F7F7F000000000000000000000000000000000000000000D4D4
+      D400FB83FB000000000000000000D7D7D700000000000000000000000000DADA
+      DA00000000000000000000000000000000000000000000000000F5B2F5003232
+      320000000000A5A5A500C0C0C0002E2E2E0000000000A9A9A900E4E4E4002A2A
+      2A002A2A2A00D8D8D80000000000000000000000000000000000797979004747
+      4700474747004747470000000000B2B2B2008C8C8C0000000000000000000000
+      0000D4D4D4001C1C1C00FD5FFD00000000000000000000000000000000000000
+      0000000000000000000000000000E8E8E8005A5A5A0000000000000000000000
+      00007F7F7F000000000000000000000000000000000000000000000000003232
+      3200CACACA00000000000000000055555500D4D4D40000000000000000006A6A
+      6A00D1D1D1000000000000000000000000000000000000000000787878000000
+      00000000000000000000BEBEBE00BEBEBE008D8D8D00CDCDCD004D4D4D000000
+      0000000000002A2A2A00F5B2F50000000000000000000000000000000000DADA
+      DA00CDCDCD0000000000D4D4D400B9B9B900B0B0B000D1D1D100D1D1D1000000
+      0000D4D4D4001C1C1C00FD5FFD0000000000000000000000000000000000F89D
+      F800D3D3D300D5D5D500DADADA00656565000000000000000000000000007878
+      7800000000000000000000000000000000000000000000000000000000003232
+      3200CACACA00000000000000000055555500D4D4D40000000000000000006A6A
+      6A00D1D1D10000000000000000000000000000000000BFBFBF00000000000000
+      00000000000000000000000000009F9F9F00CCCCCC002E2E2E00000000000000
+      000000000000000000009797970000000000000000000000000000000000A8A8
+      A80082828200FB83FB0042424200B7B7B700D5D5D5006C6C6C006C6C6C00CCCC
+      CC00CDCDCD006E6E6E0000000000000000000000000000000000B2B2B2004949
+      4900000000000D0D0D002A2A2A00000000000000000000000000787878000000
+      0000000000000000000000000000000000000000000000000000000000003232
+      3200CACACA00000000000000000055555500D4D4D40000000000000000006A6A
+      6A00D1D1D10000000000000000000000000000000000CBCBCB00000000000000
+      0000000000000000000032323200C1C1C100EBE2EB004F4F4F00000000000000
+      00000000000000000000A8A8A80000000000000000000000000070707000D5D5
+      D500000000002E2E2E002E2E2E002E2E2E00929292000000000000000000A3A3
+      A300A3A3A30000000000000000000000000000000000B0B0B000000000000000
+      000000000000000000000000000000000000000000007F7F7F00000000000000
+      0000000000000000000000000000000000000000000000000000000000004545
+      4500CBCBCB0000000000000000005F5F5F00D6D6D60000000000000000007272
+      7200D3D3D3000000000000000000000000000000000000000000767676000000
+      00000000000000000000BEBEBE00BEBEBE008D8D8D00CBCBCB004B4B4B000000
+      0000000000002E2E2E00F5B2F500000000000000000000000000D1D1D100EBE2
+      EB0000000000C8C8C800CDCDCD00C8C8C800D6D6D6000000000000000000DADA
+      DA00DADADA00000000000000000000000000FB83FB003B3B3B00000000002626
+      26001C1C1C0000000000000000000000000035353500E3E3E300000000000000
+      000000000000000000000000000000000000000000000000000000000000D3D3
+      D300FB83FB000000000000000000D6D6D600000000000000000000000000D9D9
+      D900000000000000000000000000000000000000000000000000000000008686
+      860075757500C3C3C300A3A3A300161616000000000088888800E0E0E0008787
+      870086868600F2C4F20000000000000000000000000000000000686868006262
+      62006363630022222200C8C8C8002E2E2E0000000000C8C8C800474747005C5C
+      5C00626262000D0D0D00FD5FFD0000000000D5D5D500000000002A2A2A00C4C4
+      C400BEBEBE0022222200000000000000000016161600DADADA00000000000000
+      00000000000000000000000000000000000000000000E7E7E700D5D5D500D5D5
+      D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5D500D5D5
+      D500D5D5D500D5D5D50000000000000000000000000000000000000000000000
+      0000DADADA006A6A6A000000000000000000000000000000000000000000BCBC
+      BC0000000000000000000000000000000000000000000000000068686800D0D0
+      D000C5C5C5006A6A6A00C8C8C8002E2E2E00E2E2E2000000000047474700C5C5
+      C500D0D0D00032323200FD5FFD0000000000D4D4D40026262600C5C5C5000000
+      000000000000BEBEBE001C1C1C00000000001C1C1C00DCDCDC00000000000000
+      00000000000000000000000000000000000000000000B1B1B1000D0D0D000000
+      00002E2E2E005C5C5C005D5D5D005D5D5D005D5D5D005D5D5D00565656000D0D
+      0D00000000002A2A2A0000000000000000000000000000000000000000000000
+      00000000000077777700000000000000000000000000000000002E2E2E00E5E5
+      E50000000000000000000000000000000000000000000000000068686800DBDB
+      DB00D5D5D5006A6A6A00DADADA00A3A3A300CDCDCD00EBE2EB0047474700D0D0
+      D000DBDBDB0032323200FD5FFD000000000000000000CECECE00000000000000
+      000000000000B6B6B60016161600000000005A5A5A0000000000000000000000
+      0000000000000000000000000000000000000000000000000000ADADAD002A2A
+      2A0051515100C0C0C000000000000000000000000000DCDCDC009B9B9B002222
+      220083838300CECECE0000000000000000000000000000000000000000000000
+      0000000000000000000079797900000000000000000076767600EED4EE000000
+      00000000000000000000000000000000000000000000000000008B8B8B006868
+      6800686868006868680000000000000000008D8D8D00D1D1D100797979006868
+      6800686868006868680000000000000000000000000000000000000000000000
+      0000B6B6B60016161600000000001C1C1C00C8C8C80000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000F89D
+      F800AFAFAF00474747007D7D7D00D0D0D000ACACAC002E2E2E0076767600D4D4
+      D400000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000CDCDCD00BEBEBE0000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000000000000C7C7
+      C700161616000000000066666600C8C8C8000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000A0A0A0004F4F4F0071717100E3E3E300000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000E7E7E700EED4EE0000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000E2E2E2000000000000000000000000000000
+      000000000000000000000000000000000000424D3E000000000000003E000000
+      2800000040000000A00000000100010000000000000500000000000000000000
+      000000000000000000000000FFFFFF0000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000F00FF00F00000000E187E00700000000
+      CFF3C663000000009FF98E71000000003FFC1C38000000003FFC3C3C00000000
+      3FFC399C00000000700E3E3C00000000700E3C7C000000003FFC389C00000000
+      3FFC3C1C000000003FFC1C38000000009FF98E7100000000CFF3C66300000000
+      E187E00700000000F00FF00F00000000FFFFFFFFFFFFF00FFFFFFFFFFFFFE187
+      FFFF8001FFC7CFF3C1C18001E7C39FF980C181F9E3C33E7C1C4981F9F1833E7C
+      22089F99F89F3E7C01088109FC7F700E01008101FE3F700E22009FE1F91F3E7C
+      1C7F81F9F1833E7C80FF81F9E3C33E7CC1FF8001E7C39FF9FFFF8001FFC7CFF3
+      FFFFFFFFFFFFE187FFFFFFFFFFFFF00FFFFFFFFFFE7FFFFFFFFFE007F81FF81F
+      C003C003F00FF00FC003C003E0C7E3C7C843C003E0E7CE73C003C003C0E38E71
+      C003C003C0F39FF9E007C423C0F39E79FFCFC003CF039E79FFCFC003CF039E79
+      FFFFC003CF038E71FF07E003CF03CE63FE03F003C303E3C7FF07F803E007F00F
+      FFFFFC07F81FF81FFFFFFFFFFEFFFFFFFFFFF81FFFFFFFFFFFFFF81FFFFFFFFF
+      C003FFFFF81FC0038001F00FF00FC0038001F00FE7C7CFF38001F00FCFE3CFF3
+      8001F3CFCFF3CFF38001F3CFCE73C0038081F3CFCE7380018421F3CFCE739249
+      8001F3CFC66392498001F3CFE66792418001F00FF66FC003C003F00FFE7FC003
+      FFFFF00FFFFFFFFFFFFFF81FFFFFFFFFFFFFFFFFFFFFFFFFF81FF81FFFFFFFFF
+      F00FF00FE0FFFFFFE007E007C07FFFFFC003C003C047F00F82018421C047F00F
+      85018241C043F00F88818181C043F00F80418181C07FF00F80218241C041F00F
+      80118401C041F00FC003C003803FF00FE007E007803FFFFFF00FF00FF1FFFFFF
+      F81FF81FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF803FFFFFFFFFFFFF003FFFFFFFF
+      FFFFF3F1FFFFC003FFFFF3F1FBFF8001FFFF93F1F8FF9FF981F993F1F83F9FF9
+      81F193F1F81F9FF983E193F1F8079FF9818393F1F80F8001800793F1F81F8001
+      9C1F93F1F87F8001FFFF9003F8FF9FF9FFFF9003FBFF8001FFFF801FFFFFC003
+      FFFF801FFFFFFFFFFFFFC01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFF7C003C003FFFFFFE38001C003FFFFFFC78001C183FFFFF00F8FF1C1839F81
+      E01F8FF1C1838F81C71F8FF1C0038FC1CF9F8FF1C003C181CF9F8001C003E001
+      CF9F8001CF83F839CF1F8003CFC3FFFFE03F80FFC007FFFFF07FC1FFC00FFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF81F8001FFFF
+      E003E0070000FFFF8001E3C38001F00F0000CE73C003E0070180CE71C003C383
+      03C09E79E007840101809E79E007042001819E79F00F042181839FF9F81F8001
+      C007CE71F81FC183F00FC7F3FC3FE007F81FE3C3FC3FF00FFE7FF00FFE7FFFFF
+      FFFFFC3FFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF3FFFFFC3FE3F3FFE1C003
+      F81FC321FFC08001F80FC223FF818003F00FC247FF03E6EFC003C271FE07E667
+      C001E411E00FE6678001E003C01FE6678001C867803FE667C001C867003FE6EF
+      E003C001003F8003F00FC041183F8003F80FC001B87FC383FC1FC303F07FE00F
+      FE7FFFFFE0FFFC3FFFFFFFFFF3FFFEFF}
   end
   object ACBrPixCD1: TACBrPixCD
     Recebedor.UF = 'SP'
@@ -2657,21 +6145,23 @@ object Form1: TForm1
     DadosAutomacao.CNPJSoftwareHouse = '18760540000139'
     DadosAutomacao.NomeAplicacao = 'ACBrPIXCDTeste'
     DadosAutomacao.VersaoAplicacao = '1.0'
+    PSP = ACBrPSPBancoDoBrasil1
     QuandoGravarLog = ACBrPixCD1QuandoGravarLog
-    Left = 8
-    Top = 560
+    Left = 112
+    Top = 416
   end
   object ACBrPSPItau1: TACBrPSPItau
-    Left = 92
-    Top = 560
+    Left = 196
+    Top = 416
   end
   object ACBrPSPBancoDoBrasil1: TACBrPSPBancoDoBrasil
-    Left = 64
-    Top = 560
+    ACBrPixCD = ACBrPixCD1
+    Left = 168
+    Top = 416
   end
   object ACBrPSPSantander1: TACBrPSPSantander
-    Left = 36
-    Top = 560
+    Left = 140
+    Top = 416
   end
   object ACBrCEP1: TACBrCEP
     ProxyPort = '8080'
@@ -2689,7 +6179,29 @@ object Form1: TForm1
     Top = 560
   end
   object ACBrPSPShipay1: TACBrPSPShipay
-    Left = 120
-    Top = 560
+    Left = 224
+    Top = 416
+  end
+  object tmConsultarPagto: TTimer
+    Enabled = False
+    Interval = 5000
+    OnTimer = tmConsultarPagtoTimer
+    Left = 496
+    Top = 448
+  end
+  object tmConsultarDevolucao: TTimer
+    Enabled = False
+    Interval = 5000
+    OnTimer = tmConsultarDevolucaoTimer
+    Left = 536
+    Top = 448
+  end
+  object ACBrPSPSicredi1: TACBrPSPSicredi
+    Left = 256
+    Top = 416
+  end
+  object ACBrPSPSicoob1: TACBrPSPSicoob
+    Left = 288
+    Top = 416
   end
 end

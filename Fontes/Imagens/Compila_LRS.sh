@@ -58,12 +58,21 @@ echo "****************************************"
 echo
 
 :PIXCD
-$LAZRES ACBrPIXCD.lrs TACBrPixCD.png TACBrPSPItau.png TACBrPSPBancoDoBrasil.png TACBrPSPSantander.png TACBrPSPShipay.png
+$LAZRES ACBrPIXCD.lrs TACBrPixCD.png TACBrPSPItau.png TACBrPSPBancoDoBrasil.png TACBrPSPSantander.png TACBrPSPShipay.png TACBrPSPSicredi.png
 mv ACBrPIXCD.lrs ../ACBrPIXCD
 echo
 echo "****************************************"
 echo "* Arquivo   ACBrPIXCD.lrs   gerado     *"
 echo "****************************************"
+echo
+
+:OpenDelivery
+$LAZRES ACBrOpenDelivery.lrs TACBrOpenDelivery.png
+mv ACBrOpenDelivery.lrs ../ACBrOpenDelivery
+echo
+echo "***********************************************"
+echo "* Arquivo   ACBrOpenDelivery.lrs   gerado     *"
+echo "***********************************************"
 echo
 
 :TCP
@@ -228,7 +237,6 @@ echo "* Arquivo    ACBrPagFor.lrs     gerado    *"
 echo "****************************************"
 echo
 
-
 :CTe
 $LAZRES ACBrCTe.lrs TACBrCTe.png 
 mv ACBrCTe.lrs ../ACBrDFe/ACBrCTe
@@ -236,11 +244,20 @@ mv ACBrCTe.lrs ../ACBrDFe/ACBrCTe
 $LAZRES ACBrCTeDACTeRL.lrs TACBrCTeDACTeRL.png 
 mv ACBrCTeDACTeRL.lrs ../ACBrDFe/ACBrCTe/DACTE/Fortes
 
-
 echo
 echo "***********************************************"
 echo "* Arquivo    ACBrCTe.lrs     gerado           *"
 echo "* Arquivo    ACBrCTeDACTeRL.lrs     gerado    *"
+echo "***********************************************"
+echo
+
+:GTIN
+$LAZRES ACBrGTIN.lrs TACBrGTIN.png 
+mv ACBrGTIN.lrs ../ACBrDFe/ACBrGTIN
+
+echo
+echo "***********************************************"
+echo "* Arquivo    ACBrGTIN.lrs     gerado          *"
 echo "***********************************************"
 echo
 

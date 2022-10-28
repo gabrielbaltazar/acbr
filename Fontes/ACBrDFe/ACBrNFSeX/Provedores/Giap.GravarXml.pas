@@ -38,9 +38,7 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrUtil,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnAuxiliar,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
 
 type
@@ -61,7 +59,8 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings;
+  ACBrUtil.Strings,
+  ACBrDFeUtil;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -165,12 +164,8 @@ begin
   Result.AppendChild(AddNode(tcStr, '#1', 'cep', 1, 9, 1,
                                                 NFSe.Tomador.Endereco.CEP, ''));
 
-  if NFSe.Tomador.Endereco.CodigoMunicipio = '9999999' then
-    Result.AppendChild(AddNode(tcStr, '#1', 'cidade', 1, 50, 1,
-                                          NFSe.Tomador.Endereco.xMunicipio, ''))
-  else
-    Result.AppendChild(AddNode(tcStr, '#1', 'cidade', 1, 50, 1,
-    CodIBGEToCidade(StrToInt64Def(NFSe.Tomador.Endereco.CodigoMunicipio, 0)), ''));
+  Result.AppendChild(AddNode(tcStr, '#1', 'cidade', 1, 50, 1,
+                                         NFSe.Tomador.Endereco.xMunicipio, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'complemento', 1, 30, 0,
                                         NFSe.Tomador.Endereco.Complemento, ''));

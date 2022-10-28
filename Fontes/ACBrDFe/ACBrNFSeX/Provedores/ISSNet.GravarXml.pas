@@ -41,7 +41,7 @@ uses
   ACBrXmlBase, ACBrXmlDocument,
   pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXConversao,
-  ACBrNFSeXGravarXml_ABRASFv1;
+  ACBrNFSeXGravarXml_ABRASFv1, ACBrNFSeXGravarXml_ABRASFv2;
 
 type
   { TNFSeW_ISSNet }
@@ -53,6 +53,14 @@ type
     function GerarPrestador: TACBrXmlNode; override;
     function GerarCodigoMunicipioUF: TACBrXmlNodeArray; override;
     function GerarServicoCodigoMunicipio: TACBrXmlNode; override;
+  end;
+
+  { TNFSeW_ISSNet204 }
+
+  TNFSeW_ISSNet204 = class(TNFSeW_ABRASFv2)
+  protected
+    procedure Configuracao; override;
+
   end;
 
 implementation
@@ -72,6 +80,9 @@ begin
   inherited Configuracao;
 
   FormatoItemListaServico := filsSemFormatacaoSemZeroEsquerda;
+
+  if FpAOwner.ConfigGeral.Params.TemParametro('NaoFormatarItemServico') then
+    FormatoItemListaServico := filsNaoSeAplica;
 
   DivAliq100 := True;
 
@@ -114,6 +125,21 @@ function TNFSeW_ISSNet.GerarServicoCodigoMunicipio: TACBrXmlNode;
 begin
   Result := AddNode(tcStr, '#33', 'MunicipioPrestacaoServico', 1, 7, 1,
                             OnlyNumber(NFSe.Servico.CodigoMunicipio), DSC_CMUN);
+end;
+
+{ TNFSeW_ISSNet204 }
+
+procedure TNFSeW_ISSNet204.Configuracao;
+begin
+  inherited Configuracao;
+
+  NrOcorrNIFTomador := 0;
+  NrOcorrCodigoNBS := 0;
+
+  NrOcorrCodigoPaisServico := -1;
+  NrOcorrCodigoPaisTomador := -1;
+
+  TagTomador := 'TomadorServico';
 end;
 
 end.

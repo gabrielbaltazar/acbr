@@ -37,10 +37,21 @@ unit ACBrMDFeDAEventoRLRetrato;
 interface
 
 uses
-  SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls,
-  RLReport, RLPDFFilter, RLBarcode, RLFilters,
-  ACBrMDFeDAEventoRL, ACBrDFeReportFortes,
-  pcnConversao, DB;
+  SysUtils, 
+  Variants, 
+  Classes, 
+  Graphics, 
+  Controls, 
+  Forms, 
+  ExtCtrls,
+  RLReport, 
+  RLPDFFilter, 
+  RLBarcode, 
+  RLFilters,
+  ACBrMDFeDAEventoRL, 
+  ACBrDFeReportFortes,
+  pcnConversao, 
+  DB;
 
 type
 
@@ -206,7 +217,10 @@ implementation
 
 uses
   DateUtils,
-  ACBrDFeUtil, ACBrUtil, ACBrValidador;
+  ACBrDFeUtil,
+  ACBrUtil.DateTime,
+  ACBrUtil.Strings,
+  ACBrValidador;
 
 {$ifdef FPC}
  {$R *.lfm}

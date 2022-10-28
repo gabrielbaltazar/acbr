@@ -43,8 +43,8 @@ uses
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
    System.Contnrs,
   {$IFEND}
-  ACBrBase,
-  pcnConversao, pcnLeitor, pcnSignature, ACBrUtil;
+  ACBrBase,ACBrUtil.Strings,
+  pcnConversao, pcnLeitor, pcnSignature;
 
 type
   TSATConsultaRet = class;
@@ -274,7 +274,7 @@ begin
         FLote[i].dhProcessamento := Leitor.rCampo(tcDatHorCFe, 'dhProcessamento');
         FLote[i].TipoLote        := Leitor.rCampo(tcStr, 'TipoLote');
         FLote[i].Origem          := Leitor.rCampo(tcStr, 'Origem');
-        FLote[i].QtdeCupoms      := Leitor.rCampo(tcStr, 'QtdeCupoms');
+        FLote[i].QtdeCupoms      := StrtoIntDef(Leitor.rCampo(tcStr, 'QtdeCupoms'),0);
         FLote[i].SituacaoLote    := Leitor.rCampo(tcStr, 'SituacaoLote');
 
         with FLote[i].Signature do

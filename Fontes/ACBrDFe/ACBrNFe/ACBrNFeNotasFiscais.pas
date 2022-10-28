@@ -33,8 +33,6 @@
 
 {$I ACBr.inc}
 
-{$I ACBr.inc}
-
 unit ACBrNFeNotasFiscais;
 
 interface
@@ -452,7 +450,7 @@ var
   end;
 
 begin
-  Inicio := Now;
+  Inicio := DataHoraTimeZoneModoDeteccao( TACBrNFe(TNotasFiscais(Collection).ACBrNFe ));   //Converte o DateTime do Sistema para o TimeZone configurado, para evitar divergência de Fuso Horário.
   Agora := IncMinute(Inicio, 5);  //Aceita uma tolerância de até 5 minutos, devido ao sincronismo de horário do servidor da Empresa e o servidor da SEFAZ.
   GravaLog('Inicio da Validação');
 
@@ -1266,7 +1264,14 @@ begin
           for J:=0 to Prod.med.Count-1 do
           begin
             GravaLog('Validar: 873-Se informado Grupo de Medicamentos (tag:med) obrigatório preenchimento do grupo rastro (id: I80) [nItem: '+IntToStr(Prod.nItem)+']');
-            if NaoEstaVazio(Prod.med[J].cProdANVISA) and (Prod.rastro.Count<=0) then
+            if NaoEstaVazio(Prod.med[J].cProdANVISA)
+               and (Prod.rastro.Count<=0)
+               and (not (NFe.Ide.finNFe in [fnDevolucao,fnAjuste,fnComplementar])) // exceção 1
+               and (not (NFe.Ide.indPres in [pcInternet, pcTeleatendimento]))      // exceção 2
+               and (AnsiIndexStr(Prod.CFOP,['5922','6922','5118','6118',               // exceção 3 CFOP's excluidos da validação
+                                        '5119','6119','5120','6120'  ]) = -1)
+               and (NFe.Ide.tpNF = tnSaida)                                        // exceção 4
+            then
               AdicionaErro('873-Rejeição: Operação com medicamentos e não informado os campos de rastreabilidade [nItem: '+IntToStr(Prod.nItem)+']');
           end;
 
@@ -2694,14 +2699,14 @@ begin
       INIRec.WriteString('infNFe', 'ID', infNFe.ID);
       INIRec.WriteString('infNFe', 'Versao', FloatToStr(infNFe.Versao));
       INIRec.WriteInteger('Identificacao', 'cUF', Ide.cUF);
-      INIRec.WriteInteger('Identificacao', 'Codigo', Ide.cNF);
+      INIRec.WriteInteger('Identificacao', 'cNF', Ide.cNF);
       INIRec.WriteString('Identificacao', 'natOp', Ide.natOp);
       INIRec.WriteString('Identificacao', 'indPag', IndpagToStr(Ide.indPag));
       INIRec.WriteInteger('Identificacao', 'Modelo', Ide.modelo);
       INIRec.WriteInteger('Identificacao', 'Serie', Ide.serie);
       INIRec.WriteInteger('Identificacao', 'nNF', Ide.nNF);
-      INIRec.WriteString('Identificacao', 'dEmi', DateTimeToStr(Ide.dEmi));
-      INIRec.WriteString('Identificacao', 'dSaiEnt', DateTimeToStr(Ide.dSaiEnt));
+      INIRec.WriteString('Identificacao', 'dhEmi', DateTimeToStr(Ide.dEmi));
+      INIRec.WriteString('Identificacao', 'dhSaiEnt', DateTimeToStr(Ide.dSaiEnt));
       INIRec.WriteString('Identificacao', 'tpNF', tpNFToStr(Ide.tpNF));
       INIRec.WriteString('Identificacao', 'idDest',
         DestinoOperacaoToStr(TpcnDestinoOperacao(Ide.idDest)));
@@ -3377,6 +3382,15 @@ begin
       INIRec.WriteString('Transportador', 'vagao', Transp.vagao);
       INIRec.WriteString('Transportador', 'balsa', Transp.balsa);
 
+      for J := 0 to autXML.Count - 1 do
+      begin
+        sSecao := 'autXML' + IntToStrZero(J + 1, 2);
+        with autXML.Items[J] do
+        begin
+          INIRec.WriteString(sSecao, 'CNPJCPF', CNPJCPF);
+        end;
+      end;
+
       for J := 0 to Transp.Reboque.Count - 1 do
       begin
         sSecao := 'Reboque' + IntToStrZero(J + 1, 3);
@@ -3988,7 +4002,7 @@ end;
 function TNotasFiscais.ValidarRegrasdeNegocios(out Erros: String): Boolean;
 var
   i: integer;
-  msg: ShortString;
+  msg: String;
 begin
   Result := True;
   Erros := '';
@@ -4023,7 +4037,8 @@ begin
   end;
 
   l := Self.Count; // Indice da última nota já existente
-  Result := LoadFromString(String(XMLUTF8), AGerarNFe);
+  //Result := LoadFromString(String(XMLUTF8), AGerarNFe);
+  Result := LoadFromString(String(InserirDeclaracaoXMLSeNecessario(XMLUTF8)), AGerarNFe);
 
   if Result then
   begin

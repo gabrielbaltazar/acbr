@@ -1096,6 +1096,9 @@ const
   CSecDACTE =                          'DACTE';
   CKeyDACTETamanhoPapel =              'TamanhoPapel';
 
+  CSecDAMFE =                          'DAMFE';
+  CKeyDAMFEExibirMunicipioDescar =     'ExibirMunicipioDescarregamento';
+
   CSecArquivos =                            'Arquivos';
   CKeyArquivosSalvar =                      'Salvar';
   CKeyArquivosPastaMensal =                 'PastaMensal';
@@ -1164,6 +1167,7 @@ const
   //CKeySATHashLib =                          'Hash';
 
   CSecSATExtrato =                          'SATExtrato';
+  CKeySATExtMostrarStatus =                 'MostrarStatus';
   CKeySATExtParamsString =                  'ParamsString';
   CKeySATExtImprimeDescAcrescItem =         'ImprimeDescAcrescItem';
   CKeySATExtImprimeEmUmaLinha =             'ImprimeEmUmaLinha';
@@ -1308,6 +1312,8 @@ const
   CKeyBOLETOMostraPreviewRelRetorno =       'MostraPreviewRelRetorno';
   CKeyBOLETORemoveAcentos =                 'RemoveAcentos';
   CKeyBoletoPrefixArqRemessa =              'PrefixArqRemessa';
+  CKeyBOLETOVersaoArquivo =                 'VersaoArquivo';
+  CKeyBOLETOVersaoLote =                    'VersaoLote';
   CKeyBOLETOLogoEmpresa =                   'LogoEmpresa';
   CKeyBOLETOEmailAssuntoBoleto =            'EmailAssuntoBoleto';
   CKeyBOLETOEmailMensagemBoleto =           'EmailMensagemBoleto';

@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -37,9 +37,13 @@ unit ACBrPagForArquivo;
 interface
 
 uses
-  Classes, Sysutils, Dialogs, Forms, Contnrs,
+  Classes, 
+  Sysutils, 
+  Contnrs,
   ACBrBase,
-  ACBrPagForClass, ACBrPagForConversao, ACBrPagForConfiguracoes;
+  ACBrPagForClass, 
+  ACBrPagForConversao, 
+  ACBrPagForConfiguracoes;
 
 type
   TRegistro = class(TObject)
@@ -155,7 +159,10 @@ end;
 function TRegistro.Ler(const aArquivoTXT: String): boolean;
 var
   FProvider: IACBrPagForProvider;
+  Ok: Boolean;
 begin
+  TACBrPagFor(FACBrPagFor).Configuracoes.Geral.Banco := StrToBanco(Ok, Copy(aArquivoTXT, 1, 3));
+
   FProvider := TACBrPagFor(FACBrPagFor).Provider;
 
   if not Assigned(FProvider) then

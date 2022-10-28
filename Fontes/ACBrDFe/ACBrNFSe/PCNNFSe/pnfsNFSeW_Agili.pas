@@ -38,14 +38,23 @@ interface
 
 uses
 {$IFDEF FPC}
-  LResources, Controls, Graphics, Dialogs,
+  LResources, 
+  Controls, 
 {$ELSE}
 
 {$ENDIF}
-  SysUtils, Classes, StrUtils,
+  SysUtils, 
+  Classes, 
+  StrUtils,
   ACBrConsts,
-  pcnAuxiliar, pcnConversao, pcnGerador, pcnConsts,
-  pnfsNFSe, pnfsNFSeW, pnfsConversao, pnfsConsts;
+  pcnAuxiliar, 
+  pcnConversao, 
+  pcnGerador, 
+  pcnConsts,
+  pnfsNFSe, 
+  pnfsNFSeW, 
+  pnfsConversao, 
+  pnfsConsts;
 
 type
   { TNFSeW_Agili }
@@ -83,7 +92,9 @@ type
 implementation
 
 uses
-  ACBrUtil, MaskUtils;
+  ACBrUtil.Strings,
+  ACBrUtil.Base,
+  MaskUtils;
 
 {==============================================================================}
 { Essa unit tem por finalidade exclusiva de gerar o XML do RPS segundo o       }

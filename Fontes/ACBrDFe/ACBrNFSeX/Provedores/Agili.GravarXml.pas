@@ -318,11 +318,11 @@ var
 begin
   Result := CreateElement('IdentificacaoIntermediario');
 
-  xmlNode := GerarCPFCNPJ(NFSe.IntermediarioServico.CpfCnpj);
+  xmlNode := GerarCPFCNPJ(NFSe.Intermediario.Identificacao.CpfCnpj);
   Result.AppendChild(xmlNode);
 
   Result.AppendChild(AddNode(tcStr, '#1', 'InscricaoMunicipal', 1, 15, 0,
-                             NFSe.IntermediarioServico.InscricaoMunicipal, ''));
+                      NFSe.Intermediario.Identificacao.InscricaoMunicipal, ''));
 end;
 
 function TNFSeW_Agili.GerarIdentificacaoPrestador: TACBrXmlNode;
@@ -386,8 +386,8 @@ begin
   xmlNode := GerarDadosTomador;
   Result.AppendChild(xmlNode);
 
-  if (NFSe.IntermediarioServico.RazaoSocial <> '') or
-     (NFSe.IntermediarioServico.CpfCnpj <> '') then
+  if (NFSe.Intermediario.RazaoSocial <> '') or
+     (NFSe.Intermediario.Identificacao.CpfCnpj <> '') then
   begin
     xmlNode := GerarIntermediario;
     Result.AppendChild(xmlNode);
@@ -436,9 +436,11 @@ begin
 
   Result.AppendChild(AddNode(tcStr, '#1', 'BeneficioProcesso', 1, 30, 0,
                                               NFSe.Servico.NumeroProcesso, ''));
-
-  xmlNode := GerarMunicipioIncidencia;
-  Result.AppendChild(xmlNode);
+  if NFSe.OptanteMEISimei = snNao then
+  begin
+    xmlNode := GerarMunicipioIncidencia;
+    Result.AppendChild(xmlNode);
+  end;
 
   Result.AppendChild(AddNode(tcDe2, '#1', 'ValorServicos', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorServicos, ''));
@@ -473,7 +475,7 @@ begin
   Result.AppendChild(AddNode(tcDe2, '#1', 'ValorISSQNCalculado', 1, 15, 0,
                                             NFSe.Servico.Valores.ValorIss, ''));
 
-  if NFSe.OptanteSimplesNacional = snNao then
+  if (NFSe.OptanteSimplesNacional = snNao) and (NFSe.OptanteMEISimei = snNao) then
     Result.AppendChild(AddNode(tcDe2, '#1', 'ValorISSQNRecolher', 1, 15, 0,
                                             NFSe.Servico.Valores.ValorIss, ''));
 
@@ -504,7 +506,7 @@ begin
   Result.AppendChild(xmlNode);
 
   Result.AppendChild(AddNode(tcStr, '#1', 'RazaoSocial', 1, 115, 0,
-                                    NFSe.IntermediarioServico.RazaoSocial, ''));
+                                           NFSe.Intermediario.RazaoSocial, ''));
 end;
 
 function TNFSeW_Agili.GerarListaServico: TACBrXmlNode;

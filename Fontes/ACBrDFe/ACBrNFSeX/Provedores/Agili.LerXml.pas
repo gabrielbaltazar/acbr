@@ -47,7 +47,7 @@ type
 
   TNFSeR_Agili = class(TNFSeRClass)
   protected
-    FpcodCNAE: string;
+    FpCodCNAE: string;
     FpCodLCServ: string;
 
     procedure LerListaServico(const ANode: TACBrXmlNode);
@@ -81,8 +81,8 @@ type
 implementation
 
 uses
-  ACBrUtil.Base,
-  ACBrUtil.Strings;
+  ACBrUtil.Base, ACBrUtil.Strings,
+  ACBrDFeUtil;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -222,7 +222,6 @@ begin
           CodigoMunicipio := Copy(CodigoMunicipio, 1, 2) +
               FormatFloat('00000', StrToIntDef(Copy(CodigoMunicipio, 3, 5), 0));
 
-        xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
         UF := ObterConteudo(AuxMun.Childrens.FindAnyNs('Uf'), tcStr);
       end;
 
@@ -264,7 +263,6 @@ begin
           CodigoMunicipio := Copy(CodigoMunicipio, 1, 2) +
               FormatFloat('00000', StrToIntDef(Copy(CodigoMunicipio, 3, 5), 0));
 
-        xMunicipio := CodIBGEToCidade(StrToIntDef(CodigoMunicipio, 0));
         UF := ObterConteudo(AuxMun.Childrens.FindAnyNs('Uf'), tcStr);
       end;
 
@@ -404,7 +402,7 @@ begin
     if CodigoTributacaoMunicipio = '' then
       CodigoTributacaoMunicipio := ObterConteudo(ANode.Childrens.FindAnyNs('ItemLei116AtividadeEconomica'), tcStr);
 
-    CodigoCnae := FpcodCNAE;
+    CodigoCnae := FpCodCNAE;
     ItemListaServico := FpCodLCServ;
 
     if FpAOwner.ConfigGeral.TabServicosExt then
@@ -432,9 +430,15 @@ begin
 
       case FpAOwner.StrToSimNao(Ok, aValor) of
         snSim:
-          ValorIssRetido := ValorIss;
+          begin
+            ValorIssRetido := ValorIss;
+            IssRetido := stRetencao;
+          end;
         snNao:
-          ValorIssRetido := 0;
+          begin
+            ValorIssRetido := 0;
+            IssRetido := stNormal;
+          end;
       end;
 
       ValorLiquidoNfse := ObterConteudo(ANode.Childrens.FindAnyNs('ValorLiquido'), tcDe2);
@@ -465,19 +469,20 @@ begin
       begin
         Descricao  := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Discriminacao'), tcStr);
         Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Quantidade'), tcDe6);
-        ValorTotal := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorServico'), tcDe2);
+        ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorServico'), tcDe2);
+        ValorTotal := ValorUnitario * Quantidade;
 
         DescontoIncondicionado := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorDesconto'), tcDe2);
 
-        FpcodCNAE := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoCnae'), tcStr);
-        CodServ   := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ItemLei116'), tcStr);
+        FpCodCNAE := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoCnae'), tcStr);
+        FpCodLCServ := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ItemLei116'), tcStr);
 
-        Item := StrToIntDef(OnlyNumber(CodServ), 0);
+        Item := StrToIntDef(OnlyNumber(FpCodLCServ), 0);
         if Item < 100 then
           Item := Item * 100 + 1;
 
-        CodServ := FormatFloat('0000', Item);
-        CodServ := Copy(CodServ, 1, 2) + '.' + Copy(CodServ, 3, 2);
+        FpCodLCServ := FormatFloat('0000', Item);
+        FpCodLCServ := Copy(FpCodLCServ, 1, 2) + '.' + Copy(FpCodLCServ, 3, 2);
       end;
     end;
   end;
@@ -588,7 +593,7 @@ begin
 
   if AuxNode <> nil then
   begin
-    NFSe.Situacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('Codigo'), tcInt);
+    NFSe.Situacao := StrToIntDef(ObterConteudo(AuxNode.Childrens.FindAnyNs('Codigo'), tcStr), 0);
 
     case NFSe.Situacao of
       -2:

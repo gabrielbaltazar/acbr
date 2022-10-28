@@ -42,6 +42,39 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+13/10/2022
+--- ACBrLibeSocial / ACBrLibeSocialConsts ---
+[*] Ajustes Versão ACBrLibeSocialConsts e Criação Versão x86 STDCALL MT
+    Por: Antonio Carlos
+
+28/09/2022
+--- ACBrLibeSocial ---
+[+] Criação ACBrLibeSocialDemo
+    Por: Antonio Carlos.
+
+22/08/2022
+--- ACBrLibeSocial ---
+[*] Correção unit ACBrLibeSocialMT
+    Por: Antonio Carlos
+
+22/08/2022
+--- ACBrLibeSocial ---
+[*] Correção Access Violation de alguns métodos da ACBrLibeSocial
+    Por: Antonio Carlos / Juliomar Marchetti  
+
+17/08/2022
+--- ACBrLibeSocial ---
+[*] Refatoração da ACBrLibeSocial e classe de Respostas
+
+20/07/2022
+--- ACBrLibeSocial ---
+[*] Remoção de Warning @deprecated ref. ACBrUtils
+
+22/06/2022
+--- ACBrLibeSocial ---
+[+] Atualizado os fontes adicionando novos métodos e adicionando a estrutura padrão MultThread
+   Por: Antonio Carlos
+
 12/03/2018
 --- ACBrLibeSocialRespostas, ACBrLibeSocialConsts ---
 [+] Adicionado metodos de Respostas para Métodos de Consulta Eventos e Downloads

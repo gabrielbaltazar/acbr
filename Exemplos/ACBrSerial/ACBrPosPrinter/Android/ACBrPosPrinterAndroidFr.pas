@@ -41,7 +41,7 @@ uses
   ACBrBase, ACBrPosPrinter,
   ACBrPosPrinterElginE1Service,
   {$IfDef ANDROID}
-   ACBrPosPrinterGEDI, ACBrPosPrinterElginE1Lib,
+   ACBrPosPrinterGEDI, ACBrPosPrinterElginE1Lib, ACBrPosPrinterTecToySunmiLib,
   {$EndIf}
   FMX.ListView.Types, FMX.ListView.Appearances, FMX.ListView.Adapters.Base,
   FMX.ListView, FMX.ListBox, FMX.Layouts, FMX.Edit, FMX.EditBox, FMX.SpinBox,
@@ -89,8 +89,6 @@ type
     btAlinhamento: TButton;
     btnBarras: TButton;
     btQRCode: TButton;
-    btnLerStatus: TButton;
-    btnLerInfo: TButton;
     mImp: TMemo;
     GridPanelLayout4: TGridPanelLayout;
     btnImprimir: TCornerButton;
@@ -106,9 +104,7 @@ type
     StyleBook1: TStyleBook;
     chbTodasBth: TCheckBox;
     cbxModelo: TComboBox;
-    cbControlePorta: TCheckBox;
     btAcentos: TButton;
-    btBeep: TButton;
     cbxPagCodigo: TComboBox;
     cbSuportaBMP: TCheckBox;
     lbiClasse: TListBoxItem;
@@ -116,6 +112,14 @@ type
     GridPanelLayout6: TGridPanelLayout;
     rbClasseInterna: TRadioButton;
     rbClasseExterna: TRadioButton;
+    Layout2: TLayout;
+    cbControlePorta: TCheckBox;
+    cbSmartPOS: TCheckBox;
+    btnLerStatus: TButton;
+    btnLerInfo: TButton;
+    btBeep: TButton;
+    btnAbrirGaveta: TButton;
+    btnCortarPapel: TButton;
     procedure GestureDone(Sender: TObject; const EventInfo: TGestureEventInfo; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -137,12 +141,15 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure cbxModeloChange(Sender: TObject);
     procedure rbMudaClasseImpressora(Sender: TObject);
+    procedure btnAbrirGavetaClick(Sender: TObject);
+    procedure btnCortarPapelClick(Sender: TObject);
   private
     { Private declarations }
     fE1Printer: TACBrPosPrinterElginE1Service;
     {$IfDef ANDROID}
     fGEDIPrinter: TACBrPosPrinterGEDI;
     fE1Lib: TACBrPosPrinterElginE1Lib;
+    fSunmiPrinter: TACBrPosPrinterTecToySunmiLib;
     {$EndIf}
     FVKService: IFMXVirtualKeyboardService;
 
@@ -194,7 +201,7 @@ begin
 
   fE1Printer := TACBrPosPrinterElginE1Service.Create(ACBrPosPrinter1);
   {$IfDef ANDROID}
-   fE1Printer.Modelo := TElginE1Printers.prnSmartPOS;  // TElginE1Printers.prnM8
+   fE1Printer.Modelo := TElginE1Printers.prnM8;
    fE1Printer.OnErroImpressao := ExibirErroImpressaoE1;
   {$Else}
    fE1Printer.Modelo := prnI9;
@@ -209,6 +216,7 @@ begin
   fGEDIPrinter := TACBrPosPrinterGEDI.Create(ACBrPosPrinter1);
   fE1Lib := TACBrPosPrinterElginE1Lib.Create(ACBrPosPrinter1);
   fE1Lib.Modelo := TElginE1LibPrinters.prnM8;
+  fSunmiPrinter := TACBrPosPrinterTecToySunmiLib.Create(ACBrPosPrinter1);
   {$EndIf}
 
   LerConfiguracao;
@@ -220,6 +228,7 @@ begin
   {$IfDef ANDROID}
   fGEDIPrinter.Free;
   fE1Lib.Free;
+  fSunmiPrinter.Free;
   {$EndIf}
 end;
 
@@ -348,6 +357,11 @@ begin
   LerConfiguracao;
 end;
 
+procedure TPosPrinterAndroidTesteForm.btnAbrirGavetaClick(Sender: TObject);
+begin
+  ACBrPosPrinter1.Imprimir('</abre_gaveta>');
+end;
+
 procedure TPosPrinterAndroidTesteForm.btnAtivarClick(Sender: TObject);
 begin
   ConfigurarACBrPosPrinter;
@@ -420,6 +434,11 @@ begin
   mImp.Lines.Add('MSI: 1234567890');
   mImp.Lines.Add('<msi>1234567890</msi>');
   mImp.Lines.Add('</corte_total>');
+end;
+
+procedure TPosPrinterAndroidTesteForm.btnCortarPapelClick(Sender: TObject);
+begin
+  ACBrPosPrinter1.Imprimir('</corte>');
 end;
 
 procedure TPosPrinterAndroidTesteForm.btnImprimirClick(Sender: TObject);
@@ -559,6 +578,7 @@ begin
   cbxModelo.Items.Add('Elgin E1 Service');
   cbxModelo.Items.Add('Elgin E1 Lib');
   cbxModelo.Items.Add('Gertec GEDI');
+  cbxModelo.Items.Add('TecToy Sunmi Service');
   lbImpressoras.Enabled := False;
 end;
 
@@ -588,11 +608,23 @@ begin
 
   if rbClasseExterna.IsChecked then
   begin
+    if cbSmartPOS.IsChecked then
+    begin
+      fE1Printer.Modelo := TElginE1Printers.prnSmartPOS;
+      fE1Lib.Modelo     := TElginE1LibPrinters.prnSmartPOS;
+    end
+    else
+    begin
+      fE1Printer.Modelo := TElginE1Printers.prnM8;
+      fE1Lib.Modelo     := TElginE1LibPrinters.prnM8;
+    end;
+
     case cbxModelo.ItemIndex of
       0: ACBrPosPrinter1.ModeloExterno := fE1Printer;
       1: ACBrPosPrinter1.ModeloExterno := fE1Lib;
+      2: ACBrPosPrinter1.ModeloExterno := fGEDIPrinter;
     else
-      ACBrPosPrinter1.ModeloExterno := fGEDIPrinter;
+      ACBrPosPrinter1.ModeloExterno := fSunmiPrinter;
     end;
 
     cbxImpressorasBth.ItemIndex := cbxImpressorasBth.Items.IndexOf('NULL');
@@ -681,6 +713,7 @@ begin
   try
     INI.WriteBool('PosPrinter','ClasseInterna', rbClasseInterna.IsChecked);
     INI.WriteInteger('PosPrinter','Modelo', cbxModelo.ItemIndex);
+    INI.WriteBool('PosPrinter','SmartPOS',cbSmartPOS.IsChecked);
     INI.WriteInteger('PosPrinter','PaginaDeCodigo',cbxPagCodigo.ItemIndex);
     INI.WriteBool('Modelo','BMP',cbSuportaBMP.IsChecked);
     if Assigned(cbxImpressorasBth.Selected) then
@@ -707,20 +740,21 @@ begin
 
   INI := TIniFile.Create(ArqINI);
   try
-    rbClasseInterna.IsChecked := INI.ReadBool('PosPrinter','ClasseInterna', True);
-    rbClasseExterna.IsChecked := not rbClasseInterna.IsChecked;
+    rbClasseInterna.IsChecked   := INI.ReadBool('PosPrinter','ClasseInterna', True);
+    rbClasseExterna.IsChecked   := not rbClasseInterna.IsChecked;
     rbMudaClasseImpressora(nil);
-    cbxModelo.ItemIndex := INI.ReadInteger('PosPrinter','Modelo', -1);
-    cbSuportaBMP.IsChecked := INI.ReadBool('Modelo','BMP', True);
-    cbxPagCodigo.ItemIndex := Ini.ReadInteger('PosPrinter','PaginaDeCodigo', Integer(ACBrPosPrinter1.PaginaDeCodigo));
+    cbxModelo.ItemIndex         := INI.ReadInteger('PosPrinter','Modelo', -1);
+    cbSmartPOS.IsChecked        := INI.ReadBool('PosPrinter','SmartPOS', False);
+    cbSuportaBMP.IsChecked      := INI.ReadBool('Modelo','BMP', True);
+    cbxPagCodigo.ItemIndex      := Ini.ReadInteger('PosPrinter','PaginaDeCodigo', Integer(ACBrPosPrinter1.PaginaDeCodigo));
     cbxImpressorasBth.ItemIndex := cbxImpressorasBth.Items.IndexOf(INI.ReadString('PosPrinter','Porta',ACBrPosPrinter1.Porta));
-    seColunas.Value := INI.ReadInteger('PosPrinter','Colunas', 32);
-    seEspLinhas.Value := INI.ReadInteger('PosPrinter','EspacoEntreLinhas', 0);
-    seLinhasPular.Value := INI.ReadInteger('PosPrinter','LinhasPular', 5);
-    cbControlePorta.IsChecked := INI.ReadBool('PosPrinter','ControlePorta', True);
-    seBarrasLargura.Value := INI.ReadInteger('Barras','Largura', ACBrPosPrinter1.ConfigBarras.LarguraLinha);
-    seBarrasAltura.Value := INI.ReadInteger('Barras','Altura', ACBrPosPrinter1.ConfigBarras.Altura);
-    cbHRI.IsChecked  := INI.ReadBool('Barras','HRI', ACBrPosPrinter1.ConfigBarras.MostrarCodigo);
+    seColunas.Value             := INI.ReadInteger('PosPrinter','Colunas', 32);
+    seEspLinhas.Value           := INI.ReadInteger('PosPrinter','EspacoEntreLinhas', 0);
+    seLinhasPular.Value         := INI.ReadInteger('PosPrinter','LinhasPular', 5);
+    cbControlePorta.IsChecked   := INI.ReadBool('PosPrinter','ControlePorta', True);
+    seBarrasLargura.Value       := INI.ReadInteger('Barras','Largura', ACBrPosPrinter1.ConfigBarras.LarguraLinha);
+    seBarrasAltura.Value        := INI.ReadInteger('Barras','Altura', ACBrPosPrinter1.ConfigBarras.Altura);
+    cbHRI.IsChecked             := INI.ReadBool('Barras','HRI', ACBrPosPrinter1.ConfigBarras.MostrarCodigo);
   finally
     INI.Free ;
   end;

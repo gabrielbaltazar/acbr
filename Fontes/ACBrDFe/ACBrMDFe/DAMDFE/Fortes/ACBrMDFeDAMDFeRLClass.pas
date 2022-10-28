@@ -62,8 +62,13 @@ end;
 implementation
 
 uses
-  Dialogs, ACBrUtil, ACBrMDFe, pmdfeEnvEventoMDFe,
-  ACBrMDFeDAMDFeRLRetrato, ACBrMDFeDAEventoRL, ACBrMDFeDAEventoRLRetrato;
+  ACBrUtil.FilesIO,
+  ACBrUtil.Strings,
+  ACBrMDFe, 
+  pmdfeEnvEventoMDFe,
+  ACBrMDFeDAMDFeRLRetrato, 
+  ACBrMDFeDAEventoRL, 
+  ACBrMDFeDAEventoRLRetrato;
 
 constructor TACBrMDFeDAMDFeRL.Create(AOwner: TComponent);
 begin
@@ -100,23 +105,34 @@ end;
 procedure TACBrMDFeDAMDFeRL.ImprimirDAMDFEPDF(AMDFe: TMDFe = nil);
 var
   i: integer;
+  ArqPDF: String;
+
+  function ImprimirDAMDFEPDFTipo(AMDFe: TMDFe): String;
+  begin
+    Result := DefinirNomeArquivo(Self.PathPDF,
+                                 OnlyNumber(AMDFe.infMDFe.ID) + '-mdfe.pdf',
+                                 Self.NomeDocumento);
+
+    TfrlDAMDFeRLRetrato.SalvarPDF(Self, AMDFe, Result);
+  end;
+
 begin
   FPArquivoPDF := '';
+
   if AMDFe = nil then
   begin
     for i := 0 to TACBrMDFe(ACBrMDFe).Manifestos.Count - 1 do
     begin
-      FPArquivoPDF := PathWithDelim(Self.PathPDF) +
-        OnlyNumber(TACBrMDFe(ACBrMDFe).Manifestos.Items[i].MDFe.infMDFe.ID)
-        + '-mdfe.pdf';
-      TfrlDAMDFeRLRetrato.SalvarPDF(Self, TACBrMDFe(ACBrMDFe).Manifestos.Items[i].MDFe, FPArquivoPDF);
+      ArqPDF := ImprimirDAMDFEPDFTipo(TACBrMDFe(ACBrMDFe).Manifestos.Items[i].MDFe);
+
+      FPArquivoPDF := ArqPDF;
+
+      // o componente não tem a propriedade NomeArqPDF
+//      TACBrMDFe(ACBrMDFe).Manifestos.Items[i].NomeArqPDF := FPArquivoPDF;
     end;
   end
   else
-  begin
-     FPArquivoPDF := PathWithDelim(Self.PathPDF) + OnlyNumber(AMDFe.infMDFe.ID) + '-mdfe.pdf';
-     TfrlDAMDFeRLRetrato.SalvarPDF(Self, AMDFe, FPArquivoPDF);
-  end;
+    FPArquivoPDF := ImprimirDAMDFEPDFTipo(AMDFe);
 end;
 
 procedure TACBrMDFeDAMDFeRL.ImprimirEVENTO(AMDFe: TMDFe);
@@ -132,7 +148,7 @@ begin
       for j := 0 to (TACBrMDFe(ACBrMDFe).Manifestos.Count - 1) do
       begin
         if OnlyNumber(TACBrMDFe(ACBrMDFe).Manifestos.Items[j].MDFe.infMDFe.ID) =
-        TACBrMDFe(ACBrMDFe).EventoMDFe.Evento.Items[i].InfEvento.chMDFe then
+            TACBrMDFe(ACBrMDFe).EventoMDFe.Evento.Items[i].InfEvento.chMDFe then
         begin
           TfrmMDFeDAEventoRLRetrato.Imprimir(Self,
               TACBrMDFe(ACBrMDFe).EventoMDFe.Evento.Items[i],
@@ -165,7 +181,9 @@ var
 
   function ImprimirEVENTOPDFTipo(EventoMDFeItem: TInfEventoCollectionItem; AMDFe: TMDFe): String;
   begin
-    Result := Self.PathPDF + OnlyNumber(EventoMDFeItem.InfEvento.id) + '-procEventoMDFe.pdf';
+    Result := DefinirNomeArquivo(Self.PathPDF,
+                                 OnlyNumber(EventoMDFeItem.InfEvento.id) + '-procEventoMDFe.pdf',
+                                 Self.NomeDocumento);
 
     // TipoDAMDFE ainda não está sendo utilizado no momento
     TfrmMDFeDAEventoRLRetrato.SalvarPDF(Self, EventoMDFeItem, Result, AMDFe);

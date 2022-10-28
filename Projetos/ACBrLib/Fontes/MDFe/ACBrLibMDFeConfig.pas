@@ -53,6 +53,7 @@ type
     FProtocolo: String;
     FCancelada: Boolean;
     FEncerrado: Boolean;
+    FExibirMunicipioDescarregamento: Boolean;
 
   protected
     procedure DefinirValoresPadroesChild; override;
@@ -70,6 +71,7 @@ type
     property Protocolo: String read FProtocolo write FProtocolo;
     property Cancelada: Boolean read FCancelada write FCancelada;
     property Encerrado: Boolean read FEncerrado write FEncerrado;
+    property ExibirMunicipioDescarregamento: Boolean read FExibirMunicipioDescarregamento write FExibirMunicipioDescarregamento;
   end;
 
   { TLibMDFeConfig }
@@ -98,7 +100,8 @@ implementation
 
 uses
   blcksock, pcnAuxiliar, pmdfeConversaoMDFe,
-  ACBrLibMDFeBase, ACBrLibMDFeConsts, ACBrLibConsts, ACBrUtil;
+  ACBrLibMDFeBase, ACBrLibMDFeConsts, ACBrLibConsts,
+  ACBrUtil.FilesIO, ACBrUtil.Strings;
 
 { TDAMDFeConfig }
 constructor TDAMDFeConfig.Create;
@@ -115,6 +118,7 @@ begin
   FEncerrado := False;
   FTipoDAMDFe := tiRetrato;
   FTamanhoPapel := tpA4;
+  FExibirMunicipioDescarregamento := False;
 end;
 
 procedure TDAMDFeConfig.LerIniChild(const AIni: TCustomIniFile);
@@ -126,6 +130,7 @@ begin
   FProtocolo := AIni.ReadString(FSessao, CChaveProtocolo, FProtocolo);
   FCancelada := AIni.ReadBool(FSessao, CChaveCancelada, FCancelada);
   FEncerrado := AIni.ReadBool(FSessao, CChaveEncerrado, FEncerrado);
+  FExibirMunicipioDescarregamento := AIni.ReadBool(FSessao, CChaveExibirMunicipioDescar, ExibirMunicipioDescarregamento);
 end;
 
 procedure TDAMDFeConfig.GravarIniChild(const AIni: TCustomIniFile);
@@ -137,6 +142,7 @@ begin
   AIni.WriteString(FSessao, CChaveProtocolo, FProtocolo);
   AIni.WriteBool(FSessao, CChaveCancelada, FCancelada);
   AIni.WriteBool(FSessao, CChaveEncerrado, FEncerrado);
+  AIni.WriteBool(FSessao, CChaveExibirMunicipioDescar, FExibirMunicipioDescarregamento);
 end;
 
 procedure TDAMDFeConfig.ApplyChild(const DFeReport: TACBrMDFeDAMDFeRL; const Lib: TACBrLib);
@@ -148,6 +154,7 @@ begin
   DFeReport.Protocolo := FProtocolo;
   DFeReport.Cancelada := FCancelada;
   DFeReport.Encerrado := FEncerrado;
+  DFeReport.ExibirMunicipioDescarregamento := FExibirMunicipioDescarregamento;
 end;
 
 { TLibMDFeConfig }

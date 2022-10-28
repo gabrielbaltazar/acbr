@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2021 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2022 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo:                                                 }
 {                                                                              }
@@ -119,7 +119,7 @@ type
     property UtilizaSaldoTotalVoucher: Boolean read fUtilizaSaldoTotalVoucher
       write fUtilizaSaldoTotalVoucher default False;
     property MoedaISO4217: Integer read fMoedaISO4217 write fMoedaISO4217 default 986;
-    property AutoAtendimento: Boolean read fAutoAtendimento write fAutoAtendimento;
+    property AutoAtendimento: Boolean read fAutoAtendimento write fAutoAtendimento;  // Ainda NÃO utilizado
   end;
 
   { TACBrTEFAPIDadosEstabelecimento }
@@ -172,9 +172,6 @@ type
   { TACBrTEFAPIComumClass }
 
   TACBrTEFAPIComumClass = class
-  private
-    procedure AtualizarHeader;
-
   protected
     fpACBrTEFAPI: TACBrTEFAPIComum;
     fpInicializado: Boolean;
@@ -183,6 +180,7 @@ type
 
     procedure ErroAbstract(const NomeProcedure: String);
     procedure VerificarIdentificadorVendaInformado;
+    procedure AtualizarHeader;
 
     procedure InicializarChamadaAPI(AMetodoOperacao: TACBrTEFAPIMetodo); virtual;
     procedure FinalizarChamadaAPI; virtual;
@@ -900,6 +898,9 @@ begin
     if UltimaRespostaTEF.Sucesso then
     begin
       NumRespostas := RespostasTEF.Count;
+      //HOMOLOGAÇÃO: Insira um Break Point na linha abaixo, se deseja interromper a
+      //             aplicação, antes de Componente Criar um Arquivo de Backup da Ultima Transação
+      //             (simulação de transação pendente, sem recuperação por arquivo de Backup)
       i := RespostasTEF.AdicionarRespostaTEF(UltimaRespostaTEF);
 
       if (i < 0) or (NumRespostas < RespostasTEF.Count) then  // Adicionou uma nova resposta ?
@@ -911,13 +912,13 @@ begin
         begin
           FinalizarTransacao(tefstsSucessoAutomatico);
         end;
-
-        if Assigned(QuandoFinalizarOperacao) then
-        begin
-          GravarLog('  QuandoFinalizarOperacao');
-          QuandoFinalizarOperacao(UltimaRespostaTEF);
-        end;
       end;
+    end;
+
+    if Assigned(QuandoFinalizarOperacao) then
+    begin
+      GravarLog('  QuandoFinalizarOperacao');
+      QuandoFinalizarOperacao(UltimaRespostaTEF);
     end;
   end;
 end;
@@ -1277,7 +1278,7 @@ var
   i: Integer;
   ATEFResp: TACBrTEFResp;
 begin
-  GravarLog( 'FinalizarTransacao( '+
+  GravarLog( '    FinalizarTransacao( '+
              Rede+', '+
              NSU+', '+
              CodigoFinalizacao+', '+
@@ -1293,7 +1294,7 @@ begin
 
     if Assigned(fQuandoFinalizarTransacao) then
     begin
-      GravarLog('  QuandoFinalizarTransacao');
+      GravarLog('      QuandoFinalizarTransacao');
       fQuandoFinalizarTransacao(ATEFResp, AStatus);
     end;
   end;
@@ -1301,9 +1302,12 @@ end;
 
 procedure TACBrTEFAPIComum.FinalizarTransacao(AStatus: TACBrTEFStatusTransacao);
 begin
-  GravarLog( 'FinalizarTransacao( '+
+  GravarLog( '  FinalizarTransacao( '+
              GetEnumName(TypeInfo(TACBrTEFStatusTransacao), integer(AStatus))+' )');
 
+  //HOMOLOGAÇÃO: Insira um Break Point na linha abaixo, se deseja interromper a
+  //             aplicação, antes de Confirmar a Ultima Transação
+  //             (simulação de transação pendente)
   FinalizarTransacao( UltimaRespostaTEF.Rede,
                       UltimaRespostaTEF.NSU,
                       UltimaRespostaTEF.Finalizacao,

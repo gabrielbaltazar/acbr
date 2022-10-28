@@ -38,14 +38,24 @@ interface
 
 uses
 {$IFDEF FPC}
-  LResources, Controls, Graphics, Dialogs,
+  LResources, 
+  Controls, 
 {$ELSE}
 
 {$ENDIF}
-  SysUtils, Classes, StrUtils,
-  synacode, ACBrConsts,
-  pcnAuxiliar, pcnConversao, pcnGerador, pcnConsts,
-  pnfsNFSeW, pnfsNFSe, pnfsConversao, pnfsConsts;
+  SysUtils, 
+  Classes, 
+  StrUtils,
+  synacode, 
+  ACBrConsts,
+  pcnAuxiliar, 
+  pcnConversao, 
+  pcnGerador, 
+  pcnConsts,
+  pnfsNFSeW, 
+  pnfsNFSe, 
+  pnfsConversao, 
+  pnfsConsts;
 
 type
   { TNFSeW_Elotech }
@@ -91,7 +101,8 @@ type
 implementation
 
 uses
-  ACBrUtil;
+  ACBrUtil.Strings,
+  ACBrUtil.DateTime;
 
 {==============================================================================}
 { Essa unit tem por finalidade exclusiva de gerar o XML do RPS segundo o       }

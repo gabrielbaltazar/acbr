@@ -54,6 +54,7 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderBetha = class (TACBrNFSeProviderABRASFv1)
@@ -104,13 +105,20 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings,
-  ACBrUtil.XMLHTML,
+  ACBrUtil.Strings, ACBrUtil.XMLHTML,
   ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   ACBrNFSeXNotasFiscais, Betha.GravarXml, Betha.LerXml;
 
 { TACBrNFSeXWebserviceBetha }
+
+function TACBrNFSeXWebserviceBetha.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := RemoverPrefixosDesnecessarios(Result);
+end;
 
 function TACBrNFSeXWebserviceBetha.Recepcionar(ACabecalho, AMSG: String): string;
 begin
@@ -159,6 +167,8 @@ end;
 procedure TACBrNFSeProviderBetha.Configuracao;
 begin
   inherited Configuracao;
+
+  ConfigGeral.DetalharServico := True;
 
   with ConfigAssinar do
   begin
@@ -565,8 +575,10 @@ function TACBrNFSeXWebserviceBetha202.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
+  Result := RemoverCaracteresDesnecessarios(Result);
   Result := ParseText(AnsiString(Result), True, False);
   Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
 end;
 
 end.

@@ -44,7 +44,8 @@ uses
   SysUtils, Classes,
   ACBrConsts, ACBrXmlBase, ACBrNFSeXClass, ACBrNFSeXConversao,
   ACBrNFSeXGravarXml, ACBrNFSeXLerXml,
-  ACBrNFSeXProviderABRASFv1, ACBrNFSeXWebserviceBase, ACBrNFSeXWebservicesResponse;
+  ACBrNFSeXProviderABRASFv1, ACBrNFSeXProviderABRASFv2,
+  ACBrNFSeXWebserviceBase, ACBrNFSeXWebservicesResponse;
 
 type
   TACBrNFSeXWebserviceISSNet = class(TACBrNFSeXWebserviceSoap11)
@@ -70,6 +71,50 @@ type
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
     procedure ValidarSchema(Response: TNFSeWebserviceResponse; aMetodo: TMetodo); override;
+
+    procedure GerarMsgDadosCancelaNFSe(Response: TNFSeCancelaNFSeResponse;
+      Params: TNFSeParamsResponse); override;
+  end;
+
+  TACBrNFSeXWebserviceISSNet204 = class(TACBrNFSeXWebserviceSoap11)
+
+  public
+    function Recepcionar(ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
+    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+
+    function TratarXmlRetornado(const aXML: string): string; override;
+  end;
+
+  TACBrNFSeProviderISSNet204 = class (TACBrNFSeProviderABRASFv2)
+  protected
+    procedure Configuracao; override;
+
+    function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; override;
+    function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
+    function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
+
+    procedure GerarMsgDadosConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse;
+      Params: TNFSeParamsResponse); override;
+
+    procedure GerarMsgDadosConsultaporRps(Response: TNFSeConsultaNFSeporRpsResponse;
+      Params: TNFSeParamsResponse); override;
+
+    procedure GerarMsgDadosConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse;
+      Params: TNFSeParamsResponse); override;
+
+    procedure GerarMsgDadosConsultaNFSeServicoPrestado(Response: TNFSeConsultaNFSeResponse;
+      Params: TNFSeParamsResponse); override;
+
+    procedure GerarMsgDadosConsultaNFSeServicoTomado(Response: TNFSeConsultaNFSeResponse;
+      Params: TNFSeParamsResponse); override;
 
     procedure GerarMsgDadosCancelaNFSe(Response: TNFSeCancelaNFSeResponse;
       Params: TNFSeParamsResponse); override;
@@ -342,6 +387,469 @@ begin
   Result := RemoverIdentacao(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
+end;
+
+{ TACBrNFSeXWebserviceISSNet204 }
+
+function TACBrNFSeXWebserviceISSNet204.Recepcionar(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:RecepcionarLoteRps>';
+  Request := Request + '<nfseCabecMsg>' + ACabecalho + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + AMSG + '</nfseDadosMsg>';
+  Request := Request + '</nfse:RecepcionarLoteRps>';
+
+  Result := Executar('http://nfse.abrasf.org.br/RecepcionarLoteRps', Request,
+//                     ['outputXML', 'EnviarLoteRpsResposta'],
+                     ['EnviarLoteRpsResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceISSNet204.RecepcionarSincrono(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:RecepcionarLoteRpsSincrono>';
+  Request := Request + '<nfseCabecMsg>' + ACabecalho + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + AMSG + '</nfseDadosMsg>';
+  Request := Request + '</nfse:RecepcionarLoteRpsSincrono>';
+
+  Result := Executar('http://nfse.abrasf.org.br/RecepcionarLoteRpsSincrono', Request,
+//                     ['outputXML', 'EnviarLoteRpsSincronoResposta'],
+                     ['EnviarLoteRpsSincronoResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceISSNet204.GerarNFSe(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:GerarNfse>';
+  Request := Request + '<nfseCabecMsg>' + ACabecalho + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + AMSG + '</nfseDadosMsg>';
+  Request := Request + '</nfse:GerarNfse>';
+
+  Result := Executar('http://nfse.abrasf.org.br/GerarNfse', Request,
+//                     ['outputXML', 'GerarNfseResposta'],
+                     ['GerarNfseResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceISSNet204.ConsultarLote(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:ConsultarLoteRps>';
+  Request := Request + '<nfseCabecMsg>' + ACabecalho + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + AMSG + '</nfseDadosMsg>';
+  Request := Request + '</nfse:ConsultarLoteRps>';
+
+  Result := Executar('http://nfse.abrasf.org.br/ConsultarLoteRps', Request,
+//                     ['outputXML', 'ConsultarLoteRpsResposta'],
+                     ['ConsultarLoteRpsResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceISSNet204.ConsultarNFSePorFaixa(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:ConsultarNfsePorFaixa>';
+  Request := Request + '<nfseCabecMsg>' + ACabecalho + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + AMSG + '</nfseDadosMsg>';
+  Request := Request + '</nfse:ConsultarNfsePorFaixa>';
+
+  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfsePorFaixa', Request,
+//                     ['outputXML', 'ConsultarNfseFaixaResposta'],
+                     ['ConsultarNfseFaixaResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceISSNet204.ConsultarNFSePorRps(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:ConsultarNfsePorRps>';
+  Request := Request + '<nfseCabecMsg>' + ACabecalho + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + AMSG + '</nfseDadosMsg>';
+  Request := Request + '</nfse:ConsultarNfsePorRps>';
+
+  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfsePorRps', Request,
+//                     ['outputXML', 'ConsultarNfsePorRpsResposta'],
+                     ['ConsultarNfseRpsResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceISSNet204.ConsultarNFSeServicoPrestado(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:ConsultarNfseServicoPrestado>';
+  Request := Request + '<nfseCabecMsg>' + ACabecalho + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + AMSG + '</nfseDadosMsg>';
+  Request := Request + '</nfse:ConsultarNfseServicoPrestado>';
+
+  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfseServicoPrestado', Request,
+//                     ['outputXML', 'ConsultarNfseServicoPrestadoResposta'],
+                     ['ConsultarNfseServicoPrestadoResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceISSNet204.ConsultarNFSeServicoTomado(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:ConsultarNfseServicoTomado>';
+  Request := Request + '<nfseCabecMsg>' + ACabecalho + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + AMSG + '</nfseDadosMsg>';
+  Request := Request + '</nfse:ConsultarNfseServicoTomado>';
+
+  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfseServicoTomado', Request,
+//                     ['outputXML', 'ConsultarNfseServicoTomadoResposta'],
+                     ['ConsultarNfseServicoTomadoResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceISSNet204.Cancelar(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:CancelarNfse>';
+  Request := Request + '<nfseCabecMsg>' + ACabecalho + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + AMSG + '</nfseDadosMsg>';
+  Request := Request + '</nfse:CancelarNfse>';
+
+  Result := Executar('http://nfse.abrasf.org.br/CancelarNfse', Request,
+//                     ['outputXML', 'CancelarNfseResposta'],
+                     ['CancelarNfseResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceISSNet204.SubstituirNFSe(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:SubstituirNfse>';
+  Request := Request + '<nfseCabecMsg>' + ACabecalho + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + AMSG + '</nfseDadosMsg>';
+  Request := Request + '</nfse:SubstituirNfse>';
+
+  Result := Executar('http://nfse.abrasf.org.br/SubstituirNfse', Request,
+//                     ['outputXML', 'SubstituirNfseResposta'],
+                     ['SubstituirNfseResult'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebserviceISSNet204.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(UTF8Decode(aXML));
+
+  Result := ParseText(AnsiString(Result), True, False);
+  Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);  
+  Result := RemoverIdentacao(Result);
+  Result := TiraAcentos(Result);
+end;
+
+{ TACBrNFSeProviderISSNet204 }
+
+procedure TACBrNFSeProviderISSNet204.Configuracao;
+begin
+  inherited Configuracao;
+
+  with ConfigGeral do
+  begin
+    ConsultaPorFaixaPreencherNumNfseFinal := True;
+  end;
+
+  with ConfigAssinar do
+  begin
+    Rps := True;
+    LoteRps := True;
+    ConsultarNFSeRps := True;
+    ConsultarNFSePorFaixa := True;
+    ConsultarNFSeServicoPrestado := True;
+    ConsultarNFSeServicoTomado := True;
+    CancelarNFSe := True;
+    RpsGerarNFSe := True;
+    SubstituirNFSe := True;
+
+    IncluirURI := False;
+  end;
+
+  with ConfigWebServices do
+  begin
+    VersaoDados := '2.04';
+    VersaoAtrib := '1.00';
+  end;
+
+  with ConfigMsgDados do
+  begin
+    DadosCabecalho := GetCabecalho('');
+    GerarPrestadorLoteRps := True;
+  end;
+end;
+
+function TACBrNFSeProviderISSNet204.CriarGeradorXml(
+  const ANFSe: TNFSe): TNFSeWClass;
+begin
+  Result := TNFSeW_ISSNet204.Create(Self);
+  Result.NFSe := ANFSe;
+end;
+
+function TACBrNFSeProviderISSNet204.CriarLeitorXml(
+  const ANFSe: TNFSe): TNFSeRClass;
+begin
+  Result := TNFSeR_ISSNet204.Create(Self);
+  Result.NFSe := ANFSe;
+end;
+
+function TACBrNFSeProviderISSNet204.CriarServiceClient(
+  const AMetodo: TMetodo): TACBrNFSeXWebservice;
+var
+  URL: string;
+begin
+  URL := GetWebServiceURL(AMetodo);
+
+  if URL <> '' then
+    Result := TACBrNFSeXWebserviceISSNet204.Create(FAOwner, AMetodo, URL)
+  else
+  begin
+    if ConfigGeral.Ambiente = taProducao then
+      raise EACBrDFeException.Create(ERR_SEM_URL_PRO)
+    else
+      raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
+  end;
+end;
+
+procedure TACBrNFSeProviderISSNet204.GerarMsgDadosConsultaLoteRps(
+  Response: TNFSeConsultaLoteRpsResponse; Params: TNFSeParamsResponse);
+var
+  Emitente: TEmitenteConfNFSe;
+  Prestador, NumeroLote: string;
+begin
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  with Params do
+  begin
+    Prestador := '<Prestador>' +
+                   '<CpfCnpj>' +
+                     GetCpfCnpj(Emitente.CNPJ) +
+                   '</CpfCnpj>' +
+                   GetInscMunic(Emitente.InscMun) +
+                 '</Prestador>' +
+                 '<Protocolo>' +
+                   Response.Protocolo +
+                 '</Protocolo>';
+
+    if ConfigMsgDados.UsarNumLoteConsLote then
+      NumeroLote := '<NumeroLote>' +
+                      Response.Lote +
+                    '</NumeroLote>';
+
+    Response.ArquivoEnvio := '<' + TagEnvio + NameSpace + '>' +
+                                 Prestador +
+                                 NumeroLote +
+                             '</' + TagEnvio + '>';
+  end;
+end;
+
+procedure TACBrNFSeProviderISSNet204.GerarMsgDadosConsultaporRps(
+  Response: TNFSeConsultaNFSeporRpsResponse; Params: TNFSeParamsResponse);
+var
+  Emitente: TEmitenteConfNFSe;
+  Prestador: string;
+begin
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  with Params do
+  begin
+    Prestador :='<Prestador>' +
+                  '<CpfCnpj>' +
+                    GetCpfCnpj(Emitente.CNPJ) +
+                  '</CpfCnpj>' +
+                  GetInscMunic(Emitente.InscMun) +
+                '</Prestador>';
+
+    Response.ArquivoEnvio := '<' + TagEnvio + NameSpace + '>' +
+                               '<Pedido>' +
+                                 '<IdentificacaoRps>' +
+                                   '<Numero>' +
+                                     Response.NumRPS +
+                                   '</Numero>' +
+                                   '<Serie>' +
+                                     Response.Serie +
+                                   '</Serie>' +
+                                   '<Tipo>' +
+                                     Response.Tipo +
+                                   '</Tipo>' +
+                                 '</IdentificacaoRps>' +
+                                 Prestador +
+                               '</Pedido>' +
+                             '</' + TagEnvio + '>';
+  end;
+end;
+
+procedure TACBrNFSeProviderISSNet204.GerarMsgDadosConsultaNFSeporFaixa(
+  Response: TNFSeConsultaNFSeResponse; Params: TNFSeParamsResponse);
+var
+  Emitente: TEmitenteConfNFSe;
+  Prestador: string;
+begin
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  with Params do
+  begin
+    Prestador :='<Prestador>' +
+                  '<CpfCnpj>' +
+                    GetCpfCnpj(Emitente.CNPJ) +
+                  '</CpfCnpj>' +
+                  GetInscMunic(Emitente.InscMun) +
+                '</Prestador>';
+
+    Response.ArquivoEnvio := '<ConsultarNfseFaixaEnvio' + NameSpace + '>' +
+                               '<Pedido>' +
+                                 Prestador +
+                                 Xml +
+                                 '<Pagina>' +
+                                    IntToStr(Response.InfConsultaNFSe.Pagina) +
+                                 '</Pagina>' +
+                               '</Pedido>' +
+                             '</ConsultarNfseFaixaEnvio>';
+  end;
+end;
+
+procedure TACBrNFSeProviderISSNet204.GerarMsgDadosConsultaNFSeServicoPrestado(
+  Response: TNFSeConsultaNFSeResponse; Params: TNFSeParamsResponse);
+var
+  Emitente: TEmitenteConfNFSe;
+  Prestador: string;
+begin
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  with Params do
+  begin
+    Prestador :='<Prestador>' +
+                  '<CpfCnpj>' +
+                    GetCpfCnpj(Emitente.CNPJ) +
+                  '</CpfCnpj>' +
+                  GetInscMunic(Emitente.InscMun) +
+                '</Prestador>';
+
+    Response.ArquivoEnvio := '<ConsultarNfseServicoPrestadoEnvio' + NameSpace + '>' +
+                               '<Pedido>' +
+                                 Prestador +
+                                 Xml +
+                                 '<Pagina>' +
+                                    IntToStr(Response.InfConsultaNFSe.Pagina) +
+                                 '</Pagina>' +
+                               '</Pedido>' +
+                             '</ConsultarNfseServicoPrestadoEnvio>';
+  end;
+end;
+
+procedure TACBrNFSeProviderISSNet204.GerarMsgDadosConsultaNFSeServicoTomado(
+  Response: TNFSeConsultaNFSeResponse; Params: TNFSeParamsResponse);
+var
+  Emitente: TEmitenteConfNFSe;
+  Consulente: string;
+begin
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  with Params do
+  begin
+    Consulente :='<Consulente>' +
+                   '<CpfCnpj>' +
+                     GetCpfCnpj(Emitente.CNPJ) +
+                   '</CpfCnpj>' +
+                   GetInscMunic(Emitente.InscMun) +
+                 '</Consulente>';
+
+    Response.ArquivoEnvio := '<ConsultarNfseServicoTomadoEnvio' + NameSpace + '>' +
+                               '<Pedido>' +
+                                 Consulente +
+                                 Xml +
+                                 '<Pagina>' +
+                                    IntToStr(Response.InfConsultaNFSe.Pagina) +
+                                 '</Pagina>' +
+                               '</Pedido>' +
+                             '</ConsultarNfseServicoTomadoEnvio>';
+  end;
+end;
+
+procedure TACBrNFSeProviderISSNet204.GerarMsgDadosCancelaNFSe(
+  Response: TNFSeCancelaNFSeResponse; Params: TNFSeParamsResponse);
+var
+  Emitente: TEmitenteConfNFSe;
+  InfoCanc: TInfCancelamento;
+  xCodMun: string;
+begin
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+  InfoCanc := Response.InfCancelamento;
+
+  if ConfigGeral.Ambiente = taProducao then
+    xCodMun := IntToStr(TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio)
+  else
+    xCodMun := '5002704';
+
+  with Params do
+  begin
+    Response.ArquivoEnvio := '<CancelarNfseEnvio' + NameSpace + '>' +
+                               '<Pedido>' +
+                                 '<InfPedidoCancelamento' + IdAttr + NameSpace2 + '>' +
+                                   '<IdentificacaoNfse>' +
+                                     '<Numero>' +
+                                        InfoCanc.NumeroNFSe +
+                                     '</Numero>' +
+                                     Serie +
+                                     '<CpfCnpj>' +
+                                       GetCpfCnpj(Emitente.CNPJ) +
+                                     '</CpfCnpj>' +
+                                     GetInscMunic(Emitente.InscMun) +
+                                     '<CodigoMunicipio>' +
+                                       xCodMun +
+                                     '</CodigoMunicipio>' +
+                                     CodVerif +
+                                   '</IdentificacaoNfse>' +
+                                   '<CodigoCancelamento>' +
+                                      InfoCanc.CodCancelamento +
+                                   '</CodigoCancelamento>' +
+                                   Motivo +
+                                 '</InfPedidoCancelamento>' +
+                               '</Pedido>' +
+                             '</CancelarNfseEnvio>';
+  end;
 end;
 
 end.
