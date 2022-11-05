@@ -42,6 +42,27 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+11/10/2022
+-- ACBrGTINReg -- 
+[*] Ajustes de propriedades ACBrGTIN
+    Por: Daniel Infocotidiano
+
+10/10/2022
+-- ACBrGTINReg / ACBrGTINConfiguracoes --
+[*] Correção Units ACBrGTIN
+    Por: Daniel Infocotidiano / Italo Giurizzato Junior / Panda / Antonio Carlos Junior
+
+07/10/2022
+-- ACBrGTINReg / ACBrGTINConfiguracoes --
+[*] Ajustes nas propriedades componente ACBrGTIN
+    Por Daniel Infocotidiano / Italo Giurizzato Junior / Antonio Carlos Junior
+
+07/07/2022
+-- ACBrGTINWebServices --
+[*] Alteração visando a leitura correta de produtos cuja descrição tem o caracter
+    "&".
+   Por: Datilas/Italo Giurizzato Junior
+
 Data 14/06/2022
 [+] Doação do componente ACBrGTIN para o Projeto ACBr
    Por: Italo Giurizzato Junior

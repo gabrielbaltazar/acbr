@@ -47,6 +47,173 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+27/10/2022
+-- ACBrPIXSchemasCob --
+[*] Correção de problema ocorrido com PSP Siccob quando há retorno de tag com valor Null
+    https://www.projetoacbr.com.br/forum/topic/69458-acbrpixcd-sicredi-mensagem-erro-no-demo-duplicate-object-member-retirada/
+	
+-- ACBrPIXPSPBancoDoBrasil --
+[-] Correção de problema ao consultar lista de pagamentos com o PSP BB
+    Por: Elias César
+
+17/10/2022
+-- ACBrPIXPSPSicoob --
+[-] Ajuste para incluir scopes cobv
+[*] Alteração de 'brcode' para 'pixCopiaECola' no retorno do endpoint cobv
+
+-- ACBrPIXPSPSicredi --
+[-] Ajuste para incluir scopes cobv
+
+-- ACBrPixSchemasCobV --
+[*] Alteração no tipo da classe para incluir também a propiedade pixCopiaECola
+Por: Elias César
+
+04/10/2022
+-- ACBrPIXPSPBancoDoBrasil --
+[*] Alteração para disparar erro caso o PSP não possua o endpoint utilizados
+
+-- ACBrPIXCD --
+[*] Incluído resource de erro para disparar a exceção
+    por: Elias César
+
+20/09/2022
+-- ACBrPIXPSPSicoob --
+[-] Correção para tratar corretamente o retorno do Sicoob ao Solicitar uma devolução
+
+19/09/2022
+-- ACBrPIXCDReg --
+[+] Inclusão de novo PSP Sicoob
+    Por: Huenes
+
+05/09/2022
+-- ACBrPIXCD --
+[*] Inclusão dos parâmetros TxID e Valor na procedure "GerarQRCodeDinamico()",  para 
+    possibilitar informar esses valores à título de informação no Copia e Cola, pois 
+    os valores válidos sempre serão os da URL.
+	
+-- ACBrPIXBRCode --
+[*] Alteração para os tipos de QRCodes validarem o TxID de maneira diferente:
+    - QRCodeEstatico = Tamanho TxID até 25 caracteres;
+    - QRCodeDinamico = Tamanho TxID de 26 a 35 caracteres.
+    Por: Elias César
+
+01/09/2022
+-- ACBrPIXPSPSantander --
+[+] Inclusão de propriedades para certificado PFX e senha. 
+    Necessário para utilizar em ambiente de produção.
+    Por: Washington
+    
+-- ACBrPIXBRCode --
+[*] Criada função "GetPixKeyType()" para carregar corretamente o tipo da chave quando o 
+    QRCode é lido através do "AsString";
+[-] Alteração na maneira que é lido o campo "TransactionAmount", pois o valor estava sempre
+    retornando como zero.
+    Por: Elias César
+
+31/08/2022
+-- ACBrPIXCD --
+[+] Inclusão de nova classe TACBrPSPCertificate para centralizar o controle/envio de Certificados e 
+    Chaves Privadas dos PSPs.
+	
+-- ACBrPIXPSPItau, ACBrPIXPSPSicredi --
+[*] Alteração para herdar de nova classe TACBrPSPCertificate;
+
+
+15/08/2022
+-- ACBrBase --
+[*] Removida a unit 'fpjsons' do uses, pois não é mais utilizada.
+
+-- ACBrPIXPSPBancoDoBrasil, ACBrPIXPSPItau, ACBrPIXPSPSantander, ACBrPIXPSPShipay, ACBrPIXPSPSicredi --
+[*] Alteração para possibilitar a utilização dos PSPs em todas as plataformas de compilação.
+    Por: Elias César
+
+15/08/2022
+-- ACBrPIXPSPSicredi --
+[*] Alteração para compatibilizar o retorno da API Pix Sicredi ao solicitar uma devolução
+    Por: Marcelo A. Rodrigues
+
+11/08/2022
+-- ACBrBase, ACBrSchemas... --
+[*] Adaptações para utilizar a nova unit ACBrJSON.
+
+-- ACBrPIXPSPBancoDoBrasil, ACBrPIXPSPItau, ACBrPIXPSPSantander, ACBrPIXPSPShipay, ACBrPIXPSPSicredi --
+[*] Adaptações para utilizar a nova unit ACBrJSON.
+    Por: Elias César
+
+27/07/2022
+-- ACBrPIXPSPItau --
+[*] Revovendo parâmetros desnecessários ao Renovar Certificado e Gerar
+    Certificado CSR.
+    Por: Elias César
+
+25/07/2022
+-- ACBrPIXSchemasCobV --
+[*] Correções para envio correto do endpoint /cobv
+
+-- ACBrPIXCD --
+[+] Inclusão do endpoint /cobv
+    Por: Elias César
+	
+-- ACBrPIXPSPItau --
+[+] Inclusão de função para renovação do certificado
+[*] Alterações para incluir o certificado nas requisições em ambiente de produção
+    Por: Elias César
+
+21/070/2022
+-- ACBrPIXPSPBancoDoBrasil --
+[-] Correção para incluir delimitador nas requisições do endpoint /cob
+    https://www.projetoacbr.com.br/forum/topic/68247-erro-404-resource-not-found-pixcd-psp-bco-do-brasil/
+    Por: Elias César 
+
+20/07/2022
+-- ACBrShipaySchemas --
+[-] Correção de MemoryLeak ao utilizar a lista de descontos do componente Shipay
+    https://www.projetoacbr.com.br/forum/topic/68222-acbrpixcd-memory-leak/
+	Por: Elias César
+
+12/07/2022
+-- ACBrPIXPSPItau --
+[*] Ajuste para funcionamento correto em ambiente de testes. Alterado para incluir 
+    header 'x-sandbox-token' com o token gerado no momento da autenticação.
+[-] Correção das URLs.
+
+11/07/2022
+-- ACBrPIXSchemasCalendario, ACBrPIXSchemasPix --
+[+] Inclusão de propriedades Bias, responsáveis por armazenar os minutos de diferença 
+    entre o horário local e o TimeZone informado na resposta
+    Por: Elias César
+
+08/07/2022
+-- ACBrPIXCDReg --
+[+] Inclusão de novo PSP Sicredi
+    Por: sidnei_alves1
+
+06/07/2022
+-- ACBrPIXCD --
+[+] Inclusão de possibilidade dos PSP alterarem o Body antes da requisição.
+    Necessário para PSPs como a Shipay, onde o payload é diferente do padrão Bacen.
+[*] Ajuste para concatenar os parâmetros de query na URL sem delimitador. Caso o PSP
+    necessite(como o BB em homologação), deve incluí-lo em "CalcularEndPointPath()".
+	
+-- ACBrPIXPSPBancoDoBrasil --
+[*] Ajuste no retorno da função "CalcularEndPointPath()" para retornar Path com 
+    delimitador em homologação.
+	
+-- ACBrPIXPSPShipay --
+[+] Inclusão de função para converter OrderList em CobsConsultadas para que a
+    consulta de cobranças por período funcione corretamente;
+[*] Refatoração do método "QaundoAcessarEndPoint()" para que as informações da 
+    requisição sejam configuradas separadamente.
+	
+-- ACBrPIXSchemasCobV --
+[-] Correção na leitura do Json(Problema descoberto na execução dos testes unitários).
+
+-- ACBrPIXUtil --
+[*] Alteração na função "FormatarGUID()" para montar corretamente o OrderID.
+
+-- ACBrPIXSchemasTeste --
+[-] Correção dos testes unitários após alterações nos schemas
+
 28/06/2022
 -- ACBrPIXPSPBancoDoBrasil --
 [*] Ajustes para funcionamento da Consulta de Pix recebidos por período.

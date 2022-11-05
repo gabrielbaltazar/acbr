@@ -37,9 +37,16 @@ unit ACBrMDFeManifestos;
 interface
 
 uses
-  Classes, SysUtils, Dialogs, Forms, StrUtils,
+  Classes, 
+  SysUtils, 
+  StrUtils,
   ACBrMDFeConfiguracoes,
-  pmdfeMDFe, pmdfeMDFeR, pmdfeMDFeW, pcnConversao, pcnAuxiliar, pcnLeitor;
+  pmdfeMDFe, 
+  pmdfeMDFeR, 
+  pmdfeMDFeW, 
+  pcnConversao, 
+  pcnAuxiliar, 
+  pcnLeitor;
 
 type
 
@@ -167,7 +174,8 @@ type
 implementation
 
 uses
-  dateutils, IniFiles,
+  Dateutils, 
+  IniFiles,
   synautil,
   ACBrMDFe,
   ACBrUtil.Base,
@@ -175,7 +183,8 @@ uses
   ACBrUtil.Strings,
   ACBrUtil.FilesIO,
   ACBrUtil.DateTime,
-  ACBrDFeUtil, pmdfeConversaoMDFe;
+  ACBrDFeUtil, 
+  pmdfeConversaoMDFe;
 
 { Manifesto }
 
@@ -403,7 +412,7 @@ var
   end;
 
 begin
-  Agora := Now;
+  Agora := DataHoraTimeZoneModoDeteccao( TACBrMDFe(TManifestos(Collection).ACBrMDFe) );   //Converte o DateTime do Sistema para o TimeZone configurado, para evitar divergência de Fuso Horário.
   GravaLog('Inicio da Validação');
 
   with TACBrMDFe(TManifestos(Collection).ACBrMDFe) do

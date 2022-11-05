@@ -74,7 +74,7 @@ type
 implementation
 
 uses
-  ACBrUtil.XMLHTML,
+  ACBrUtil.XMLHTML, ACBrUtil.DateTime,
   ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   ACBrNFSeXNotasFiscais, SigCorp.GravarXml, SigCorp.LerXml;
 
@@ -84,7 +84,24 @@ procedure TACBrNFSeProviderSigCorp203.Configuracao;
 begin
   inherited Configuracao;
 
+  // Usado na leitura do envio
   FpFormatoDataRecebimento := tcDatUSA;
+  // Usado na leitura das informações de cancelamento
+  FpFormatoDataHora := tcDatHor;
+  // Usado na leitura da data de emissão da NFS-e
+  FpFormatoDataEmissao := tcDatHor;
+
+  if ConfigGeral.Params.ParamTemValor('FormatoData', 'CancDDMMAAAA') then
+    FpFormatoDataHora := tcDatVcto;
+
+  if ConfigGeral.Params.ParamTemValor('FormatoData', 'CancMMDDAAAA') then
+    FpFormatoDataHora := tcDatUSA;
+
+  if ConfigGeral.Params.ParamTemValor('FormatoData', 'NFSeDDMMAAAA') then
+    FpFormatoDataEmissao := tcDatVcto;
+
+  if ConfigGeral.Params.ParamTemValor('FormatoData', 'NFSeMMDDAAAA') then
+    FpFormatoDataEmissao := tcDatUSA;
 
   with ConfigGeral do
   begin
@@ -146,7 +163,7 @@ var
   Document: TACBrXmlDocument;
   ANode: TACBrXmlNode;
   Ret: TRetCancelamento;
-  IdAttr: string;
+  IdAttr, xDataHora, xFormato: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   Document := TACBrXmlDocument.Create;
@@ -198,7 +215,17 @@ begin
       end;
 
       Ret :=  Response.RetCancelamento;
-      Ret.DataHora := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHoraCancelamento'), tcDatVcto);
+
+      xDataHora := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHoraCancelamento'), tcStr);
+      xFormato := 'YYYY/MM/DD';
+
+      if ConfigGeral.Params.ParamTemValor('FormatoData', 'CancDDMMAAAA') then
+        xFormato := 'DD/MM/YYYY';
+
+      if ConfigGeral.Params.ParamTemValor('FormatoData', 'CancMMDDAAAA') then
+        xFormato := 'MM/DD/YYYY';
+
+      Ret.DataHora := EncodeDataHora(xDataHora, xFormato);
 
       if ConfigAssinar.IncluirURI then
         IdAttr := ConfigGeral.Identificador

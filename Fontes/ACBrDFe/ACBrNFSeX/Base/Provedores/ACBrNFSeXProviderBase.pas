@@ -86,8 +86,6 @@ type
 
     function CarregarXmlNfse(aNota: TNotaFiscal; aXml: string): TNotaFiscal;
 
-    function CarregarXmlNfse(aNota: TNotaFiscal; aXml: string): TNotaFiscal;
-
     function GetWebServiceURL(const AMetodo: TMetodo): string;
 
     function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; virtual; abstract;

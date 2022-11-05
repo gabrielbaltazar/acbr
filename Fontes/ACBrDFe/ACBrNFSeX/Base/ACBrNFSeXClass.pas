@@ -88,11 +88,240 @@ type
     FAliquota: Double;
     FValorIss: Double;
     FValorLiquidoNfse: Double;
+    FvCalcDR: Double;
+    FtpBM: string;
+    FvCalcBM: Double;
+    FvTotalRet: Double;
   public
     property BaseCalculo: Double read FBaseCalculo write FBaseCalculo;
     property Aliquota: Double read FAliquota write FAliquota;
     property ValorIss: Double read FValorIss write FValorIss;
     property ValorLiquidoNfse: Double read FValorLiquidoNfse write FValorLiquidoNfse;
+    // Provedor PadraoNacional
+    property vCalcDR: Double read FvCalcDR write FvCalcDR;
+    property tpBM: string read FtpBM write FtpBM;
+    property vCalcBM: Double read FvCalcBM write FvCalcBM;
+    property vTotalRet: Double read FvTotalRet write FvTotalRet;
+  end;
+
+  TNFSeMun = class(TObject)
+  private
+    FcMunNFSeMun: string;
+    FnNFSeMun: string;
+    FcVerifNFSeMun: string;
+  public
+    property cMunNFSeMun: string read FcMunNFSeMun write FcMunNFSeMun;
+    property nNFSeMun: string read FnNFSeMun write FnNFSeMun;
+    property cVerifNFSeMun: string read FcVerifNFSeMun write FcVerifNFSeMun;
+  end;
+
+  TNFNFS = class(TObject)
+  private
+    FnNFS: string;
+    FmodNFS: string;
+    FserieNFS: string;
+  public
+    property nNFS: string read FnNFS write FnNFS;
+    property modNFS: string read FmodNFS write FmodNFS;
+    property serieNFS: string read FserieNFS write FserieNFS;
+  end;
+
+  TIdentificacao = class(TObject)
+  private
+    FCpfCnpj: string;
+    FInscricaoMunicipal: string;
+    FInscricaoEstadual: string;
+    FDocEstrangeiro: string;
+    FTipo: TTipoPessoa;
+    FNif: string;
+    FCAEPF: string;
+
+    function GetCnpj: string;
+    procedure SetCnpj(const Value: string);
+  public
+    property Cnpj: string read GetCnpj write SetCnpj;
+    property CpfCnpj: string read FCpfCnpj write FCpfCnpj;
+    property InscricaoMunicipal: string read FInscricaoMunicipal write FInscricaoMunicipal;
+    property InscricaoEstadual: string read FInscricaoEstadual write FInscricaoEstadual;
+    property DocEstrangeiro: string read FDocEstrangeiro write FDocEstrangeiro;
+    property Tipo: TTipoPessoa read FTipo write FTipo;
+    property Nif: string read FNif write FNif;
+    property CAEPF: string read FCAEPF write FCAEPF;
+  end;
+
+  TContato = class(TObject)
+  private
+    FTelefone: string;
+    FEmail: string;
+    FDDD: string;
+    FTipoTelefone: string;
+  public
+    property Telefone: string read FTelefone write FTelefone;
+    property Email: string read FEmail write FEmail;
+    property DDD: string read FDDD write FDDD;
+    property TipoTelefone: string read FTipoTelefone write FTipoTelefone;
+  end;
+
+  TEndereco = class(TObject)
+  private
+    FEnderecoInformado: string;
+    FTipoLogradouro: string;
+    FEndereco: string;
+    FNumero: string;
+    FComplemento: string;
+    FTipoBairro: string;
+    FBairro: string;
+    FCodigoMunicipio: string;
+    FUF: string;
+    FCEP: string;
+    FxMunicipio: string;
+    FCodigoPais: Integer;
+    FxPais: string;
+  public
+    property EnderecoInformado: string read FEnderecoInformado write FEnderecoInformado;
+    property TipoLogradouro: string read FTipoLogradouro write FTipoLogradouro;
+    property Endereco: string read FEndereco write FEndereco;
+    property Numero: string read FNumero write FNumero;
+    property Complemento: string read FComplemento write FComplemento;
+    property TipoBairro: string read FTipoBairro write FTipoBairro;
+    property Bairro: string read FBairro write FBairro;
+    property CodigoMunicipio: string read FCodigoMunicipio write FCodigoMunicipio;
+    property UF: string read FUF write FUF;
+    property CEP: string read FCEP write FCEP;
+    property xMunicipio: string read FxMunicipio write FxMunicipio;
+    property CodigoPais: Integer read FCodigoPais write FCodigoPais;
+    property xPais: string read FxPais write FxPais;
+  end;
+
+  TInfoPessoa = class(TObject)
+  private
+    FIdentificacao: TIdentificacao;
+    FRazaoSocial: string;
+    FEndereco: TEndereco;
+    FContato: TContato;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property Identificacao: TIdentificacao read FIdentificacao write FIdentificacao;
+    property RazaoSocial: string read FRazaoSocial write FRazaoSocial;
+    property Endereco: TEndereco read FEndereco write FEndereco;
+    property Contato: TContato read FContato write FContato;
+  end;
+
+  TDocDeducaoCollectionItem = class(TObject)
+  private
+    FchNFSe: string;
+    FchNFe: string;
+    FNFSeMun: TNFSeMun;
+    FNFNFS: TNFNFS;
+    FnDocFisc: string;
+    FnDoc: string;
+    FtpDedRed: TtpDedRed;
+    FxDescOutDed: string;
+    FdtEmiDoc: TDateTime;
+    FvDedutivelRedutivel: Double;
+    FvDeducaoReducao: Double;
+    Ffornec: TInfoPessoa;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property chNFSe: string read FchNFSe write FchNFSe;
+    property chNFe: string read FchNFe write FchNFe;
+    property NFSeMun: TNFSeMun read FNFSeMun write FNFSeMun;
+    property NFNFS: TNFNFS read FNFNFS write FNFNFS;
+    property nDocFisc: string read FnDocFisc write FnDocFisc;
+    property nDoc: string read FnDoc write FnDoc;
+    property tpDedRed: TtpDedRed read FtpDedRed write FtpDedRed;
+    property xDescOutDed: string read FxDescOutDed write FxDescOutDed;
+    property dtEmiDoc: TDateTime read FdtEmiDoc write FdtEmiDoc;
+    property vDedutivelRedutivel: Double read FvDedutivelRedutivel write FvDedutivelRedutivel;
+    property vDeducaoReducao: Double read FvDeducaoReducao write FvDeducaoReducao;
+    property fornec: TInfoPessoa read Ffornec write Ffornec;
+  end;
+
+  TDocDeducaoCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TDocDeducaoCollectionItem;
+    procedure SetItem(Index: Integer; Value: TDocDeducaoCollectionItem);
+  public
+    function Add: TDocDeducaoCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TDocDeducaoCollectionItem;
+    property Items[Index: Integer]: TDocDeducaoCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TtribMun = class(TObject)
+  private
+    FtribISSQN: TtribISSQN;
+    FcPaisResult: Integer;
+    FtpBM: TtpBM;
+    FnBM: string;
+    FvRedBCBM: Double;
+    FpRedBCBM: Double;
+    FtpSusp: TtpSusp;
+    FnProcesso: string;
+    FtpImunidade: TtpImunidade;
+    FpAliq: Double;
+    FtpRetISSQN: TtpRetISSQN;
+  public
+    property tribISSQN: TtribISSQN read FtribISSQN write FtribISSQN;
+    property cPaisResult: Integer read FcPaisResult write FcPaisResult;
+    property tpBM: TtpBM read FtpBM write FtpBM;
+    property nBM: string read FnBM write FnBM;
+    property vRedBCBM: Double read FvRedBCBM write FvRedBCBM;
+    property pRedBCBM: Double read FpRedBCBM write FpRedBCBM;
+    property tpSusp: TtpSusp read FtpSusp write FtpSusp;
+    property nProcesso: string read FnProcesso write FnProcesso;
+    property tpImunidade: TtpImunidade read FtpImunidade write FtpImunidade;
+    property pAliq: Double read FpAliq write FpAliq;
+    property tpRetISSQN: TtpRetISSQN read FtpRetISSQN write FtpRetISSQN;
+  end;
+
+  TtribFed = class(TObject)
+  private
+    FCST: TCST;
+    FvBCPisCofins: Double;
+    FpAliqPis: Double;
+    FpAliqCofins: Double;
+    FvPis: Double;
+    FvCofins: Double;
+    FtpRetPisCofins: TtpRetPisCofins;
+    FvRetCP: Double;
+    FvRetIRRF: Double;
+    FvRetCSLL: Double;
+  public
+    property CST: TCST read FCST write FCST;
+    property vBCPisCofins: Double read FvBCPisCofins write FvBCPisCofins;
+    property pAliqPis: Double read FpAliqPis write FpAliqPis;
+    property pAliqCofins: Double read FpAliqCofins write FpAliqCofins;
+    property vPis: Double read FvPis write FvPis;
+    property vCofins: Double read FvCofins write FvCofins;
+    property tpRetPisCofins: TtpRetPisCofins read FtpRetPisCofins write FtpRetPisCofins;
+    property vRetCP: Double read FvRetCP write FvRetCP;
+    property vRetIRRF: Double read FvRetIRRF write FvRetIRRF;
+    property vRetCSLL: Double read FvRetCSLL write FvRetCSLL;
+  end;
+
+  TtotTrib = class(TObject)
+  private
+    FvTotTribFed: Double;
+    FvTotTribEst: Double;
+    FvTotTribMun: Double;
+    FpTotTribFed: Double;
+    FpTotTribEst: Double;
+    FpTotTribMun: Double;
+    FindTotTrib: TindTotTrib;
+    FpTotTribSN: Double;
+  public
+    property vTotTribFed: Double read FvTotTribFed write FvTotTribFed;
+    property vTotTribEst: Double read FvTotTribEst write FvTotTribEst;
+    property vTotTribMun: Double read FvTotTribMun write FvTotTribMun;
+    property pTotTribFed: Double read FpTotTribFed write FpTotTribFed;
+    property pTotTribEst: Double read FpTotTribEst write FpTotTribEst;
+    property pTotTribMun: Double read FpTotTribMun write FpTotTribMun;
+    property indTotTrib: TindTotTrib read FindTotTrib write FindTotTrib;
+    property pTotTribSN: Double read FpTotTribSN write FpTotTribSN;
   end;
 
   TValores = class(TObject)
@@ -133,7 +362,21 @@ type
     FRetidoInss: TnfseSimNao;
     FRetidoIr: TnfseSimNao;
     FRetidoCsll: TnfseSimNao;
+    FQtdeDiaria: Double;
+    FValorTaxaTurismo: Double;
+    FValorRecebido: Double;
+    FAliquotaDeducoes: Double;
+    FDocDeducao: TDocDeducaoCollection;
+    FtribMun: TtribMun;
+    FtribFed: TtribFed;
+    FtotTrib: TtotTrib;
+    FTipoDeducao: TTipoDeducao;
+
+    procedure SetDocDeducao(const Value: TDocDeducaoCollection);
   public
+    constructor Create;
+    destructor Destroy; override;
+
     property ValorServicos: Double read FValorServicos write FValorServicos;
     property ValorDeducoes: Double read FValorDeducoes write FValorDeducoes;
     property ValorPis: Double read FValorPis write FValorPis;
@@ -181,6 +424,18 @@ type
     property RetidoInss: TnfseSimNao read FRetidoInss write FRetidoInss;
     property RetidoIr: TnfseSimNao read FRetidoIr write FRetidoIr;
     property RetidoCsll: TnfseSimNao read FRetidoCsll write FRetidoCsll;
+    //Provedor SystemPro
+    property QtdeDiaria: Double read FQtdeDiaria write FQtdeDiaria;
+    property ValorTaxaTurismo: Double read FValorTaxaTurismo write FValorTaxaTurismo;
+    //Provedor PadraoNacional
+    property ValorRecebido: Double read FValorRecebido write FValorRecebido;
+    property AliquotaDeducoes: Double read FAliquotaDeducoes write FAliquotaDeducoes;
+    property DocDeducao: TDocDeducaoCollection read FDocDeducao write SetDocDeducao;
+    property tribMun: TtribMun read FtribMun write FtribMun;
+    property tribFed: TtribFed read FtribFed write FtribFed;
+    property totTrib: TtotTrib read FtotTrib write FtotTrib;
+    //provedor CTAConsult
+    property TipoDeducao: TTipoDeducao read FTipoDeducao write FTipoDeducao;
   end;
 
   TItemServicoCollectionItem = class(TObject)
@@ -319,16 +574,16 @@ type
   // classe usada no provedor IssDSF
   TDeducaoCollectionItem = class(TObject)
   private
-    FDeducaoPor: TnfseDeducaoPor;
-    FTipoDeducao: TnfseTipoDeducao;
+    FDeducaoPor: TDeducaoPor;
+    FTipoDeducao: TTipoDeducao;
     FCpfCnpjReferencia: string;
     FNumeroNFReferencia: string;
     FValorTotalReferencia: Double;
     FPercentualDeduzir: Double;
     FValorDeduzir: Double;
   public
-    property DeducaoPor: TnfseDeducaoPor read FDeducaoPor write FDeducaoPor;
-    property TipoDeducao: TnfseTipoDeducao read FTipoDeducao write FTipoDeducao;
+    property DeducaoPor: TDeducaoPor read FDeducaoPor write FDeducaoPor;
+    property TipoDeducao: TTipoDeducao read FTipoDeducao write FTipoDeducao;
     property CpfCnpjReferencia: string read FCpfCnpjReferencia write FCpfCnpjReferencia;
     property NumeroNFReferencia: string read FNumeroNFReferencia write FNumeroNFReferencia;
     property ValorTotalReferencia: Double read FValorTotalReferencia write FValorTotalReferencia;
@@ -344,6 +599,116 @@ type
     function Add: TDeducaoCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
     function New: TDeducaoCollectionItem;
     property Items[Index: Integer]: TDeducaoCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TComExterior = class(TObject)
+  private
+    FmdPrestacao: TmdPrestacao;
+    FvincPrest: TvincPrest;
+    FtpMoeda: Integer;
+    FvServMoeda: Double;
+    FmecAFComexP: TmecAFComexP;
+    FmecAFComexT: TmecAFComexT;
+    FmovTempBens: TMovTempBens;
+    FnDI: string;
+    FnRE: string;
+    Fmdic: Integer;
+  public
+    property mdPrestacao: TmdPrestacao read FmdPrestacao write FmdPrestacao;
+    property vincPrest: TvincPrest read FvincPrest write FvincPrest;
+    property tpMoeda: Integer read FtpMoeda write FtpMoeda;
+    property vServMoeda: Double read FvServMoeda write FvServMoeda;
+    property mecAFComexP: TmecAFComexP read FmecAFComexP write FmecAFComexP;
+    property mecAFComexT: TmecAFComexT read FmecAFComexT write FmecAFComexT;
+    property movTempBens: TMovTempBens read FmovTempBens write FmovTempBens;
+    property nDI: string read FnDI write FnDI;
+    property nRE: string read FnRE write FnRE;
+    property mdic: Integer read Fmdic write Fmdic;
+  end;
+
+  TLocacao = class(TObject)
+  private
+    Fcateg: Tcateg;
+    Fobjeto: Tobjeto;
+    Fextensao: string;
+    FnPostes: Integer;
+  public
+    property categ: Tcateg read Fcateg write Fcateg;
+    property objeto: Tobjeto read Fobjeto write Fobjeto;
+    property extensao: string read Fextensao write Fextensao;
+    property nPostes: Integer read FnPostes write FnPostes;
+  end;
+
+  TEvento = class(TObject)
+  private
+    Fdesc: string;
+    FdtIni: TDateTime;
+    FdtFim: TDateTime;
+    Fid: string;
+    FEndereco: TEndereco;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property desc: string read Fdesc write Fdesc;
+    property dtIni: TDateTime read FdtIni write FdtIni;
+    property dtFim: TDateTime read FdtFim write FdtFim;
+    property id: string read Fid write Fid;
+    property Endereco: TEndereco read FEndereco write FEndereco;
+  end;
+
+  TExplRod = class(TObject)
+  private
+    FcategVeic: TcategVeic;
+    FnEixos: Integer;
+    Frodagem: Trodagem;
+    Fsentido: string;
+    Fplaca: string;
+    FcodAcessoPed: string;
+    FcodContrato: string;
+  public
+    property categVeic: TcategVeic read FcategVeic write FcategVeic;
+    property nEixos: Integer read FnEixos write FnEixos;
+    property rodagem: Trodagem read Frodagem write Frodagem;
+    property sentido: string read Fsentido write Fsentido;
+    property placa: string read Fplaca write Fplaca;
+    property codAcessoPed: string read FcodAcessoPed write FcodAcessoPed;
+    property codContrato: string read FcodContrato write FcodContrato;
+  end;
+
+  TinfoCompl = class(TObject)
+  private
+    FidDocTec: string;
+    FdocRef: string;
+    FxInfComp: string;
+  public
+    property idDocTec: string read FidDocTec write FidDocTec;
+    property docRef: string read FdocRef write FdocRef;
+    property xInfComp: string read FxInfComp write FxInfComp;
+  end;
+
+  // classe usada no provedor CTAConsult
+  TImpostoCollectionItem = class(TObject)
+  private
+    FCodigo: Integer;
+    FDescricao: string;
+    FAliquota: Double;
+    FValor: Double;
+  public
+    property Codigo: Integer read FCodigo write FCodigo;
+    property Descricao: string read FDescricao write FDescricao;
+    property Aliquota: Double read FAliquota write FAliquota;
+    property Valor: Double read FValor write FValor;
+  end;
+
+  TImpostoCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TImpostoCollectionItem;
+    procedure SetItem(Index: Integer; Value: TImpostoCollectionItem);
+  public
+    function Add: TImpostoCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TImpostoCollectionItem;
+    property Items[Index: Integer]: TImpostoCollectionItem read GetItem write SetItem; default;
   end;
 
   TDadosServico = class(TObject)
@@ -377,9 +742,18 @@ type
     FPrestadoEmViasPublicas: Boolean;
     // Provedor GeisWeb
     FTipoLancamento: TTipoLancamento;
+    FCodigoNBS: string;
+    FCodigoInterContr: string;
+    FcomExt: TComExterior;
+    FLocacao: TLocacao;
+    FEvento: TEvento;
+    FExplRod: TExplRod;
+    FinfoCompl: TinfoCompl;
+    FImposto: TImpostoCollection;
 
     procedure SetItemServico(Value: TItemServicoCollection);
     procedure SetDeducao(const Value: TDeducaoCollection);
+    procedure SetImposto(const Value: TImpostoCollection);
   public
     constructor Create;
     destructor Destroy; override;
@@ -413,69 +787,41 @@ type
     property PrestadoEmViasPublicas: Boolean read FPrestadoEmViasPublicas write FPrestadoEmViasPublicas;
     // Provedor GeisWeb
     property TipoLancamento: TTipoLancamento read FTipoLancamento write FTipoLancamento;
+    // Provedor PadraoNacional
+    property CodigoNBS: string read FCodigoNBS write FCodigoNBS;
+    property CodigoInterContr: string read FCodigoInterContr write FCodigoInterContr;
+    property comExt: TComExterior read FcomExt write FcomExt;
+    property Locacao: TLocacao read FLocacao write FLocacao;
+    property Evento: TEvento read FEvento write FEvento;
+    property ExplRod: TExplRod read FExplRod write FExplRod;
+    property infoCompl: TinfoCompl read FinfoCompl write FinfoCompl;
+    // Provedor CTAConsult
+    property Imposto: TImpostoCollection read FImposto write SetImposto;
   end;
 
-  TIdentificacaoPrestador = class(TObject)
+  TDadosPessoa = class(TObject)
   private
-    FCpfCnpj: string;
-    FInscricaoMunicipal: string;
-    FInscricaoEstadual: string;
-    function GetCnpj: string;
-    procedure SetCnpj(const Value: string);
-  public
-    property Cnpj: string read GetCnpj write SetCnpj;
-    property CpfCnpj: string read FCpfCnpj write FCpfCnpj;
-    property InscricaoMunicipal: string read FInscricaoMunicipal write FInscricaoMunicipal;
-    property InscricaoEstadual: string read FInscricaoEstadual write FInscricaoEstadual;
-  end;
+    FIdentificacao: TIdentificacao;
 
-  TEndereco = class(TObject)
-  private
-    FEnderecoInformado: string;
-    FTipoLogradouro: string;
-    FEndereco: string;
-    FNumero: string;
-    FComplemento: string;
-    FTipoBairro: string;
-    FBairro: string;
-    FCodigoMunicipio: string;
-    FUF: string;
-    FCEP: string;
-    FxMunicipio: string;
-    FCodigoPais: Integer;
-    FxPais: string;
-  public
-    property EnderecoInformado: string read FEnderecoInformado write FEnderecoInformado;
-    property TipoLogradouro: string read FTipoLogradouro write FTipoLogradouro;
-    property Endereco: string read FEndereco write FEndereco;
-    property Numero: string read FNumero write FNumero;
-    property Complemento: string read FComplemento write FComplemento;
-    property TipoBairro: string read FTipoBairro write FTipoBairro;
-    property Bairro: string read FBairro write FBairro;
-    property CodigoMunicipio: string read FCodigoMunicipio write FCodigoMunicipio;
-    property UF: string read FUF write FUF;
-    property CEP: string read FCEP write FCEP;
-    property xMunicipio: string read FxMunicipio write FxMunicipio;
-    property CodigoPais: Integer read FCodigoPais write FCodigoPais;
-    property xPais: string read FxPais write FxPais;
-  end;
+    FRazaoSocial: string;
+    FNomeFantasia: string;
 
-  TContato = class(TObject)
-  private
-    FTelefone: string;
-    FEmail: string;
-    FDDD: string;
-    FTipoTelefone: string;
+    FEndereco: TEndereco;
+    FContato: TContato;
   public
-    property Telefone: string read FTelefone write FTelefone;
-    property Email: string read FEmail write FEmail;
-    property DDD: string read FDDD write FDDD;
-    property TipoTelefone: string read FTipoTelefone write FTipoTelefone;
+    constructor Create;
+    destructor Destroy; override;
+
+    property Identificacao: TIdentificacao read FIdentificacao write FIdentificacao;
+    property RazaoSocial: string read FRazaoSocial write FRazaoSocial;
+    property NomeFantasia: string read FNomeFantasia write FNomeFantasia;
+    property Endereco: TEndereco read FEndereco write FEndereco;
+    property Contato: TContato read FContato write FContato;
   end;
 
   TDadosPrestador = class(TObject)
   private
-    FIdentificacaoPrestador: TIdentificacaoPrestador;
+    FIdentificacaoPrestador: TIdentificacao;
 
     FRazaoSocial: string;
     FNomeFantasia: string;
@@ -493,7 +839,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    property IdentificacaoPrestador: TIdentificacaoPrestador read FIdentificacaoPrestador write FIdentificacaoPrestador;
+    property IdentificacaoPrestador: TIdentificacao read FIdentificacaoPrestador write FIdentificacaoPrestador;
     property RazaoSocial: string read FRazaoSocial write FRazaoSocial;
     property NomeFantasia: string read FNomeFantasia write FNomeFantasia;
     property Endereco: TEndereco read FEndereco write FEndereco;
@@ -509,24 +855,9 @@ type
     property DataInicioAtividade: TDateTime read FDataInicioAtividade write FDataInicioAtividade;
   end;
 
-  TIdentificacaoTomador = class(TObject)
-  private
-    FCpfCnpj: string;
-    FInscricaoMunicipal: string;
-    FInscricaoEstadual: string;
-    FDocTomadorEstrangeiro: string;
-    FTipo: TTipoPessoa;
-  public
-    property CpfCnpj: string read FCpfCnpj write FCpfCnpj;
-    property InscricaoMunicipal: string read FInscricaoMunicipal write FInscricaoMunicipal;
-    property InscricaoEstadual: string read FInscricaoEstadual write FInscricaoEstadual;
-    property DocTomadorEstrangeiro: string read FDocTomadorEstrangeiro write FDocTomadorEstrangeiro;
-    property Tipo: TTipoPessoa read FTipo write FTipo;
-  end;
-
   TDadosTomador = class(TObject)
   private
-    FIdentificacaoTomador: TIdentificacaoTomador;
+    FIdentificacaoTomador: TIdentificacao;
 
     FRazaoSocial: string;
     FNomeFantasia: string;
@@ -536,34 +867,37 @@ type
 
     FAtualizaTomador: TnfseSimNao;
     FTomadorExterior: TnfseSimNao;
-    FNifTomador: string;
   public
     constructor Create;
     destructor Destroy; override;
 
-    property IdentificacaoTomador: TIdentificacaoTomador read FIdentificacaoTomador write FIdentificacaoTomador;
+    property IdentificacaoTomador: TIdentificacao read FIdentificacaoTomador write FIdentificacaoTomador;
     property RazaoSocial: string read FRazaoSocial write FRazaoSocial;
     property NomeFantasia: string read FNomeFantasia write FNomeFantasia;
     property Endereco: TEndereco read FEndereco write FEndereco;
     property Contato: TContato read FContato write FContato;
     property AtualizaTomador: TnfseSimNao read FAtualizaTomador write FAtualizaTomador;
     property TomadorExterior: TnfseSimNao read FTomadorExterior write FTomadorExterior;
-    property NifTomador: string read FNifTomador write FNifTomador;
   end;
 
-  TIdentificacaoIntermediarioServico = class(TObject)
+  TDadosIntermediario = class(TObject)
   private
+    FIdentificacao: TIdentificacao;
+
     FRazaoSocial: string;
-    FCpfCnpj: string;
-    FInscricaoMunicipal: string;
     FIssRetido: TnfseSituacaoTributaria;
-    FEMail: string;
+
+    FEndereco: TEndereco;
+    FContato: TContato;
   public
+    constructor Create;
+    destructor Destroy; override;
+
+    property Identificacao: TIdentificacao read FIdentificacao write FIdentificacao;
     property RazaoSocial: string read FRazaoSocial write FRazaoSocial;
-    property CpfCnpj: string read FCpfCnpj write FCpfCnpj;
-    property InscricaoMunicipal: string read FInscricaoMunicipal write FInscricaoMunicipal;
     property IssRetido: TnfseSituacaoTributaria read FIssRetido write FIssRetido;
-    property EMail: string read FEMail write FEMail;
+    property Endereco: TEndereco read FEndereco write FEndereco;
+    property Contato: TContato read FContato write FContato;
   end;
 
   TIdentificacaoOrgaoGerador = class(TObject)
@@ -579,35 +913,27 @@ type
   private
     FCodigoObra: string;
     FArt: string;
-    FLogradouroObra: string;
-    FComplementoObra: string;
-    FNumeroObra: string;
-    FBairroObra: string;
-    FCEPObra: string;
-    FCodigoMunicipioObra: string;
-    FUFObra: string;
-    FCodigoPaisObra: Integer;
-    FxPaisObra: string;
+    FEndereco: TEndereco;
+
     FnCei: string;
     FnProj: string;
     FnMatri: string;
     FnNumeroEncapsulamento: string;
+    FinscImobFisc: String;
   public
+    constructor Create;
+    destructor Destroy; override;
+
     property CodigoObra: string read FCodigoObra write FCodigoObra;
     property Art: string read FArt write FArt;
-    property LogradouroObra: string read FLogradouroObra write FLogradouroObra;
-    property ComplementoObra: string read FComplementoObra write FComplementoObra;
-    property NumeroObra: string read FNumeroObra write FNumeroObra;
-    property BairroObra: string read FBairroObra write FBairroObra;
-    property CEPObra: string read FCEPObra write FCEPObra;
-    property CodigoMunicipioObra: string read FCodigoMunicipioObra write FCodigoMunicipioObra;
-    property UFObra: string read FUFObra write FUFObra;
-    property CodigoPaisObra: Integer read FCodigoPaisObra write FCodigoPaisObra;
-    property xPaisObra: string read FxPaisObra write FxPaisObra;
+    property Endereco: TEndereco read FEndereco write FEndereco;
+
     property nCei: string read FnCei write FnCei;
     property nProj: string read FnProj write FnProj;
     property nMatri: string read FnMatri write FnMatri;
     property nNumeroEncapsulamento: string read FnNumeroEncapsulamento write FnNumeroEncapsulamento;
+    // Provedor PadraoNacional
+    property inscImobFisc: String read FinscImobFisc write FinscImobFisc;
   end;
 
   TParcelasCollectionItem = class(TObject)
@@ -790,6 +1116,65 @@ type
     property Items[Index: Integer]: TGenericosCollectionItem read GetItem write SetItem; default;
   end;
 
+  { TSubstituicao }
+
+  TSubstituicao = class(TObject)
+  private
+    FchSubstda: string;
+    FcMotivo: TcMotivo;
+    FxMotivo: string;
+  public
+    property chSubstda: string read FchSubstda write FchSubstda;
+    property cMotivo: TcMotivo read FcMotivo write FcMotivo;
+    property xMotivo: string read FxMotivo write FxMotivo;
+  end;
+
+  { TinfNFSe }
+
+  TinfNFSe = class(TObject)
+  private
+    FID: string;
+    FxLocEmi: string;
+    FxLocPrestacao: string;
+    FnNFSe: string;
+    FcLocIncid: Integer;
+    FxLocIncid: string;
+    FxTribNac: string;
+    FxTribMun: string;
+    FxNBS: string;
+    FverAplic: string;
+    FambGer: TambGer;
+    FtpEmis: TtpEmis;
+    FprocEmi: TprocEmi;
+    FcStat: Integer;
+    FdhProc: TDateTime;
+    FnDFSe: string;
+    Femit: TDadosPessoa;
+    Fvalores: TValoresNfse;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property ID: string read FID write FID;
+    property xLocEmi: string read FxLocEmi write FxLocEmi;
+    property xLocPrestacao: string read FxLocPrestacao write FxLocPrestacao;
+    property nNFSe: string read FnNFSe write FnNFSe;
+    property cLocIncid: Integer read FcLocIncid write FcLocIncid;
+    property xLocIncid: string read FxLocIncid write FxLocIncid;
+    property xTribNac: string read FxTribNac write FxTribNac;
+    property xTribMun: string read FxTribMun write FxTribMun;
+    property xNBS: string read FxNBS write FxNBS;
+    property verAplic: string read FverAplic write FverAplic;
+    property ambGer: TambGer read FambGer write FambGer;
+    property tpEmis: TtpEmis read FtpEmis write FtpEmis;
+    property procEmi: TprocEmi read FprocEmi write FprocEmi;
+    property cStat: Integer read FcStat write FcStat;
+    property dhProc: TDateTime read FdhProc write FdhProc;
+    property nDFSe: string read FnDFSe write FnDFSe;
+    property emit: TDadosPessoa read Femit write Femit;
+    property valores: TValoresNfse read Fvalores write Fvalores;
+  end;
+
   TNFSe = class(TPersistent)
   private
     // RPS e NFSe
@@ -817,7 +1202,7 @@ type
     FQuartos: TQuartoCollection;
     FPrestador: TDadosPrestador;
     FTomador: TDadosTomador;
-    FIntermediarioServico: TIdentificacaoIntermediarioServico;
+    FIntermediario: TDadosIntermediario;
     FConstrucaoCivil: TDadosConstrucaoCivil;
     FDeducaoMateriais: TnfseSimNao;
     FCondicaoPagamento: TCondicaoPagamento;
@@ -880,6 +1265,13 @@ type
     FSituacaoTrib: TSituacaoTrib;
     FrefNF: string;
     FGenericos: TGenericosCollection;
+    FverAplic: string;
+    FtpEmit: TtpEmit;
+    FOptanteSN: TOptanteSN;
+    FRegimeApuracaoSN: TRegimeApuracaoSN;
+    Fsubst: TSubstituicao;
+
+    FinfNFSe: TinfNFSe;
 
     procedure Setemail(const Value: TemailCollection);
     procedure SetInformacoesComplementares(const Value: string);
@@ -917,7 +1309,7 @@ type
     property Quartos: TQuartoCollection read FQuartos write SetQuartos;
     property Prestador: TDadosPrestador read FPrestador write FPrestador;
     property Tomador: TDadosTomador read FTomador write FTomador;
-    property IntermediarioServico: TIdentificacaoIntermediarioServico read FIntermediarioServico write FIntermediarioServico;
+    property Intermediario: TDadosIntermediario read FIntermediario write FIntermediario;
     property ConstrucaoCivil: TDadosConstrucaoCivil read FConstrucaoCivil write FConstrucaoCivil;
     property DeducaoMateriais: TnfseSimNao read FDeducaoMateriais write FDeducaoMateriais;
     property CondicaoPagamento: TCondicaoPagamento read FCondicaoPagamento write FCondicaoPagamento;
@@ -983,6 +1375,14 @@ type
     property SituacaoTrib: TSituacaoTrib read FSituacaoTrib write FSituacaoTrib;
     // Provedor IPM
     property Genericos: TGenericosCollection read FGenericos write SetGenericos;
+    // Provedor PadraoNacional
+    property verAplic: string read FverAplic write FverAplic;
+    property tpEmit: TtpEmit read FtpEmit write FtpEmit;
+    property OptanteSN: TOptanteSN read FOptanteSN write FOptanteSN;
+    property RegimeApuracaoSN: TRegimeApuracaoSN read FRegimeApuracaoSN write FRegimeApuracaoSN;
+    property subst: TSubstituicao read Fsubst write Fsubst;
+
+    property infNFSe: TinfNFSe read FinfNFSe write FinfNFSe;
   end;
 
   TSubstituicaoNfse = class(TObject)
@@ -1035,6 +1435,13 @@ begin
 
   FItemServico := TItemServicoCollection.Create;
   FDeducao := TDeducaoCollection.Create;
+  FcomExt := TComExterior.Create;
+  FLocacao := TLocacao.Create;
+  FEvento := TEvento.Create;
+  FExplRod := TExplRod.Create;
+  FinfoCompl := TinfoCompl.Create;
+  FImposto := TImpostoCollection.Create;
+
   FDescricao := '';
   FPrestadoEmViasPublicas := False;
 end;
@@ -1044,6 +1451,12 @@ begin
   FValores.Free;
   FItemServico.Free;
   FDeducao.Free;
+  FcomExt.Free;
+  FLocacao.Free;
+  FEvento.Free;
+  FExplRod.Free;
+  FinfoCompl.Free;
+  FImposto.Free;
 
   inherited Destroy;
 end;
@@ -1051,6 +1464,11 @@ end;
 procedure TDadosServico.SetDeducao(const Value: TDeducaoCollection);
 begin
   FDeducao := Value;
+end;
+
+procedure TDadosServico.SetImposto(const Value: TImpostoCollection);
+begin
+  FImposto := Value;
 end;
 
 procedure TDadosServico.SetItemServico(Value: TItemServicoCollection);
@@ -1064,7 +1482,7 @@ constructor TDadosPrestador.Create;
 begin
   inherited Create;
 
-  FIdentificacaoPrestador := TIdentificacaoPrestador.Create;
+  FIdentificacaoPrestador := TIdentificacao.Create;
   FEndereco := TEndereco.Create;
   FContato := TContato.Create;
 
@@ -1091,7 +1509,7 @@ constructor TDadosTomador.Create;
 begin
   inherited Create;
 
-  FIdentificacaoTomador := TIdentificacaoTomador.Create;
+  FIdentificacaoTomador := TIdentificacao.Create;
   FEndereco := TEndereco.Create;
   FContato := TContato.Create;
 end;
@@ -1148,6 +1566,10 @@ begin
   Femail.Clear;
   FDespesa.Clear;
   FGenericos.Clear;
+
+  FverAplic := '';
+  FOptanteSN := osnNaoOptante;
+  FRegimeApuracaoSN := raFederaisMunicipalpeloSN;
 end;
 
 constructor TNFSe.Create;
@@ -1160,7 +1582,7 @@ begin
   FServico := TDadosServico.Create;
   FPrestador := TDadosPrestador.Create;
   FTomador := TDadosTomador.Create;
-  FIntermediarioServico := TIdentificacaoIntermediarioServico.Create;
+  FIntermediario := TDadosIntermediario.Create;
   FConstrucaoCivil := TDadosConstrucaoCivil.Create;
   FCondicaoPagamento := TCondicaoPagamento.Create;
   FQuartos := TQuartoCollection.Create;
@@ -1171,6 +1593,8 @@ begin
   Femail := TemailCollection.Create;
   FDespesa := TDespesaCollection.Create;
   FGenericos := TGenericosCollection.Create;
+  Fsubst := TSubstituicao.Create;
+  FinfNFSe := TinfNFSe.Create;
 
   Clear;
 end;
@@ -1184,7 +1608,7 @@ begin
   FServico.Free;
   FPrestador.Free;
   FTomador.Free;
-  FIntermediarioServico.Free;
+  FIntermediario.Free;
   FConstrucaoCivil.Free;
   FCondicaoPagamento.Free;
   FQuartos.Free;
@@ -1197,6 +1621,8 @@ begin
   FDespesa.Free;
   FTransportadora.Free;
   FGenericos.Free;
+  Fsubst.Free;
+  FinfNFSe.Free;
 
   inherited Destroy;
 end;
@@ -1453,14 +1879,14 @@ begin
   inherited Create;
 end;
 
-{ TIdentificacaoPrestador }
+{ TIdentificacao }
 
-function TIdentificacaoPrestador.GetCnpj: string;
+function TIdentificacao.GetCnpj: string;
 begin
   Result := FCpfCnpj;
 end;
 
-procedure TIdentificacaoPrestador.SetCnpj(const Value: string);
+procedure TIdentificacao.SetCnpj(const Value: string);
 begin
   FCpfCnpj := Value;
 end;
@@ -1485,6 +1911,212 @@ end;
 
 procedure TGenericosCollection.SetItem(Index: Integer;
   Value: TGenericosCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
+{ TDadosIntermediario }
+
+constructor TDadosIntermediario.Create;
+begin
+  inherited Create;
+
+  FIdentificacao := TIdentificacao.Create;
+  FEndereco := TEndereco.Create;
+  FContato := TContato.Create;
+end;
+
+destructor TDadosIntermediario.Destroy;
+begin
+  FIdentificacao.Free;
+  FEndereco.Free;
+  FContato.Free;
+
+  inherited Destroy;
+end;
+
+{ TDadosConstrucaoCivil }
+
+constructor TDadosConstrucaoCivil.Create;
+begin
+  inherited Create;
+
+  FEndereco := TEndereco.Create;
+end;
+
+destructor TDadosConstrucaoCivil.Destroy;
+begin
+  FEndereco.Free;
+
+  inherited Destroy;
+end;
+
+{ TEvento }
+
+constructor TEvento.Create;
+begin
+  inherited Create;
+
+  FEndereco := TEndereco.Create;
+end;
+
+destructor TEvento.Destroy;
+begin
+  FEndereco.Free;
+
+  inherited Destroy;
+end;
+
+{ TValores }
+
+constructor TValores.Create;
+begin
+  inherited Create;
+
+  FDocDeducao := TDocDeducaoCollection.Create;
+  FtribMun := TtribMun.Create;
+  FtribFed := TtribFed.Create;
+  FtotTrib := TtotTrib.Create;
+end;
+
+destructor TValores.Destroy;
+begin
+  FDocDeducao.Free;
+  FtribMun.Free;
+  FtribFed.Free;
+  FtotTrib.Free;
+
+  inherited Destroy;
+end;
+
+procedure TValores.SetDocDeducao(const Value: TDocDeducaoCollection);
+begin
+  FDocDeducao := Value;
+end;
+
+{ TDocDeducaoCollection }
+
+function TDocDeducaoCollection.Add: TDocDeducaoCollectionItem;
+begin
+  Result := Self.New;
+end;
+
+function TDocDeducaoCollection.GetItem(
+  Index: Integer): TDocDeducaoCollectionItem;
+begin
+  Result := TDocDeducaoCollectionItem(inherited Items[Index]);
+end;
+
+function TDocDeducaoCollection.New: TDocDeducaoCollectionItem;
+begin
+  Result := TDocDeducaoCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+procedure TDocDeducaoCollection.SetItem(Index: Integer;
+  Value: TDocDeducaoCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
+{ TDocDeducaoCollectionItem }
+
+constructor TDocDeducaoCollectionItem.Create;
+begin
+  inherited Create;
+
+  FNFSeMun := TNFSeMun.Create;
+  FNFNFS := TNFNFS.Create;
+  Ffornec := TInfoPessoa.Create;
+end;
+
+destructor TDocDeducaoCollectionItem.Destroy;
+begin
+  FNFSeMun.Free;
+  FNFNFS.Free;
+  Ffornec.Free;
+
+  inherited Destroy;
+end;
+
+{ TInfoPessoa }
+
+constructor TInfoPessoa.Create;
+begin
+  inherited Create;
+
+  FIdentificacao := TIdentificacao.Create;
+  FEndereco := TEndereco.Create;
+  FContato := TContato.Create;
+end;
+
+destructor TInfoPessoa.Destroy;
+begin
+  FIdentificacao.Free;
+  FEndereco.Free;
+  FContato.Free;
+
+  inherited Destroy;
+end;
+
+{ TinfNFSe }
+
+constructor TinfNFSe.Create;
+begin
+  inherited Create;
+
+  Femit := TDadosPessoa.Create;
+  Fvalores := TValoresNfse.Create;
+end;
+
+destructor TinfNFSe.Destroy;
+begin
+  Femit.Free;
+  Fvalores.Free;
+
+  inherited Destroy;
+end;
+
+{ TDadosPessoa }
+
+constructor TDadosPessoa.Create;
+begin
+  inherited Create;
+
+  FIdentificacao := TIdentificacao.Create;
+  FEndereco := TEndereco.Create;
+  FContato := TContato.Create;
+end;
+
+destructor TDadosPessoa.Destroy;
+begin
+  FIdentificacao.Free;
+  FEndereco.Free;
+  FContato.Free;
+
+  inherited Destroy;
+end;
+
+{ TImpostoCollection }
+
+function TImpostoCollection.Add: TImpostoCollectionItem;
+begin
+  Result := Self.New;
+end;
+
+function TImpostoCollection.GetItem(Index: Integer): TImpostoCollectionItem;
+begin
+  Result := TImpostoCollectionItem(inherited Items[Index]);
+end;
+
+function TImpostoCollection.New: TImpostoCollectionItem;
+begin
+  Result := TImpostoCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+procedure TImpostoCollection.SetItem(Index: Integer;
+  Value: TImpostoCollectionItem);
 begin
   inherited Items[Index] := Value;
 end;

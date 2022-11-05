@@ -297,8 +297,9 @@ begin
         GravarCampo(' ', 1, tcStr);
         GravarCampo(TpInscricaoToStr(Inscricao.Tipo), 1, tcStr);
         GravarCampo(Inscricao.Numero, 14, tcStrZero);
-        GravarCampo(' ', 95, tcStr);
-        GravarCampo(PixMensagem, 99, tcStr);
+        GravarCampo(PixTXID, 30, tcStr);
+        GravarCampo(PixMensagem, 65, tcStr);
+        GravarCampo(PixChave, 99, tcStr);
       end
       else
       begin
@@ -389,13 +390,8 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN1.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
@@ -428,13 +424,8 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN2.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
@@ -469,20 +460,15 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN3.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
       GravarCampo('18', 2, tcStr);
       GravarCampo(Periodo, 8, tcDat);
       GravarCampo(ReceitaBruta, 15, tcDe2);
-      GravarCampo(Percentual, 6, tcDe2);
+      GravarCampo(Percentual, 7, tcDe2);
       GravarCampo(ValorPrincipal, 15, tcDe2);
       GravarCampo(Multa, 15, tcDe2);
       GravarCampo(Juros, 15, tcDe2);
@@ -510,13 +496,8 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN4.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
@@ -553,13 +534,8 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN567.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
@@ -623,13 +599,8 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN8.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN);
+      GeraSegmentoN(SegmentoN);
 
-      GravarCampo(SegmentoN.SeuNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NossoNumero, 20, tcStr);
-      GravarCampo(SegmentoN.NomeContribuinte, 30, tcStr, True);
-      GravarCampo(SegmentoN.DataPagamento, 8, tcDat);
-      GravarCampo(SegmentoN.ValorPagamento, 15, tcDe2);
       GravarCampo(FormatFloat('0000', Receita), 6, tcStr);
       GravarCampo(InscricaoToStr(TipoContribuinte), 2, tcStrZero);
       GravarCampo(idContribuinte, 14, tcStrZero);
@@ -664,7 +635,7 @@ begin
 
     with PagFor.Lote.Items[I].SegmentoN9.Items[J] do
     begin
-      GerarSegmentoN(SegmentoN);
+      GeraSegmentoN(SegmentoN);
 
       GravarCampo(' ', 120, tcStr);
       GravarCampo(' ', 10, tcStr);

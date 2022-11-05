@@ -54,7 +54,8 @@ procedure Register;
 implementation
 
 uses
-  ACBrReg, ACBrDFeConfiguracoes, ACBrGTINConfiguracoes, ACBrDFeRegUtil;
+  ACBrReg, ACBrDFeConfiguracoes, ACBrGTINConfiguracoes, ACBrDFeRegUtil,
+  ACBrMail, ACBrIntegrador;
 
 {$IFNDEF FPC}
    {$R ACBrGTIN.dcr}
@@ -64,29 +65,68 @@ procedure Register;
 begin
   RegisterComponents('ACBrGTIN', [TACBrGTIN]);
 
-  RegisterPropertyEditor(TypeInfo(TCertificadosConf), TConfiguracoes, 'Certificados',
-    TClassProperty);
+  RegisterPropertyEditor(TypeInfo(TConfiguracoes),   TACBrGTIN,         'Configuracoes', TClassProperty);
 
-  RegisterPropertyEditor(TypeInfo(TConfiguracoes), TACBrGTIN, 'Configuracoes',
-    TClassProperty);
+  RegisterPropertyEditor(TypeInfo(TArquivosConfGTIN),TConfiguracoes,    'Arquivos',      TClassProperty);
+  RegisterPropertyEditor(TypeInfo(TCertificadosConf),TConfiguracoes,    'Certificados',  TClassProperty);
+  RegisterPropertyEditor(TypeInfo(TGeralConfGTIN),   TConfiguracoes,    'Geral',         TClassProperty);
+  RegisterPropertyEditor(TypeInfo(TWebServicesConf), TConfiguracoes,    'WebServices',   TClassProperty);
 
-  RegisterPropertyEditor(TypeInfo(TWebServicesConf), TConfiguracoes, 'WebServices',
-    TClassProperty);
+  RegisterPropertyEditor(TypeInfo(String),           TWebServicesConf,  'UF',            TACBrUFProperty);
+  RegisterPropertyEditor(TypeInfo(String),           TGeralConfGTIN,    'PathSalvar',    TACBrDirProperty);
+  RegisterPropertyEditor(TypeInfo(String),           TArquivosConfGTIN, 'PathGTIN',      TACBrDirProperty);
 
-  RegisterPropertyEditor(TypeInfo(String), TWebServicesConf, 'UF',
-     TACBrUFProperty);
+  {$IFDEF FPC}
 
-  RegisterPropertyEditor(TypeInfo(TGeralConfGTIN), TConfiguracoes, 'Geral',
-    TClassProperty);
+    RegisterPropertyEditor(TypeInfo(boolean),  TGeralConfGTIN,   'RetirarAcentos',            THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(boolean),  TGeralConfGTIN,   'RetirarEspacos',            THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(string),   TGeralConfGTIN,   'QuebradeLinha',             THiddenPropertyEditor);
 
-  RegisterPropertyEditor(TypeInfo(String), TGeralConfGTIN, 'PathSalvar',
-     TACBrDirProperty);
+    RegisterPropertyEditor(TypeInfo(boolean),   TArquivosConfGTIN,   'SepararPorAno',            THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(boolean),   TArquivosConfGTIN,   'SepararPorCNPJ',           THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(boolean),   TArquivosConfGTIN,   'SepararPorDia',            THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(boolean),   TArquivosConfGTIN,   'SepararPorIE',             THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(boolean),   TArquivosConfGTIN,   'SepararPorMes',            THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(boolean),   TArquivosConfGTIN,   'SepararPorModelo',         THiddenPropertyEditor);
 
-  RegisterPropertyEditor(TypeInfo(TArquivosConfGTIN), TConfiguracoes, 'Arquivos',
-    TClassProperty);
+    RegisterPropertyEditor(TypeInfo(string),   TDownloadConf,    'PathDownload',              THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(boolean),  TDownloadConf,    'SepararPorNome',            THiddenPropertyEditor);
 
-  RegisterPropertyEditor(TypeInfo(String), TArquivosConfGTIN, 'PathGTIN',
-     TACBrDirProperty);
+    RegisterPropertyEditor(TypeInfo(boolean),  TWebServicesConf, 'AjustaAguardaConsultaRet',  THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(Cardinal), TWebServicesConf, 'AguardarConsultaRet',       THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(Cardinal), TWebServicesConf, 'IntervaloTentativas',       THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(integer),  TWebServicesConf, 'Tentativas',                THiddenPropertyEditor);
+
+    RegisterPropertyEditor(TypeInfo(TRespTecConf),     TConfiguracoesGTIN, 'RespTec',         THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(TACBrIntegrador),  TACBrGTIN,          'Integrador',      THiddenPropertyEditor);
+    RegisterPropertyEditor(TypeInfo(TACBrMail),        TACBrGTIN,          'MAIL',            THiddenPropertyEditor);
+  {$ELSE}
+    UnlistPublishedProperty(TGeralConfGTIN,   'RetirarAcentos');
+    UnlistPublishedProperty(TGeralConfGTIN,   'RetirarEspacos');
+    UnlistPublishedProperty(TGeralConfGTIN,   'QuebradeLinha');
+
+    UnlistPublishedProperty(TArquivosConfGTIN,   'SepararPorAno');
+    UnlistPublishedProperty(TArquivosConfGTIN,   'SepararPorCNPJ');
+    UnlistPublishedProperty(TArquivosConfGTIN,   'SepararPorDia');
+    UnlistPublishedProperty(TArquivosConfGTIN,   'SepararPorIE');
+    UnlistPublishedProperty(TArquivosConfGTIN,   'SepararPorMes');
+    UnlistPublishedProperty(TArquivosConfGTIN,   'SepararPorModelo');
+
+    UnlistPublishedProperty(TDownloadConf,     'PathDownload');
+    UnlistPublishedProperty(TDownloadConf,     'SepararPorNome');
+
+    UnlistPublishedProperty(TWebServicesConf,  'AjustaAguardaConsultaRet');
+    UnlistPublishedProperty(TWebServicesConf,  'AguardarConsultaRet');
+    UnlistPublishedProperty(TWebServicesConf,  'IntervaloTentativas');
+    UnlistPublishedProperty(TWebServicesConf,  'Tentativas');
+
+    UnlistPublishedProperty(TConfiguracoesGTIN,'RespTec');
+
+    UnlistPublishedProperty(TACBrGTIN,         'Integrador');
+    UnlistPublishedProperty(TACBrGTIN,         'MAIL');
+  {$ENDIF}
+
+
 end;
 
 {$IFDEF FPC}

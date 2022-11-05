@@ -44,6 +44,53 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+04/10/2022
+[-] TK-3125 ACBrNFE verificação para correção no LOAD falta de Declação UTF-8 no XML
+  por : Victor H Gonzales - Pandaaa
+
+28/09/2022
+-- ACBrNFeServicos --
+[*] Revertido as URLs de Consulta via QR-Code de MG Produção e Homologação.
+    Pois no Portal contem uma informação que mudou as URLs, mas o Webservice
+    não aceita essas novas URLs.
+   Por: Italo Giurizzato Junior
+
+21/09/2022
+-- ACBrNFeServicos --
+[*] Correção na URL de Consulta via QR-Code de MG (Homologação).
+   Por: Italo Giurizzato Junior
+-- ACBrNFeNotasFiscais --
+[-] TK-3082 K01-20 REGRA DE VALIDAÇÃO DE NEGOCIOS NT2021.004 1.34
+  Por : Pandaaa
+
+19/09/2022
+-- ACBrNFeServicos --
+[*] Correção nas URLs de Consulta via QR-Code de MG.
+   Por: Italo Giurizzato Junior
+
+09/09/2022
+-- ACBrNFeServicos --
+[*] Remoção das URLs de Consulta ao Cadastro da SEFAZ-ES, pois agora ela usa as
+    URLs da SVRS
+   Por: Douglas Miiller
+
+10/08/2022
+-- ACBrNFeNotasFiscais --
+[*] Atualizado função ValidarRegrasdeNegocios, utilizando a função DataHoraTimeZoneModoDeteccao para validar a DataHora com TimeZone informado no XML
+   por: José M S Junior
+
+04/08/2022
+-- ACBrNFeNotasFiscais --
+[*] Ajustes na geração da seção autXML na função GerarNFeINI.
+   Por : Emerson Teixeira
+
+01/07/2022
+-- ACBrDFeDANFeReport --
+[*] Alterado o valor padrão para False da propriedade de configuração: ImprimeTotalLiquido
+    Aconselhamos a não alterar para True uma vez que no manual do DANFE não diz nada que 
+    podemos imprimir o valor liquido no lugar do valor Bruto.
+   Por: Italo Giurizzato Junior
+
 17/06/2022
 -- ACBrNFeNotasFiscais --
 [*] Ajuste na regra de validação 772 incluindo a exceção "UF entrega x UF emit".

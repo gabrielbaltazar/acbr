@@ -38,6 +38,21 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+23/09/2022
+-- ACBrOpenSSLUtils --
+[+] Inclusão da função "CreateSelfSignedCert()" que permite gerar um novo certificado .pem
+
+31/08/2022
+-- ACBrOpenSSLUtils --
+[+] Inclusão de função para converter PEM em ASN1;
+[+] Inclusão de função para verificação se String é PEM.
+
+25/07/2022
+-- ACBrOpenSSLUtils --
+[*] Remoção de warnings e código não utilizado
+    https://www.projetoacbr.com.br/forum/topic/68196-remoção-de-warnigs-e-hints-units-acbropenssl/
+    Por: Waldir Paim
+
 26/06/2022
 -- ACBrOpenSSLUtils --
 [*] Remoção de warnings.

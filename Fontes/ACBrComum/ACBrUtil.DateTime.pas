@@ -92,6 +92,15 @@ function DTtoS( ADateTime : TDateTime) : String;
 function Iso8601ToDateTime(const AISODate: string): TDateTime;
 function DateTimeToIso8601(ADate: TDateTime; const ATimeZone: string = ''): string;
 
+{ Bias = Diferença em minutos do horário atual com o UTC }
+function BiasToTimeZone(const aBias: Integer): String;
+function TimeZoneToBias(const aTimeZone: String): Integer;
+
+function StrIsTimeZone(const aStr: String): Boolean;
+function StrHasTimeZone(const aStr: String): Boolean;
+
+function DateTimeUniversal(const AUTC: String = ''; const ADateTime: TDateTime = 0 ): TDateTime;
+
 function IsWorkingDay(ADate: TDateTime): Boolean;
 function WorkingDaysBetween(StartDate, EndDate: TDateTime): Integer;
 function IncWorkingDay(ADate: TDateTime; WorkingDays: Integer): TDatetime;
@@ -104,9 +113,8 @@ function AjustarData(const DataStr: string): string;
 implementation
 
 uses
-  MaskUtils,
-  ACBrUtil.Compatibilidade,
-  ACBrUtil.Base;
+  MaskUtils, synautil,
+  ACBrUtil.Compatibilidade, ACBrUtil.Strings, ACBrUtil.Base;
 
 {-----------------------------------------------------------------------------
   Converte uma <ADateTime> para String, semelhante ao FormatDateTime,
@@ -164,8 +172,7 @@ end;
   mas verifica se o seprador da Data é compativo com o S.O., efetuando a
   conversão se necessário. Se não for possivel converter, dispara Exception
  ---------------------------------------------------------------------------- }
-function StringToDateTime(const DateTimeString : String ; const Format : String
-   ) : TDateTime ;
+function StringToDateTime(const DateTimeString: String; const Format: String): TDateTime;
 Var
   AStr : String;
   DS, TS: Char;
@@ -177,11 +184,33 @@ Var
   OldShortDateFormat: String ;
   {$ENDIF}
 
+  // Remove qualquer TimeZone da String. Exemplos:
+  // - '2022-02-20 02:02:55Z'      Result: '2022-02-20 02:02:55'
+  // - '2022-11-11 11:11:11-03:00' Result: '2022-11-11 11:11:11'
+  function RemoverTimeZone(const aDateTimeString: String): String;
+  var
+    wTMZ: String;
+  begin
+    Result := Trim(aDateTimeString);
+    wTMZ := UpperCase(Result);
+
+    if (not StrHasTimeZone(aDateTimeString)) then
+      Exit;
+
+    if (RightStr(wTMZ, 1) = 'Z') then
+      Result := LeftStr(aDateTimeString, Length(wTMZ)-1)
+    else
+    begin
+      wTMZ := RightStr(wTMZ, 6);
+      Result := StringReplace(aDateTimeString, wTMZ, EmptyStr, [rfReplaceAll]);
+    end;
+  end;
+
   function AjustarDateTimeString(const DateTimeString: String; DS, TS: Char): String;
   var
     AStr: String;
   begin
-    AStr := Trim(DateTimeString);
+    AStr := RemoverTimeZone(DateTimeString);
     if (DS <> '.') then
       AStr := StringReplace(AStr, '.', DS, [rfReplaceAll]);
 
@@ -192,10 +221,11 @@ Var
       AStr := StringReplace(AStr, '/', DS, [rfReplaceAll]);
 
     if (TS <> ':') then
-      AStr := StringReplace(AStr, ':', TS, [rfReplaceAll]) ;
+      AStr := StringReplace(AStr, ':', TS, [rfReplaceAll]);
 
     Result := AStr;
   end;
+
 begin
   Result := 0;
   if (DateTimeString = '0') or (DateTimeString = '') then
@@ -320,7 +350,7 @@ begin
   h := StrToInt(Copy(AISODate, 12, 2));
   n := StrToInt(Copy(AISODate, 15, 2));
   s := StrToInt(Copy(AISODate, 18, 2));
-  z := StrToIntDef(Copy(AISODate, 21, 3), 0);
+  z := StrToIntDef(OnlyNumber(Copy(AISODate, 21, 3)), 0);
 
   Result := EncodeDateTime(y,m,d, h,n,s,z);
 end;
@@ -336,6 +366,127 @@ begin
     SetLength(Result, Length(Result) - 1);
     Result := Result + ATimeZone;
   end;
+end;
+
+function BiasToTimeZone(const aBias: Integer): String;
+const
+  cFmt: String = '%.2d:%.2d';
+var
+  wOp: Char;
+begin
+  if (aBias = 0) then
+  begin
+    Result := 'Z';
+    Exit;
+  end;
+
+  if (aBias > 0) then
+    wOp := '-'
+  else
+    wOp := '+';
+
+  Result := wOp + Format(cFmt, [Abs(aBias) div 60, Abs(aBias) mod 60]);
+end;
+
+function TimeZoneToBias(const aTimeZone: String): Integer;
+var
+  TMZ: String;
+  M, H, Tam: Integer;
+begin
+  Result := -1;
+  if (not StrHasTimeZone(aTimeZone)) then
+    Exit;
+
+  TMZ := UpperCase(Trim(aTimeZone));
+  Tam := Length(TMZ);
+
+  if (TMZ[Tam] = 'Z') then
+  begin
+    Result := 0;
+    Exit;
+  end;
+
+  if (Tam > 6) then
+    TMZ := RightStr(TMZ, 6);
+
+  H  := StrToIntDef(Copy(TMZ, 2, 2), 0);
+  M  := StrToIntDef(Copy(TMZ, 5, 2), 0);
+  Result := ((H*60) + M);
+
+  if (TMZ[1] = '+') then
+    Result := Result*(-1);
+end;
+
+function StrIsTimeZone(const aStr: String): Boolean;
+var
+  wS: String;
+  Tam: Integer;
+begin
+  wS := UpperCase(aStr);
+  Tam := Length(aStr);
+  Result := (Tam = 1) and (wS[1] = 'Z');
+
+  if (not Result) and (Tam = 6) and CharInSet(wS[1], ['-', '+']) and (wS[4] = ':') then
+  begin
+    Delete(wS, 4, 1);
+    Delete(wS, 1, 1);
+    Result := StrIsNumber(wS);
+  end;
+end;
+
+function StrHasTimeZone(const aStr: String): Boolean;
+begin
+  Result := NaoEstaVazio(aStr) and
+    (StrIsTimeZone(aStr[Length(aStr)]) or
+     StrIsTimeZone(RightStr(aStr, 6)));
+end;
+
+{-----------------------------------------------------------------------------
+  Retorna ADateTime com hora convertida para TimeZone Universal, baseado no
+  TimeZone passado por parâmetro ou no TimeZone Local. ex UTC: -03:00
+ -----------------------------------------------------------------------------}
+function DateTimeUniversal(const AUTC: String; const ADateTime: TDateTime ): TDateTime;
+var
+  TZ: String;
+  DT: TDateTime;
+  Bias, H, M: Integer;
+begin
+  Result := 0;
+  DT := ADateTime;
+  TZ := AUTC;
+
+  if (DT = 0) then
+    DT := Now;
+
+  if (TZ = '') then
+  begin
+    TZ := synautil.TimeZone;
+    Insert(':', TZ, 4);
+  end
+  else
+  begin
+    if (Length(TZ) <> 6)
+        or ( not CharInSet(TZ[1], ['-','+']) )
+        or ( not (TZ[4] = ':') ) then
+    begin
+      Result := 0;
+      exit;
+    end;
+
+    H := StrToIntDef(copy(TZ,2,2), -99);
+    M := StrToIntDef(copy(TZ,5,2), -99);
+    if ( (H < -11) or (H > 14) )
+        or ( (M < 0) or (M > 60) ) then
+    begin
+      Result := 0;
+      exit;
+    end;
+
+  end;
+
+  Bias := TimeZoneToBias(DateTimeToStr(DT) + TZ);
+  Result := IncMinute(DT, Bias);
+
 end;
 
 {-----------------------------------------------------------------------------
@@ -420,8 +571,17 @@ begin
       Ano := StrToInt(Copy(xData, 1, 4));
       xData := Copy(xData, 6, Length(xData));
       i := Pos('/', xData);
-      Mes := StrToInt(Copy(xData, 1, i-1));
-      Dia := StrToInt(Copy(xData, i+1, Length(xData)));
+
+      if i= 0 then
+      begin
+        Mes := StrToInt(xData);
+        Dia := 1;
+      end
+      else
+      begin
+        Mes := StrToInt(Copy(xData, 1, i-1));
+        Dia := StrToInt(Copy(xData, i+1, Length(xData)));
+      end;
 
       Result := FormatFloat('0000', Ano) + '/' +
                 FormatFloat('00', Mes) + '/' +
@@ -483,10 +643,13 @@ begin
 
     p := Pos('-', xDataHora);
 
-    if p = 0 then
-      p := Pos(' ', xDataHora);
+    if (p = 0) then
+      p := Pos('+', xDataHora);
 
-    if p > 0 then
+    if (p = 0) then
+       p := Pos(' ', xDataHora);
+
+    if (p > 0) then
     begin
       xHora := Copy(xDataHora, 1, p-1);
       xTZD := Copy(xDataHora, p, Length(xDataHora));
@@ -494,6 +657,11 @@ begin
     else
       xHora := xDataHora;
   end;
+
+  p := Pos('.', xHora);
+
+  if (p > 0) then
+    xHora := Copy(xHora, 1, p-1);
 
   Result := Trim(xData + ' ' + xHora + xTZD);
 end;
@@ -523,7 +691,10 @@ begin
       8: xData := FormatMaskText('!0000\/00\/00;0;_', xData);
     end;
 
-    Result := StringToDateTime(xData, xFormatoData);
+    if (Pos('0000/', xData) > 0) or (Pos('/0000', xData) > 0) then
+      Result := 0
+    else
+      Result := StringToDateTime(xData, xFormatoData);
   end;
 end;
 
