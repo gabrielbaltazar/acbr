@@ -134,6 +134,8 @@ type
     FcodSitGeradora: integer;
     FiniciatCAT: tpIniciatCAT;
     FobsCAT: string;
+    FultDiaTrab: TDateTime;
+    FhouveAfast: tpSimNao;
     FLocalAcidente: TLocalAcidente;
     FParteAtingida: TParteAtingidaCollection;
     FAgenteCausador: TAgenteCausadorCollection;
@@ -154,6 +156,8 @@ type
     property codSitGeradora: integer read FcodSitGeradora write FcodSitGeradora;
     property iniciatCAT: tpIniciatCAT read FiniciatCAT write FiniciatCAT;
     property obsCAT: string read FobsCAT write FobsCAT;
+    property ultDiaTrab: TDateTime read FultDiaTrab write FultDiaTrab;
+    property houveAfast: tpSimNao read FhouveAfast write FhouveAfast;
     property localAcidente: TLocalAcidente read FLocalAcidente write FLocalAcidente;
     property parteAtingida: TParteAtingidaCollection read FParteAtingida write FParteAtingida;
     property agenteCausador: TAgenteCausadorCollection read FAgenteCausador write FAgenteCausador;
@@ -507,6 +511,18 @@ begin
   Gerador.wCampo(tcStr, '', 'iniciatCAT',        1,   1, 1, eSIniciatCATToStr(Self.Cat.iniciatCAT));
   Gerador.wCampo(tcStr, '', 'obsCAT',            1, 255, 0, Self.Cat.obsCAT);
 
+  if (
+       ( (TpAmbToStr(TACBreSocial(FACBreSocial).Configuracoes.WebServices.Ambiente) = '1') and (Self.Cat.dtAcid >= StringToDateTime('16/01/2023')) ) or
+       ( (TpAmbToStr(TACBreSocial(FACBreSocial).Configuracoes.WebServices.Ambiente) = '2') and (Self.Cat.dtAcid >= StringToDateTime('16/01/2022')) )
+     )
+  then
+  begin
+    if Self.Cat.ultDiaTrab <= Now then
+      Gerador.wCampo(tcDat, '', 'ultDiaTrab',     10,  10, 1, Self.Cat.ultDiaTrab);
+
+    Gerador.wCampo(tcStr, '', 'houveAfast',      1,   1, 1, eSSimNaoToStr(Self.Cat.houveAfast));
+  end;
+
   GerarLocalAcidente;
   GerarParteAtingida;
   GerarAgenteCausador;
@@ -679,6 +695,18 @@ begin
       cat.codSitGeradora   := INIRec.ReadInteger(sSecao, 'codSitGeradora', 0);
       cat.iniciatCAT       := eSStrToIniciatCAT(Ok, INIRec.ReadString(sSecao, 'iniciatCAT', '1'));
       cat.obsCAT           := INIRec.ReadString(sSecao, 'obsCAT', EmptyStr);
+      cat.ultDiaTrab       := StringToDateTime(INIRec.ReadString(sSecao, 'ultDiaTrab', '0'));
+      cat.houveAfast       := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'houveAfast', 'S'));
+      
+      if (
+           ( (TpAmbToStr(TACBreSocial(FACBreSocial).Configuracoes.WebServices.Ambiente) = '1') and (Self.Cat.dtAcid >= StringToDateTime('16/01/2023')) ) or
+           ( (TpAmbToStr(TACBreSocial(FACBreSocial).Configuracoes.WebServices.Ambiente) = '2') and (Self.Cat.dtAcid >= StringToDateTime('16/01/2022')) )
+         )
+      then
+      begin
+        cat.ultDiaTrab       := StringToDateTime(INIRec.ReadString(sSecao, 'ultDiaTrab', '0'));
+        cat.houveAfast       := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'houveAfast', 'S'));
+      end;
 
       sSecao := 'localAcidente';
       cat.localAcidente.tpLocal     := eSStrToTpLocal(Ok, INIRec.ReadString(sSecao, 'tpLocal', '1'));
@@ -828,6 +856,15 @@ begin
           CodSitGeradora   := Leitor.rCampo(tcInt, 'codSitGeradora');
           iniciatCAT       := eSStrToIniciatCAT(ok, Leitor.rCampo(tcStr, 'iniciatCAT'));
           obsCAT           := Leitor.rCampo(tcStr, 'obsCAT');
+          if  (
+               ( (TpAmbToStr(TACBreSocial(FACBreSocial).Configuracoes.WebServices.Ambiente) = '1') and (dtAcid >= StringToDateTime('16/01/2023')) ) or
+               ( (TpAmbToStr(TACBreSocial(FACBreSocial).Configuracoes.WebServices.Ambiente) = '2') and (dtAcid >= StringToDateTime('16/01/2022')) )
+              )
+          then
+          begin
+            ultDiaTrab       := Leitor.rCampo(tcDat, 'ultDiaTrab');
+            houveAfast       := eSStrToSimNao(ok, Leitor.rCampo(tcStr, 'houveAfast'));
+          end;
 
           if Leitor.rExtrai(3, 'localAcidente') <> '' then
           begin

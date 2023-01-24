@@ -61,7 +61,7 @@ uses
   DoPosPrinterUnit, DoECFUnit, DoECFObserver, DoECFBemafi32, DoSATUnit,
   DoACBreSocialUnit, DoACBrBPeUnit, ACBrLibResposta, DoACBrUnit, DoCNPJUnit,
   DoCPFUnit, ACBrBoletoConversao, FormConsultaCNPJ, ACBrMonitorMenu,
-  ACBrDFeReport, ACBrGTIN, DoACBrGTINUnit;
+  ACBrDFeReport, ACBrGTIN, DoACBrGTINUnit,ACBrPIXBase;
 
 const
   CEstados: array[TACBrECFEstado] of string =
@@ -363,6 +363,7 @@ type
     cbxBOLF_J: TComboBox;
     cbxBOLImpressora: TComboBox;
     cbxBOLLayout: TComboBox;
+    cbxBOLTipoChavePix: TComboBox;
     cbxBOLUF: TComboBox;
     cbxCNAB: TComboBox;
     cbxEmissaoPathNFe: TCheckBox;
@@ -379,6 +380,7 @@ type
     cbxImpDescPorc: TCheckBox;
     cbxImpDetEspNFe: TCheckBox;
     cbxImpDocsReferenciados: TCheckBox;
+    cbxImprimeXPedNitemPed: TCheckBox;
     cbxImpressora: TComboBox;
     cbxImpressoraNFCe: TComboBox;
     cbxImprimeContinuacaoDadosAdicionaisPrimeiraPagina: TCheckBox;
@@ -447,6 +449,7 @@ type
     chECFIgnorarTagsFormatacao: TCheckBox;
     chECFSinalGavetaInvertido: TCheckBox;
     cbNCMForcarDownload: TCheckBox;
+    cbxImprimeInscSuframa: TCheckBox;
     ckbExibirMunicipioDescarregamento: TCheckBox;
     ChkPix: TCheckBox;
     chgDescricaoPagamento: TCheckGroup;
@@ -497,6 +500,7 @@ type
     edEntTXT: TEdit;
     edIBGECodNome: TEdit;
     edConsultarGTIN: TEdit;
+    edtBOLChavePix: TEdit;
     edtVersaoArquivo: TEdit;
     edtVersaoLote: TEdit;
     edNCMCodigo: TEdit;
@@ -789,6 +793,8 @@ type
     Label260: TLabel;
     lbConsultarGTIN: TLabel;
     Label254: TLabel;
+    lblBOLChavePix: TLabel;
+    lblBOLTipoChavePix: TLabel;
     lblPrefixRemessa: TLabel;
     Label255: TLabel;
     Label256: TLabel;
@@ -2018,7 +2024,10 @@ var
   iNFe: TpcnVersaoDF;
   IPosReciboLayout: TPosReciboLayout;
   SPosReciboLayout: String;
+
   IBanco: TACBrTipoCobranca;
+  ITipoChavePix: TACBrPIXTipoChave;
+
   iSAT: TACBrSATModelo;
   iTipo: TpcnTipoAmbiente;
   iRegISSQN: TpcnRegTribISSQN;
@@ -2204,6 +2213,18 @@ begin
     cbxBOLBanco.Items.Add(GetEnumName(TypeInfo(TACBrTipoCobranca), integer(IBanco)));
     Inc(IBanco);
   end;
+
+  { Criando lista de chave pix disponiveis }
+  cbxBOLTipoChavePix.Items.Clear;
+  ITipoChavePix := Low(TACBrPIXTipoChave);
+  while ITipoChavePix <= High(TACBrPIXTipoChave) do
+  begin
+    cbxBOLTipoChavePix.Items.Add(GetEnumName(TypeInfo(TACBrPIXTipoChave), integer(ITipoChavePix)));
+    Inc(ITipoChavePix);
+  end;
+  cbxBOLTipoChavePix.ItemIndex:=0;
+
+
 
   { Criando lista de Layouts de Boleto disponiveis }
   cbxBOLLayout.Items.Clear;
@@ -5545,7 +5566,7 @@ begin
       edtBOLDigitoAgConta.Text         := DigitoAgenciaConta;
       edtCodCliente.Text               := CodCedente;
       edtBOLLocalPagamento.Text        := LocalPagamento;
-      edtOperacaoBeneficiario.Text          := CodigoOperacao;
+      edtOperacaoBeneficiario.Text     := CodigoOperacao;
     end;
 
     with RemessaRetorno do
@@ -5574,6 +5595,13 @@ begin
       edNomeArquivo.Text               := NomeArquivoBoleto;
       cbxBOLImpressora.ItemIndex       := cbxBOLImpressora.Items.IndexOf(Impressora);
     end;
+
+    with PIX do
+    begin
+      cbxBOLTipoChavePix.ItemIndex     := pix.TipoChavePix;
+      edtBOLChavePix.text              := pix.ChavePix;
+    end;
+
 
     with Relatorio do
     begin
@@ -5864,10 +5892,12 @@ begin
       cbxImpDocsReferenciados.Checked     := ImprimirDadosDocReferenciados;
       rgInfAdicProduto.ItemIndex          := ExibirBandInforAdicProduto;
       cbxExibirLogoEmCima.Checked         := LogoEmCima;
+      cbxImprimeInscSuframa.Checked       := ImprimeInscSuframa;
       cbxExpandirDadosAdicionaisAuto.Checked:= ExpandirDadosAdicionaisAuto;
       cbxImprimeContinuacaoDadosAdicionaisPrimeiraPagina.Checked:= ImprimeContinuacaoDadosAdicionaisPrimeiraPagina;
       rgImprimeDescAcrescItemNFe.ItemIndex:= ImprimeDescAcrescItemNFe;
       rgInfFormaPagNFe.ItemIndex          := ImprimirCampoFormaPagamento;
+      cbxImprimeXPedNitemPed.Checked      := ImprimeXPedNitemPed;
     end;
 
     with Impressao.DACTE do
@@ -6431,6 +6461,8 @@ begin
     Cedente.DigitoVerificadorAgenciaConta := edtBOLDigitoAgConta.Text;
     Cedente.Modalidade := edtModalidade.Text;
     Cedente.Operacao := edtOperacaoBeneficiario.Text;
+    Cedente.PIX.Chave :=edtBOLChavePix.Text;
+    Cedente.PIX.TipoChavePIX :=  TACBrPIXTipoChave(cbxBOLTipoChavePix.ItemIndex);
 
     case cbxBOLEmissao.ItemIndex of
       0: Cedente.ResponEmissao := tbCliEmite;
@@ -7076,10 +7108,12 @@ begin
         ImprimirDadosDocReferenciados  := cbxImpDocsReferenciados.Checked;
         ExibirBandInforAdicProduto     := rgInfAdicProduto.ItemIndex;
         LogoEmCima                     := cbxExibirLogoEmCima.Checked;
+        ImprimeInscSuframa             := cbxImprimeInscSuframa.Checked;
         ExpandirDadosAdicionaisAuto    := cbxExpandirDadosAdicionaisAuto.Checked;
         ImprimeContinuacaoDadosAdicionaisPrimeiraPagina := cbxImprimeContinuacaoDadosAdicionaisPrimeiraPagina.Checked;
         ImprimeDescAcrescItemNFe   := rgImprimeDescAcrescItemNFe.ItemIndex;
         ImprimirCampoFormaPagamento:= rgInfFormaPagNFe.ItemIndex;
+        ImprimeXPedNitemPed        := cbxImprimeXPedNitemPed.Checked;
       end;
 
       with Impressao.DACTE do
@@ -7365,6 +7399,12 @@ begin
        Modalidade               := edtModalidade.Text;
        Convenio                 := edtConvenio.Text;
        CodigoOperacao           := edtOperacaoBeneficiario.Text;
+     end;
+
+     with PIX do
+     begin
+       TipoChavePix             := cbxBOLTipoChavePix.ItemIndex;
+       ChavePix                 := edtBOLChavePix.Text;
      end;
 
      with Layout do
@@ -10742,12 +10782,13 @@ begin
       ACBrNFeDANFeRL1.ExibeDadosDocReferenciados := cbxImpDocsReferenciados.Checked;
       ACBrNFeDANFeRL1.ExibeInforAdicProduto := TinfAdcProd(rgInfAdicProduto.ItemIndex);
       ACBrNFeDANFeRL1.LogoemCima := cbxExibirLogoEmCima.Checked;
+      ACBrNFeDANFeRL1.ExibeDadosInscricaoSuframa := cbxImprimeInscSuframa.Checked;
       ACBrNFeDANFeRL1.ExpandirDadosAdicionaisAuto:= cbxExpandirDadosAdicionaisAuto.Checked;
       ACBrNFeDANFeRL1.ImprimeContinuacaoDadosAdicionaisPrimeiraPagina:= cbxImprimeContinuacaoDadosAdicionaisPrimeiraPagina.Checked;
       ACBrNFeDANFeRL1.ImprimeDescAcrescItem:= TpcnImprimeDescAcrescItem(rgImprimeDescAcrescItemNFe.ItemIndex);
       ACBrNFeDANFeRL1.ExibeCampoDePagamento:= TpcnInformacoesDePagamento(rgInfFormaPagNFe.ItemIndex);
       ACBrNFeDANFeRL1.ExibeTotalTributosItem:= cbxExibeTotalTributosItem.Checked;
-
+      ACBrNFeDANFeRL1.ImprimeXPedNItemPed := cbxImprimeXPedNitemPed.Checked;
     end
     else if ACBrNFe1.DANFE = ACBrNFeDANFCeFortesA4_1 then
     begin
@@ -11545,7 +11586,7 @@ begin
     TConfiguracoeseSocial(Configuracoes).Arquivos.IniServicos       := edtArquivoWebServiceseSocial.Text;
     TConfiguracoeseSocial(Configuracoes).Arquivos.PatheSocial       := edtPathNFe.Text;
     TConfiguracoeseSocial(Configuracoes).Arquivos.EmissaoPatheSocial:= cbxEmissaoPathNFe.Checked;
-    TConfiguracoeseSocial(Configuracoes).Geral.VersaoDF             := StrToVersaoeSocial(ok, cbVersaoWSeSocial.Text);
+    TConfiguracoeseSocial(Configuracoes).Geral.VersaoDF             := StrToVersaoeSocialEX(cbVersaoWSeSocial.Text);
     TConfiguracoeseSocial(Configuracoes).Geral.TipoEmpregador       := TEmpregador(cbTipoEmpregador.ItemIndex);
     TConfiguracoeseSocial(Configuracoes).Geral.IdEmpregador         := edtIDEmpregador.Text;
     TConfiguracoeseSocial(Configuracoes).Geral.IdTransmissor        := edtIDTransmissor.Text;

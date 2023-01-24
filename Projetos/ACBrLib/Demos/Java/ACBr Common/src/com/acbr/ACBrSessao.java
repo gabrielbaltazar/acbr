@@ -45,5 +45,7 @@ public enum  ACBrSessao {
     IBGE,
     Sedex,
     eSocial,
-    GTIN;
+    GTIN,
+    ConsultaCNPJ,
+    NCM;
 }

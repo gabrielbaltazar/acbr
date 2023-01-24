@@ -142,7 +142,7 @@ function TACBrNFSeXWebserviceISSCambe.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverPrefixosDesnecessarios(Result);
 end;
 
@@ -228,7 +228,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -250,7 +250,8 @@ begin
       NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
 
       Response.NumeroNota := NumNFSe;
-      Response.Link       := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('linkImpressao'), tcStr);
+      Response.Link := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('linkImpressao'), tcStr);
+      Response.Link := StringReplace(Response.Link, '&amp;', '&', [rfReplaceAll]);
 
       ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
@@ -261,7 +262,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -284,7 +285,7 @@ begin
         begin
           AErro := Response.Erros.New;
           AErro.Codigo := Cod105;
-          AErro.Descricao := Desc105;
+          AErro.Descricao := ACBrStr(Desc105);
           Exit;
         end;
 
@@ -292,7 +293,7 @@ begin
         begin
           AErro := Response.Erros.New;
           AErro.Codigo := Cod106;
-          AErro.Descricao := Desc106;
+          AErro.Descricao := ACBrStr(Desc106);
           Exit;
         end;
 
@@ -381,7 +382,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -403,7 +404,8 @@ begin
       NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
 
       Response.NumeroNota := NumNFSe;
-      Response.Link       := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('linkImpressao'), tcStr);
+      Response.Link := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('linkImpressao'), tcStr);
+      Response.Link := StringReplace(Response.Link, '&amp;', '&', [rfReplaceAll]);
 
       ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
 
@@ -414,7 +416,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally

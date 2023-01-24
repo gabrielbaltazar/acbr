@@ -70,6 +70,7 @@ type
     function GetEnviarEventoResponse: TNFSeEnviarEventoResponse;
     function GetConsultarEventoResponse: TNFSeConsultarEventoResponse;
     function GetConsultarDFeResponse: TNFSeConsultarDFeResponse;
+    function GetConsultarParamResponse: TNFSeConsultarParamResponse;
 
   protected
     FAOwner: TACBrDFe;
@@ -178,6 +179,13 @@ type
     procedure AssinarConsultarDFe(Response: TNFSeConsultarDFeResponse); virtual;
     procedure TratarRetornoConsultarDFe(Response: TNFSeConsultarDFeResponse); virtual; abstract;
 
+    //metodos para geração e tratamento dos dados do metodo ConsultarParam
+    procedure PrepararConsultarParam(Response: TNFSeConsultarParamResponse); virtual; abstract;
+    procedure GerarMsgDadosConsultarParam(Response: TNFSeConsultarParamResponse;
+      Params: TNFSeParamsResponse); virtual; abstract;
+    procedure AssinarConsultarParam(Response: TNFSeConsultarParamResponse); virtual;
+    procedure TratarRetornoConsultarParam(Response: TNFSeConsultarParamResponse); virtual; abstract;
+
   public
     constructor Create(AOwner: TACBrDFe);
     destructor Destroy; override;
@@ -200,6 +208,7 @@ type
     procedure EnviarEvento; virtual;
     procedure ConsultarEvento; virtual;
     procedure ConsultarDFe; virtual;
+    procedure ConsultarParam; virtual;
 
     property ConfigGeral: TConfigGeral read GetConfigGeral;
     property ConfigWebServices: TConfigWebServices read GetConfigWebServices;
@@ -219,6 +228,7 @@ type
     property EnviarEventoResponse: TNFSeEnviarEventoResponse read GetEnviarEventoResponse;
     property ConsultarEventoResponse: TNFSeConsultarEventoResponse read GetConsultarEventoResponse;
     property ConsultarDFeResponse: TNFSeConsultarDFeResponse read GetConsultarDFeResponse;
+    property ConsultarParamResponse: TNFSeConsultarParamResponse read GetConsultarParamResponse;
 
     function SimNaoToStr(const t: TnfseSimNao): string; virtual;
     function StrToSimNao(out ok: boolean; const s: string): TnfseSimNao; virtual;
@@ -358,6 +368,11 @@ begin
   Result := TACBrNFSeX(FAOwner).Webservice.ConsultarEvento;
 end;
 
+function TACBrNFSeXProvider.GetConsultarParamResponse: TNFSeConsultarParamResponse;
+begin
+  Result := TACBrNFSeX(FAOwner).Webservice.ConsultarParam;
+end;
+
 function TACBrNFSeXProvider.GetConsultarDFeResponse: TNFSeConsultarDFeResponse;
 begin
   Result := TACBrNFSeX(FAOwner).Webservice.ConsultarDFe;
@@ -449,6 +464,7 @@ begin
         tmEnviarEvento: Result := EnviarEvento;
         tmConsultarEvento: Result := ConsultarEvento;
         tmConsultarDFe: Result := ConsultarDFe;
+        tmConsultarParam: Result := ConsultarParam;
       else
         Result := '';
       end;
@@ -483,6 +499,7 @@ begin
         tmEnviarEvento: Result := EnviarEvento;
         tmConsultarEvento: Result := ConsultarEvento;
         tmConsultarDFe: Result := ConsultarDFe;
+        tmConsultarParam: Result := ConsultarParam;
       else
         Result := '';
       end;
@@ -718,6 +735,14 @@ begin
       InfElemento := '';
       DocElemento := '';
     end;
+
+    // Usado para geração do Consultar Parâmetros
+    with ConsultarParam do
+    begin
+      xmlns := '';
+      InfElemento := '';
+      DocElemento := '';
+    end;
   end;
 
   // Inicializa os parâmetros de configuração: Assinar
@@ -743,6 +768,7 @@ begin
     EnviarEvento := False;
     ConsultarEvento := False;
     ConsultarDFe := False;
+    ConsultarParam := False;
 
     IncluirURI := True;
 
@@ -794,13 +820,15 @@ begin
       ConfigGeral.LoadParams(IniParams, Sessao);
 
       // Depois verifica as URLs definidas para o provedor
-      if ConfigWebServices.Producao.Recepcionar = '' then
+      if (ConfigWebServices.Producao.Recepcionar = '') or
+         (Configuracoes.Geral.Provedor = proPadraoNacional) then
       begin
         Sessao := Configuracoes.Geral.xProvedor;
         ConfigWebServices.LoadUrlProducao(IniParams, Sessao);
       end;
 
-      if ConfigWebServices.Homologacao.Recepcionar = '' then
+      if (ConfigWebServices.Homologacao.Recepcionar = '') or
+         (Configuracoes.Geral.Provedor = proPadraoNacional) then
       begin
         Sessao := Configuracoes.Geral.xProvedor;
         ConfigWebServices.LoadUrlHomologacao(IniParams, Sessao);
@@ -968,6 +996,7 @@ begin
     EnviarEvento := aNome;
     ConsultarEvento := aNome;
     ConsultarDFe := aNome;
+    ConsultarParam := aNome;
 
     Validar := True;
   end;
@@ -996,6 +1025,7 @@ begin
     EnviarEvento.xmlns := aNameSpace;
     ConsultarEvento.xmlns := aNameSpace;
     ConsultarDFe.xmlns := aNameSpace;
+    ConsultarParam.xmlns := aNameSpace;
   end;
 
   TACBrNFSeX(FAOwner).SSL.NameSpaceURI := aNameSpace;
@@ -1447,9 +1477,18 @@ begin
     tmEnviarEvento: Schema := ConfigSchemas.EnviarEvento;
     tmConsultarEvento: Schema := ConfigSchemas.ConsultarEvento;
     tmConsultarDFe: Schema := ConfigSchemas.ConsultarDFe;
+    tmConsultarParam: Schema := ConfigSchemas.ConsultarParam;
   else
     // tmTeste
     Schema := ConfigSchemas.Teste;
+  end;
+
+  if Schema = '***' then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod001;
+    AErro.Descricao := ACBrStr(Desc001);
+    Exit;
   end;
 
   if TACBrNFSeX(FAOwner).Configuracoes.Geral.MontarPathSchema then
@@ -1463,7 +1502,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod800;
-    AErro.Descricao := 'Erro de Validação: ' + Erros;
+    AErro.Descricao := ACBrStr(Desc800 + Erros);
   end;
 end;
 
@@ -1604,9 +1643,15 @@ begin
     except
       on E:Exception do
       begin
+        if AService <> nil then
+        begin
+          EmiteResponse.EnvelopeEnvio := AService.Envio;
+          EmiteResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
         AErro := EmiteResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1669,9 +1714,15 @@ begin
     except
       on E:Exception do
       begin
+        if AService <> nil then
+        begin
+          ConsultaSituacaoResponse.EnvelopeEnvio := AService.Envio;
+          ConsultaSituacaoResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
         AErro := ConsultaSituacaoResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1733,9 +1784,15 @@ begin
     except
       on E:Exception do
       begin
+        if AService <> nil then
+        begin
+          ConsultaLoteRpsResponse.EnvelopeEnvio := AService.Envio;
+          ConsultaLoteRpsResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
         AErro := ConsultaLoteRpsResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1798,9 +1855,15 @@ begin
     except
       on E:Exception do
       begin
+        if AService <> nil then
+        begin
+          ConsultaNFSeporRpsResponse.EnvelopeEnvio := AService.Envio;
+          ConsultaNFSeporRpsResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
         AErro := ConsultaNFSeporRpsResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1863,9 +1926,15 @@ begin
     except
       on E:Exception do
       begin
+        if AService <> nil then
+        begin
+          ConsultarEventoResponse.EnvelopeEnvio := AService.Envio;
+          ConsultarEventoResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
         AErro := ConsultarEventoResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1880,6 +1949,78 @@ begin
 
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoConsultarEvento(ConsultarEventoResponse);
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+end;
+
+procedure TACBrNFSeXProvider.ConsultarParam;
+var
+  AService: TACBrNFSeXWebservice;
+  AErro: TNFSeEventoCollectionItem;
+begin
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeConsultarParam);
+
+  PrepararConsultarParam(ConsultarParamResponse);
+  if (ConsultarParamResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  AssinarConsultarParam(ConsultarParamResponse);
+  if (ConsultarParamResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  ValidarSchema(ConsultarParamResponse, tmConsultarParam);
+  if (ConsultarParamResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  AService := nil;
+
+  try
+    try
+      TACBrNFSeX(FAOwner).SetStatus(stNFSeEnvioWebService);
+      AService := CriarServiceClient(tmConsultarParam);
+      AService.Prefixo := IntToStr(ConsultarParamResponse.CodigoMunic) +
+        '-' + ParamMunicToStr(ConsultarParamResponse.tpParamMunic);
+
+      ConsultarParamResponse.ArquivoRetorno := AService.ConsultarParam(ConfigMsgDados.DadosCabecalho,
+                                                           ConsultarParamResponse.ArquivoEnvio);
+
+      ConsultarParamResponse.Sucesso := True;
+      ConsultarParamResponse.EnvelopeEnvio := AService.Envio;
+      ConsultarParamResponse.EnvelopeRetorno := AService.Retorno;
+    except
+      on E:Exception do
+      begin
+        if AService <> nil then
+        begin
+          ConsultarParamResponse.EnvelopeEnvio := AService.Envio;
+          ConsultarParamResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
+        AErro := ConsultarParamResponse.Erros.New;
+        AErro.Codigo := Cod999;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(AService);
+  end;
+
+  if not ConsultarParamResponse.Sucesso then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
+  TratarRetornoConsultarParam(ConsultarParamResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
 end;
 
@@ -1928,9 +2069,15 @@ begin
     except
       on E:Exception do
       begin
+        if AService <> nil then
+        begin
+          ConsultarDFeResponse.EnvelopeEnvio := AService.Envio;
+          ConsultarDFeResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
         AErro := ConsultarDFeResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -2018,9 +2165,15 @@ begin
     except
       on E:Exception do
       begin
+        if AService <> nil then
+        begin
+          ConsultaNFSeResponse.EnvelopeEnvio := AService.Envio;
+          ConsultaNFSeResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
         AErro := ConsultaNFSeResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -2042,6 +2195,7 @@ procedure TACBrNFSeXProvider.CancelaNFSe;
 var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
+  aConfig: TConfiguracoesNFSe;
 begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeCancelamento);
 
@@ -2079,6 +2233,11 @@ begin
       else
         AService.Prefixo := CancelaNFSeResponse.InfCancelamento.ChaveNFSe;
 
+      aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
+
+      AService.Path := aConfig.Arquivos.GetPathCan(0, aConfig.Geral.Emitente.CNPJ,
+                        aConfig.Geral.Emitente.DadosEmitente.InscricaoEstadual);
+
       CancelaNFSeResponse.ArquivoRetorno := AService.Cancelar(ConfigMsgDados.DadosCabecalho, CancelaNFSeResponse.ArquivoEnvio);
 
       CancelaNFSeResponse.Sucesso := True;
@@ -2087,9 +2246,15 @@ begin
     except
       on E:Exception do
       begin
+        if AService <> nil then
+        begin
+          CancelaNFSeResponse.EnvelopeEnvio := AService.Envio;
+          CancelaNFSeResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
         AErro := CancelaNFSeResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -2185,9 +2350,15 @@ begin
     except
       on E:Exception do
       begin
+        if AService <> nil then
+        begin
+          SubstituiNFSeResponse.EnvelopeEnvio := AService.Envio;
+          SubstituiNFSeResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
         AErro := SubstituiNFSeResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -2249,9 +2420,15 @@ begin
     except
       on E:Exception do
       begin
+        if AService <> nil then
+        begin
+          GerarTokenResponse.EnvelopeEnvio := AService.Envio;
+          GerarTokenResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
         AErro := GerarTokenResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -2273,6 +2450,7 @@ procedure TACBrNFSeXProvider.EnviarEvento;
 var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
+  aConfig: TConfiguracoesNFSe;
 begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeGerarToken);
 
@@ -2305,6 +2483,11 @@ begin
       AService := CriarServiceClient(tmEnviarEvento);
       AService.Prefixo := EnviarEventoResponse.InfEvento.pedRegEvento.ID;
 
+      aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
+
+      AService.Path := aConfig.Arquivos.GetPathEvento(0, aConfig.Geral.Emitente.CNPJ,
+                        aConfig.Geral.Emitente.DadosEmitente.InscricaoEstadual);
+
       EnviarEventoResponse.ArquivoRetorno := AService.EnviarEvento(ConfigMsgDados.DadosCabecalho,
                                                            EnviarEventoResponse.ArquivoEnvio);
 
@@ -2314,9 +2497,15 @@ begin
     except
       on E:Exception do
       begin
+        if AService <> nil then
+        begin
+          EnviarEventoResponse.EnvelopeEnvio := AService.Envio;
+          EnviarEventoResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
         AErro := EnviarEventoResponse.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -2361,7 +2550,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod801;
-      AErro.Descricao := Desc801 + E.Message;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
     end;
   end;
 end;
@@ -2393,7 +2582,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod801;
-      AErro.Descricao := Desc801 + E.Message;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
     end;
   end;
 end;
@@ -2425,7 +2614,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod801;
-      AErro.Descricao := Desc801 + E.Message;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
     end;
   end;
 end;
@@ -2457,7 +2646,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod801;
-      AErro.Descricao := Desc801 + E.Message;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
     end;
   end;
 end;
@@ -2489,7 +2678,39 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod801;
-      AErro.Descricao := Desc801 + E.Message;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
+    end;
+  end;
+end;
+
+procedure TACBrNFSeXProvider.AssinarConsultarParam(
+  Response: TNFSeConsultarParamResponse);
+var
+  IdAttr, Prefixo: string;
+  AErro: TNFSeEventoCollectionItem;
+begin
+  if not ConfigAssinar.ConsultarParam then Exit;
+
+  if ConfigAssinar.IncluirURI then
+    IdAttr := ConfigGeral.Identificador
+  else
+    IdAttr := 'ID';
+
+  if ConfigMsgDados.Prefixo = '' then
+    Prefixo := ''
+  else
+    Prefixo := ConfigMsgDados.Prefixo + ':';
+
+  try
+    Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+      Prefixo + ConfigMsgDados.ConsultarParam.DocElemento,
+      ConfigMsgDados.ConsultarParam.InfElemento, '', '', '', IdAttr);
+  except
+    on E:Exception do
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := Cod801;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
     end;
   end;
 end;
@@ -2520,7 +2741,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod801;
-      AErro.Descricao := Desc801 + E.Message;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
     end;
   end;
 end;
@@ -2576,7 +2797,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod801;
-      AErro.Descricao := Desc801 + E.Message;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
     end;
   end;
 end;
@@ -2607,7 +2828,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod801;
-      AErro.Descricao := Desc801 + E.Message;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
     end;
   end;
 end;
@@ -2639,7 +2860,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod801;
-      AErro.Descricao := Desc801 + E.Message;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
     end;
   end;
 end;
@@ -2671,7 +2892,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod801;
-      AErro.Descricao := Desc801 + E.Message;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
     end;
   end;
 end;
@@ -2703,7 +2924,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod801;
-      AErro.Descricao := Desc801 + E.Message;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
     end;
   end;
 end;

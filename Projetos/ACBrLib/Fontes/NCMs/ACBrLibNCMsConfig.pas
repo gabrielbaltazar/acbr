@@ -45,12 +45,9 @@ type
   { TNCMsConfig }
   TNCMsConfig = class
   private
-    FServidorProxy: String;
-    FPortaProxy: String;
-    FSenhaProxy: String;
-    FUsuarioProxy: String;
     FArquivoCache      : String;
     FDiasValidadeCache : Integer;
+    FUsarRespostaExtendida: Boolean;
 
   public
     constructor Create;
@@ -59,12 +56,9 @@ type
     procedure LerIni(const AIni: TCustomIniFile);
     procedure GravarIni(const AIni: TCustomIniFile);
 
-    property ServidorProxy: String read FServidorProxy write FServidorProxy;
-    property PortaProxy: String read FPortaProxy write FPortaProxy;
-    property SenhaProxy: String read FSenhaProxy write FSenhaProxy;
-    property UsuarioProxy: String read FUsuarioProxy write FUsuarioProxy;
     property ArquivoCache: String read FArquivoCache write FArquivoCache;
     property DiasValidadeCache: Integer read FDiasValidadeCache write FDiasValidadeCache;
+    property UsarRespostaExtendida: Boolean read FUsarRespostaExtendida write FUsarRespostaExtendida;
   end;
 
   { TLibNCMsConfig }
@@ -99,10 +93,6 @@ uses
 constructor TNCMsConfig.Create;
 begin
   inherited;
-  FServidorProxy := '';
-  FPortaProxy    := '';
-  FSenhaProxy    := '';
-  FUsuarioProxy  := '';
   FDiasValidadeCache := 0;
   FArquivoCache := CNCM_ARQUIVO_CACHE;
 end;
@@ -114,21 +104,13 @@ end;
 
 procedure TNCMsConfig.LerIni(const AIni: TCustomIniFile);
 begin
-  FPortaProxy        := AIni.ReadString(CSessaoNCMs, CChavePorta, FPortaProxy);
-  FSenhaProxy        := AIni.ReadString(CSessaoNCMs, CChaveSenhaProxy, FSenhaProxy);
-  FUsuarioProxy      := AIni.ReadString(CSessaoNCMs, CChaveUsuarioProxy, FUsuarioProxy);
-  FServidorProxy     := AIni.ReadString(CSessaoNCMs, CChaveServidorProxy, FServidorProxy);
   FArquivoCache      := AIni.ReadString(CSessaoNCMs, CChaveArquivoCache, FArquivoCache);
   FDiasValidadeCache := AIni.ReadInteger(CSessaoNCMs, CChaveDiasValidadeCache, FDiasValidadeCache);
 end;
 
 procedure TNCMsConfig.GravarIni(const AIni: TCustomIniFile);
 begin
-  AIni.WriteString(CSessaoNCMs, CChavePorta, FPortaProxy);
-  AIni.WriteString(CSessaoNCMs, CChaveSenhaProxy, FSenhaProxy);
-  AIni.WriteString(CSessaoNCMs, CChaveUsuarioProxy, FUsuarioProxy);
-  AIni.WriteString(CSessaoNCMs, CChaveServidorProxy, FServidorProxy);
-  AIni.WriteString(CSessaoNCMs, CChaveArquivoCache, FArquivoCache);
+  AIni.WriteString(CSessaoNCMs,  CChaveArquivoCache,  FArquivoCache);
   AIni.WriteInteger(CSessaoNCMs, CChaveDiasValidadeCache, FDiasValidadeCache);
 end;
 

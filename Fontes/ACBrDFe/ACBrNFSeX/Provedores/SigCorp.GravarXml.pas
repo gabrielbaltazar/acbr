@@ -50,6 +50,14 @@ type
 
   end;
 
+  { TNFSeW_SigCorp204 }
+
+  TNFSeW_SigCorp204 = class(TNFSeW_ABRASFv2)
+  protected
+    procedure Configuracao; override;
+
+  end;
+
 implementation
 
 //==============================================================================
@@ -64,6 +72,7 @@ begin
   inherited Configuracao;
 
   FormatoAliq := tcDe2;
+
   NrOcorrValorPis := 1;
   NrOcorrValorCofins := 1;
   NrOcorrValorInss := 1;
@@ -72,6 +81,22 @@ begin
   NrOcorrValorIss := 1;
   NrOcorrDescIncond := 1;
   NrOcorrDescCond := 1;
+end;
+
+{ TNFSeW_SigCorp204 }
+
+procedure TNFSeW_SigCorp204.Configuracao;
+begin
+  inherited Configuracao;
+
+  FormatoAliq := tcDe2;
+
+  NrOcorrInformacoesComplemetares := 0;
+  NrOcorrCepTomador := 1;
+  NrOcorrAliquota := 1;
+  NrOcorrCodigoPaisTomador := -1;
+
+  TagTomador := 'TomadorServico';
 end;
 
 end.

@@ -84,7 +84,7 @@ type
 implementation
 
 uses
-  ACBrUtil.XMLHTML,
+  ACBrUtil.XMLHTML, ACBrUtil.Strings,
   ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   CTAConsult.GravarXml, CTAConsult.LerXml;
@@ -119,6 +119,8 @@ begin
                                      '<versao>1.00</versao>' +
                                      '<ambiente>' + aAmbiente + '</ambiente>' +
                                    '</cabecalhoNfseLote>';
+
+  SetNomeXSD('***');
 
   with ConfigSchemas do
   begin
@@ -181,7 +183,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('codigo'), tcStr);
-    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('descricao'), tcStr);
+    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('descricao'), tcStr));
     AErro.Correcao := '';
   end;
 end;
@@ -239,7 +241,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -261,7 +263,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -280,7 +282,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod108;
-    AErro.Descricao := Desc108;
+    AErro.Descricao := ACBrStr(Desc108);
     Exit;
   end;
 
@@ -288,7 +290,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod118;
-    AErro.Descricao := Desc118;
+    AErro.Descricao := ACBrStr(Desc118);
     Exit;
   end;
 
@@ -296,7 +298,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod122;
-    AErro.Descricao := Desc122;
+    AErro.Descricao := ACBrStr(Desc122);
     Exit;
   end;
 
@@ -341,7 +343,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -363,7 +365,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -452,7 +454,6 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := ParseText(AnsiString(Result));
-//  Result := ParseText(AnsiString(Result), True, False);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := RemoverPrefixosDesnecessarios(Result);

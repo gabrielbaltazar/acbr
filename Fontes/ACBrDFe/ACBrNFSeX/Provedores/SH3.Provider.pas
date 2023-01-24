@@ -72,7 +72,8 @@ type
 implementation
 
 uses
-  ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
+  ACBrDFeException, ACBrUtil.XMLHTML,
+  ACBrNFSeX, ACBrNFSeXConfiguracoes,
   ACBrNFSeXNotasFiscais, SH3.GravarXml, SH3.LerXml;
 
 { TACBrNFSeProviderSH3200 }
@@ -201,7 +202,7 @@ begin
   Request := Request + '</nfse:ConsultarNfsePorFaixaRequest>';
 
   Result := Executar('http://nfse.abrasf.org.br/ConsultarNfsePorFaixa', Request,
-                     ['outputXML', 'ConsultarNfsePorFaixaResposta'],
+                     ['outputXML', 'ConsultarNfseFaixaResposta'],
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
@@ -294,7 +295,9 @@ function TACBrNFSeXWebserviceSH3200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
+  Result := RemoverIdentacao(Result);
   Result := RemoverCDATA(Result);
+  Result := RemoverDeclaracaoXML(Result, True);
   Result := RemoverCaracteresDesnecessarios(Result);
 end;
 

@@ -243,6 +243,8 @@ begin
     end;
   end;
 
+  SetNomeXSD('***');
+
   with ConfigSchemas do
   begin
     Recepcionar := 'ReqEnvioLoteRPS.xsd';
@@ -340,11 +342,11 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Codigo;
-      AErro.Descricao := Descricao;
+      AErro.Descricao := ACBrStr(Descricao);
       AErro.Correcao := '';
 
       if AErro.Descricao = '' then
-        AErro.Descricao := ANodeArray[I].AsString;
+        AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
     end;
   end;
 
@@ -364,11 +366,11 @@ begin
     begin
       AAlerta := Response.Alertas.New;
       AAlerta.Codigo := Codigo;
-      AAlerta.Descricao := Descricao;
+      AAlerta.Descricao := ACBrStr(Descricao);
       AAlerta.Correcao := '';
 
       if AAlerta.Descricao = '' then
-        AAlerta.Descricao := ANodeArray[I].AsString;
+        AAlerta.Descricao := ACBrStr(ANodeArray[I].AsString);
     end;
   end;
 end;
@@ -389,17 +391,17 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod002;
-    AErro.Descricao := Desc002;
+    AErro.Descricao := ACBrStr(Desc002);
   end;
 
   if TACBrNFSeX(FAOwner).NotasFiscais.Count > Response.MaxRps then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod003;
-    AErro.Descricao := 'Conjunto de RPS transmitidos (máximo de ' +
+    AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (máximo de ' +
                        IntToStr(Response.MaxRps) + ' RPS)' +
                        ' excedido. Quantidade atual: ' +
-                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count);
+                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
   end;
 
   if Response.Erros.Count > 0 then Exit;
@@ -579,7 +581,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -594,7 +596,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -664,7 +666,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -683,7 +685,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod111;
-    AErro.Descricao := Desc111;
+    AErro.Descricao := ACBrStr(Desc111);
     Exit;
   end;
 
@@ -768,7 +770,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -783,7 +785,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
+        AErro.Descricao := ACBrStr(Desc203);
         Exit;
       end;
 
@@ -799,14 +801,13 @@ begin
         begin
           Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroLote'), tcStr);
           Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Sucesso'), tcStr) = 'true';
+          Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataEnvioLote'), tcDatHor);
 
           { Verificar se mais alguma dessas informações são necessárias
           with InformacoesLote do
           begin
-            NumeroLote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroLote'), tcStr);
             InscricaoPrestador := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('InscricaoPrestador'), tcStr);
             CPFCNPJRemetente := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CPFCNPJRemetente'), tcStr);
-            DataEnvioLote := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataEnvioLote'), tcDatHor);
             QtdNotasProcessadas := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('QtdNotasProcessadas'), tcInt);
             TempoProcessamento := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('TempoProcessamento'), tcInt);
             ValorTotalServico := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ValorTotalServico'), tcDe2);
@@ -827,7 +828,7 @@ begin
         begin
           AErro := Response.Erros.New;
           AErro.Codigo := Cod203;
-          AErro.Descricao := Desc203;
+          AErro.Descricao := ACBrStr(Desc203);
           Exit;
         end;
 
@@ -840,6 +841,8 @@ begin
           AResumo.CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
           AResumo.NumeroRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroRPS'), tcStr);
           AResumo.SerieRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('SerieRPS'), tcStr);
+          AResumo.Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('URLNotaFiscal'), tcStr);
+          AResumo.Link := StringReplace(AResumo.Link, '&amp;', '&', [rfReplaceAll]);
 
           with Response do
           begin
@@ -867,7 +870,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -886,7 +889,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod102;
-    AErro.Descricao := Desc102;
+    AErro.Descricao := ACBrStr(Desc102);
     Exit;
   end;
 
@@ -894,7 +897,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod103;
-    AErro.Descricao := Desc103;
+    AErro.Descricao := ACBrStr(Desc103);
     Exit;
   end;
 
@@ -987,7 +990,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -1009,7 +1012,7 @@ begin
         begin
           AErro := Response.Erros.New;
           AErro.Codigo := Cod203;
-          AErro.Descricao := Desc203;
+          AErro.Descricao := ACBrStr(Desc203);
           Exit;
         end;
 
@@ -1041,7 +1044,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1061,7 +1064,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod115;
-    AErro.Descricao := Desc115;
+    AErro.Descricao := ACBrStr(Desc115);
     Exit;
   end;
 
@@ -1069,15 +1072,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod116;
-    AErro.Descricao := Desc116;
-    Exit;
-  end;
-
-  if EstaVazio(Response.InfConsultaNFSe.NumeroIniNFSe) then
-  begin
-    AErro := Response.Erros.New;
-    AErro.Codigo := Cod108;
-    AErro.Descricao := Desc108;
+    AErro.Descricao := ACBrStr(Desc116);
     Exit;
   end;
 
@@ -1147,14 +1142,6 @@ begin
                                '</InscricaoMunicipalPrestador>' +
                                '<dtInicio>' + xDataI + '</dtInicio>' +
                                '<dtFim>' + xDataF + '</dtFim>' +
-                               '<NotaInicial>' +
-                                 Response.InfConsultaNFSe.NumeroIniNFSe +
-                               '</NotaInicial>' +
-                               {
-                               '<NumeroLote>' +
-                                 Response.InfConsultaNFSe.NumeroLote +
-                               '</NumeroLote>' +
-                               }
                                '<Versao>1</Versao>' +
                              '</Cabecalho>' +
                            '</' + Prefixo + 'ReqConsultaNotas>';
@@ -1181,7 +1168,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -1220,7 +1207,7 @@ begin
         begin
           AErro := Response.Erros.New;
           AErro.Codigo := Cod203;
-          AErro.Descricao := Desc203;
+          AErro.Descricao := ACBrStr(Desc203);
           Exit;
         end;
 
@@ -1245,7 +1232,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1264,7 +1251,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod108;
-    AErro.Descricao := Desc108;
+    AErro.Descricao := ACBrStr(Desc108);
     Exit;
   end;
 
@@ -1272,7 +1259,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod117;
-    AErro.Descricao := Desc117;
+    AErro.Descricao := ACBrStr(Desc117);
     Exit;
   end;
 
@@ -1280,7 +1267,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod110;
-    AErro.Descricao := Desc110;
+    AErro.Descricao := ACBrStr(Desc110);
     Exit;
   end;
 
@@ -1387,7 +1374,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -1427,7 +1414,7 @@ begin
         begin
           AErro := Response.Erros.New;
           AErro.Codigo := Cod203;
-          AErro.Descricao := Desc203;
+          AErro.Descricao := ACBrStr(Desc203);
           Exit;
         end;
 
@@ -1453,7 +1440,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -1573,7 +1560,7 @@ function TACBrNFSeXWebserviceISSDSF.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);

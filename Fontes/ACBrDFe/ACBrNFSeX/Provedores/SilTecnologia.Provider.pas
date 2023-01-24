@@ -96,7 +96,7 @@ type
 implementation
 
 uses
-  ACBrUtil.XMLHTML,
+  ACBrUtil.XMLHTML, ACBrUtil.Strings,
   ACBrDFeException, ACBrXmlBase,
   SilTecnologia.GravarXml, SilTecnologia.LerXml;
 
@@ -197,7 +197,7 @@ function TACBrNFSeXWebserviceSilTecnologia.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
 end;
 
@@ -320,7 +320,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := '';
-      AErro.Descricao := SeparaDados(Response.ArquivoRetorno, 'return');
+      AErro.Descricao := ACBrStr(SeparaDados(Response.ArquivoRetorno, 'return'));
     end;
   end;
 end;
@@ -493,7 +493,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;

@@ -69,7 +69,7 @@ type
 implementation
 
 uses
-  ACBrUtil.XMLHTML, ACBrDFeException,
+  ACBrUtil.XMLHTML, ACBrUtil.Strings, ACBrDFeException,
   ACBrNFSeXConsts, ACBrNFSeX, ACBrNFSeXNotasFiscais,
   ABase.GravarXml, ABase.LerXml;
 
@@ -223,7 +223,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -244,7 +244,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
+        AErro.Descricao := ACBrStr(Desc203);
         Exit;
       end;
 
@@ -256,6 +256,7 @@ begin
 
         if AuxNodeConf = nil then
           AuxNodeConf := AuxNode.Childrens.FindAnyNs('ConfirmacaoCancelamento');
+        if not Assigned(AuxNodeConf) or (AuxNodeConf = nil) then Exit;
 
 //        Response.DataCanc := LerDatas(ObterConteudoTag(AuxNodeConf.Childrens.FindAnyNs('DataHora'), tcStr));
         Response.DataCanc := ObterConteudoTag(AuxNodeConf.Childrens.FindAnyNs('DataHora'), FpFormatoDataHora);
@@ -270,6 +271,8 @@ begin
       if AuxNode <> nil then
       begin
         AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
+        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
         NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 
         with Response do
@@ -284,6 +287,8 @@ begin
         if ANota = nil then
         begin
           AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
+          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
           NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
@@ -296,14 +301,14 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
+        AErro.Descricao := ACBrStr(Desc203);
       end;
     except
       on E:Exception do
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -316,7 +321,7 @@ function TACBrNFSeXWebserviceABase201.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
 end;
 

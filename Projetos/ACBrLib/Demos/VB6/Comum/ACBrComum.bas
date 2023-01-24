@@ -61,6 +61,8 @@ Public Const SESSAO_IBGE                      As String = "IBGE"
 Public Const SESSAO_Sedex                     As String = "Sedex"
 Public Const SESSAO_eSocial                   As String = "eSocial"
 Public Const SESSAO_GTIN                      As String = "GTIN"
+Public Const SESSAO_ConsultaCNPJ              As String = "ConsultaCNPJ"
+Public Const SESSAO_NCM                       As String = "NCM"
 
 Public Enum NivelLog
     logNenhum = 0
@@ -518,11 +520,15 @@ End Enum
 Public Enum ModeloBoleto
     lPadrao = 0
     lCarne = 1
-    llFatura = 2
+    lFatura = 2
     lPadraoEntrega = 3
     lReciboTopo = 4
     lPadraoEntrega2 = 5
     lFaturaDetal = 6
+    lTermica80mm = 7
+    lPadraoPIX = 8
+    lPrestaServicos = 9
+    lCarneA5 = 10
 End Enum
 
 Public Enum RespEmissaoBoleto

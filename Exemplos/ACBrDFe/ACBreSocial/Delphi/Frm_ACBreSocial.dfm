@@ -2,7 +2,7 @@ object frmACBreSocial: TfrmACBreSocial
   Left = 226
   Top = 114
   Caption = 'ACBreSocial - Programa Exemplo'
-  ClientHeight = 645
+  ClientHeight = 752
   ClientWidth = 1099
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -10,18 +10,17 @@ object frmACBreSocial: TfrmACBreSocial
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMenus: TPanel
     Left = 0
     Top = 0
     Width = 297
-    Height = 645
+    Height = 752
     Align = alLeft
     TabOrder = 0
+    ExplicitHeight = 751
     object lblColaborador: TLabel
       Left = 18
       Top = 540
@@ -999,15 +998,15 @@ object frmACBreSocial: TfrmACBreSocial
     Left = 297
     Top = 0
     Width = 802
-    Height = 645
+    Height = 752
     Align = alClient
     TabOrder = 1
     object pgcBotoes: TPageControl
       Left = 1
       Top = 1
       Width = 800
-      Height = 345
-      ActivePage = tbsEventosNaoPeriodicos
+      Height = 420
+      ActivePage = tbsEventosPeriodicos
       Align = alTop
       TabOrder = 0
       object tbsEventosTabela: TTabSheet
@@ -1167,81 +1166,89 @@ object frmACBreSocial: TfrmACBreSocial
         end
         object cbS1250: TCheckBox
           Left = 12
-          Top = 106
+          Top = 127
           Width = 332
           Height = 16
           Caption = 'S-1250 Aquisi'#231#227'o de Produ'#231#227'o Rural'
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 4
+          TabOrder = 5
         end
         object cbS1260: TCheckBox
           Left = 12
-          Top = 127
+          Top = 148
           Width = 332
           Height = 17
           Caption = 'S-1260 Comercializa'#231#227'o da Produ'#231#227'o Rural Pessoa F'#237'sica'
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 5
+          TabOrder = 6
         end
         object cbS1270: TCheckBox
-          Left = 350
+          Left = 401
           Top = 12
           Width = 332
           Height = 17
           Caption = 'S-1270 Contrata'#231#227'o de Trabalhadores Avulsos N'#227'o Portu'#225'rios'
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 6
+          TabOrder = 7
         end
         object cbS1280: TCheckBox
-          Left = 350
+          Left = 401
           Top = 35
           Width = 321
           Height = 18
           Caption = 'S-1280 Informa'#231#245'es Complementares aos Eventos Peri'#243'dicos'
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 7
+          TabOrder = 8
         end
         object cbS1295: TCheckBox
-          Left = 351
+          Left = 402
           Top = 59
           Width = 381
           Height = 17
           Caption = 'S-1295 Solicita'#231#227'o de Totaliza'#231#227'o para Pagamento em Conting'#234'ncia'
-          TabOrder = 8
+          TabOrder = 9
         end
         object cbS1298: TCheckBox
-          Left = 350
+          Left = 401
           Top = 82
           Width = 289
           Height = 17
           Caption = 'S-1298 Reabertura dos Eventos Peri'#243'dicos'
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 9
+          TabOrder = 10
         end
         object cbS1299: TCheckBox
-          Left = 350
+          Left = 401
           Top = 105
           Width = 289
           Height = 17
           Caption = 'S-1299 Fechamento dos Eventos Peri'#243'dicos'
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 10
+          TabOrder = 11
         end
         object cbS1300: TCheckBox
-          Left = 350
+          Left = 401
           Top = 128
           Width = 289
           Height = 15
           Caption = 'S-1300 Contribui'#231#227'o Sindical Patronal'
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 11
+          TabOrder = 12
+        end
+        object CBS1220: TCheckBox
+          Left = 12
+          Top = 105
+          Width = 351
+          Height = 17
+          Caption = 'S-1220 Informa'#231#245'es complementares relativas ao Imposto de Renda'
+          TabOrder = 4
         end
       end
       object tbsEventosNaoPeriodicos: TTabSheet
@@ -1323,171 +1330,202 @@ object frmACBreSocial: TfrmACBreSocial
         end
         object cbS2240: TCheckBox
           Left = 12
-          Top = 196
+          Top = 219
           Width = 332
           Height = 17
           Caption = 'S-2240 Condi'#231#245'es Ambientais do Trabalho - Fatores de Risco'
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 8
+          TabOrder = 9
         end
         object cbS2245: TCheckBox
           Left = 12
-          Top = 219
+          Top = 242
           Width = 404
           Height = 17
           Caption = 
             'S-2245 Treinamentos, Capacita'#231#245'es, Exerc'#237'cios Simulados '#13#10'e Outr' +
             'as Anota'#231#245'es'
-          TabOrder = 9
+          TabOrder = 10
         end
         object cbS2250: TCheckBox
-          Left = 422
-          Top = 12
+          Left = 12
+          Top = 265
           Width = 120
           Height = 17
           Caption = 'S-2250 Aviso Pr'#233'vio'
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 10
+          TabOrder = 11
         end
         object cbAviso: TComboBox
-          Left = 548
-          Top = 12
+          Left = 138
+          Top = 265
           Width = 145
           Height = 21
           Style = csDropDownList
           ItemIndex = 0
-          TabOrder = 11
+          TabOrder = 12
           Text = 'Aviso'
           Items.Strings = (
             'Aviso'
             'Cancelamento')
         end
         object cbs2260: TCheckBox
-          Left = 422
-          Top = 37
+          Left = 12
+          Top = 289
           Width = 332
           Height = 17
           Caption = 'S-2260 Convoca'#231#227'o para Trabalho Intermitente'
-          TabOrder = 12
+          TabOrder = 13
         end
         object cbS2298: TCheckBox
-          Left = 422
-          Top = 58
+          Left = 12
+          Top = 313
           Width = 153
           Height = 17
           Caption = 'S-2298 Reintegra'#231#227'o'
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 13
+          TabOrder = 14
         end
         object cbS2299: TCheckBox
-          Left = 422
-          Top = 81
+          Left = 12
+          Top = 337
           Width = 135
           Height = 17
           Caption = 'S-2299 Desligamento'
-          TabOrder = 14
+          TabOrder = 15
         end
         object cbS2300: TCheckBox
-          Left = 422
-          Top = 104
+          Left = 12
+          Top = 361
           Width = 233
           Height = 17
           Caption = 'S-2300 Trabalhador Sem V'#237'nculo - In'#237'cio'
-          TabOrder = 15
+          TabOrder = 16
         end
         object cbS2306: TCheckBox
-          Left = 422
-          Top = 127
+          Left = 420
+          Top = 12
           Width = 311
           Height = 17
           Caption = 'S-2306 Trabalhador Sem V'#237'nculo - Altera'#231#227'o Contratual'
-          TabOrder = 16
+          TabOrder = 17
         end
         object cbS2399: TCheckBox
-          Left = 422
-          Top = 150
+          Left = 420
+          Top = 35
           Width = 248
           Height = 17
           Caption = 'S-2399 Trabalhador Sem V'#237'nculo - T'#233'rmino'
-          TabOrder = 17
+          TabOrder = 18
         end
         object cbS2400: TCheckBox
-          Left = 422
-          Top = 173
+          Left = 420
+          Top = 58
           Width = 321
           Height = 17
           Caption = 'S-2400 Cadastro de Benefici'#225'rio - Entes P'#250'blicos - In'#237'cio'
-          TabOrder = 18
+          TabOrder = 19
         end
         object cbS3000: TCheckBox
-          Left = 12
-          Top = 290
+          Left = 420
+          Top = 242
           Width = 175
           Height = 17
           Caption = 'S-3000 Exclus'#227'o de Eventos'
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 25
+          TabOrder = 27
         end
         object cbS2405: TCheckBox
-          Left = 422
-          Top = 196
+          Left = 420
+          Top = 81
           Width = 321
           Height = 17
           Caption = 'S-2405 Cadastro de Benefici'#225'rio - Entes P'#250'blicos - Altera'#231#227'o'
-          TabOrder = 19
+          TabOrder = 20
         end
         object cbS2410: TCheckBox
-          Left = 422
-          Top = 219
+          Left = 420
+          Top = 104
           Width = 321
           Height = 17
           Caption = 'S-2410 Cadastro de Benef'#237'cio - Entes P'#250'blicos - In'#237'cio'
-          TabOrder = 20
+          TabOrder = 21
         end
         object cbS2231: TCheckBox
           Left = 12
-          Top = 242
+          Top = 196
           Width = 404
           Height = 17
           Caption = 'S-2231 Cess'#227'o/Exerc'#237'cio em Outro '#211'rg'#227'o'
-          TabOrder = 21
+          TabOrder = 8
         end
         object cbS2416: TCheckBox
-          Left = 422
-          Top = 242
+          Left = 420
+          Top = 127
           Width = 321
           Height = 17
           Caption = 'S-2416 Cadastro de Benef'#237'cio - Entes P'#250'blicos - Altera'#231#227'o'
           TabOrder = 22
         end
         object cbS2418: TCheckBox
-          Left = 12
-          Top = 265
+          Left = 420
+          Top = 150
           Width = 404
           Height = 17
           Caption = 'S-2418 Reativa'#231#227'o de Benef'#237'cio - Entes P'#250'blicos'
           TabOrder = 23
         end
         object cbS2420: TCheckBox
-          Left = 422
-          Top = 265
+          Left = 420
+          Top = 173
           Width = 321
           Height = 17
           Caption = 'S-2420 Cadastro de Benef'#237'cio - Entes P'#250'blicos - T'#233'rmino'
           TabOrder = 24
         end
+        object cbS3500: TCheckBox
+          Left = 420
+          Top = 266
+          Width = 275
+          Height = 17
+          Caption = 'S-3500 Exclus'#227'o de Eventos - Processo Trabalhista'
+          Ctl3D = False
+          ParentCtl3D = False
+          TabOrder = 28
+        end
+        object CBS2500: TCheckBox
+          Left = 420
+          Top = 196
+          Width = 321
+          Height = 17
+          Caption = 'S-2500 Processo Trabalhista'
+          TabOrder = 25
+        end
+        object CBS2501: TCheckBox
+          Left = 420
+          Top = 219
+          Width = 357
+          Height = 17
+          Caption = 
+            'S-2501 Informa'#231#245'es de Tributos Decorrentes de Processo Trabalhis' +
+            'ta'
+          DoubleBuffered = False
+          ParentDoubleBuffered = False
+          TabOrder = 26
+          WordWrap = True
+        end
       end
     end
     object pgRespostas: TPageControl
       Left = 1
-      Top = 346
+      Top = 421
       Width = 800
-      Height = 298
-      ActivePage = tsFormaEnvio
+      Height = 330
+      ActivePage = tsComandos
       Align = alClient
       TabOrder = 1
       object tsFormaEnvio: TTabSheet
@@ -1644,7 +1682,7 @@ object frmACBreSocial: TfrmACBreSocial
           Left = 0
           Top = 0
           Width = 792
-          Height = 270
+          Height = 302
           Align = alClient
           ScrollBars = ssVertical
           TabOrder = 0
@@ -1657,11 +1695,12 @@ object frmACBreSocial: TfrmACBreSocial
           Left = 0
           Top = 0
           Width = 792
-          Height = 270
+          Height = 302
           Align = alClient
           TabOrder = 0
+          ExplicitHeight = 262
           ControlData = {
-            4C000000DB510000E81B00000000000000000000000000000000000000000000
+            4C000000DB510000361F00000000000000000000000000000000000000000000
             000000004C000000000000000000000001000000E0D057007335CF11AE690800
             2B2E126200000000000000004C0000000114020000000000C000000000000046
             8000000000000000000000000000000000000000000000000000000000000000
@@ -1675,7 +1714,7 @@ object frmACBreSocial: TfrmACBreSocial
           Left = 0
           Top = 0
           Width = 792
-          Height = 270
+          Height = 302
           Align = alClient
           ScrollBars = ssVertical
           TabOrder = 0
@@ -1687,8 +1726,8 @@ object frmACBreSocial: TfrmACBreSocial
         object trvwDocumento: TTreeView
           Left = 0
           Top = 0
-          Width = 792
-          Height = 270
+          Width = 788
+          Height = 301
           Align = alClient
           Indent = 19
           TabOrder = 0
@@ -1701,7 +1740,7 @@ object frmACBreSocial: TfrmACBreSocial
           Left = 0
           Top = 0
           Width = 792
-          Height = 270
+          Height = 302
           Align = alClient
           ScrollBars = ssVertical
           TabOrder = 0
@@ -1713,8 +1752,8 @@ object frmACBreSocial: TfrmACBreSocial
         object MemoDados: TMemo
           Left = 0
           Top = 0
-          Width = 792
-          Height = 270
+          Width = 788
+          Height = 301
           Align = alClient
           Lines.Strings = (
             '')
@@ -1731,8 +1770,8 @@ object frmACBreSocial: TfrmACBreSocial
       'Arquivos NFE (*-nfe.XML)|*-nfe.XML|Arquivos XML (*.XML)|*.XML|To' +
       'dos os Arquivos (*.*)|*.*'
     Title = 'Selecione a NFe'
-    Left = 411
-    Top = 471
+    Left = 661
+    Top = 590
   end
   object ACBreSocial1: TACBreSocial
     OnStatusChange = ACBreSocial1StatusChange
@@ -1742,12 +1781,13 @@ object frmACBreSocial: TfrmACBreSocial
     Configuracoes.Geral.SSLHttpLib = httpNone
     Configuracoes.Geral.SSLXmlSignLib = xsNone
     Configuracoes.Geral.FormatoAlerta = 'TAG:%TAGNIVEL% ID:%ID%/%TAG%(%DESCRICAO%) - %MSG%.'
+    Configuracoes.Geral.RetirarAcentos = False
     Configuracoes.Geral.VersaoDF = veS01_00_00
     Configuracoes.Arquivos.OrdenacaoPath = <>
     Configuracoes.WebServices.UF = 'SP'
     Configuracoes.WebServices.AguardarConsultaRet = 0
     Configuracoes.WebServices.QuebradeLinha = '|'
-    Left = 326
-    Top = 470
+    Left = 630
+    Top = 590
   end
 end

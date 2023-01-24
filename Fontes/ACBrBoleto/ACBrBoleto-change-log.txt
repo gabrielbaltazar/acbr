@@ -49,6 +49,169 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+13/01/2023
+[*] TK-3470 ACBrBoletoW_BancoBrasil_API Contribuição para correção do erro: "Para tipo de multa = 0 ( DISPENSADO ) , não informar valor ou percentual"
+Por Aggille Sistemas /  Daniel Morais
+
+09/01/2023
+[*] TK-3429-1 ACBrBancoBrasil feito ajustes no tratamento das instruções codificadas para protesto
+Por Daniel Morais
+
+06/01/2023
+[*] TK-3008-2 ACBrBancoSicredi contribuição para ler qrcode retorno boleto hibrido
+Por marcelo.hgv / validado Daniel Morais
+
+05/01/2023
+[*] TK-3445 ACBrBancoUnicredRS ajuste na hora de criar o arquivo de remessa. como nao existe o enumerado (tipoDiasProtesto) nao protestar, se a data do protesto nao for informada ele gera o arquivo com instrucao 3 de nÃ£o protestar.
+Por Daniel Morais 
+
+04/01/2023
+[*] TK-3401 ACBrBoleto inclusão a espécie de título 'Boleto de Proposta', sigla BDP (CNAB400)
+    Por MLGoncalves, Daniel Morais 
+
+02/01/2023
+[-] TK-3432 UniCredES - ACBrBoleto Correcao ler retorno quando fo CPF criado a funcao DefineCnpjCpf240 para identificar e tratar CPF/CNPJ
+    Por Daniel Morais/ vinizioWOW
+
+30/12/2022
+[-] TK-3444 ACBrBancoSicredi Correção captura do QrCode.TxID Posição 21-35, conforme Manual.
+    Por Daniel Morais.
+
+28/12/2022
+[-] TK-3429 Alteração da case para que o comando 06 funcione com dias corridos e independente de estar na instrucao1 ou instrucao2
+    Obs: A TK-3429 com a sugestao do usuario isolopak ainda esta em analise para possivel refatoração da unidade.
+    Por Daniel Morais. 
+
+26/12/2022
+[-] TK-3371 Alteração Case data Protesto para dias utei 3,4,5 por dias trabalhados (não leva em consideração feriados)
+  por suporteatinfo / Victor H Gonzales - Pandaa
+
+23/12/2022
+[-]TK-3389 ACBrBoletoW_Sicredi_API - Ajuste na função de alteração
+  Por: Daniel Morais
+
+[-]TK-3418 ACBrBoleto erro de persistência DFM PIX
+  Por : Victor H Gonzales - Pandaaa
+
+22/12/2022
+[*]TK-3408 Ajuste na Instrução do método LerArqIni
+Por: Antonio Carlos Junior / Victor H Gonzales - Pandaaa
+
+--ACBrBoletoCresol--
+[-]TK-3413 Banco 133 ACBrBoletoCresol Atualização CNAB240 Dominio de Multa
+  por : Victor H Gonzales - Pandaaa
+
+[+]TK-3008 Banco Sicredi Boleto Hibrido
+  por : Nazarenoneto / Eric100 / Victor H Gonzales - Pandaaa
+
+16/12/2022
+[+] TK-3264 ACBrBoleto - 212-Banco Original
+  por : Renato Pavan
+
+29/11/2022
+--ACBrBoletoWS--
+[*]Correção de AV quando WS com erro e não houver JSON
+ por : Victor H Gonzales - Pandaaa
+
+28/11/2022
+--ACBrBancoCresolSCRS--
+[*]TK-3320 ACBrBoleto - Ajuste na função de leitura do retorno CNAB400
+  por : Desenvolvimento Farol Soft
+--ACBrBancoSicred--
+
+[*]TK-3326 Retorno API capturar a data da liquidação JSON para o campo :TituloRet.DataCredito
+Nas procedures LerListaRetorno e LerRetorno
+  por : Daniel de Morais / Rafael Mozer
+
+25/11/2022
+--ACBrBancoUnicredES--
+[*]TK-3028-2 UnicredES CNAB240 Complemento Retorno posicao 214 até 223
+Criado procedure DefineRejeicaoComplementoRetorno
+  por : Victor H Gonzales - Pandaaa / Daniel de Morais
+
+--ACBrBancoBanrisul--
+[-]TK-3271 ACBrBoleto - Adequação Banrisul para versão 10.3 do CNAB240
+  por : Victor H Gonzales - Pandaaa / Daniel de Morais
+
+--ACBrBoleto--
+[+]TK-3201-1-3 ACBrBoleto Adicionar métodos de leitura para o Monitor (EMV)
+  por : Victor H Gonzales - Pandaaa
+
+--ACBBancoNordeste--
+[*] TK-3262 corrigido codigos retorno que não estavam batendo com manual. 
+  por: LP Sistemas, verificado Daniel de Morai
+
+21/11/2022
+--ACBBancoCresol--
+[*] TK-3198 Incluido a geração do Segmento Opcional R
+  por: Atual Sistemas Dev
+
+18/11/2022
+--ACBrBancoDaycoval--
+[-]TK-3295 Ajuste remessa CNAB400 Daycoval sobre a informação do campo Seu Numero
+  por Daniel de Morais / Keiller Rodrigues / Victor H Gonzales - Pandaaa
+
+16/11/2022
+[+]TK2854 - Inclusão do boleto com integração via WS para o Santander
+  por : Renato Rubinho
+[+]TK3201 Implementação no CNAB240 do Boleto Santander com PIX
+  por : Victor H Gonzales - Pandaaa
+[+]TK3201-1 Criar Leitura pelo ACBrBoleto para as propriedades novas do PIX (Y03)
+  por : Victor H Gonzales - Pandaaa
+
+08/11/2022
+--ACBrBancoUnicredES--
+[*]TK-3247 UnicredES CNAB240 Retorno com 19 caracteres
+  por : Victor H Gonzales - Pandaaa
+
+07/11/2022
+--ACBrBancoUnicredES--
+[-] Correção para compilar no Delphi 7.
+  por : Italo Giurizzato Junior
+
+04/11/2022
+--ACBrBancoCecred--
+[*]TK-3217 ACBrBoleto - Mapeamento de alguns códigos de ocorrência para o Ailos/Cecred
+  por : IBS Sistemas 
+
+--ACBrBancoBrasil--
+[*]TK-3173 ACBrBoleto - Alteração na instrução codificada para CNAB400 BB
+  por : Midas
+
+--ACBrBoleto--
+[+]TK-3225 Alteração no CNAB240 novas procedures para leitura dinamica
+  por : Victor H Gonzales - Pandaaa
+
+--ACBrBancoUnicredES--
+[*]TK-3028-1 Alteração retorno para ajuste leitura CNAB240 Retorno SeuNumero / Nosso Numero, banco retorna fixo 0, foi alterado para retornar o mesmo valor em ambos
+  por Daniel de Morais / Victor H Gonzales - Pandaaa
+
+--ACBrBancoBTGPactual--
+[+]TK-3228 ACBrBoleto - Inclusão do Banco BTG Pactual Regra C058 Segmento U
+  por Victor H Gonzales - Pandaaa  
+
+--ACBrBancoCecredi--
+[*]TK-3224 CNAB400 Alteração Registro 7 campo 32 colunas 159 a 160, alteração de dominio vazio para zeros conforme manual versão 03 abril/2021 
+  por Doglas Stumpf
+
+--ACBrBancoSofisaSantander--
+[+]TK-3164 CNAB 400 com 444 posições Registro de NFe
+  por Windsoft
+5.1. CHAVE DA NF-e (401 a 444)
+- 401 a 444 – Chave da NF-e Duplicata de Venda Mercantil / CTE Número da Chave 
+da NF-e para o título/documento ( 44 posições ). 
+- Duplicata referente a Nota Fiscal de Serviço Em caso de Nota Fiscal de SERVIÇO, a 
+chave possuirá normalmente 9 posições. Neste caso, completar com zeros à esquerda 
+até que o campo tenha as 44 posições preenchidas. pag 10
+
+--ACBrBoletoConversao ACBrBoletoFCFortesFr ACBrBoletoFCFortesFr--
+[+]TK-2146 Boleto CarneA5 RL
+  por : Marcio Rossato / Daniel de Morais
+
+--ACBrBoletoFCFortesFr ACBrBoletoFCFortesFr--
+[*]Correção no relatório de Serviços
+  por : Daniel de Morais
+
 27/10/2022
 --ACBrBoleto--
 [-]TK-3132 - Parâmetro ImprimirMensagemPadrao não está surtindo efeito / Outros

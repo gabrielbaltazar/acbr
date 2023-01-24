@@ -41,7 +41,791 @@ Símbolo : Significado
 [+]     : Novo recurso
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
+23/01/2023
+-- ACBrNFSeXServicos.ini --
+[*] Alterada as URLs e a versão para cidade de Anapolis/GO, provedor ainda é o ISSNet.
+   Por: PrimeSoftware
+   
+20/01/2023
+-- ACBrNFSeXServicos.ini --
+[*] Corrigida a URL de produção da cidade de Chapecó/SC
+   Por: Douglas GV
+-- ACBrNFSeXWebServiceBase --
+[*] O provedor PradraoNacional retorna em JSON mensagens de rejeição com código
+    de ResultCode diferentes de 200, 201 e 202 
+   Por: Italo Giurizzato Junior
+-- SigISSWeb.Provider/SigISSWeb.GravarXml --
+[*] Implementado a TratarRetornoGerarToken.
+   Por: Italo Giurizzato Junior
 
+19/01/2023
+-- SigCorp.GravarXml --
+[*] Alterado a configuração para sempre gerar a tag Aliquota.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Guatambu/SC mudou de provedor, agora é Publica.
+   Por: claudio algayer
+ 
+18/01/2023
+-- ACBrNFSeXProviderBase --
+[*] Possível solução para que o componente pegue as URLs corretas do Padrão
+    Nacional.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] A URL de produção da cidade Assis Chateaubriand/PR foi atualizada.
+   Por: Alex Heinen
+-- ACBrNFSeXServicos.ini --
+[*] A cidade Sete Lagoas/MG trocou de provedor, agora é : Libre
+   Por: Vagner Amorim
+-- Diversos --
+[+] Implementado o provedor Libre - ABRASF versão 2.04.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXClass/Infisc.GravarXml/Infisc.LerXml --
+[*] Acrescentado o campo xSite dentro da classe Contato.
+   Por: Italo Giurizzato Junior
+
+17/01/2023
+-- Fiorilli.Provider --
+[*] Possível solução para o erro: xmlParseEntityRef: no name
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXProviderABRASFv2 --
+[*] Alteração visando encontrar tanto o código L000 quanto L0000.
+   Por: Italo Giurizzato Junior
+-- PadraoNacional.GravarXml --
+[*] Correção no nome do grupo de tributação.
+   Por: Italo Giurizzato Junior
+-- Fisco.Provider --
+[*] Ajustes na montagem do Envelope Soap para que o webservice processe com 
+    sucesso.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXConversao/ACBrNFSeXProviderManager --
+[*] Ajustes para identificar o provedor GestaoISS
+   Por: Herber Germano/Italo Giurizzato Junior
+-- GestaoISS.Provider/GestaoISS.GravarXml/GestaoISS.LerXml --
+[+] Implementado o provedor GestaoISS
+   Por: Herber Germano/Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] A cidade Rio Bonito/RJ trocou de provedor, agora é : GestaoISS
+   Por: Heber Germano
+-- ACBrNFSeXServicos.ini --
+[+] Inclusão das informações para cidade de Joanopolis/SP, provedor é Sistemas4R.
+   Por: HMAX AUTOMAÇÃO HOTELEIRA
+[+] Incluido as URLs de Consulta ao Lote para a cidade Joanopolis/SP
+   Por: Italo Giurizzato Junior
+
+16/01/2023
+-- NFSeBrasil.Provider --
+[*] Possível solução para o TratarXmlRetornado
+   Por: Italo Giurizzato Junior
+-- SigISS.GravarXml --
+[*] Alterações para gerar ou não algumas tags quando se tratar de Nota Conjulgada
+   Por: Alexandre Felippeto Henzen
+-- ACBrNFSeXServicos.ini --
+[*] Alteração das URLs para a cidade de Ibiuna/SP, provedor e versão continuam os mesmos, Sistemas4R 2.00
+   Por: danny
+[*] Inclusão da URL e alteração da versão para a cidade de Tijucas/SC, provedor ainda é IPM.
+   Por: Arimateia Jr.
+
+13/01/2023
+-- SH3.Provider --
+[*] Correção no nome da tag de retorno do Consultar NFSe por Faixa.
+   Por: Jeanny Paiva
+-- ISSDSF.GravarXml --
+[*] Correção na montagem da string de assinatura.
+   Por: Arimateia Jr
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Mococa/SP trocou de provedor, agora é Conam.
+   Por: Phoenixsistemas
+-- ACBrNFSeXServicos.ini --
+[+] Inclusão da URL do Link de Produção da cidade de Blumenau/SC.
+   Por: Diogo Weitz
+
+12/01/2023
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Ronda Alta/RS trocou de provedor, agora é Tcheinfo.
+   Por: Phoenixsistemas
+
+11/01/2023
+-- Pronim.GravarXml --
+[*] Alterações visando a geração ou não das tags ResponsavelRetencao e CodigoPais 
+    do tomador.
+   Por: Guilherme Costa
+-- ACBrNFSeXDANFSeFR --
+[-] ACBrNFSe - Ajuste DANFSe Fast quando a impressão do local de prestação do serviço 
+  por Victor H Gonzales - Pandaaa
+
+10/01/2023
+-- EL.GravarXml --
+[*] Correções para gerar a tag NaturezaOperacao da forma correta.
+   Por: Italo Giurizzato Junior
+-- SH3.Provider --
+[*] Correção no nome da tag de retorno.
+   Por: Jeanny Paiva
+-- fintelISS.GravarXml --
+[*] Em Configuracoes setado o valor zero para NrOcorrOutrasInformacoes.
+   Por: Arimateia Jr
+-- ACBrNFSeXDANFSeRLRetrato --
+[*] Invertido a verificação, agora é verificado se a propriedade de configuração
+    OutrasInformacaoesImp esta preenchica se não estiver verifica o campo 
+    OutrasInformacoes.
+   Por: Gabriel Rogelin
+-- ISSBarueri.LerXml --
+[*] Correções feitas com base nos testes unitários realizados.
+   Por: Italo Giurizzato Junior
+-- ISSGoiania.Provider --
+[*] Removido a condição para definir um código IBGE para o cancelamento em 
+    ambiente de homologação.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXProviderABRASFv1 --
+[*] Possível solução para ler informações sobre o cancelamento ao consultar a 
+    NFS-e por RPS.
+   Por: Italo Giurizzato Junior
+-- Fiorilli.GravarXml --
+[*] Alteração na procedure Configuracao para deixar a tag InscricaoMunicipal do
+    tomador como opcional
+   Por: Renato Rubinho
+-- ACBrNFSeXServicos.ini --
+[*] Informado o provedor para cidade de Mambore, é IPM, versão 1.0
+   Por: Alex Heinen
+
+09/01/2023
+-- ISSGoiania.Provider --
+[*] Melhorias no TratarRetornoEmitir para capturar o numero da nota entre outras
+    informações
+   Por: Italo Giurizzato Junior
+
+06/01/2023
+-- ACBrNFSeXServicos.ini --
+[*] Atualizado a URL de homologação - Cidade de Itatiba/SP
+   Por: Arimateia Jr
+-- ACBrNFSeXProviderABRASFv2 --
+[*] Possível solução para não gerar na lista de erros quando o provedor ISSGoiania
+    retorno o erro L000, pois não se trata de um erro.
+   Por: Italo Giurizzato Junior
+-- fintelISS.GravarXml --
+[*] Alterado a configuração para gerar a tag ValorIss, pois ela é obrigatória.
+   Por: Arimateia Jr
+-- ACBrNFSeXServicos.ini --
+[*] Incluido a URL para o Link da nota - Cidade Foz do Iguaçu/PR
+   Por: Arimateia Jr
+-- ISSIntel.GravarXml --
+[*] Alterado a configuração para aceitar código de ItemListaServico sem o zero a 
+    esquerda.
+   Por: Joemil
+-- ACBrNFSeXServicos.ini --
+[*] As cidades que não sabemos qual provedor utiliza, resolvemos deixar sem o 
+    nome do provedor, anteriormente foi enviado como sendo PadraoNacional.
+   Por: Italo Giurizzato Junior
+
+05/01/2023
+-- ACBrNFSeXServicos.ini --
+[+] https://www.projetoacbr.com.br/forum/topic/70326-inclus%C3%A3o-de-todas-as-cidades-brasileiras-no-arquivo-acbrnfsexservicosini/
+   Por: Italo Giurizzato Junior
+-- SigCorp.GravarXml --
+[*] Acrescentado a função GerarXml para condicionar o valor de NrOcorrAliquota.
+   Por: Italo Giurizzato Junior
+-- Fiorilli.GravarXml --
+[*] Removido da configuração o parâmetro de numero de ocorrencias da tag
+    CodigoCNAE.
+   Por: Italo Giurizzato Junior
+
+04/01/2023
+-- PublicSoft.GravarXml --
+[*] Corrigido o erro de compilação.
+   Por: Italo Giurizzato Junior
+-- PublicSoft.Provider/PublicSoft.GravarXml/PublicSoft.LerXml --
+[+] Inicio da implementação do provedor PublicSoft
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade de Piloes/PB, provedor é PublicSoft
+   Por: C4Dev/Italo Giurizzato Junior
+-- Diversos --
+[*] Eliminação de possíveis AV nas procedures que tratam o retorno dos métodos.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXProviderABRASFv2 --
+[*] Melhorias no tratamento dos retornos, pois não estava considerando que o
+    grupo que contem as informações de numero/serie/tipo do Rps é opcional.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXProviderBase --
+[*] Alteração visando obter o envelope soap de retorno mesmo que ocorra algum
+    erro de execução do serviço.
+   Por: Italo Giurizzato Junior
+-- ISSSalvador.Provider --
+[*] Possível solução para o erro de UTF-8 ao tratar o XML retornado.
+   Por: Italo Giurizzato Junior
+-- IPM.LerXml --
+[*] Correções realizadas com a ajuda do Teste Unitário criado para o provedor.
+   Por: Italo Giurizzato Junior
+
+03/01/2023
+-- Diversos --
+[*] Eliminação de possíveis AV nas procedures que tratam o retorno dos métodos.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade de Brotas/SP, provedor é AssessorPublico.
+   Por: FabioTellini
+
+02/01/2023
+-- SigCorp.Provider --
+[*] Correção nas tags de retorno de alguns serviços.
+   Por: Italo Giurizzato Junior
+
+30/12/2022
+-- Saatri.Provider/Saatri.LerXml --
+[*] Ajustes para detectar se a tag Discriminacao contem um JSON ou não.
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Ajustado a execução do ParseText para funcionar tanto em Delphi
+    quanto em Lazarus.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] Atualizado a URL de homologação de Brasilia/DF.
+   Por: Italo Giurizzato Junior
+
+29/12/2022
+-- ISSFortaleza.Provider --
+[*] Removido a chamada a função UTF8Decode dentro do TratarXmlRetornado.
+   Por: Italo Giurizzato Junior
+
+28/12/2022
+-- ACBrNFSeXWebserviceBase --
+[*] Possível solução para não incluir o encoding quando o arquivo for JSON e
+    não incluir um segundo encoding ao salvar o XML.
+   Por: Italo Giurizzato Junior
+-- Equiplano.LerXml --
+[*] Ajustes necessários para a correta leitura do XML da NFS-e.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] Alterada a URL de produção para cidade de Itaitinga/CE, o provedor ainda 
+    é o SSInformatica, versão 2.03
+   Por: jarbasdsw 
+[*] Alteradas as URLs de homologação e produção para a cidade de Dom Pedrito/RS, 
+    provedor ainda é Pronim, versão 2.02
+   Por: Gabriel Rogelin
+[+] Incluida a cidade de Angatuba/SP, provedor é o iiBrasil.
+   Por: adilsonpazzini
+
+27/12/2022
+-- ISSNet.GravarXml --
+[*] Alterado o numero de ocorrências para zero do campo InformacoesComplementares
+    em Configurações para versão 2.04 
+   Por: Italo Giurizzato Junior
+-- Saatri.Provider/Saatri.LerXml --
+[*] Alteração visando a leitura de itens de serviço em formato JSON dentro da 
+    tag Discriminacao.
+   Por: Italo Giurizzato Junior
+-- ISSSaoPaulo.GravarXml --
+[*] Acrescentado na condição o valor ttTribnoMunImune para determinar se vai
+    gerar ou não a tag MunicipioPrestacao
+   Por: Raphaelblc
+-- ACBrNFSeXProviderABRASFv2 --
+[*] Melhorias visando retornar a lista de resumos ao consultar o Lote de Rps.
+   Por: Lucas E. Correa
+-- IPM.Provider --
+[+] Implementado a consulta por código de verificação.
+   Por: Marcos.
+-- SigCorp.Provider/SigCorp.GravarXml/SigCorp.LerXml/ACBrNFSeXProviderManager --
+[+] Implementado a versão 2.04 para o provedor SigCorp. 
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] As cidades: Avaré/SP, Pouso Alegre/MG e Chapecó/SC migraram para a versão 2.04
+    do provedor SigCorp. 
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[-] Remoção de URLs de homologação que estavam semelhantes as de produção para alguns provedores IPM versão 1.01
+   Por: DiegoF
+
+26/12/2022
+-- Bauhaus.LerJson --
+[*] Ajustes necessários para a correta leitura do Json da NFS-e.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Incluída a cidade de Francisco Alves/PR, provedor é Elotech
+   Por: Alex Heinen
+[+] Incluída a cidade de Itapira/SP, provedor é SigISS
+   Por: Arimateia Jr
+
+23/12/2022
+-- ACBrNFSeXDANFSeFR --
+[+] Incluído os CDS para CondicaoPagamento e CondicaoPagamentoParcelas.
+   Por: Luiz Carlos Ruiz Cestaro
+-- ISSLencois.GravarXml --
+[*] Alterado o campo Descricao por Discriminacao para manter o padrão.
+   Por: Italo Giurizzato Junior
+-- ISSDSF.GravarXml --
+[*] Alterado a função StrToInt64 por StrToInt64Def, para evitar erro se o 
+    CodigoMunicipio for uma string vazia.
+   Por: Italo Giurizzato Junior
+-- AssessorPublico.LerXml --
+[*] Alteração com base no Teste Unitário realizado.
+   Por: Italo Giurizzato Junior
+-- BHISS.Provider --
+[*] Correção do tratamento do XML retornado.
+   Por: Renato Rubinho
+-- Betha.LerXml --
+[*] Alteração visando reconhecer valores reais no campo Discriminação.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXNotasFiscais/ACBrNFSeXWebserviceBase --
+[*] Tem provedor que gera um JSON em vez de XML, o componente estava incluindo
+    o encoding do XML nos arquivos JSON, isso foi corrigido.
+   Por: Italo Giurizzato Junior
+-- IPM.Provider --
+[*] Uso das classes do ACBrJSON para a leitura do retorno do provedor.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Aguas Lindas de Goais/GO mudou de provedor, agora é Ginfes
+   Por: Massao Aihara
+[*] Preenchimento da URLs de homologação e alteração da versão para a cidade de Corbélia/PR, o provedor ainda é IPM
+   Por: Alex Heinen
+
+22/12/2022
+-- ACbrNFseXServicos.ini --
+[*] Altera URL de produção para a cidade de Sao Luis de Montes Belos-GO, o provedor e versão continuam os mesmo, Sigep Versao 2.00
+   Por: Lucio Bittes
+[+] Incluida a cidade de São Miguel do Iguaçu/PR, provedor Elotech
+   Por: Alex Heinen
+[*] Adiciona o parâmetro NaoDivir100 para Cuiabá/MT
+   Por: Márcio Baroni
+-- Fiorilli.Provider --
+[*] Ajuste para que gere quebra de linha e não exiba caracteres estranhos na descrição do serviço
+   Por: Italo Giurizzato Junior
+
+21/12/2022
+-- ACBrNFSeXServicos.ini --
+[*] Adiciona a URL de produção para Brasília/DF.
+   Por: Lino 
+
+20/12/2022
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Uberaba/MG mudou a versão e as URLs, provedor ainda é WebISS
+   Por: Diego Reckziegel
+
+19/12/2022
+-- ACBrNFSeXConfiguracoes/ACBrNFSeXConversao --
+[+] Implementado a propriedade de configuração: LayoutNFSe que aceita os seguintes
+    valores: lnfsProvedor (padrão), lnfsPadraoNacionalv1.
+    Se alterado para lnfsPadraoNacionalv1 o componente entende que deve-se enviar
+    o RPS para a API do Padrão Nacional.
+   Por: Italo Giurizzato Junior
+-- PadraoNacional.LerXml --
+[*] Estava faltando as funções de conversão ao ler os campos: tribISSQN e 
+    tpRetISSQN.
+   Por: Italo Giurizzato Junior
+
+14/12/2022
+-- ACBrNFSeXServicos.ini --
+[*] Incluída a cidade Piraí/RJ - provedor: Tiplan
+   Por: Arimateia
+
+13/12/2022
+-- ACBrNFSeXConfiguracoes --
+[*] Trocado o Exception pelo EACBrDFeException na procedure LerParamsMunicipio
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXConversao --
+[*] Removido o Exception da função StrToProvedor
+   Por: Italo Giurizzato Junior
+-- Publica.Provider --
+[*] Correção na condição de Sucesso para validar se tem erros.
+   Por: Alex Heinen
+-- ISSRecife.Provider/ISSRio.Provider/Thema.Provider --
+[*] Aplicada a mesma correção na condição de Sucesso.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] A cidade Tijucas/SC trocou de provedor, agora é: IPM
+   Por: Adriano Luiz de Souza
+
+12/12/2022
+-- Fiorilli.Provider --
+[*] Ajuste para tratar o XML retornado que esta no formato ANSI em vez de UTF-8
+   Por: Italo Giurizzato Junior
+-- Fiorilli.Provider --
+[*] Possível solução para o erro de SoapAction em ambiente de produção.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] A cidade Jaú/SP trocou de provedor, agora é: Fiorilli
+   Por: Keiller Rodrigues
+
+08/12/2022
+-- ACBrNFSeXServicos.ini --
+[*] Incluída a cidade Araçoiaba da Serra/SP - provedor: Fiorilli
+   Por: JJ Sistemas
+-- SoftPlan.LerXml --
+[*] Organizado a sequencia de leitura das tag do XML da NFS-e.
+   Por: Italo Giurizzato Junior
+-- Equiplano.Provider --
+[*] Possível solução para o erro de AV que esta ocorrendo ao tratar o retorno
+    da consulta ao lote.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] A cidade Confresa/MT trocou de provedor, agora é: Coplan.
+   Por: Luiz Eduardo Bodo
+
+07/12/2022
+-- ISSNet.GravarXml --
+[*] Imposta uma condição para gerar ou não a tag referente ao código do pais 
+    no grupo de serviços.
+   Por: Italo Giurizzato Junior
+-- ISSe.Provider --
+[*] No envio unitário do Rps requer que o mesmo esteja assinado.
+    No retorno do envio do lote de rps no modo assíncrono o nome da tag contem
+    indevidamente a palavra Sincrono, foi feita a alteração para que a leitura
+    fosse realizada com sucesso.
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Para os provedores que tem somente alguns serviços implementados, foi realizado
+    uma alteração para setar o nome do XSD com "***" e com isso identificar os
+    serviços não implementados.
+   Por: Italo Giurizzato Junior
+
+06/12/2022
+-- SoftPlan.Provider/SoftPlan.GravarXml --
+[+] Implementado o método SubstituicaoNFSe.
+   Por: Ronaldo Bispo
+-- ACBrNFSeXServicos.ini --
+[*] Correções nas URLs da cidade de Jacareí/SP
+   Por: SISBLU Software
+-- ISSe.Provider --
+[*] A função que trata o XML retornado não estava removendo a identação.
+   Por: Italo Giurizzato Junior
+-- SigISSWeb.GravarXml --
+[*] Possível solução para o erro HTTP 500.
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[+] Implementado a propriedade Layout que contem o layout (ABRASF ou Próprio)
+    do provedor setado.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] Correções nas URLs das cidades de Poa/SP e Maringa/PR
+   Por: Italo Giurizzato Junior
+
+02/12/2022
+-- SigISS.LerXml --
+[*] Ajustes para poder ler as datas retornadas pelo provedor.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade de São Domingos das Dores/MG - Provedor: Futurize
+   Por: Glauber Bernardo
+[+] Incluida a cidade de Altamira-PA, provedor é Desenvolve
+   Por: CMM AUTOMACAO COMERCIAL LT
+[*] A cidade de Angra dos Reis mudou para versão 2.03, provedor ainda é Tiplan.
+   Por: dkinformatica
+-- ACBrNFSeXNotasFiscais --
+[*] No método GravarXML agora esta checando o conteudo do parâmetro NomeArquivo.
+   Por: Italo Giurizzato Junior
+[*] O método LoadFromLoteNfse agora Identifica se o lote de NFSe esta salvo em 
+    disco ou no banco de dados.
+   Por: Giquieu
+
+01/12/2022
+-- CTA.Provider/ CTA.GravarXml --
+[*] Ao gerar o XML não estava totalizando os serviços e diversas alterações
+    para que o envio fosse feito com sucesso.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] Correção na URL da cidade de Vassouras/RJ
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXWebserviceBase --
+[*] Possível solução para o erro HTTP 400 que esta ocorrendo no provedor IPM.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini--
+[*] A cidade Paty do Alferes/RJ trocou de provedor, agora é: DBSeller
+   Por: Destak
+
+30/11/2022
+-- ACBrNFSeXLerXml --
+[*] Alteração na função NormatizarXml para atender tanto o Delphi quanto o
+    Lazarus.
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Incluido o tratamento na string atribuida ao campo Link retornado por
+    alguns provedores. Esse campo contem uma URL que permite acessar o
+    DANFSE e até baixar o XML da NFS-e.
+   Por: Italo Giurizzato Junior
+-- Tecnos.GravarXml --
+[*] Estava faltando a chamada a função para formatar o ItemListaServicos.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini--
+[*] A cidade Brasnorte/MT trocou de provedor, agora é: Coplan
+   Por: Carlito Morais
+-- IPM.GravarXml --
+[*] Corrigido a posição da tag nfse_teste.
+   Por: Italo Giurizzato Junior
+-- Publica.Provider --
+[*] Alteração no TratarXmlRetornado, o provedor esta inserindo na mensagem de retorno
+    uma sequencia de caracteres que estava provocando erro.
+   Por: Italo Giurizzato Junior
+
+29/11/2022
+-- ACBrNFSeX/ACBrNFSeXConfiguracoes --
+[*] Alteração para executar o LerCidades automaticamente.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXProviderBase/ACBrNFSeXWebserviceBase --
+[+] Incluído a propriedade Path para definir o Path onde vai ser salvo o pedido de
+    cancelamento e o respectivo retorno.
+   Por: Italo Giurizzato Junior
+
+25/11/2022
+-- SoftPlan.GravarXml --
+[*] Alterado o numero de ocorrências para zero, desta forma a tag inscricaoMunicipalTomador
+    passa a ser opcional.
+   Por: Ronaldo Bispo
+-- ACBrNFSeXDANFSeRLSimplISS --
+[*] Uso da nova função ObterNomeMunicipio.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXLerXml_ABRASFv2 --
+[+] Incluído a leitura dos novos campos.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXClass --
+[+] Incluído novos campos para a leitura da versão 2 do layout da ABRASF.
+   Por: Italo Giurizzato Junior
+-- Centi.GravarXml --
+[*] Comentado a linha que não permitia que o atributo "Id" fosse gerado.
+   Por: Italo Giurizzato Junior
+-- ISSBarueri.LerXml --
+[*] Corrigido o nome da tag.
+   Por: Patrick Knopf
+-- ACBrNFSeXServicos.ini--
+[*] Alteração das URLs para Link PDF da cidade de Vitoria-ES.
+   Por: carlos_tedex
+[*] A cidade de Juazeiro do Norte-CE mudou de provedor, agora é SpeedGov
+   Por: Luiz Sodré
+-- Equiplano.Provider --
+[*] Alteração visando ler o grupo listaNfse quando este estiver presente no
+    retorno da consulta ao lote.
+   Por: Marcos
+-- ISSDSF.Provider --
+[*] Alterações visando ler as tags: DataEnvioLote e URLNotaFiscal
+   Por: Luiz Sodré
+
+24/11/2022
+-- Diversos --
+[*] Alterações em diversas Units para atender o provedor SoftPlan
+   Por: Ronaldo Bispo
+-- SSInformatica.GravarXml --
+[*] Alteração na procedure de Configuração visando a geração da tag Aliquota com
+    2 casas decimais.
+   Por: Italo Giurizzato Junior
+
+22/11/2022
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade Januaria/MG - Provedor Sintese
+   Por: M3Software Sistemas
+-- Equiplano.Provider --
+[*] Ajustes na montagem do XML da NFS-e.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXLerXml_ABRASFv1 --
+[*] Ajustes na leitura da Data/Hora do cancelamento.
+   Por: Italo Giurizzato Junior
+-- ISSNet.GravarXml --
+[*] Alteração na procedure de Configuração visando a geração da tag EnderecoExterior.
+   Por: Douglas A R Lima
+
+21/11/2022
+-- SimplISS.Provider --
+[*] Possível solução para a leitura correta dos retornos no Lazarus.
+   Por: Italo Giurizzato Junior
+-- ISSDSF.GravarXml --
+[*] Ajuste para gerar a tag CodigoAtividade com 9 digitos.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Incluída a cidade Tubarao/SC - Provedor Bauhaus
+[+] Incluída a cidade Icara/SC - Provedor Bauhaus
+   Por: Adriano Luiz de Souza
+
+18/11/2022
+-- ISSIntel.GravarXml --
+[*] Incluído a condição de OptanteSimplesNacional para definir se a aliquota
+    será obrigatória ou não.
+   Por: Italo Giurizzato Junior
+-- SoftPlan.Provider/SoftPlan.GravarXml --
+[*] Ajustes necessário para não ocorrer o conflito com o parâmetro "client_secret"
+   Por: Ronaldo Bispo
+-- DBSeller.Provider --
+[*] Correção na lista de tags dos retornos para a correta leitura do retorno.
+   Por: Italo Giurizzato Junior
+-- WebISS.GravarXml --
+[*] Incluído a condição de OptanteSimplesNacional para definir se a aliquota
+    será obrigatória ou não.
+   Por: Italo Giurizzato Junior
+-- Citta.Provider/Centi.Provider --
+[*] Incluído o valor stNenhum na função StrToSituacaoTributaria.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Incluída a cidade Rio das Antas/SC - Provedor IPM
+   Por: Willian Delan
+[*] A cidade Jaru/RO trocou a URL de produção
+   Por: Diego Reckziegel
+[*] A cidade Varzea da Palma/MG trocou de provedor agora é: Sintese
+   Por: Antonio Alexandre
+-- IPM.GravarXml --
+[*] Possível solução para o erro 400 retornado pelo provedor.
+   Por: Italo Giurizzato Junior
+
+17/11/2022
+-- Equiplano.LerXml --
+[*] Alteração visando a leitura correta do XML da NFS-e
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXGravarXml_ABRASFv2/ACBrNFSeXWebserviceBase --
+[*] Remoção de linhas comentadas, correções em alguns comentários e 
+    ajustes no alinhamento de algumas linhas.
+   Por: Italo Giurizzato Junior
+-- Equiplano.Provider --
+[*] Alteração visando a leitura do retorno do Consultar Lote
+   Por: Italo Giurizzato Junior
+
+16/11/2022
+-- SisPMJP.GravarXml --
+[*] Ajustes para gerar o XML do Rps corretamente.
+   Por: Guilherme Costa - Dataweb
+-- ACBrNFSeXLerXml --
+[*] Remoção temporaria dos prefixos do XML para verificar se o XML é
+    de uma NFS-e ou Rps.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[*] A cidade Guaratuba/PR trocou de provedor agora é: Elotech
+   Por: Marcelo Dev
+[+] Incluída a cidade Junqueiropolis/SP - provedor Fiorilli
+   Por: Adriano Teodorico
+-- SmarAPD.Provider/SmarAPD.GravarXml --
+[*] Possível solução para o método ConsultarNfsePorFaixa
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Uso da função ACBrStr para exibir a mensagem com vogais acentuadas no
+    Lazarus.
+   Por: Italo Giurizzato Junior
+-- PadraoNacional.Provider --
+[*] Ajustes finais no tratar retorno do consultar parâmetros municipais.
+   Por: Italo Giurizzato Junior
+
+11/11/2022
+-- ACBrNFSeXServicos.ini --
+[*] Mudança de URL e versão da cidade de Triunfo-RS
+   Por: C4Dev
+-- PadraoNacional.Provider/ACBrNFSeXWebservicesResponse --
+[+] Implementado o Tratamento do retorno da consulta aos parâmetros municipais.
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXServicos.ini --
+[+] Incluído as cidades: Colinas do Tocantins/TO - Provedor ISSIntel e
+    Teodoro Sampaio/SP - Provedor Pronim.
+   Por: Rodrigo - Digibyte
+
+10/11/2022
+-- SoftPlan.Provider --
+[+] Implementado o método Cancelar.
+   Por: Italo Giurizzato Junior
+-- SH3.Provider --
+[*] Alteração visando remover todas as declarações de XML que consta no
+    arquivo de retorno do WebService.
+   Por: alfadesign
+-- Infisc.LerXml --
+[*] Alteração visando a leitura da Alíquota e Base de INSS, o Valor da 
+    Redução de ISS e correção da leitura do campo ValorIRRF.
+   Por: Tiago Tecchio
+-- ACBrNFSeXNotasFiscais/ACBrNFSeXLerXml --
+[*] Alteração visando a leitura de um XML que contenha tag ou conteudo com 
+   vogais acentuadas, cedilha e o E comercial "&".
+   Por: Italo Giurizzato Junior
+-- ACBrNFSeXNotasFiscais --
+[*] Alterado o GravarStream para usar o XML do Rps em vez do NFS-e ao gerar
+    o Stream para o envio do e-mail.
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Alterado o tipo de Integer para String do campo Parcela, pois tem provedor
+    que o campo é alfa-numérico.
+   Por: Italo Giurizzato Junior
+-- SoftPlan.Provider --
+[*] Implementado o método GerarToken e ajustes para o correto envio.
+   Por: Ronaldo Bispo
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Pirajui/SP mudou a URL de produção, o provedor é o mesmo.
+   Por: ftellini
+
+09/11/2022
+-- WebFisco.GravarXml/WebFisco.LerXml --
+[*] Correção necessária para contribuintes do Simples Nacional.
+  Por: Widson
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Paranavai/PR mudou de provedor, agora é IPM
+   Por: Igor Rafael Martins
+-- ISSDSF.Provider --
+[*] Corrigido a montagem do pedido de consulta a NFSe.
+  Por: Rodrigo - Digibyte
+-- ISSSaoPaulo.Provider --
+[*] Corrigido o caractere de quebra de linha.
+  Por: João Antônio
+
+08/11/2022
+-- SystemPro.Provider --
+[*] Trocado o XmlToStr por IncluirCDATA nos envios do Rps.
+  Por: Italo Giurizzato Junior
+-- ISSNet.GravarXml --
+[*] Ajustes na procedure Configuração, visando gerar o XML do Rps corretamente.
+  Por: Italo Giurizzato Junior
+-- SimplISS.GravarXml --
+[*] Alterado a quantidade de casas decimais para 2 ao gerar a tag ValorUnitario.
+  Por: Diego F.
+-- ACBrNFSeXServicos.ini --
+[*] A cidade de Osorio-RS mudou de provedor, agora é IPM
+   Por: Igor Nunes
+-- ACBrNFSeXServicos.ini --
+[+] Incluida a cidade de Nova Granada-SP o provedor é Fiorilli
+   Por: PrimeSoftware
+-- Infisc.GravarXml/Infisc.LerXml --
+[*] Ajustes para tratar corretamente a questão da retenção de ISS tanto na
+    geração quanto na leitura do XML.
+  Por: Tiago Tecchio
+
+07/11/2022
+-- Thema.Provider --
+[*] Ajustes para gerar o Envelope corretamente para quando tem menos do
+    4 Rps no Lote e para quando tem mais do que 4.
+  Por: Italo Giurizzato Junior
+-- Equiplano.GravarXml/Equiplano.LerXml --
+[*] Incluído a tag nrCidadeIbgeServico.
+  Por: Italo Giurizzato Junior
+-- ISSDSF.LerXml --
+[*] Ajustes em diversas units para utilizar a função ObterNomeMunicipio
+    após a sua alteração.
+  Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Ajustes em diversas units para utilizar a função ObterNomeMunicipio
+    após a sua alteração.
+  Por: Italo Giurizzato Junior
+
+06/11/2022
+-- Diversos --
+[+] Implementado o método ConsultarParametros para o provedor PadraoNacional.
+    Tem por finalidade retornar o Parâmetros Municipais de um município que 
+    aderiu a NFSe Padrão Nacional.
+   Por: Italo Giurizzato Junior
+
+04/11/2022
+-- ACBrNFSeXProviderABRASFv1 --
+[*] Alteração visando um possível AV ao ler as informações da nota retornada.
+   Por: Rodrigo - Digibyte
+-- ACBrNFSeXServicos.ini --
+[*] A cidade Rolandia/PR mudou a URL do produção.
+   Por: Douglas GV
+[*] A cidade Rio Branco do Sul/PR mudou de provedor agora é IPM.
+   Por: Alexandre Felippeto Henzen
+[+] Incluída a cidade de Alto Parnaiba/MA - Provedor Fiorilli.
+   Por: Gabriel Rogelin
+
+01/11/2022
+-- SoftPlan.LerXml --
+[+] Implementado a leitura do XML do Rps e da NFS-e.
+   Por: Italo Giurizzato Junior
+-- EL.Provider --
+[*] Possível solução para a leitura correta do retorno dos métodos.
+   Por: Italo Giurizzato Junior
+
+31/10/2022
+-- SH3.Provider --
+[*] Possível solução para a leitura correta do retorno da consulta ao lote.
+   Por: Italo Giurizzato Junior
+-- ISSNet.GravarXml --
+[*] Alterado a configuração para gerar a aliquota com 2 casas decimais.
+   Por: Alan Lucas/Italo Giurizzato Junior
 
 28/10/2022
 -- ACBrNFSeXServicos.ini --

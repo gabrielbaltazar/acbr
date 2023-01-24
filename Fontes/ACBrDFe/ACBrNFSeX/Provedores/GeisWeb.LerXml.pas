@@ -130,7 +130,7 @@ begin
       Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('Rua'), tcStr);
       Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
       Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('Bairro'), tcStr);
-      CodigoMunicipio := OnlyNumber(ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr));
+      xMunicipio := OnlyNumber(ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr));
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('Estado'), tcStr);
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
     end;
@@ -378,6 +378,7 @@ begin
     LerOutrosImpostos(ANode);
 
     Link := ObterConteudo(ANode.Childrens.FindAnyNs('LinkConsulta'), tcStr);
+    Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
   end;
 end;
 

@@ -115,11 +115,11 @@ begin
 
   FDocument.Root := NFSeNode;
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'identificador', 1, 80, 0,
-    'nfse_' + NFSe.IdentificacaoRps.Numero + '.' + NFSe.IdentificacaoRps.Serie, ''));
-
   if (VersaoNFSe = ve100) and (Ambiente = taHomologacao) then
     NFSeNode.AppendChild(AddNode(tcStr, '#3', 'nfse_teste', 1, 1, 1, '1', ''));
+
+  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'identificador', 1, 80, 0,
+    'nfse_' + NFSe.IdentificacaoRps.Numero + '.' + NFSe.IdentificacaoRps.Serie, ''));
 
   xmlNode := GerarIdentificacaoRPS;
   NFSeNode.AppendChild(xmlNode);
@@ -332,7 +332,7 @@ begin
     Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_deducao', 1, 15, 0,
                                 NFSe.Servico.ItemServico[I].ValorDeducoes, ''));
 
-    Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_issrf', 1, 15, 1,
+    Result[i].AppendChild(AddNode(tcDe2, '#', 'valor_issrf', 1, 15, 0,
                          NFSe.Servico.ItemServico[I].ValorISSRetido, DSC_VISS));
   end;
 
@@ -351,7 +351,7 @@ begin
   begin
     Result[i] := CreateElement('parcela');
 
-    Result[i].AppendChild(AddNode(tcInt, '#', 'numero', 1, 2, 1,
+    Result[i].AppendChild(AddNode(tcStr, '#', 'numero', 1, 2, 1,
                          NFSe.CondicaoPagamento.Parcelas.Items[i].Parcela, ''));
 
     Result[i].AppendChild(AddNode(tcDe2, '#', 'valor', 1, 15, 1,

@@ -146,7 +146,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -162,7 +162,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
+        AErro.Descricao := ACBrStr(Desc203);
         Exit;
       end;
 
@@ -212,14 +212,14 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod203;
-        AErro.Descricao := Desc203;
+        AErro.Descricao := ACBrStr(Desc203);
       end;
     except
       on E:Exception do
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -246,7 +246,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -271,7 +271,7 @@ begin
         begin
           AErro := Response.Erros.New;
           AErro.Codigo := Cod202;
-          AErro.Descricao := Desc202;
+          AErro.Descricao := ACBrStr(Desc202);
           Exit;
         end;
 
@@ -283,19 +283,33 @@ begin
         begin
           AErro := Response.Erros.New;
           AErro.Codigo := Cod203;
-          AErro.Descricao := Desc203;
+          AErro.Descricao := ACBrStr(Desc203);
           Exit;
         end;
 
         for I := Low(ANodeArray) to High(ANodeArray) do
         begin
           ANode := ANodeArray[I];
+
           AuxNode := ANode.Childrens.FindAnyNs('Nfse');
+          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
           AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
+          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
+          with Response do
+          begin
+            NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+            CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+          end;
+
           AuxNode := AuxNode.Childrens.FindAnyNs('DeclaracaoPrestacaoServico');
+          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
           AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
-          AuxNode := AuxNode.Childrens.FindAnyNs('Numero');
-          NumRps := AuxNode.AsString;
+          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
+          NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
@@ -310,7 +324,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -384,7 +398,7 @@ function TACBrNFSeXWebserviceISSGoiania200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;

@@ -645,6 +645,15 @@ begin
       try
         if (ATitulo.ValorMoraJuros > 0) then
         begin
+          if ATitulo.CodigoMora = '' then
+          begin
+            case aTitulo.CodigoMoraJuros of
+              cjValorDia: aTitulo.CodigoMora   := '1';
+              cjTaxaMensal: aTitulo.CodigoMora := '2';
+              cjIsento: aTitulo.CodigoMora     := '3';
+            end;
+          end;
+
           JsonJuros.Add('tipo').Value.AsInteger             := StrToIntDef(ATitulo.CodigoMora, 3);
           case (StrToIntDef(ATitulo.CodigoMora, 3)) of
             1 : JsonJuros.Add('valor').Value.AsNumber       := ATitulo.ValorMoraJuros;
@@ -687,13 +696,16 @@ begin
             ACodMulta := 2;
         end
         else
-          ACodMulta := 3;
+          ACodMulta := 0;
 
 
         if (ATitulo.DataMulta > 0) then
         begin
           JsonMulta.Add('tipo').Value.AsInteger             := ACodMulta;
-          JsonMulta.Add('data').Value.AsString              := FormatDateBr(ATitulo.DataMulta, 'DD.MM.YYYY');
+
+          if( aCodMulta > 0 ) then
+            JsonMulta.Add('data').Value.AsString              := FormatDateBr(ATitulo.DataMulta, 'DD.MM.YYYY');
+
           case ACodMulta of
             1 : JsonMulta.Add('valor').Value.AsNumber       := ATitulo.PercentualMulta;
             2 : JsonMulta.Add('porcentagem').Value.AsNumber := ATitulo.PercentualMulta;

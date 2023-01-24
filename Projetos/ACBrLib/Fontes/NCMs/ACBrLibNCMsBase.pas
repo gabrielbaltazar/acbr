@@ -78,7 +78,7 @@ implementation
 Uses
   ACBrLibConsts, ACBrLibConfig,
   ACBrLibNCMsConfig, ACBrLibNCMsRespostas,
-  ACBrUtil.Strings;
+  ACBrUtil.Base, ACBrUtil.Strings;
 
 { TACBrLibNCMs }
 
@@ -109,22 +109,34 @@ begin
   FNCMsDM.AplicarConfiguracoes;
 end;
 
-
 function TACBrLibNCMs.DescricaoNCM(const cNCM: PChar; const sResposta: PChar; var esTamanho: longint): longint;
+var
+  aNCM: String;
+  AResposta: String;
 begin
-  //???
   try
-        //if Config.Log.Nivel > logNormal then
-        //  GravarLog('CEP_BuscarPorCEP( ' + ACEP + ' )', logCompleto, True)
-        //else
-        //  GravarLog('CEP_BuscarPorCEP', logNormal);
+    aNCM := ConverterAnsiParaUTF8(cNCM);
+    if Config.Log.Nivel > logNormal then
+      GravarLog('NCM_DescricaoNCM( ' + cNCM + ' )', logCompleto, True)
+    else
+      GravarLog('NCM_DescricaoNCM', logNormal);
+
+    NCMsDM.Travar;
+    try
+      AResposta := NCMsDM.ACBrNCMs1.DescricaoNcm(aNCM);
+
+      MoverStringParaPChar(AResposta, sResposta, esTamanho);
+      Result := SetRetorno(ErrOK, AResposta);
+    finally
+      NCMsDM.Destravar;
+    end;
 
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -163,10 +175,10 @@ begin
 
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -195,10 +207,10 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
@@ -221,147 +233,122 @@ begin
     end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
 function TACBrLibNCMs.BuscarPorCodigo(const cNCM: PChar; const sResposta: PChar; var esTamanho: longint): longint;
+var
+  AResposta: String;
+  NCMsResposta: TNCMsRespostaFactory;
+  wFiltro: String;
 begin
-  //???
   try
-    //aNCM := ConverterAnsiParaUTF8(aNCM);
-    //if Config.Log.Nivel > logNormal then
-    //  GravarLog('NCM_Validar( ' + cNCM + ' )', logCompleto, True)
-    //else
-    //  GravarLog('NCM_Validar', logNormal);
-    //
-    //NCMsDM.Travar;
-    //try
-    //
-    //finally
-    //  NCMsDM.Destravar;
-    //end;
+    wFiltro := ConverterAnsiParaUTF8(cNCM);
+    if Config.Log.Nivel > logNormal then
+      GravarLog('NCM_BuscarPorCodigo( ' + wFiltro + ' )', logCompleto, True)
+    else
+      GravarLog('NCM_BuscarPorCodigo', logNormal);
+
+    NCMsDM.Travar;
+    try
+      wFiltro:= Trim(wFiltro);
+
+      if EstaVazio(wFiltro) then
+        raise Exception.Create('Filtro nao informado');
+
+      NCMsDM.ACBrNCMs1.BuscarPorCodigo(wFiltro);
+
+      if (NCMsDM.ACBrNCMs1.NCMsFiltrados.Count <= 0) then
+        raise Exception.Create('Nenhum NCM encontrado com codigo: ' + wFiltro);
+
+      NCMsResposta := TNCMsRespostaFactory.Create(False, Config.TipoResposta, Config.CodResposta);
+      try
+        NCMsResposta.Processar(NCMsDM.ACBrNCMs1);
+        AResposta := NCMsResposta.Gerar;
+      finally
+        NCMsResposta.Free;
+      end;
+
+      MoverStringParaPChar(AResposta, sResposta, esTamanho);
+      Result := SetRetorno(ErrOK, AResposta);
+    finally
+      NCMsDM.Destravar;
+    end;
 
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
 function TACBrLibNCMs.BuscarPorDescricao(const cDesc: PChar; const nTipo: longint; const sResposta: PChar;
   var esTamanho: longint): longint;
+var
+  AResposta: String;
+  wTipoFiltro: Integer;
+  wFiltro, wMsgErro: String;
+  NCMsResposta: TNCMsRespostaFactory;
 begin
-  //???
   try
-    //aNCM := ConverterAnsiParaUTF8(aNCM);
-    //if Config.Log.Nivel > logNormal then
-    //  GravarLog('NCM_Validar( ' + cNCM + ' )', logCompleto, True)
-    //else
-    //  GravarLog('NCM_Validar', logNormal);
-    //
-    //NCMsDM.Travar;
-    //try
-    //
-    //finally
-    //  NCMsDM.Destravar;
-    //end;
+    wFiltro := ConverterAnsiParaUTF8(cDesc);
+    wTipoFiltro := nTipo;
 
+    if Config.Log.Nivel > logNormal then
+      GravarLog('NCM_BuscarPorDescricao( ' + wFiltro + ',' + IntToStr(nTipo) + ' )', logCompleto, True)
+    else
+      GravarLog('NCM_BuscarPorDescricao', logNormal);
 
+    NCMsDM.Travar;
+    try
+      wFiltro:= Trim(wFiltro);
+
+      if EstaVazio(wFiltro) then
+        raise Exception.Create('Filtro nao informado');
+
+      NCMsDM.ACBrNCMs1.BuscarPorDescricao(wFiltro, TACBrNCMTipoFiltro(wTipoFiltro));
+
+      if (NCMsDM.ACBrNCMs1.NCMsFiltrados.Count <= 0) then
+      begin
+        case wTipoFiltro of
+          1: wMsgErro := 'contendo';
+          2: wMsgErro := 'finalizada com';
+        else
+          wMsgErro := 'iniciando com';
+        end;
+
+        raise Exception.Create(Format('Nenhum NCM encontrado com descricao %s a string %s',
+          [wMsgErro, QuotedStr(wFiltro)]));
+      end;
+
+      NCMsResposta := TNCMsRespostaFactory.Create(False, Config.TipoResposta, Config.CodResposta);
+      try
+        NCMsResposta.Processar(NCMsDM.ACBrNCMs1);
+        AResposta := NCMsResposta.Gerar;
+      finally
+        NCMsResposta.Free;
+      end;
+
+      MoverStringParaPChar(AResposta, sResposta, esTamanho);
+      Result := SetRetorno(ErrOK, AResposta);
+    finally
+      NCMsDM.Destravar;
+    end;
   except
     on E: EACBrLibException do
-      Result := SetRetorno(E.Erro, E.Message);
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
 
     on E: Exception do
-      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
   end;
 end;
 
-///////////////
-//function TACBrLibCEP.BuscarPorCEP(eCEP: PChar; const sResposta: PChar; var esTamanho: longint): longint;
-//var
-//  ACEP: AnsiString;
-//  Resp: TCepResposta;
-//  AResposta: String;
-//begin
-//  try
-//    ACEP := ConverterAnsiParaUTF8(eCEP);
-//
-//    if Config.Log.Nivel > logNormal then
-//      GravarLog('CEP_BuscarPorCEP( ' + ACEP + ' )', logCompleto, True)
-//    else
-//      GravarLog('CEP_BuscarPorCEP', logNormal);
-//
-//
-//    CEPDM.Travar;
-//    try
-//      Resp := TCepResposta.Create(Config.TipoResposta, Config.CodResposta);
-//      CEPDM.ACBrCEP1.BuscarPorCEP(ACEP);
-//      Resp.Processar(CEPDM.ACBrCEP1);
-//
-//      AResposta := Resp.Gerar;
-//      MoverStringParaPChar(AResposta, sResposta, esTamanho);
-//      Result := SetRetorno(ErrOK, AResposta);
-//    finally
-//      CEPDM.Destravar;
-//      Resp.Free;
-//    end;
-//  except
-//    on E: EACBrLibException do
-//      Result := SetRetorno(E.Erro, E.Message);
-//
-//    on E: Exception do
-//      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
-//  end;
-//end;
-//
-//function TACBrLibCEP.BuscarPorLogradouro(eCidade, eTipo_Logradouro, eLogradouro, eUF, eBairro: PChar;
-//  const sResposta: PChar; var esTamanho: longint): longint;
-//var
-//  ACidade, ATipo_Logradouro, ALogradouro, AUF, ABairro: AnsiString;
-//  Resp: TCepResposta;
-//  AResposta: String;
-//begin
-//  try
-//    ACidade := ConverterAnsiParaUTF8(eCidade);
-//    ATipo_Logradouro := ConverterAnsiParaUTF8(eTipo_Logradouro);
-//    ALogradouro := ConverterAnsiParaUTF8(eLogradouro);
-//    AUF := ConverterAnsiParaUTF8(eUF);
-//    ABairro := ConverterAnsiParaUTF8(eBairro);
-//
-//    if Config.Log.Nivel > logNormal then
-//      GravarLog('CEP_BuscarPorLogradouro( ' + ACidade + ',' + ATipo_Logradouro + ',' +
-//        ALogradouro + ',' + AUF + ',' +ABairro + ' )', logCompleto, True)
-//    else
-//      GravarLog('CEP_BuscarPorLogradouro', logNormal);
-//
-//    CEPDM.Travar;
-//    try
-//      Resp := TCepResposta.Create(Config.TipoResposta, Config.CodResposta);
-//
-//      CEPDM.ACBrCEP1.BuscarPorLogradouro(ACidade, ATipo_Logradouro, ALogradouro, AUF, ABairro);
-//      Resp.Processar(CEPDM.ACBrCEP1);
-//
-//      AResposta := Resp.Gerar;
-//      MoverStringParaPChar(AResposta, sResposta, esTamanho);
-//      Result := SetRetorno(ErrOK, AResposta);
-//    finally
-//      CEPDM.Destravar;
-//      Resp.Free;
-//    end;
-//  except
-//    on E: EACBrLibException do
-//      Result := SetRetorno(E.Erro, E.Message);
-//
-//    on E: Exception do
-//      Result := SetRetorno(ErrExecutandoMetodo, E.Message);
-//  end;
-//end;
 
 end.
 

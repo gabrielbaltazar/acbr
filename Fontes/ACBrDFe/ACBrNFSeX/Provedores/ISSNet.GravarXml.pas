@@ -61,6 +61,8 @@ type
   protected
     procedure Configuracao; override;
 
+  public
+    function GerarXml: Boolean; Override;
   end;
 
 implementation
@@ -133,13 +135,33 @@ procedure TNFSeW_ISSNet204.Configuracao;
 begin
   inherited Configuracao;
 
-  NrOcorrNIFTomador := 0;
-  NrOcorrCodigoNBS := 0;
+  FormatoAliq := tcDe2;
 
+  GerarEnderecoExterior := True;
+
+  NrOcorrNIFTomador := 0;
+  NrOcorrCodTribMun_1 := 0;
+  NrOcorrCodigoNBS := 0;
+  NrOcorrInformacoesComplemetares := 0;
+
+  NrOcorrDiscriminacao_2 := 1;
+  NrOcorrCodigoMunic_2 := 1;
+
+  NrOcorrDiscriminacao_1 := -1;
+  NrOcorrCodigoMunic_1 := -1;
   NrOcorrCodigoPaisServico := -1;
   NrOcorrCodigoPaisTomador := -1;
 
   TagTomador := 'TomadorServico';
+end;
+
+function TNFSeW_ISSNet204.GerarXml: Boolean;
+begin
+  if (NFSe.Tomador.Endereco.CodigoMunicipio = '9999999') or
+     (NFSe.Tomador.Endereco.UF = 'EX') then
+    NrOcorrCodigoPaisServico := 1;
+
+  Result := inherited GerarXml;
 end;
 
 end.

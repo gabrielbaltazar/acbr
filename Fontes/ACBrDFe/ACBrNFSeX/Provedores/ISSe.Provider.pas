@@ -98,6 +98,7 @@ begin
   begin
     LoteRps := True;
     CancelarNFSe := True;
+    RpsGerarNFSe := True;
   end;
 
   with ConfigWebServices do
@@ -171,7 +172,7 @@ begin
   Request := Request + '</ws:EnviarLoteRps>';
 
   Result := Executar(SoapAction + '#EnviarLoteRps', Request,
-                     ['return', 'EnviarLoteRpsResposta'],
+                     ['return', 'EnviarLoteRpsSincronoResposta'],
                      [NameSpace]);
 end;
 
@@ -323,8 +324,9 @@ function TACBrNFSeXWebserviceISSe201.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
 end;
 

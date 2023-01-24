@@ -47,6 +47,9 @@ uses
 
 type
   TACBrNFSeXWebserviceSigISSWeb = class(TACBrNFSeXWebserviceRest)
+  private
+    AjustaSetHeader:Boolean;
+
   protected
     procedure SetHeaders(aHeaderReq: THTTPHeader); override;
 
@@ -92,10 +95,13 @@ type
     function TributacaoDescricao(const t: TTributacao): String; override;
   end;
 
+var
+  xToken: string;
+
 implementation
 
 uses
-  ACBrUtil.Base, ACBrUtil.XMLHTML, ACBrUtil.Strings,
+  ACBrUtil.Base, ACBrUtil.XMLHTML, ACBrUtil.Strings, ACBrUtil.FilesIO,
   ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXNotasFiscais, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   SigISSWeb.GravarXml, SigISSWeb.LerXml;
@@ -184,7 +190,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('codigo'), tcStr);
-    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('descricao'), tcStr);
+    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('descricao'), tcStr));
     AErro.Correcao := '';
   end;
 end;
@@ -209,7 +215,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod119;
-    AErro.Descricao := Desc119;
+    AErro.Descricao := ACBrStr(Desc119);
     Exit;
   end;
 
@@ -217,13 +223,13 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod120;
-    AErro.Descricao := Desc120;
+    AErro.Descricao := ACBrStr(Desc120);
     Exit;
   end;
 
   // Atenção: Neste xml todos os "Ws_" do início das tags devem ter o primeiro "W" em maiúsculo
   Response.ArquivoEnvio := '{"login":"' +
-                           OnlyNumber(Emitente.CNPJ) + '","senha":"' +
+                           OnlyNumber(Emitente.WSUser) + '","senha":"' +
                            Emitente.WSSenha + '"}';
 
   FpPath := 'rest/login';
@@ -233,9 +239,48 @@ end;
 
 procedure TACBrNFSeProviderSigISSWeb.TratarRetornoGerarToken(
   Response: TNFSeGerarTokenResponse);
+var
+  Document: TACBrXmlDocument;
+  AErro: TNFSeEventoCollectionItem;
+  ANode: TACBrXmlNode;
 begin
-  inherited;
+  xToken := SeparaDados(Response.ArquivoRetorno, 'descricao');
 
+  if Pos('Bearer', xToken) = 0 then
+  begin
+    Document := TACBrXmlDocument.Create;
+
+    try
+      try
+        if Response.ArquivoRetorno = '' then
+        begin
+          AErro := Response.Erros.New;
+          AErro.Codigo := Cod201;
+          AErro.Descricao := ACBrStr(Desc201);
+          Exit
+        end;
+
+        Document.LoadFromXml(Response.ArquivoRetorno);
+
+        ANode := Document.Root;
+
+        ProcessarMensagemErros(ANode, Response);
+
+        Response.Sucesso := (Response.Erros.Count = 0);
+      except
+        on E:Exception do
+        begin
+          AErro := Response.Erros.New;
+          AErro.Codigo := Cod999;
+          AErro.Descricao := ACBrStr(Desc999 + E.Message);
+        end;
+      end;
+    finally
+      FreeAndNil(Document);
+    end;
+  end
+  else
+    Response.Token := xToken;
 end;
 
 procedure TACBrNFSeProviderSigISSWeb.PrepararCancelaNFSe(
@@ -249,7 +294,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod108;
-    AErro.Descricao := Desc108;
+    AErro.Descricao := ACBrStr(Desc108);
     Exit;
   end;
 
@@ -257,7 +302,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod118;
-    AErro.Descricao := Desc118;
+    AErro.Descricao := ACBrStr(Desc118);
     Exit;
   end;
 
@@ -265,7 +310,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod122;
-    AErro.Descricao := Desc122;
+    AErro.Descricao := ACBrStr(Desc122);
     Exit;
   end;
 
@@ -307,17 +352,17 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod002;
-    AErro.Descricao := Desc002;
+    AErro.Descricao := ACBrStr(Desc002);
   end;
 
   if TACBrNFSeX(FAOwner).NotasFiscais.Count > Response.MaxRps then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod003;
-    AErro.Descricao := 'Conjunto de RPS transmitidos (máximo de ' +
+    AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (máximo de ' +
                        IntToStr(Response.MaxRps) + ' RPS)' +
                        ' excedido. Quantidade atual: ' +
-                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count);
+                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
   end;
 
   if Response.Erros.Count > 0 then Exit;
@@ -366,7 +411,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -388,7 +433,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -411,7 +456,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -433,7 +478,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally
@@ -484,13 +529,9 @@ end;
 { TACBrNFSeXWebserviceSigISSWeb }
 
 procedure TACBrNFSeXWebserviceSigISSWeb.SetHeaders(aHeaderReq: THTTPHeader);
-var
-  Auth: string;
 begin
-  with TConfiguracoesNFSe(FPConfiguracoes).Geral.Emitente do
-    Auth := WSChaveAutoriz;
-
-  aHeaderReq.AddHeader('Authorization', Auth);
+  if AjustaSetHeader then
+    aHeaderReq.AddHeader('Authorization', xToken);
 end;
 
 function TACBrNFSeXWebserviceSigISSWeb.GerarToken(ACabecalho,
@@ -498,6 +539,7 @@ function TACBrNFSeXWebserviceSigISSWeb.GerarToken(ACabecalho,
 var
   Request: string;
 begin
+  AjustaSetHeader := False;
   FPMsgOrig := AMSG;
 
   Request := AMSG;
@@ -510,6 +552,7 @@ function TACBrNFSeXWebserviceSigISSWeb.GerarNFSe(ACabecalho,
 var
   Request: string;
 begin
+  AjustaSetHeader := True;
   FPMsgOrig := AMSG;
 
   Request := AMSG;
@@ -521,6 +564,7 @@ function TACBrNFSeXWebserviceSigISSWeb.Cancelar(ACabecalho, AMSG: String): strin
 var
   Request, xCabecalho: string;
 begin
+  AjustaSetHeader := True;
   FPMsgOrig := AMSG;
 
   xCabecalho := StringReplace(ACabecalho, 'cabecalhoNfseLote',
@@ -538,13 +582,30 @@ end;
 function TACBrNFSeXWebserviceSigISSWeb.TratarXmlRetornado(
   const aXML: string): string;
 begin
-  Result := inherited TratarXmlRetornado(aXML);
+  if StringIsXML(aXML) then
+  begin
+    Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result));
-//  Result := ParseText(AnsiString(Result), True, False);
-  Result := RemoverDeclaracaoXML(Result);
-  Result := RemoverCaracteresDesnecessarios(Result);
-  Result := RemoverPrefixosDesnecessarios(Result);
+    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+    Result := RemoverDeclaracaoXML(Result);
+    Result := RemoverCaracteresDesnecessarios(Result);
+    Result := RemoverPrefixosDesnecessarios(Result);
+  end
+  else
+  begin
+    Result := '<a>' +
+                '<erros>' +
+                  '<erro>' +
+                    '<codigo>' + '</codigo>' +
+                    '<descricao>' + aXML + '</descricao>' +
+                    '<correcao>' + '</correcao>' +
+                  '</erro>' +
+                '</erros>' +
+              '</a>';
+
+    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+    Result := String(NativeStringToUTF8(Result));
+  end;
 end;
 
 end.

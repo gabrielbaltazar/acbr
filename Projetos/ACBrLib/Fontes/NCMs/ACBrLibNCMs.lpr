@@ -62,12 +62,12 @@ exports
   NCM_ConfigGravarValor,
 
   // NCM
+  NCM_BaixarLista,
+  NCM_ObterNCMs,
   NCM_DescricaoNCM,
   NCM_Validar,
-  NCM_BaixarLista,
   NCM_BuscarPorCodigo,
   NCM_BuscarPorDescricao;
-
 
 begin
   {$IFDEF DEBUG}

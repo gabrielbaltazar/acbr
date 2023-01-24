@@ -155,6 +155,13 @@ type
 
   TACBrPixCDAmbiente = (ambTeste, ambProducao, ambPreProducao);
 
+  TACBrPSPScope =
+    (scCobWrite, scCobRead, scCobVWrite, scCobVRead, scLoteCobVWrite,
+     scLoteCobVRead, scPixWrite, scPixRead, scWebhookWrite, scWebhookRead,
+     scPayloadLocationWrite, scPayloadLocationRead);
+
+  TACBrPSPScopes = set of TACBrPSPScope;
+
   { TACBrPixEndPoint - Classe com comandos básicos, para EndPoints}
 
   TACBrPixEndPoint = class
@@ -275,6 +282,9 @@ type
   TACBrQuandoNecessitarCredencial = procedure(const TipoCredencial: TACBrOpenSSLCredential;
     var Resposta: AnsiString) of object;
 
+  TACBrOnAntesAutenticar = procedure(var aToken: String; var aValidadeToken: TDateTime) of object;
+
+  TACBrOnDepoisAutenticar = procedure(const aToken: String; const aValidadeToken: TDateTime) of object;
 
   { TACBrQueryParams }
 
@@ -296,6 +306,7 @@ type
   private
     fAPIVersion: TACBrPIXAPIVersion;
     fChavePIX: String;
+    fScopes: TACBrPSPScopes;
     fURLPathParams: TStringList;
     fURLQueryParams: TACBrQueryParams;
     fQuandoReceberRespostaHttp: TACBrQuandoReceberRespostaHttp;
@@ -322,11 +333,14 @@ type
     procedure SetACBrPixCD(AValue: TACBrPixCD);
   protected
     fpAutenticado: Boolean;
+    fpAutenticouManual:Boolean;
     fpToken: String;
     fpRefreshToken: String;
     fpValidadeToken: TDateTime;
     fpQuandoAcessarEndPoint: TACBrQuandoAcessarEndPoint;
     fpQuandoReceberRespostaEndPoint: TACBrQuandoReceberRespostaEndPoint;
+    fpOnAntesAutenticar: TACBrOnAntesAutenticar;
+    fpOnDepoisAutenticar: TACBrOnDepoisAutenticar;
 
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure VerificarPIXCDAtribuido;
@@ -351,6 +365,9 @@ type
       out ResultCode: Integer; out RespostaHttp: AnsiString): Boolean; virtual;
     function CalcularURLEndPoint(const Method, EndPoint: String): String; virtual;
     function CalcularEndPointPath(const Method, EndPoint: String): String; virtual;
+    function EfetuarAutenticacaoManual: Boolean;
+    function ScopeToString(aScope: TACBrPSPScope): String; virtual;
+    function ScopesToString(aScopes: TACBrPSPScopes): String;
 
     procedure ChamarEventoQuandoAcessarEndPoint(const AEndPoint: String;
       var AURL: String; var AMethod: String);
@@ -395,30 +412,40 @@ type
 
     property ChavePIX: String read fChavePIX write SetChavePIX;
     property TipoChave: TACBrPIXTipoChave read fTipoChave write SetTipoChave stored false;
+    property Scopes: TACBrPSPScopes read fScopes write fScopes;
 
-    property QuandoTransmitirHttp : TACBrQuandoTransmitirHttp
-      read fQuandoTransmitirHttp write fQuandoTransmitirHttp;
-    property QuandoReceberRespostaHttp: TACBrQuandoReceberRespostaHttp
-      read fQuandoReceberRespostaHttp write fQuandoReceberRespostaHttp;
+    property QuandoTransmitirHttp: TACBrQuandoTransmitirHttp read fQuandoTransmitirHttp write fQuandoTransmitirHttp;
+    property QuandoReceberRespostaHttp: TACBrQuandoReceberRespostaHttp read fQuandoReceberRespostaHttp write fQuandoReceberRespostaHttp;
+    property OnAntesAutenticar: TACBrOnAntesAutenticar read fpOnAntesAutenticar write fpOnAntesAutenticar;
+    property OnDepoisAutenticar: TACBrOnDepoisAutenticar read fpOnDepoisAutenticar write fpOnDepoisAutenticar;
   end;
 
   { TACBrPSPCertificate }
 
   TACBrPSPCertificate = class(TACBrPSP)
   private
+    fK: String;
     fArquivoCertificado: String;
     fArquivoChavePrivada: String;
+    fArquivoPFX: String;
+    fSenhaPFX: AnsiString;
     fCertificado: AnsiString;
     fChavePrivada: AnsiString;
-
+    fPFX: AnsiString;
+                                                
+    function GetSenhaPFX: AnsiString;
     procedure SetArquivoCertificado(aValue: String);
     procedure SetArquivoChavePrivada(aValue: String);
+    procedure SetArquivoPFX(const aValue: String);
     procedure SetCertificado(aValue: AnsiString);
     procedure SetChavePrivada(aValue: AnsiString);
+    procedure SetPFX(aValue: AnsiString);
+    procedure SetSenhaPFX(const aValue: AnsiString);
 
   protected
     procedure ConfigurarHeaders(const Method, AURL: String); override;
 
+    function VerificarSeIncluiPFX(const Method, AURL: String): Boolean;  virtual;
     function VerificarSeIncluiCertificado(const Method, AURL: String): Boolean; virtual;
     function VerificarSeIncluiChavePrivada(const Method, AURL: String): Boolean;  virtual;
   public
@@ -426,9 +453,12 @@ type
 
     property ArquivoCertificado: String read fArquivoCertificado write SetArquivoCertificado;
     property ArquivoChavePrivada: String read fArquivoChavePrivada write SetArquivoChavePrivada;
+    property ArquivoPFX: String read fArquivoPFX write SetArquivoPFX;
 
     property Certificado: AnsiString read fCertificado write SetCertificado;
     property ChavePrivada: AnsiString read fChavePrivada write SetChavePrivada;
+    property PFX: AnsiString read fPFX write SetPFX;
+    property SenhaPFX: AnsiString read GetSenhaPFX write SetSenhaPFX;
   end;
 
   { TACBrPixRecebedor }
@@ -822,6 +852,11 @@ end;
 
 { TACBrPSPCertificate }
 
+function TACBrPSPCertificate.GetSenhaPFX: AnsiString;
+begin
+  Result := StrCrypt(fSenhaPFX, fK)  // Descritografa a Senha
+end;
+
 procedure TACBrPSPCertificate.SetArquivoCertificado(aValue: String);
 begin
   fArquivoCertificado := Trim(aValue);
@@ -832,6 +867,12 @@ procedure TACBrPSPCertificate.SetArquivoChavePrivada(aValue: String);
 begin
   fArquivoChavePrivada := Trim(aValue);
   fChavePrivada := EmptyStr;
+end;
+
+procedure TACBrPSPCertificate.SetArquivoPFX(const aValue: String);
+begin
+  fArquivoPFX := Trim(AValue);
+  fPFX := EmptyStr;
 end;
 
 procedure TACBrPSPCertificate.SetCertificado(aValue: AnsiString);
@@ -846,37 +887,71 @@ begin
   fArquivoChavePrivada := EmptyStr;
 end;
 
+procedure TACBrPSPCertificate.SetPFX(aValue: AnsiString);
+begin
+  fPFX := Trim(aValue);
+  fArquivoPFX := EmptyStr;
+end;
+
+procedure TACBrPSPCertificate.SetSenhaPFX(const aValue: AnsiString);
+begin
+  if NaoEstaVazio(fK) and (fSenhaPFX = StrCrypt(AValue, fK)) then
+    Exit;
+
+  fK := FormatDateTime('hhnnsszzz', Now);
+  fSenhaPFX := StrCrypt(AValue, fK);  // Salva Senha de forma Criptografada, para evitar "Inspect"
+end;
+
 procedure TACBrPSPCertificate.ConfigurarHeaders(const Method, AURL: String);
 begin
   inherited ConfigurarHeaders(Method, AURL);
-                                      
-  // Adicionando o Certificado
-  if VerificarSeIncluiCertificado(Method, AURL) then
-  begin
-    if NaoEstaVazio(Certificado) then
-    begin
-      if StringIsPEM(Certificado) then
-        Http.Sock.SSL.Certificate := ConvertPEMToASN1(Certificado)
-      else
-        Http.Sock.SSL.Certificate := Certificado;
-    end
-    else if NaoEstaVazio(ArquivoCertificado) then
-      Http.Sock.SSL.CertificateFile := ArquivoCertificado;
-  end;
 
-  // Adicionando a Chave Privada
-  if VerificarSeIncluiChavePrivada(Method, AURL) then
+  // Adicionando PFX
+  if VerificarSeIncluiPFX(Method, AURL) then
   begin
-    if NaoEstaVazio(ChavePrivada) then
+    if NaoEstaVazio(PFX) then
+      Http.Sock.SSL.PFX := PFX
+    else if NaoEstaVazio(ArquivoPFX) then
+      Http.Sock.SSL.PFXfile := ArquivoPFX;
+
+    if NaoEstaVazio(SenhaPFX) then
+      Http.Sock.SSL.KeyPassword := SenhaPFX;
+  end
+  else
+  begin
+    // Adicionando o Certificado
+    if VerificarSeIncluiCertificado(Method, AURL) then
     begin
-      if StringIsPEM(ChavePrivada) then
-        Http.Sock.SSL.PrivateKey := ConvertPEMToASN1(ChavePrivada)
-      else
-        Http.Sock.SSL.PrivateKey := ChavePrivada;
-    end
-    else if NaoEstaVazio(ArquivoChavePrivada) then
-      Http.Sock.SSL.PrivateKeyFile := ArquivoChavePrivada;
+      if NaoEstaVazio(Certificado) then
+      begin
+        if StringIsPEM(Certificado) then
+          Http.Sock.SSL.Certificate := ConvertPEMToASN1(Certificado)
+        else
+          Http.Sock.SSL.Certificate := Certificado;
+      end
+      else if NaoEstaVazio(ArquivoCertificado) then
+        Http.Sock.SSL.CertificateFile := ArquivoCertificado;
+    end;
+
+    // Adicionando a Chave Privada
+    if VerificarSeIncluiChavePrivada(Method, AURL) then
+    begin
+      if NaoEstaVazio(ChavePrivada) then
+      begin
+        if StringIsPEM(ChavePrivada) then
+          Http.Sock.SSL.PrivateKey := ConvertPEMToASN1(ChavePrivada)
+        else
+          Http.Sock.SSL.PrivateKey := ChavePrivada;
+      end
+      else if NaoEstaVazio(ArquivoChavePrivada) then
+        Http.Sock.SSL.PrivateKeyFile := ArquivoChavePrivada;
+    end;
   end;
+end;
+
+function TACBrPSPCertificate.VerificarSeIncluiPFX(const Method, AURL: String): Boolean;
+begin
+  Result := NaoEstaVazio(fPFX) or NaoEstaVazio(fArquivoPFX);
 end;
 
 function TACBrPSPCertificate.VerificarSeIncluiCertificado(const Method,
@@ -895,6 +970,7 @@ constructor TACBrPSPCertificate.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
+  fK := EmptyStr;
   fCertificado := EmptyStr;
   fChavePrivada := EmptyStr;
   fArquivoCertificado := EmptyStr;
@@ -1354,8 +1430,6 @@ begin
   fpValidadeToken := 0;
   fpToken := '';
   fpRefreshToken := '';
-  fpQuandoAcessarEndPoint := Nil;
-  fpQuandoReceberRespostaEndPoint := Nil;
 
   fHttpRespStream := TMemoryStream.Create;
   fHttpSend := THTTPSend.Create;
@@ -1366,9 +1440,14 @@ begin
   fepCobV := TACBrPixEndPointCobV.Create(Self);
   fURLQueryParams := TACBrQueryParams.Create;
   fURLPathParams := TStringList.Create;
-
+  fScopes := [scCobWrite, scCobRead, scPixWrite, scPixRead];
+  
+  fpQuandoAcessarEndPoint := Nil;
+  fpQuandoReceberRespostaEndPoint := Nil;
   fQuandoTransmitirHttp := Nil;
   fQuandoReceberRespostaHttp := Nil;
+  fpOnAntesAutenticar := Nil;
+  fpOnDepoisAutenticar := Nil;
 end;
 
 destructor TACBrPSP.Destroy;
@@ -1642,6 +1721,63 @@ begin
   Result := Trim(EndPoint);
 end;
 
+function TACBrPSP.EfetuarAutenticacaoManual: Boolean;
+var
+  wToken: String;
+  wValidade: TDateTime;
+begin
+  Result := False;
+  wToken := EmptyStr;
+  wValidade := 0;
+
+  if (not Assigned(fpOnAntesAutenticar)) then
+    Exit;
+
+  fpOnAntesAutenticar(wToken, wValidade);
+
+  Result := (wToken <> EmptyStr) and (wValidade <> 0);
+  fpAutenticado := Result;
+
+  if Result then
+  begin
+    fpToken := wToken;
+    fpValidadeToken := wValidade;
+
+    if (NivelLog > 1) then
+      RegistrarLog(ACBrStr('Efetuada autenticação manual' + sLineBreak +
+        ' - Token: ' + fpToken + sLineBreak +
+        ' - Validade: ' + DateTimeToStr(fpValidadeToken)));
+  end;
+end;
+
+function TACBrPSP.ScopeToString(aScope: TACBrPSPScope): String;
+begin
+  case aScope of
+    scCobWrite: Result := 'cob.write';
+    scCobRead: Result := 'cob.read';
+    scCobVWrite: Result := 'cobv.write';
+    scCobVRead: Result := 'cobv.read';
+    scLoteCobVWrite: Result := 'lotecobv.write';
+    scLoteCobVRead: Result := 'lotecobv.read';
+    scPixWrite: Result := 'pix.write';
+    scPixRead: Result := 'pix.read';
+    scWebhookWrite: Result := 'webhook.write';
+    scWebhookRead: Result := 'webhook.read';
+    scPayloadLocationWrite: Result := 'payloadlocation.write';
+    scPayloadLocationRead: Result := 'payloadlocation.read';
+  end;
+end;
+
+function TACBrPSP.ScopesToString(aScopes: TACBrPSPScopes): String;
+var
+  i: TACBrPSPScope;
+begin
+  Result := EmptyStr;
+  for i := Low(TACBrPSPScope) to High(TACBrPSPScope) do
+    if i in aScopes then
+      Result := Result + IfThen(NaoEstaVazio(Result), ' ') + ScopeToString(i);
+end;
+
 procedure TACBrPSP.ChamarEventoQuandoAcessarEndPoint(const AEndPoint: String;
   var AURL: String; var AMethod: String);
 var
@@ -1727,9 +1863,12 @@ procedure TACBrPSP.LimparHTTP;
 begin
   if (NivelLog > 2) then
     RegistrarLog('LimparHTTP');
+
   fHttpSend.Clear;
   fURLPathParams.Clear;
   fURLQueryParams.Clear;
+  fHttpSend.UserName := EmptyStr;
+  fHttpSend.Password := EmptyStr;
 end;
 
 procedure TACBrPSP.PrepararHTTP;
@@ -1920,16 +2059,24 @@ end;
 procedure TACBrPSP.RenovarToken;
 begin
   Autenticar;
+
+  if Assigned(fpOnDepoisAutenticar) then
+    fpOnDepoisAutenticar(fpToken, fpValidadeToken);
 end;
 
 procedure TACBrPSP.VerificarAutenticacao;
 begin
-  if not Autenticado then
+  if (not (Autenticado or EfetuarAutenticacaoManual)) then
   begin
     if (NivelLog > 2) then
       RegistrarLog('Autenticar');
+
     Autenticar;
+
+    if Assigned(fpOnDepoisAutenticar) then
+      fpOnDepoisAutenticar(fpToken, fpValidadeToken);
   end;
+
   VerificarValidadeToken;
 end;
 

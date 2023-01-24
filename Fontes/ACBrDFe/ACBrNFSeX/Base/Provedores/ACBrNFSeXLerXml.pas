@@ -73,7 +73,8 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings,
+  StrUtilsEx,
+  ACBrUtil.Strings, ACBrUtil.XMLHTML,
   ACBrDFeException;
 
 { TNFSeRClass }
@@ -127,12 +128,21 @@ end;
 
 function TNFSeRClass.NormatizarXml(const aXml: string): string;
 begin
-  Result := TiraAcentos(aXml);
+{$IfDef FPC}
+  Result := aXml;
+{$Else}
+  Result := ParseText(aXml, True, False);
+  Result := FastStringReplace(Result, '&', '&amp;', [rfReplaceAll]);
+{$EndIf}
 end;
 
 function TNFSeRClass.TipodeXMLLeitura(const aArquivo: string): TtpXML;
+var
+  aXML: string;
 begin
-  if (Pos('/infnfse>', LowerCase(Arquivo)) > 0) then
+  aXML := RemoverPrefixosDesnecessarios(aArquivo);
+
+  if (Pos('/infnfse>', LowerCase(aXML)) > 0) then
     Result := txmlNFSe
   else
     Result := txmlRPS;

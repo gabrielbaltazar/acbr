@@ -43,6 +43,7 @@ uses
   ACBrJSON, ACBrBase, ACBrSocket;
 
 const
+  CNCM_EXT_CSV = '.CSV';
   CNCM_ARQUIVO_CACHE = 'ACBrNCM.json';
   CNCM_URL = 'https://portalunico.siscomex.gov.br/classif/api/publico/nomenclatura/download/json';
 
@@ -101,7 +102,7 @@ type
     procedure SortByDescricao;
 
     procedure SaveToFile(const AFileName: String; aSeparator: Char = ';');
-    procedure SaveToStringList(aStrings: TStrings; aSeparator: Char = ';');
+    procedure SaveToStringList(aStrings: TStrings; aSeparator: Char = ';'; aQuoteChar: Char = ' ');
 
     property Objects[Index: Integer]: TACBrNCM read GetObject write SetObject; default;
   end;
@@ -168,10 +169,10 @@ type
 implementation
 
 uses
-  DateUtils,
+  DateUtils, StrUtils,
   synautil,
   ACBrCompress,
-  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime,
+  ACBrUtil.Base, ACBrUtil.Compatibilidade, ACBrUtil.Strings, ACBrUtil.DateTime,
   ACBrUtil.FilesIO, ACBrUtil.XMLHTML;
 
 { TACBrNCM }
@@ -315,7 +316,8 @@ begin
   fSortOrder := 2;
 end;
 
-procedure TACBrNCMsList.SaveToStringList(aStrings: TStrings; aSeparator: Char);
+procedure TACBrNCMsList.SaveToStringList(aStrings: TStrings; aSeparator: Char;
+  aQuoteChar: Char);
 var
   I: Integer;
 begin
@@ -326,7 +328,9 @@ begin
   for I := 0 to Count - 1 do
     aStrings.Add(
       Objects[I].CodigoNcm + aSeparator +
-      Objects[I].DescricaoNcm + aSeparator +
+      IfThen(NaoEstaVazio(Trim(aQuoteChar)), QuoteStr(
+        Objects[I].DescricaoNcm, aQuoteChar),
+        Objects[I].DescricaoNcm) + aSeparator +
       FormatDateBr(Objects[I].DataInicio) + aSeparator +
       FormatDateBr(Objects[I].DataFim) + aSeparator +
       Objects[I].TipoAto + aSeparator +
@@ -337,13 +341,18 @@ end;
 procedure TACBrNCMsList.SaveToFile(const AFileName: String; aSeparator: Char);
 var
   SL: TStringList;
+  wQuoteChar: Char;
 begin
   if EstaVazio(AFileName) then
     raise EACBrNcmException.Create(ACBrStr('Nome do arquivo nao informado'));
 
   SL := TStringList.Create;
   try
-    SaveToStringList(SL);
+    wQuoteChar := ' ';
+    if (UpperCase(ExtractFileExt(AFileName)) = CNCM_EXT_CSV) then
+      wQuoteChar := '"';
+
+    SaveToStringList(SL, aSeparator, wQuoteChar);
     SL.SaveToFile(AFileName);
   finally
     SL.Free;
@@ -535,18 +544,20 @@ begin
     try
       wSL.LoadFromFile(wArq); 
       wJson := CriarEValidarJson(wSL.Text);
+			try
+				wDataCache := StringToDateTimeDef(wJson.AsString['DataCache'], 0, 'dd/mm/yyyy');
 
-      wDataCache := StringToDateTimeDef(wJson.AsString['DataCache'], 0, 'dd/mm/yyyy');
+				if (CacheDiasValidade > 0) and (DaysBetween(Now, wDataCache) > CacheDiasValidade) then
+				begin
+					DeleteFile(wArq);
+					Exit;
+				end;
 
-      if (CacheDiasValidade > 0) and (DaysBetween(Now, wDataCache) > CacheDiasValidade) then
-      begin
-        DeleteFile(wArq);
-        Exit;
-      end;
-
-      Result := wSL.Text;
+				Result := wSL.Text;
+			finally
+				wJson.Free;
+			end;
     finally
-      wJson.Free;
       wSL.Free;
     end;
   except

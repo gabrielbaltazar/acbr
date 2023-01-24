@@ -18,7 +18,8 @@ uses
   ACBrPIXSchemasParametrosConsultaCob, ACBrPIXSchemasCobsConsultadas, 
   ACBrPIXSchemasCobV, ACBrPIXSchemasCobsVConsultadas, ACBrPIXSchemasLoteCobV, 
   ACBrPIXSchemasParametrosConsultaLote, ACBrPIXSchemasLotesCobVConsultadas, 
-  ACBrShipaySchemas, LazarusPackageIntf;
+  ACBrShipaySchemas, ACBrPIXPSPPagSeguro, ACBrPIXPSPGerenciaNet, 
+  ACBrPIXPSPBradesco, LazarusPackageIntf;
 
 implementation
 
