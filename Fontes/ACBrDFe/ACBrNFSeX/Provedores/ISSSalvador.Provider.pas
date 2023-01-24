@@ -70,7 +70,7 @@ type
 implementation
 
 uses
-  ACBrUtil.XMLHTML,
+  ACBrUtil.XMLHTML, ACBrUtil.Strings,
   ACBrDFeException, ACBrXmlBase, ACBrNFSeX, ACBrNFSeXConsts,
   ISSSalvador.GravarXml, ISSSalvador.LerXml;
 
@@ -156,7 +156,7 @@ function TACBrNFSeXWebserviceISSSalvador.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
 end;
 
 { TACBrNFSeProviderISSSalvador }
@@ -212,7 +212,7 @@ var
 begin
   AErro := Response.Erros.New;
   AErro.Codigo := Cod001;
-  AErro.Descricao := Desc001;
+  AErro.Descricao := ACBrStr(Desc001);
 
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
 end;
@@ -231,7 +231,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod201;
-        AErro.Descricao := Desc201;
+        AErro.Descricao := ACBrStr(Desc201);
         Exit
       end;
 
@@ -249,7 +249,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
-        AErro.Descricao := Desc999 + E.Message;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
       end;
     end;
   finally

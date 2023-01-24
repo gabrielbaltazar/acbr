@@ -78,7 +78,7 @@ type
 implementation
 
 uses
-  ACBrLibeSocialStaticImportST, ACBrLibeSocialConsts, ACBrLibConsts, ACBrUtil;
+  ACBrLibeSocialStaticImportST, ACBrLibeSocialConsts, ACBrLibConsts, ACBrUtil.Strings;
 
 procedure TTestACBreSocialLib.Test_eSocial_Inicializar_Com_DiretorioInvalido;
 var
@@ -252,7 +252,7 @@ begin
   // Lendo o arquivo INI
   AssertEquals(ErrOK, eSocial_Inicializar( '', ''));
   AssertEquals('Erro ao ler o arquivo INI', ErrOk,
-  eSocial_CriarEventoeSocial( 'C:\ProjetoACBr\ACBr\Projetos\ACBrLib\Testes\eSocial\S1000.ini'));
+  eSocial_CriarEventoeSocial( '.\..\..\eSocial\S1000.ini'));
   AssertEquals(ErrOK, eSocial_Finalizar());
 end;
 
@@ -279,25 +279,42 @@ var
   Resposta: PChar;
   Tamanho: Longint;
   Handle: THandle;
+  RetornoChamadaLib: LongInt;
 begin
   // Iniciando a consulta
-  Resposta := '';
-  Tamanho := 0;
+  Tamanho  := 0;
+  Resposta := PChar(Space(Tamanho));
 
   AssertEquals(ErrOK, eSocial_Inicializar( '', ''));
-  AssertEquals('Erro ao consultar', ErrExecutandoMetodo, eSocial_ConsultareSocial( '123456789', Resposta, Tamanho));
-
-  AssertEquals('Resposta= ' + AnsiString(Resposta), '', '');
-  AssertEquals('Tamanho= ' + IntToStr(Tamanho), '', '');
+  RetornoChamadaLib := eSocial_ConsultareSocial( '1.2.202212.0000000000123456789', Resposta, Tamanho);
+  if RetornoChamadaLib = ErrExecutandoMetodo then
+  begin
+    AssertEquals('Erro ao consultar', ErrExecutandoMetodo, RetornoChamadaLib);
+    AssertEquals('Resposta= ' + AnsiString(Resposta), '', '');
+    AssertEquals('Tamanho= ' + IntToStr(Tamanho), '', '');
+  //end
+  //else
+  //begin
+  //// Descomente esse código para testar o caso de sucesso. Atualmente impossível sem modificações que burlam o acesso ao certificado.
+  //  AssertEquals('Erro ao consultar', ErrOK, RetornoChamadaLib);
+  //  Resposta := PChar(Space(Tamanho));
+  //  RetornoChamadaLib := eSocial_UltimoRetorno(Resposta, Tamanho);
+  //
+  //  AssertEquals('RetornoChamadaLib= ' + IntToStr(RetornoChamadaLib), RetornoChamadaLib, RetornoChamadaLib);
+  //  AssertEquals('Resposta= ' + AnsiString(Resposta), '', Resposta);
+  //  AssertEquals('Tamanho= ' + IntToStr(Tamanho), '', '');
+  end;
   AssertEquals(ErrOK, eSocial_Finalizar());
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_CriarEnviareSocial;
 var
   Handle: THandle;
+  RetornoChamadaLib: LongInt;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar('', ''));
-  AssertEquals('Erro ao Criar e Enviar', ErrExecutandoMetodo, eSocial_CriarEnviareSocial('C:\ProjetoACBr\ACBr\Projetos\ACBrLib\Testes\eSocial\S1000.ini', 1));
+  RetornoChamadaLib := eSocial_CriarEnviareSocial('.\..\..\eSocial\S1000.ini', 1);
+  AssertEquals('Erro ao Criar e Enviar', ErrExecutandoMetodo, RetornoChamadaLib);
   AssertEquals(ErrOK, eSocial_Finalizar());
 end;
 
@@ -311,11 +328,18 @@ begin
 end;
 
 procedure TTestACBreSocialLib.Test_eSocial_CarregarXMLEventoeSocial;
+const
+  sNomeArquivoXml = '.\..\..\eSocial\S2220_UmXmlDeLoteEventosS2220_01.xml';
 var
-  Handle: THandle;
+  RetornoChamadaLib: LongInt;
 begin
   AssertEquals(ErrOK, eSocial_Inicializar('', ''));
-  AssertEquals('Erro ao carregar o XML e-Social', ErrOK, eSocial_CarregarXMLEventoeSocial('C:\ProjetoACBr\ACBr\Projetos\ACBrLib\Testes\eSocial\1038734840000002022060611235282164-S-2200-0.xml'));
+
+  AssertEquals('Erro ao Mudar configuração log', ErrOk, eSocial_ConfigGravarValor( CSessaoPrincipal, CChaveLogNivel, '4'));
+  AssertEquals(ErrOk, eSocial_SetVersaoDF('S01_00_00'));
+
+  RetornoChamadaLib := eSocial_CarregarXMLEventoeSocial(sNomeArquivoXml);
+  AssertEquals('Erro ao carregar o XML e-Social', ErrOK, RetornoChamadaLib );
   AssertEquals(ErrOK, eSocial_Finalizar());
 end;
 

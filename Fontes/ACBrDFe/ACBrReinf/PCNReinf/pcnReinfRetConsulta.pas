@@ -48,7 +48,7 @@ uses
   pcnCommonReinf, pcnConversaoReinf;
 
 type
-  TRetConsulta = class;
+  TRetConsulta_R5011 = class;
   TEvtTotalContrib = class;
   TInfoRecEv = class;
   TInfoTotalContrib = class;
@@ -340,7 +340,7 @@ type
     property RetornoEventos: TRetornoEventosCollection read FRetornoEventos write FRetornoEventos;
   end;
 
-  TRetConsulta = class(TObject)
+  TRetConsulta_R5011 = class(TObject)
   private
     FLeitor: TLeitor;
     FevtTotalContrib: TEvtTotalContrib;
@@ -356,6 +356,8 @@ type
     property evtTotalContrib: TEvtTotalContrib read FevtTotalContrib write FevtTotalContrib;
     property XML: String read FXML;
   end;
+
+  TRetConsulta = class(TRetConsulta_R5011); // Remover após entrar em vigor a versão 2_01_01
 
 implementation
 
@@ -577,15 +579,15 @@ begin
   inherited;
 end;
 
-{ TRetConsulta }
+{ TRetConsulta_R5011 }
 
-constructor TRetConsulta.Create;
+constructor TRetConsulta_R5011.Create;
 begin
   FLeitor := TLeitor.Create;
   FevtTotalContrib := TEvtTotalContrib.Create;
 end;
 
-destructor TRetConsulta.Destroy;
+destructor TRetConsulta_R5011.Destroy;
 begin
   FLeitor.Free;
   FevtTotalContrib.Free;
@@ -616,7 +618,7 @@ begin
   inherited Items[Index] := Value;
 end;
 
-function TRetConsulta.LerXml: boolean;
+function TRetConsulta_R5011.LerXml: boolean;
 var
   i, j: Integer;
   Ok: Boolean;
@@ -830,7 +832,7 @@ begin
   end;
 end;
 
-function TRetConsulta.SalvarINI: boolean;
+function TRetConsulta_R5011.SalvarINI: boolean;
 var
   AIni: TMemIniFile;
   sSecao: String;

@@ -66,6 +66,9 @@ type
 
 implementation
 
+uses
+  ACBrDFeUtil;
+
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o Json do provedor:
 //     Bauhaus
@@ -89,6 +92,7 @@ var
   jsRet: TACBrJSONObject;
 begin
   Result := False;
+  tpXML := txmlNFSe;
 
   try
     jsRet := TACBrJSONObject.Parse(String(ArquivoRetorno));
@@ -113,6 +117,7 @@ var
   jsRet: TACBrJSONObject;
 begin
   Result := False;
+  tpXML := txmlRPS;
 
   try
     jsRet := TACBrJSONObject.Parse(String(ArquivoRetorno));
@@ -181,6 +186,7 @@ begin
         Numero := aJson.AsString['NumeroNfse'];
         CodigoVerificacao := aJson.AsString['CodigoValidacao'];
         Link := aJson.AsString['LinkNfse'];
+        Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
 
         jsAux := aJson.AsJSONObject['Rps'];
 
@@ -188,6 +194,7 @@ begin
           SeriePrestacao := jsAux.AsString['Serie'];
 
         DataEmissao := aJson.AsISODateTime['DataEmissao'];
+        Competencia := aJson.AsISODate['Competencia'];
 
         LerSituacaoNfse(aJson);
       end;
@@ -312,11 +319,6 @@ begin
         if ((aValor = 'J') or (aValor = '2')) then
         begin
           CpfCnpj := PadLeft(CpfCnpj, 14, '0');
-
-          if Endereco.CodigoMunicipio = NFSe.Prestador.Endereco.CodigoMunicipio then
-            Tipo := tpPJdoMunicipio
-          else
-            Tipo := tpPJforaMunicipio;
         end
         else
         begin
@@ -327,6 +329,11 @@ begin
 
       LerEndereco(jsAux, Endereco);
       LerContato(jsAux, Contato);
+
+      if Endereco.CodigoMunicipio = NFSe.Prestador.Endereco.CodigoMunicipio then
+        IdentificacaoTomador.Tipo := tpPJdoMunicipio
+      else
+        IdentificacaoTomador.Tipo := tpPJforaMunicipio;
     end;
   end;
 end;
@@ -334,6 +341,7 @@ end;
 procedure TNFSeR_Bauhaus.LerEndereco(aJson: TACBrJSONObject; aEndereco: TEndereco);
 var
   jsAux: TACBrJSONObject;
+  xUF: string;
 begin
   jsAux := aJson.AsJSONObject['Endereco'];
 
@@ -351,6 +359,11 @@ begin
       if length(CodigoMunicipio) < 7 then
         CodigoMunicipio := Copy(CodigoMunicipio, 1, 2) +
             FormatFloat('00000', StrToIntDef(Copy(CodigoMunicipio, 3, 5), 0));
+
+      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+
+      if UF = '' then
+        UF := xUF;
 
       CEP := jsAux.AsString['Cep'];
     end;

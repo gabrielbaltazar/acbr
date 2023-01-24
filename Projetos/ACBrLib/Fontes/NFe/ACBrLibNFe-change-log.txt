@@ -42,6 +42,27 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+22/12/2022
+--- ACBrLibNFeConsts, ACBrLibNFeConfig ---
+[+] Adicionado propriedade ImprimeXPedNItemPed - #TK-3373-2
+Por: Antonio Carlos Junior 
+
+21/12/2022
+--- ACBrLibNFeConsts, ACBrLibNFeConfig --- 
+[+] Adicionado propriedade ImprimeInscSuframa - #TK-2947-3
+    Por: Antonio Carlos Junior
+
+06/02/2022
+--- ACBrLibNFeBase ---
+[-] Correção para conversão das respostas com Erros, em ANSI, se assim estiver
+    configurado
+    (por: DSA)
+
+30/11/2022
+--- ACBrLibNFeBase ---
+[*] Concatenação E.Message junto ao xMotivo para saber real motivo do Exception - #TK-3293
+	Por: Antonio Carlos Junior
+
 31/10/2022
 --- ACBrLibNFeBase ---
 [*] Limpar as propriedades do componente referente a consultas anteriores

@@ -347,9 +347,9 @@ begin
   y := StrToInt(Copy(AISODate, 1, 4));
   m := StrToInt(Copy(AISODate, 6, 2));
   d := StrToInt(Copy(AISODate, 9, 2));
-  h := StrToInt(Copy(AISODate, 12, 2));
-  n := StrToInt(Copy(AISODate, 15, 2));
-  s := StrToInt(Copy(AISODate, 18, 2));
+  h := StrToIntDef(Copy(AISODate, 12, 2), 0);
+  n := StrToIntDef(Copy(AISODate, 15, 2), 0);
+  s := StrToIntDef(Copy(AISODate, 18, 2), 0);
   z := StrToIntDef(OnlyNumber(Copy(AISODate, 21, 3)), 0);
 
   Result := EncodeDateTime(y,m,d, h,n,s,z);
@@ -451,7 +451,6 @@ var
   DT: TDateTime;
   Bias, H, M: Integer;
 begin
-  Result := 0;
   DT := ADateTime;
   TZ := AUTC;
 
@@ -486,7 +485,6 @@ begin
 
   Bias := TimeZoneToBias(DateTimeToStr(DT) + TZ);
   Result := IncMinute(DT, Bias);
-
 end;
 
 {-----------------------------------------------------------------------------
@@ -566,6 +564,14 @@ begin
   end
   else
   begin
+    if Length(xData) = 7 then
+    begin
+      if i = 5 then
+        xData := xData + '/01'
+      else
+        xData := '01/' + xData;
+    end;
+
     if i = 5 then
     begin
       Ano := StrToInt(Copy(xData, 1, 4));

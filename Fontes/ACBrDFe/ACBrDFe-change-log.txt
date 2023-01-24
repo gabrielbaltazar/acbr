@@ -39,6 +39,32 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+30/12/2022
+-- ACBrDFeXsLibXml2 --
+[*] Remoção de Warnings e Hints.
+  Por: Italo Giurizzato Junior
+
+13/12/2022
+[*] TK-3390 ACBrDFE - Remoção Create / Default LT_ALL - LT_TLSv1_2
+  por : Victor H Gonzales - Pandaaa
+
+30/11/2022
+-- ACBrXmlDocument --
+[*] Incluído uma diretiva de compilação para tratar o LocalName para quando
+    for Delphi ou Lazarus.
+  Por: Italo Giurizzato Junior
+
+09/11/2022
+-- ACBrXmlBase --
+[*] Incluído o prefixo "nfse:" na lista de prefixos a serem removidos do XML.
+  Por: Italo Giurizzato Junior
+
+07/11/2022
+-- ACBrDFeUtil --
+[*] Incluído um novo parâmetro que determina se deve ou não gerar uma exception,
+    e também antes de buscar a cidade por código é validado a UF presente no código.
+  Por: Italo Giurizzato Junior/Victor H Gonzales
+
 05/09/2022
 -- ACBrXmlBase --
 [*] Alterado a leitura de Horário, para ler corretamente HH:MM (sem os segundos)

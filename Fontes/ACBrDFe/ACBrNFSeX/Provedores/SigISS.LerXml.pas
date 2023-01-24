@@ -67,7 +67,8 @@ type
 implementation
 
 uses
-  ACBrUtil.Base;
+  synautil,
+  ACBrUtil.Base, ACBrDFeUtil;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -108,7 +109,7 @@ end;
 procedure TNFSeR_SigISS.LerIdentificacaoRps(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
-  Dia, Mes, Ano: string;
+  Dia, Mes, Ano, xUF: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('DescricaoRps');
 
@@ -180,6 +181,10 @@ begin
           Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomador_bairro'), tcStr);
           CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomador_CEP'), tcStr);
           CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomador_cod_cidade'), tcStr);
+          xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+
+          if UF = '' then
+            UF := xUF;
         end;
 
         with IdentificacaoRps do
@@ -248,7 +253,8 @@ begin
 
   AuxNode := ANode.Childrens.FindAnyNs('DadosNota');
 
-  if AuxNode = nil then Exit;
+  if AuxNode = nil then
+    AuxNode := ANode;
 
   with NFSe do
   begin
@@ -257,9 +263,17 @@ begin
     id_sis_legado := ObterConteudo(AuxNode.Childrens.FindAnyNs('id_sis_legado'), tcInt);
     CodigoVerificacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('autenticidade'), tcStr);
     Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('nota'), tcStr);
-    DataEmissao := ObterConteudo(AuxNode.Childrens.FindAnyNs('dt_conversao'), tcDat);
-    DataEmissaoRps := ObterConteudo(AuxNode.Childrens.FindAnyNs('emissao_rps'), tcDat);
+
+    aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('dt_conversao'), tcStr);
+    aValor := Copy(aValor, 1, 11);
+    DataEmissao := DecodeRfcDateTime(aValor);
+
+    aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('emissao_rps'), tcStr);
+    aValor := Copy(aValor, 1, 11);
+    DataEmissaoRps := DecodeRfcDateTime(aValor);
+
     Link := ObterConteudo(AuxNode.Childrens.FindAnyNs('LinkImpressao'), tcStr);
+    Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
 
     aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('StatusNFe'), tcStr);
 
@@ -276,7 +290,7 @@ begin
     with ValoresNfse do
     begin
       ValorLiquidoNfse := ObterConteudo(AuxNode.Childrens.FindAnyNs('valor'), tcDe2);
-      BaseCalculo      := ValorLiquidoNfse;
+      BaseCalculo      := ObterConteudo(AuxNode.Childrens.FindAnyNs('base'), tcDe2);
       Aliquota         := ObterConteudo(AuxNode.Childrens.FindAnyNs('aliquota_atividade'), tcDe2);
       ValorIss         := ObterConteudo(AuxNode.Childrens.FindAnyNs('iss'), tcDe2);
     end;
@@ -365,7 +379,7 @@ end;
 function TNFSeR_SigISS.LerXmlEspelho(const ANode: TACBrXmlNode): Boolean;
 var
   AuxNode, IdentificacaoNfseNode, DadosNfseNode: TACBrXmlNode;
-  aValor: string;
+  aValor, xUF: string;
 begin
   Result := True;
 
@@ -384,6 +398,7 @@ begin
     Numero := ObterConteudo(IdentificacaoNfseNode.Childrens.FindAnyNs('Numero'), tcStr);
     CodigoVerificacao := ObterConteudo(IdentificacaoNfseNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
     Link := ObterConteudo(IdentificacaoNfseNode.Childrens.FindAnyNs('LinkImpressao'), tcStr);
+    Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
     DataEmissao := ObterConteudo(IdentificacaoNfseNode.Childrens.FindAnyNs('DataEmissao'), tcDat);
 
     aValor := ObterConteudo(IdentificacaoNfseNode.Childrens.FindAnyNs('StatusNfse'), tcStr);
@@ -414,6 +429,10 @@ begin
         CodigoMunicipio := ObterConteudo(DadosNfseNode.Childrens.FindAnyNs('PrestadorCodigoMunicipio'), tcStr);
         UF              := ObterConteudo(DadosNfseNode.Childrens.FindAnyNs('PrestadorUf'), tcStr);
         CEP             := ObterConteudo(DadosNfseNode.Childrens.FindAnyNs('PrestadorCep'), tcStr);
+        xMunicipio      := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+
+        if UF = '' then
+          UF := xUF;
       end;
     end;
 
@@ -474,6 +493,10 @@ begin
         CEP             := ObterConteudo(DadosNfseNode.Childrens.FindAnyNs('TomadorCep'), tcStr);
         CodigoMunicipio := ObterConteudo(DadosNfseNode.Childrens.FindAnyNs('TomadorCodigoMunicipio'), tcStr);
         UF              := ObterConteudo(DadosNfseNode.Childrens.FindAnyNs('TomadorUf'), tcStr);
+        xMunicipio      := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+
+        if UF = '' then
+          UF := xUF;
       end;
     end;
 

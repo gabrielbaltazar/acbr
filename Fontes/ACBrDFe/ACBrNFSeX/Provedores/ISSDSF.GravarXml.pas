@@ -237,7 +237,8 @@ begin
                                  NFSe.Servico.Valores.ValorDeducoes) ) ), 15);
   sValorDeducao   := Poem_Zeros( OnlyNumber( FormatFloat('#0.00',
                                  NFSe.Servico.Valores.ValorDeducoes)), 15);
-  sCodAtividade   := Poem_Zeros( OnlyNumber( NFSe.Servico.CodigoCnae ), 10);
+  sCodAtividade   := PadRight(NFSe.Servico.CodigoCnae, 9, '0');
+  sCodAtividade   := Poem_Zeros( OnlyNumber( sCodAtividade ), 10);
   sCPFCNPJTomador := Poem_Zeros( OnlyNumber( NFSe.Tomador.IdentificacaoTomador.CpfCnpj), 14);
 
 
@@ -327,8 +328,8 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'BairroTomador', 1, 50, 1,
                                              NFSe.Tomador.Endereco.Bairro, ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'CidadeTomador', 1, 10, 1,
-   CodIBGEToCodTOM(strtoint64(NFSe.Tomador.Endereco.CodigoMunicipio)), ''));
+  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'CidadeTomador', 1, 10, 0,
+   CodIBGEToCodTOM(StrToInt64Def(NFSe.Tomador.Endereco.CodigoMunicipio, 0)), ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'CidadeTomadorDescricao', 1, 50, 1,
                                          NFSe.Tomador.Endereco.xMunicipio, ''));
@@ -346,7 +347,7 @@ begin
                                           NFSe.ConstrucaoCivil.CodigoObra, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'CodigoAtividade', 1, 9, 1,
-                                                  NFSe.Servico.CodigoCnae, ''));
+                                PadRight(NFSe.Servico.CodigoCnae, 9, '0'), ''));
 
   if VersaoNFSe = ve101 then
     NFSeNode.AppendChild(AddNode(tcStr, '#1', 'CodigoServico', 4, 5, 0,
@@ -363,7 +364,7 @@ begin
                                                        FPTipoRecolhimento, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'MunicipioPrestacao', 1, 10, 1,
-            CodIBGEToCodTOM(strtoint64(NFSe.Servico.CodigoMunicipio)), ''));
+          CodIBGEToCodTOM(strtoint64Def(NFSe.Servico.CodigoMunicipio, 0)), ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'MunicipioPrestacaoDescricao', 1, 30, 1,
                                        NFSe.Prestador.Endereco.xMunicipio, ''));

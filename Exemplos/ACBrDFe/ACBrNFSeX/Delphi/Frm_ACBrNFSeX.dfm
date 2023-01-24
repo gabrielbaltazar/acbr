@@ -462,6 +462,16 @@ object frmACBrNFSe: TfrmACBrNFSe
                 Height = 13
                 Caption = 'Schemas do Provedor:'
               end
+              object Label49: TLabel
+                Left = 8
+                Top = 307
+                Width = 80
+                Height = 13
+                Alignment = taRightJustify
+                Caption = 'Layout da NFS-e'
+                Color = clBtnFace
+                ParentColor = False
+              end
               object edtPathLogs: TEdit
                 Left = 8
                 Top = 162
@@ -530,7 +540,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               end
               object chkConsultaLoteAposEnvio: TCheckBox
                 Left = 9
-                Top = 304
+                Top = 262
                 Width = 152
                 Height = 17
                 Caption = 'Consultar Lote Ap'#243's Envio'
@@ -538,7 +548,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               end
               object chkConsultaAposCancelar: TCheckBox
                 Left = 9
-                Top = 320
+                Top = 282
                 Width = 152
                 Height = 17
                 Caption = 'Consultar Ap'#243's Cancelar'
@@ -551,6 +561,15 @@ object frmACBrNFSe: TfrmACBrNFSe
                 Height = 17
                 Caption = 'Montar automaticamente o Path dos Schemas'
                 TabOrder = 10
+              end
+              object cbLayoutNFSe: TComboBox
+                Left = 9
+                Top = 323
+                Width = 160
+                Height = 21
+                Style = csDropDownList
+                TabOrder = 11
+                OnChange = cbSSLLibChange
               end
             end
           end
@@ -970,18 +989,38 @@ object frmACBrNFSe: TfrmACBrNFSe
               ParentFont = False
             end
             object Label45: TLabel
-              Left = 8
+              Left = 150
               Top = 389
               Width = 37
               Height = 13
               Caption = 'Vers'#227'o:'
             end
             object lblVersaoSchemas: TLabel
-              Left = 61
+              Left = 203
               Top = 390
               Width = 53
               Height = 13
               Caption = 'lblVersao'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clRed
+              Font.Height = -11
+              Font.Name = 'MS Sans Serif'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object Label48: TLabel
+              Left = 8
+              Top = 390
+              Width = 37
+              Height = 13
+              Caption = 'Layout:'
+            end
+            object lblLayout: TLabel
+              Left = 61
+              Top = 390
+              Width = 52
+              Height = 13
+              Caption = 'lblLayout'
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clRed
               Font.Height = -11
@@ -2103,6 +2142,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 25
               Caption = 'Imprimir DANFSe'
               TabOrder = 1
+              OnClick = btnImprimirPNClick
             end
             object btnEnviaremailPN: TButton
               Left = 369
@@ -2111,6 +2151,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               Height = 25
               Caption = 'Enviar e-mail'
               TabOrder = 2
+              OnClick = btnEnviaremailPNClick
             end
             object btnEmitirPN: TButton
               Left = 3
@@ -2125,6 +2166,7 @@ object frmACBrNFSe: TfrmACBrNFSe
               Font.Style = []
               ParentFont = False
               TabOrder = 0
+              OnClick = btnEmitirPNClick
             end
           end
           object tsEventos1: TTabSheet
@@ -2241,14 +2283,14 @@ object frmACBrNFSe: TfrmACBrNFSe
               TabOrder = 2
               OnClick = btnObterPDFdoDANFSEPNClick
             end
-            object btnConsEventoChavPN: TButton
+            object btnConsultarEventoChavPN: TButton
               Left = 3
               Top = 41
               Width = 177
               Height = 25
               Caption = 'Consultar Evento por Chave'
               TabOrder = 3
-              OnClick = btnConsEventoChavPNClick
+              OnClick = btnConsultarEventoChavPNClick
             end
             object btnConsultarDFe: TButton
               Left = 186
@@ -2258,6 +2300,64 @@ object frmACBrNFSe: TfrmACBrNFSe
               Caption = 'Consultar DFe'
               TabOrder = 4
               OnClick = btnConsultarDFeClick
+            end
+          end
+          object tsConsultarParametros: TTabSheet
+            Caption = 'Consultar Par'#226'metros Municipais'
+            ImageIndex = 3
+            object btnConsultarParamMunicConvenio: TButton
+              Left = 368
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Conv'#234'nio'
+              TabOrder = 0
+              OnClick = btnConsultarParamMunicConvenioClick
+            end
+            object btnConsultarParamMunicAliquota: TButton
+              Left = 3
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Aliquota'
+              TabOrder = 1
+              OnClick = btnConsultarParamMunicAliquotaClick
+            end
+            object btnConsultarParamMunicHistAliquota: TButton
+              Left = 186
+              Top = 10
+              Width = 177
+              Height = 25
+              Caption = 'Historico Aliquotas'
+              TabOrder = 2
+              OnClick = btnConsultarParamMunicHistAliquotaClick
+            end
+            object btnConsultarParamMunicRegimesEspeciais: TButton
+              Left = 3
+              Top = 44
+              Width = 177
+              Height = 25
+              Caption = 'Regimes Especiais'
+              TabOrder = 3
+              OnClick = btnConsultarParamMunicRegimesEspeciaisClick
+            end
+            object btnConsultarParamMunicRetencoes: TButton
+              Left = 186
+              Top = 44
+              Width = 177
+              Height = 25
+              Caption = 'Reten'#231#245'es'
+              TabOrder = 4
+              OnClick = btnConsultarParamMunicRetencoesClick
+            end
+            object btnConsultarParamMunicBeneficio: TButton
+              Left = 369
+              Top = 44
+              Width = 177
+              Height = 25
+              Caption = 'Beneficio'
+              TabOrder = 5
+              OnClick = btnConsultarParamMunicBeneficioClick
             end
           end
         end

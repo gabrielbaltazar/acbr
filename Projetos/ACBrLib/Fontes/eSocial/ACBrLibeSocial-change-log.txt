@@ -42,6 +42,31 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+11/01/2023
+--- ACBrLibeSocialBase ---
+[-] Correção para conversão das respostas com Erros, em ANSI, se assim estiver configurado
+	Por: Antonio Carlos Junior
+
+27/12/2022
+--- ACBrLibeSocialBase ---
+[*] Ajuste método CarregarXMLEventoeSocial
+    Por Antonio Carlos Junior/Elton Barbosa
+
+14/12/2022
+--- ACBrLibeSocialRespostas ---
+[*] Ajustes Resposta Consultar eSocial
+    Por: Antonio Carlos Junior
+
+23/11/2022
+--- ACBrLibeSocial ---
+[+] Novo método eSocial_Validar
+    Por: Antonio Carlos Junior
+
+18/11/2022
+--- ACBrLibeSocial ---
+[+] Novo método eSocial_ObterCertificados
+	Por: Antonio Carlos Junior
+
 13/10/2022
 --- ACBrLibeSocial / ACBrLibeSocialConsts ---
 [*] Ajustes Versão ACBrLibeSocialConsts e Criação Versão x86 STDCALL MT

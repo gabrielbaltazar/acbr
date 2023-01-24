@@ -120,18 +120,24 @@ type
     FNrBeneficio: string;
     FInfoPerApur: TInfoPerApur;
     FInfoPerAnt: TInfoPerAnt;
+    FindRRA: tpSimNaoFacultativo;
+    FinfoRRA: TinfoRRA;
 
     function getInfoPerApur(): TInfoPerApur;
     function getInfoPerAnt(): TInfoPerAnt;
+    function getInfoRRA(): TInfoRRA;
   public
     constructor Create;
     destructor Destroy; override;
 
     function infoPerApurInst(): boolean;
     function infoPerAntInst(): boolean;
+    function infoRRAInst(): boolean;
 
     property ideDmDev: string read FIdeDmDev write FIdeDmDev;
     property nrBeneficio: string read FNrBeneficio write FNrBeneficio;
+    property indRRA: tpSimNaoFacultativo read FindRRA write FindRRA;
+    property infoRRA: TinfoRRA read getInfoRRA write FinfoRRA;
     property infoPerApur: TInfoPerApur read getInfoPerApur write FInfoPerApur;
     property infoPerAnt: TInfoPerAnt read getInfoPerAnt write FInfoPerAnt;
   end;
@@ -269,13 +275,18 @@ end;
 constructor TDMDevCollectionItem.Create;
 begin
   inherited Create;
+
+  FinfoRRA        := nil;
 end;
 
 destructor TDMDevCollectionItem.Destroy;
 begin
+  if infoRRAInst() then
+    FreeAndNil(FinfoRRA);
 
   inherited;
 end;
+
 function TDMDevCollectionItem.getInfoPerApur: TInfoPerApur;
 begin
   if not (Assigned(FInfoPerApur)) then
@@ -298,6 +309,18 @@ end;
 function TDMDevCollectionItem.infoPerAntInst: boolean;
 begin
   Result := Assigned(FInfoPerAnt);
+end;
+
+function TDMDevCollectionItem.getInfoRRA: TInfoRRA;
+begin
+  if not(Assigned(FInfoRRA)) then
+    FInfoRRA := TInfoRRA.Create;
+  Result := FInfoRRA;
+end;
+
+function TDMDevCollectionItem.infoRRAInst: boolean;
+begin
+  Result := Assigned(FInfoRRA);
 end;
 
 { TEvtBenPrRP }
@@ -399,6 +422,17 @@ begin
     Gerador.wCampo(tcStr, '', 'ideDmDev',    1, 30, 1, dmDev[i].ideDmDev);
     Gerador.wCampo(tcStr, '', 'nrBeneficio', 1, 20, 1, dmDev[i].nrBeneficio);
 
+    if VersaoDF >= veS01_01_00 then
+    begin
+      if (dmDev[i].indRRA = snfSim) and (dmDev[i].infoRRAInst()) then
+      begin
+        Gerador.wCampo(tcStr, '', 'indRRA', 1,  1, 1, eSSimNaoFacultativoToStr(dmDev[i].indRRA));
+
+        if (dmDev[i].infoRRAInst()) then
+          GerarInfoRRA(dmDev[i].infoRRA);
+      end;
+    end;
+
     if (dmDev[i].infoPerApurInst()) then
       GerarInfoPerApur(dmDev[i].infoPerApur);
 
@@ -444,17 +478,19 @@ begin
 end;
 
 function TEvtBenPrRP.LerArqIni(const AIniString: String): Boolean;
-{
 var
   INIRec: TMemIniFile;
   Ok: Boolean;
   sSecao, sFim: String;
-  I, J: Integer;
-}
+  I, J, K, L: Integer;
+  dmDevI: TDMDevCollectionItem;
+  ideADVI: TIdeAdvCollectionItem;
+  ideEstabI: TIdeEstabCollectionItem;
+  ItemRemun: TRubricaCollectionItem;
+  idePeriodoI: TIdePeriodoCollectionItem;
 begin
   Result := True;
-{ Falta Adaptar }
-{
+
   INIRec := TMemIniFile.Create('');
   try
     LerIniArquivoOuString(AIniString, INIRec);
@@ -482,45 +518,134 @@ begin
       ideBenef.cpfBenef := INIRec.ReadString(sSecao, 'cpfBenef', EmptyStr);
 
       I := 1;
-      while true do
+      while (true) do
       begin
-        // de 01 até 99
-        sSecao := 'dmDev' + IntToStrZero(I, 2);
-        sFim   := INIRec.ReadString(sSecao, 'nrBenefic', 'FIM');
+        sSecao := 'dmDev' + IntToStrZero(I, 3);
+        sFim   := INIRec.ReadString(sSecao, 'ideDmDev', 'FIM');
 
-        if (sFim = 'FIM') or (Length(sFim) <= 0) then
+        if(Length(sFim) <= 0) or (sFim = 'FIM')then
           break;
 
-        with dmDev.New do
+        dmDevI := dmDev.New;
+        dmDevI.ideDmDev := sFim;
+        dmDevI.nrBeneficio := INIRec.ReadString(sSecao, 'nrBeneficio', EmptyStr);
+        dmDevI.indRRA := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'indRRA', EmptyStr));
+
+        dmDevI.infoRRA.tpProcRRA   := eSStrToTpProcRRA(Ok, INIRec.ReadString(sSecao, 'tpProcRRA', EmptyStr));
+        dmDevI.infoRRA.nrProcRRA   := INIRec.ReadString(sSecao, 'nrProcRRA', EmptyStr);
+        dmDevI.infoRRA.descRRA     := INIRec.ReadString(sSecao, 'descRRA' , EmptyStr);
+        dmDevI.infoRRA.qtdMesesRRA := StrToFloatDef(INIRec.ReadString(sSecao, 'qtdMesesRRA','0'),0);
+
+        dmDevI.infoRRA.despProcJud.vlrDespCustas := StrToFloatDef(INIRec.ReadString(sSecao, 'vlrDespCustas', '0'), 0);
+        dmDevI.infoRRA.despProcJud.vlrDespAdvogados := StrToFloatDef(INIRec.ReadString(sSecao, 'vlrDespAdvogados', '0'), 0);
+
+        J := 1;
+        while (true) do
         begin
-          tpBenef   := INIRec.ReadInteger(sSecao, 'tpBenef', 0);
-          nrBenefic := sFim;
-          ideDmDev  := INIRec.ReadString(sSecao, 'ideDmDev', '');
+          sSecao := 'ideAdv'+ IntToStrZero(I, 3) + IntToStrZero(J, 2);
+          sFim   := INIRec.ReadString(sSecao, 'nrInsc', 'FIM');
 
-          J := 1;
-          while true do
+          if(Length(sFim) <= 0) or (sFim = 'FIM')then
+            break;
+
+          ideADVI := dmDevI.infoRRA.ideAdv.New;
+          ideADVI.tpInsc := eSStrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
+          ideADVI.nrInsc := sFim;
+          ideADVI.vlrADV := StrToFloatDef(INIRec.ReadString(sSecao, 'vlrAdv', '0'), 0);
+
+          Inc(J);
+        end;
+
+        J := 1;
+        while (true) do
+        begin
+          sSecao := 'ideEstab' + IntToStrZero(I, 3) + IntToStrZero(J, 3);
+          sFim := INIRec.ReadString(sSecao, 'nrInsc', 'FIM');
+
+          if(Length(sFim) <= 0) or (sFim = 'FIM')then
+            break;
+
+          ideEstabI := dmDevI.infoPerApur.ideEstab.New;
+          ideEstabI.tpInsc := eSStrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
+          ideEstabI.nrInsc := sFim;
+
+          K := 1;
+          while (true) do
           begin
-            // de 01 até 99
-            sSecao := 'itens' + IntToStrZero(I, 2) + IntToStrZero(J, 2);
-            sFim   := INIRec.ReadString(sSecao, 'codRubr', 'FIM');
+            sSecao := 'itensRemun' + IntToStrZero(I, 3) + IntToStrZero(J, 3) + IntToStrZero(K, 3);
+            sFim := INIRec.ReadString(sSecao, 'codRubr', 'FIM');
 
-            if (sFim = 'FIM') or (Length(sFim) <= 0) then
+            if(Length(sFim) <= 0) or (sFim = 'FIM')then
               break;
 
-            with itens.New do
-            begin
-              codRubr    := sFim;
-              ideTabRubr := INIRec.ReadString(sSecao, 'ideTabRubr', '');
-              vrRubr     := StringToFloatDef(INIRec.ReadString(sSecao, 'vrRubr', ''), 0);
-            end;
+            itemRemun := ideEstabI.itensRemun.New;
+            itemRemun.codRubr := sFim;
+            itemRemun.ideTabRubr := INIRec.ReadString(sSecao, 'ideTabRubr', EmptyStr);
+            itemRemun.qtdRubr    := StrToFloatDef(INIRec.ReadString(sSecao, 'qtdRubr', '0'), 0);
+            itemRemun.fatorRubr  := StrToFloatDef(INIRec.ReadString(sSecao, 'fatorRubr', '0'), 0);
+            ItemRemun.vrRubr     := StrToFloatDef(INIRec.ReadString(sSecao, 'vrRubr', '0'), 0);
+            ItemRemun.indApurIR  := eSStrToTpindApurIR(Ok, INIRec.ReadString(sSecao, 'indApurIR', '0'));
 
-            Inc(J);
+            Inc(K);
           end;
 
+          Inc(J);
+        end;
+
+        J := 1;
+        while (true) do
+        begin
+          sSecao := 'idePeriodo' + IntToStrZero(I, 3) + IntToStrZero(J, 3);
+          sFim := INIRec.ReadString(sSecao, 'perRef', 'FIM');
+
+          if(Length(sFim) <= 0) or (sFim = 'FIM')then
+            break;
+
+          idePeriodoI := dmDevI.infoPerAnt.idePeriodo.New;
+          idePeriodoI.perRef := sFim;
+
+          K := 1;
+          while (true) do
+          begin
+            sSecao := 'ideEstab' + IntToStrZero(I, 3) + IntToStrZero(J, 3) + IntToStrZero(K, 3);
+            sFim := INIRec.ReadString(sSecao, 'nrInsc', 'FIM');
+
+            if(Length(sFim) <= 0) or (sFim = 'FIM')then
+              break;
+
+            ideEstabI := idePeriodoI.ideEstab.New;
+            ideEstabI.tpInsc := eSStrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
+            ideEstabI.nrInsc := sFim;
+
+            L := 1;
+            while (true) do
+            begin
+              sSecao := 'itensRemun'+ IntToStrZero(I, 3) + IntToStrZero(J, 3) + IntToStrZero(K, 3) + IntToStrZero(L, 3);
+              sFim := INIRec.ReadString(sSecao, 'codRubr', 'FIM');
+
+              if(Length(sFim) <= 0) or (sFim = 'FIM')then
+                break;
+
+              itemRemun := ideEstabI.itensRemun.New;
+              itemRemun.codRubr := sFim;
+              itemRemun.ideTabRubr := INIRec.ReadString(sSecao, 'ideTabRubr', EmptyStr);
+              itemRemun.qtdRubr    := StrToFloatDef(INIRec.ReadString(sSecao, 'qtdRubr', '0'), 0);
+              itemRemun.fatorRubr  := StrToFloatDef(INIRec.ReadString(sSecao, 'fatorRubr', '0'), 0);
+              ItemRemun.vrRubr     := StrToFloatDef(INIRec.ReadString(sSecao, 'vrRubr', '0'), 0);
+              ItemRemun.indApurIR  := eSStrToTpindApurIR(Ok, INIRec.ReadString(sSecao, 'indApurIR', '0'));
+
+              Inc(L);
+            end;
+
+            Inc(K);
+          end;
+
+          Inc(J);
         end;
 
         Inc(I);
       end;
+
     end;
 
     GerarXML;
@@ -528,7 +653,6 @@ begin
   finally
     INIRec.Free;
   end;
-}
 end;
 
 { TS1207CollectionItem }

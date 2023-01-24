@@ -37,6 +37,7 @@ unit ACBrNFSeXWebservicesResponse;
 interface
 
 uses
+  classes,
   {$IF DEFINED(NEXTGEN)}
    System.Generics.Collections, System.Generics.Defaults,
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
@@ -457,6 +458,29 @@ type
 
     property NSU: Integer read FNSU write FNSU;
     property ChaveNFSe: string read FChaveNFSe write FChaveNFSe;
+  end;
+
+  TNFSeConsultarParamResponse = class(TNFSeWebserviceResponse)
+  private
+    FtpParamMunic: TParamMunic;
+    FCodigoMunic: Integer;
+    FCodigoServico: string;
+    FCompetencia: TDateTime;
+    FNumeroBeneficio: string;
+    FParametros: TStrings;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Clear; override;
+
+    property tpParamMunic: TParamMunic read FtpParamMunic write FtpParamMunic;
+    property CodigoMunic: Integer read FCodigoMunic write FCodigoMunic;
+    property CodigoServico: string read FCodigoServico write FCodigoServico;
+    property Competencia: TDateTime read FCompetencia write FCompetencia;
+    property NumeroBeneficio: string read FNumeroBeneficio write FNumeroBeneficio;
+    property Parametros: TStrings read FParametros write FParametros;
+
   end;
 
 implementation
@@ -944,7 +968,7 @@ procedure TNFSeConsultarDFeResponse.Clear;
 begin
   inherited Clear;
 
-  NSU := 0;
+  NSU := -1;
   ChaveNFSe := '';
 end;
 
@@ -956,6 +980,35 @@ end;
 
 destructor TNFSeConsultarDFeResponse.Destroy;
 begin
+
+  inherited Destroy;
+end;
+
+{ TNFSeConsultarParamResponse }
+
+procedure TNFSeConsultarParamResponse.Clear;
+begin
+  inherited Clear;
+
+  tpParamMunic := pmConvenio;
+  CodigoMunic := 0;
+  CodigoServico := '';
+  Competencia := 0;
+  NumeroBeneficio := '';
+
+  Parametros.Clear;
+end;
+
+constructor TNFSeConsultarParamResponse.Create;
+begin
+  inherited Create;
+
+  FParametros := TStringList.Create;
+end;
+
+destructor TNFSeConsultarParamResponse.Destroy;
+begin
+  FParametros.Free;
 
   inherited Destroy;
 end;

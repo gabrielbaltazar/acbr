@@ -347,9 +347,11 @@ type
     ExibirBandInforAdicProduto       : Integer;
     ImprimeDescAcrescItemNFe         : Integer;
     LogoEmCima                       : Boolean;
+    ImprimeInscSuframa               : Boolean;
     ExpandirDadosAdicionaisAuto      : Boolean;
     ImprimeContinuacaoDadosAdicionaisPrimeiraPagina: Boolean;
     ImprimirCampoFormaPagamento      : Integer;
+    ImprimeXPedNitemPed              : boolean;
   end;
 
   TDACTE = record
@@ -620,7 +622,7 @@ type
     DigitoAgenciaConta         : String ;
     CodCedente                 : String ;
     LocalPagamento             : String ;
-    CodigoOperacao             : String;
+    CodigoOperacao             : String ;
   end;
 
   TBoletoLayout = record
@@ -661,13 +663,18 @@ type
     EmailFormatoHTML           : Boolean;
   end;
 
+  TBoletoPIX = record
+    TipoChavePix               : integer;
+    ChavePix                   : String ;
+  end;
+
+
   TBoletoCedenteWS = record
     ClientID                   : String;
     ClientSecret               : String;
     KeyUser                    : String;
     Scope                      : String;
     IndicadorPix               : Boolean;
-
   end;
 
   TBoletoSSL = record
@@ -684,7 +691,6 @@ type
     SSLType                    : Integer;
     TimeOut                    : Integer;
     CertificadoHTTP            : Boolean;
-
   end;
 
   TBoletoConfig = record
@@ -715,6 +721,7 @@ type
     Relatorio                  : TBoletoRelatorio;
     Email                      : TBoletoEmail;
     WS                         : TBoletoWS;
+    PIX                        : TBoletoPIX;
   end;
 
 
@@ -1202,9 +1209,11 @@ begin
       Ini.WriteInteger( CSecDANFE,  CKeyDANFEExibirBandInforAdicProduto  , ExibirBandInforAdicProduto );
       Ini.WriteInteger (CSecDANFE, CKeyDANFEImprimeDescAcrescItemNFe     , ImprimeDescAcrescItemNFe);
       Ini.WriteBool( CSecDANFE,  CKeyDANFELogoEmCima                     , LogoEmCima );
+      Ini.WriteBool( CSecDANFE, CKeyDANFEImprimeInscSuframa              , ImprimeInscSuframa);
       Ini.WriteBool( CSecDANFE,  CKeyDANFEExpandirDadosAdicionaisAuto , ExpandirDadosAdicionaisAuto );
       Ini.WriteBool( CSecDANFE,  CKeyDANFEImprimeContinuacaoDadosAdicionaisPrimeiraPagina, ImprimeContinuacaoDadosAdicionaisPrimeiraPagina );
       Ini.WriteInteger (CSecDANFE, CKeyDANFEImprimirCampoFormaPagamento, ImprimirCampoFormaPagamento);
+      Ini.WriteBool( CSecDANFE,  CKeyDANFEImprimeXPedNitemPed  , ImprimeXPedNitemPed );
 
     end;
 
@@ -1431,6 +1440,13 @@ begin
       ini.WriteString( CSecBOLETO, CKeyBOLETOCodigoOperacao,CodigoOperacao );
     end;
 
+    with BOLETO.PIX do
+    begin
+      ini.WriteString(CSecBOLETO,CKeyBOLETOChavePIX,ChavePix);
+      ini.WriteInteger(CSecBOLETO,CKeyBOLETOTipoChavePix,TipoChavePix);
+    end;
+
+
     with BOLETO.Layout do
     begin
       ini.WriteString( CSecBOLETO, CKeyBOLETODirLogos,      DirLogos      );
@@ -1459,6 +1475,7 @@ begin
       ini.WriteString( CSecBOLETO, CKeyBOLETOVersaoArquivo, VersaoArquivo);
       ini.WriteString( CSecBOLETO, CKeyBOLETOVersaoLote, VersaoLote);
     end;
+
 
     with BOLETO.Relatorio do
     begin
@@ -1925,10 +1942,12 @@ begin
       ExibirBandInforAdicProduto := Ini.ReadInteger( CSecDANFE,  CKeyDANFEExibirBandInforAdicProduto     , ExibirBandInforAdicProduto );
       ImprimeDescAcrescItemNFe   := Ini.ReadInteger( CSecDANFE, CKeyDANFEImprimeDescAcrescItemNFe        , ImprimeDescAcrescItemNFe );
       LogoEmCima                 := Ini.ReadBool( CSecDANFE,  CKeyDANFELogoEmCima                        , LogoEmCima );
+      ImprimeInscSuframa         := Ini.ReadBool( CSecDANFE, CKeyDANFEImprimeInscSuframa                 , ImprimeInscSuframa);
       ExpandirDadosAdicionaisAuto:= Ini.ReadBool( CSecDANFE,  CKeyDANFEExpandirDadosAdicionaisAuto      , ExpandirDadosAdicionaisAuto );
       ImprimeContinuacaoDadosAdicionaisPrimeiraPagina:= Ini.ReadBool( CSecDANFE,  CKeyDANFEImprimeContinuacaoDadosAdicionaisPrimeiraPagina,
                                                         ImprimeContinuacaoDadosAdicionaisPrimeiraPagina );
       ImprimirCampoFormaPagamento   := Ini.ReadInteger( CSecDANFE, CKeyDANFEImprimirCampoFormaPagamento  , ImprimirCampoFormaPagamento );
+      ImprimeXPedNitemPed           := Ini.ReadBool( CSecDANFE, CKeyDANFEImprimeXPedNitemPed  , ImprimeXPedNitemPed );
 
     end;
 
@@ -2177,6 +2196,12 @@ begin
       CodigoOperacao         :=  ini.ReadString( CSecBOLETO, CKeyBOLETOCodigoOperacao,   CodigoOperacao         );
     end;
 
+    with BOLETO.PIX do
+      begin
+        ChavePix                := ini.ReadString(CSecBOLETO,CKeyBOLETOChavePix, '');
+        TipoChavePix         := ini.ReadInteger(CSecBOLETO,CKeyBOLETOTipoChavePix, 0);
+      end;
+
     with BOLETO.Layout do
     begin
       DirLogos               :=  ini.ReadString( CSecBOLETO, CKeyBOLETODirLogos,         DirLogos               );
@@ -2191,7 +2216,6 @@ begin
       DirArquivoBoleto       :=  ini.ReadString( CSecBOLETO, CKeyBOLETODirArquivoBoleto, DirArquivoBoleto       );
       Impressora             :=  Ini.ReadString( CSecBOLETO, CKeyBOLETOImpressora,       Impressora             );
       NomeArquivoBoleto      :=  Ini.ReadString( CSecBOLETO, CKeyBOLETONomeArquivoBoleto, NomeArquivoBoleto);
-      
     end;
 
     with BOLETO.RemessaRetorno do
@@ -2642,8 +2666,10 @@ begin
     ImprimeDescAcrescItemNFe   := 0;
     ImprimirCampoFormaPagamento:= 0;
     LogoEmCima                 := False;
+    ImprimeInscSuframa         := True;
     ExpandirDadosAdicionaisAuto := False;
     ImprimeContinuacaoDadosAdicionaisPrimeiraPagina:= False;
+    ImprimeXPedNitemPed        := False;
   end;
 
   with DFe.Impressao.DACTE do
@@ -2888,6 +2914,13 @@ begin
     LocalPagamento         :=  '';
     CodigoOperacao         :=  '';
   end;
+
+  with BOLETO.PIX do
+  begin
+    ChavePix               :=  '';
+    TipoChavePix           :=  0;
+  end;
+
 
   with BOLETO.Layout do
   begin

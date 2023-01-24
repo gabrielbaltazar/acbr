@@ -45,10 +45,20 @@ Símbolo : Significado
 [+]     : Novo recurso
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
+28/11/2022
+--ACBrBoletoFCFortesFr--
+[*]TK-3334 ACBrBoleto - Alteração no dfm para Logos com tamanho maior do que o componente
+https://www.projetoacbr.com.br/forum/topic/69902-layout-fortes-acbrboletofcfortesfr/
+22/11/2022
+  por : Francisco IBS
+
+--ACBrBoletoFCFortesFr--
+[-] Proteção na propriedade de logo da empresa se o arquivo existe no path, e não se o path foi informado.
+  por : Victor H Gonzales - Pandaaa
 
 30/05/2022
 --ACBrBoletoFCFortesFr.pas--
-  [-] #TK-2437 correção na saida do filtro fiJPG para não sair bitmap (bmp) e sim sair o arquivo como jpeg;
+[-] #TK-2437 correção na saida do filtro fiJPG para não sair bitmap (bmp) e sim sair o arquivo como jpeg;
       por: Pandaaa / Nelson Santos
 
 05/04/2022

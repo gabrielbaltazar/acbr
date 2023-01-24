@@ -437,6 +437,13 @@ begin
       Gerador.wCampo(tcStr, '', 'nrInsc', 8, 8, 1, Copy(pEmp.NrInsc, 1, 8));
   end;
 
+  if pEmp.infoComplContri.NatJur <> '' then
+  begin
+    Gerador.wGrupo('infoComplContri');
+    Gerador.wCampo(tcStr, '', 'natJur', 1, 4, 0, pEmp.infoComplContri.NatJur);
+    Gerador.wGrupo('/infoComplContri');
+  end;
+
   if GeraGrupo then
     Gerador.wGrupo('/ideContri');
 end;

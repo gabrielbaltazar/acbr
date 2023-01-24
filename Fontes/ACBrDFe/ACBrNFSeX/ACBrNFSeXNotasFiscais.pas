@@ -547,7 +547,7 @@ begin
 
           with Parcelas.New do
           begin
-            Parcela := StrToIntDef(sFim, 1);
+            Parcela := sFim;
             DataVencimento := INIRec.ReadDate(sSecao, 'DataVencimento', Now);
             Valor := StringToFloatDef(INIRec.ReadString(sSecao, 'Valor', ''), 0);
           end;
@@ -574,7 +574,7 @@ begin
   if not Assigned(FProvider) then
     raise EACBrNFSeException.Create(ERR_SEM_PROVEDOR);
 
-  Result := FProvider.LerXML(AXml, FNFSe, TipoXml, XmlTratado);
+  Result := FProvider.LerXML(AXML, FNFSe, TipoXml, XmlTratado);
 
   if TipoXml = txmlNFSe then
     FXmlNfse := XmlTratado
@@ -593,19 +593,33 @@ end;
 
 function TNotaFiscal.GravarXML(const NomeArquivo: String;
   const PathArquivo: String; aTipo: TtpXML): Boolean;
+var
+  ConteudoEhXml: Boolean;
 begin
   if EstaVazio(FXmlRps) then
     GerarXML;
 
+  {
+    Tem provedor que é gerando um JSON em vez de XML e o método Gravar acaba
+    incluindo na primeira linha do arquivo o encoding do XML.
+    Para contornar isso a variável ConteudoEhXml recebe o valor false quando é
+    um JSON e o método Gravar não inclui o encoding.
+  }
+  ConteudoEhXml := StringIsXML(FXmlRps);
+
   if aTipo = txmlNFSe then
   begin
-    FNomeArq := TACBrNFSeX(FACBrNFSe).GetNumID(NFSe) + '-nfse.xml';
-    Result := TACBrNFSeX(FACBrNFSe).Gravar(FNomeArq, FXmlNfse, PathArquivo);
+    if EstaVazio(NomeArquivo) then
+      FNomeArq := TACBrNFSeX(FACBrNFSe).GetNumID(NFSe) + '-nfse.xml'
+    else
+      FNomeArq := NomeArquivo + '-nfse.xml';
+
+    Result := TACBrNFSeX(FACBrNFSe).Gravar(FNomeArq, FXmlNfse, PathArquivo, ConteudoEhXml);
   end
   else
   begin
     FNomeArqRps := CalcularNomeArquivoCompleto(NomeArquivo, PathArquivo);
-    Result := TACBrNFSeX(FACBrNFSe).Gravar(FNomeArqRps, FXmlRps);
+    Result := TACBrNFSeX(FACBrNFSe).Gravar(FNomeArqRps, FXmlRps, '', ConteudoEhXml);
   end;
 end;
 
@@ -613,6 +627,9 @@ function TNotaFiscal.GravarStream(AStream: TStream): Boolean;
 begin
   if EstaVazio(FXmlRps) then
     GerarXML;
+
+  if EstaVazio(FXmlNfse) then
+    FXmlNfse := FXmlRps;
 
   AStream.Size := 0;
   WriteStrToStream(AStream, AnsiString(FXmlNfse));
@@ -863,24 +880,22 @@ end;
 function TNotasFiscais.LoadFromFile(const CaminhoArquivo: String;
   AGerarNFSe: Boolean = True): Boolean;
 var
-  XMLStr: String;
-  XMLUTF8: AnsiString;
+  XmlUTF8: AnsiString;
   i, l: integer;
   MS: TMemoryStream;
 begin
   MS := TMemoryStream.Create;
   try
     MS.LoadFromFile(CaminhoArquivo);
-    XMLUTF8 := ReadStrFromStream(MS, MS.Size);
+
+    XmlUTF8 := ReadStrFromStream(MS, MS.Size);
   finally
     MS.Free;
   end;
 
   l := Self.Count; // Indice da última nota já existente
 
-  // Converte de UTF8 para a String nativa da IDE //
-  XMLStr := DecodeToString(XMLUTF8, True);
-  Result := LoadFromString(XMLStr, AGerarNFSe);
+  Result := LoadFromString(XmlUTF8, AGerarNFSe);
 
   if Result then
   begin
@@ -912,6 +927,8 @@ var
   P, N, TamTag, j: Integer;
   aXml, aXmlLote: string;
   TagF: Array[1..14] of String;
+  SL: TStringStream;
+  IsFile: Boolean;
 
   function PrimeiraNFSe: Integer;
   begin
@@ -973,7 +990,17 @@ var
 begin
   MS := TMemoryStream.Create;
   try
-    MS.LoadFromFile(CaminhoArquivo);
+    IsFile := FilesExists(CaminhoArquivo);
+
+    if (IsFile) then
+      MS.LoadFromFile(CaminhoArquivo)
+    else
+    begin
+      SL := TStringStream.Create(CaminhoArquivo);
+      MS.LoadFromStream(SL);
+      SL.Free;
+    end;
+
     XMLUTF8 := ReadStrFromStream(MS, MS.Size);
   finally
     MS.Free;
@@ -1009,7 +1036,12 @@ begin
       if Pos('-rps.xml', CaminhoArquivo) > 0 then
         Self.Items[i].NomeArqRps := CaminhoArquivo
       else
-        Self.Items[i].NomeArq := CaminhoArquivo;
+      begin
+        if IsFile then
+          Self.Items[i].NomeArq := CaminhoArquivo
+        else
+          Self.Items[i].NomeArq := TACBrNFSeX(FACBrNFSe).GetNumID(Items[i].NFSe) + '-nfse.xml';
+      end;
     end;
   end;
 end;

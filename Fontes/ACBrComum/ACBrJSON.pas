@@ -54,6 +54,7 @@ type
     function GetAsSplitResult(const AName: string): TSplitResult;
     function IsNull(const AName: string): Boolean; overload;
     function IsNull(const AValue: TACBrJSONValue): Boolean; overload;
+    function GetAsDateTimeBr(const AName: string): TDateTime;
   public
     function AddPair(const AName: string; const AValue: Boolean): TACBrJSONObject; overload;
     function AddPair(const AName, AValue: string; AddEmpty: Boolean = True): TACBrJSONObject; overload;
@@ -88,11 +89,13 @@ type
     property AsInt64[const AName: string]: Int64 read GetAsInt64;
     property AsISODateTime[const AName: string]: TDateTime read GetAsISODateTime;
     property AsISODate[const AName: string]: TDateTime read GetAsISODate;
+    property AsDateTimeBr[const AName: string]: TDateTime read GetAsDateTimeBr;
     property AsISOTime[const AName: string]: TDateTime read GetAsISOTime;
     property AsString[const AName: string]: string read GetAsString;
     property AsSplit[const AName: string]: TSplitResult read GetAsSplitResult;
     property AsJSONObject[const AName: string]: TACBrJSONObject read GetAsJSONObject;
     property AsJSONArray[const AName: string]: TACBrJSONArray read GetAsJSONArray;
+    property AsValue[const AName: string]: TACBrJSONValue read GetAsValue;
 
     function ToJSON: string; override;
     class function Parse(const AJSONString: string): TACBrJSONObject;
@@ -417,6 +420,16 @@ begin
     Result := EncodeDataHora(LStrValue, 'yyyy-MM-dd');
 end;
 
+function TACBrJSONObject.GetAsDateTimeBr(const AName: string): TDateTime;
+var
+  LStrValue: string;
+begin
+  Result := 0;
+  LStrValue := GetAsString(AName);
+  if LStrValue <> '' then
+    Result := EncodeDataHora(LStrValue, 'DD-MM-YYYY');
+end;
+
 function TACBrJSONObject.GetAsISODateTime(const AName: string): TDateTime;
 var
   LStrValue: string;
@@ -585,6 +598,7 @@ end;
 
 class function TACBrJSONObject.CreateJsonObject(const AJsonString: string): TJsonObject;
 begin
+  Result := nil;
   try
   {$IfDef USE_JSONDATAOBJECTS_UNIT}
     JsonSerializationConfig.NullConvertsToValueTypes := True;

@@ -57,7 +57,8 @@ uses
   {$IfEnd}
   ACBrBase, pcnAuxiliar, pcnConversao, pcnLeitor,
   pcesCommon, pcesRetornoClass, pcesConversaoeSocial,
-  pcesS5001, pcesS5002, pcesS5011, pcesS5012, pcesS5003, pcesS5013;
+  pcesS5001, pcesS5002, pcesS5011, pcesS5012, pcesS5003, 
+  pcesS5013, pcesS5501;
 
 type
   TtotCollectionItem = class;
@@ -484,7 +485,7 @@ begin
           begin
             RetEventos.Items[i].tot.New;
             RetEventos.Items[i].tot.Items[j].tipo := FLeitor.rAtributo('tipo=', 'tot');
-            RetEventos.Items[i].tot.Items[j].XML := RetornarConteudoEntre(Leitor.Grupo, '>', '</tot');
+            RetEventos.Items[i].tot.Items[j].XML := RetornarConteudoEntre(Leitor.Grupo, '>', '</tot>');
 
             if RetEventos.Items[i].tot.Items[j].tipo = 'S5001' then
             begin
@@ -519,6 +520,12 @@ begin
             if RetEventos.Items[i].tot.Items[j].tipo = 'S5013' then
             begin
               RetEventos.Items[i].tot.Items[j].Evento := TS5013.Create;
+              RetEventos.Items[i].tot.Items[j].Evento.Xml := RetEventos.Items[i].tot.Items[j].XML;
+            end;
+
+            if RetEventos.Items[i].tot.Items[j].tipo = 'S5501' then
+            begin
+              RetEventos.Items[i].tot.Items[j].Evento := TS5501.Create;
               RetEventos.Items[i].tot.Items[j].Evento.Xml := RetEventos.Items[i].tot.Items[j].XML;
             end;
 

@@ -356,8 +356,22 @@ ResourceString
 implementation
 
 uses
-  ACBrBoletoW_Caixa, ACBrBoletoRet_Caixa, ACBrBoletoW_BancoBrasil, ACBrBoletoRet_BancoBrasil, ACBrBoletoW_BancoBrasil_API, ACBrBoletoRet_BancoBrasil_API, ACBrBoletoW_Itau, ACBrBoletoRet_Itau,
-  ACBrBoletoW_Credisis, ACBrBoletoRet_Credisis, ACBrBoletoW_Sicredi_API, ACBrBoletoRet_Sicredi_API, ACBrBoletoW_PenseBank_API, ACBrBoletoRet_PenseBank_API;
+  ACBrBoletoW_Caixa,
+  ACBrBoletoRet_Caixa,
+  ACBrBoletoW_BancoBrasil,
+  ACBrBoletoRet_BancoBrasil,
+  ACBrBoletoW_BancoBrasil_API,
+  ACBrBoletoRet_BancoBrasil_API,
+  ACBrBoletoW_Itau,
+  ACBrBoletoRet_Itau,
+  ACBrBoletoW_Credisis,
+  ACBrBoletoRet_Credisis,
+  ACBrBoletoW_Sicredi_API,
+  ACBrBoletoRet_Sicredi_API,
+  ACBrBoletoW_PenseBank_API,
+  ACBrBoletoRet_PenseBank_API,
+  ACBrBoletoW_Santander,
+  ACBrBoletoRet_Santander;
 
 { TOAuth }
 
@@ -462,9 +476,12 @@ begin
           end;
 
         end
-        else
-          FErroComunicacao := 'HTTP_Code='+ IntToStr(FSSL.HTTPResultCode)
-                             + ' Erro='+ AJson.S['error_description'];
+        else begin
+          FErroComunicacao := 'HTTP_Code='+ IntToStr(FSSL.HTTPResultCode);
+          if Assigned(AJson) then
+            FErroComunicacao := FErroComunicacao +
+                              ' Erro='+ AJson.S['error_description'];
+        end;
 
       finally
         AJSon.Free;
@@ -783,7 +800,6 @@ begin
     Result:= LerRetorno(ACBrBoleto.ListadeBoletos[AIndex].RetornoWeb)
   else
     Result:= LerListaRetorno;
-
 end;
 
 { TBoletoWSSOAP }
@@ -1084,6 +1100,11 @@ begin
       begin
         FBoletoWSClass := TBoletoW_PenseBank_API.Create(Self);
         FRetornoBanco  := TRetornoEnvio_PenseBank_API.Create(FBoleto);
+      end;
+    cobSantander :
+      begin
+        FBoletoWSClass := TBoletoW_Santander.Create(Self);
+        FRetornoBanco  := TRetornoEnvio_Santander.Create(FBoleto);
       end;
 
   else

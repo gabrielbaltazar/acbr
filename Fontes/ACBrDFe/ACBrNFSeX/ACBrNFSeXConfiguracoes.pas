@@ -127,6 +127,8 @@ type
     FConsultaAposCancelar: Boolean;
     FEmitente: TEmitenteConfNFSe;
     FMontarPathSchema: Boolean;
+    FLayout: TLayout;
+    FLayoutNFSe: TLayoutNFSe;
 
     procedure SetCodigoMunicipio(const Value: Integer);
   public
@@ -152,6 +154,8 @@ type
     property Emitente: TEmitenteConfNFSe read FEmitente write FEmitente;
     property MontarPathSchema: Boolean read FMontarPathSchema
       write FMontarPathSchema default True;
+    property Layout: TLayout read FLayout;
+    property LayoutNFSe: TLayoutNFSe read FLayoutNFSe write FLayoutNFSe default lnfsProvedor;
   end;
 
   { TArquivosConfNFSe }
@@ -225,8 +229,8 @@ type
 implementation
 
 uses
-  ACBrUtil.FilesIO,
-  ACBrNFSeX;
+  ACBrUtil.FilesIO, ACBrUtil.Strings,
+  ACBrNFSeX, ACBrDFeException;
 
 { TEmitenteConfNFSe }
 
@@ -324,6 +328,7 @@ begin
   FConsultaLoteAposEnvio := True;
   FConsultaAposCancelar := True;
   FMontarPathSchema := True;
+  FLayoutNFSe := lnfsProvedor;
 end;
 
 destructor TGeralConfNFSe.Destroy;
@@ -343,6 +348,7 @@ begin
   AIni.WriteBool(fpConfiguracoes.SessaoIni, 'ConsultaLoteAposEnvio', ConsultaLoteAposEnvio);
   AIni.WriteBool(fpConfiguracoes.SessaoIni, 'ConsultaAposCancelar', ConsultaAposCancelar);
   AIni.WriteBool(fpConfiguracoes.SessaoIni, 'MontarPathSchema', MontarPathSchema);
+  AIni.WriteInteger(fpConfiguracoes.SessaoIni, 'LayoutNFSe', Integer(LayoutNFSe));
 
   // Emitente
   with Emitente do
@@ -383,6 +389,7 @@ begin
   ConsultaLoteAposEnvio := AIni.ReadBool(fpConfiguracoes.SessaoIni, 'ConsultaLoteAposEnvio', ConsultaLoteAposEnvio);
   ConsultaAposCancelar := AIni.ReadBool(fpConfiguracoes.SessaoIni, 'ConsultaAposCancelar', ConsultaAposCancelar);
   MontarPathSchema := AIni.ReadBool(fpConfiguracoes.SessaoIni, 'MontarPathSchema', MontarPathSchema);
+  LayoutNFSe := TLayoutNFSe(AIni.ReadInteger(fpConfiguracoes.SessaoIni, 'LayoutNFSe', Integer(LayoutNFSe)));
 
   // Emitente
   with Emitente do
@@ -419,6 +426,11 @@ var
   Ok: Boolean;
   CodIBGE: string;
 begin
+  // Carrega automaticamente o arquivo ACBrNFSeXServicos se necessário.
+  if Assigned(fpConfiguracoes.Owner) then
+    if not (csDesigning in fpConfiguracoes.Owner.ComponentState) then
+      TACBrNFSeX(fpConfiguracoes.Owner).LerCidades;
+
   // ===========================================================================
   // Verifica se o código IBGE consta no arquivo: ACBrNFSeXServicos
   // se encontrar carrega os parâmetros definidos.
@@ -427,19 +439,32 @@ begin
 
   FPIniParams.SetStrings(fpConfiguracoes.WebServices.Params);
 
+  FxMunicipio := FPIniParams.ReadString(CodIBGE, 'Nome', '');
+  FxUF := FPIniParams.ReadString(CodIBGE, 'UF'  , '');
   FxProvedor := FPIniParams.ReadString(CodIBGE, 'Provedor', '');
-  FVersao := StrToVersaoNFSe(Ok, FPIniParams.ReadString(CodIBGE, 'Versao', ''));
+  FVersao := StrToVersaoNFSe(Ok, FPIniParams.ReadString(CodIBGE, 'Versao', '1.00'));
+
+  if (FxMunicipio <> '') and (FxProvedor = '') and (FLayoutNFSe = lnfsProvedor) then
+    raise EACBrDFeException.Create('Município [' + FxMunicipio +
+            '] não está associado a nenhum Provedor.');
 
   FProvedor := StrToProvedor(FxProvedor);
+
+  if FLayoutNFSe = lnfsPadraoNacionalv1 then
+  begin
+    FxProvedor := 'PadraoNacional';
+    FVersao := ve100;
+    FProvedor := proPadraoNacional;
+  end;
+
+  if FProvedor = proNenhum then
+    raise EACBrDFeException.Create('Código do Município [' + CodIBGE +
+            '] não Encontrado.');
 
   if Assigned(fpConfiguracoes.Owner) then
     TACBrNFSeX(fpConfiguracoes.Owner).SetProvider;
 
-  if FProvedor = proNenhum then
-    raise Exception.Create('Código do Municipio [' + CodIBGE + '] não Encontrado.');
-
-  FxMunicipio := FPIniParams.ReadString(CodIBGE, 'Nome', '');
-  FxUF := FPIniParams.ReadString(CodIBGE, 'UF'  , '');
+  FLayout := TACBrNFSeX(TConfiguracoesNFSe(Owner).Owner).Provider.ConfigGeral.Layout;
 end;
 
 procedure TGeralConfNFSe.Assign(DeGeralConfNFSe: TGeralConfNFSe);

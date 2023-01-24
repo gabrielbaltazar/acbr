@@ -47,6 +47,89 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+10/01/2023
+-- ACBrPIXCD --
+[+] Inclusão da property Scopes para definir quais os escopos serão enviados na Autenticação dos PSPs
+
+-- ACBrPIXPSPBancoDoBrasil, ACBrPIXPSPPagSeguro, ACBrPIXPSPSicoob, ACBrPIXPSPSicredi --
+[*] Alteração para utilizar a nova property Scopes para enviar os escopos na Autenticação
+
+06/01/2023
+-- ACBrPIXPSPGerenciaNet --
+[*] Exclusão de prcedure desnecessária
+
+-- ACBrPIXPSPBradesco, ACBrPIXCD --
+[+] Inclusão do novo PSP Bradesco
+    Por: Elias César
+
+02/01/2023
+-- ACBrPIXCD --
+[+] Incluídas na classe TACBrPSPCertificate as propriedades relacionadas ao certificado PFX, 
+    para que os PSPs que utilizam esse tipo de certificado também possam herdar dela.
+
+-- ACBrPIXPSPGerenciaNet --
+[*]	Alteração para o PSP GerenciaNET herdar da classe TACBrPSPCertificate
+
+-- ACBrPIXPSPSantander --
+[*] Alteração para o PSP Santander herdar da classe TACBrPSPCertificate
+    Por: Elias César
+
+30/12/2022
+-- ACBrPIXSchemasCob --
+[*] Ajuste para não gravar CobValor.modalidadeAlteracao, se o valor for Falso,
+    pois o campo é opcional, e se não existente é considerado Falso
+    por: DSA e djinfope
+
+23/12/2022
+-- ACBrPIXPSPGerenciaNet -- 
+[+] Inclusão do novo PSP GerenciaNet
+    Por: djinfope
+
+14/12/2022
+-- ACBrPSP --
+[*] Alteração para limpar também as propriedades User e Password do em LimparHTTP
+
+-- ACBrPIXPSPPagSeguro --
+[*] Correção de problema ao Simular pagamento após efetuar a criação de cobrança
+    As propriedades de certificado continuavam preenchidas.
+    Por: Elias César
+
+14/12/2022
+-- ACBrPIXPSPSicoob --
+[*] Alteração para PSP Sicoob herdar da classe TACBrPSPCertificate.
+    por: Elias César
+
+14/12/2022
+-- ACBrPIXPSPSicredi --
+[*] Alteração do path da url API Pix do Sicredi
+[+] Inclusão dos scopes para cobranças com venscimento
+    Por: RUSSOCORP
+
+05/12/2022
+-- ACBrPIXBRCode --
+[-] Correção na geração de QRCode Dinâmico, em "PointOfInformationMethod"
+    http://www.projetoacbr.com.br/forum/index.php?showtopic=69974
+    (por: marcosvillatore)
+
+24/11/2022
+-- ACBrPIXUtil --
+[-] Correção de problema ao criar cobranças quando o caractere para decimal do 
+    Sistema Operacional é '.'(ponto)
+    Por: Elias César
+
+23/11/2022
+-- ACBrPIXPSPSantander --
+[-] Correção do endpoint /cob que não possui método POST no Santander
+    Por: Elias César
+
+21/11/2022
+-- ACBrPIXCDReg, ACBrPIXCD.dpk, ACBrPIXCD.lpk --
+[+] Inclusão de novo PSP PagSeguro
+
+-- ACBrPIXCD.dcr, ACBrPIXCD.lrs --
+[+] Inclusão de resources do ícone para o novo PSP PagSeguro
+    Por: Elias César
+
 27/10/2022
 -- ACBrPIXSchemasCob --
 [*] Correção de problema ocorrido com PSP Siccob quando há retorno de tag com valor Null

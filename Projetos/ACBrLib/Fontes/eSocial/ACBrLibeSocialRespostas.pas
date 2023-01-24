@@ -283,7 +283,7 @@ type
     constructor Create(const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
     destructor Destroy; override;
 
-    procedure Processar(const ACBreSocial: TACBreSocial); override;
+    procedure Processar(const ACBreSocial: TACBreSocial);
 
   published
     property TpInscEmpreg: String read FTpInscEmpreg write FTpInscEmpreg;
@@ -463,7 +463,7 @@ var
   ItemCons : TConsultaResposta;
   ItemOcor : TOcorrenciaConsultaLote;
 begin
-  with ACBreSocial.WebServices.ConsultaLote.RetConsultaLote  do
+  with ACBreSocial.WebServices.ConsultaLote.RetConsultaLote do
   begin
     Codigo       := Status.cdResposta;
     Mensagem     := Status.descResposta;
@@ -636,7 +636,7 @@ var
   Item : TOcorrenciaConsulta;
   ItemTot : TConsultaTotResposta;
 begin
-  with ACBreSocial.WebServices.ConsultaLote.RetConsultaLote.retEventos.Items[ACont] do
+  with ACBreSocial.WebServices.ConsultaLote.RetConsultaLote.RetEventos.Items[ACont] do
   begin
     cdResposta      := Processamento.cdResposta;
     descResposta    := Processamento.descResposta;

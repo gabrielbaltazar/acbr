@@ -63,6 +63,8 @@ type
     procedure CarregaServicos(ANFSe: TNFSe);
     procedure CarregaTomador(ANFSe: TNFSe);
     procedure CarregaTransortadora(ANFSe: TNFSe);
+    procedure CarregaCondicaoPagamento(ANFSe: TNFSe);
+    procedure CarregaCondicaoPagamentoParcelas(ANFSe: TNFSe);
     procedure CarregaLogoPrefeitura;
     procedure CarregaImagemPrestadora;
 
@@ -85,6 +87,8 @@ type
     cdsTomador: TClientDataSet;
     cdsTransportadora: TClientDataSet;
     cdsItensServico: TClientDataSet;
+    cdsCondicaoPagamento: TClientDataSet;
+    cdsCondicaoPagamentoParcelas : TClientDataSet;
 
     // FrxDBs
     frxIdentificacao: TfrxDBDataset;
@@ -94,6 +98,11 @@ type
     frxServicos: TfrxDBDataset;
     frxParametros: TfrxDBDataset;
     frxItensServico: TfrxDBDataset;
+    frxCondicaoPagamento: TfrxDBDataset;
+    frxCondicaoPagamentoParcelas: TfrxDBDataset;
+
+		FIncorporarFontesPdf: Boolean;
+		FIncorporarBackgroundPdf:Boolean;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -104,6 +113,8 @@ type
   published
     property FastFile: String read FFastFile write FFastFile;
     property EspessuraBorda: Integer read FEspessuraBorda write FEspessuraBorda;
+		property IncorporarFontesPdf : boolean read FIncorporarFontesPdf write FIncorporarFontesPdf;
+		property IncorporarBackgroundPdf : boolean read FIncorporarBackgroundPdf write FIncorporarBackgroundPdf;
   end;
 
 implementation
@@ -121,6 +132,8 @@ begin
   FFastFile := '';
   FEspessuraBorda := 1;
   CriarDataSetsFrx;
+	FIncorporarFontesPdf := false;
+	FIncorporarBackgroundPdf := false;
 end;
 
 destructor TACBrNFSeXDANFSeFR.Destroy;
@@ -132,6 +145,8 @@ begin
   frxServicos.Free;
   frxParametros.Free;
   frxItensServico.Free;
+  frxCondicaoPagamento.Free;
+  frxCondicaoPagamentoParcelas.Free;
 
   cdsIdentificacao.Free;
   cdsPrestador.Free;
@@ -140,6 +155,8 @@ begin
   cdsTomador.Free;
   cdsTransportadora.Free;
   cdsItensServico.Free;
+  cdsCondicaoPagamento.Free;
+  cdsCondicaoPagamentoParcelas.Free;
 
   frxReport.Free;
   frxPDFExport.Free;
@@ -190,7 +207,8 @@ begin
     frxPDFExport.Creator := Sistema;
     frxPDFExport.Subject := TITULO_PDF;
     frxPDFExport.EmbeddedFonts := False;
-    frxPDFExport.Background := False;
+    frxPDFExport.Background := IncorporarBackgroundPdf;
+		frxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
 
     OldShowDialog := frxPDFExport.ShowDialog;
     try
@@ -247,6 +265,8 @@ begin
   frxReport.EnabledDataSets.Add(frxServicos);
   frxReport.EnabledDataSets.Add(frxParametros);
   frxReport.EnabledDataSets.Add(frxItensServico);
+  frxReport.EnabledDataSets.Add(frxCondicaoPagamento);
+  frxReport.EnabledDataSets.Add(frxCondicaoPagamentoParcelas);
 end;
 
 function TACBrNFSeXDANFSeFR.PrepareReport(ANFSe: TNFSe): Boolean;
@@ -465,6 +485,7 @@ begin
       Add('ExigibilidadeISS', ftString, 60);
       Add('CodigoMunicipio', ftString, 60);
       Add('MunicipioIncidencia', ftString, 60);
+      Add('MunicipioPrestacao', ftString, 60);
       Add('OutrasInformacoes', ftString, 1000);
       Add('InformacoesComplementares', ftString, 1000);
       Add('CodigoObra', ftString, 60);
@@ -485,6 +506,7 @@ begin
       Add('OptanteSimplesNacional', ftString, 30);
       Add('IncentivadorCultural', ftString, 10);
       Add('TipoRecolhimento', ftString, 15);
+      Add('id_sis_legado', ftInteger);
       //
       Add('ValorCredito', ftCurrency);
     end;
@@ -565,6 +587,38 @@ begin
     LogChanges := False;
   end;
 
+  cdsCondicaoPagamento := TClientDataSet.Create(nil);
+  with cdsCondicaoPagamento do
+  begin
+    Close;
+    with FieldDefs do
+    begin
+      Clear;
+
+      Add('Condicao', ftString, 30);
+      Add('Parcela', ftString, 10);
+    end;
+    CreateDataSet;
+    LogChanges := False;
+  end;
+
+  cdsCondicaoPagamentoParcelas := TClientDataSet.Create(nil);
+  with cdsCondicaoPagamentoParcelas do
+  begin
+    Close;
+    with FieldDefs do
+    begin
+      Clear;
+
+      Add('Condicao', ftString, 30);
+      Add('Parcela', ftString, 10);
+      Add('DataVencimento', ftString, 19);
+      Add('Valor', ftCurrency);
+    end;
+    CreateDataSet;
+    LogChanges := False;
+  end;
+
   frxIdentificacao := TfrxDBDataset.Create(Self);
   with frxIdentificacao do
   begin
@@ -587,6 +641,42 @@ begin
       Add('LinkNFSe=LinkNFSe');
     end;
     DataSet := cdsIdentificacao;
+    BCDToCurrency := False;
+  end;
+
+  frxCondicaoPagamento := TfrxDBDataset.Create(Self);
+  with frxCondicaoPagamento do
+  begin
+    UserName := 'CondicaoPagamento';
+    Enabled := False;
+    CloseDataSource := False;
+    OpenDataSource := False;
+    with FieldAliases do
+    begin
+      Clear;
+      Add('Condicao=Condicao');
+      Add('Parcela=Parcela');
+    end;
+    DataSet := cdsCondicaoPagamento;
+    BCDToCurrency := False;
+  end;
+
+  frxCondicaoPagamentoParcelas := TfrxDBDataset.Create(Self);
+  with frxCondicaoPagamentoParcelas do
+  begin
+    UserName := 'CondicaoPagamentoParcelas';
+    Enabled := False;
+    CloseDataSource := False;
+    OpenDataSource := False;
+    with FieldAliases do
+    begin
+      Clear;
+      Add('Condicao=Condicao');
+      Add('Parcela=Parcela');
+      Add('DataVencimento=DataVencimento');
+      Add('Valor=Valor');
+    end;
+    DataSet := cdsCondicaoPagamentoParcelas;
     BCDToCurrency := False;
   end;
 
@@ -741,6 +831,7 @@ begin
         Add('ExigibilidadeISS=ExigibilidadeISS');
         Add('CodigoMunicipio=CodigoMunicipio');
         Add('MunicipioIncidencia=MunicipioIncidencia');
+        Add('MunicipioPrestacao=MunicipioPrestacao');
         Add('OutrasInformacoes=OutrasInformacoes');
         Add('InformacoesComplementares=InformacoesComplementares');
         Add('CodigoObra=CodigoObra');
@@ -762,6 +853,7 @@ begin
         Add('NaturezaOperacao=NaturezaOperacao');
         Add('TipoRecolhimento=TipoRecolhimento');
         Add('ValorCredito=ValorCredito');
+        Add('id_sis_legado=id_sis_legado');
       end;
       DataSet := cdsParametros;
       BCDToCurrency := False;
@@ -794,6 +886,41 @@ begin
   end;
 end;
 
+procedure TACBrNFSeXDANFSeFR.CarregaCondicaoPagamento(ANFSe: TNFSe);
+begin
+  With cdsCondicaoPagamento do
+    begin
+      EmptyDataSet;
+      Append;
+      FieldByName('Condicao').AsString         := CondicaoToStr(ANFSe.CondicaoPagamento.Condicao);
+      FieldByName('Parcela').AsString          := IntToStr(ANFSe.CondicaoPagamento.QtdParcela);
+      Post;
+    end;
+
+end;
+
+procedure TACBrNFSeXDANFSeFR.CarregaCondicaoPagamentoParcelas(ANFSe: TNFSe);
+var
+  i : Integer;
+begin
+  With cdsCondicaoPagamentoParcelas do
+    begin
+      EmptyDataSet;
+
+      for i := 0 to Pred(ANFSe.CondicaoPagamento.Parcelas.Count) do
+        begin
+          Append;
+          FieldByName('Condicao').AsString         := CondicaoToStr(ANFSe.CondicaoPagamento.Parcelas[i].Condicao);
+          FieldByName('Parcela').AsString          := ANFSe.CondicaoPagamento.Parcelas[i].Parcela;
+          FieldByName('DataVencimento').AsString   := FormatDateBr(ANFSe.CondicaoPagamento.Parcelas[i].DataVencimento);
+          FieldByName('Valor').AsFloat             := ANFSe.CondicaoPagamento.Parcelas[i].Valor;
+        end;
+
+      if State in [dsInsert, dsEdit] then
+        Post;
+    end;
+end;
+
 procedure TACBrNFSeXDANFSeFR.CarregaDados(ANFSe: TNFSe);
 begin
   CarregaIdentificacao(ANFSe);
@@ -803,6 +930,8 @@ begin
   CarregaItensServico(ANFSe);
   CarregaParametros(ANFSe);
   CarregaTransortadora(ANFSe);
+  CarregaCondicaoPagamento(ANFSe);
+  CarregaCondicaoPagamentoParcelas(ANFSe);
 end;
 
 procedure TACBrNFSeXDANFSeFR.CarregaIdentificacao(ANFSe: TNFSe);
@@ -892,6 +1021,8 @@ begin
 
     with ANFSe do
     begin
+      FieldByName('id_sis_legado').AsInteger := id_sis_legado;
+
       FieldByName('OutrasInformacoes').AsString := OutrasInformacoes;
       FieldByName('NaturezaOperacao').AsString := FProvider.NaturezaOperacaoDescricao(NaturezaOperacao);
 
@@ -958,39 +1089,31 @@ begin
           FieldByName('ExigibilidadeISS').AsString := FProvider.ExigibilidadeISSDescricao(ExigibilidadeISS);
           FieldByName('TipoRecolhimento').AsString := TipoRecolhimento;
 
-          if Provedor = proAdm then
-          begin
-            FieldByName('CodigoMunicipio').AsString := CodigoMunicipio;
+          FieldByName('CodigoMunicipio').AsString := CodigoMunicipio;
 
-            try
-              xMunicipio := ObterNomeMunicipio(MunicipioIncidencia, xUF);
-            except
-              on E:Exception do
-              begin
-                xMunicipio := '';
-                xUF := '';
-              end;
+          try
+            xMunicipio := ObterNomeMunicipio(MunicipioIncidencia, xUF);
+          except
+            on E:Exception do
+            begin
+              xMunicipio := '';
+              xUF := '';
             end;
+          end;
 
-            FieldByName('MunicipioIncidencia').AsString := xMunicipio;
-          end
-          else
+          FieldByName('MunicipioIncidencia').AsString := xMunicipio;
+        end;
+
+        try
+          xMunicipio := ObterNomeMunicipio(strToIntDef(Servico.CodigoMunicipio,0), xUF);
+        except
+          on E:Exception do
           begin
-            FieldByName('CodigoMunicipio').AsString := CodigoMunicipio;
-
-            try
-              xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF);
-            except
-              on E:Exception do
-              begin
-                xMunicipio := '';
-                xUF := '';
-              end;
-            end;
-
-            FieldByName('MunicipioIncidencia').AsString := xMunicipio;
+            xMunicipio := '';
+            xUF := '';
           end;
         end;
+        FieldByName('MunicipioPrestacao').AsString := xMunicipio;
       end;
 
       with ConstrucaoCivil do

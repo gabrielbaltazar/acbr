@@ -378,7 +378,7 @@ function TACBrXmlNode.GetLocalName: string;
 Var
   AName: string;
 begin
-  AName := string(FXmlNode^.Name);;
+  AName := string(FXmlNode^.Name);
   Result := copy(AName, Pos(':', AName) + 1, Length(AName));
 end;
 
@@ -930,13 +930,20 @@ function TACBrXMLNodeList.FindAnyNs(const Name: string):TACBrXmlNode;
 Var
   i, ACount: integer;
   Node: TACBrXmlNode;
+  LocalName: string;
 begin
   Result := nil;
   ACount := Count - 1;
   for i := 0 to ACount do
   begin
     Node := Items[i];
-    if Node.LocalName <> Name then continue;
+    {$IfDef FPC}
+      LocalName := Node.LocalName;
+    {$Else}
+      LocalName := DecodeToString(Node.LocalName, True);
+    {$EndIf}
+
+    if LocalName <> Name then continue;
 
     Result := Node;
     Exit;

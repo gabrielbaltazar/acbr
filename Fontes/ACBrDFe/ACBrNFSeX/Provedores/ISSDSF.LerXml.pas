@@ -199,7 +199,6 @@ function TNFSeR_ISSDSF.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
 var
   aValor, xUF: string;
   Ok :Boolean;
-  CodigoIBGE: Integer;
 begin
   Result := True;
 
@@ -298,19 +297,10 @@ begin
         begin
           CodigoMunicipio := CodTOMToCodIBGE(aValor);
 
-          CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+          xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
 
-          try
-            xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
-          except
-            on E:Exception do
-            begin
-              xMunicipio := '';
-              xUF := '';
-            end;
-          end;
-
-          UF := xUF;
+          if UF = '' then
+            UF := xUF;
         end;
       end;
 
@@ -378,9 +368,8 @@ begin
   if aValor <> '' then
     NFSe.Intermediario.Identificacao.CpfCnpj := aValor;
 
-  aValor := ObterConteudo(ANode.Childrens.FindAnyNs('URLNotaFiscal'), tcStr);
-  if aValor <> '' then
-    NFSe.Link := aValor;
+  NFSe.Link := ObterConteudo(ANode.Childrens.FindAnyNs('URLNotaFiscal'), tcStr);
+  NFSe.Link := StringReplace(NFSe.Link, '&amp;', '&', [rfReplaceAll]);
 
   LerDeducoes(ANode);
   LerItens(ANode);
@@ -434,7 +423,6 @@ function TNFSeR_ISSDSF.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
 var
   aValor, xUF: string;
   Ok: Boolean;
-  CodigoIBGE: Integer;
 begin
   Result := True;
 
@@ -504,23 +492,12 @@ begin
         aValor := ObterConteudo(ANode.Childrens.FindAnyNs('CidadeTomador'), tcStr);
 
         if aValor <> '' then
-        begin
           CodigoMunicipio := CodTOMToCodIBGE(aValor);
 
-          CodigoIBGE := StrToIntDef(CodigoMunicipio, 0);
+        xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
 
-          try
-            xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
-          except
-            on E:Exception do
-            begin
-              xMunicipio := '';
-              xUF := '';
-            end;
-          end;
-
+        if UF = '' then
           UF := xUF;
-        end;
 
         CEP := ObterConteudo(ANode.Childrens.FindAnyNs('CEPTomador'), tcStr);
       end;

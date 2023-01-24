@@ -435,5 +435,4 @@ begin
   Result := VHTMLString;
 end;
 
-
 end.

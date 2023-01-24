@@ -74,6 +74,7 @@ type
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'ListaMensagemRetorno';
                                      const AMessageTag: string = 'MensagemRetorno'); override;
+
   end;
 
   TACBrNFSeXWebserviceDBSeller204 = class(TACBrNFSeXWebserviceSoap11)
@@ -109,13 +110,16 @@ type
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'ListaMensagemRetorno';
                                      const AMessageTag: string = 'MensagemRetorno'); override;
+
+    procedure GerarMsgDadosConsultaNFSeServicoPrestado(Response: TNFSeConsultaNFSeResponse;
+      Params: TNFSeParamsResponse); override;
   end;
 
 implementation
 
 uses
-  ACBrUtil.XMLHTML,
-  ACBrXmlBase, ACBrDFeException, ACBrNFSeX,
+  ACBrUtil.XMLHTML, ACBrUtil.Strings,
+  ACBrXmlBase, ACBrDFeException, ACBrNFSeX, ACBrNFSeXConfiguracoes,
   DBSeller.GravarXml, DBSeller.LerXml;
 
 { TACBrNFSeXWebserviceDBSeller }
@@ -219,7 +223,7 @@ function TACBrNFSeXWebserviceDBSeller.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
 end;
 
@@ -289,7 +293,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('CodigoErro'), tcStr);
-        AErro.Descricao := Mensagem;
+        AErro.Descricao := ACBrStr(Mensagem);
         AErro.Correcao := '';
       end;
     end;
@@ -322,7 +326,7 @@ begin
   Request := Request + '</e:RecepcionarLoteRps>';
 
   Result := Executar('', Request,
-                     ['return'], [Namespace]);
+                     ['return', 'EnviarLoteRpsResposta'], [Namespace]);
 end;
 
 function TACBrNFSeXWebserviceDBSeller204.RecepcionarSincrono(ACabecalho,
@@ -412,7 +416,8 @@ begin
   Request := Request + '</e:ConsultarNfseServicoPrestado>';
 
   Result := Executar('', Request,
-                     ['return'], [Namespace]);
+                     ['return', 'ConsultarNfseServicoPrestadoResposta'],
+                     [Namespace]);
 end;
 
 function TACBrNFSeXWebserviceDBSeller204.ConsultarNFSeServicoTomado(ACabecalho,
@@ -442,7 +447,8 @@ begin
   Request := Request + '</e:CancelarNfse>';
 
   Result := Executar('', Request,
-                     ['return', 'CancelarNfseResposta'], [Namespace]);
+                     ['return', 'CancelarNfseResposta'],
+                     [Namespace]);
 end;
 
 function TACBrNFSeXWebserviceDBSeller204.SubstituirNFSe(ACabecalho,
@@ -465,7 +471,7 @@ function TACBrNFSeXWebserviceDBSeller204.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, False);
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
 end;
@@ -550,13 +556,39 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('CodigoErro'), tcStr);
-        AErro.Descricao := Mensagem;
+        AErro.Descricao := ACBrStr(Mensagem);
         AErro.Correcao := '';
       end;
     end;
   end
   else
     inherited ProcessarMensagemErros(RootNode, Response, AListTag, AMessageTag);
+end;
+
+procedure TACBrNFSeProviderDBSeller204.GerarMsgDadosConsultaNFSeServicoPrestado(
+  Response: TNFSeConsultaNFSeResponse; Params: TNFSeParamsResponse);
+var
+  Emitente: TEmitenteConfNFSe;
+  Prestador: string;
+begin
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  with Params do
+  begin
+    Prestador :='<' + Prefixo + 'Prestador>' +
+                  '<' + Prefixo2 + 'CpfCnpj>' +
+                    GetCpfCnpj(Emitente.CNPJ, Prefixo2) +
+                  '</' + Prefixo2 + 'CpfCnpj>' +
+                  GetInscMunic(Emitente.InscMun, Prefixo2) +
+                '</' + Prefixo + 'Prestador>';
+
+    Response.ArquivoEnvio := '<' + Prefixo + 'ConsultarNfseServicoPrestadoEnvio' + NameSpace + '>' +
+                               '<ConsultarNfseEnvio>' +
+                                 Prestador +
+                                 Xml +
+                               '</ConsultarNfseEnvio>' +
+                             '</' + Prefixo + 'ConsultarNfseServicoPrestadoEnvio>';
+  end;
 end;
 
 end.
