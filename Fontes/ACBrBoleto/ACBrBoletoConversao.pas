@@ -66,7 +66,7 @@ type
   TACBrCarteiraEnvio = (tceCedente, tceBanco, tceBancoEmail);
 
   {Definir codigo Desconto }
-  TACBrCodigoDesconto    = (cdSemDesconto, cdValorFixo);
+  TACBrCodigoDesconto    = (cdSemDesconto, cdValorFixo, cdPercentual);
 
   {Definir codigo Juros }
   TACBrCodigoJuros       = (cjValorDia, cjTaxaMensal, cjIsento, cjValorMensal, cjTaxaDiaria);
@@ -78,7 +78,7 @@ type
   TACBrCodigoNegativacao = (cnNenhum, cnProtestarCorrido, cnProtestarUteis, cnNaoProtestar, cnNegativar, cnNaoNegativar, cnCancelamento);
 
   {Definir Tipo de Operação para Registro de Cobrança via WebService}
-  TOperacao = (tpInclui, tpAltera, tpBaixa, tpConsulta, tpConsultaDetalhe, tpPIXCriar, tpPIXCancelar, tpPIXConsultar, tpCancelar);
+  TOperacao = (tpInclui, tpAltera, tpBaixa, tpConsulta, tpConsultaDetalhe, tpPIXCriar, tpPIXCancelar, tpPIXConsultar, tpCancelar, tpTicket);
 
   {Definir Tipo de Pagamento Aceito para Registro de Cobrança via WebService }
   TTipo_Pagamento = (tpAceita_Qualquer_Valor, tpAceita_Valores_entre_Minimo_Maximo,
@@ -91,9 +91,12 @@ type
   TACBrIndicadorBoletoVencido     = (ibvNenhum,ibvNao,ibvSim);
 
   {Definir Metodo HTTP}
-  TMetodoHTTP = (htPOST, htGET, htPATCH, htPUT);
+  TMetodoHTTP = (htPOST, htGET, htPATCH, htPUT, htDELETE);
 
-
+  {Type Generico para passar parametros para Body e Header das requisicoes}
+  TParams = record
+    prName,PrValue:String;
+  end;
   function StrToTipoOperacao(out ok: Boolean; const s: String): TOperacao;
   function TipoOperacaoToStr(const t: TOperacao): String;
 
@@ -125,14 +128,16 @@ uses
 
 function StrToTipoOperacao(out ok: Boolean; const s: String): TOperacao;
 begin
-  Result := StrToEnumerado(ok, s, ['INCLUI_BOLETO', 'ALTERA_BOLETO','BAIXA_BOLETO','CONSULTA_BOLETO'],
-         [tpInclui, tpAltera, tpBaixa, tpConsulta]);
+  Result := StrToEnumerado(ok, s, ['INCLUI_BOLETO', 'ALTERA_BOLETO','BAIXA_BOLETO','CONSULTA_BOLETO','GERA_TICKET',
+                                   'CONSULTA_BOLETO_DETALHE','PIX_CRIAR', 'PIX_CANCELAR', 'PIX_CONSULTAR', 'CANCELAR_BOLETO'],
+         [tpInclui, tpAltera, tpBaixa, tpConsulta, tpTicket, tpConsultaDetalhe, tpPIXCriar, tpPIXCancelar, tpPIXConsultar, tpCancelar]);
 end;
 
 function TipoOperacaoToStr(const t: TOperacao): String;
 begin
-  Result := EnumeradoToStr(t, ['INCLUI_BOLETO', 'ALTERA_BOLETO', 'BAIXA_BOLETO', 'CONSULTA_BOLETO'],
-         [tpInclui, tpAltera, tpBaixa, tpConsulta]);
+  Result := EnumeradoToStr(t, ['INCLUI_BOLETO', 'ALTERA_BOLETO', 'BAIXA_BOLETO', 'CONSULTA_BOLETO','GERA_TICKET',
+                               'CONSULTA_BOLETO_DETALHE','PIX_CRIAR', 'PIX_CANCELAR', 'PIX_CONSULTAR', 'CANCELAR_BOLETO'],
+         [tpInclui, tpAltera, tpBaixa, tpConsulta, tpTicket, tpConsultaDetalhe, tpPIXCriar, tpPIXCancelar, tpPIXConsultar, tpCancelar]);
 end;
 
 function StrToTipoJuros(out ok: Boolean; const s: String): TACBrCodigoJuros;
@@ -197,14 +202,14 @@ end;
 
 function StrToMetodoHTTP(out ok: Boolean; const s: String): TMetodoHTTP;
 begin
-  Result := StrToEnumerado(ok, s, ['POST', 'GET', 'PATCH'],
-                                  [htPOST, htGET, htPATCH]);
+  Result := StrToEnumerado(ok, s, ['POST', 'GET', 'PATCH', 'PUT', 'DELETE'],
+                                  [htPOST, htGET, htPATCH, htPUT, htDELETE]);
 end;
 
 function MetodoHTTPToStr(const t: TMetodoHTTP): String;
 begin
-  Result := EnumeradoToStr(t, ['POST', 'GET', 'PATCH'],
-                              [htPOST, htGET, htPATCH]);
+  Result := EnumeradoToStr(t, ['POST', 'GET', 'PATCH', 'PUT', 'DELETE'],
+                              [htPOST, htGET, htPATCH, htPUT, htDELETE]);
 end;
 
 

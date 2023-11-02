@@ -48,7 +48,6 @@ type
 
   TNFSeR_ISSBarueri = class(TNFSeRClass)
   private
-    function StrToTipoTributacaoRPS(const ATributacaoRPS: String): TTipoTributacaoRPS;
     function StrToSituacaoTributaria(const AIssRetido: String): TnfseSituacaoTributaria;
     function StrToStatusNFSe(const ASituacao: String): TStatusNFSe;
 
@@ -96,20 +95,6 @@ uses
 
 { TNFSeR_ISSBarueri }
 
-function TNFSeR_ISSBarueri.StrToTipoTributacaoRPS(const ATributacaoRPS: String): TTipoTributacaoRPS;
-var
-  OK: Boolean;
-begin
-  Result := StrToEnumerado(OK, ATributacaoRPS,
-    ['1', '2', '3', '4'],
-    [ttTribnoMun,
-     ttTribforaMun,
-     ttTribnoMunIsento,
-     ttTribnoMunSuspensa
-    ]
-  );
-end;
-
 function TNFSeR_ISSBarueri.StrToSituacaoTributaria(const AIssRetido: String): TnfseSituacaoTributaria;
 begin
   Result := stNormal;
@@ -136,6 +121,10 @@ begin
   NFSe.Servico.Valores.Aliquota := ObterConteudo(AuxNode.Childrens.FindAnyNs('Aliquota'), tcDe2);
   NFSe.Servico.Valores.ValorIss := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorIss'), tcDe2);
   NFSe.Servico.Valores.ValorLiquidoNfse := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorLiquidoNfe'), tcDe2);
+
+  NFSe.Servico.Valores.ValorTotalNotaFiscal := NFSe.Servico.Valores.ValorServicos -
+                                               NFSe.Servico.Valores.DescontoCondicionado -
+                                               NFSe.Servico.Valores.DescontoIncondicionado;
 end;
 
 procedure TNFSeR_ISSBarueri.LerPrestadorServico(const ANode: TACBrXmlNode);
@@ -228,7 +217,11 @@ begin
 
   NFSe.Servico.CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoServico'), tcStr);
   NFSe.Servico.Descricao := ObterConteudo(AuxNode.Childrens.FindAnyNs('DescricaoServico'), tcStr);
+  NFSe.Servico.Descricao := StringReplace(NFSe.Servico.Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
   NFSe.Servico.Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('Discriminacao'), tcStr);
+  NFSe.Servico.Discriminacao := StringReplace(NFSe.Servico.Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
   NFSe.InformacoesComplementares := ObterConteudo(AuxNode.Childrens.FindAnyNs('ObservacaoLocalTributado'), tcStr);
 
   NFSe.Servico.Valores.IssRetido := FpAOwner.StrToSituacaoTributaria(OK, ObterConteudo(AuxNode.Childrens.FindAnyNs('IssRetido'), tcInt));
@@ -257,6 +250,12 @@ begin
   NFSe.Servico.Valores.ValorCsll := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorCsll'), tcDe2);
 
   NFSe.Servico.Valores.ValorTotalTributos := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValTotTributos'), tcDe2);
+
+   NFSe.Servico.Valores.RetencoesFederais := NFSe.Servico.Valores.ValorPis +
+                                             NFSe.Servico.Valores.ValorCofins +
+                                             NFSe.Servico.Valores.ValorInss +
+                                             NFSe.Servico.Valores.ValorIr +
+                                              NFSe.Servico.Valores.ValorCsll;
 
   //Item := NFSe.Servico.ItemServico.Add;
 
@@ -377,6 +376,8 @@ begin
 end;
 
 procedure TNFSeR_ISSBarueri.LerRegistroTipo2(const ALinha: String);
+var
+  Ok: Boolean;
 begin
   NFSe.Numero := Trim(Copy(ALinha, 7, 6));
 
@@ -391,7 +392,7 @@ begin
   NFSe.CodigoVerificacao := Trim(Copy(ALinha, 27, 24));
   NFSe.IdentificacaoRps.Serie := Trim(Copy(ALinha, 51, 4));
   NFSe.IdentificacaoRps.Numero := Trim(Copy(ALinha, 55, 10));
-  NFSe.TipoTributacaoRPS := Self.StrToTipoTributacaoRPS(Trim(Copy(ALinha, 65, 1)));
+  NFSe.TipoTributacaoRPS := FpAOwner.StrToTipoTributacaoRPS(Ok, Trim(Copy(ALinha, 65, 1)));
   NFSe.Servico.Valores.IssRetido := Self.StrToSituacaoTributaria(Trim(Copy(ALinha, 66, 1)));
   NFSe.SituacaoNfse := Self.StrToStatusNFSe(Trim(Copy(ALinha, 67, 1)));
 
@@ -422,10 +423,14 @@ begin
   Item := NFSe.Servico.ItemServico.New;
   Item.Quantidade := StrToFloatDef(Trim(Copy(ALinha, 2, 6)), 1.00);
   Item.Descricao := Trim(Copy(ALinha, 8, 60));
+  Item.Descricao := StringReplace(Item.Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
   Item.CodServ := Trim(Copy(ALinha, 68, 9));
   Item.ValorUnitario := StrToFloatDef(Trim(Copy(ALinha, 77, 15)), 0.00) / 100;
   //Item.ValorISS := StrToFloatDef(Trim(Copy(ALinha, 77, 15)), 0.00) / 100;
   Item.Aliquota := StrToFloatDef(Trim(Copy(ALinha, 92, 4)), 0.00) / 100;
+
+  Item.ValorTotal := Item.Quantidade * Item.ValorUnitario;
 
   NFSe.Servico.Descricao := Trim(Copy(ALinha, 8, 60));
   NFSe.Servico.CodigoMunicipio := Trim(Copy(ALinha, 68, 9));
@@ -487,8 +492,12 @@ var
   DadosTxt: TStringList;
   I: Integer;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo XML não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -583,6 +592,8 @@ begin
   LerDeclaracaoServicoPrestado(ANode);
   LerCartaCorrecao(ANode);
   LerCancelamentoNFe(ANode);
+
+  LerCampoLink;
 
   Result := True;
 end;

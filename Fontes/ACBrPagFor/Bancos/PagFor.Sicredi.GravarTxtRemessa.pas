@@ -109,7 +109,7 @@ begin
   GravarCampo(PagFor.Registro0.Arquivo.DataGeracao, 8, tcDat);
   GravarCampo(PagFor.Registro0.Arquivo.HoraGeracao, 6, tcHor);
   GravarCampo(PagFor.Registro0.Arquivo.Sequencia, 6, tcInt);
-  GravarCampo('084', 3, tcStr);
+  GravarCampo('082', 3, tcStr);
   GravarCampo(PagFor.Registro0.Arquivo.Densidade, 5, tcInt);
   GravarCampo(PagFor.Registro0.ReservadoBanco, 20, tcStr);
   GravarCampo(PagFor.Registro0.ReservadoEmpresa, 20, tcStr);
@@ -297,9 +297,19 @@ begin
         GravarCampo(' ', 1, tcStr);
         GravarCampo(TpInscricaoToStr(Inscricao.Tipo), 1, tcStr);
         GravarCampo(Inscricao.Numero, 14, tcStrZero);
-        GravarCampo(PixTXID, 30, tcStr);
-        GravarCampo(PixMensagem, 65, tcStr);
-        GravarCampo(PixChave, 99, tcStr);
+
+        if (PixTipoChave = tcpDadosBancarios) then
+        begin
+          GravarCampo(PixTXID, 35, tcStr);
+          GravarCampo(PixMensagem, 24, tcStr);
+          GravarCampo(PixChave, 135, tcStr);
+        end
+        else
+        begin
+          GravarCampo(PixTXID, 30, tcStr);
+          GravarCampo(PixMensagem, 65, tcStr);
+          GravarCampo(PixChave, 99, tcStr);
+        end;
       end
       else
       begin

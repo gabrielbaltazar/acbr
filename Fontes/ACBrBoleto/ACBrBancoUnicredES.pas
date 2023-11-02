@@ -65,13 +65,16 @@ type
     Procedure LerRetorno240(ARetorno:TStringList); override;
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
     function CodOcorrenciaToTipo(const CodOcorrencia: Integer ) : TACBrTipoOcorrencia; override;
-    function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String; Override;
+    function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String; Override;
     function CodOcorrenciaToTipoRemessa(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
     function CodMotivoRejeicaoToDescricao(const TipoOcorrencia : TACBrTipoOcorrencia ; CodMotivo : Integer) : String ; override;
     function CodComplementoMovimento(const ACodMotivo: String): String;
     function TipoOcorrenciaToCodRemessa(const ATipoOcorrencia: TACBrTipoOcorrencia): String; override;
     procedure DefineRejeicaoComplementoRetorno(const ALinha: String; out ATitulo : TACBrTitulo); override;
     function DefinerCnpjCPFRetorno240(const ALinha: String): String; override;         //Define retorno rCnpjCPF
+    procedure DefineCanalLiquidacaoRetorno240(const ALinha: String; out ATitulo : TACBrTitulo); override;
+    function CodigoLiquidacaoDescricao( CodLiquidacao : Integer) : String;
+
   end;
 
 implementation
@@ -122,7 +125,7 @@ begin
     sTipoSacado := DefineTipoSacado(ACBrTitulo);
 
     {Pegando campo Intruções}
-    sProtesto:= DefineCodigoProtesto(ACBrTitulo); //InstrucoesProtesto(ACBrTitulo);
+    sProtesto:= DefineTipoDiasProtesto(ACBrTitulo); //InstrucoesProtesto(ACBrTitulo);
     {Verifica o Tipo da Multa}
     if MultaValorFixo then
       CodigoMulta := cmValorFixo;
@@ -212,12 +215,14 @@ end;
 procedure TACBrBancoUnicredES.LerRetorno400(ARetorno: TStringList);
 var
   Titulo : TACBrTitulo;
-  ContLinha : Integer;
+  ContLinha, MotivoLinha, i : Integer;
   rAgencia    :String;
   rConta, rDigitoConta      :String;
   Linha, rCedente, rCNPJCPF :String;
   rCodEmpresa               :String;
   codInstrucao              :String;
+  LCodigoOrigem             : Integer;
+  LTipoOcorrencia           : TACBrTipoOcorrencia;
 begin
 
   if StrToIntDef(copy(ARetorno.Strings[0],77,3),-1) <> Numero then
@@ -292,15 +297,25 @@ begin
        begin
           SeuNumero                   := copy(Linha,280,26);
           NumeroDocumento             := copy(Linha,117,10);
-          OcorrenciaOriginal.Tipo     := CodOcorrenciaToTipo(StrToIntDef(
-                                         copy(Linha,109,2),0));
-
-          codInstrucao := copy(Linha,319,8);
-          MotivoRejeicaoComando.Add(codInstrucao);
-
-          DescricaoMotivoRejeicaoComando.Add(CodComplementoMovimento(codInstrucao));
-
-
+          LCodigoOrigem               := StrToIntDef(copy(Linha,327,2),0);
+          if LCodigoOrigem in [0,1] then
+          begin
+            LCodigoOrigem := StrToIntDef(copy(Linha,109,2),0);
+            LTipoOcorrencia := CodOcorrenciaToTipo(LCodigoOrigem);
+          end else
+            LTipoOcorrencia := CodOcorrenciaToTipoRemessa(LCodigoOrigem);
+          
+          OcorrenciaOriginal.Tipo     := LTipoOcorrencia;
+          
+          MotivoLinha := 319;
+          for i := 0 to 4 do
+          begin
+            codInstrucao := IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2));
+            MotivoRejeicaoComando.Add(codInstrucao);
+            if codInstrucao <> '00' then
+               DescricaoMotivoRejeicaoComando.Add(CodComplementoMovimento(codInstrucao));
+            MotivoLinha := MotivoLinha + 2;
+          end;
 
           if (StrToIntDef(Copy(Linha,111,6),0) > 0) then
             DataOcorrencia := StringToDateTimeDef( Copy(Linha,111,2)+'/'+
@@ -561,6 +576,28 @@ begin
   end;
 end;
 
+function TACBrBancoUnicredES.CodigoLiquidacaoDescricao(
+  CodLiquidacao: Integer): String;
+begin
+  case CodLiquidacao of
+    000 : result := '000 Sem informação relevante';
+    161 : result := '161 Internet Banking';
+    162 : result := '162 ATM';
+    163 : result := '163 Caixa';
+    164 : result := '164 Retaguarda';
+    165 : result := '165 Monitor de TED';
+    166 : result := '166 Compe';
+    167 : result := '167 DDA';
+    168 : result := '168 Banco Correspondente';
+    190 : result := '190 Lotérica';
+    234 : result := '234 Agendamento';
+    268 : result := '268 Mobile';
+    308 : result := '308 Cartório';
+    333 : result := '333 Pix';
+  end;
+
+end;
+
 function TACBrBancoUnicredES.CodJurosToStr(const pCodigoJuros: TACBrCodigoJuros;
   ValorMoraJuros: Currency): String;
 begin
@@ -577,6 +614,14 @@ begin
       result := '5';
     end;
   end;
+end;
+
+procedure TACBrBancoUnicredES.DefineCanalLiquidacaoRetorno240(
+  const ALinha: String; out ATitulo: TACBrTitulo);
+begin
+  ATitulo.CodigoLiquidacao := copy(ALinha, 108,3);
+  Atitulo.CodigoLiquidacaoDescricao := CodigoLiquidacaoDescricao(StrToIntDef(ATitulo.CodigoLiquidacao,0));
+  ATitulo.ValorOutrasDespesas := 0;
 end;
 
 function TACBrBancoUnicredES.DefineNumeroDocumentoModulo(
@@ -606,8 +651,8 @@ function TACBrBancoUnicredES.DefinerCnpjCPFRetorno240(
   const ALinha: String): String;
 begin
   case StrToIntDef(Copy(ALinha,18,1),0) of
-     1: result := Copy(ALinha,19,14);
-     2: result := Copy(ALinha,22,11);
+     1: result := Copy(ALinha,22,11);
+     2: result := Copy(ALinha,19,14);
   else
     result := Copy(ALinha,19,14);
   end;
@@ -822,23 +867,39 @@ var
   CodOcorrencia: Integer;
 begin
   Result        := EmptyStr;
-  CodOcorrencia := StrToIntDef(TipoOCorrenciaToCod(TipoOcorrencia),0);
-
+  CodOcorrencia := StrToIntDef(TipoOcorrenciaToCodRemessa(TipoOcorrencia),0);
   case CodOcorrencia of
-    01: Result := '01-Título Protestado Pago em Cartório';
-    02: Result := '02-Instrução Confirmada';
-    03: Result := '03-Instrução Rejeitada';
-    04: Result := '04-Título protestado sustado judicialmente';
-    06: Result := '06-Liquidação Normal';
-    07: Result := '07-Título Liquidado em Cartório Com Cheque do Próprio Devedor';
-    08: Result := '08-Título Protestado Sustado Judicialmente em Definitivo';
-    09: Result := '09-Liquidação de Título Descontado';
-    10: Result := '10-Protesto Solicitado';
-    11: Result := '11-Protesto em Cartório';
-    12: Result := '12-Sustação Solicitada';
-    13: Result := '13-Título Utilizado Como Garantia em Operação de Desconto';
-    14: Result := '14-Título Com Desistência de Garantia em Operação de Desconto';
+    02 : Result:= '02-Pedido de Baixa';
+    04 : Result:= '04-Concessão de Abatimento';
+    05 : Result:= '05-Cancelamento de Abatimento concedido';
+    06 : Result:= '06-Alteração de vencimento';
+    09 : Result:= '09-Pedido de protesto';
+    11 : Result:= '11-Sustar protesto e manter em carteira';
+    22 : Result:= '22-Alteração do seu número';
+    23 : Result:= '23-Alteração de dados do pagador';
+    25 : Result:= '25-Sustar protesto e baixar título';
+    26 : Result:= '26-Protesto automático';
+    40 : Result:= '40-Alteração de status desconto';
+  else
+    CodOcorrencia := StrToIntDef(TipoOcorrenciaToCod(TipoOcorrencia),0);
+    case CodOcorrencia of
+      01: Result := '01-Título Protestado Pago em Cartório';
+      02: Result := '02-Instrução Confirmada';
+      03: Result := '03-Instrução Rejeitada';
+      04: Result := '04-Título protestado sustado judicialmente';
+      06: Result := '06-Liquidação Normal';
+      07: Result := '07-Título Liquidado em Cartório Com Cheque do Próprio Devedor';
+      08: Result := '08-Título Protestado Sustado Judicialmente em Definitivo';
+      09: Result := '09-Liquidação de Título Descontado';
+      10: Result := '10-Protesto Solicitado';
+      11: Result := '11-Protesto em Cartório';
+      12: Result := '12-Sustação Solicitada';
+      13: Result := '13-Título Utilizado Como Garantia em Operação de Desconto';
+      14: Result := '14-Título Com Desistência de Garantia em Operação de Desconto';
+    end;
   end;
+
+
 
   Result := ACBrSTr(Result);
 end;
@@ -865,7 +926,7 @@ begin
   end;
 end;
 
-function TACBrBancoUnicredES.TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String;
+function TACBrBancoUnicredES.TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String;
 begin
   Result := '';
 

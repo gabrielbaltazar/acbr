@@ -1,9 +1,9 @@
 {==============================================================================|
-| Project : Ararat Synapse                                       | 007.007.000 |
+| Project : Ararat Synapse                                       | 007.007.001 |
 |==============================================================================|
 | Content: Serial port support                                                 |
 |==============================================================================|
-| Copyright (c)2001-2022, Lukas Gebauer                                        |
+| Copyright (c)2001-2023, Lukas Gebauer                                        |
 | All rights reserved.                                                         |
 |                                                                              |
 | Redistribution and use in source and binary forms, with or without           |
@@ -33,7 +33,7 @@
 | DAMAGE.                                                                      |
 |==============================================================================|
 | The Initial Developer of the Original Code is Lukas Gebauer (Czech Republic).|
-| Portions created by Lukas Gebauer are Copyright (c)2001-2021.                |
+| Portions created by Lukas Gebauer are Copyright (c)2001-2023.                |
 | All Rights Reserved.                                                         |
 |==============================================================================|
 | Contributor(s):                                                              |
@@ -294,6 +294,10 @@ const
   TIOCMSET = $5418;
   TIOCMGET = $5415;
   TCSBRK   = $5409;
+
+  TCSETS  = $5402;
+  TCSETSW = $5403;
+  TCSETSF = $5404;
 {$ENDIF}
 
 const
@@ -1007,15 +1011,23 @@ begin
       end;
   {$ENDIF}
 
-  {$IFNDEF FPC}
-    {$IFDEF POSIX}
-      FHandle := open(MarshaledAString(AnsiString(FDevice)), O_RDWR or O_SYNC);
+  try
+    {$IFNDEF FPC}
+      {$IFDEF POSIX}
+        FHandle := open(MarshaledAString(AnsiString(FDevice)), O_RDWR or O_SYNC);
+      {$ELSE}
+        FHandle := THandle(Libc.open(pchar(FDevice), O_RDWR or O_SYNC));
+      {$ENDIF}
     {$ELSE}
-      FHandle := THandle(Libc.open(pchar(FDevice), O_RDWR or O_SYNC));
+      FHandle := THandle(fpOpen(FDevice, O_RDWR or O_SYNC));
     {$ENDIF}
-  {$ELSE}
-    FHandle := THandle(fpOpen(FDevice, O_RDWR or O_SYNC));
-  {$ENDIF}
+  except
+    On ERangeError do
+      Fhandle := INVALID_HANDLE_VALUE;
+    On Exception do
+      raise;
+  end;
+
   if FHandle = INVALID_HANDLE_VALUE then  //because THandle is not integer on all platforms!
     SerialCheck(-1)
   else
@@ -1702,18 +1714,27 @@ begin
 end;
 {$ENDIF}
 
-{$IFNDEF MSWINDOWS}
+{$IfNDef MSWINDOWS}
 procedure TBlockSerial.SetCommState;
 begin
   DcbToTermios(dcb, termiosstruc);
-  {$IfDef POSIX}
-    ioctl(Fhandle, TCSANOW, PInteger(@TermiosStruc));
+  {$IfDeF ANDROID}
+    // TCSETS = TCSANOW
+    {$IfNDef FPC}
+      ioctl(Fhandle, TCSETS, PInteger(@TermiosStruc));
+    {$Else}
+      fpioctl(Fhandle, TCSETS, PInteger(@TermiosStruc));
+    {$EndIf}
   {$Else}
-    SerialCheck(tcsetattr(FHandle, TCSANOW, termiosstruc));
+    {$IfDef POSIX}
+      ioctl(Fhandle, TCSANOW, PInteger(@TermiosStruc));
+    {$Else}
+      SerialCheck(tcsetattr(FHandle, TCSANOW, termiosstruc));
+    {$EndIf}
   {$EndIf}
   ExceptCheck;
 end;
-{$ELSE}
+{$Else}
 procedure TBlockSerial.SetCommState;
 begin
   SetSynaError(sOK);
@@ -1721,7 +1742,7 @@ begin
     SerialCheck(sErr);
   ExceptCheck;
 end;
-{$ENDIF}
+{$EndIf}
 
 {$IFNDEF MSWINDOWS}
 procedure TBlockSerial.GetCommState;
@@ -2004,10 +2025,19 @@ begin
 end;
 
 procedure TBlockSerial.Flush;
+{$IFDEF ANDROID}
+var
+ Data: Integer;
+{$ENDIF}
 begin
 {$IFNDEF MSWINDOWS}
   {$IFDEF ANDROID}
-    ioctl(FHandle, TCSBRK, 1);
+    Data := 1;
+    {$IFNDEF FPC}
+      ioctl(FHandle, TCSBRK, @Data);
+    {$ELSE}
+      fpIoctl(FHandle, TCSBRK, @Data);
+    {$ENDIF}
   {$ELSE}
     SerialCheck(tcdrain(FHandle));
   {$ENDIF}

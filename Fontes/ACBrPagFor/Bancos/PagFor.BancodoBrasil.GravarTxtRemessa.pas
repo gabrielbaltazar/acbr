@@ -104,7 +104,7 @@ begin
   GravarCampo(126, 4, tcInt);
   GravarCampo(' ', 5, tcStr);
 
-  if PagFor.Registro0.ReservadoEmpresa = 'T' then
+  if PagFor.Registro0.RemessaTeste then
     GravarCampo('TS', 2, tcStr)
   else
     GravarCampo(' ', 2, tcStr);
@@ -161,7 +161,7 @@ begin
   GravarCampo(126, 4, tcInt);
   GravarCampo(' ', 5, tcStr);
 
-  if PagFor.Registro0.ReservadoEmpresa = 'T' then
+  if PagFor.Registro0.RemessaTeste then
     GravarCampo('TS', 2, tcStr)
   else
     GravarCampo(' ', 2, tcStr);
@@ -385,7 +385,7 @@ begin
       GravarCampo('3', 1, tcStr);
       GravarCampo(FSequencialDeLote, 5, tcInt);
       GravarCampo('J', 1, tcStr);
-      GravarCampo('0', 1, tcStr);
+      GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
       GravarCampo(CodigoBarras, 44, tcStr);
       GravarCampo(NomeCedente, 30, tcStr, True);
@@ -715,7 +715,7 @@ begin
       GravarCampo('3', 1, tcStr);
       GravarCampo(FSequencialDeLote, 5, tcInt);
       GravarCampo('O', 1, tcStr);
-      GravarCampo('0', 1, tcStr);
+      GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
       GravarCampo(CodigoBarras, 44, tcStr);
       GravarCampo(NomeConcessionaria, 30, tcStr, True);

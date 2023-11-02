@@ -38,6 +38,7 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
+  ACBrXmlDocument,
   ACBrNFSeXLerXml_ABRASFv1, ACBrUtil.Strings;
 
 type
@@ -45,7 +46,6 @@ type
 
   TNFSeR_BHISS = class(TNFSeR_ABRASFv1)
   protected
-
     function NormatizarXml(const aXml: string): string; override;
   public
 

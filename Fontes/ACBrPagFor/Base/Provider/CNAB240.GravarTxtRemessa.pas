@@ -216,8 +216,17 @@ begin
   GravarCampo(FmLancamentoToStr(PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento), 2, tcStr);
 
   case PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento of
+    {flCartaoSalario, flCreditoContaPoupanca, flCreditoContaCorrenteMesmaTitularidade,
+     flDocMesmaTitularidade, flPagamentoConcessionarias, flLiquidacaoTitulosProprioBanco,
+     flLiberacaoTitulosNotaFiscalEletronica, flLiquidacaoParcelasNaoRegistrada,
+     flFGTSGFIP, flExtratoContaCorrente, flTEDOutraTitularidade,
+     flTEDMesmaTitularidade, flTEDTransferencia, flDebitoContaCorrente,
+     flExtratoGestaoCaixa, flDepositoJudicialContaCorrente, flCartaoSalarioItau,
+     flDepositoJudicialPoupanca, flExtratoContaInvestimento, flPIXTransferencia,
+     flPIXQRCode, flNenhum}
+
     flCreditoContaCorrente, flChequePagamento, flDocTed, flOPDisposicao,
-    flPagamentoAutenticacao:
+    flPagamentoAutenticacao, flPagamentoContas:
       Versao := '046';
 
     flLiquidacaoTitulosOutrosBancos:
@@ -569,7 +578,7 @@ begin
     GravarCampo('3', 1, tcStr);
     GravarCampo(FSequencialDeLote, 5, tcInt);
     GravarCampo('N', 1, tcStr);
-    GravarCampo('0', 1, tcStr);
+    GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
     GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
     GravarCampo(SeuNumero, 20, tcStr);
     GravarCampo(NossoNumero, 20, tcStr);
@@ -877,7 +886,7 @@ begin
       GravarCampo('3', 1, tcStr);
       GravarCampo(FSequencialDeLote, 5, tcInt);
       GravarCampo('O', 1, tcStr);
-      GravarCampo('0', 1, tcStr);
+      GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
       GravarCampo(CodigoBarras, 44, tcStr);
       GravarCampo(NomeConcessionaria, 30, tcStr, True);

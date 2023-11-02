@@ -110,7 +110,7 @@ begin
   Result.AppendChild(AddNode(tcDatVcto, '#1', 'dataEmissao', 1, 21, 1,
                                                       NFSe.DataEmissaoRps, ''));
 
-  Result.AppendChild(AddNode(tcInt, '#1', 'im', 1, 11, 1,
+  Result.AppendChild(AddNode(tcStr, '#1', 'im', 1, 11, 1,
                  NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, ''));
 
   Result.AppendChild(AddNode(tcInt, '#1', 'numeroRps', 1, 11, 1,
@@ -170,7 +170,7 @@ begin
   Result.AppendChild(AddNode(tcStr, '#1', 'complemento', 1, 30, 0,
                                         NFSe.Tomador.Endereco.Complemento, ''));
 
-  Result.AppendChild(AddNode(tcInt64, '#1', 'documento', 1, 14, 1,
+  Result.AppendChild(AddNode(tcStr, '#1', 'documento', 1, 14, 1,
                     OnlyNumber(NFSe.Tomador.IdentificacaoTomador.CpfCnpj), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'email', 1, 14, 1,
@@ -231,7 +231,8 @@ begin
   Result.AppendChild(xmlNode);
 
   Result.AppendChild(AddNode(tcStr, '#1', 'obs', 1, 4000, 1,
-                                                   NFSe.OutrasInformacoes, ''));
+    StringReplace(NFSe.OutrasInformacoes, ';', FpAOwner.ConfigGeral.QuebradeLinha,
+                                                          [rfReplaceAll]), ''));
 
   Result.AppendChild(AddNode(tcDe2, '#1', 'pisPasep', 1, 15, 1,
                                             NFSe.Servico.Valores.ValorPis, ''));

@@ -84,6 +84,7 @@ begin
 
   NrOcorrAliquota := 1;
   NrOcorrCodigoPaisServico := 1;
+  NrOcorrDataPagamento := 0;
 end;
 
 { TNFSeW_fintelISS202 }

@@ -71,8 +71,12 @@ function TNFSeR_CTA200.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -106,6 +110,7 @@ begin
 
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
+  LerCampoLink;
 end;
 
 function TNFSeR_CTA200.LerXmlRps(const ANode: TACBrXmlNode): Boolean;

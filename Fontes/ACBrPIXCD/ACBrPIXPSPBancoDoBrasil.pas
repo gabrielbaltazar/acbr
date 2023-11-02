@@ -45,14 +45,17 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrPIXCD, ACBrBase, ACBrPIXSchemasProblema;
+  {$IFDEF RTL230_UP}ACBrBase,{$ENDIF RTL230_UP}
+  ACBrPIXCD, ACBrPIXSchemasProblema;
 
 const
   cBBParamDevAppKey = 'gw-dev-app-key';
   cBBParamAppKey = 'gw-app-key';
-  cBBURLSandbox = 'https://api.hm.bb.com.br';  // 'https://api.sandbox.bb.com.br';
-  cBBURLProducao = 'https://api.bb.com.br';
+  cBBURLSandbox = 'https://api.hm.bb.com.br';
+  cBBURLProducao = 'https://api.bb.com.br';  
+  cBBURLProducaoV2 = 'https://api-pix.bb.com.br';
   cBBPathAPIPix = '/pix/v1';
+  cBBPathAPIPixV2 = '/pix/v2';
   cBBURLAuthTeste = 'https://oauth.hm.bb.com.br/oauth/token';
   cBBURLAuthProducao = 'https://oauth.bb.com.br/oauth/token';
   cBBPathSandboxPagarPix = '/testes-portal-desenvolvedor/v1';
@@ -61,15 +64,21 @@ const
   cBBKeySandboxPagarPix = '95cad3f03fd9013a9d15005056825665';
   cBBEndPointCobHomologacao = '/cobqrcode';
 
+resourcestring
+  sErroCertificadoNaoInformado = 'Certificado e/ou Chave Privada não informados';
+
 type
+        
+  TACBrBBAPIVersao = (apiVersao1, apiVersao2);
 
   { TACBrPSPBancoDoBrasil }
   
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
   {$ENDIF RTL230_UP}
-  TACBrPSPBancoDoBrasil = class(TACBrPSP)
+  TACBrPSPBancoDoBrasil = class(TACBrPSPCertificate)
   private
+    fBBAPIVersao: TACBrBBAPIVersao;
     fDeveloperApplicationKey: String;
 
     procedure QuandoAcessarEndPoint(const AEndPoint: String;
@@ -94,8 +103,8 @@ type
     property ClientID;
     property ClientSecret;
 
-    property DeveloperApplicationKey: String read fDeveloperApplicationKey
-      write fDeveloperApplicationKey;
+    property BBAPIVersao: TACBrBBAPIVersao read fBBAPIVersao write fBBAPIVersao default apiVersao1;
+    property DeveloperApplicationKey: String read fDeveloperApplicationKey write fDeveloperApplicationKey;
   end;
 
 implementation
@@ -103,6 +112,7 @@ implementation
 uses
   synautil, synacode,
   ACBrUtil.Strings,
+  ACBrUtil.Base,
   ACBrJSON,
   ACBrPIXBase,
   DateUtils;
@@ -215,10 +225,20 @@ end;
 
 procedure TACBrPSPBancoDoBrasil.QuandoAcessarEndPoint(
   const AEndPoint: String; var AURL: String; var AMethod: String);
+var
+  wCertEmpty, wChaveEmpty, wPFXEmpty: Boolean;
 begin
-  // BB não tem: POST /cob - Mudando para /PUT com "txid" vazio
-  if (UpperCase(AMethod) = ChttpMethodPOST) then
+  // BB v1 não tem: POST /cob - Mudando para /PUT com "txid" vazio
+  if (BBAPIVersao = apiVersao1) and (UpperCase(AMethod) = ChttpMethodPOST) then
     AMethod := ChttpMethodPUT;
+
+  // Certificado é obrigatório em Produção na API BB versão 2
+  wPFXEmpty := EstaVazio(ArquivoPFX) and EstaVazio(PFX);
+  wCertEmpty := EstaVazio(ArquivoCertificado) and EstaVazio(Certificado);
+  wChaveEmpty := EstaVazio(ArquivoChavePrivada) and EstaVazio(ChavePrivada);
+  if (BBAPIVersao = apiVersao2) and (ACBrPixCD.Ambiente = ambProducao) and
+     (wCertEmpty or wChaveEmpty) and wPFXEmpty then
+    raise EACBrPixHttpException.Create(ACBrStr(sErroCertificadoNaoInformado));
 end;
 
 procedure TACBrPSPBancoDoBrasil.QuandoReceberRespostaEndPoint(const AEndPoint,
@@ -226,48 +246,58 @@ procedure TACBrPSPBancoDoBrasil.QuandoReceberRespostaEndPoint(const AEndPoint,
 begin
   // Banco do Brasil não possui consulta de cobranças por período
   if (UpperCase(AMethod) = ChttpMethodGET) and (AEndPoint = cEndPointCob) and (AResultCode <> HTTP_OK) and
-     (Pos('txid', LowerCase(AURL)) <= 0) then
+     (Pos('inicio', LowerCase(AURL)) > 0) then
     raise EACBrPixException.Create(ACBrStr(sErroEndpointNaoImplementado));
 
-  // Banco do Brasil, responde OK a esse EndPoint, de forma diferente da especificada
-  if (UpperCase(AMethod) = ChttpMethodPUT) and (AEndPoint = cEndPointCob) and (AResultCode = HTTP_OK) then
-  begin
+  if (AResultCode <> HTTP_OK) and (AResultCode <> HTTP_CREATED) then
+    Exit;
+
+  if (UpperCase(AMethod) = ChttpMethodPUT) and
+     ((AEndPoint = cEndPointCob) or (AEndPoint = cEndPointPix) or (AEndPoint = cEndPointCobV)) then
     AResultCode := HTTP_CREATED;
 
-    // Ajuste no Json de Resposta em Testes alterando textoImagemQRcode p/ pixCopiaECola - Icozeira
-    if (ACBrPixCD.Ambiente = ambTeste) then
-      RespostaHttp := StringReplace(RespostaHttp, 'textoImagemQRcode', 'pixCopiaECola', [rfReplaceAll]);
-  end;
+  if (ACBrPixCD.Ambiente = ambTeste) and (AEndPoint = cEndPointCob) then
+    RespostaHttp := StringReplace(RespostaHttp, 'textoImagemQRcode', 'pixCopiaECola', [rfReplaceAll]);
 
-  // Ajuste para o Método Patch do BB - Icozeira - 14/04/2022
-  if (UpperCase(AMethod) = ChttpMethodPATCH) and (AEndPoint = cEndPointCob) and (AResultCode = HTTP_CREATED) then
+  if (UpperCase(AMethod) = ChttpMethodPATCH) and (AEndPoint = cEndPointCob) then
     AResultCode := HTTP_OK;
 end;
 
 function TACBrPSPBancoDoBrasil.ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String;
 begin
   if (Ambiente = ambProducao) then
-    Result := cBBURLProducao
+  begin
+    if (BBAPIVersao = apiVersao1) then
+      Result := cBBURLProducao
+    else
+      Result := cBBURLProducaoV2;
+  end
   else
     Result := cBBURLSandbox;
 
-  Result := Result + cBBPathAPIPix;
+  if (BBAPIVersao = apiVersao2) then
+    Result := Result + cBBPathAPIPixV2
+  else
+    Result := Result + cBBPathAPIPix;
 end;
 
-function TACBrPSPBancoDoBrasil.CalcularEndPointPath(const aMethod,
-  aEndPoint: String): String;
+function TACBrPSPBancoDoBrasil.CalcularEndPointPath(const aMethod, aEndPoint: String): String;
 begin
   Result := Trim(aEndPoint);
 
-  // BB deve utilizar /cobqrcode em ambiente de homologação
-  if ((UpperCase(aMethod) = ChttpMethodPOST) or
-      (UpperCase(aMethod) = ChttpMethodPUT)) and
-      (aEndPoint = cEndPointCob) and (ACBrPixCD.Ambiente = ambTeste) then
-    Result := cBBEndPointCobHomologacao;
+  // Alterações devem ser feitas apenas na versão 1 da API do BB
+  if (BBAPIVersao = apiVersao1) then
+  begin
+    // BB v1 deve utilizar /cobqrcode em ambiente de homologação
+    if ((UpperCase(aMethod) = ChttpMethodPOST) or
+        (UpperCase(aMethod) = ChttpMethodPUT)) and
+        (aEndPoint = cEndPointCob) and (ACBrPixCD.Ambiente = ambTeste) then
+      Result := cBBEndPointCobHomologacao;
 
-  // BB utiliza delimitador antes dos parâmetros de query
-  if (aEndPoint = cEndPointCob) then
-    Result := URLComDelimitador(Result);
+    // BB utiliza delimitador antes dos parâmetros de query
+    if (aEndPoint = cEndPointCob) then
+      Result := URLComDelimitador(Result);
+  end;
 end;
 
 procedure TACBrPSPBancoDoBrasil.ConfigurarQueryParameters(const Method, EndPoint: String);

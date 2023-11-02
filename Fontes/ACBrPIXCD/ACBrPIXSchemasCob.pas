@@ -499,6 +499,7 @@ procedure TACBrPIXCobValor.DoReadFromJSon(AJSon: TACBrJSONObject);
 var
   wAux: Integer;
 begin
+  {$IFDEF FPC}wAux := 0;{$ENDIF}
   AJSon
     .Value('original', foriginal)
     .Value('modalidadeAlteracao', wAux);
@@ -786,10 +787,10 @@ begin
   fvalor.WriteToJSon(AJSon);
 
   AJSon
-    .AddPair('txid', ftxId)
-    .AddPair('revisao', frevisao)
-    .AddPair('location', flocation)
-    .AddPair('status', PIXStatusCobrancaToString(fstatus));
+    .AddPair('txid', ftxId, False)
+    .AddPair('revisao', frevisao, False)
+    .AddPair('location', flocation, False)
+    .AddPair('status', PIXStatusCobrancaToString(fstatus), False);
 end;
 
 procedure TACBrPIXCobGerada.DoReadFromJSon(AJSon: TACBrJSONObject);
@@ -821,7 +822,7 @@ begin
     Exit;
 
   s := Trim(AValue);
-  if (s <> '') then
+  if (s <> '') and IsBacen then
   begin
     e := ValidarTxId(s, 35, 26);
     if (e <> '') then

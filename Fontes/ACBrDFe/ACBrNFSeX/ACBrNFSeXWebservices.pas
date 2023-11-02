@@ -51,6 +51,7 @@ type
     FConsultaLoteRps: TNFSeConsultaLoteRpsResponse;
     FConsultaNFSeporRps: TNFSeConsultaNFSeporRpsResponse;
     FConsultaNFSe: TNFSeConsultaNFSeResponse;
+    FConsultaLinkNFSe: TNFSeConsultaLinkNFSeResponse;
     FCancelaNFSe: TNFSeCancelaNFSeResponse;
     FSubstituiNFSe: TNFSeSubstituiNFSeResponse;
     FGerarToken: TNFSeGerarTokenResponse;
@@ -58,6 +59,7 @@ type
     FConsultarEvento: TNFSeConsultarEventoResponse;
     FConsultarDFe: TNFSeConsultarDFeResponse;
     FConsultarParam: TNFSeConsultarParamResponse;
+    FConsultarSeqRps: TNFSeConsultarSeqRpsResponse;
 
   public
     constructor Create;
@@ -69,6 +71,7 @@ type
     property ConsultaLoteRps: TNFSeConsultaLoteRpsResponse read FConsultaLoteRps;
     property ConsultaNFSeporRps: TNFSeConsultaNFSeporRpsResponse read FConsultaNFSeporRps;
     property ConsultaNFSe: TNFSeConsultaNFSeResponse read FConsultaNFSe;
+    property ConsultaLinkNFSe: TNFSeConsultaLinkNFSeResponse read FConsultaLinkNFSe;
     property CancelaNFSe: TNFSeCancelaNFSeResponse read FCancelaNFSe;
     property SubstituiNFSe: TNFSeSubstituiNFSeResponse read FSubstituiNFSe;
     property GerarToken: TNFSeGerarTokenResponse read FGerarToken;
@@ -76,6 +79,7 @@ type
     property ConsultarEvento: TNFSeConsultarEventoResponse read FConsultarEvento;
     property ConsultarDFe: TNFSeConsultarDFeResponse read FConsultarDFe;
     property ConsultarParam: TNFSeConsultarParamResponse read FConsultarParam;
+    property ConsultarSeqRps: TNFSeConsultarSeqRpsResponse read FConsultarSeqRps;
 
   end;
 
@@ -90,6 +94,7 @@ begin
   FConsultaLoteRps := TNFSeConsultaLoteRpsResponse.Create;
   FConsultaNFSeporRps := TNFSeConsultaNFSeporRpsResponse.Create;
   FConsultaNFSe := TNFSeConsultaNFSeResponse.Create;
+  FConsultaLinkNFSe := TNFSeConsultaLinkNFSeResponse.Create;
   FCancelaNFSe := TNFSeCancelaNFSeResponse.Create;
   FSubstituiNFSe := TNFSeSubstituiNFSeResponse.Create;
   FGerarToken := TNFSeGerarTokenResponse.Create;
@@ -97,6 +102,7 @@ begin
   FConsultarEvento := TNFSeConsultarEventoResponse.Create;
   FConsultarDFe := TNFSeConsultarDFeResponse.Create;
   FConsultarParam := TNFSeConsultarParamResponse.Create;
+  FConsultarSeqRps := TNFSeConsultarSeqRpsResponse.Create;
 end;
 
 destructor TWebServices.Destroy;
@@ -107,6 +113,7 @@ begin
   FConsultaLoteRps.Free;
   FConsultaNFSeporRps.Free;
   FConsultaNFSe.Free;
+  FConsultaLinkNFSe.Free;
   FCancelaNFSe.Free;
   FSubstituiNFSe.Free;
   FGerarToken.Free;
@@ -114,6 +121,7 @@ begin
   FConsultarEvento.Free;
   FConsultarDFe.Free;
   FConsultarParam.Free;
+  FConsultarSeqRps.Free;
 
   inherited Destroy;
 end;

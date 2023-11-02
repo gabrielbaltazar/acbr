@@ -66,9 +66,6 @@ type
 
 implementation
 
-uses
-  ACBrDFeUtil;
-
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o Json do provedor:
 //     Bauhaus
@@ -200,6 +197,9 @@ begin
       end;
 
       OutrasInformacoes := aJson.AsString['Observacoes'];
+      OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
       jsAux := aJson.AsJSONObject['Valores'];
 
       if Assigned(jsAux) then
@@ -227,10 +227,15 @@ begin
           ValorTotalTributos := jsAux.AsFloat['ValorTotalTributos'];
           ValorCredito := jsAux.AsFloat['ValorCredito'];
 
+          RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
           ValorLiquidoNfse := ValorServicos -
-                              (ValorPis + ValorCofins + ValorInss + ValorIr +
-                               ValorCsll + ValorDeducoes + DescontoCondicionado +
+                              (RetencoesFederais + ValorDeducoes +
+                               DescontoCondicionado +
                                DescontoIncondicionado + ValorIssRetido);
+
+          ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                                  DescontoIncondicionado;
         end;
       end;
     end;
@@ -360,7 +365,7 @@ begin
         CodigoMunicipio := Copy(CodigoMunicipio, 1, 2) +
             FormatFloat('00000', StrToIntDef(Copy(CodigoMunicipio, 3, 5), 0));
 
-      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+      xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
       if UF = '' then
         UF := xUF;
@@ -405,6 +410,8 @@ begin
       begin
         Unidade := jsAux.AsString['Unidade'];
         Descricao := jsAux.AsString['Descricao'];
+        Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
         Quantidade := jsAux.AsFloat['Quantidade'];
         ValorUnitario := jsAux.AsCurrency['ValorUnitario'];
         ValorTotal := ValorUnitario * Quantidade;

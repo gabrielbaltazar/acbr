@@ -81,9 +81,7 @@ begin
   GravarCampo(' ', 9, tcStr);
   GravarCampo(TpInscricaoToStr(PagFor.Registro0.Empresa.Inscricao.Tipo), 1, tcStr);
   GravarCampo(PagFor.Registro0.Empresa.Inscricao.Numero, 14, tcStrZero);
-  GravarCampo(BancoToStr(PagFor.Geral.Banco), 4, tcStrZero);
-  GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Agencia.Codigo, 4, tcInt);
-  GravarCampo(PagFor.Registro0.Empresa.Convenio, 12, tcStrZero);
+  GravarCampo(PagFor.Registro0.Empresa.Convenio, 20, tcStrZero);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Agencia.Codigo, 5, tcInt);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Agencia.DV, 1, tcStr);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Conta.Numero, 12, tcInt);
@@ -143,11 +141,9 @@ begin
   GravarCampo(' ', 1, tcStr);
   GravarCampo(TpInscricaoToStr(PagFor.Lote.Items[I].Registro1.Empresa.Inscricao.Tipo), 1, tcStr);
   GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.Inscricao.Numero, 14, tcStrZero);
-  GravarCampo(BancoToStr(PagFor.Geral.Banco), 4, tcStrZero);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Agencia.Codigo, 4, tcInt);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.Convenio, 12, tcStrZero);
+  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.Convenio, 20, tcStrZero);
   GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Agencia.Codigo, 5, tcInt);
-  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Conta.TipoConta, 1, tcInt);
+  GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Agencia.DV, 1, tcInt);
   GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Conta.Numero, 12, tcInt);
   GravarCampo(PagFor.Lote.Items[I].Registro1.Empresa.ContaCorrente.Conta.DV, 1, tcStr);
   GravarCampo(' ', 1, tcStr);
@@ -199,8 +195,7 @@ begin
   GravarCampo(' ', 9, tcStr);
   GravarCampo(FQtdeLotes, 6, tcInt);
   GravarCampo(FQtdeRegistros, 6, tcInt);
-  GravarCampo(' ', 6, tcStr);
-  GravarCampo(' ', 205, tcStr);
+  GravarCampo(' ', 211, tcStr);
 
   ValidarLinha('9');
   IncluirLinha;
@@ -279,28 +274,44 @@ begin
       GravarCampo('3', 1, tcStr);
       GravarCampo(FSequencialDeLote, 5, tcInt);
       GravarCampo('B', 1, tcStr);
-      GravarCampo(' ', 3, tcStr);
-      GravarCampo(TpInscricaoToStr(Inscricao.Tipo), 1, tcStr);
-      GravarCampo(Inscricao.Numero, 14, tcStrZero);
-      GravarCampo(Endereco.Logradouro, 30, tcStr, True);
-      GravarCampo(Endereco.Numero, 5, tcStrZero);
-      GravarCampo(Endereco.Complemento, 15, tcStr, True);
-      GravarCampo(Endereco.Bairro, 15, tcStr, True);
-      GravarCampo(Endereco.Cidade, 20, tcStr, True);
-      GravarCampo(Endereco.CEP, 8, tcInt);
-      GravarCampo(Endereco.Estado, 2, tcStr);
-      GravarCampo(DataVencimento, 8, tcDat);
-      GravarCampo(Valor, 15, tcDe2);
-      GravarCampo(Abatimento, 15, tcDe2);
-      GravarCampo(Desconto, 15, tcDe2);
-      GravarCampo(Mora, 15, tcDe2);
-      GravarCampo(Multa, 15, tcDe2);
-      GravarCampo('0', 4, tcStrZero);
-      GravarCampo(' ', 11, tcStr);
-      GravarCampo(CodigoUG, 5, tcInt);
-      GravarCampo(' ', 1, tcStr);
-      GravarCampo('N', 1, tcStr);
-      GravarCampo(' ', 8, tcStr);
+
+      if PixTipoChave <> tcpNenhum then
+      begin
+        GravarCampo(TipoChavePixToStr(PixTipoChave), 2, tcStr);
+        GravarCampo(' ', 1, tcStr);
+        GravarCampo(TpInscricaoToStr(Inscricao.Tipo), 1, tcStr);
+        GravarCampo(Inscricao.Numero, 14, tcStrZero);
+        GravarCampo(PixTXID, 35, tcStr);
+        GravarCampo(PixMensagem, 60, tcStr);
+        GravarCampo(PixChave, 99, tcStr);
+        GravarCampo(' ', 6, tcStr);
+        GravarCampo(CodigoISPB, 8, tcInt);
+      end
+      else
+      begin
+        GravarCampo(' ', 3, tcStr);
+        GravarCampo(TpInscricaoToStr(Inscricao.Tipo), 1, tcStr);
+        GravarCampo(Inscricao.Numero, 14, tcStrZero);
+        GravarCampo(Endereco.Logradouro, 30, tcStr, True);
+        GravarCampo(Endereco.Numero, 5, tcStrZero);
+        GravarCampo(Endereco.Complemento, 15, tcStr, True);
+        GravarCampo(Endereco.Bairro, 15, tcStr, True);
+        GravarCampo(Endereco.Cidade, 20, tcStr, True);
+        GravarCampo(Endereco.CEP, 8, tcInt);
+        GravarCampo(Endereco.Estado, 2, tcStr);
+        GravarCampo(DataVencimento, 8, tcDat);
+        GravarCampo(Valor, 15, tcDe2);
+        GravarCampo(Abatimento, 15, tcDe2);
+        GravarCampo(Desconto, 15, tcDe2);
+        GravarCampo(Mora, 15, tcDe2);
+        GravarCampo(Multa, 15, tcDe2);
+        GravarCampo('0', 4, tcStrZero);
+        GravarCampo(' ', 11, tcStr);
+        GravarCampo(CodigoUG, 5, tcInt);
+        GravarCampo(' ', 1, tcStr);
+        GravarCampo('N', 1, tcStr);
+        GravarCampo(' ', 8, tcStr);
+      end;
 
       ValidarLinha('B');
       IncluirLinha;
@@ -327,7 +338,7 @@ begin
       GravarCampo('3', 1, tcStr);
       GravarCampo(FSequencialDeLote, 5, tcInt);
       GravarCampo('J', 1, tcStr);
-      GravarCampo('0', 1, tcStr);
+      GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
       GravarCampo(CodigoBarras, 44, tcStr);
       GravarCampo(NomeCedente, 30, tcStr, True);

@@ -88,6 +88,8 @@ begin
       with NFSe.Servico.ItemServico[i] do
       begin
         Descricao     := ObterConteudo(ANodes[i].Childrens.FindAnyNs('tsDesSvc'), tcStr);
+        Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
         ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('tsVlrUnt'), tcDe2);
         Quantidade    := 1;
         ValorTotal    := Quantidade * ValorUnitario;
@@ -109,8 +111,12 @@ function TNFSeR_Governa.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -160,6 +166,8 @@ begin
     Competencia       := DataEmissao;
     TipoRecolhimento  := ObterConteudo(AuxNode.Childrens.FindAnyNs('TipRec'), tcStr);
     OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('Obs'), tcStr);
+    OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
     IdentificacaoRps.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('NumRps'), tcStr);
 
@@ -212,7 +220,11 @@ begin
     begin
       CodigoCnae := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodAti'), tcStr);
       Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('DesSvc'), tcStr);
+      Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
       Descricao := ObterConteudo(AuxNode.Childrens.FindAnyNs('DescricaoServ'), tcStr);
+      Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
       with Valores do
       begin
@@ -221,6 +233,11 @@ begin
         ValorCofins := ObterConteudo(AuxNode.Childrens.FindAnyNs('VlrCofins'), tcDe2);
         ValorInss := ObterConteudo(AuxNode.Childrens.FindAnyNs('VlrINSS'), tcDe2);
         ValorIr := ObterConteudo(AuxNode.Childrens.FindAnyNs('VlrIR'), tcDe2);
+
+        RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
+        ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                                DescontoIncondicionado;
 
         ValorLiquidoNfse := 0;
 
@@ -232,6 +249,8 @@ begin
           with ItemServico[i] do
           begin
             Descricao     := ObterConteudo(ANodes[i].Childrens.FindAnyNs('DesSvc'), tcStr);
+            Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
             Quantidade    := ObterConteudo(ANodes[i].Childrens.FindAnyNs('QdeSvc'), tcDe2);
             ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('VlrUnt'), tcDe2);
             ValorTotal    := Quantidade * ValorUnitario;
@@ -242,6 +261,8 @@ begin
       end;
     end;
   end;
+
+  LerCampoLink;
 end;
 
 function TNFSeR_Governa.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
@@ -250,7 +271,12 @@ var
 begin
   Result := True;
 
-  AuxNode := ANode.Childrens.FindAnyNs('tcInfRps');
+  AuxNode := ANode.Childrens.FindAnyNs('tcRps');
+
+  if AuxNode = nil then
+    AuxNode := ANode.Childrens.FindAnyNs('tcInfRps')
+  else
+    AuxNode := AuxNode.Childrens.FindAnyNs('tcInfRps');
 
   if AuxNode = nil then Exit;
 
@@ -318,6 +344,8 @@ begin
     DataEmissao := ObterConteudo(AuxNode.Childrens.FindAnyNs('tsDatEmsRps'), tcDat);
     TipoRecolhimento := ObterConteudo(AuxNode.Childrens.FindAnyNs('tsTipRec'), tcStr);
     OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('tsObs'), tcStr);
+    OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
     LerItensRps(AuxNode);
   end;

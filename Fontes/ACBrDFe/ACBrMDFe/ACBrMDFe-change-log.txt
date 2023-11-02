@@ -42,6 +42,26 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+25/10/2023
+-- Diversos --
+[+] Implementado o método ImprimirPDF por Stream.
+   Por: Luis Claudio Jr
+
+06/09/2023
+-- Diversos --
+[+] Adiciona no retorno da consulta os novos campos nProtDTA e dhProt adicionados na NT2023/002
+   Por: Diego Folieni
+
+18/05/2023
+-- Diversos --
+[*] Alteração para leitura e gravação correta da tag indAntecipaAdiant.
+   Por: Hudson G Leite
+
+30/03/2023
+-- pmdfeEnvEventoMDFe --
+[*] Alteração para suportar numero sequencial de eventos com 3 digitos.
+   Por: Italo Giurizzato Junior
+
 23/11/2022
 -- pmdfeMDFeW  --
 [*] Alterado para zero o numero de ocorrências, com isso a tag <dhTrem> passa a ser opcional

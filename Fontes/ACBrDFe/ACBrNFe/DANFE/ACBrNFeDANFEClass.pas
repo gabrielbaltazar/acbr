@@ -40,7 +40,7 @@ interface
 uses
   SysUtils, Classes,
   ACBrBase, ACBrDFeDANFeReport,
-  pcnNFe, pcnConversao, pcnConversaoNFe, StrUtilsEx;
+  pcnNFe, pcnConversao, pcnConversaoNFe, StrUtilsEx, TypInfo;
 
 type
   TDetVeiculo = (dv_tpOp, dv_chassi, dv_cCor, dv_xCor, dv_pot, dv_cilin,
@@ -666,28 +666,28 @@ end;
 function TACBrNFeDANFCEClass.ManterDescricaoPagamentos(aPagto: TpagCollectionItem
   ): String;
 var
-  descBandeira, codigoAutorizacao: String;
+  LDescBandeira,
+  LCodigoAutorizacao: String;
 begin
   Result := '';
-  descBandeira := '';
-  codigoAutorizacao := '';
 
-  with aPagto do
-  begin
-    if ((tPag in [fpCartaoCredito, fpCartaoDebito]) and (tpIntegra = tiPagIntegrado)) or
-       ((tPag in [fpCartaoCredito, fpCartaoDebito]) and (cAut <>'')) then
-    begin
-      descBandeira:= BandeiraCartaoToDescStr(tBand);
-      CodigoAutorizacao := '- Aut: ' + cAut;
-    end;
+  try
+    if (aPagto.tBand >= Low(TpcnBandeiraCartao)) and (aPagto.tBand <= High(TpcnBandeiraCartao)) then
+      LDescBandeira:= BandeiraCartaoToDescStr(aPagto.tBand);
+
+    if aPagto.cAut <>'' then
+      LCodigoAutorizacao := '- Aut: ' + aPagto.cAut;
 
     if (icaTipo in FDescricaoPagamentos) then
-      Result:= ACBrStr(FormaPagamentoToDescricao(tPag, xPag)) + Space(1);
+      Result:= ACBrStr(FormaPagamentoToDescricao(aPagto.tPag, aPagto.xPag)) + Space(1);
     if (icaBandeira in FDescricaoPagamentos) then
-      Result := Result + descBandeira + Space(1);
+      Result := Result + LDescBandeira + Space(1);
     if (icaAutorizacao in FDescricaoPagamentos) then
-      Result := Result + CodigoAutorizacao;
+      Result := Result + LCodigoAutorizacao;
+  except
+    Result:= ACBrStr(FormaPagamentoToDescricao(aPagto.tPag, aPagto.xPag)) + Space(1);
   end;
+
 end;
 
 procedure TACBrNFeDANFCEClass.setImprimeEmDuasLinhas(const Value: Boolean);

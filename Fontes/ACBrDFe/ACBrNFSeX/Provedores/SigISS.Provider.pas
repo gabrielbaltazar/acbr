@@ -74,8 +74,8 @@ type
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoEmitir(Response: TNFSeEmiteResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
@@ -99,8 +99,9 @@ type
     function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; override;
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-//    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 //    procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
@@ -111,6 +112,7 @@ implementation
 uses
   ACBrUtil.Base,
   ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
   ACBrDFeException,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts,
   SigISS.GravarXml, SigISS.LerXml;
@@ -171,8 +173,8 @@ var
   I: Integer;
   ANode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
-  AErro: TNFSeEventoCollectionItem;
-  Correcao: string;
+  AErro, AAlerta: TNFSeEventoCollectionItem;
+  aID, aCorrecao, aMensagem: string;
 begin
   ANode := RootNode.Childrens.FindAnyNs(AListTag);
 
@@ -188,14 +190,29 @@ begin
 
   for I := Low(ANodeArray) to High(ANodeArray) do
   begin
-    Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoErro'), tcStr);
+    aID := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('id'), tcStr);
+    aCorrecao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoErro'), tcStr));
+    aMensagem := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoProcesso'), tcStr));
 
-    if Correcao <> 'Sem erros' then
+    if (aCorrecao = '') or (aCorrecao = 'Sem erros') then
+    begin
+      if aMensagem <> '' then
+      begin
+        AAlerta := Response.Alertas.New;
+        AAlerta.Codigo := aID;
+        AAlerta.Descricao := aMensagem;
+        AAlerta.Correcao := aCorrecao;
+
+        if AAlerta.Descricao = '' then
+          AAlerta.Descricao := ACBrStr(ANodeArray[I].AsString);
+      end;
+    end
+    else
     begin
       AErro := Response.Erros.New;
-      AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('id'), tcStr);
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoProcesso'), tcStr));
-      AErro.Correcao := ACBrStr(Correcao);
+      AErro.Codigo := aID;
+      AErro.Descricao := aMensagem;
+      AErro.Correcao := aCorrecao;
 
       if AErro.Descricao = '' then
         AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
@@ -284,7 +301,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderSigISS.PrepararConsultaNFSe(
+procedure TACBrNFSeProviderSigISS.PrepararConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
@@ -314,7 +331,7 @@ begin
                            '</ConsultarNotaPrestador>';
 end;
 
-procedure TACBrNFSeProviderSigISS.TratarRetornoConsultaNFSe(
+procedure TACBrNFSeProviderSigISS.TratarRetornoConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   Document: TACBrXmlDocument;
@@ -349,17 +366,19 @@ begin
 
       if AuxNode <> nil then
       begin
+        NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('num_rps'), tcStr);
+
         with Response do
         begin
-          Sucesso := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('StatusNFe'), tcStr);
+          Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('StatusNFe'), tcStr);
           NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nota'), tcStr);
-          CodVerif := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('autenticidade'), tcStr);
+          CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('autenticidade'), tcStr);
+          Protocolo := CodigoVerificacao;
           Link := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('LinkImpressao'), tcStr);
           Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
+          NumeroRps := NumRps;
         end;
       end;
-
-      NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('num_rps'), tcStr);
 
       ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
@@ -525,8 +544,11 @@ function TACBrNFSeXWebserviceSigISS.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := string(NativeStringToUTF8(Result));
   Result := RemoverPrefixosDesnecessarios(Result);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
 end;
 
 { TACBrNFSeXWebserviceSigISS103 }
@@ -559,7 +581,7 @@ begin
   Result.NFSe := ANFSe;
 end;
 
-procedure TACBrNFSeProviderSigISS103.PrepararConsultaNFSe(
+procedure TACBrNFSeProviderSigISS103.PrepararConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
@@ -604,6 +626,92 @@ begin
                            '</numero_nfse>' +
                          '</ConsultarNfseServicoPrestadoEnvio>' +
                        '</ConsultarNfseServicoPrestado>';
+end;
+
+procedure TACBrNFSeProviderSigISS103.TratarRetornoConsultaNFSeporNumero(
+  Response: TNFSeConsultaNFSeResponse);
+var
+  Document: TACBrXmlDocument;
+  AErro: TNFSeEventoCollectionItem;
+  ANode, AuxNode, ANodeNFSe: TACBrXmlNode;
+  NumRps: String;
+  ANota: TNotaFiscal;
+begin
+  Document := TACBrXmlDocument.Create;
+
+  try
+    try
+      if Response.ArquivoRetorno = '' then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod201;
+        AErro.Descricao := ACBrStr(Desc201);
+        Exit
+      end;
+
+      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
+
+      Document.LoadFromXml(Response.ArquivoRetorno);
+
+      ANode := Document.Root;
+
+      ProcessarMensagemErros(ANode, Response, 'DescricaoErros', 'item');
+
+      Response.Sucesso := (Response.Erros.Count = 0);
+
+      AuxNode := ANode.Childrens.FindAnyNs('RetornoNota');
+
+      if AuxNode <> nil then
+      begin
+        AuxNode := AuxNode.Childrens.FindAnyNs('EspelhoNfse');
+
+        if AuxNode <> nil then
+        begin
+          ANodeNFSe := AuxNode.Childrens.FindAnyNs('Nfse');
+
+          if ANodeNFSe <> nil then
+          begin
+            AuxNode := ANodeNFSe.Childrens.FindAnyNs('IdentificacaoNfse');
+
+            if AuxNode <> nil then
+            begin
+              with Response do
+              begin
+                NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+                CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+                Protocolo := CodigoVerificacao;
+                Link := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('LinkImpressao'), tcStr);
+                Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
+                Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('StatusNfse'), tcStr);
+              end;
+            end;
+
+            AuxNode := ANodeNFSe.Childrens.FindAnyNs('DadosNfse');
+
+            if AuxNode <> nil then
+            begin
+              NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('RpsNumero'), tcStr);
+              Response.NumeroRps := NumRps;
+
+              ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+
+              ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
+              SalvarXmlNfse(ANota);
+            end;
+          end;
+        end;
+      end;
+    except
+      on E:Exception do
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod999;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(Document);
+  end;
 end;
 
 procedure TACBrNFSeProviderSigISS103.PrepararCancelaNFSe(

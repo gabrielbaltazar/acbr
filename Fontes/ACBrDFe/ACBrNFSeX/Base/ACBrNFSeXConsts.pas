@@ -39,7 +39,7 @@ interface
 uses
   SysUtils;
 
-const
+resourcestring
   DSC_NUMRPS = 'Numero do RPS';
   DSC_SERIERPS = 'Serie do RPS';
   DSC_TIPORPS = 'Tipo do RPS';
@@ -90,6 +90,8 @@ const
   Desc003 = 'Conjunto de RPS transmitidos (máximo de xxx RPS) excedido. Quantidade atual: yyy';
   Cod004 = 'X004';
   Desc004 = 'Nenhum Evento adicionado ao componente';
+  Cod005 = 'X005';
+  Desc005 = 'Conjunto de RPS transmitidos (mínimo de xxx RPS). Quantidade atual: yyy';
 
   Cod101 = 'X101';
   Desc101 = 'Número do Protocolo não informado.';
@@ -147,6 +149,16 @@ const
   Desc127	= 'CNPJ do Tomador não informado.';
   Cod128 = 'X128';
   Desc128	= 'NSU não informado.';
+  Cod129 = 'X129';
+  Desc129	= 'Emitente.InscMun não informada.';
+  Cod130 = 'X130';
+  Desc130	= 'Emitente.CNPJ não informado.';
+  Cod131 = 'X131';
+  Desc131 =	'Data de Competencia não informada.';
+  Cod132 = 'X132';
+  Desc132 =	'Página de retorno da consulta não informada.';
+  Cod133 = 'X133';
+  Desc133	= 'Geral.CNPJPrefeitura não informado.';
 
   Cod201 = 'X201';
   Desc201 = 'WebService retornou um XML vazio.';
@@ -157,7 +169,7 @@ const
   Cod204 = 'X204';
   Desc204 = 'Confirmação do Cancelamento não encontrada.';
   Cod205 = 'X205';
-  Desc205 = 'Retorno da Substituição não encontrada.';
+  Desc205 = 'Retorno da Substituição não encontrado.';
   Cod206 = 'X206';
   Desc206 = 'Nfse Substituida não encontrada.';
   Cod207 = 'X207';
@@ -165,13 +177,15 @@ const
   Cod208 = 'X208';
   Desc208	= 'Não foi retornado nenhum Rps.';
   Cod209 = 'X209';
-  Desc209 = 'Retorno do Cancelamento não encontrada.';
+  Desc209 = 'Retorno do Cancelamento não encontrado.';
   Cod210 = 'X210';
   Desc210 = 'Nfse do Cancelamento não encontrada.';
   Cod211 = 'X211';
   Desc211 = 'Não foi retornado nenhum Evento.';
   Cod212 = 'X212';
   Desc212 = 'Não foi retornado nenhum JSON.';
+  Cod213 = 'X213';
+  Desc213 = 'Não foi retornado nenhum Token.';
 
   Cod800 = 'X800';
   Desc800 = 'Erro de Validação: ';

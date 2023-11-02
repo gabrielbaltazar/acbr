@@ -287,8 +287,8 @@ procedure TACBrNFSeProviderSigISSWeb.PrepararCancelaNFSe(
   Response: TNFSeCancelaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
-  Emitente: TEmitenteConfNFSe;
-  CodMun: Integer;
+//  Emitente: TEmitenteConfNFSe;
+//  CodMun: Integer;
 begin
   if Response.InfCancelamento.NumeroNFSe = '' then
   begin
@@ -298,25 +298,35 @@ begin
     Exit;
   end;
 
-  if Response.InfCancelamento.ChaveNFSe = '' then
+  if Response.InfCancelamento.SerieNFSe = '' then
   begin
     AErro := Response.Erros.New;
-    AErro.Codigo := Cod118;
-    AErro.Descricao := ACBrStr(Desc118);
+    AErro.Codigo := Cod112;
+    AErro.Descricao := ACBrStr(Desc112);
     Exit;
   end;
 
-  if Response.InfCancelamento.DataEmissaoNFSe = 0 then
+  if Response.InfCancelamento.MotCancelamento = '' then
   begin
     AErro := Response.Erros.New;
-    AErro.Codigo := Cod122;
-    AErro.Descricao := ACBrStr(Desc122);
+    AErro.Codigo := Cod120;
+    AErro.Descricao := ACBrStr(Desc110);
     Exit;
   end;
 
-  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
-  CodMun := TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio;
+//  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+//  CodMun := TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio;
 
+
+  FpPath := 'rest/nfes/cancela/' +
+            Response.InfCancelamento.NumeroNFSe +
+            '/serie/' +
+            Response.InfCancelamento.SerieNFSe +
+            '/motivo/' +
+            StringReplace(Response.InfCancelamento.MotCancelamento,' ','%20',[rfReplaceAll]);
+  FpMethod := 'GET';
+  FpMimeType := 'application/json';
+  {
   Response.ArquivoEnvio := '<cancelamentoNfseLote xmlns="http://www.SigISSWeb.com/nfse">' +
                              '<codigoMunicipio>' +
                                 CodIBGEToCodTOM(CodMun) +
@@ -338,6 +348,7 @@ begin
                                 Response.InfCancelamento.ChaveNFSe +
                              '</chaveSeguranca>' +
                            '</cancelamentoNfseLote>';
+  }
 end;
 
 procedure TACBrNFSeProviderSigISSWeb.PrepararEmitir(
@@ -402,6 +413,7 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANode: TACBrXmlNode;
+  ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -419,15 +431,21 @@ begin
 
       ANode := Document.Root;
 
-      Response.Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('protocolo'), tcStr);
-      Response.Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoStatus'), tcStr);
+      Response.CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigo'), tcStr);
+      Response.NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('numero_nf'), tcStr);
+      Response.NumeroRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('rps'), tcStr);
 
       ProcessarMensagemErros(ANode, Response);
 
       Response.Sucesso := (Response.Erros.Count = 0);
 
-      // Precisamos de um retorno sem erros para terminar a implementação da
-      // leitura do retorno
+      if Response.Sucesso then
+      begin
+        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(Response.NumeroRps);
+
+        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
+        SalvarXmlNfse(ANota);
+      end;
     except
       on E:Exception do
       begin
@@ -562,11 +580,15 @@ end;
 
 function TACBrNFSeXWebserviceSigISSWeb.Cancelar(ACabecalho, AMSG: String): string;
 var
-  Request, xCabecalho: string;
+  Request{, xCabecalho}: string;
 begin
   AjustaSetHeader := True;
   FPMsgOrig := AMSG;
 
+  Request := AMSG;
+
+  Result := Executar('', Request, [], []);
+  {
   xCabecalho := StringReplace(ACabecalho, 'cabecalhoNfseLote',
                      'cabecalhoCancelamentoNfseLote', [rfReplaceAll]);
 
@@ -577,6 +599,7 @@ begin
 
   Result := Executar('', Request, ['return', 'retornoCancelamentoNfseLote'],
                      ['xmlns:wsn="http://wsnfselote.SigISSWeb.com.br/"']);
+  }
 end;
 
 function TACBrNFSeXWebserviceSigISSWeb.TratarXmlRetornado(
@@ -586,10 +609,13 @@ begin
   begin
     Result := inherited TratarXmlRetornado(aXML);
 
+    Result := String(NativeStringToUTF8(Result));
     Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
     Result := RemoverDeclaracaoXML(Result);
+    Result := RemoverIdentacao(Result);
     Result := RemoverCaracteresDesnecessarios(Result);
     Result := RemoverPrefixosDesnecessarios(Result);
+    Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
   end
   else
   begin
@@ -603,8 +629,8 @@ begin
                 '</erros>' +
               '</a>';
 
-    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
     Result := String(NativeStringToUTF8(Result));
+    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   end;
 end;
 

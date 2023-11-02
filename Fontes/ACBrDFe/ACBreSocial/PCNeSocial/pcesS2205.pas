@@ -197,6 +197,7 @@ end;
 function TEvtAltCadastral.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -357,6 +358,10 @@ begin
         trabalhador.Endereco.Exterior.CodPostal   := INIRec.ReadString(sSecao, 'codPostal', '');
       end;
 
+      sSecao := 'trabImig';
+      trabalhador.trabImig.tmpResid   := StrTotpTmpResid(Ok, INIRec.ReadString(sSecao, 'tmpResid', '0'));
+      trabalhador.trabImig.condIng    := StrTotpCondIng(Ok, INIRec.ReadString(sSecao, 'condIng', '0'));
+
       sSecao := 'trabEstrangeiro';
       if INIRec.ReadString(sSecao, 'dtChegada', '') <> '' then
       begin
@@ -375,7 +380,7 @@ begin
         trabalhador.infoDeficiencia.DefMental      := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defMental', 'S'));
         trabalhador.infoDeficiencia.DefIntelectual := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defIntelectual', 'S'));
         trabalhador.infoDeficiencia.ReabReadap     := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'reabReadap', 'S'));
-        trabalhador.infoDeficiencia.infoCota       := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'infoCota', 'S'));
+        trabalhador.infoDeficiencia.infoCota       := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'infoCota', 'S'));
         trabalhador.infoDeficiencia.Observacao     := INIRec.ReadString(sSecao, 'observacao', '');
       end;
 
@@ -384,21 +389,22 @@ begin
       begin
         // de 00 até 99
         sSecao := 'dependente' + IntToStrZero(I, 2);
-        sFim   := INIRec.ReadString(sSecao, 'tpDep', 'FIM');
+        sFim   := INIRec.ReadString(sSecao, 'nmDep', 'FIM');
 
         if (sFim = 'FIM') or (Length(sFim) <= 0) then
           break;
 
         with trabalhador.Dependente.New do
         begin
-          tpDep    := eSStrToTpDep(Ok, sFim);
-          nmDep    := INIRec.ReadString(sSecao, 'nmDep', '');
+          tpDep    := eSStrToTpDep(Ok, INIRec.ReadString(sSecao, 'tpDep', ''));
+          nmDep    := sFim;
           dtNascto := StringToDateTime(INIRec.ReadString(sSecao, 'dtNascto', '0'));
           cpfDep   := INIRec.ReadString(sSecao, 'cpfDep', '');
           sexoDep  := INIRec.ReadString(sSecao, 'sexoDep', '');
           depIRRF  := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'depIRRF', 'S'));
           depSF    := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'depSF', 'S'));
           incTrab  := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'incTrab', 'S'));
+          descrDep := INIRec.ReadString(sSecao, 'descrDep', '');
         end;
 
         Inc(I);

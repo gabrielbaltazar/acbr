@@ -20,6 +20,7 @@ Centi                2.02
 CIGA                 1.00
 Citta                2.03
 Conam                1.00
+Contass              1.00
 Coplan               2.01
 CTA                  2.00 
 CTAConsult           1.00
@@ -33,12 +34,14 @@ DSF                  1.00
 DSF                  2.00
 DSF                  2.03
 eGoverneISS          1.00  06/09/2022
+eISS                 1.00
 EL                   1.00
 EL                   2.04
 EloTech              2.03  10/08/2022
 Equiplano            1.00  22/11/2022
 eReceita             2.02
 Etherium             2.03
+Etherium             2.04
 Facundo              1.00
 FGMaiss              1.00  19/08/2022
 fintelISS            2.00  02/08/2022
@@ -49,12 +52,13 @@ FISSLex              1.00
 Futurize             2.02
 GeisWeb              1.00
 geNFe                1.00
-GestaoISS            2.02  
+GestaoISS            2.02  31/03/2023
 Giap                 1.00  02/08/2022
 Ginfes               1.00  19/09/2022
 Giss                 2.04
 GovBr                1.00
 GovDigital           2.00
+GovDigital           2.01
 Governa              1.00
 Horus                1.00
 iiBrasil             2.04
@@ -62,9 +66,12 @@ infisc               1.00
 infisc               1.01
 infisc               2.01
 infisc               2.03
+Intertec             1.00
 IPM                  1.00
 IPM                  1.01  24/08/2022
+IPM                  2.04
 ISSBarueri           1.00  19/09/2022
+ISSCamacari          2.01
 ISSCambe             1.00
 ISSCuritiba          1.00
 ISSDigital           2.00
@@ -96,6 +103,8 @@ NEAInformatica       2.00
 NFSeBrasil           1.00
 NotaInteligente      2.00
 PadraoNacional       1.00
+Prescon              1.00  14/03/2023
+PriMax               1.00
 Prodata              2.01
 Pronim               1.00
 Pronim               2.02  17/08/2022
@@ -105,6 +114,7 @@ PublicSoft           2.03
 RLZ                  1.00
 RLZ                  2.03
 Saatri               2.01
+Saatri               2.03
 SafeWeb              2.00
 SH3                  2.00
 Siam                 2.00
@@ -133,12 +143,14 @@ SoftPlan             1.00
 SpeedGov             1.00
 SSInformatica        2.03
 Sudoeste             2.02
+SysISS               2.02
 SystemPro            2.01
 TcheInfo             2.04
 Tecnos               2.01
 Thema                1.00
 Tinus                1.00
 Tinus                1.01
+Tinus                1.02
 Tiplan               1.00
 Tiplan               2.03  30/08/2022
 Tributus             2.04

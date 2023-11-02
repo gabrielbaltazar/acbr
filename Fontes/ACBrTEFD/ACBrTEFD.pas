@@ -41,7 +41,7 @@ uses
   ACBrTEFDAuttar, ACBrTEFDDial, ACBrTEFDDisc, ACBrTEFDHiper, ACBrTEFDCliSiTef,
   ACBrTEFDGpu, ACBrTEFDVeSPague, ACBrTEFDBanese, ACBrTEFDGoodCard, ACBrTEFDFoxWin,
   ACBrTEFDCliDTEF, ACBrTEFDPetroCard, ACBrTEFDCrediShop, ACBrTEFDTicketCar,
-  ACBrTEFDConvCard, ACBrTEFDCappta
+  ACBrTEFDConvCard, ACBrTEFDCappta, ACBrTEFDCliSiTefModular, ACBrTEFDDirecao
   {$IfNDef NOGUI}
     {$IfDef FPC}
       ,LResources
@@ -157,6 +157,8 @@ type
      fTefTicketCar : TACBrTEFDTicketCar ;
      fTefConvCard  : TACBrTEFDConvCard ;
      fTefCappta    : TACBrTEFDCappta;
+     fTefCliSiTefModular: TACBrTEFDCliSiTefModular;
+     fTefDirecao   : TACBrTEFDDirecao;
 
      fEsperaSTS    : Integer;
      fEsperaMinimaMensagemFinal: Integer;
@@ -173,6 +175,7 @@ type
      function GetPathBackup : String;
      function GetReq : TACBrTEFDReq;
      function GetResp : TACBrTEFDResp;
+     procedure SetAutoAtivarGP(AValue: Boolean);
      procedure SetAutoEfetuarPagamento(const AValue : Boolean);
      procedure SetAutoFinalizarCupom(const AValue : Boolean);
      procedure SetEsperaSleep(const AValue : Integer);
@@ -276,8 +279,7 @@ type
        write SetMultiplosCartoes default False ;
      property NumeroMaximoCartoes : Integer read fNumeroMaximoCartoes
        write SetNumeroMaximoCartoes default 0;
-     property AutoAtivarGP : Boolean read fAutoAtivarGP write fAutoAtivarGP
-       default True ;
+     property AutoAtivarGP : Boolean read fAutoAtivarGP write SetAutoAtivarGP default True ;
      property ExibirMsgAutenticacao : Boolean read fExibirMsgAutenticacao
        write fExibirMsgAutenticacao default True ;
      property AutoEfetuarPagamento : Boolean read fAutoEfetuarPagamento
@@ -321,6 +323,8 @@ type
      property TEFTicketCar : TACBrTEFDTicketCar  read fTefTicketCar ;
      property TEFConvCard : TACBrTEFDConvCard read fTefConvCard ;     
      property TEFCappta    : TACBrTEFDCappta    read fTefCappta;
+     property TEFCliSiTefModular : TACBrTEFDCliSiTefModular read fTefCliSiTefModular ;
+     property TEFDirecao   : TACBrTEFDDirecao  read fTefDirecao;
 
      property OnAguardaResp : TACBrTEFDAguardaRespEvent read fOnAguardaResp
         write fOnAguardaResp ;
@@ -598,6 +602,21 @@ begin
    fTefCappta.SetSubComponent(True);   // Ajustando como SubComponente para aparecer no ObjectInspector
   {$ENDIF}
 
+
+  { Criando Classe TEF CliSiTEFMODULAR }
+  fTefCliSiTefmodular := TACBrTEFDCliSiTefModular.Create(self);
+  fTEFList.Add(fTefCliSiTefModular);     // Adicionando "fTefCliSiTefModular" na Lista Objetos de Classes de TEF
+  {$IFDEF COMPILER6_UP}
+   fTefCliSiTefmodular.SetSubComponent(True);   // Ajustando como SubComponente para aparecer no ObjectInspector
+  {$ENDIF}
+
+  { Criando Classe TEF_DIRECAO }
+  fTefDirecao := TACBrTEFDDirecao.Create(self);
+  fTEFList.Add(fTefDirecao);     // Adicionando "fTefDiracao" na Lista Objetos de Classes de TEF
+  {$IFDEF COMPILER6_UP}
+   fTefDirecao.SetSubComponent(True);   // Ajustando como SubComponente para aparecer no ObjectInspector
+  {$ENDIF}
+
   GPAtual := gpPayGo;
 end;
 
@@ -717,6 +736,8 @@ begin
     gpTicketCar : fTefClass := fTefTicketCar ;
     gpConvCard  : fTefClass := fTefConvCard ;
     gpCappta    : fTefClass := fTefCappta ;
+    gpCliSiTefModular : fTefClass := fTefCliSiTefModular;
+    gpTefDirecao : fTefClass := fTefDirecao ;
   end;
 
   fGPAtual := AValue;
@@ -1928,6 +1949,22 @@ end;
 function TACBrTEFD.GetResp : TACBrTEFDResp;
 begin
    Result := fTefClass.Resp;
+end;
+
+procedure TACBrTEFD.SetAutoAtivarGP(AValue: Boolean);
+var
+   I : Integer;
+begin
+  For I := 0 to fTEFList.Count-1 do
+  begin
+    if fTEFList[I] is TACBrTEFDClass then
+    begin
+       with TACBrTEFDClass( fTEFList[I] ) do
+         AutoAtivarGP := AValue;
+    end;
+  end;
+
+  fAutoAtivarGP := AValue;
 end;
 
 procedure TACBrTEFD.SetPathBackup(const AValue : String);

@@ -68,7 +68,7 @@ type
     function CodMotivoRejeicaoToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia; const CodMotivo: String): String; override;
 
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
-    function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
+    function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
 
     function CodOcorrenciaToTipoRemessa(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
   end;
@@ -385,6 +385,12 @@ begin
         Instrucao1 := '09';  //Protestar caso impago em NN dias após vencimento.
     end
     else
+    if (DataBaixa <> 0) and (DataBaixa > Vencimento) then  // Devolução / BAixa
+    begin
+      if (Trim(Instrucao1) = '') then
+        Instrucao1 := '15';  //Devolver caso impago em NN dias após vencimento.
+    end
+    else
       Instrucao1 := '23'; //Não protestar
 
     if (PercentualMulta > 0) then
@@ -452,8 +458,11 @@ begin
                PadRight(Sacado.UF, 2)                                               + // UF do Sacado
                space(18)                                                            + // Brancos
                IfThen((DataProtesto <> 0) and (DataProtesto > Vencimento),
-                      PadLeft(IntToStr(DaysBetween(DataProtesto, Vencimento)),
-                      2, '0'), Space(2))                                            + // Dias para protesto/devolução automática
+                      PadLeft(IntToStr(DaysBetween(DataProtesto, Vencimento)),2,'0'),   // Dias para protesto/
+                      IfThen((DataBaixa <> 0) and (DataBaixa > Vencimento),
+                            PadLeft(IntToStr(DaysBetween(DataBaixa, Vencimento)),2,'0'),  // Dias para devolução automática
+                      Space(2)) )                                                      +
+
                space(23)                                                        + // Brancos
                IntToStrZero(aRemessa.Count + 1, 6);                               // Número sequencial do registro  
 
@@ -792,6 +801,8 @@ begin
                   '1';                                                                                                                  // 240-240 NÃO PERMITE RECEBIMENTO PARCIAL
       end;
 
+      if OcorrenciaOriginal.Tipo = toRemessaAlterarVencimento then
+        Ocorrencia := '12'; //Registro P enviar comando 06 para Registro Q e R enviar 12 - Marcia Philipp / Analista - Gerencia de Negócios Banrisul
 
       {Segmento "Q" }
       Result := Result + #13#10 +
@@ -802,7 +813,9 @@ begin
                 TipoInscSacado +
                 PadLeft(OnlyNumber(Sacado.CNPJCPF), 15, '0') +
                 PadRight(Sacado.NomeSacado, 40) +
-                PadRight(Sacado.Logradouro, 40) +
+                PadRight(Sacado.Logradouro+' '+
+                    Sacado.Numero+' '+
+                    Sacado.Complemento, 40) +
                 PadRight(Sacado.Bairro, 15) +
                 StringReplace(Sacado.CEP, '-', '', []) +
                 PadRight(Sacado.Cidade, 15) +
@@ -832,8 +845,7 @@ begin
                    DupeString('0', 15) +                                                                                                              //  51-65  VALOR DESCONTO 3
                    ifthen(MultaValorFixo, '1', '2') +                                                                                                 //  66-66  CODIGO DA MULTA
                    FormatDateTime('ddmmyyyy', DataMulta) +                                                                                                   //  67-74  DATA DA MULTA
-                     PadLeft(StringReplace(ifthen(MultaValorFixo, FormatFloat('#####0.00', TruncTo(((PercentualMulta * ValorDocumento) / 100), 2)),
-                     FormatFloat('#####0.00', PercentualMulta)), ',', '', []), 15, '0') +                                                                      //  75-89  VALOR/PERCENTUAL MULTA
+                     PadLeft(OnlyNumber(FloatToStr(CalcularPadraoMulta(ACBrTitulo))), 15, '0') +                                                                  //  75-89  VALOR/PERCENTUAL MULTA
                    DupeString(' ', 10) +                                                                                                              //  90-99  INFORMAÇÃO DO BANCO PAGADOR
                    DupeString(' ', 40) +                                                                                                              // 100-139 MENSAGEM 3
                    DupeString(' ', 40);                                                                                                               // 140-179 MENSAGEM 4
@@ -964,7 +976,11 @@ begin
             Sacado.NomeSacado := Trim(Copy(FSegT, 149, 40));
 
             NumeroDocumento      := Trim(Copy(FSegT, 59, 15));
-            SeuNumero            := NumeroDocumento;
+            if trim(Copy(FSegT,106, 25)) <> '' then
+               SeuNumero            := Copy(FSegT,106, 25)
+            else
+               SeuNumero            := NumeroDocumento;
+
             Carteira             := Copy(FSegT, 58, 1);
             NossoNumero          := Trim(Copy(FSegT, 38, TamanhoMaximoNossoNum));
 //            NossoNumero          := Trim(Copy(FSegT, 38, 20));
@@ -1413,7 +1429,7 @@ function TACBrBanrisul.TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipo
 var
  CodOcorrencia: Integer;
 begin
-    CodOcorrencia := StrToIntDef(TipoOCorrenciaToCod(TipoOcorrencia),0);
+    CodOcorrencia := StrToIntDef(TipoOcorrenciaToCod(TipoOcorrencia),0);
 
     if (ACBrBanco.ACBrBoleto.LayoutRemessa = c240) then
     begin
@@ -1491,7 +1507,7 @@ begin
 end;
  
 
-function TACBrBanrisul.TipoOCorrenciaToCod(
+function TACBrBanrisul.TipoOcorrenciaToCod(
   const TipoOcorrencia: TACBrTipoOcorrencia): String;
 begin
   Result := '';

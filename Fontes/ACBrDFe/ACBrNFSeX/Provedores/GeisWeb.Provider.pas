@@ -82,8 +82,8 @@ type
     procedure PrepararConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
     procedure TratarRetornoConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
@@ -257,7 +257,7 @@ begin
                              OnlyNumber(Emitente.CNPJ) +
                            '</CnpjCpf>' +
                            '<NumeroLote>' +
-                             Response.Lote +
+                             Response.NumeroLote +
                            '</NumeroLote>' +
                            Xml +
                          '</EnviaLoteRps>';
@@ -336,7 +336,7 @@ begin
           with Response do
           begin
             NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroNfse'), tcStr);
-            CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+            CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
           end;
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
@@ -344,7 +344,7 @@ begin
           ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
 
           ANota.NFSe.Numero := Response.NumeroNota;
-          ANota.NFSe.CodigoVerificacao := Response.CodVerificacao;
+          ANota.NFSe.CodigoVerificacao := Response.CodigoVerificacao;
 
           SalvarXmlNfse(ANota);
         end;
@@ -368,7 +368,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
 begin
-  if EstaVazio(Response.Lote) then
+  if EstaVazio(Response.NumeroLote) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod111;
@@ -387,7 +387,7 @@ begin
                              OnlyNumber(Emitente.CNPJ) +
                            '</CnpjCpfPrestador>' +
                            '<NumeroLote>' +
-                             Response.Lote +
+                             Response.NumeroLote +
                            '</NumeroLote>' +
                          '</Consulta>' +
                        '</ConsultaLoteRps>';
@@ -442,6 +442,14 @@ begin
         if AuxNode <> nil then
           NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroRps'), tcStr);
 
+        if NumRps = '' then
+        begin
+          AuxNode := ANode.Childrens.FindAnyNs('IdentificacaoRps');
+
+          if AuxNode <> nil then
+            NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroRps'), tcStr);
+        end;
+
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
         ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
@@ -460,7 +468,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderGeisWeb.PrepararConsultaNFSe(
+procedure TACBrNFSeProviderGeisWeb.PrepararConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
@@ -541,7 +549,7 @@ begin
                            '</ConsultaNfse>';
 end;
 
-procedure TACBrNFSeProviderGeisWeb.TratarRetornoConsultaNFSe(
+procedure TACBrNFSeProviderGeisWeb.TratarRetornoConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   Document: TACBrXmlDocument;
@@ -670,7 +678,7 @@ begin
 
       Response.Sucesso := (Response.Erros.Count = 0);
 
-      Response.Lote := ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroLote'), tcStr);
+      Response.NumeroLote := ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroLote'), tcStr);
 
       ANodeArray := ANode.Childrens.FindAllAnyNs('Nfse');
 

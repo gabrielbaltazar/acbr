@@ -81,8 +81,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Base, ACBrUtil.Strings,
-  ACBrDFeUtil;
+  ACBrUtil.Base, ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -225,7 +224,7 @@ begin
 
         UF := ObterConteudo(AuxMun.Childrens.FindAnyNs('Uf'), tcStr);
 
-        xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+        xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
         if UF = '' then
           UF := xUF;
@@ -272,7 +271,7 @@ begin
 
         UF := ObterConteudo(AuxMun.Childrens.FindAnyNs('Uf'), tcStr);
 
-        xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+        xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
         if UF = '' then
           UF := xUF;
@@ -417,10 +416,7 @@ begin
     CodigoCnae := FpCodCNAE;
     ItemListaServico := FpCodLCServ;
 
-    if FpAOwner.ConfigGeral.TabServicosExt then
-      xItemListaServico := ObterDescricaoServico(OnlyNumber(ItemListaServico))
-    else
-      xItemListaServico := CodItemServToDesc(OnlyNumber(ItemListaServico));
+    xItemListaServico := ItemListaServicoDescricao(ItemListaServico);
 
     NumeroProcesso := ObterConteudo(ANode.Childrens.FindAnyNs('BeneficioProcesso'), tcStr);
 
@@ -438,6 +434,8 @@ begin
       Aliquota := ObterConteudo(ANode.Childrens.FindAnyNs('AliquotaISSQN'), tcDe3);
       ValorIss := ObterConteudo(ANode.Childrens.FindAnyNs('ValorISSQNCalculado'), tcDe2);
 
+      RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
       aValor := ObterConteudo(ANode.Childrens.FindAnyNs('ISSQNRetido'), tcStr);
 
       case FpAOwner.StrToSimNao(Ok, aValor) of
@@ -454,9 +452,14 @@ begin
       end;
 
       ValorLiquidoNfse := ObterConteudo(ANode.Childrens.FindAnyNs('ValorLiquido'), tcDe2);
+
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
     end;
 
     NFSe.OutrasInformacoes := ObterConteudo(ANode.Childrens.FindAnyNs('Observacao'), tcStr);
+    NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
   end;
 
   LerMunicipioIncidencia(ANode);
@@ -480,6 +483,8 @@ begin
       with NFSe.Servico.ItemServico[i] do
       begin
         Descricao  := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Discriminacao'), tcStr);
+        Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
         Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Quantidade'), tcDe6);
         ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorServico'), tcDe2);
         ValorTotal := ValorUnitario * Quantidade;
@@ -489,12 +494,15 @@ begin
         FpCodCNAE := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoCnae'), tcStr);
         FpCodLCServ := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ItemLei116'), tcStr);
 
-        Item := StrToIntDef(OnlyNumber(FpCodLCServ), 0);
-        if Item < 100 then
-          Item := Item * 100 + 1;
+        if NaoEstaVazio(FpCodLCServ) then
+        begin
+          Item := StrToIntDef(OnlyNumber(FpCodLCServ), 0);
+          if Item < 100 then
+            Item := Item * 100 + 1;
 
-        FpCodLCServ := FormatFloat('0000', Item);
-        FpCodLCServ := Copy(FpCodLCServ, 1, 2) + '.' + Copy(FpCodLCServ, 3, 2);
+          FpCodLCServ := FormatFloat('0000', Item);
+          FpCodLCServ := Copy(FpCodLCServ, 1, 2) + '.' + Copy(FpCodLCServ, 3, 2);
+        end;
       end;
     end;
   end;
@@ -622,8 +630,12 @@ function TNFSeR_Agili.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -668,6 +680,8 @@ begin
   LerIdentificacaoOrgaoGerador(ANode);
   LerDadosPrestador(ANode);
   LerNfseDeclaracaoPrestacaoServico(ANode);
+
+  LerCampoLink;
 end;
 
 function TNFSeR_Agili.LerXmlRps(const ANode: TACBrXmlNode): Boolean;

@@ -86,8 +86,8 @@ type
     procedure PrepararConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
     procedure TratarRetornoConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
@@ -96,7 +96,10 @@ type
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'listaErros';
                                      const AMessageTag: string = 'erro'); override;
-
+  public
+    function SituacaoLoteRpsToStr(const t: TSituacaoLoteRps): string; override;
+    function StrToSituacaoLoteRps(out ok: boolean; const s: string): TSituacaoLoteRps; override;
+    function SituacaoLoteRpsToDescr(const t: TSituacaoLoteRps): string; override;
   end;
 
 implementation
@@ -248,6 +251,31 @@ begin
   end;
 end;
 
+function TACBrNFSeProviderEquiplano.SituacaoLoteRpsToStr(const t: TSituacaoLoteRps): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['1', '2', '3', '4'],
+                           [sLoteNaoProcessado, sLoteProcessadoErro,
+                            sLoteProcessadoSucesso, sLoteProcessadoAviso]);
+end;
+
+function TACBrNFSeProviderEquiplano.StrToSituacaoLoteRps(out ok: boolean; const s: string): TSituacaoLoteRps;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['1', '2', '3', '4'],
+                           [sLoteNaoProcessado, sLoteProcessadoErro,
+                            sLoteProcessadoSucesso, sLoteProcessadoAviso]);
+end;
+
+function TACBrNFSeProviderEquiplano.SituacaoLoteRpsToDescr(const t: TSituacaoLoteRps): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['Lote Não Processado', 'Lote Processado com Erro',
+                            'Lote Processado com Aviso', 'Lote Processado com Sucesso'],
+                           [sLoteNaoProcessado, sLoteProcessadoErro,
+                            sLoteProcessadoSucesso, sLoteProcessadoAviso]);
+end;
+
 function TACBrNFSeProviderEquiplano.PrepararRpsParaLote(
   const aXml: string): string;
 begin
@@ -260,7 +288,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
 begin
-  if EstaVazio(Response.Lote) then
+  if EstaVazio(Response.NumeroLote) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod111;
@@ -275,7 +303,7 @@ begin
     Response.ArquivoEnvio := '<es:enviarLoteRpsEnvio' + NameSpace + '>' +
                                '<lote>' +
                                  '<nrLote>' +
-                                    Response.Lote +
+                                    Response.NumeroLote +
                                  '</nrLote>' +
                                  '<qtRps>' +
                                     IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count) +
@@ -390,7 +418,7 @@ var
   Emitente: TEmitenteConfNFSe;
   NameSpace, xConsulta: string;
 begin
-  if EstaVazio(Response.Protocolo) and EstaVazio(Response.Lote) then
+  if EstaVazio(Response.Protocolo) and EstaVazio(Response.NumeroLote) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod101;
@@ -412,7 +440,7 @@ begin
                  '</nrProtocolo>'
   else
     xConsulta := '<nrLoteRps>' +
-                   Response.Lote +
+                   Response.NumeroLote +
                  '</nrLoteRps>';
 
   Response.ArquivoEnvio := '<es:esConsultarSituacaoLoteRpsEnvio' + NameSpace + '>' +
@@ -437,6 +465,8 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANode, AuxNode: TACBrXmlNode;
+  Ok: Boolean;
+  Situacao: TSituacaoLoteRps;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -463,9 +493,12 @@ begin
 
       with Response do
       begin
-        Lote := ObterConteudoTag(ANode.Childrens.FindAnyNs('nrLoteRps'), tcStr);
+        NumeroLote := ObterConteudoTag(ANode.Childrens.FindAnyNs('nrLoteRps'), tcStr);
         Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('stLote'), tcStr);
       end;
+
+      Situacao := TACBrNFSeX(FAOwner).Provider.StrToSituacaoLoteRps(Ok, Response.Situacao);
+      Response.DescSituacao := TACBrNFSeX(FAOwner).Provider.SituacaoLoteRpsToDescr(Situacao);
     except
       on E:Exception do
       begin
@@ -486,7 +519,7 @@ var
   Emitente: TEmitenteConfNFSe;
   NameSpace, xConsulta: string;
 begin
-  if EstaVazio(Response.Protocolo) and EstaVazio(Response.Lote) then
+  if EstaVazio(Response.Protocolo) and EstaVazio(Response.NumeroLote) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod101;
@@ -508,7 +541,7 @@ begin
                  '</nrProtocolo>'
   else
     xConsulta := '<nrLoteRps>' +
-                   Response.Lote +
+                   Response.NumeroLote +
                  '</nrLoteRps>';
 
   Response.ArquivoEnvio := '<es:esConsultarLoteRpsEnvio' + NameSpace + '>' +
@@ -571,7 +604,7 @@ begin
       if AuxNode <> nil then
       begin
         Response.NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrNfse'), tcStr);
-        Response.CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cdAutenticacao'), tcStr);
+        Response.CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cdAutenticacao'), tcStr);
         Response.Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dtEmissaoNfs'), tcDat);
         Response.NumeroRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrRps'), tcStr);
 
@@ -670,7 +703,7 @@ var
   Emitente: TEmitenteConfNFSe;
   NameSpace: string;
 begin
-  if EstaVazio(Response.NumRPS) then
+  if EstaVazio(Response.NumeroRps) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod102;
@@ -685,7 +718,7 @@ begin
   Response.ArquivoEnvio := '<es:esConsultarNfsePorRpsEnvio' + NameSpace + '>' +
                              '<rps>' +
                                '<nrRps>' +
-                                  Response.NumRPS +
+                                  Response.NumeroRps +
                                '</nrRps>' +
                                '<nrEmissorRps>' +
                                   '1' +
@@ -745,7 +778,7 @@ begin
         with Response do
         begin
           NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrNfse'), tcStr);
-          CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cdAutenticacao'), tcStr);
+          CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cdAutenticacao'), tcStr);
           Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dtEmissaoNfs'), tcDatHor);
           NumeroRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrRps'), tcStr);
         end;
@@ -790,7 +823,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderEquiplano.PrepararConsultaNFSe(
+procedure TACBrNFSeProviderEquiplano.PrepararConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
@@ -829,7 +862,7 @@ begin
                            '</es:esConsultarNfseEnvio>';
 end;
 
-procedure TACBrNFSeProviderEquiplano.TratarRetornoConsultaNFSe(
+procedure TACBrNFSeProviderEquiplano.TratarRetornoConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   Document: TACBrXmlDocument;
@@ -1109,10 +1142,10 @@ function TACBrNFSeXWebserviceEquiplano.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
+  Result := RemoverCaracteresDesnecessarios(Result);
   Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
-  Result := RemoverCaracteresDesnecessarios(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
 end;
 

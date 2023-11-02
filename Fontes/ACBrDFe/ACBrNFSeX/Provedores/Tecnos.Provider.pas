@@ -115,7 +115,7 @@ begin
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
   xXml := Copy(xXml, 1, i) +
-          '<RazaoSocial>' + Emitente.RazSocial + '</RazaoSocial>' +
+          '<RazaoSocial>' + TiraAcentos(Emitente.RazSocial) + '</RazaoSocial>' +
           Copy(xXml, i +1, length(xXml));
 
   Response.ArquivoEnvio := xXml;
@@ -136,7 +136,7 @@ begin
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
   xXml := Copy(xXml, 1, i) +
-          '<RazaoSocial>' + Emitente.RazSocial + '</RazaoSocial>' +
+          '<RazaoSocial>' + TiraAcentos(Emitente.RazSocial) + '</RazaoSocial>' +
           Copy(xXml, i +1, length(xXml));
 
   Response.ArquivoEnvio := xXml;
@@ -276,7 +276,7 @@ begin
                                  '<' + Prefixo2 + 'CodigoMunicipio>' +
                                     IntToStr(TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio) +
                                  '</' + Prefixo2 + 'CodigoMunicipio>' +
-                                 CodVerif +
+                                 CodigoVerificacao +
                                '</' + Prefixo2 + 'IdentificacaoNfse>' +
                                '<' + Prefixo2 + 'CodigoCancelamento>' +
                                   InfoCanc.CodCancelamento +

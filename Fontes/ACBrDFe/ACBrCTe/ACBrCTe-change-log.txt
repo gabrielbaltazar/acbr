@@ -44,6 +44,266 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+21/09/2023
+-- ACBrCTeWebServices --
+[-] Correção para não fazer a consulta do recibo após o envio, quando o envio foi no modo síncrono.
+  Por: BigWings
+
+19/09/2023
+-- pcteCTeW --
+[*] Possível solução para a rejeição: Rejeição 646: 
+   CT-e emitido em ambiente de homologação com Razão Social do remetente diferente de 
+   CT-E EMITIDO EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL.
+  Por: Italo Giurizzato Junior
+
+06/09/2023
+-- ACBrCTeConhecimentos --
+[*] Altera a condição para ler a seção infOutros no arquivo INI.
+  Por: Diego Folieni
+-- pcteCTeW --
+[*] Altera a validação que verifica se vai gerar a tag TAF do grupo prop para CTe-OS.
+  Por: Diego Folieni
+
+30/08/2023
+-- ACBrCTeWebServices --
+[*] Adiciona checagem para que o parâmetro de envio seja definido como sincrôno quando versão for 4.00
+  Por: Diego Folieni
+
+29/08/2023
+-- ACBrCTeConhecimentos --
+[*] Alteração na leitura do valor da UF do grupo prop para que leia UF caso não ache propUF.
+  Por: Diego Folieni
+
+28/08/2023
+-- ACBrCTe/ACBrCTeWebServices --
+[*] Movido a checagem da versão para definir se é síncrono ou não para o CTe da
+    unit ACBrCTe para ACBrCTeWebServices.
+  Por: Italo Giurizzato Junior
+
+24/08/2023
+-- ACBrCTeConhecimentos --
+[*] Ajuste na rotina de geração e leitura do ini no grupo infCTeSub, visando melhor compatibilidade com MOC.
+  Por: Diego Folieni
+[*] Ajuste na rotina de leitura e geração do ini no grupo prop, visando melhor compatibilidade com MOC.
+  Por: Diego Folieni
+
+18/08/2023
+-- ACBrCTeWebServices --
+[*] Possível solução para a leitura correta do retorno do status de serviço.
+  Por: Sebastião Elivaldo
+-- ACBrCTeConhecimentos --
+[*] Adiciona na rotina de geração do INI o grupo InfOutros e seus subgrupos.
+  Por: Diego Folieni
+[*] Adiciona na rotina de geração e leitura do INI o grupo InfCTeMultimodal.
+  Por: Diego Folieni
+
+17/06/2023
+-- ACBrCTeConhecimentos --
+[*] Adiciona na rotina de geração do INI os subgrupos de infNF e infNFe visando compatibilidade com o MOC.
+  Por: Diego Folieni
+
+16/08/2023
+-- ACBrCTeConhecimentos --
+[*] Corrige o indice do grupo InfGTVeComp na rotina de leitura do INI.
+  Por: Diego Folieni 
+
+14/08/2023
+-- ACBrCTeConhecimentos --
+[*] Adiciona na rotina de geração de INI a seção InfCteComp;
+  Por: Diego Folieni
+
+11/08/2023
+-- ACBrCTeConhecimentos --
+[*] Adiciona na rotina de geração de INI as seções emiDocAnt, idDocAntPap e idDocAntEle.
+  Por: Diego Folieni
+
+08/08/2023
+-- ACBrCTeConhecimentos --
+[+] Adiciona na rotina de geração do INI o campo tpAmb no grupo Ide.
+  Por: Diego Folieni 
+[+] Adiciona na rotina de leitura do INI do CTe leitura do grupo protCTe
+  Por: Diego Folieni
+
+03/08/2023
+-- ACBrCTeConhecimentos --
+[+] Adicionado na rotina de geração do INI do CTe as informações que faltavam em no grupo Entrega.
+  Por: Diego Folieni
+
+28/07/2023
+-- ACBrCTeConhecimentos --
+[+] Adicionado na rotina de geração do INI do CTe as seções infPercurso e veicNovos.
+  Por: Italo Giurizzato Junior
+
+17/07/2023
+-- ACBrCTeConhecimentos --
+[+] Adiciona na rotina de geração do INI do CTe as seções ObsCont e ObsFisco
+  Por: Diego F
+-- pcteCTeR --
+[*] Possível solução para o problema de não gerar as tags qtdRat ao ler um XML e gerar novamente.
+  Por: Diego F
+
+14/07/2023
+-- pcteConsts/pcteCTeW --
+[*] Possível solução para o texto informado em xNome quando enviado para o 
+    ambiente de homologação.
+  Por: Italo Giurizzato Junior
+-- ACBrCTeDACTeRLRetrato --
+[*] Ajustes para imprimir corretamente CT-e com dezenas de NF-e vinculadas.
+    Observação: O ajuste foi feito só funciona se a posíção do canhoto for
+                cabeçalho, rodapé ainda esta com problemas.
+  Por: Rosemir
+
+11/04/2023
+-- ACBrCTeWebServices --
+[*] A SEFAZ-MG resolveu usar os mesmos NameSpace e SoapAction usado pelas demais
+    SEFAZ.
+  Por: Wagner Oliveira
+
+03/07/2023
+-- ACBrCTeDACTeRLRetrato/ACBrCTeDACTeRLRetratoA5 --
+[*] Ajustes para imprimir corretamente as chaves dos CT-e complementados na 
+    versão 4.00
+  Por: Italo Giurizzato Junior
+
+28/06/2023
+-- ACBrCTeWebServices --
+[*] Ajustes para funcionar com a SEFAZ-MG, pois ela esta usando NameSpace e
+    SoapAction diferente das demais.
+  Por: Italo Giurizzato Junior
+-- ACBrCTeServicos --
+[*] Atualização com as novas URL de produção da versão 4.00 que estavam faltando.
+  Por: Italo Giurizzato Junior
+-- ACBrCTe, pcteCTeW --
+[*] Ajuste visando corrigir problema de Parse Entity ao recarregar um XML para enviar.
+  Por: JeannyPaiva
+
+26/06/2023
+-- ACBrCTeServicos --
+[+] Incluídas as URLs de Produção (versão 4.00) UF: SVSP
+    Observação: SVSP atende as UF: AP, PE, RR e SP
+  Por: BigWings
+
+23/06/2023
+-- ACBrCTeWebServices --
+[*] Ajustes para funcionar com a SEFAZ-MG, pois ela esta usando NameSpace e
+    SoapAction diferente das demais.
+  Por: Jeanny Paiva Lopes
+-- pcteEnvEventoCTe --
+[*] A tag xJustMotivo estava como obrigatória, sendo que é opcional.
+  Por: Jeanny Paiva Lopes
+
+21/06/2023
+-- ACBrCTe/pcteCTeW --
+[*] Remoção do CDATA do conteudo da tag qrCodCTe, alguns sistemas ao carregar o XML
+    do CT-e não intepretam corretamente o CDATA.
+  Por: Márcio B.
+
+15/06/2023
+-- ACBrCTeWebServices --
+[+] Incluído o tratamento para validar o evento de cancelamento de prestação em
+    desacordo.
+  Por: Túlio de Pádua
+
+05/06/2023
+-- ACBrCTeConhecimentos --
+[*] Altera a leitura do INI para que preencha a tag da versão 3.00 e também as da versão 4.00
+  Por: Diego F
+
+01/06/2023
+-- pcteCTeW --
+[*] Cria função e altera nas ocorrências do campo qtdRat para que o arredondamente seja por 2 ou 3 casas decimais de acordo com a versão do CTe.
+  Por: Diego F
+
+31/05/2023
+-- ACBrCTeServicos --
+[+] A SEFAZ-MT informou as URL de homologação para a versão 4.00
+  Por: Italo Giurizzato Junior
+
+18/05/2023
+-- pcteRetEnvCTe --
+[*] Ajuste na leitura do atributo
+  Por: Italo Giurizzato Junior
+-- pcteRetEnvCTe --
+[*] A SEFAZ-MG trocou a nomenclatura da tag de retorno do envio de lote.
+  Por: Leandro
+
+17/05/2023
+-- ACBrCTeWebServices --
+[*] A SEFAZ-RS trocou novamente a nomenclatura da tag de retorno da consulta ao status
+    de servico, antes era Cte agora é CTe.
+  Por: Italo Giurizzato Junior
+-- ACBrCTeWebServices --
+[*] Alteração na procedure SalvarEventos, antes de salvar remove todos os prefixos
+    "ds:" que por ventura estejam presentes no XML.
+  Por: Italo Giurizzato Junior
+-- ACBrCTeWebServices --
+[*] Correção, não estava separando o grupo do evento de insucesso e cancelamento de 
+    insucesso de entrega para poder validar o mesmo.
+  Por: Italo Giurizzato Junior
+
+11/05/2023
+-- ACBrCTeWebServices --
+[*] SEFAZ-RS alterou a grafia da tag de retorno de consulta ao status de serviço.
+    Realizado um ajuste para atender essa alteração e as demais UF.
+  Por: Italo Giurizzato Junior
+
+10/05/2023
+-- ACBrCTeWebServices --
+[*] SEFAZ-SP alterou as URLs de NameSpace e SoapAction para deixar 
+    igual a de SEFAZ-RS.
+  Por: Italo Giurizzato Junior
+
+04/05/2023
+-- ACBrCTeWebServices --
+[*] Ajustes para o envio correto para os modelos CT-e OS e GTV-e.
+  Por: Italo Giurizzato Junior
+
+27/04/2023
+-- ACBrCTeWebServices --
+[*] Ajuste na leitura do retorno do método Consultar Status de Serviço.
+  Por: Italo Giurizzato Junior
+
+26/04/2023
+-- ACBrCTeWebServices --
+[*] Criado as funções: GetVersaoV4 e GetPrefixoServico, para contornar as diferenças
+    nos NameSpaces e SoapActions dos serviços da versão 4.00 entre algumas UFs.
+  Por: Italo Giurizzato Junior
+
+25/04/2023
+-- ACBrCTeServicos --
+[+] Incluída as URLs de Homologação (versão 4.00) das UF: MG, MS e SP/SVSP
+[+] Incluída as URLs de Homologação e Produção (versão 4.00) da UF: RS/SVRS
+    Observação: SVSP atende as UF: AP, PE, RR e SP
+                SVRS atende as UF: AC, AL, AM, BA, CE, DF, ES, GO, MA, PA, PB, PI, RJ, RN, RO, RS, SC, SE e TO
+  Por: Italo Giurizzato Junior
+
+24/04/2023
+-- Diversos --
+[+] Implementação dos eventos: Insucesso na Entrega e Cancelamento de Insucesso
+    na Entrega.
+    Atenção: Disponível nos WebServices a partir de:
+               15/05/2023 - Homologação
+               17/07/2023 - Produção
+   por: Italo Giurizzato Junior
+-- ACBrCTeWebServices --
+[*] Mas ajustes visando atender a versão 4.00
+   por: Italo Giurizzato Junior
+
+10/04/2023
+-- ACBrCTeWebServices --
+[*] Ajuste para não gerar o grupo <Header> quando a versão for 4.00
+   por: Italo Giurizzato Junior
+
+30/03/2023
+-- Diversos--
+[*] Alteração visando a versão 4.00 do CT-e.
+   por: Italo Giurizzato Junior
+
+30/01/2023
+-- pcteCTe/pcteCTeR --
+[*] Alteração visando a leitura da tag CST para ICMSSN.
+   por: Giquieu
+
 21/10/2022
 -- pcteProcCTe--
 [*] Alteração visando a montagem correta do XML do GTVe Assinado e Protocolado.

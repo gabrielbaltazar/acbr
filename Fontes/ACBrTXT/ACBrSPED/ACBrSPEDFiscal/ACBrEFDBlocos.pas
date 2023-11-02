@@ -79,7 +79,7 @@ type
                                   vlVersao113,  // Código 014 - Versão 113 Ato COTEPE 01/01/2020
                                   vlVersao114,  // Código 015 - Versão 114 Ato COTEPE 01/01/2021
                                   vlVersao115,  // Código 016 - Versão 115 Ato COTEPE 01/01/2022
-                                  vlVersao116   // Código 016 - Versão 116 Ato COTEPE 01/01/2023
+                                  vlVersao116   // Código 017 - Versão 116 Ato COTEPE 01/01/2023
                                  );
   TACBrVersaoLeiaute = TACBrVersaoLeiauteSPEDFiscal {$IfDef DELPHI2009_UP} deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Esse tipo é obsoleto: Use o tipo TACBrVersaoLeiauteSPEDFiscal'{$EndIf}{$EndIf};
   TACBrCodVer = TACBrVersaoLeiauteSPEDFiscal {$IfDef DELPHI2009_UP} deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Esse tipo é obsoleto: Use o tipo TACBrVersaoLeiauteSPEDFiscal'{$EndIf}{$EndIf};
@@ -531,7 +531,13 @@ type
                    sticmsSimplesNacionalImune                                , // '300' // Simples Nacional - Imune
                    sticmsSimplesNacionalNaoTributada                         , // '400' // Simples Nacional - Não tributada pelo Simples Nacional
                    sticmsSimplesNacionalCobradoAnteriormentePorST            , // '500' // Simples Nacional - ICMS cobrado anteriormente por substituição tributária (substituído) ou por antecipação
-                   sticmsSimplesNacionalOutros                                 // '900' // Simples Nacional - Outros
+                   sticmsSimplesNacionalOutros                               , // '900' // Simples Nacional - Outros
+
+                   sticmsTributacaoMonofasicaPropriaCombustives              , // '002' // Tributação Monofásica Própria do ICMS nas operações com combustíveis
+                   sticmsTributacaoMonofasicaPropriacomRetencaoCombustiveis  , // '015' // Tributação Monofásica Própria e com responsabilidade pela retenção do ICMS nas operações com combustíveis
+                   sticmsTributacaoMonofasicaRecolhimentoDiferidoCombustiveis, // '053' // Tributação Monofásica com recolhimento diferido do ICMS nas operações com combustíveis
+                   sticmsTributacaoMonofasicaCombustiveisCobradoAnteriormente  // '061' // Tributação Monofásica sobre combustíveis com ICMS cobrado anteriormente
+
                 );
   TACBrSituacaoTribICMS = TACBrCstIcms;
 
@@ -838,6 +844,8 @@ type
   function StrToFinEmissaoFatElet(const aValue: string): TACBrFinEmissaoFaturaEletronica;
   function TipoFaturamentoDOCeToStr(aValue: TACBrTipoFaturamentoDocumentoEletronico): String;
   function StrToTipoFaturamentoDOCe(const aValue: String): TACBrTipoFaturamentoDocumentoEletronico;
+  function IndTipoLeiauteToStr(aValue: TACBrIndTipoLeiaute): string;
+  function StrToIndTipoLeiaute(const aValue: string): TACBrIndTipoLeiaute;
 
 implementation
 
@@ -2111,7 +2119,32 @@ begin
   else if (aValue = '1') then
     Result := tfdeFaturamentoCentralizado
   else if (aValue = '2') then
-    Result := tfdeCofaturamento;
+    Result := tfdeCofaturamento
+  else
+    raise EACBrSPEDFiscalException.CreateFmt('Valor "%s" não é válido para TACBrTipoFaturamentoDocumentoEletronico.', [aValue]);
+end;
+
+function IndTipoLeiauteToStr(aValue: TACBrIndTipoLeiaute): string;
+begin
+  case (aValue) of
+    itlSimplificado: Result := '0';
+    itlCompleto: Result := '1';
+    itlRestritoSaldoEstoque: Result := '2';
+  else
+    raise EACBrSPEDFiscalException.Create('TACBrIndTipoLeiaute com valor inválido');
+  end;
+end;
+
+function StrToIndTipoLeiaute(const aValue: string): TACBrIndTipoLeiaute;
+begin
+  if (aValue = '0') then
+    Result := itlSimplificado
+  else if (aValue = '1') then
+    Result := itlCompleto
+  else if (aValue = '2') then
+    Result := itlRestritoSaldoEstoque
+  else
+    raise EACBrSPEDFiscalException.CreateFmt('Valor "%s" não é válido para TACBrIndTipoLeiaute.', [aValue]);
 end;
 
 end.

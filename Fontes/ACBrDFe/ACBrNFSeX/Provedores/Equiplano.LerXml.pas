@@ -61,7 +61,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Base, ACBrUtil.Strings, ACBrDFeUtil;
+  ACBrUtil.Base, ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva de ler o XML do provedor:
@@ -110,6 +110,8 @@ begin
     with NFSe.Servico do
     begin
       Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('dsDiscriminacaoServico'), tcStr);
+      Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('nrCidadeIbgeServico'), tcStr);
     end;
 
@@ -130,6 +132,8 @@ begin
       ValorIr       := ObterConteudo(AuxNode.Childrens.FindAnyNs('vlAliquotaIrpj'), tcDe2);
       ValorCsll     := ObterConteudo(AuxNode.Childrens.FindAnyNs('vlCsll'), tcDe2);
       ValorInss     := ObterConteudo(AuxNode.Childrens.FindAnyNs('vlInss'), tcDe2);
+
+      RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
     end;
 
     AuxNode := AuxNode.Childrens.FindAnyNs('cancelamento');
@@ -179,7 +183,7 @@ begin
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('nrCep'), tcStr);
 
       if xMunicipio = '' then
-        xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+        xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
       if UF = '' then
         UF := xUF;
@@ -249,6 +253,8 @@ begin
         BaseCalculo := ObterConteudo(ANodes[i].Childrens.FindAnyNs('vlBaseCalculo'), tcDe2);
         ValorISS := ObterConteudo(ANodes[i].Childrens.FindAnyNs('vlIssServico'), tcDe2);
         Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('dsDiscriminacaoServico'), tcStr);
+        Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
         ValorTotal := Quantidade * ValorUnitario;
       end;
@@ -279,10 +285,18 @@ begin
         NFSe.Servico.ItemServico[i].Descricao;
     end;
 
+    NFSe.Servico.Discriminacao := StringReplace(NFSe.Servico.Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
     with NFSe.Servico.Valores do
-      ValorLiquidoNfse := ValorServicos - ValorPis - ValorCofins - ValorInss -
-                          ValorIr - ValorCsll - OutrasRetencoes - ValorIssRetido -
-                          DescontoIncondicionado - DescontoCondicionado;
+    begin
+      ValorLiquidoNfse := ValorServicos - RetencoesFederais - OutrasRetencoes -
+                          ValorIssRetido - DescontoIncondicionado -
+                          DescontoCondicionado;
+
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
+    end;
   end;
 end;
 
@@ -333,8 +347,12 @@ function TNFSeR_Equiplano.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -385,12 +403,15 @@ begin
 //    LerRetencoes(ANode);
     LerCancelamento(AuxNode);
   end;
+
+  LerCampoLink;
 end;
 
 function TNFSeR_Equiplano.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
 var
   AuxNode, AuxNodeDoc: TACBrXmlNode;
   Ok: Boolean;
+  xUF: string;
 begin
   Result := True;
 
@@ -429,6 +450,7 @@ begin
         with IdentificacaoTomador do
         begin
           InscricaoEstadual := ObterConteudo(AuxNode.Childrens.FindAnyNs('nrInscricaoEstadual'), tcStr);
+          InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('nrInscricaoMunicipal'), tcStr);
         end;
 
         with Endereco do
@@ -441,6 +463,10 @@ begin
           UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('nmUf'), tcStr);
           xPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('nmPais'), tcStr);
           CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('nrCep'), tcStr);
+          xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
+
+          if UF = '' then
+            UF := xUF;
         end;
 
         AuxNodeDoc := AuxNode.Childrens.FindAnyNs('documento');

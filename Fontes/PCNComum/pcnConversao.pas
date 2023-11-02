@@ -61,7 +61,8 @@ type
                   // tcEsp = String: somente numeros;
   TpcnTipoCampo = (tcStr, tcInt, tcDat, tcDatHor, tcEsp, tcDe2, tcDe3, tcDe4,
                    tcDe5, tcDe6, tcDe7, tcDe8, tcDe10, tcHor, tcDatCFe, tcHorCFe, tcDatVcto,
-                   tcDatHorCFe, tcBoolStr, tcStrOrig, tcNumStr, tcInt64, tcDe1);
+                   tcDatHorCFe, tcBoolStr, tcStrOrig, tcNumStr, tcInt64, tcDe1,
+                   tcDatBol);
   TpcnFormatoGravacao = (fgXML, fgTXT);
   TpcnTagAssinatura = (taSempre, taNunca, taSomenteSeAssinada, taSomenteParaNaoAssinada);
 
@@ -80,9 +81,12 @@ type
                           oeEstrangeiraImportacaoDiretaSemSimilar, oeEstrangeiraAdquiridaBrasilSemSimilar,
                           oeNacionalConteudoImportacaoSuperior70, oeReservadoParaUsoFuturo, 
                           oeVazio);
+
   TpcnCSTIcms = (cst00, cst10, cst20, cst30, cst40, cst41, cst45, cst50, cst51,
                  cst60, cst70, cst80, cst81, cst90, cstPart10, cstPart90,
-                 cstRep41, cstVazio, cstICMSOutraUF, cstICMSSN, cstRep60); //80 e 81 apenas para CTe
+                 cstRep41, cstVazio, cstICMSOutraUF, cstICMSSN, cstRep60,
+                 cst02, cst15, cst53, cst61); //80 e 81 apenas para CTe
+
   TpcnCSOSNIcms = (csosnVazio,csosn101, csosn102, csosn103, csosn201, csosn202, csosn203, csosn300, csosn400, csosn500,csosn900 );
   TpcnDeterminacaoBaseIcms = (dbiMargemValorAgregado, dbiPauta, dbiPrecoTabelado, dbiValorOperacao, dbiNenhum);
   TpcnDeterminacaoBaseIcmsST = (dbisPrecoTabelado, dbisListaNegativa,
@@ -139,7 +143,9 @@ type
                   teLiberacaoPrazoCancelado, tePagamentoOperacao, teExcessoBagagem,
                   teEncerramentoFisco, teComprEntregaNFe, teCancComprEntregaNFe,
                   teAtorInteressadoNFe, teComprEntregaCTe, teCancComprEntregaCTe,
-                  teConfirmaServMDFe, teAlteracaoPagtoServMDFe);
+                  teConfirmaServMDFe, teAlteracaoPagtoServMDFe,
+                  teCancPrestDesacordo, teInsucessoEntregaCTe,
+                  teCancInsucessoEntregaCTe);
 
   TpcnIndicadorEmissor = (ieTodos, ieRaizCNPJDiferente);
   TpcnIndicadorContinuacao = (icNaoPossuiMaisDocumentos, icPossuiMaisDocumentos);
@@ -217,7 +223,7 @@ type
   end;
 
 const
-  TpcnTpEventoString : array[0..70] of String =('-99999', '110110', '110111',
+  TpcnTpEventoString : array[0..73] of String =('-99999', '110110', '110111',
                                                 '210200', '210210', '210220',
                                                 '210240', '110112', '110113',
                                                 '110114', '110160', '310620',
@@ -240,7 +246,8 @@ const
                                                 '240170', '110116', '110117',
                                                 '310112', '110130', '110131',
                                                 '110150', '610130', '610131',
-                                                '110117', '110118');
+                                                '110117', '110118', '610111',
+                                                '110190', '110191');
 
   DFeUF: array[0..26] of String =
   ('AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA',
@@ -814,26 +821,33 @@ begin
   // ID -> N12  - Outros
   result := EnumeradoToStr(t, ['', '00', '10', '20', '30', '40', '41', '45', '50', '51',
                                '60', '70', '80', '81', '90', '90', 'SN',
-                               '10', '90', '41', '60'],
+                               '10', '90', '41', '60', '02', '15', '53', '61'],
                               [cstVazio, cst00, cst10, cst20, cst30, cst40, cst41, cst45, cst50, cst51,
                               cst60, cst70, cst80, cst81, cst90, cstICMSOutraUF, cstICMSSN,
-                              cstPart10, cstPart90, cstRep41, cstRep60]);
+                              cstPart10, cstPart90, cstRep41, cstRep60,
+                              cst02, cst15, cst53, cst61]);
 end;
 
 function StrToCSTICMS(out ok: boolean; const s: string): TpcnCSTIcms;
 begin
   result := StrToEnumerado(ok, s, ['', '00', '10', '20', '30', '40', '41', '45', '50', '51', '60',
                                    '70', '80', '81', '90', '91', 'SN',
-                                   '10part', '90part', '41rep', '60rep'],
+                                   '10part', '90part', '41rep', '60rep',
+                                   '02', '15', '53', '61'],
                                   [cstVazio, cst00, cst10, cst20, cst30, cst40, cst41, cst45, cst50, cst51, cst60,
                                    cst70, cst80, cst81, cst90, cstICMSOutraUF, cstICMSSN,
-                                   cstPart10, cstPart90, cstRep41, cstRep60]);
+                                   cstPart10, cstPart90, cstRep41, cstRep60,
+                                   cst02, cst15, cst53, cst61]);
 end;
 
 function CSTICMSToStrTagPos(const t: TpcnCSTIcms): string;
 begin
-  result := EnumeradoToStr(t, ['02', '03', '04', '05', '06', '06', '06', '07', '08', '09', '10', '11', '12', '10a', '10a', '10b', '10b'],
-    [cst00, cst10, cst20, cst30, cst40, cst41, cst50, cst51, cst60, cst70, cst80, cst81, cst90, cstPart10 , cstPart90 , cstRep41, cstRep60]);
+  result := EnumeradoToStr(t, ['02', '03', '04', '05', '06', '06', '06', '07',
+                     '08', '09', '10', '11', '12', '10a', '10a', '10b', '10b',
+                     '13', '14', '15', '16'],
+    [cst00, cst10, cst20, cst30, cst40, cst41, cst50, cst51, cst60, cst70,
+     cst80, cst81, cst90, cstPart10 , cstPart90 , cstRep41, cstRep60,
+     cst02, cst15, cst53, cst61]);
 end;
 
 function CSTICMSToStrTagPosText(const t: TpcnCSTIcms): string;
@@ -859,10 +873,15 @@ begin
     '10 - TRIBUTADA E COM COBRANÇA DO ICMS POR SUBSTITUIÇÃO TRIBUTÁRIA - PARTILHA',
     '90 - OUTROS - PARTILHA',
     '41 - NÃO TRIBUTADO - REPASSE',
-    '60 - COBRADO ANTERIORMENTE POR SUBSTITUIÇÃO TRIBUTÁRIA - REPASSE'
+    '60 - COBRADO ANTERIORMENTE POR SUBSTITUIÇÃO TRIBUTÁRIA - REPASSE',
+    '02 - Tributação monofásica própria sobre combustíveis',
+    '15 - Tributação monofásica própria e com responsabilidade pela retenção sobre combustíveis',
+    '53 - Tributação monofásica sobre combustíveis com recolhimento diferido',
+    '61 - Tributação monofásica sobre combustíveis cobrada anteriormente'
     ],
     [cstVazio, cst00, cst10, cst20, cst30, cst40, cst41, cst45, cst50, cst51, cst60, cst70,
-    cst80, cst81, cst90, cstICMSOutraUF, cstICMSSN, cstPart10, cstPart90, cstRep41, cstRep60]);
+    cst80, cst81, cst90, cstICMSOutraUF, cstICMSSN, cstPart10, cstPart90, cstRep41, cstRep60,
+    cst02, cst15, cst53, cst61]);
 end;
 
 // N13 - Modalidade de determinação da BC do ICMS ******************************
@@ -1142,8 +1161,9 @@ begin
               'AutorizadoRedespacho', 'AutorizadoRedespIntermed', 'AutorizadoSubcontratacao',
               'AutorizadoServMultimodal', 'CancelamentoPorSubstituicao',
               'AlteracaoPoltrona', 'ExcessoBagagem', 'EncerramentoFisco',
-              'teComprEntregaNFe', 'CancComprEntregaNFe',
-              'AtorInteressadoNFe', 'teComprEntregaCTe', 'CancComprEntregaCTe'],
+              'ComprEntregaNFe', 'CancComprEntregaNFe',
+              'AtorInteressadoNFe', 'ComprEntregaCTe', 'CancComprEntregaCTe',
+              'CancPrestDesacordo', 'InsucessoEntregaCTe', 'CancInsucessoEntregaCTe'],
              [teNaoMapeado, teCCe, teCancelamento, teManifDestConfirmacao, teManifDestCiencia,
               teManifDestDesconhecimento, teManifDestOperNaoRealizada,
               teEncerramento, teEPEC, teInclusaoCondutor, teMultiModal,
@@ -1164,7 +1184,8 @@ begin
               teautorizadoServMultimodal, teCancSubst, teAlteracaoPoltrona,
               teExcessoBagagem, teEncerramentoFisco, teComprEntregaNFe,
               teCancComprEntregaNFe, teAtorInteressadoNFe, teComprEntregaCTe,
-              teCancComprEntregaCTe]);
+              teCancComprEntregaCTe, teCancPrestDesacordo, teInsucessoEntregaCTe,
+              teCancInsucessoEntregaCTe]);
 end;
 
 

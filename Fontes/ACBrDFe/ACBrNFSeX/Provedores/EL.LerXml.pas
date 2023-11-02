@@ -225,13 +225,14 @@ begin
 
   if AuxNode <> nil then
   begin
+    NFSe.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+    NFSe.InfID.ID := NFSe.Numero;
+
     with NFSe.IdentificacaoRps do
     begin
-      Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+      Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('NumeroRps'), tcStr);
       Serie  := ObterConteudo(AuxNode.Childrens.FindAnyNs('Serie'), tcStr);
       Tipo   := FpAOwner.StrToTipoRPS(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('Tipo'), tcStr));
-
-      NFSe.InfID.ID := Numero;
     end;
   end;
 end;
@@ -309,6 +310,9 @@ begin
 
   if AuxNode <> nil then
     NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('Observacao'), tcStr);
+
+  NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 end;
 
 procedure TNFSeR_EL.LerServicos(const ANode: TACBrXmlNode);
@@ -317,6 +321,7 @@ var
   ANodes: TACBrXmlNodeArray;
   i: integer;
   aValorTotal: Double;
+  CodigoItemServico: string;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('Servicos');
 
@@ -324,9 +329,14 @@ begin
   begin
     ANodes := AuxNode.Childrens.FindAllAnyNs('Servico');
 
+    if ANodes = nil then
+      ANodes := ANode.Childrens.FindAllAnyNs('Servicos');
+
     for i := 0 to Length(ANodes) - 1 do
     begin
-      NFSe.Servico.ItemListaServico := OnlyNumber(ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoServico116'), tcStr));
+      CodigoItemServico := OnlyNumber(ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoServico116'), tcStr));
+      NFSe.Servico.ItemListaServico := NormatizarItemListaServico(CodigoItemServico);
+      NFSe.Servico.xItemListaServico := ItemListaServicoDescricao(NFSe.Servico.ItemListaServico);
       NFSe.Servico.CodigoCnae := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoCnae'), tcStr);
 
       NFSe.Servico.ItemServico.New;
@@ -339,6 +349,8 @@ begin
         Unidade       := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Unidade'), tcStr);
         ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorServico'), tcDe2);
         Descricao     := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Descricao'), tcStr);
+        Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
         Aliquota      := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Aliquota'), tcDe4);
         ValorISS      := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorIssqn'), tcDe4);
 
@@ -373,6 +385,11 @@ begin
       ValorIssRetido   := ObterConteudo(AuxNode.Childrens.FindAnyNs('ValorIssRetido'), tcDe2);
       OutrosDescontos  := ObterConteudo(AuxNode.Childrens.FindAnyNs('OutrosDescontos'), tcDe2);
       BaseCalculo      := ValorServicos - ValorDeducoes;
+
+      RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
     end;
   end;
 end;
@@ -381,8 +398,12 @@ function TNFSeR_EL.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -445,18 +466,23 @@ begin
 
   AuxNode := ANode.Childrens.FindAnyNs('Nfse');
 
+  if AuxNode = nil then
+    AuxNode := ANode;
+
   if AuxNode <> nil then
   begin
     with NFSe do
     begin
-      CodigoVerificacao := ObterConteudo(ANode.Childrens.FindAnyNs('Id'), tcStr);
+      CodigoVerificacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('Id'), tcStr);
       Link := CodigoVerificacao;
       Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
-      DataEmissao := ObterConteudo(ANode.Childrens.FindAnyNs('DataEmissao'), tcDatHor);
-      OutrasInformacoes := ObterConteudo(ANode.Childrens.FindAnyNs('Observacao'), tcStr);
-      SituacaoNfse := StrToStatusNFSe(Ok, ObterConteudo(ANode.Childrens.FindAnyNs('Status'), tcStr));
+      DataEmissao := ObterConteudo(AuxNode.Childrens.FindAnyNs('DataEmissao'), tcDatHor);
+      OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('Observacao'), tcStr);
+      OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+      SituacaoNfse := StrToStatusNFSe(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('Status'), tcStr));
 
-      Servico.Valores.IssRetido := FpAOwner.StrToSituacaoTributaria(Ok, ObterConteudo(ANode.Childrens.FindAnyNs('IssRetido'), tcStr));
+      Servico.Valores.IssRetido := FpAOwner.StrToSituacaoTributaria(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('IssRetido'), tcStr));
     end;
 
     LerIdentificacaoNfse(AuxNode);
@@ -479,6 +505,8 @@ begin
     CodigoVerificacao := ObterConteudo(ANode.Childrens.FindAnyNs('Id'), tcStr);
     DataEmissao := ObterConteudo(ANode.Childrens.FindAnyNs('DataEmissao'), tcDatHor);
     OutrasInformacoes := ObterConteudo(ANode.Childrens.FindAnyNs('Observacao'), tcStr);
+    OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
     SituacaoNfse := StrToStatusNFSe(Ok, ObterConteudo(ANode.Childrens.FindAnyNs('Status'), tcStr));
 
     Servico.Valores.IssRetido := FpAOwner.StrToSituacaoTributaria(Ok, ObterConteudo(ANode.Childrens.FindAnyNs('IssRetido'), tcStr));

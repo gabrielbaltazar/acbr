@@ -37,7 +37,14 @@ unit ACBrBoletoW_BancoBrasil;
 interface
 
 uses
-  Classes, SysUtils, ACBrBoletoWS, pcnConversao, pcnGerador, ACBrBoletoConversao, ACBrBoleto;
+  Classes,
+  SysUtils,
+  ACBrBoletoWS,
+  pcnConversao,
+  pcnGerador,
+  ACBrBoletoConversao,
+  ACBrBoleto,
+  ACBrBoletoWS.SOAP;
 
 type
 
@@ -59,6 +66,7 @@ type
     procedure GerarHeader; override;
     procedure GerarDados; override;
 
+    function DefinirSOAPAtributtes:string; override;
     procedure GerarRequisicao;
 
     function PrefixTag(AValue: String): String;
@@ -138,6 +146,11 @@ begin
   FPSoapAction := Servico;
 end;
 
+function TBoletoW_BancoBrasil.DefinirSOAPAtributtes: string;
+begin
+  Result := C_SOAP_ATTRIBUTTES;
+end;
+
 procedure TBoletoW_BancoBrasil.DefinirRootElement;
 begin
   FPRootElement:= '';
@@ -155,6 +168,11 @@ begin
   result:= '';
   if Assigned(OAuth) then
   begin
+    OAuth.GrantType := 'client_credentials';
+    OAuth.ParamsOAuth := C_GRANT_TYPE
+                       + '=' + OAuth.GrantType
+                       + '&' + C_SCOPE
+                       + '=' + OAuth.Scope;
     if OAuth.GerarToken then
       result := OAuth.Token
     else

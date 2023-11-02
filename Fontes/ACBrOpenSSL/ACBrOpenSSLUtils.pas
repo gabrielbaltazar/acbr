@@ -55,19 +55,32 @@ resourcestring
   sErrParamIsEmpty = 'Param %s is Empty';
   sErrParamIsInvalid = 'Param %s has invalid value';
   sErrInvalidOpenSSHKey = 'OpenSSH Key is Invalid';
+  sErrCreatingCtx = 'Error creating Context';
+  sErrMethodError = 'Error on method %s'+sLineBreak+'%s';
+  sErrOldVersion = 'OpenSSL Version must be %s or higher';
 
 const
   CBufferSize = 32768;
+  CMINVERSION = '1.1.0';
   COpenSSHPrefix = 'ssh-rsa';
   CPrivate = 'Private';
   CPublic = 'Public';
   CPFX = 'PFX';
   CPEM = 'PEM';
   CX509 = 'X509';
+  CBeginCertificate = 'BEGIN CERTIFICATE';
+  CEndCertificate = 'END CERTIFICATE';
+  CBeginRSA = 'BEGIN RSA';
+  CEndRSA = 'END RSA';
 
 type
   TACBrOpenSSLAlgorithm = ( algMD2, algMD4, algMD5, algRMD160, algSHA, algSHA1,
-                       algSHA256, algSHA512);
+                            algSHA256, algSHA512);
+  TACBrOpenSSLPadding = ( rsaPKCS1_PADDING, rsaSSLV23_PADDING, rsaNO_PADDING,
+                          rsaPKCS1_OAEP_PADDING, rsaX931_PADDING, rsaPKCS1_PSS_PADDING,
+                          rsaPKCS1_WITH_TLS_PADDING, rsaPKCS1_NO_IMPLICIT_REJECT_PADDING,
+                          rsaPKCS1_PADDING_SIZE);
+
   TACBrOpenSSLStrType = (sttHexa, sttBase64, sttBinary);
   TACBrOpenSSLKeyBits = (bit512, bit1024, bit2048);
   TACBrOpenSSLCredential = (crePubKey, crePrivKey, crePFX, creCertX09);
@@ -120,6 +133,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Clear;
 
     function CalcHashFromStream(AStream: TStream; Algorithm: TACBrOpenSSLAlgorithm;
       OutputType: TACBrOpenSSLStrType = sttHexa; Sign: Boolean = False): AnsiString;
@@ -146,8 +160,21 @@ type
       const AHash: AnsiString; HashType: TACBrOpenSSLStrType = sttHexa;
       Signed: Boolean = False): Boolean;
 
-    function CryptFromStream(AStream: TStream; Algorithm: TACBrOpenSSLAlgorithm;
-      OutputType: TACBrOpenSSLStrType = sttHexa): AnsiString;
+    procedure PublicEncryptFromStream(inStream, outStream: TStream;
+      Algorithm: TACBrOpenSSLAlgorithm = algSHA1;
+      Padding: TACBrOpenSSLPadding = rsaPKCS1_OAEP_PADDING);
+    function PublicEncryptFromString(const AStr: AnsiString;
+      Algorithm: TACBrOpenSSLAlgorithm = algSHA1;
+      Padding: TACBrOpenSSLPadding = rsaPKCS1_OAEP_PADDING;
+      OutputType: TACBrOpenSSLStrType = sttBinary): AnsiString;
+
+    procedure PrivateDecryptFromStream(inStream, outStream: TStream;
+      Algorithm: TACBrOpenSSLAlgorithm = algSHA1;
+      Padding: TACBrOpenSSLPadding = rsaPKCS1_OAEP_PADDING);
+    function PrivateDecryptFromString(const AStr: AnsiString;
+      Algorithm: TACBrOpenSSLAlgorithm = algSHA1;
+      Padding: TACBrOpenSSLPadding = rsaPKCS1_OAEP_PADDING ;
+      OutputType: TACBrOpenSSLStrType = sttBinary): AnsiString;
 
   public
     property Version: String read GetVersion;
@@ -223,6 +250,7 @@ procedure GenerateKeyPair(out APrivateKey: String; out APublicKey: String;
 function GetLastOpenSSLError: String;
 function PasswordCallback(buf:PAnsiChar; size:Integer; rwflag:Integer; userdata: Pointer):Integer; cdecl;
 function OpenSSLAlgorithmToStr(Algorithm: TACBrOpenSSLAlgorithm): String;
+function OpenSSLPaddingToInt(APadding: TACBrOpenSSLPadding): Integer;
 function ConvertToStrType(ABinaryStr: AnsiString;
   OutputType: TACBrOpenSSLStrType = sttHexa): AnsiString;
 function ConvertFromStrType(ABinaryStr: AnsiString;
@@ -314,6 +342,8 @@ function ExtractModulusAndExponentFromKey(AKey: PEVP_PKEY; out Modulus: String;
 Var
   bio: pBIO;
   RsaKey: pRSA;
+  bnMod, bnExp: PBIGNUM;
+  UseFunctions: Boolean;
 begin
   InitOpenSSL;
   Modulus := '';
@@ -323,11 +353,25 @@ begin
   try
     if (RsaKey = Nil) then
       raise EACBrOpenSSLException.Create(sErrLoadingRSAKey + sLineBreak + GetLastOpenSSLError);
-    BN_print(bio, RsaKey^.e);
+
+    UseFunctions := (pos('RSA_get0_n', OpenSSLExt.OpenSSL_unavailable_functions) = 0);
+    if UseFunctions then
+    begin
+      bnMod := RSA_get0_n(RsaKey);
+      bnExp := RSA_get0_e(RsaKey);
+    end
+    else
+    begin
+      bnMod := RsaKey^.e;
+      bnExp := RsaKey^.d;
+    end;
+
+    BN_print(bio, bnMod);
     Modulus := String(BioToStr(bio));
     BIOReset(bio);
-    BN_print(bio, RsaKey^.d);
+    BN_print(bio, bnExp);
     Exponent := String(BioToStr(bio));
+
     Result := True;
   finally
     if (RsaKey <> Nil) then
@@ -343,6 +387,7 @@ var
   bnMod, bnExp: PBIGNUM;
   rsa: pRSA ;
   err: longint ;
+  UseFunctions: Boolean;
 begin
   InitOpenSSL;
   m := Trim(Modulus);
@@ -375,8 +420,16 @@ begin
     rsa := RSA_new;
   if (rsa = nil) then
     raise EACBrOpenSSLException.Create(sErrGeneratingRSAKey + sLineBreak + GetLastOpenSSLError);
-  rsa^.e := bnMod;
-  rsa^.d := bnExp;
+
+  UseFunctions := (pos('RSA_set0_key', OpenSSLExt.OpenSSL_unavailable_functions) = 0);
+  if UseFunctions then
+    RSA_set0_key(rsa, bnMod, bnExp, Nil)
+  else
+  begin
+    rsa^.e := bnMod;
+    rsa^.d := bnExp;
+  end;
+
   err := EvpPkeyAssign(AKey, EVP_PKEY_RSA, rsa);
   if (err < 1) then
     raise EACBrOpenSSLException.Create(sErrSettingRSAKey + sLineBreak + GetLastOpenSSLError);
@@ -393,8 +446,9 @@ end;
 function ConvertPEMToASN1(aPEM: String): AnsiString;
 var
   sl: TStringList;
+  l, ul: String;
   b64: Boolean;
-  I: Integer;
+  i: Integer;
 begin
   Result := EmptyStr;
   if (not StringIsPEM(aPEM)) then
@@ -405,18 +459,22 @@ begin
     sl.Text := aPEM;
     b64 := False;
 
-    for I := 0 to sl.Count - 1 do
+    for i := 0 to sl.Count - 1 do
     begin
-      if (Pos('BEGIN', UpperCase(sl[I])) > 0) then
-      begin
-        b64 := True;
-        Continue;
-      end
-      else if b64 and (Pos('END', UpperCase(sl[I])) > 0) then
-        Break;
-
+      l := sl[i];
+      ul := UpperCase(l);
       if b64 then
-        Result := Result + sl[I];
+      begin
+        if ((Pos(CEndCertificate, ul) > 0) or (Pos(CEndRSA, ul) > 0)) then
+          Break;
+
+        if (Trim(l) = '') then    // 3.x insere informações da Chave no inicio, após o -- BEGIN --
+          Result := ''
+        else
+          Result := Result + l;
+      end
+      else
+        b64 := (Pos(CBeginCertificate, ul) > 0) or (Pos(CBeginRSA, ul) > 0);
     end;
 
     Result := DecodeBase64(Result);
@@ -623,6 +681,22 @@ begin
   end;
 end;
 
+function OpenSSLPaddingToInt(APadding: TACBrOpenSSLPadding): Integer;
+begin
+  case APadding of
+    rsaPKCS1_PADDING: Result := RSA_PKCS1_PADDING;
+    rsaSSLV23_PADDING: Result := RSA_SSLV23_PADDING;
+    rsaNO_PADDING: Result := RSA_NO_PADDING;
+    RSAX931_PADDING: Result := RSA_X931_PADDING;
+    rsaPKCS1_PSS_PADDING: Result := RSA_PKCS1_PSS_PADDING;
+    rsaPKCS1_WITH_TLS_PADDING: Result := RSA_PKCS1_WITH_TLS_PADDING;
+    rsaPKCS1_NO_IMPLICIT_REJECT_PADDING: Result := RSA_PKCS1_NO_IMPLICIT_REJECT_PADDING;
+    rsaPKCS1_PADDING_SIZE: Result := RSA_PKCS1_PADDING_SIZE;
+  else
+    Result := RSA_PKCS1_OAEP_PADDING;
+  end;
+end;
+
 function ConvertToStrType(ABinaryStr: AnsiString;
   OutputType: TACBrOpenSSLStrType): AnsiString;
 begin
@@ -664,9 +738,14 @@ end;
 
 destructor TACBrOpenSSLUtils.Destroy;
 begin
+  Clear;
+  inherited Destroy;
+end;
+
+procedure TACBrOpenSSLUtils.Clear;
+begin
   FreeCert;
   FreeKeys;
-  inherited Destroy;
 end;
 
 function TACBrOpenSSLUtils.CalcHashFromStream(AStream: TStream; Algorithm: TACBrOpenSSLAlgorithm;
@@ -902,10 +981,185 @@ begin
   end ;
 end;
 
-function TACBrOpenSSLUtils.CryptFromStream(AStream: TStream;
-  Algorithm: TACBrOpenSSLAlgorithm; OutputType: TACBrOpenSSLStrType): AnsiString;
+procedure TACBrOpenSSLUtils.PublicEncryptFromStream(inStream,
+  outStream: TStream; Algorithm: TACBrOpenSSLAlgorithm;
+  Padding: TACBrOpenSSLPadding);
+var
+  ctx: PEVP_PKEY_CTX;
+  bufIn, bufOut: PByte;
+  bufInSize, bufOutSize: Integer;
+  p: Integer;
+  md: PEVP_MD;
 begin
+  InitOpenSSL;
+  if IsOldLib then
+    raise EACBrOpenSSLException.CreateFmt(sErrOldVersion, [CMINVERSION]);
 
+  CheckPublicKeyIsLoaded;
+  md := GetEVPAlgorithmByName(Algorithm);
+  p := OpenSSLPaddingToInt(Padding);
+
+  ctx := EVP_PKEY_CTX_new(fEVP_PublicKey, nil);
+  try
+    if not Assigned(ctx) then
+      raise EACBrOpenSSLException.Create(sErrCreatingCtx);
+
+    if (EVP_PKEY_encrypt_init(ctx) <= 0) then
+      raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_encrypt_init', GetLastOpenSSLError]);
+
+    if (EVP_PKEY_CTX_set_rsa_padding(ctx, p) <= 0) then
+      raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_CTX_set_rsa_padding', GetLastOpenSSLError]);
+
+    if (p = RSA_PKCS1_OAEP_PADDING) then
+    begin
+      if (EVP_PKEY_CTX_set_rsa_oaep_md(ctx, md) <= 0) then
+        raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_CTX_set_rsa_oaep_md', GetLastOpenSSLError]);
+    end;
+
+    if (p = RSA_PKCS1_OAEP_PADDING) or (p = RSA_PKCS1_PSS_PADDING) then
+    begin
+      if (EVP_PKEY_CTX_set_rsa_mgf1_md(ctx, md) <= 0) then
+        raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_CTX_set_rsa_mgf1_md', GetLastOpenSSLError]);
+    end;
+
+    bufInSize := inStream.Size;
+    bufIn := AllocMem(bufInSize);
+    bufOut := nil;
+    bufOutSize := 0;
+    try
+      inStream.Position := 0;
+      inStream.Read(bufIn^, bufInSize);
+
+      if (EVP_PKEY_encrypt(ctx, bufOut, @bufOutSize, bufIn, bufInSize) <= 0) then
+        raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_encrypt, getsize', GetLastOpenSSLError]);
+
+      bufOut := AllocMem(bufOutSize);
+      try
+        if (EVP_PKEY_encrypt(ctx, bufOut, @bufOutSize, bufIn, bufInSize) <= 0) then
+          raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_encrypt', GetLastOpenSSLError]);
+
+        outStream.Size := 0;
+        outStream.Write(bufOut^, bufOutSize);
+      finally
+        Freemem(bufOut);
+      end;
+    finally
+      Freemem(bufIn);
+    end;
+  finally
+    EVP_PKEY_CTX_free(ctx);
+  end;
+end;
+
+
+function TACBrOpenSSLUtils.PublicEncryptFromString(const AStr: AnsiString;
+  Algorithm: TACBrOpenSSLAlgorithm; Padding: TACBrOpenSSLPadding;
+  OutputType: TACBrOpenSSLStrType): AnsiString;
+Var
+  msIn, msOut: TMemoryStream;
+begin
+  msIn := TMemoryStream.Create;
+  msOut := TMemoryStream.Create;
+  try
+    WriteStrToStream(msIn, AStr);
+    PublicEncryptFromStream(msIn, msOut, Algorithm, Padding);
+    msOut.Position := 0;
+    msOut.Position := 0;
+    Result := ConvertToStrType( ReadStrFromStream(msOut, msOut.Size), OutputType);
+  finally
+    msIn.Free;
+    msOut.Free;
+  end ;
+end;
+
+procedure TACBrOpenSSLUtils.PrivateDecryptFromStream(inStream,
+  outStream: TStream; Algorithm: TACBrOpenSSLAlgorithm;
+  Padding: TACBrOpenSSLPadding);
+var
+  ctx: PEVP_PKEY_CTX;
+  bufIn, bufOut: PByte;
+  bufInSize, bufOutSize: Integer;
+  p: Integer;
+  md: PEVP_MD;
+begin
+  InitOpenSSL;
+  if IsOldLib then
+    raise EACBrOpenSSLException.CreateFmt(sErrOldVersion, [CMINVERSION]);
+
+  CheckPrivateKeyIsLoaded;
+  md := GetEVPAlgorithmByName(Algorithm);
+  p := OpenSSLPaddingToInt(Padding);
+
+  ctx := EVP_PKEY_CTX_new(fEVP_PrivateKey, nil);
+  try
+    if not Assigned(ctx) then
+      raise EACBrOpenSSLException.Create(sErrCreatingCtx);
+
+    if (EVP_PKEY_decrypt_init(ctx) <= 0) then
+      raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_encrypt_init', GetLastOpenSSLError]);
+
+    if (EVP_PKEY_CTX_set_rsa_padding(ctx, p) <= 0) then
+      raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_CTX_set_rsa_padding', GetLastOpenSSLError]);
+
+    if (p = RSA_PKCS1_OAEP_PADDING) then
+    begin
+      if (EVP_PKEY_CTX_set_rsa_oaep_md(ctx, md) <= 0) then
+        raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_CTX_set_rsa_oaep_md', GetLastOpenSSLError]);
+    end;
+
+    if (p = RSA_PKCS1_OAEP_PADDING) or (p = RSA_PKCS1_PSS_PADDING) then
+    begin
+      if (EVP_PKEY_CTX_set_rsa_mgf1_md(ctx, md) <= 0) then
+        raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_CTX_set_rsa_mgf1_md', GetLastOpenSSLError]);
+    end;
+
+    bufInSize := inStream.Size;
+    bufIn := AllocMem(bufInSize);
+    bufOut := nil;
+    bufOutSize := 0;
+    try
+      inStream.Position := 0;
+      inStream.Read(bufIn^, bufInSize);
+
+      if (EVP_PKEY_decrypt(ctx, bufOut, @bufOutSize, bufIn, bufInSize) <= 0) then
+        raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_decrypt, getsize', GetLastOpenSSLError]);
+
+      bufOut := AllocMem(bufOutSize);
+      try
+        if (EVP_PKEY_decrypt(ctx, bufOut, @bufOutSize, bufIn, bufInSize) <= 0) then
+          raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['EVP_PKEY_decrypt', GetLastOpenSSLError]);
+
+        outStream.Size := 0;
+        outStream.Write(bufOut^, bufOutSize);
+      finally
+        Freemem(bufOut);
+      end;
+    finally
+      Freemem(bufIn);
+    end;
+  finally
+    EVP_PKEY_CTX_free(ctx);
+  end;
+end;
+
+function TACBrOpenSSLUtils.PrivateDecryptFromString(const AStr: AnsiString;
+  Algorithm: TACBrOpenSSLAlgorithm; Padding: TACBrOpenSSLPadding;
+  OutputType: TACBrOpenSSLStrType): AnsiString;
+Var
+  msIn, msOut: TMemoryStream;
+begin
+  msIn := TMemoryStream.Create;
+  msOut := TMemoryStream.Create;
+  try
+    WriteStrToStream(msIn, AStr);
+    msIn.Position := 0;
+    PrivateDecryptFromStream(msIn, msOut, Algorithm, Padding);
+    msOut.Position := 0;
+    Result := ConvertToStrType( ReadStrFromStream(msOut, msOut.Size), OutputType);
+  finally
+    msIn.Free;
+    msOut.Free;
+  end ;
 end;
 
 procedure TACBrOpenSSLUtils.LoadX509FromFile(const aX509File: String);
@@ -1313,7 +1567,7 @@ begin
   if (fVersion = '') then
   begin
     fVersion := OpenSSLFullVersion;
-    fOldLib := (CompareVersions(fVersion, '1.1.0') < 0);
+    fOldLib := (CompareVersions(fVersion, CMINVERSION) < 0);
   end;
   Result := fVersion;
 end;
@@ -1438,3 +1692,90 @@ finalization
   FreeOpenSSL;
 
 end.
+
+(*
+
+procedure TACBrOpenSSLUtils.PublicEncryptFromStream(inStream,
+  outStream: TStream; Padding: TACBrOpenSSLPadding);
+var
+  flen, p, l: Integer;
+  from_buf, to_buf: PByte;
+  RsaKey: pRSA;
+begin
+  InitOpenSSL;
+  CheckPublicKeyIsLoaded;
+
+  RsaKey := EvpPkeyGet1RSA(fEVP_PublicKey);
+  try
+    if (RsaKey = Nil) then
+      raise EACBrOpenSSLException.Create(sErrLoadingRSAKey + sLineBreak + GetLastOpenSSLError);
+
+    p := OpenSSLPaddingToInt(Padding);
+    flen := inStream.Size;
+    from_buf := AllocMem(flen);
+    try
+      inStream.Position := 0;
+      inStream.Read(from_buf^, flen);
+      l := RSA_size(RsaKey);
+      to_buf := AllocMem(l);
+      try
+        l := RSA_public_encrypt(flen, from_buf, to_buf, RsaKey, p);
+        if (l <= 0) then
+          raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['RSA_public_encrypt', GetLastOpenSSLError]);
+
+        outStream.Size := 0;
+        outStream.Write(to_buf^, l);
+      finally
+        Freemem(to_buf);
+      end;
+    finally
+      Freemem(from_buf);
+    end;
+  finally
+    if (RsaKey <> Nil) then
+      RSA_free(RsaKey);
+  end;
+end;
+
+procedure TACBrOpenSSLUtils.PrivateDecryptFromStream(inStream,
+  outStream: TStream; Padding: TACBrOpenSSLPadding);
+var
+  flen, p, l: Integer;
+  from_buf, to_buf: PByte;
+  RsaKey: pRSA;
+begin
+  InitOpenSSL;
+  CheckPrivateKeyIsLoaded;
+  RsaKey := EvpPkeyGet1RSA(fEVP_PrivateKey);
+  try
+    if (RsaKey = Nil) then
+      raise EACBrOpenSSLException.Create(sErrLoadingRSAKey + sLineBreak + GetLastOpenSSLError);
+
+    p := OpenSSLPaddingToInt(Padding);
+    l := RSA_size(RsaKey);
+    flen := min(inStream.Size, l);
+    from_buf := AllocMem(flen);
+    try
+      inStream.Position := 0;
+      inStream.Read(from_buf^, flen);
+      to_buf := AllocMem(l);
+      try
+        l := RSA_private_decrypt(flen, from_buf, to_buf, RsaKey, p);
+        if (l <= 0) then
+          raise EACBrOpenSSLException.CreateFmt(sErrMethodError, ['RSA_private_decrypt', GetLastOpenSSLError]);
+
+        outStream.Size := 0;
+        outStream.Write(to_buf^, l);
+      finally
+        Freemem(to_buf);
+      end;
+    finally
+      Freemem(from_buf);
+    end;
+  finally
+    if (RsaKey <> Nil) then
+      RSA_free(RsaKey);
+  end;
+end;
+*)
+

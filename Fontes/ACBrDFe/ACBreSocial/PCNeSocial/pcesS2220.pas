@@ -331,7 +331,14 @@ begin
 end;
 
 procedure TevtMonit.GerarMedico;
+var
+  NrOcorrNrCRM: Integer;
 begin
+  if (VersaoDF >= veS01_02_00) then
+    NrOcorrNrCRM := 0
+  else
+    NrOcorrNrCRM := 1;
+
   Gerador.wGrupo('medico');
 
   if VersaoDF <= ve02_05_00 then
@@ -344,8 +351,8 @@ begin
   end;
 
   Gerador.wCampo(tcStr, '', 'nmMed', 1, 70, 1, self.exMedOcup.Aso.Medico.NmMed);
-  Gerador.wCampo(tcStr, '', 'nrCRM', 1, 8, 1, self.exMedOcup.Aso.Medico.nrCRM);
-  Gerador.wCampo(tcStr, '', 'ufCRM', 2, 2, 1, self.exMedOcup.Aso.Medico.ufCRM);
+  Gerador.wCampo(tcStr, '', 'nrCRM', 1, 10, NrOcorrNrCRM, self.exMedOcup.Aso.Medico.nrCRM);
+  Gerador.wCampo(tcStr, '', 'ufCRM', 2, 2, NrOcorrNrCRM, self.exMedOcup.Aso.Medico.ufCRM);
 
   Gerador.wGrupo('/medico');
 end;
@@ -407,7 +414,7 @@ begin
     Gerador.wCampo(tcStr, '', 'cpfResp', 11, 11, 0, self.exMedOcup.RespMonit.cpfResp);
 
   Gerador.wCampo(tcStr, '', 'nmResp', 1, 70, 1, self.exMedOcup.RespMonit.nmResp);
-  Gerador.wCampo(tcStr, '', 'nrCRM', 1, 8, 1, self.exMedOcup.RespMonit.nrCRM);
+  Gerador.wCampo(tcStr, '', 'nrCRM', 1, 10, 1, self.exMedOcup.RespMonit.nrCRM);
   Gerador.wCampo(tcStr, '', 'ufCRM', 2, 2, 1, self.exMedOcup.RespMonit.ufCRM);
 
   Gerador.wGrupo('/respMonit');
@@ -476,6 +483,7 @@ begin
       ideVinculo.CpfTrab   := INIRec.ReadString(sSecao, 'cpfTrab', EmptyStr);
 //      ideVinculo.NisTrab   := INIRec.ReadString(sSecao, 'nisTrab', EmptyStr);
       ideVinculo.Matricula := INIRec.ReadString(sSecao, 'matricula', EmptyStr);
+      ideVinculo.codCateg  := INIRec.ReadInteger(sSecao, 'codCateg', 0);
 
       sSecao := 'aso';
       exMedOcup.aso.DtAso  := StringToDateTime(INIRec.ReadString(sSecao, 'dtAso', '0'));
@@ -508,7 +516,7 @@ begin
 
 
       // I vai vir com o o valor do último exame + 1
-      sSecao := 'respMonit' + IntToStrZero(I-1, 2);
+      sSecao := 'respMonit'; // + IntToStrZero(I-1, 2);
       exMedOcup.RespMonit.cpfResp := INIRec.ReadString(sSecao, 'cpfResp', EmptyStr);
       exMedOcup.RespMonit.nmResp := INIRec.ReadString(sSecao, 'nmResp', EmptyStr);
       exMedOcup.RespMonit.nrCRM := INIRec.ReadString(sSecao, 'nrCRM', EmptyStr);
@@ -553,8 +561,8 @@ var
   i: integer;
 begin
   Result := False;
+  Leitor := TLeitor.Create;
   try
-    Leitor := TLeitor.Create;
     Leitor.Arquivo := XML;
 
     if Leitor.rExtrai(1, 'evtMonit') <> '' then

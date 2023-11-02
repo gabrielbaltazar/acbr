@@ -145,7 +145,8 @@ function RemoverIdentacao(const AXML: string): string;
 var
   XMLe, XMLs: string;
 begin
-  XMLe := AXML;
+  XMLe := ChangeLineBreak(AXML, '');
+
   XMLs := '';
 
   while XMLe <> XMLs do
@@ -154,10 +155,7 @@ begin
       XMLe := XMLs;
 
     XMLs := FaststringReplace(XMLe, ' <', '<', [rfReplaceAll]);
-    XMLs := FaststringReplace(XMLs, #13 + '<', '<', [rfReplaceAll]);
     XMLs := FaststringReplace(XMLs, '> ', '>', [rfReplaceAll]);
-    XMLs := FaststringReplace(XMLs, '>' + #13, '>', [rfReplaceAll]);
-    XMLs := FaststringReplace(XMLs, #$D, '', [rfReplaceAll]);
   end;
 
   Result := XMLs;
@@ -205,7 +203,7 @@ end;
 function RemoverPrefixosDesnecessarios(const aXML: string): string;
 begin
   Result := RemoverPrefixos(aXML, ['ns1:', 'ns2:', 'ns3:', 'ns4:', 'ns5:', 'tc:',
-              'ii:', 'p1:', 'nfse:']);
+              'ii:', 'p1:', 'nfse:', 'm:']);
 end;
 
 function RemoverCaracteresDesnecessarios(const aXML: string): string;

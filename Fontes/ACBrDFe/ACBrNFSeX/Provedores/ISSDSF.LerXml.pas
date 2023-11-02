@@ -60,8 +60,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Base, ACBrUtil.Strings,
-  ACBrDFeUtil;
+  ACBrUtil.Base, ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -148,6 +147,8 @@ begin
       with NFSe.Servico.ItemServico[i] do
       begin
         Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('DiscriminacaoServico'), tcStr);
+        Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
         Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Quantidade'), tcDe2);
         ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorUnitario'), tcDe2);
         ValorTotal := ObterConteudo(ANodes[i].Childrens.FindAnyNs('ValorTotal'), tcDe2);
@@ -166,8 +167,12 @@ function TNFSeR_ISSDSF.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -297,7 +302,7 @@ begin
         begin
           CodigoMunicipio := CodTOMToCodIBGE(aValor);
 
-          xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+          xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
           if UF = '' then
             UF := xUF;
@@ -342,6 +347,8 @@ begin
 
         aValor := ObterConteudo(ANode.Childrens.FindAnyNs('TipoRecolhimento'), tcStr);
         IssRetido := StrToEnumerado(Ok, aValor, ['A','R'], [stNormal, stRetencao]);
+
+        RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
       end;
     end;
 
@@ -359,6 +366,9 @@ begin
   aValor := ObterConteudo(ANode.Childrens.FindAnyNs('DescricaoRPS'), tcStr);
   if aValor <> '' then
     NFSe.OutrasInformacoes := aValor;
+
+  NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
   aValor := ObterConteudo(ANode.Childrens.FindAnyNs('MotCancelamento'), tcStr);
   if aValor <> '' then
@@ -411,11 +421,13 @@ begin
     end;
 
     ValorLiquidoNfse := ValorServicos -
-                        (ValorPis + ValorCofins + ValorInss + ValorIr +
-                         ValorCsll + ValorDeducoes + DescontoCondicionado+
+                        (RetencoesFederais + ValorDeducoes + DescontoCondicionado+
                          DescontoIncondicionado + ValorIssRetido);
 
     BaseCalculo := ValorServicos - (ValorDeducoes + DescontoIncondicionado);
+
+    ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                            DescontoIncondicionado;
   end;
 end;
 
@@ -494,7 +506,7 @@ begin
         if aValor <> '' then
           CodigoMunicipio := CodTOMToCodIBGE(aValor);
 
-        xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+        xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
         if UF = '' then
           UF := xUF;
@@ -551,6 +563,9 @@ begin
     end;
 
     OutrasInformacoes := ObterConteudo(ANode.Childrens.FindAnyNs('DescricaoRPS'), tcStr);
+    OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
     MotivoCancelamento := ObterConteudo(ANode.Childrens.FindAnyNs('MotCancelamento'), tcStr);
     Intermediario.Identificacao.CpfCnpj := ObterConteudo(ANode.Childrens.FindAnyNs('CPFCNPJIntermediario'), tcStr);
 

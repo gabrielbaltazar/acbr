@@ -330,7 +330,8 @@ begin
         140: DataEntradaCDC := Linha.Informacao.AsDate;
         156: Rede := LinStr;
         157: Estabelecimento := LinStr;
-        158: CodigoRedeAutorizada := LinStr;
+        158: CodigoRedeAutorizada := LinStr; 
+        161: IdPagamento := StrToInt(LinStr); { indice de pagamento naquela operação }
         501: TipoPessoa := AnsiChar(IfThen(Linha.Informacao.AsInteger = 0, 'J', 'F')[1]);
         502: DocumentoPessoa := LinStr;
         504: TaxaServico := Linha.Informacao.AsFloat;
@@ -590,7 +591,7 @@ end;
 function TACBrTEFCliSiTefAPI.TraduzirErroInicializacao(Sts: Integer): String;
 begin
   Case Sts of
-     1 :	Result := CACBrTEFCliSiTef_Erro1;
+     1 : Result := CACBrTEFCliSiTef_Erro1;
      2 : Result := CACBrTEFCliSiTef_Erro2;
      3 : Result := CACBrTEFCliSiTef_Erro3;
      6 : Result := CACBrTEFCliSiTef_Erro6;

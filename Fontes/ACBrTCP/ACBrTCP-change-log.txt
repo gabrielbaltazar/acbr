@@ -36,6 +36,29 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+31/10/2023
+[*]TK-4666 - ACBrMail - Removido chamada do Clear na rotina que salva o e-mail.
+  Por: Innovae Brasil Engenharia / Rev: Alexandre de Paula
+
+28/09/2023
+[+]TK-4511 - ACBrConsultaCPF - Adicionado a propriedade NomeSocial
+  por: Douglas Conceição / Victor H Gonzales - Pandaaa
+
+15/05/2023
+-- ACBrSedex --
+[*] Adiciona os códidos de serviço 03220 - Sedex Contrato e 03298 - PAC Contrato.
+  Por: wilson_jr
+
+04/05/2023
+-- ACBrCEP --
+[*] Alteração para evitar AcessViolation quando a busca não retornar um endereço.
+   Por: Andergoncalves
+
+24/04/2023
+--ACBrSedex--
+[*] Ajuste na função Rastrear para encontrar informações na nova estrutura HTML.
+  Por: Adhelmar Rondon
+
 12/12/2022
 --ACBrSedex --
 [*] Ajuste na função Rastrear para encontrar informações na nova estrutura HTML.

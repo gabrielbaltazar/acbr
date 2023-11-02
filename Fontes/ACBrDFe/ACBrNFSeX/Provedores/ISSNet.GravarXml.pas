@@ -137,9 +137,6 @@ begin
 
   FormatoAliq := tcDe2;
 
-  GerarEnderecoExterior := True;
-
-  NrOcorrNIFTomador := 0;
   NrOcorrCodTribMun_1 := 0;
   NrOcorrCodigoNBS := 0;
   NrOcorrInformacoesComplemetares := 0;
@@ -160,6 +157,13 @@ begin
   if (NFSe.Tomador.Endereco.CodigoMunicipio = '9999999') or
      (NFSe.Tomador.Endereco.UF = 'EX') then
     NrOcorrCodigoPaisServico := 1;
+
+  if (NFSe.OptanteSimplesNacional = snSim) or
+     (NFSe.RegimeEspecialTributacao = retMicroempresarioIndividual) then
+  begin
+    NrOcorrValorIss := 1;
+    NrOcorrAliquota := 1;
+  end;
 
   Result := inherited GerarXml;
 end;

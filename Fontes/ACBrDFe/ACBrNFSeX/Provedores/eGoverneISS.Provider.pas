@@ -58,6 +58,8 @@ type
   end;
 
   TACBrNFSeProvidereGoverneISS = class (TACBrNFSeProviderProprio)
+  private
+    FPCodigoLote: string;
   protected
     procedure Configuracao; override;
 
@@ -165,7 +167,8 @@ var
   ANode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   AErro: TNFSeEventoCollectionItem;
-  Mensagem: string;
+  AAlerta: TNFSeEventoCollectionItem;
+  Mensagem, Codigo: string;
 begin
   ANode := RootNode.Childrens.FindAnyNs(AListTag);
 
@@ -178,22 +181,39 @@ begin
 
   for I := Low(ANodeArray) to High(ANodeArray) do
   begin
-    Mensagem := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('MensagemErro'), tcStr);
+    Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Erro'), tcStr);
 
-    if Mensagem = '' then
+    if Codigo = 'false' then
     begin
       Mensagem := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
 
-      if ( Mensagem = '' ) and ( ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Erro'), tcStr) = 'true' ) then
-        Mensagem := 'Ocorreu um erro, sem retorno do provedor';
-    end;
-
-    if Mensagem <> '' then
+      if Mensagem <> '' then
+      begin
+        AAlerta := Response.Alertas.New;
+        AAlerta.Codigo := '';
+        AAlerta.Descricao := ACBrStr(Mensagem);
+        AAlerta.Correcao := '';
+      end;
+    end
+    else
     begin
-      AErro := Response.Erros.New;
-      AErro.Codigo := '';
-      AErro.Descricao := ACBrStr(Mensagem);
-      AErro.Correcao := '';
+      Mensagem := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('MensagemErro'), tcStr);
+
+      if Mensagem = '' then
+      begin
+        Mensagem := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
+
+        if Mensagem = '' then
+          Mensagem := 'Ocorreu um erro, sem retorno do provedor';
+      end;
+
+      if Mensagem <> '' then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := '';
+        AErro.Descricao := ACBrStr(Mensagem);
+        AErro.Correcao := '';
+      end;
     end;
   end;
 end;
@@ -238,6 +258,7 @@ var
   AMessageTag: string;
   ANodeArray: TACBrXmlNodeArray;
 begin
+  FPCodigoLote := '';
   Document := TACBrXmlDocument.Create;
 
   try
@@ -261,6 +282,12 @@ begin
 
       Response.Sucesso := (Response.Erros.Count = 0);
 
+      if Response.Alertas.Count > 0 then
+      begin
+        Response.NumeroLote := OnlyNumber(RightStrNativeString(Response.Alertas[0].Descricao, 20));
+        FPCodigoLote := Response.NumeroLote;
+      end;
+
       ANode := Document.Root.Childrens.FindAnyNs(AMessageTag);
 
       if ANode <> nil then
@@ -271,19 +298,19 @@ begin
         begin
           for I := Low(ANodeArray) to High(ANodeArray) do
           begin
+            ANode := ANodeArray[I];
+
             with Response do
             begin
-              NumeroNota := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Numero'), tcStr);
-
-              CodVerificacao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Autenticador'), tcStr);
-
-              Link := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Link'), tcStr);
+              NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('Numero'), tcStr);
+              CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Autenticador'), tcStr);
+              Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('Link'), tcStr);
               Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
             end;
 
             AResumo := Response.Resumos.New;
             AResumo.NumeroNota := Response.NumeroNota;
-            AResumo.CodigoVerificacao := Response.CodVerificacao;
+            AResumo.CodigoVerificacao := Response.CodigoVerificacao;
             AResumo.Link := Response.Link;
           end;
         end;
@@ -307,7 +334,10 @@ var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
 begin
-  if EstaVazio(Response.Lote) then
+  if EstaVazio(FPCodigoLote) then
+    FPCodigoLote := Response.NumeroLote;
+
+  if EstaVazio(FPCodigoLote) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod111;
@@ -321,8 +351,9 @@ begin
                               Emitente.WSChaveAcesso +
                            '</eis:ChaveAutenticacao>' +
                            '<eis:CodigoLote>' +
-                              Response.Lote +
+                              FPCodigoLote +
                            '</eis:CodigoLote>';
+  FPCodigoLote := '';
 end;
 
 procedure TACBrNFSeProvidereGoverneISS.TratarRetornoConsultaLoteRps(
@@ -330,6 +361,11 @@ procedure TACBrNFSeProvidereGoverneISS.TratarRetornoConsultaLoteRps(
 var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
+  AResumo: TNFSeResumoCollectionItem;
+  ANode: TACBrXmlNode;
+  I: Integer;
+  ANodeArray: TACBrXmlNodeArray;
+  xMensagemErro: string;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -348,6 +384,50 @@ begin
       ProcessarMensagemErros(Document.Root, Response, '', 'ConsultarLoteResult');
 
       Response.Sucesso := (Response.Erros.Count = 0);
+
+      ANode := Document.Root.Childrens.FindAnyNs('ConsultarLoteResult');
+
+      if ANode <> nil then
+      begin
+        ANode := ANode.Childrens.FindAnyNs('NotasGeradas');
+
+        if ANode <> nil then
+        begin
+          ANodeArray := ANode.Childrens.FindAllAnyNs('NotaFiscalLoteGeradaDTO');
+
+          if Assigned(ANodeArray) then
+          begin
+            for I := Low(ANodeArray) to High(ANodeArray) do
+            begin
+              ANode := ANodeArray[I];
+
+              xMensagemErro := ObterConteudoTag(ANode.Childrens.FindAnyNs('MensagemErro'), tcStr);
+
+              if xMensagemErro <> '' then
+              begin
+                AErro := Response.Erros.New;
+                AErro.Codigo := '';
+                AErro.Descricao := ACBrStr(xMensagemErro);
+              end;
+
+              with Response do
+              begin
+                NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('Numero'), tcStr);
+
+                CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Autenticador'), tcStr);
+
+                Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('Link'), tcStr);
+                Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
+              end;
+
+              AResumo := Response.Resumos.New;
+              AResumo.NumeroNota := Response.NumeroNota;
+              AResumo.CodigoVerificacao := Response.CodigoVerificacao;
+              AResumo.Link := Response.Link;
+            end;
+          end;
+        end;
+      end;
     except
       on E:Exception do
       begin

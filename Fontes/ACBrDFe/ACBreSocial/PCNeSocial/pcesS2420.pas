@@ -133,6 +133,8 @@ implementation
 
 uses
   IniFiles,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
   ACBreSocial;
 
 { TS2420Collection }
@@ -211,7 +213,7 @@ begin
   Gerador.wGrupo('infoBenTermino');
 
   Gerador.wCampo(tcDat, '', 'dtTermBeneficio', 10, 10, 1, pInfoBenTermino.dtTermBeneficio);
-  Gerador.wCampo(tcStr, '', 'mtvTermino',       2,  2, 1, eStpTpMotCessBenefToStr(pInfoBenTermino.mtvTermino));
+  Gerador.wCampo(tcStr, '', 'mtvTermino',       2,  2, 1, eStpTpMotCessBenefToStrEX(pInfoBenTermino.mtvTermino));
   Gerador.wCampo(tcStr, '', 'cnpjOrgaoSuc',    14, 14, 0, pInfoBenTermino.cnpjOrgaoSuc);
   Gerador.wCampo(tcStr, '', 'novoCPF',         11, 11, 0, pInfoBenTermino.novoCpf);
 
@@ -221,6 +223,7 @@ end;
 function TEvtCdBenTerm.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -249,12 +252,52 @@ begin
 end;
 
 function TEvtCdBenTerm.LerArqIni(const AIniString: String): Boolean;
-//var
-//  INIRec: TMemIniFile;
-//  Ok: Boolean;
-//  sSecao: String;
+var
+  INIRec: TMemIniFile;
+  Ok: Boolean;
+  sSecao, sFim: String;
 begin
+  Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
+
   Result := True;
+
+  INIRec := TMemIniFile.Create('');
+  try
+    LerIniArquivoOuString(AIniString, INIRec);
+
+    with Self do
+    begin
+      sSecao := 'evtCdBenTerm';
+      Id         := INIRec.ReadString(sSecao, 'Id', '');
+      Sequencial := INIRec.ReadInteger(sSecao, 'Sequencial', 0);
+
+      sSecao := 'ideEvento';
+      ideEvento.indRetif    := eSStrToIndRetificacao(Ok, INIRec.ReadString(sSecao, 'indRetif', '1'));
+      ideEvento.NrRecibo    := INIRec.ReadString(sSecao, 'nrRecibo', EmptyStr);
+      ideEvento.ProcEmi     := eSStrToProcEmi(Ok, INIRec.ReadString(sSecao, 'procEmi', '1'));
+      ideEvento.VerProc     := INIRec.ReadString(sSecao, 'verProc', EmptyStr);
+
+      sSecao := 'ideEmpregador';
+      ideEmpregador.TpInsc       := eSStrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
+      ideEmpregador.NrInsc       := INIRec.ReadString(sSecao, 'nrInsc', EmptyStr);
+
+      sSecao := 'ideBeneficio';
+      IdeBeneficio.cpfBenef    := INIRec.ReadString(sSecao, 'cpfBenef', EmptyStr);
+      IdeBeneficio.nrBeneficio := INIRec.ReadString(sSecao, 'nrBeneficio', EmptyStr);
+
+      sSecao := 'infoBenTermino';
+      infoBenTermino.dtTermBeneficio := StringToDateTime(INIRec.ReadString(sSecao, 'dtTermBeneficio', '0'));
+      infoBenTermino.mtvTermino      := eSStrToTpMotCessBenefEX(INIRec.ReadString(sSecao, 'mtvTermino', EmptyStr));
+      infoBenTermino.cnpjOrgaoSuc    := INIRec.ReadString(sSecao, 'cnpjOrgaoSuc', EmptyStr);
+      infoBenTermino.novoCPF         := INIRec.ReadString(sSecao, 'novoCPF', EmptyStr);
+
+    end;
+
+    GerarXML;
+    XML := FXML;
+  finally
+    INIRec.Free;
+  end;
 end;
 
 end.

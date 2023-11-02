@@ -353,8 +353,18 @@ begin
 end;
 
 procedure TACBrPIXComponentesValor.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  c: Currency;
 begin
-  foriginal.ReadFromJSon(AJSon);
+  {$IFDEF FPC}c := 0;{$ENDIF}
+  if AJSon.IsJSONObject('original') then
+    foriginal.ReadFromJSon(AJSon)
+  else
+  begin
+    AJSon.Value('original', c);
+    foriginal.valor := c;
+  end;
+
   fsaque.ReadFromJSon(AJSon);
   ftroco.ReadFromJSon(AJSon);
   fjuros.ReadFromJSon(AJSon);
@@ -507,7 +517,7 @@ end;
 
 procedure TACBrPIX.SetTxid(const AValue: String);
 var
-  e: String;
+  e, s: String;
 begin
   if ftxid = AValue then
     Exit;
@@ -518,11 +528,15 @@ begin
     Exit;
   end;
 
-  e := ValidarTxId(AValue, 35, 26);
-  if (e <> '') then
-    raise EACBrPixException.Create(ACBrStr(e));
+  s := Trim(AValue);
+  if (s <> '') and fIsBacen then
+  begin
+    e := ValidarTxId(s, 35, 26);
+    if (e <> '') then
+      raise EACBrPixException.Create(ACBrStr(e));
+  end;
 
-  fTxId := AValue;
+  fTxId := s;
 end;
 
 { TACBrPIXArray }

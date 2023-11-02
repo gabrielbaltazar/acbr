@@ -91,8 +91,8 @@ type
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure PrepararConsultarDFe(Response: TNFSeConsultarDFeResponse); override;
     procedure TratarRetornoConsultarDFe(Response: TNFSeConsultarDFeResponse); override;
@@ -261,8 +261,8 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod003;
-    AErro.Descricao := ACBrStr('Conjunto de DPS transmitidos (máximo de ' +
-                       IntToStr(Response.MaxRps) + ' DPS)' +
+    AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (máximo de ' +
+                       IntToStr(Response.MaxRps) + ' RPS)' +
                        ' excedido. Quantidade atual: ' +
                        IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
   end;
@@ -349,7 +349,7 @@ begin
         begin
           with Response do
           begin
-            CodVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
+            CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
             Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('dataEmissao'), tcDat);
             DataCanc := ObterConteudoTag(ANode.Childrens.FindAnyNs('dataCancelamento'), tcDat);
             DescSituacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('motivoCancelamento'), tcStr);
@@ -578,7 +578,7 @@ begin
         begin
           with Response do
           begin
-            CodVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
+            CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
             Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('dataEmissao'), tcDat);
             DataCanc := ObterConteudoTag(ANode.Childrens.FindAnyNs('dataCancelamento'), tcDat);
             DescSituacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('motivoCancelamento'), tcStr);
@@ -624,7 +624,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderSoftPlan.PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse);
+procedure TACBrNFSeProviderSoftPlan.PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
 begin
@@ -669,7 +669,7 @@ begin
   FpMethod := 'GET';
 end;
 
-procedure TACBrNFSeProviderSoftPlan.TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse);
+procedure TACBrNFSeProviderSoftPlan.TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
   json: TACBrJsonObject;
@@ -678,7 +678,7 @@ var
   procedure LerJson(AJson: TACBrJsonObject);
   begin
     idNFSe := AJson.AsInteger['id'];
-    Response.CodVerif := AJson.AsString['cdVerificacao'];
+    Response.CodigoVerificacao := AJson.AsString['cdVerificacao'];
     Response.Data := AJson.AsISODateTime['dataEmissao'];
     Response.DataCanc := AJson.AsISODateTime['dataCancelamento'];
     Response.DescSituacao := AJson.AsString['motivoCancelamento'];
@@ -799,7 +799,6 @@ begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod203;
       AErro.Descricao := ACBrStr(Desc203);
-//      raise Exception.Create(Response.ArquivoRetorno);
     end;
 
   except
@@ -834,7 +833,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Cod003;
-      AErro.Descricao := ACBrStr('Conjunto de DPS transmitidos (máximo de 1 DPS)' +
+      AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (máximo de 1 RPS)' +
                          ' excedido. Quantidade atual: ' +
                          IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
     end;
@@ -926,7 +925,7 @@ begin
         begin
           with Response do
           begin
-            CodVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
+            CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
             Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('dataEmissao'), tcDat);
             DataCanc := ObterConteudoTag(ANode.Childrens.FindAnyNs('dataCancelamento'), tcDat);
             DescSituacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('motivoCancelamento'), tcStr);

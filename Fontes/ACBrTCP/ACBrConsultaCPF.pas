@@ -52,6 +52,7 @@ type
     FDataNascimento: String;
     FDataInscricao: String;
     FNome: String;
+    FNomeSocial : String;
     FSituacao: String;
     FCPF: String;
     FDigitoVerificador: String;
@@ -150,14 +151,23 @@ begin
 end;
 
 procedure TACBrConsultaCPF.Captcha(Stream: TStream);
+var
+  LErro : String;
 begin
   try
     Stream.Size := 0; // Trunca o Stream
     WriteStrToStream(Stream, DecodeBase64(GetCaptchaURL));
     Stream.Position:= 0;
   Except
-    on E: Exception do begin
-      raise EACBrConsultaCPFException.Create('Erro na hora de fazer o download da imagem do captcha.'+#13#10+E.Message);
+    on E: Exception do
+    begin
+      LErro := 'Erro na hora de fazer o download da imagem do captcha.';
+      if HttpSend.ResultCode = 404 then
+        LErro := LErro + sLineBreak + 'Serviço depreciado/descontinuado pela Receita Federal do Brasil! não disponivel para consulta.'
+      else
+        LErro := LErro + sLineBreak + E.Message;
+
+      raise EACBrConsultaCPFException.Create(LErro);
     end;
   end;
 end;
@@ -313,6 +323,11 @@ begin
 
         FCPF      := LerCampo(Resposta,'No do CPF:');
         FNome     := LerCampo(Resposta,'Nome:');
+        if FNome = '' then
+          FNome   := LerCampo(Resposta,'Nome Civil:');
+
+        FNomeSocial   := LerCampo(Resposta,'Nome Social:');
+
         FDataNascimento := LerCampo(Resposta,'Data de Nascimento:');
         FSituacao := LerCampo(Resposta,'Situação Cadastral:');
         FDataInscricao := LerCampo(Resposta,'Data da Inscrição:');

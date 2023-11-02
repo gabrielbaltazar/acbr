@@ -29,6 +29,15 @@
 { Daniel Simões de Almeida - daniel@projetoacbr.com.br - www.projetoacbr.com.br}
 {       Rua Coronel Aureliano de Camargo, 963 - Tatuí - SP - 18270-170         }
 {******************************************************************************}
+
+{
+
+
+ ATENÇÃO AS MUDANÇAS DESTA UNIT, POSSUI 3 MANUAIS ATUALMENTE 19/10/2023
+ LAYOUT 3, 4, 6 COM ALGUMAS REGRAS DIFERENTES : (PANDAAA)
+
+
+}
 {$I ACBr.inc}
 
 unit ACBrBancoDaycoval;
@@ -43,14 +52,21 @@ type
 
   TACBrBancoDaycoval = class(TACBrBancoClass)
   protected
+    function GetLocalPagamento: String; override;
+    function DefineTamanhoNossoNumeroRetorno: Integer; override;
+    function DefinePosicaoNossoNumeroRetorno: Integer; override;
+    function DefineNumeroDocumentoModulo(const ACBrTitulo: TACBrTitulo): String; override;
+    procedure DefineRejeicaoComplementoRetorno(const ALinha: String; out ATitulo : TACBrTitulo); override;
   private
     procedure GerarRegistrosNFe(ACBrTitulo : TACBrTitulo; aRemessa: TStringList);
   public
-    Constructor create(AOwner: TACBrBanco);
+    Constructor Create(AOwner: TACBrBanco);
     function CalcularDigitoVerificador(const ACBrTitulo: TACBrTitulo ): String; override ;
     function MontarCodigoBarras(const ACBrTitulo : TACBrTitulo): String; override;
     function MontarCampoNossoNumero ( const ACBrTitulo: TACBrTitulo) : String; override;
     function MontarCampoCodigoCedente(const ACBrTitulo: TACBrTitulo): String; override;
+    function MontaInstrucoesCNAB400(const ACBrTitulo :TACBrTitulo; const nRegistro: Integer ): String; override;
+    function CodMotivoRejeicaoToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia; const CodMotivo: String): String; override;
 
     procedure GerarRegistroHeader400(NumeroRemessa : Integer; aRemessa: TStringList); override;
     procedure GerarRegistroTransacao400(ACBrTitulo : TACBrTitulo; aRemessa: TStringList); override;
@@ -60,11 +76,11 @@ type
 
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia) : String; override;
     function CodOcorrenciaToTipo(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
-    function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
+    function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
 
     function CodOcorrenciaToTipoRemessa(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
     function CalcularNomeArquivoRemessa : String; override;
-   end;
+end;
 
 implementation
 
@@ -74,7 +90,66 @@ uses
 
 { TACBrBancoDaycoval }
 
-function CodMotivoRejeicaoToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia; const CodMotivo: String): String;
+function TACBrBancoDaycoval.DefineTamanhoNossoNumeroRetorno: Integer;
+begin
+  case fpLayoutVersaoArquivo of
+    3,4 : Result := 8;
+    6 : Result := 10;
+  end;
+  if ACBrBanco.ACBrBoleto.LerNossoNumeroCompleto then
+    Inc(Result);
+end;
+
+function TACBrBancoDaycoval.DefinePosicaoNossoNumeroRetorno: Integer;
+begin
+
+  if ACBrBanco.ACBrBoleto.LerNossoNumeroCompleto then
+  begin
+    case fpLayoutVersaoArquivo of
+      3 : Result := 86;
+      4 : Result := 84;
+    end;
+  end else
+    Result := 63;
+end;
+
+procedure TACBrBancoDaycoval.DefineRejeicaoComplementoRetorno(
+  const ALinha: String; out ATitulo: TACBrTitulo);
+var 
+  IdxMotivo: Integer;
+  CodMotivo: string;
+begin
+  IdxMotivo := 378;
+  repeat
+    CodMotivo := Trim(Copy(ALinha, IdxMotivo, 2));
+    if not MatchText(CodMotivo, [EmptyStr, '00']) then
+    begin
+      ATitulo.MotivoRejeicaoComando.Add(CodMotivo);
+      ATitulo.DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(ATitulo.OcorrenciaOriginal.Tipo, CodMotivo));
+    end;
+    Inc(IdxMotivo, 2);
+  until IdxMotivo >= 386;
+end;
+
+function TACBrBancoDaycoval.DefineNumeroDocumentoModulo(const ACBrTitulo: TACBrTitulo): String;
+var
+  Docto: String;
+begin
+  with ACBrTitulo do
+  begin
+    if MatchText( Carteira , ['116','117','119','134','135','136','104',
+                              '147','105','212','166','113','126','131',
+                              '145','150','168']) then
+      Docto := Carteira + PadLeft(NossoNumero,TamanhoMaximoNossoNum,'0')
+    else
+      Docto := ACBrBoleto.Cedente.Agencia +
+               Carteira + PadLeft(NossoNumero,TamanhoMaximoNossoNum,'0')
+  end;
+
+  Result := Docto;
+end;
+
+function TACBrBancoDaycoval.CodMotivoRejeicaoToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia; const CodMotivo: String): String;
 begin
   case TipoOcorrencia of
     toRetornoRegistroRecusado :
@@ -97,6 +172,8 @@ begin
       else
       if ( CodMotivo = '20' ) then Result := '20-Valor de IOF não numérico'
       else
+      if ( CodMotivo = '21' ) then Result := '21-Movimento para título não cadastrado no sistema'
+      else
       if ( CodMotivo = '22' ) then Result := '22-Valor de desconto + abatimento maior que o valor do título'
       else
       if ( CodMotivo = '25' ) then Result := '25-CNPJ ou CPF do sacado inválido (aceito com restrições)'
@@ -112,6 +189,8 @@ begin
       if ( CodMotivo = '30' ) then Result := '30-Valor do título não numérico ou inválido'
       else
       if ( CodMotivo = '36' ) then Result := '36-Valor de permanência não numérico'
+      else
+      if ( CodMotivo = '37' ) then Result := '37-Valor de permanência inconsistente, pois, dentro de um  mês, será maior que o valor do título'
       else
       if ( CodMotivo = '15' ) then Result := '15-37'
       else
@@ -131,6 +210,8 @@ begin
       else
       if ( CodMotivo = '51' ) then Result := '51-Tipo/Número de Inscrição Sacador/Avalista Inválido'
       else
+      if ( CodMotivo = '52' ) then Result := '52-Sacador/Avalista não informado'
+      else
       if ( CodMotivo = '53' ) then Result := '53-Prazo de vencimento do título excede ao da contratação'
       else
       if ( CodMotivo = '54' ) then Result := '54-Banco informado não é nosso correspondente 140-142'
@@ -149,13 +230,27 @@ begin
       else
       if ( CodMotivo = '99' ) then Result := '99-Título não acatado pelo banco – entrar em contato Gerente da conta'
       else
+      if ( CodMotivo = 'AA' ) then Result := 'AA-Serviço de Cobrança inválido'
+      else
+      if ( CodMotivo = 'AB' ) then Result := 'AB-Nossa Carteira inválida'
+      else
       if ( CodMotivo = 'AE' ) then Result := 'AE-Título não possui abatimento'
       else
       if ( CodMotivo = 'AG' ) then Result := 'AG-Movimento não permitido – Título à vista ou contra apresentação'
       else
+      if ( CodMotivo = 'AI' ) then Result := 'AI-Nossa Cobrança inválida'
+      else
+      if ( CodMotivo = 'AJ' ) then Result := 'AJ-Modalidade com bancos correspondentes inválida'
+      else
       if ( CodMotivo = 'AK' ) then Result := 'AK-Título pertence a outro cliente'
       else
       if ( CodMotivo = 'AL' ) then Result := 'AL-Sacado impedido de entrar nesta cobrança'
+      else
+      if ( CodMotivo = 'AU' ) then Result := 'AU-Data de ocorrência inválida'
+      else
+      if ( CodMotivo = 'AV' ) then Result := 'AV-Valor de tarifa de cobrança inválida'
+      else
+      if ( CodMotivo = 'AX' ) then Result := 'AX-Título em pagamento parcial'
       else
       if ( CodMotivo = 'AY' ) then Result := 'AY-Título deve estar em aberto e vencido para acatar protesto'
       else
@@ -239,13 +334,19 @@ begin
     begin
       if ( CodMotivo = '04' ) then Result := '04-Data de Vencimento não numérica ou inválida'
       else
+      if ( CodMotivo = '05' ) then Result := '05-Data de vencimento inválida ou fora do prazo mínimo'
+      else
       if ( CodMotivo = '14' ) then Result := '14-Registro em duplicidade'
+      else
+      if ( CodMotivo = '19' ) then Result := '19-Data de desconto inválida ou maior que a data de vencimento'
       else
       if ( CodMotivo = '20' ) then Result := '20-Campo livre informado'
       else
       if ( CodMotivo = '21' ) then Result := '21-Título não registrado no sistema'
       else
       if ( CodMotivo = '22' ) then Result := '22-Título baixada ou liquidado'
+      else
+      if ( CodMotivo = '26' ) then Result := '26-Espécie de documento inválida'
       else
       if ( CodMotivo = '27' ) then Result := '27-Instrução não aceita, pôr não ter sido emitida ordem de protesto ao cartório'
       else
@@ -255,13 +356,17 @@ begin
       else
       if ( CodMotivo = '30' ) then Result := '30-Existe instrução de não protestar, ativa para o título'
       else
+      if ( CodMotivo = '36' ) then Result := '36-Valor de permanência (mora) não numérico'
+      else
       if ( CodMotivo = '37' ) then Result := '37-Título Descontado Instrução não permitida para a carteira'
       else
       if ( CodMotivo = '38' ) then Result := '38-Valor do abatimento não numérico ou maior que a soma do valor do título + permanência + multa'
       else
-      if ( CodMotivo = '49' ) then Result := '49-Título em cartório'
+      if ( CodMotivo = '39' ) then Result := '39-Título em cartório'
       else
       if ( CodMotivo = '40' ) then Result := '40-Instrução recusada - cobrança vinculada / caucionada'
+      else
+      if ( CodMotivo = '44' ) then Result := '44-Título zerado ou em brancos ou não numérico na remessa'
       else
       if ( CodMotivo = '99' ) then Result := '99-Ocorrência desconhecida na remessa'
       else
@@ -270,7 +375,7 @@ begin
   end;
 end;
 
-constructor TACBrBancoDaycoval.create(AOwner: TACBrBanco);
+constructor TACBrBancoDaycoval.Create(AOwner: TACBrBanco);
 begin
    inherited create(AOwner);
    fpDigito                := 2;
@@ -280,6 +385,7 @@ begin
    fpTamanhoAgencia        := 4;
    fpTamanhoConta          := 7;
    fpTamanhoCarteira       := 3;
+   fpTamanhoNumeroDocumento := 10;
 end;
 
 function TACBrBancoDaycoval.CalcularDigitoVerificador(const ACBrTitulo: TACBrTitulo ): String;
@@ -287,17 +393,7 @@ var
   Docto: String;
 begin
    Result := '0';
-   Docto := '';
-
-   with ACBrTitulo do
-   begin
-      if MatchText( Carteira , ['116','117','119','134','135','136','104',
-      '147','105','112','212','166','113','126','131','145','150','168']) then
-            Docto := Carteira + PadLeft(NossoNumero,TamanhoMaximoNossoNum,'0')
-         else
-            Docto := ACBrBoleto.Cedente.Agencia +
-                     Carteira + PadLeft(ACBrTitulo.NossoNumero,TamanhoMaximoNossoNum,'0')
-   end;
+   Docto := DefineNumeroDocumentoModulo(ACBrTitulo);
 
    Modulo.MultiplicadorInicial := 1;
    Modulo.MultiplicadorFinal   := 2;
@@ -357,6 +453,30 @@ begin
   Result := NossoNr + CalcularDigitoVerificador(ACBrTitulo);
 end;
 
+function TACBrBancoDaycoval.MontaInstrucoesCNAB400(
+  const ACBrTitulo: TACBrTitulo; const nRegistro: Integer): String;
+begin
+  Result := '';
+
+  if ACBrTitulo.Mensagem.Count = 0 then
+    Exit;
+
+  Result := '2' +                                                             // 001 a 001 Identificação do Registro Header
+            '0';                                                              // 002 a 002 Zero
+
+  if ACBrTitulo.Mensagem.Count > 0 then
+    Result := Result + Copy(PadRight(ACBrTitulo.Mensagem[0], 69), 1, 69);     // 003 a 071 Mensagem Livre 69 posições
+  if ACBrTitulo.Mensagem.Count > 1 then
+    Result := Result + Copy(PadRight(ACBrTitulo.Mensagem[1], 69), 1, 69);     // 072 a 140 Mensagem Livre 69 posições
+  if ACBrTitulo.Mensagem.Count > 2 then
+    Result := Result + Copy(PadRight(ACBrTitulo.Mensagem[2], 69), 1, 69);     // 141 a 209 Mensagem Livre 69 posições
+  if ACBrTitulo.Mensagem.Count > 3 then
+    Result := Result + Copy(PadRight(ACBrTitulo.Mensagem[3], 69), 1, 69);     // 210 a 278 Mensagem Livre 69 posições
+
+  Result := PadRight(Result, 394) +
+            IntToStrZero(nRegistro, 6);                                   // 395 a 400 - Sequência: Seguir a sequência normal de registros.
+end;
+
 function TACBrBancoDaycoval.MontarCampoCodigoCedente (
    const ACBrTitulo: TACBrTitulo ) : String;
 begin
@@ -387,7 +507,7 @@ begin
       Space(294) +                      // Brancos
       IntToStrZero(1, 6);               // Número sequencial do registro
 
-    ARemessa.Text:= ARemessa.Text + UpperCase(wLinha);
+    ARemessa.Add(UpperCase(wLinha));
   end;
 end;
 
@@ -449,6 +569,7 @@ begin
       toRemessaProtestar         : ATipoOcorrencia := '09'; // Pedido de protesto
       toRemessaNaoProtestar      : ATipoOcorrencia := '10'; // Não protestar
       toRemessaDispensarJuros    : ATipoOcorrencia := '11'; // Não cobrar juros de mora
+      toRemessaSustarProtesto    : ATipoOcorrencia := '18'; // Sustar protesto
     else
       ATipoOcorrencia := '01'; // Remessa
     end;
@@ -456,14 +577,12 @@ begin
     // Definindo a espécie do título.
     if AnsiSameText(EspecieDoc, 'DM') then
       AEspecieDoc := '01'
-    else if AnsiSameText(EspecieDoc, 'NP') then
-      AEspecieDoc := '02'
-    else if AnsiSameText(EspecieDoc, 'NS') then
-      AEspecieDoc := '03'
     else if AnsiSameText(EspecieDoc, 'RC') then
       AEspecieDoc := '05'
     else if AnsiSameText(EspecieDoc, 'DS') then
-      AEspecieDoc := '09'
+      AEspecieDoc := '12'
+    else if AnsiSameText(EspecieDoc, 'OU') then
+      AEspecieDoc := '99'
     else
       AEspecieDoc := EspecieDoc;
 
@@ -489,6 +608,10 @@ begin
     // Código de Remessa Fixo pelo Layout (peculiaridades)
 
     case fpLayoutVersaoLote of
+      3 : begin
+          ACodigoRemessa := '3';
+          AComplemento   := Space(13);
+        end;
       4 : begin
           ACodigoRemessa := '4';
           AComplemento   := PadLeft('', 5, '0') + Copy(PadLeft(NossoNumero,TamanhoMaximoNossoNum,'0'), 3, 8);
@@ -548,12 +671,15 @@ begin
         Space(4) +                                                   // 382 a 385 - Brancos
         Space(6) +                                                   // 386 a 391 - Brancos
         PadLeft('', 2, '0') +                                        // 392 a 393 - zeros
-        '0' ;                                                        // 394 - Moeda 0=Moeda nacional atual 3=Dolar
+        '0' +                                                        // 394 - Moeda 0=Moeda nacional atual 3=Dolar
+        IntToStrZero(ARemessa.Count + 1, 6);                         // 395 a 400 - Número sequencial do registro
 
-      wLinha := wLinha + IntToStrZero(ARemessa.Count + 1, 6);        // 395 a 400 - Número sequencial do registro
+      ARemessa.Add(UpperCase(wLinha));
 
-      ARemessa.Text := ARemessa.Text + UpperCase(wLinha);
+      wLinha := MontaInstrucoesCNAB400(ACBrTitulo, aRemessa.Count + 1);
 
+      if not(wLinha = EmptyStr) then
+        aRemessa.Add(UpperCase(wLinha));
     end;
 
   end;
@@ -579,7 +705,6 @@ procedure TACBrBancoDaycoval.LerRetorno400(ARetorno: TStringList);
 var
   Titulo: TACBrTitulo;
   ContLinha: Integer;
-  CodMotivo: String;
   Linha, rCedente, rCNPJCPF: String;
   rCodEmpresa: String;
 begin
@@ -611,7 +736,7 @@ begin
 
   with ACBrBanco.ACBrBoleto do
   begin
-    if (not LeCedenteRetorno) and (rCodEmpresa <> PadLeft(Cedente.CodigoCedente, 20, '0')) then
+    if (not LeCedenteRetorno) and (PadLeft(rCodEmpresa, 20, '0') <> PadLeft(Cedente.CodigoCedente, 20, '0')) then
       raise Exception.Create(ACBrStr('Código da Empresa do arquivo inválido.'));
 
     case StrToIntDef(Copy(ARetorno[1], 2, 2), 0) of
@@ -643,17 +768,9 @@ begin
     with Titulo do
     begin
       SeuNumero               := Copy(Linha, 38, 25);
-      NumeroDocumento         := Copy(Linha, 117, 10);
+      NumeroDocumento         := Copy(Linha, 117, TamanhoNumeroDocumento);
       OcorrenciaOriginal.Tipo := CodOcorrenciaToTipo(StrToIntDef(Copy(Linha, 109, 2), 0));
-
-      CodMotivo := Trim(Copy(Linha, 378, 2));
-
-      if ( CodMotivo <> '' ) then
-      begin
-        MotivoRejeicaoComando.Add(CodMotivo);
-        DescricaoMotivoRejeicaoComando.Add(CodMotivoRejeicaoToDescricao(OcorrenciaOriginal.Tipo, CodMotivo));
-      end;
-
+      
       DataOcorrencia :=
         StringToDateTimeDef(
           Copy(Linha, 111, 2) + '/' +
@@ -673,10 +790,26 @@ begin
       ValorDesconto        := StrToFloatDef(Copy(Linha, 241, 13), 0) / 100;
       ValorMoraJuros       := StrToFloatDef(Copy(Linha, 267, 13), 0) / 100;
       ValorRecebido        := StrToFloatDef(Copy(Linha, 254, 13), 0) / 100;
-      NossoNumero          := Copy(Linha, 63, TamanhoMaximoNossoNum);
-      Carteira             := Copy(Linha, 108, 1);
+      NossoNumero          := DefineNossoNumeroRetorno(Linha);
+      Carteira             := Copy(Linha, 83, 3);
       ValorDespesaCobranca := StrToFloatDef(Copy(Linha, 176, 13), 0) / 100;
+      NossoNumeroCorrespondente := Copy(Linha, 95, 13);
 
+      case AnsiIndexText(Copy(Linha, 108, 1), ['1', '2', '3', '4', '5']) of
+        0: CaracTitulo := tcSimples;
+        1: CaracTitulo := tcVinculada;
+        2: CaracTitulo := tcCaucionada;
+        3: CaracTitulo := tcDescontada;
+        4: CaracTitulo := tcDiretaEspecial;
+      end;
+
+      // informações do local de pagamento
+      Liquidacao.Banco      := StrToIntDef(Copy(Linha, 166, 3), -1);
+      Liquidacao.Agencia    := Copy(Linha, 169, 4);
+      Liquidacao.Origem     := '';
+      Liquidacao.FormaPagto := '';
+
+      DefineRejeicaoComplementoRetorno(Linha, Titulo);
     end;
   end;
 end;
@@ -685,7 +818,7 @@ function TACBrBancoDaycoval.TipoOcorrenciaToDescricao(const TipoOcorrencia: TACB
 var
   CodOcorrencia: Integer;
 begin
-  CodOcorrencia := StrToIntDef(TipoOCorrenciaToCod(TipoOcorrencia), 0);
+  CodOcorrencia := StrToIntDef(TipoOcorrenciaToCod(TipoOcorrencia), 0);
 
   case CodOcorrencia of
     01: Result := '01 Entrada Confirmada na CIP';
@@ -784,7 +917,7 @@ begin
   end;
 end;
 
-function TACBrBancoDaycoval.TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String;
+function TACBrBancoDaycoval.TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String;
 begin
   case TipoOcorrencia of
     toRetornoEntradaConfirmadaNaCIP             : Result := '01';
@@ -834,6 +967,11 @@ begin
   else
      Result:= toRemessaRegistrar;                           {Remessa}
   end;
+end;
+
+function TACBrBancoDaycoval.GetLocalPagamento: String;
+begin
+  Result := ACBrStr(CInstrucaoPagamentoTodaRede);
 end;
 
 end.

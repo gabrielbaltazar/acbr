@@ -99,6 +99,10 @@ type
 
   TtpAto = (taNenhum, taTermoAcordo, taRegimeEspecial, taAutorizacaoEspecifica);
 
+  TindImport = (iiNacional, iiImportado);
+
+  TmotRedAdRem = (motTranspColetivo, motOutros);
+
 function LayOutToServico(const t: TLayOut): String;
 function ServicoToLayOut(out ok: Boolean; const s: String): TLayOut;
 
@@ -164,6 +168,12 @@ function StrToTpEventoNFe(out ok: boolean; const s: string): TpcnTpEvento;
 
 function tpAtoToStr(const t: TtpAto): string;
 function StrTotpAto(out ok: boolean; const s: string): TtpAto;
+
+function indImportToStr(const t: TindImport): string;
+function StrToindImport(out ok: boolean; const s: string): TindImport;
+
+function motRedAdRemToStr(const t: TmotRedAdRem): string;
+function StrTomotRedAdRem(out ok: boolean; const s: string): TmotRedAdRem;
 
 implementation
 
@@ -666,6 +676,30 @@ function StrTotpAto(out ok: boolean; const s: string): TtpAto;
 begin
   Result := StrToEnumerado(ok, s, ['', '08', '10', '12'],
        [taNenhum, taTermoAcordo, taRegimeEspecial, taAutorizacaoEspecifica]);
+end;
+
+function indImportToStr(const t: TindImport): string;
+begin
+  Result := EnumeradoToStr(t, ['0', '1'],
+       [iiNacional, iiImportado]);
+end;
+
+function StrToindImport(out ok: boolean; const s: string): TindImport;
+begin
+  Result := StrToEnumerado(ok, s, ['0', '1'],
+       [iiNacional, iiImportado]);
+end;
+
+function motRedAdRemToStr(const t: TmotRedAdRem): string;
+begin
+  Result := EnumeradoToStr(t, ['1', '9'],
+       [motTranspColetivo, motOutros]);
+end;
+
+function StrTomotRedAdRem(out ok: boolean; const s: string): TmotRedAdRem;
+begin
+  Result := StrToEnumerado(ok, s, ['1', '9'],
+       [motTranspColetivo, motOutros]);
 end;
 
 initialization

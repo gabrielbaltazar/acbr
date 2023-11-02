@@ -45,7 +45,7 @@ type
 
   TArquivoR_Santander = class(TArquivoR_CNAB240)
   protected
-    procedure LerSegmentoA(I: Integer); override;
+    procedure LerSegmentoA(nLinha: Integer); override;
 
   end;
 
@@ -56,13 +56,13 @@ uses
 
 { TArquivoR_Santander }
 
-procedure TArquivoR_Santander.LerSegmentoA(I: Integer);
+procedure TArquivoR_Santander.LerSegmentoA(nLinha: Integer);
 var
   mOk: Boolean;
   RegSeg: string;
   x: Integer;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3A' then
@@ -105,20 +105,19 @@ begin
     CodigoTED := LerCampo(Linha, 220, 5, tcStr);
     Aviso := LerCampo(Linha, 230, 1, tcInt);
     CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    DescOcorrencia := DescricaoRetorno(CodOcorrencia);
 
-    GerarAvisos(CodOcorrencia, DescOcorrencia, 'A', '', Credito.SeuNumero);
+    GerarAvisos(CodOcorrencia, 'A', '', Credito.SeuNumero);
   end;
 
-  Linha := ArquivoTXT.Strings[I+1];
+  Linha := ArquivoTXT.Strings[nLinha+1];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   while Pos(RegSeg, '3B/3C/3D/3E/3F/3Z/') > 0 do
   begin
-    Inc(I); //próxima linha do txt a ser lida
+    Inc(nLinha); //próxima linha do txt a ser lida
     {opcionais do segmento A}
-    LerSegmentoB(PagFor.Lote.Last.SegmentoA.Last.SegmentoB, I);
-    LerSegmentoC(PagFor.Lote.Last.SegmentoA.Last.SegmentoC, I);
+    LerSegmentoB(PagFor.Lote.Last.SegmentoA.Last.SegmentoB, nLinha);
+    LerSegmentoC(PagFor.Lote.Last.SegmentoA.Last.SegmentoC, nLinha);
 //    LerSegmentoE(PagFor.Lote.Last.SegmentoA.Last.SegmentoE, I);
 //    LerSegmentoF(PagFor.Lote.Last.SegmentoA.Last.SegmentoF, I);
 //    LerSegmentoZ(PagFor.Lote.Last.SegmentoA.Last.SegmentoZ, I);
@@ -127,7 +126,7 @@ begin
     begin
       with PagFor.Lote.Last.SegmentoA.Last.SegmentoB.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'A', 'B',
+        GerarAvisos(CodOcorrencia, 'A', 'B',
           PagFor.Lote.Last.SegmentoA.Last.Credito.SeuNumero);
       end;
     end;
@@ -136,12 +135,12 @@ begin
     begin
       with PagFor.Lote.Last.SegmentoA.Last.SegmentoC.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'A', 'C',
+        GerarAvisos(CodOcorrencia, 'A', 'C',
           PagFor.Lote.Last.SegmentoA.Last.Credito.SeuNumero);
       end;
     end;
 
-    Linha := ArquivoTXT.Strings[I+1];
+    Linha := ArquivoTXT.Strings[nLinha+1];
     RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
   end;
 end;

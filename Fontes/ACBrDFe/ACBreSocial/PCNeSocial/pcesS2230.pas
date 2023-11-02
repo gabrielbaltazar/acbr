@@ -615,6 +615,7 @@ end;
 function TEvtAfastTemp.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -776,7 +777,7 @@ begin
 
           sSecao := 'emitente' + IntToStrZero(I, 1);
           emitente.nmEmit := INIRec.ReadString(sSecao, 'nmEmit', EmptyStr);
-          emitente.ideOC  := eSStrToIdeOC(Ok, INIRec.ReadString(sSecao, 'ideOC', '1'));
+          emitente.ideOC  := eSStrToIdeOCEX(INIRec.ReadString(sSecao, 'ideOC', '1'));
           emitente.nrOc   := INIRec.ReadString(sSecao, 'nrOc', EmptyStr);
           emitente.ufOC   := INIRec.ReadString(sSecao, 'ufOC', 'SP');
         end;
@@ -800,6 +801,13 @@ begin
       begin
         infoAfastamento.iniAfastamento.infoMandSind.cnpjSind     := INIRec.ReadString(sSecao, 'cnpjSind', EmptyStr);
         infoAfastamento.iniAfastamento.infoMandSind.infOnusRemun := StrTotpOnusRemun(Ok, INIRec.ReadString(sSecao, 'infOnusRemun', '1'));
+      end;
+
+      sSecao := 'infoMandElet';
+      if INIRec.ReadString(sSecao, 'cnpjMandElet', '') <> '' then
+      begin
+        infoAfastamento.iniAfastamento.infoMandElet.cnpjMandElet  := INIRec.ReadString(sSecao, 'cnpjMandElet', EmptyStr);
+        infoAfastamento.iniAfastamento.infoMandElet.indRemunCargo := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'indRemunCargo', ''));
       end;
 
       sSecao := 'infoRetif';

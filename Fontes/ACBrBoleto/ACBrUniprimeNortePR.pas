@@ -59,7 +59,7 @@ type
 
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia) : String; override;
     function CodOcorrenciaToTipo(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
-    function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
+    function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
     function CodMotivoRejeicaoToDescricao(const TipoOcorrencia:TACBrTipoOcorrencia; CodMotivo:Integer): String; override;
 
     function CodOcorrenciaToTipoRemessa(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
@@ -79,7 +79,7 @@ constructor TACBrUniprimeNortePR.create(AOwner: TACBrBanco);
 begin
    inherited create(AOwner);
    fpDigito                 := 1;
-   fpNome                   := 'Uniprime';
+   fpNome                   := 'SISPRIME';
    fpNumero                 := 084;
    fpTamanhoMaximoNossoNum  := 11;
    fpTamanhoAgencia         := 4;
@@ -150,7 +150,8 @@ begin
                PadRight( 'COBRANCA', 15 )                      + // Descrição do tipo de serviço
                PadLeft( CodigoCedente, 20, '0')                + // Codigo da Empresa no Banco
                PadRight( Nome, 30)                             + // Nome da Empresa
-               FormatFloat( '000', Numero) + PadRight('UNIPRIME', 15)    + // Código e Nome do Banco(084 - Uniprime)
+               FormatFloat( '000', Numero)                     + // Código do Banco
+               PadRight(fpNome, 15)                            + // Nome do Banco
                FormatDateTime('ddmmyy',Now)  + Space(08)+'MX'  + // Data de geração do arquivo + brancos
                IntToStrZero(NumeroRemessa,7) + Space(277)      + // Nr. Sequencial de Remessa + brancos
                IntToStrZero(1,6);                                // Nr. Sequencial de Remessa + brancos + Contador
@@ -165,6 +166,8 @@ var
   Protesto, TipoSacado, MensagemCedente, aConta     :String;
   aCarteira, wLinha, ANossoNumero: String;
   TipoBoleto :Char;
+  iInstrucao1: Integer;
+  aIdentificacaoOcorrencia :String;
 
   function DoMontaInstrucoes1: string;
   begin
@@ -278,15 +281,39 @@ begin
       else
          aEspecie := EspecieDoc;
 
+      iInstrucao1 := StrToIntDef(trim(Instrucao1),0);
+      { Para casos onde se preenche os dias de protesto/negativacao sem necessitar de preencher instrucao. }
+      if (iInstrucao1 = 0) then
+        if (DiasDeProtesto > 0) then
+          case TipoDiasProtesto of
+            diCorridos: iInstrucao1 := 1;
+            diUteis:    iInstrucao1 := 2;
+          end
+        else if (DiasDeNegativacao > 0) then
+            iInstrucao1 := 7 // Negativar dias corridos
+        else
+            iInstrucao1 := 3; // sem protesto
+
       {Pegando campo Intruções}
       //01, 02, 07 [05..55]
-      case StrToIntDef(trim(Instrucao1),0) of
-        1,2,7 :
-               Protesto := PadLeft(trim(Instrucao1),2,'0') + IntToStrZero(DaysBetween(DataProtesto,Vencimento),2);
-        3  :   Protesto := '0300';
-        99 :   Protesto := '9900';
-        else   Protesto := '0000';
+      case iInstrucao1 of
+        1    :   aIdentificacaoOcorrencia := IntToStrZero(DaysBetween(Vencimento,DataProtesto), 2);
+        2    :   aIdentificacaoOcorrencia := IntToStrZero(WorkingDaysBetween(Vencimento,DataProtesto), 2);
+        7    :   aIdentificacaoOcorrencia := IntToStrZero(DaysBetween(Vencimento,DataNegativacao), 2);
+        3,99 :   aIdentificacaoOcorrencia := '00';
+        else
+            iInstrucao1 := 0;
+            aIdentificacaoOcorrencia := '00';
       end;
+
+      if (iInstrucao1 in [1,2,7]) then
+      if (StrToIntDef(aIdentificacaoOcorrencia,0) < 5) or (StrToIntDef(aIdentificacaoOcorrencia,0) > 55) then
+         raise Exception.Create(ACBrStr('O número de dias a protestar / negativar '+
+                                       'deve ser mínimo 05 a máximo 55 dias'));
+
+      
+      Protesto := IntToStrZero(iInstrucao1,2) + aIdentificacaoOcorrencia;
+
       {Pegando Tipo de Sacado}
       case Sacado.Pessoa of
          pFisica   : TipoSacado := '01';
@@ -542,7 +569,7 @@ var
   CodOcorrencia: Integer;
 begin
   Result := '';
-  CodOcorrencia := StrToIntDef(TipoOCorrenciaToCod(TipoOcorrencia),0);
+  CodOcorrencia := StrToIntDef(TipoOcorrenciaToCod(TipoOcorrencia),0);
 
   if (ACBrBanco.ACBrBoleto.LayoutRemessa = c240) then
   begin

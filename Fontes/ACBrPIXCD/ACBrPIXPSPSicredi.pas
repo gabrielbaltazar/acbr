@@ -45,7 +45,8 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrPIXCD, ACBrBase, ACBrOpenSSLUtils;
+  {$IFDEF RTL230_UP}ACBrBase,{$ENDIF RTL230_UP}
+  ACBrPIXCD, ACBrOpenSSLUtils;
 
 const
   cSicrediURLSandbox = 'https://api-pix-h.sicredi.com.br';
@@ -97,7 +98,7 @@ implementation
 
 uses
   synautil, synacode, DateUtils,
-  ACBrUtil.Strings, ACBrJSON;
+  ACBrUtil.Strings, ACBrJSON, ACBrPIXSchemasProblema;
 
 { TACBrPSPItau }
 
@@ -106,7 +107,6 @@ begin
   inherited Create(AOwner);
   fSSLUtils := TACBrOpenSSLUtils.Create(Self);  // Self irá destruir ele...
   fpQuandoReceberRespostaEndPoint := QuandoReceberRespostaEndPoint;
-  Scopes := Scopes + [scCobVWrite, scCobVRead];
   Clear;
 end;
 
@@ -174,8 +174,8 @@ procedure TACBrPSPSicredi.QuandoReceberRespostaEndPoint(const aEndPoint, aURL,
   aMethod: String; var aResultCode: Integer; var aRespostaHttp: AnsiString);
 begin
   // Sicredi responde HTTP_OK ao método PUT do Endpoint PIX, de forma diferente da especificada
-  if (UpperCase(AMethod) = ChttpMethodPUT) and (AEndPoint = cEndPointPix) and (AResultCode = HTTP_CREATED) then
-    AResultCode := HTTP_OK;
+  if (UpperCase(AMethod) = ChttpMethodPUT) and (AEndPoint = cEndPointPix) and (AResultCode = HTTP_OK) then
+    AResultCode := HTTP_CREATED;
 end;
 
 function TACBrPSPSicredi.ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String;

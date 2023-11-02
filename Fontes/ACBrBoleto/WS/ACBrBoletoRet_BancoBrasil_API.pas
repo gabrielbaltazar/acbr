@@ -37,13 +37,15 @@ unit ACBrBoletoRet_BancoBrasil_API;
 interface
 
 uses
-  Classes, SysUtils, ACBrBoleto,ACBrBoletoWS, ACBrBoletoRetorno,
-//  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-//    JsonDataObjects_ACBr,
-//  {$Else}
-    Jsons,
-//  {$EndIf}
-   DateUtils, pcnConversao;
+  Classes,
+  SysUtils,
+  ACBrBoleto,
+  ACBrBoletoWS,
+  ACBrBoletoRetorno,
+  ACBrBoletoWS.Rest,
+  Jsons,
+  DateUtils,
+  pcnConversao;
 
 type
 
@@ -96,9 +98,9 @@ var
 begin
   Result := True;
   TipoOperacao := ACBrBoleto.Configuracoes.WebService.Operacao;
-  
-  ARetornoWs.JSONEnvio      := EnvWs;
-  ARetornoWS.HTTPResultCode := HTTPResultCode;
+  ARetornoWS.HTTPResultCode  := HTTPResultCode;
+  ARetornoWS.JSONEnvio       := EnvWs;
+  ARetornoWS.Header.Operacao := TipoOperacao;
   
   if RetWS <> '' then
   begin
@@ -208,11 +210,12 @@ begin
           begin
             ARetornoWS.DadosRet.IDBoleto.CodBarras      := AJson.Values['textoCodigoBarrasTituloCobranca'].AsString;
             ARetornoWS.DadosRet.IDBoleto.LinhaDig       := AJson.Values['codigoLinhaDigitavel'].AsString;
-            ARetornoWS.DadosRet.IDBoleto.NossoNum       := AJson.Values['numeroTituloCedenteCobranca'].AsString;
+            ARetornoWS.DadosRet.IDBoleto.NossoNum       := AJson.Values['id'].AsString;
 
             ARetornoWS.DadosRet.TituloRet.CodBarras     := ARetornoWS.DadosRet.IDBoleto.CodBarras;
             ARetornoWS.DadosRet.TituloRet.LinhaDig      := ARetornoWS.DadosRet.IDBoleto.LinhaDig;
             ARetornoWS.DadosRet.TituloRet.NossoNumero   := ARetornoWS.DadosRet.IDBoleto.NossoNum;
+            ARetornoWS.DadosRet.TituloRet.SeuNumero     := AJson.Values['numeroTituloCedenteCobranca'].AsString;
             ARetornoWS.DadosRet.TituloRet.Carteira      := AJson.Values['numeroCarteiraCobranca'].AsString;
             ARetornoWS.DadosRet.TituloRet.Modalidade    := AJson.Values['numeroVariacaoCarteiraCobranca'].AsInteger;
             ARetornoWS.DadosRet.TituloRet.Contrato      := AJson.Values['numeroContratoCobranca'].AsString;
@@ -226,6 +229,7 @@ begin
             ARetornoWS.DadosRet.TituloRet.Carteira                   := AJson.Values['numeroCarteiraCobranca'].AsString;
             ARetornoWS.DadosRet.TituloRet.Modalidade                 := StrToIntDef( AJson.Values['numeroVariacaoCarteiraCobranca'].asString ,0 );
             ARetornoWS.DadosRet.TituloRet.codigoEstadoTituloCobranca := AJson.Values['codigoEstadoTituloCobranca'].AsString;
+            ARetornoWS.DadosRet.TituloRet.CodigoCanalTituloCobranca  := AJson.Values['codigoCanalPagamento'].AsString;
             ARetornoWS.DadosRet.TituloRet.contrato                   := AJson.Values['numeroContratoCobranca'].AsString;
             ARetornoWS.DadosRet.TituloRet.DataMovimento              := DateBBtoDateTime(AJson.Values['dataRegistroTituloCobranca'].AsString);
             ARetornoWS.DadosRet.TituloRet.Vencimento                 := DateBBtoDateTime(AJson.Values['dataVencimentoTituloCobranca'].AsString);
@@ -243,6 +247,22 @@ begin
             ARetornoWS.DadosRet.TituloRet.ValorAbatimento            := AJson.Values['valorAbatimentoTotal'].AsNumber;
             ARetornoWS.DadosRet.TituloRet.MultaValorFixo             := true;
             ARetornoWS.DadosRet.TituloRet.PercentualMulta            := AJson.Values['valorMultaRecebido'].AsNumber;
+            //ARetornoWS.DadosRet.TituloRet.CodigoEstadoTituloCobranca := IntToStr(AJson.Values['codigoTipoBaixaTitulo'].AsInteger);
+            case AJson.Values['codigoTipoBaixaTitulo'].AsInteger of
+              1  : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'BAIXADO POR SOLICITACAO';
+              2  : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'ENTREGA FRANCO PAGAMENTO';
+              9  : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'COMANDADA BANCO';
+              10 : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'COMANDADA CLIENTE - ARQUIVO';
+              11 : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'COMANDADA CLIENTE - ON-LINE';
+              12 : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'DECURSO PRAZO - CLIENTE';
+              13 : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'DECURSO PRAZO - BANCO';
+              15 : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'PROTESTADO';
+              31 : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'LIQUIDADO ANTERIORMENTE';
+              32 : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'HABILITADO EM PROCESSO';
+              35 : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'TRANSFERIDO PARA PERDAS';
+              51 : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'REGISTRADO INDEVIDAMENTE';
+              90 : ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca := 'BAIXA AUTOMATICA';
+            end;
 
             ARetornoWS.DadosRet.TituloRet.CodigoOcorrenciaCartorio   := IntToStr(AJson.Values['codigoOcorrenciaCartorio'].AsInteger);
 

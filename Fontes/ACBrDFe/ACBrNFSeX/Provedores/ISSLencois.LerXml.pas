@@ -52,6 +52,7 @@ type
     procedure LerTomador(const ANode: TACBrXmlNode);
     procedure LerEnderecoTomador(const ANode: TACBrXmlNode);
     procedure LerRecolhimentoFora(const ANode: TACBrXmlNode);
+    procedure LerOutrasInformacoes(ANode: TACBrXmlNode; const AListTag, AMessageTag: string);
   public
     function LerXml: Boolean; override;
     function LerXmlRps(const ANode: TACBrXmlNode): Boolean;
@@ -61,11 +62,11 @@ type
 implementation
 
 uses
-  ACBrUtil.Base, ACBrDFeUtil;
+  ACBrUtil.Base;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
-//     Lencois
+//     ISSLencois
 //==============================================================================
 
 { TNFSeR_ISSLencois }
@@ -86,7 +87,7 @@ begin
       Complemento := ObterConteudo(AuxNode.Childrens.FindAnyNs('Complemento'), tcStr);
       Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('Bairro'), tcStr);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('Municipio'), tcStr);
-      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+      xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
       if UF = '' then
         UF := xUF;
@@ -167,8 +168,12 @@ function TNFSeR_ISSLencois.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -178,10 +183,10 @@ begin
   Document.Clear();
   Document.LoadFromXml(Arquivo);
 
-  if (Pos('Nota', Arquivo) > 0) then
-    tpXML := txmlNFSe
+  if (Pos('PASNF', Arquivo) > 0) then
+    tpXML := txmlRPS
   else
-    tpXML := txmlRPS;
+    tpXML := txmlNFSe;
 
   XmlNode := Document.Root;
 
@@ -196,23 +201,193 @@ begin
   FreeAndNil(FDocument);
 end;
 
-function TNFSeR_ISSLencois.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
-//var
-//  AuxNode: TACBrXmlNode;
+procedure TNFSeR_ISSLencois.LerOutrasInformacoes(ANode: TACBrXmlNode; const AListTag, AMessageTag: string);
+var I: Integer;
+    AuxNode: TACBrXmlNode;
+    ANodeArray: TACBrXmlNodeArray;
+    AMensagemInformacao: string;
 begin
-  Result := False;
+  AuxNode := ANode.Childrens.FindAnyNs(AListTag);
 
-  // Falta Implementar (Não tem schema para tomar como base)
+  if (AuxNode = nil) then
+    Exit;
 
-  (*
-  AuxNode := ANode.Childrens.FindAnyNs('NFe');
+  ANodeArray := AuxNode.Childrens.FindAllAnyNs(AMessageTag);
 
-  if AuxNode = nil then
-    AuxNode := ANode.Childrens.FindAnyNs('CompNfse');
+  if not Assigned(ANodeArray) then Exit;
 
-  if AuxNode = nil then Exit;
+  for I := Low(ANodeArray) to High(ANodeArray) do
+    AMensagemInformacao := AMensagemInformacao + sLineBreak + ANodeArray[I].Content;
 
-  *)
+  NFSe.InformacoesComplementares := Trim(AMensagemInformacao);
+  NFSe.InformacoesComplementares := StringReplace(NFSe.InformacoesComplementares, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+end;
+
+function TNFSeR_ISSLencois.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
+var
+  AuxNode, AuxNode2: TACBrXmlNode;
+begin
+  if ObterConteudo(ANode.Childrens.FindAnyNs('Situacao'), tcStr) = '0' then
+  begin
+    NFSe.SituacaoNfse := snCancelado;
+    NFSe.StatusRps    := srCancelado;
+  end
+  else
+  begin
+    NFSe.SituacaoNfse := snNormal;
+    NFSe.StatusRps    := srNormal;
+  end;
+
+  NFSe.Numero            := ObterConteudo(ANode.Childrens.FindAnyNs('Numero'), tcStr);
+  NFSe.DataEmissao       := ObterConteudo(ANode.Childrens.FindAnyNs('EmissaoData'), tcDat);
+  NFSe.Competencia       := NFSe.DataEmissao;
+  NFSe.CodigoVerificacao := ObterConteudo(ANode.Childrens.FindAnyNs('CodigoValidacao'), tcStr);
+  NFSe.NfseSubstituida   := '';
+  NFSe.RegimeEspecialTributacao := retNenhum;
+
+  NFSe.RpsSubstituido.Numero := '';
+  NFSe.RpsSubstituido.Serie  := '';
+  NFSe.RpsSubstituido.Tipo   := trRPS;
+
+  AuxNode := ANode.Childrens.FindAnyNs('Prestador');
+  With NFSe, Prestador do
+  begin
+    IdentificacaoPrestador.CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('Inscricao'), tcStr);
+    IdentificacaoPrestador.InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('InscricaoMunicipal'), tcStr);
+
+    RazaoSocial  := ObterConteudo(AuxNode.Childrens.FindAnyNs('RazaoSocial'), tcStr);
+    NomeFantasia := ObterConteudo(AuxNode.Childrens.FindAnyNs('NomeFantasia'), tcStr);
+
+    if ObterConteudo(AuxNode.Childrens.FindAnyNs('SuperSimples'), tcStr) = '0' then
+      OptanteSimplesNacional := snNao
+    else
+      OptanteSimplesNacional := snSim;
+
+
+    AuxNode2 := AuxNode.Childrens.FindAnyNs('Endereco');
+    if AuxNode2 <> nil then
+    begin
+      Endereco.Endereco    := ObterConteudo(AuxNode2.Childrens.FindAnyNs('Logradouro'), tcStr);
+      Endereco.Numero      := ObterConteudo(AuxNode2.Childrens.FindAnyNs('Numero'), tcStr);
+      Endereco.Complemento := ObterConteudo(AuxNode2.Childrens.FindAnyNs('Complemento'), tcStr);
+      Endereco.Bairro      := ObterConteudo(AuxNode2.Childrens.FindAnyNs('Bairro'), tcStr);
+      Endereco.CodigoMunicipio := ObterConteudo(AuxNode2.Childrens.FindAnyNs('CidadeIBGE'), tcStr);
+      Endereco.xMunicipio  := ObterConteudo(AuxNode2.Childrens.FindAnyNs('Cidade'), tcStr);
+      Endereco.UF          := ObterConteudo(AuxNode2.Childrens.FindAnyNs('Estado'), tcStr);
+      Endereco.CodigoPais  := 1058;
+      Endereco.xPais       := 'BRASIL';
+      Endereco.CEP         := ObterConteudo(AuxNode2.Childrens.FindAnyNs('Cep'), tcStr);
+
+      OrgaoGerador.CodigoMunicipio := ObterConteudo(AuxNode2.Childrens.FindAnyNs('CidadeIBGE'), tcStr);
+      OrgaoGerador.UF              := ObterConteudo(AuxNode2.Childrens.FindAnyNs('Estado'), tcStr);
+    end;
+
+    Servico.MunicipioIncidencia := StrToIntDef(Endereco.CodigoMunicipio,0);
+
+    AuxNode2 := AuxNode.Childrens.FindAnyNs('Atividade');
+    if AuxNode2 <> nil then
+    begin
+      Servico.ItemListaServico := ObterConteudo(AuxNode2.Childrens.FindAnyNs('Codigo'), tcStr);
+      Servico.xItemListaServico:= ObterConteudo(AuxNode2.Childrens.FindAnyNs('Descricao'), tcStr);
+      Servico.CodigoMunicipio  := ObterConteudo(AuxNode2.Childrens.FindAnyNs('CidadeExecucao'), tcStr);
+    end;
+  end;
+
+  AuxNode := ANode.Childrens.FindAnyNs('PAS');
+  if AuxNode <> nil then
+  begin
+    With NFSe do
+    begin
+      IdentificacaoRps.Tipo := trRPS;
+      IdentificacaoRps.Serie := '';
+      IdentificacaoRps.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+      DataEmissaoRps := ObterConteudo(AuxNode.Childrens.FindAnyNs('DataGeracao'), tcDat);
+      dhRecebimento := ObterConteudo(AuxNode.Childrens.FindAnyNs('DataProcessamento'), tcDatHor);
+    end;
+  end;
+
+  NFSe.Servico.Discriminacao := ObterConteudo(ANode.Childrens.FindAnyNs('Descricao'), tcStr);
+  NFSe.Servico.Discriminacao := StringReplace(NFSe.Servico.Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
+  AuxNode := ANode.Childrens.FindAnyNs('Tomador');
+  if AuxNode <> nil then
+  begin
+    With NFSe.Tomador do
+    begin
+      IdentificacaoTomador.CpfCnpj            := ObterConteudo(AuxNode.Childrens.FindAnyNs('Inscricao'), tcStr);
+      IdentificacaoTomador.InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('InscricaoMunicipal'), tcStr);
+
+      RazaoSocial      := ObterConteudo(AuxNode.Childrens.FindAnyNs('Nome'), tcStr);
+      Contato.Email    := ObterConteudo(AuxNode.Childrens.FindAnyNs('Email'), tcStr);
+      Contato.Telefone := '';
+
+
+      AuxNode := AuxNode.Childrens.FindAnyNs('Endereco');
+      Endereco.TipoLogradouro  := '';
+      Endereco.CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CidadeIBGE'), tcStr);
+      Endereco.Endereco        := ObterConteudo(AuxNode.Childrens.FindAnyNs('Logradouro'), tcStr);
+      Endereco.Numero          := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+      Endereco.Complemento     := ObterConteudo(AuxNode.Childrens.FindAnyNs('Complemento'), tcStr);
+      Endereco.Bairro          := ObterConteudo(AuxNode.Childrens.FindAnyNs('Bairro'), tcStr);
+      Endereco.xMunicipio      := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cidade'), tcStr);
+      Endereco.UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('Estado'), tcStr);
+      Endereco.CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Cep'), tcStr);
+
+      if ObterConteudo(AuxNode.Childrens.FindAnyNs('TipoPessoa'), tcStr) = '1' then
+      begin
+        if Trim(Endereco.CodigoMunicipio) <> '' then
+        begin
+          if (NFSe.Prestador.Endereco.CodigoMunicipio <> Endereco.CodigoMunicipio) then
+            IdentificacaoTomador.Tipo := tpPJforaMunicipio
+          else
+            IdentificacaoTomador.Tipo := tpPJdoMunicipio;
+        end
+        else
+          IdentificacaoTomador.Tipo := tpPJdoMunicipio;
+      end
+      else
+        IdentificacaoTomador.Tipo := tpPF;
+    end;
+  end;
+
+  with NFSe.Servico.Valores do
+  begin
+    BaseCalculo      := ObterConteudo(ANode.Childrens.FindAnyNs('BaseDeCalculo'), tcDe2);
+    ValorIss         := ObterConteudo(ANode.Childrens.FindAnyNs('ValorISS'), tcDe2);
+    ValorServicos    := ObterConteudo(ANode.Childrens.FindAnyNs('ValorTotal'), tcDe2);
+    ValorDeducoes    := ObterConteudo(ANode.Childrens.FindAnyNs('ValorDeducao'), tcDe2);
+    Aliquota         := ObterConteudo(ANode.Childrens.FindAnyNs('Aliquota'), tcDe6);
+    ValorPis         := ObterConteudo(ANode.Childrens.FindAnyNs('ValorPIS'), tcDe2);
+    ValorCofins      := ObterConteudo(ANode.Childrens.FindAnyNs('ValorCOFINS'), tcDe2);
+    RetidoIr         := ObterConteudo(ANode.Childrens.FindAnyNs('RetencaoIRRF'), tcDe2);
+    RetidoInss       := ObterConteudo(ANode.Childrens.FindAnyNs('RetencaoINSS'), tcDe2);
+    RetidoPis        := ObterConteudo(ANode.Childrens.FindAnyNs('RetencaoPIS'), tcDe2);
+    RetidoCofins     := ObterConteudo(ANode.Childrens.FindAnyNs('RetencaoCOFINS'), tcDe2);
+    RetidoCsll       := ObterConteudo(ANode.Childrens.FindAnyNs('RetencaoCSLL'), tcDe2);
+
+    RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
+    ValorLiquidoNfse := ValorServicos - RetencoesFederais - OutrasRetencoes -
+                        ValorIssRetido - DescontoIncondicionado -
+                        DescontoCondicionado;
+
+    ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                            DescontoIncondicionado;
+  end;
+
+  AuxNode := ANode.Childrens.FindAnyNs('Cancelamento');
+  NFSe.NfseCancelamento.DataHora := ObterConteudo( AuxNode.Childrens.FindAnyNs('DataCancelamento'), tcDat );
+  NFSe.NfseCancelamento.Sucesso  := (NFSe.NfseCancelamento.DataHora > 0);
+  NFSe.NfseCancelamento.Pedido.CodigoCancelamento := ObterConteudo( AuxNode.Childrens.FindAnyNs('MotivoCodigo'), tcStr );;
+
+  LerOutrasInformacoes( ANode , 'Informacoes', 'Informacao' );
+
+  NFSe.NomeArq := NFSe.Numero + '-nfse.xml';
+  Result := True;
+
+  LerCampoLink;
 end;
 
 function TNFSeR_ISSLencois.LerXmlRps(const ANode: TACBrXmlNode): Boolean;

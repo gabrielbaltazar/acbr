@@ -76,7 +76,7 @@ type
       const TipoOcorrencia: TACBrTipoOcorrencia): string; override;
     function CodOcorrenciaToTipo(const CodOcorrencia: integer): TACBrTipoOcorrencia;
       override;
-    function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): string;
+    function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): string;
       override;
     function CodMotivoRejeicaoToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia;
       CodMotivo: integer): string; override;
@@ -751,8 +751,8 @@ begin
                  IntToStrZero(FSequencia, 5)                                           + // 009-013 / Nº Sequencial do Registro de Lote
                  'P'                                                                   + // 014-014 / Cód. Segmento do Regsitro Detalhe
                  ' '                                                                   + // 015-015 / Campo sem Preenchimento
-                 '01'                                                                  + // 016-017 / Código de Movimento remessa
-                 PadRight(Agencia, 5, '0')                                              + // 018-022 / Agência Mantenedora da Conta
+                 sCodMovimento                                                         + // 016-017 / Código de Movimento remessa
+                 PadRight(Agencia, 5, '0')                                             + // 018-022 / Agência Mantenedora da Conta
                  PadLeft(AgenciaDigito, 1)                                             + // 023-023 / Dígito Verificador da Agência
                  PadLeft(Conta, 12, '0')                                               + // 024-035 / Número da Conta Corrente
                  PadLeft(ContaDigito, 1)                                               + // 036-036 / Dígito Verificador da Conta
@@ -939,7 +939,11 @@ begin
               PadRight(SeuNumero,25)                                                         + //  38 a  62 - Uso exclusivo da Empresa
               IfThen(NossoNumero = '000000000', '000000000',
                                  PadLeft(RightStr(NossoNumero,9),9,'0'))                     + //  63 a  71 - Número do título no banco
-              Space(30)                                                                      + //  72 a 101 - "Brancos"
+              Space(14)                                                                      + //  72 a  85 - "Brancos"
+              IfThen(DataMoraJuros > 0,
+                FormatDateTime('ddmmyy', DataMoraJuros),
+                Space(6))                                                                    + //  86 a  91 -  Data início de cobrança de Juros de Mora
+              Space(10)                                                                      + //  92 a 101 - "Brancos"
               '0'                                                                            + // 102 a 102 - Código de IOF sobre Operações de Seguro
               '00'                                                                           + // 103 a 104 - Identificação do Tipo de Moeda, 00=Real
               Space(1)                                                                       + // 105 a 105 - "Branco"
@@ -1265,7 +1269,7 @@ begin
 
 end;
 
-function TACBrBancoSafra.TipoOCorrenciaToCod(
+function TACBrBancoSafra.TipoOcorrenciaToCod(
   const TipoOcorrencia: TACBrTipoOcorrencia): string;
 begin
   case TipoOcorrencia of

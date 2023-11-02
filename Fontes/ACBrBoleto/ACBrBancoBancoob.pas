@@ -65,7 +65,7 @@ type
     procedure LerRetorno240(ARetorno: TStringList); override;
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia) : String; override;
     function CodOcorrenciaToTipo(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
-    function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
+    function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
     function CodMotivoRejeicaoToDescricao(const TipoOcorrencia:TACBrTipoOcorrencia; CodMotivo:Integer): String; override;
 
     function CodOcorrenciaToTipoRemessa(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
@@ -733,7 +733,7 @@ begin
                PadRight(AgenciaDigito, 1, '0')          + // 58 - Digito agência do cedente
                PadLeft(OnlyNumber(Conta), 12, '0')      + // 59 a 70 - Número da conta do cedente
                PadRight(ContaDigito, 1, '0')            + // 71 - Digito conta do cedente
-               PadRight(DigitoVerificadorAgenciaConta, 1, ' ')+ // 72 - Dígito verificador Ag/Conta (zero)
+               PadRight(DigitoVerificadorAgenciaConta, 1, '0')+ // 72 - Dígito verificador Ag/Conta (zero)
                PadRight(Nome, 30, ' ')                  + // 73 a 102 - Nome do cedente
                PadRight('SICOOB', 30, ' ')              + // 103 a 132 - Nome do banco
                space(10)                                + // 133 A 142 - Brancos
@@ -921,7 +921,7 @@ begin
      {Código para Protesto / Negativação}
       case CodigoNegativacao of
         cnProtestarCorrido :  ACodProtesto := '1';
-        cnProtestarUteis   :  ACodProtesto := '1'; // Não há no manual opção para dias uteis
+        cnProtestarUteis   :  ACodProtesto := '2'; 
         cnNegativar        :  ACodProtesto := '8';
       else
         case TipoDiasProtesto of
@@ -1467,7 +1467,7 @@ begin
   end;
 end;
 
-function TACBrBancoob.TipoOCorrenciaToCod(
+function TACBrBancoob.TipoOcorrenciaToCod(
   const TipoOcorrencia: TACBrTipoOcorrencia): String;
 begin
   case TipoOcorrencia of
@@ -1510,7 +1510,7 @@ function TACBrBancoob.TipoOcorrenciaToDescricao(
 var
    CodOcorrencia: Integer;
 begin
-   CodOcorrencia := StrToIntDef(TipoOCorrenciaToCod(TipoOcorrencia),0);
+   CodOcorrencia := StrToIntDef(TipoOcorrenciaToCod(TipoOcorrencia),0);
 
    case CodOcorrencia of
       02: Result:='02-CONFIRMAÇÃO ENTRADA TÍTULO' ;

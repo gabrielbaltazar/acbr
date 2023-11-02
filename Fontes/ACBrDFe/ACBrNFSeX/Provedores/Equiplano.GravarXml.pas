@@ -164,7 +164,7 @@ var
 
   procedure tratarSerItem(AItemServico: string);
   begin
-    iAux := StrToInt(OnlyNumber(AItemServico)); //Ex.: 1402, 901
+    iAux := StrToIntDef(OnlyNumber(AItemServico), 0); //Ex.: 1402, 901
 
     if (iAux > 999) then //Ex.: 1402
     begin
@@ -181,7 +181,7 @@ var
 begin
   Result := CreateElement('listaServicos');
 
-  if NFSe.Servico.ItemServico.Count > 1 then
+  if NFSe.Servico.ItemServico.Count > 0 then
   begin
     for i := 0 to NFSe.Servico.ItemServico.Count -1 do
     begin
@@ -334,6 +334,9 @@ begin
 
     Result.AppendChild(AddNode(tcStr, '#1', 'nrInscricaoEstadual', 1, 20, 0,
                       NFSe.Tomador.IdentificacaoTomador.InscricaoEstadual, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'nrInscricaoMunicipal', 1, 20, 0,
+                      NFSe.Tomador.IdentificacaoTomador.InscricaoMunicipal, ''));
 
     Result.AppendChild(AddNode(tcStr, '#1', 'dsEndereco', 1, 40, 1,
                                            NFSe.Tomador.Endereco.Endereco, ''));

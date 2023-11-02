@@ -39,7 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXConversao, ACBrNFSeXLerXml;
+  ACBrNFSeXConversao, ACBrNFSeXLerXml, ACBrNFSeXLerXml_ABRASFv2;
 
 type
   { Provedor com layout próprio }
@@ -67,10 +67,20 @@ type
 
   end;
 
+  { TNFSeR_IPM204 }
+
+  TNFSeR_IPM204 = class(TNFSeR_ABRASFv2)
+  protected
+
+  public
+    function LerXmlNfse(const ANode: TACBrXmlNode): Boolean; override;
+
+  end;
+
 implementation
 
 uses
-  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime, ACBrDFeUtil;
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -82,22 +92,12 @@ uses
 procedure TNFSeR_IPM.LerFormaPagamento(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
-  aValor: string;
   Ok: Boolean;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('forma_pagamento');
 
   if AuxNode <> nil then
-  begin
-    with NFSe.CondicaoPagamento do
-    begin
-      aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('tipo_pagamento'), tcStr);
-
-      Condicao := StrToEnumerado(Ok, aValor,
-            ['1', '2', '3', '4', '5'],
-            [cpAVista, cpAPrazo, cpNaApresentacao, cpCartaoDebito, cpCartaoCredito]);
-    end;
-  end;
+    NFSe.CondicaoPagamento.Condicao := FpAOwner.StrToCondicaoPag(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('tipo_pagamento'), tcStr));
 end;
 
 procedure TNFSeR_IPM.LerItens(const ANode: TACBrXmlNode);
@@ -117,6 +117,7 @@ begin
       Valores.ValorIssRetido := 0;
       Valores.BaseCalculo := 0;
       Valores.ValorIss := 0;
+      Valores.ValorInss := 0;
 
       ANodes := AuxNode.Childrens.FindAllAnyNs('lista');
 
@@ -134,6 +135,8 @@ begin
           aValor := ObterConteudo(ANodes[i].Childrens.FindAnyNs('codigo_item_lista_servico'), tcStr);
           ItemListaServico := PadLeft(aValor, 4, '0');
 
+          xItemListaServico := ItemListaServicoDescricao(ItemListaServico);
+
           aValor := ObterConteudo(ANodes[i].Childrens.FindAnyNs('unidade_codigo'), tcStr);
           TipoUnidade := StrToUnidade(Ok, aValor);
 
@@ -143,6 +146,8 @@ begin
           Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('unidade_quantidade'), tcDe3);
           ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('unidade_valor_unitario'), tcDe2);
           Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('descritivo'), tcStr);
+          Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
           Aliquota := ObterConteudo(ANodes[i].Childrens.FindAnyNs('aliquota_item_lista_servico'), tcDe2);
 
           SituacaoTributaria := ObterConteudo(ANodes[i].Childrens.FindAnyNs('situacao_tributaria'), tcInt);
@@ -155,8 +160,14 @@ begin
 
           Valores.ValorIssRetido := Valores.ValorIssRetido +
               ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_issrf'), tcDe2);
+
           Valores.BaseCalculo := Valores.BaseCalculo + BaseCalculo;
           Valores.ValorIss := Valores.ValorIss + ValorISS;
+
+          Valores.ValorInss := Valores.ValorInss +
+              ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_inss'), tcDe2);
+
+          CodCNO := ObterConteudo(ANodes[i].Childrens.FindAnyNs('cno'), tcStr);
         end;
       end;
     end;
@@ -197,10 +208,17 @@ begin
         DataEmissao := EncodeDataHora(aValor, 'DD/MM/YYYY');
       end;
 
-      SituacaoNfse := StrToStatusNFSe(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('situacao_codigo_nfse'), tcStr));
-      aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('situacao'), tcStr);
+      //XML cancelado não tem a tag "situacao_codigo_nfse" se baixado do site da prefeitura
+      //somente a tag "situacao" = "C"
+      aValor:=  ObterConteudo(AuxNode.Childrens.FindAnyNs('situacao'), tcStr);
+      if aValor = 'C' then
+        SituacaoNfse := snCancelado
+      else
+        SituacaoNfse := StrToStatusNFSe(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('situacao_codigo_nfse'), tcStr));
 
       OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('observacao'), tcStr);
+      OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
       with Servico.Valores do
       begin
@@ -213,10 +231,14 @@ begin
 
         DescontoIncondicionado := ObterConteudo(AuxNode.Childrens.FindAnyNs('valor_desconto'), tcDe2);
 
+        RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
         ValorLiquidoNfse := ValorServicos -
-                            (ValorPis + ValorCofins + ValorInss + ValorIr +
-                             ValorCsll + ValorDeducoes + DescontoCondicionado +
+                            (RetencoesFederais + ValorDeducoes + DescontoCondicionado +
                              DescontoIncondicionado + ValorIssRetido);
+
+        ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                                DescontoIncondicionado;
       end;
     end;
   end;
@@ -242,7 +264,7 @@ begin
       with Prestador.Endereco do
       begin
         CodigoMunicipio := CodTOMToCodIBGE(ObterConteudo(AuxNode.Childrens.FindAnyNs('cidade'), tcStr));
-        xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+        xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
         if UF = '' then
           UF := xUF;
@@ -297,7 +319,7 @@ begin
         Bairro          := ObterConteudo(AuxNode.Childrens.FindAnyNs('bairro'), tcStr);
         CodigoMunicipio := CodTOMToCodIBGE(ObterConteudo(AuxNode.Childrens.FindAnyNs('cidade'), tcStr));
         CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('cep'), tcStr);
-        xMunicipio      := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+        xMunicipio      := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
         if UF = '' then
           UF := xUF;
@@ -343,8 +365,12 @@ function TNFSeR_IPM.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -386,16 +412,42 @@ begin
     AuxNode := ANode;
 
   LerRps(AuxNode);
+  LerItens(AuxNode);
   LerNota(AuxNode);
   LerPrestador(AuxNode);
   LerTomador(AuxNode);
-  LerItens(AuxNode);
   LerFormaPagamento(AuxNode);
 end;
 
 function TNFSeR_IPM.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
 begin
   Result := LerXmlNfse(ANode);
+end;
+
+{ TNFSeR_IPM204 }
+
+function TNFSeR_IPM204.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
+var
+  AuxNode: TACBrXmlNode;
+begin
+  Result := True;
+
+  if not Assigned(ANode) or (ANode = nil) then Exit;
+
+  AuxNode := ANode.Childrens.FindAnyNs('item');
+
+  if AuxNode = nil then
+    AuxNode := ANode.Childrens.FindAnyNs('Nfse')
+  else
+    AuxNode := AuxNode.Childrens.FindAnyNs('Nfse');
+
+  if AuxNode = nil then
+    AuxNode := ANode;
+
+  LerInfNfse(AuxNode);
+
+  LerNfseCancelamento(ANode);
+  LerNfseSubstituicao(ANode);
 end;
 
 end.

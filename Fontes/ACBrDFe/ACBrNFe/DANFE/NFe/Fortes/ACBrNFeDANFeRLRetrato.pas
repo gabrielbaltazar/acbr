@@ -112,7 +112,8 @@ type
     RLLabel77: TRLLabel;
     RLLabel78: TRLLabel;
     RLLabel82: TRLLabel;
-    lblCST: TRLLabel;
+    lblCST1: TRLLabel;
+    lblCST2: TRLLabel;
     RLLabel84: TRLLabel;
     RLLabel85: TRLLabel;
     lblValorTotal: TRLLabel;
@@ -940,6 +941,8 @@ begin
         rllXmotivo.Caption := ACBrStr('NF-E NÃO ENVIADA PARA SEFAZ');
         rllDadosVariaveis3_Descricao.Visible := False;
         rllDadosVariaveis3.Visible := False;
+        rllHomologacao.Visible := true;
+        rllHomologacao.Caption := ACBrStr('NF-e NÃO PROTOCOLADA NA SEFAZ - SEM VALOR FISCAL')
       end;
     end;
   end;
@@ -1098,7 +1101,7 @@ begin
     rlbCodigoBarras.Visible := True;
     rlbCodigoBarras.Caption := OnlyNumber(fpNFe.InfNFe.Id);
 
-    rllNumNF0.Caption := ACBrStr('Nº ') + PadLeft(IntToStr(nNF), 9, '0');
+    rllNumNF0.Caption := ACBrStr('Nº ') + FormatarNumeroDocumentoFiscal(IntToStr(nNF));
     rllNumNF1.Caption := rllNumNF0.Caption;
 
     rllSERIE0.Caption := ACBrStr('SÉRIE ') + PadLeft(IntToStr(Serie), 3, '0');
@@ -1901,14 +1904,7 @@ begin
     if Imposto.ISSQN.cListServ <> '' then
       txtCST.Caption := ''
     else
-    begin
-      case fpNFe.Emit.CRT of
-        crtRegimeNormal, crtSimplesExcessoReceita:
-          txtCST.Caption := OrigToStr(Imposto.ICMS.orig) + CSTICMSToStr(Imposto.ICMS.CST);
-        crtSimplesNacional:
-          txtCST.Caption := OrigToStr(Imposto.ICMS.orig) + CSOSNIcmsToStr(Imposto.ICMS.CSOSN);
-      end;
-    end;
+      txtCST.Caption := OrigToStr(Imposto.ICMS.orig) + fpDANFe.ManterCst(fpNFe.Emit.CRT, Imposto.ICMS.CSOSN, Imposto.ICMS.CST);
 
     txtCFOP.Caption := Prod.CFOP;
 
@@ -1974,10 +1970,14 @@ procedure TfrlDANFeRLRetrato.DefinirCabecalhoItens;
 begin
   //   Configura Cabecalho dos Itens
   case fpNFe.Emit.CRT of
-    crtRegimeNormal, crtSimplesExcessoReceita:
-      lblCST.Caption := 'CST';
-    crtSimplesNacional:
-      lblCST.Caption := 'CSOSN';
+    crtRegimeNormal, crtSimplesExcessoReceita: begin
+      lblCST1.Caption := 'CST';
+      lblCST2.Caption := '';
+    end;
+    crtSimplesNacional: begin
+      lblCST1.Caption := 'CSOSN';
+      lblCST2.Caption := '/ CST';
+    end;
   end;
   {
   if fpDANFe.ImprimeDescPorPercentual then

@@ -517,8 +517,7 @@ begin
      )
   then
   begin
-    if Self.Cat.ultDiaTrab <= Now then
-      Gerador.wCampo(tcDat, '', 'ultDiaTrab',     10,  10, 1, Self.Cat.ultDiaTrab);
+    Gerador.wCampo(tcDat, '', 'ultDiaTrab',     10,  10, 1, Self.Cat.ultDiaTrab);
 
     Gerador.wCampo(tcStr, '', 'houveAfast',      1,   1, 1, eSSimNaoToStr(Self.Cat.houveAfast));
   end;
@@ -604,6 +603,7 @@ end;
 function TEvtCAT.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, Self.ideEmpregador.NrInsc, Self.Sequencial);
@@ -784,7 +784,7 @@ begin
 
         sSecao := 'emitente';
         cat.atestado.Emitente.nmEmit := INIRec.ReadString(sSecao, 'nmEmit', EmptyStr);
-        cat.atestado.Emitente.ideOC  := eSStrToIdeOC(Ok, INIRec.ReadString(sSecao, 'ideOC', '1'));
+        cat.atestado.Emitente.ideOC  := eSStrToIdeOCEX(INIRec.ReadString(sSecao, 'ideOC', '1'));
         cat.atestado.Emitente.nrOc   := INIRec.ReadString(sSecao, 'nrOc', EmptyStr);
         cat.atestado.Emitente.ufOC   := INIRec.ReadString(sSecao, 'ufOC', 'SP');
       end;
@@ -811,8 +811,8 @@ var
   i: integer;
 begin
   Result := False;
+  Leitor := TLeitor.Create;
   try
-    Leitor := TLeitor.Create;
     Leitor.Arquivo := XML;
 
     if Leitor.rExtrai(1, 'evtCAT') <> '' then
@@ -931,7 +931,7 @@ begin
                 with emitente do
                 begin
                   nmEmit := Leitor.rCampo(tcStr, 'nmEmit');
-                  ideOC  := eSStrToIdeOC(ok, Leitor.rCampo(tcStr, 'ideOC'));
+                  ideOC  := eSStrToIdeOCEX(Leitor.rCampo(tcStr, 'ideOC'));
                   nrOC   := Leitor.rCampo(tcStr, 'nrOC');
                   ufOC   := Leitor.rCampo(tcStr, 'ufOC');
                 end;

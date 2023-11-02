@@ -177,7 +177,7 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'StatusRPS', 1, 1, 1, Situacao, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'TributacaoRPS', 1, 1, 1,
-                           TipoTributacaoRPSToStr(NFSe.TipoTributacaoRPS), ''));
+                           FPAOwner.TipoTributacaoRPSToStr(NFSe.TipoTributacaoRPS), ''));
 
   NFSeNode.AppendChild(AddNode(tcDe2, '#1', 'ValorServicos', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorServicos, ''));
@@ -260,7 +260,7 @@ begin
                                                NFSe.Servico.Discriminacao, ''));
 
   NFSeNode.AppendChild(AddNode(tcDe2, '#1', 'ValorCargaTributaria', 1, 15, 0,
-                                               NFSe.Servico.ValorCargaTributaria, ''));
+                                        NFSe.Servico.ValorCargaTributaria, ''));
 
   NFSeNode.AppendChild(AddNode(tcDe4, '#1', 'PercentualCargaTributaria', 1, 5, 0,
                                    NFSe.Servico.PercentualCargaTributaria, ''));
@@ -274,14 +274,17 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'MatriculaObra', 1, 12, 0,
                                               NFSe.ConstrucaoCivil.nMatri, ''));
 
+  if (NFSe.TipoTributacaoRPS <> ttTribnoMun) and
+     (NFSe.TipoTributacaoRPS <> ttTribnoMunIsento) and
+     (NFSe.TipoTributacaoRPS <> ttTribnoMunImune) then
+    NFSeNode.AppendChild(AddNode(tcStr, '#1', 'MunicipioPrestacao', 1, 7, 0,
+                                         NFSe.Servico.CodigoMunicipio, ''));
+
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'NumeroEncapsulamento', 1, 12, 0,
                                NFSe.ConstrucaoCivil.nNumeroEncapsulamento, ''));
 
-  if (NFSe.TipoTributacaoRPS  <> ttTribnoMun) and
-     (NFSe.TipoTributacaoRPS  <> ttTribnoMunIsento) and
-     (NFSe.TipoTributacaoRPS  <> ttTribnoMunImune) then
-    NFSeNode.AppendChild(AddNode(tcInt, '#1', 'MunicipioPrestacao', 1, 7, 0,
-                                         NFSe.Servico.MunicipioIncidencia, ''));
+  NFSeNode.AppendChild(AddNode(tcDe2, '#1', 'ValorTotalRecebido', 1, 15, 0,
+                                          NFSe.Servico.ValorTotalRecebido, ''));
 
   Result := True;
 end;

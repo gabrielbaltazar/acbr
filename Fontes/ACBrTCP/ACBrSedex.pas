@@ -55,19 +55,21 @@ uses
   ACBrUtil.Base,
   ACBrUtil.XMLHTML,
   ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
+  ACBrJSON,
   IniFiles;
 
 const
-  CURL_SEDEX = 'http://ws.correios.com.br/calculador/CalcPrecoPrazo.aspx?';
-  CURL_SEDEXPrazo = 'http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx/CalcPrazo?';
-
+  URL_SEDEX    = 'https://www.cepcerto.com/ws/json-frete';
+  URL_RASTREIO = 'http://www.websro.com.br/detalhes.php?P_COD_UNI=';
 type
   TACBrTpServico = (Tps04510PAC, Tps04014SEDEX, Tps40215SEDEX10,
     Tps40290SEDEXHOJE, Tps81019eSEDEX, Tps44105MALOTE,
     Tps85480AEROGRAMA, Tps10030CARTASIMPLES, Tps10014CARTAREGISTRADA,
     Tps16012CARTAOPOSTAL, Tps20010IMPRESSO, Tps14010MALADIRETA,
     Tps04014SEDEXVarejo, Tps40045SEDEXaCobrarVarejo, Tps40215SEDEX10Varejo,
-    Tps40290SEDEXHojeVarejo, Tps04510PACVarejo, Tps04669PACContrato, Tps04162SEDEXContrato, Tps20150IMPRESSOContrato);
+    Tps40290SEDEXHojeVarejo, Tps04510PACVarejo, Tps04669PACContrato, Tps04162SEDEXContrato, Tps20150IMPRESSOContrato,
+    Tps03220SEDEXContrato,Tps03298PACContrato);
 
   TACBrTpFormato = (TpfCaixaPacote, TpfRoloPrisma, TpfEnvelope);
 
@@ -148,7 +150,7 @@ type
     destructor Destroy; override;
 
     function Consultar: Boolean;
-    procedure Rastrear(const CodRastreio: String);
+    procedure Rastrear(const ACodRastreio: String);
 
     function LerArqIni(const AIniSedex: String): Boolean;
 
@@ -229,35 +231,35 @@ constructor TACBrSedex.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  fRastreio := TACBrRastreioClass.Create;
+  fRastreio              := TACBrRastreioClass.Create;
   fRastreio.Clear;
-  fsCodContrato := '';
-  fsDsSenha := '';
-  fsCepOrigem := '';
-  fsCepDestino := '';
-  fnVlPeso := 0;
-  fnCdFormato := TpfCaixaPacote;
-  fnVlComprimento := 0;
-  fnVlAltura := 0;
-  fnVlLargura := 0;
-  fsMaoPropria := False;
-  fnVlValorDeclarado := 0;
-  fsAvisoRecebimento := False;
-  fnCdServico := Tps04510PAC;
-  fUrlConsulta := CURL_SEDEX;
+  fsCodContrato          := '';
+  fsDsSenha              := '';
+  fsCepOrigem            := '';
+  fsCepDestino           := '';
+  fnVlPeso               := 0;
+  fnCdFormato            := TpfCaixaPacote;
+  fnVlComprimento        := 0;
+  fnVlAltura             := 0;
+  fnVlLargura            := 0;
+  fsMaoPropria           := False;
+  fnVlValorDeclarado     := 0;
+  fsAvisoRecebimento     := False;
+  fnCdServico            := Tps04510PAC;
+  fUrlConsulta           := URL_SEDEX;
 
-  fCodigoServico := '';
-  fValor := 0;
-  fPrazoEntrega := 0;
-  fValorSemAdicionais := 0;
-  fValorMaoPropria := 0;
+  fCodigoServico         := '';
+  fValor                 := 0;
+  fPrazoEntrega          := 0;
+  fValorSemAdicionais    := 0;
+  fValorMaoPropria       := 0;
   fValorAvisoRecebimento := 0;
-  fValorValorDeclarado := 0;
-  fEntregaDomiciliar := '';
-  fEntregaSabado := '';
-  fErro := 0;
-  fMsgErro := '';
-  fDataMaxEntrega := '';
+  fValorValorDeclarado   := 0;
+  fEntregaDomiciliar     := '';
+  fEntregaSabado         := '';
+  fErro                  := 0;
+  fMsgErro               := '';
+  fDataMaxEntrega        := '';
 end;
 
 destructor TACBrSedex.Destroy;
@@ -267,30 +269,31 @@ begin
 end;
 
 function TACBrSedex.GetUrl(TpServico: String): String;
-var
-  Servico:integer;
 begin
-  try
-    Servico := StrToInt(copy(TpServico,1,2));
-    case Servico of
-      4,40,81: Result:= CURL_SEDEX
-      else
-        Result:= CURL_SEDEXPrazo;
-    end;
-  except
-    raise EACBrSedexException.CreateACBrStr('Erro ao buscar a URL');
-  end;
+  Result:= URL_SEDEX;
 end;
 
 function TACBrSedex.Consultar: Boolean;
+  function parametros(const AParametro : String):String;
+  begin
+    result :=  '/' + OnlyNumber(AParametro);
+  end;
+
+  var
+    TpServico, TpFormato, TpMaoPropria, TpAvisoRecebimento, Buffer: string;
+
 var
-  TpServico, TpFormato, TpMaoPropria, TpAvisoRecebimento, Buffer: string;
+  Index: integer;
+  LErro, LResposta : String;
+  LRastreio : TACBrRastreio;
+  LJson : TACBrJSONObject;
 begin
   case fnCdServico of
-    Tps04510PAC :
+     Tps04510PAC :
       TpServico := '04510';
     Tps04014SEDEX :
       TpServico := '04014';
+    (*
     Tps40215SEDEX10 :
       TpServico := '40215';
     Tps40290SEDEXHOJE :
@@ -326,174 +329,77 @@ begin
     Tps04162SEDEXContrato:
       TpServico := '04162';
     Tps20150IMPRESSOContrato:
-      TpServico := '20150'
+      TpServico := '20150';
+    Tps03220SEDEXContrato:
+      TpServico := '03220';
+    Tps03298PACContrato:
+      TpServico := '03298';
+    *)
     else
-      raise EACBrSedexException.CreateACBrStr('Tipo de Serviço Inválido');
+      raise EACBrSedexException.CreateACBrStr('Tipo de Serviço Inválido ou desativado pelo provedor, valido somente 04510 PAC / 04014 Sedex');
   end;
 
   fUrlConsulta := GetUrl(TpServico);
-
-  case fnCdFormato of
-    TpfCaixaPacote :
-      TpFormato := '1';
-    TpfRoloPrisma :
-      TpFormato := '2';
-    TpfEnvelope :
-      TpFormato := '3';
-    else
-      raise EACBrSedexException.CreateACBrStr('Formato da Embalagem Inválido');
-  end;
-
-  if fsMaoPropria then
-    TpMaoPropria := 'S'
-  else
-    TpMaoPropria := 'N';
-
-  if fsAvisoRecebimento then
-    TpAvisoRecebimento := 'S'
-  else
-    TpAvisoRecebimento := 'N';
-
   try
-    if fUrlConsulta = CURL_SEDEX then
-      Self.HTTPGet(fUrlConsulta +
-        'nCdEmpresa=' + fsCodContrato +
-        '&sDsSenha=' + fsDsSenha +
-        '&sCepOrigem=' + OnlyNumber(fsCepOrigem) +
-        '&sCepDestino=' + OnlyNumber(fsCepDestino) +
-        '&nVlPeso=' + FloatToString(fnVlPeso) +
-        '&nCdFormato=' + TpFormato +
-        '&nVlComprimento=' + FloatToString(fnVlComprimento) +
-        '&nVlAltura=' + FloatToString(fnVlAltura) +
-        '&nVlLargura=' + FloatToString(fnVlLargura) +
-        '&sCdMaoPropria=' + TpMaoPropria +
-        '&nVlValorDeclarado=' + FloatToString(fnVlValorDeclarado) +
-        '&sCdAvisoRecebimento=' + TpAvisoRecebimento +
-        '&nCdServico=' + TpServico +
-        '&nVlDiametro=' + FloatToString(fnVlDiametro) +
-        '&StrRetorno=xml')
-    else
-       Self.HTTPGet(fUrlConsulta +
-        '&nCdServico=' + TpServico +
-        '&sCepOrigem=' + OnlyNumber(fsCepOrigem) +
-        '&sCepDestino=' + OnlyNumber(fsCepDestino)+
-        '&StrRetorno=xml');
-  except
-    on E: Exception do
-    begin
-      raise EACBrSedexException.Create('Erro ao consultar Sedex' + sLineBreak + E.Message);
+    Self.HTTPGet(fUrlConsulta +
+               parametros(fsCepOrigem)   +
+               parametros(fsCepDestino)  +
+               parametros(FloatToString(fnVlPeso))  +
+               parametros(FloatToString(fnVlAltura))  +
+               parametros(FloatToString(fnVlLargura))  +
+               parametros(FloatToString(fnVlComprimento)) +
+               '/'+Self.Senha
+              );
+  except on E: Exception do
+    raise EACBrSedexException.Create('Erro ao consultar Sedex' + sLineBreak + E.Message);
+  end;
+
+  LResposta := Self.RespHTTP.Text;
+
+  LJson := TACBrJSONObject.Parse(NativeStringToUTF8(LResposta));
+  try
+    if LJson.AsString['msg'] <> '' then
+      raise EACBrSedexException.Create(LJson.AsString['msg']);
+
+    if LJson.AsString['ErroHash'] <> '' then
+      raise EACBrSedexException.Create(LJson.AsString['ErroHash']);
+
+    if LJson.AsString['Erro'] <> '' then
+      raise EACBrSedexException.Create(LJson.AsString['Erro']);
+
+    case fnCdServico of
+      Tps04510PAC :
+        begin
+          retvalor                 := StrToFloat(Trim(LJson.AsString['valorpac']));
+          retDataMaxEntrega        := Trim(LJson.AsString['prazopac']);
+        end;
+      Tps04014SEDEX :
+        begin
+          retvalor                 := StrToFloat(Trim(LJson.AsString['valorsedex']));
+          retDataMaxEntrega        := Trim(LJson.AsString['prazosedex']);
+        end;
     end;
+    Result := True;
+  finally
+    LJson.Free;
   end;
-
-  //DEBUG
-  //Self.RespHTTP.SaveToFile('C:\TEMP\CONSULTA.HTML');
-
-  Buffer := Self.RespHTTP.Text;
-
-  retCodigoServico         := LerTagXml(Buffer, 'Codigo', True);
-  retPrazoEntrega          := StrToIntDef(LerTagXml(Buffer, 'PrazoEntrega', True),-1);
-  if fUrlConsulta = CURL_SEDEX then
-  begin
-    retvalor                 := StringToFloatDef(LerTagXml(Buffer, 'Valor', True),-1);
-    retValorSemAdicionais    := StringToFloatDef(LerTagXml(Buffer, 'ValorSemAdicionais', True),-1);
-    retValorMaoPropria       := StringToFloatDef(LerTagXml(Buffer, 'ValorMaoPropria', True),-1);
-    retValorAvisoRecebimento := StringToFloatDef(LerTagXml(Buffer, 'ValorAvisoRecebimento', True),-1);
-    retValorValorDeclarado   := StringToFloatDef(LerTagXml(Buffer, 'ValorValorDeclarado', True),-1);
-    retDataMaxEntrega        := '';
-  end
-  else
-  begin
-    retDataMaxEntrega        := LerTagXml(Buffer, 'DataMaxEntrega', True);
-    retvalor                 := 0;
-    retValorSemAdicionais    := 0;
-    retValorMaoPropria       := 0;
-    retValorAvisoRecebimento := 0;
-    retValorValorDeclarado   := 0;
-  end;
-  retEntregaDomiciliar     := LerTagXml(Buffer, 'EntregaDomiciliar', True);
-  retEntregaSabado         := LerTagXml(Buffer, 'EntregaSabado', True);
-  retErro                  := StrToIntDef(LerTagXml(Buffer, 'Erro', True),-1);
-  retMsgErro               := LerTagXml(Buffer, 'MsgErro', True);
-
-  retMsgErro := StringReplace(retMsgErro, '<![CDATA[', '', [rfReplaceAll]);
-  retMsgErro := StringReplace(retMsgErro, ']]>', '', [rfReplaceAll]);
-
-  if fUrlConsulta = CURL_SEDEX then
-    Result := (retErro = 0)
-  else
-    Result := (retErro = -1);
 end;
 
-//Código de erro Mensagem de erro
-//0 Processamento com sucesso
-//-1 Código de serviço inválido
-//-2 CEP de origem inválido
-//-3 CEP de destino inválido
-//-4 Peso excedido
-//-5 O Valor Declarado não deve exceder R$ 10.000,00
-//-6 Serviço indisponível para o trecho informado
-//-7 O Valor Declarado é obrigatório para este serviço
-//-8 Este serviço não aceita Mão Própria
-//-9 Este serviço não aceita Aviso de Recebimento
-//-10 Precificação indisponível para o trecho informado
-//-11 Para definição do preço deverão ser informados, também, o comprimento, a largura e altura do objeto em centímetros (cm).
-//-12 Comprimento inválido.
-//-13 Largura inválida.
-//-14 Altura inválida.
-//-15 O comprimento não pode ser maior que 105 cm.
-//-16 A largura não pode ser maior que 105 cm.
-//-17 A altura não pode ser maior que 105 cm.
-//-18 A altura não pode ser inferior a 2 cm.
-//-20 A largura não pode ser inferior a 11 cm.
-//-22 O comprimento não pode ser inferior a 16 cm.
-//-23 A soma resultante do comprimento + largura + altura não deve superar a 200 cm.
-//-24 Comprimento inválido.
-//-25 Diâmetro inválido
-//-26 Informe o comprimento.
-//-27 Informe o diâmetro.
-//-28 O comprimento não pode ser maior que 105 cm.
-//-29 O diâmetro não pode ser maior que 91 cm.
-//-30 O comprimento não pode ser inferior a 18 cm.
-//-31 O diâmetro não pode ser inferior a 5 cm.
-//-32 A soma resultante do comprimento + o dobro do diâmetro não deve superar a 200 cm.
-//-33 Sistema temporariamente fora do ar. Favor tentar mais tarde.
-//-34 Código Administrativo ou Senha inválidos.
-//-35 Senha incorreta.
-//-36 Cliente não possui contrato vigente com os Correios.
-//-37 Cliente não possui serviço ativo em seu contrato.
-//-38 Serviço indisponível para este código administrativo.
-//-39 Peso excedido para o formato envelope
-//-40 Para definicao do preco deverao ser informados, tambem, o comprimento e a largura e altura do objeto em centimetros (cm).
-//-41 O comprimento nao pode ser maior que 60 cm.
-//-42 O comprimento nao pode ser inferior a 16 cm.
-//-43 A soma resultante do comprimento + largura nao deve superar a 120 cm.
-//-44 A largura nao pode ser inferior a 11 cm.
-//-45 A largura nao pode ser maior que 60 cm.
-//-888 Erro ao calcular a tarifa
-//006 Localidade de origem não abrange o serviço informado
-//007 Localidade de destino não abrange o serviço informado
-//008 Serviço indisponível para o trecho informado
-//009 CEP inicial pertencente a Área de Risco.
-//010 CEP final pertencente a Área de Risco. A entrega será realizada, temporariamente, na agência mais próxima do endereço do destinatário.
-//011 CEP inicial e final pertencentes a Área de Risco
-//7 Serviço indisponível, tente mais tarde
-//99 Outros erros diversos do .Net
-procedure TACBrSedex.Rastrear(const CodRastreio: String);
+procedure TACBrSedex.Rastrear(const ACodRastreio: String);
 var
-  SL: TStringList;
-  I: integer;
-  vObs, Erro, vData, vLocal, infoLinha: String;
-  vCriar: Boolean;
+  LLista: TStringList;
+  Index: integer;
+  LObservacoes, LErro, LData, LHora, LLocal, LLinha: String;
+  LDeveCriar: Boolean;
+  LRastreio : TACBrRastreio;
 begin
   retRastreio.Clear;
 
-  if Length(CodRastreio) <> 13 then
+  if Length(ACodRastreio) <> 13 then
     raise EACBrSedexException.CreateACBrStr('Código de rastreamento deve conter 13 caracteres');
 
   try
-    Self.HTTPGet(
-      'http://www.websro.com.br//detalhes.php?P_COD_UNI='
-      + CodRastreio);
+    Self.HTTPGet(URL_RASTREIO + ACodRastreio);
   except
     on E: Exception do
     begin
@@ -501,90 +407,92 @@ begin
     end;
   end;
 
-  //DEBUG
-  //Self.RespHTTP.SaveToFile('C:\TEMP\RASTREIO.HTML');
-
   if Pos(ACBrStr('tente novamente mais tarde'), Self.RespHTTP.Text) > 0 then
   begin
-    Erro := Trim(StripHTML(Self.RespHTTP.Text));
-    Erro := Trim(StringReplace(Erro,'SRO - Internet','',[rfReplaceAll]));
-    Erro := Trim(StringReplace(Erro,'Resultado da Pesquisa','',[rfReplaceAll]));
+    LErro := Trim(StripHTML(Self.RespHTTP.Text));
+    LErro := Trim(StringReplace(LErro,'SRO - Internet','',[rfReplaceAll]));
+    LErro := Trim(StringReplace(LErro,'Resultado da Pesquisa','',[rfReplaceAll]));
 
-    //Self.RespHTTP.Text := Erro ;
-    //Self.RespHTTP.SaveToFile('C:\TEMP\RASTREIO.txt');
-
-    raise EACBrSedexException.Create(Erro);
+    raise EACBrSedexException.Create(LErro);
   end;
 
-  SL := TStringList.Create;
+  if Pos(ACBrStr('O rastreamento não está disponível no momento:'), Self.RespHTTP.Text) > 0 then
+     raise EACBrSedexException.Create('O rastreamento não está disponível no momento: '  + sLineBreak +
+                                      ' - Verifique se o código do objeto está correto ' + sLineBreak +
+                                      ' - O objeto pode demorar até 24 horas (após postagem) para ser rastreado no sistema do Correios.');
+
+  LLista := TStringList.Create;
   try
-    SL.Text := Self.RespHTTP.Text;
-    vCriar := False;
-    for I := 0 to Pred(SL.Count) do
+    LLista.Text := Self.RespHTTP.Text;
+    LDeveCriar := False;
+    for Index := 0 to Pred(LLista.Count) do
     begin
-      infoLinha := Trim(SL.Strings[I]);
-      if Pos('<li>Data', infoLinha) > 0 then
-        vData :=  Copy(infoLinha, 13, 10) + ' ' + Copy(infoLinha, 32, 5) + ':00';
-
-      if Pos('<li>Local', infoLinha) > 0 then
-        vLocal :=(RetornarConteudoEntre(infoLinha, '<li>Local:', '</li>')) + ' -> ' + vObs;
-
-      if Pos('<li>Status', infoLinha) > 0 then
-        vObs := RetornarConteudoEntre(infoLinha, '<b>', '</b>');
-
-      if Pos('<li>Origem', infoLinha) > 0 then
-        vLocal := (RetornarConteudoEntre(infoLinha, '<li>', '</li>')) + ' - ' + (RetornarConteudoEntre(infoLinha, '<li>', '</li>'))+ ' -> ' + vObs;
-
-      vCriar := Trim(vLocal) <> '';
-      if vCriar then
+      LLinha := Trim(LLista.Strings[Index]);
+      if Pos('>Data', LLinha) > 0 then
       begin
-        with retRastreio.New do
-        begin
-          DataHora   := StrToDateTime(vData);
-          Local      := vLocal;
-          Situacao   := vObs;
-          Observacao := vObs;
-        end;
-        vData := EmptyStr;
-        vLocal := EmptyStr;
-        vObs := EmptyStr;
-        vCriar := False;
+        LData :=(RetornarConteudoEntre(LLinha, '>Data  : ', ' |'));
+        LHora :=(RetornarConteudoEntre(LLinha, 'Hora: ', '</li>'));
+        LData := LData + ' ' + LHora;
       end;
 
+      if Pos('>Local', LLinha) > 0 then
+        LLocal := (RetornarConteudoEntre(LLinha, '<li>', '</li>'));
+
+      if Pos('<li>Origem', LLinha) > 0 then
+        LLocal := LLocal +(RetornarConteudoEntre(LLinha, '<li>', '</li>'));
+
+      if Pos('<li>Destino', LLinha) > 0 then
+        LLocal := LLocal + #13#10 + (RetornarConteudoEntre(LLinha, '<li>', '</li>'));
+
+      if Pos('>Status', LLinha) > 0 then
+        LObservacoes := RetornarConteudoEntre(LLinha, '<b>', '</b>');
+
+      LDeveCriar := Trim(LLocal) <> '';
+      if LDeveCriar then
+      begin
+        LRastreio := retRastreio.New;
+        LRastreio.DataHora   := StrToDateTimeDef(LData,0);
+        LRastreio.Local      := LLocal;
+        LRastreio.Situacao   := LObservacoes;
+        LRastreio.Observacao := LObservacoes;
+
+        //LData        := EmptyStr;
+        LLocal       := EmptyStr;
+        LObservacoes := EmptyStr;
+        LDeveCriar   := False;
+      end;
     end;
   finally
-    SL.Free;
+    LLista.Free;
   end;
 end;
 
 function TACBrSedex.LerArqIni(const AIniSedex: String): Boolean;
 var
-  IniSedex: TMemIniFile;
-  Sessao: String;
+  LArqIni: TMemIniFile;
+  LSessao: String;
 begin
-  IniSedex := TMemIniFile.Create('');
+  LArqIni := TMemIniFile.Create('');
   try
+    LerIniArquivoOuString(AIniSedex, LArqIni);
 
-    LerIniArquivoOuString(AIniSedex, IniSedex);
-    with Self do
-    begin
-      Sessao := 'SEDEX';
+    LSessao := 'SEDEX';
 
-      CepOrigem        := OnlyNumber(IniSedex.ReadString(Sessao,'CepOrigem',''));
-      CepDestino       := OnlyNumber(IniSedex.ReadString(Sessao,'CepDestino',''));
-      Servico          := TACBrTpServico(IniSedex.ReadInteger(Sessao,'Servico',0));
-      Peso             := IniSedex.ReadFloat(Sessao,'Peso',0);
-      Altura           := IniSedex.ReadFloat(Sessao,'Altura',0);
-      Largura          := IniSedex.ReadFloat(Sessao,'Largura',0);
-      Comprimento      := IniSedex.ReadFloat(Sessao,'Comprimento',0);
-      Diametro         := IniSedex.ReadFloat(Sessao,'Diametro',0);
-      ValorDeclarado   := IniSedex.ReadFloat(Sessao,'ValorDeclarado',0);
-      Formato          := TACBrTpFormato(IniSedex.ReadInteger(Sessao,'Formato',0));
-      AvisoRecebimento := IniSedex.ReadBool(Sessao,'AvisoRecebimento',False);
-      MaoPropria       := IniSedex.ReadBool(Sessao,'MaoPropria',False);
-    end;
+    CepOrigem        := OnlyNumber(LArqIni.ReadString(LSessao,'CepOrigem',''));
+    CepDestino       := OnlyNumber(LArqIni.ReadString(LSessao,'CepDestino',''));
+    Servico          := TACBrTpServico(LArqIni.ReadInteger(LSessao,'Servico',0));
+    Peso             := LArqIni.ReadFloat(LSessao,'Peso',0);
+    Altura           := LArqIni.ReadFloat(LSessao,'Altura',0);
+    Largura          := LArqIni.ReadFloat(LSessao,'Largura',0);
+    Comprimento      := LArqIni.ReadFloat(LSessao,'Comprimento',0);
+    Diametro         := LArqIni.ReadFloat(LSessao,'Diametro',0);
+    ValorDeclarado   := LArqIni.ReadFloat(LSessao,'ValorDeclarado',0);
+    Formato          := TACBrTpFormato(LArqIni.ReadInteger(LSessao,'Formato',0));
+    AvisoRecebimento := LArqIni.ReadBool(LSessao,'AvisoRecebimento',False);
+    MaoPropria       := LArqIni.ReadBool(LSessao,'MaoPropria',False);
+
   finally
-    IniSedex.free;
+    LArqIni.free;
     Result := True;
   end;
 end;

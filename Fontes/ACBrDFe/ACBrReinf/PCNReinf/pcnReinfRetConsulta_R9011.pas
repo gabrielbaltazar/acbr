@@ -45,12 +45,11 @@ uses
   {$IFEND}
   ACBrBase,
   ACBrUtil.Strings, pcnAuxiliar, pcnConversao, pcnLeitor,
-  pcnCommonReinf, pcnConversaoReinf;
+  pcnCommonReinf, pcnConversaoReinf, pcnReinfR9005;
 
 type
   TRetConsulta_R9011 = class;
   TEvtTotalContrib = class;
-  TInfoRecEv = class;
   TInfoTotalContrib = class;
   TRTomCollection = class;
   TRTomCollectionItem = class;
@@ -60,27 +59,14 @@ type
   TRRecRepADCollectionItem = class;
   TRComlCollection = class;
   TRComlCollectionItem = class;
+  TRAquisCollection = class;
+  TRAquisCollectionItem = class;
   TRCPRBCollection = class;
   TRCPRBCollectionItem = class;
   TinfoCRTomCollection = class;
   TinfoCRTomCollectionItem = class;
   TRetornoEventosCollection = class;
   TRetornoEventosCollectionItem = class;
-
-  TInfoRecEv = class(TObject)
-  private
-    FnrProtEntr: String;
-    FdhProcess: TDateTime;
-    FtpEv: String;
-    FidEv: String;
-    Fhash: String;
-  public
-    property nrProtEntr: String read FnrProtEntr;
-    property dhProcess: TDateTime read FdhProcess;
-    property tpEv: String read FtpEv;
-    property idEv: String read FidEv;
-    property hash: String read Fhash;
-  end;
 
   TInfoTotalContrib = class(TObject)
   private
@@ -91,6 +77,7 @@ type
     FRPrest: TRPrestCollection;
     FRRecRepAD: TRRecRepADCollection;
     FRComl: TRComlCollection;
+    FRAquis: TRAquisCollection;
     FRCPRB: TRCPRBCollection;
 
     procedure SetRComl(const Value: TRComlCollection);
@@ -98,14 +85,15 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    property nrRecArqBase: String read FnrRecArqBase;
-    property indExistInfo: TindExistInfo read FindExistInfo;
-    property identEscritDCTF: String read FidentEscritDCTF;
-    property RTom: TRTomCollection read FRTom;
-    property RPrest: TRPrestCollection read FRPrest;
-    property RRecRepAD: TRRecRepADCollection read FRRecRepAD;
+    property nrRecArqBase: String read FnrRecArqBase write FnrRecArqBase;
+    property indExistInfo: TindExistInfo read FindExistInfo write FindExistInfo;
+    property identEscritDCTF: String read FidentEscritDCTF write FidentEscritDCTF;
+    property RTom: TRTomCollection read FRTom write FRTom;
+    property RPrest: TRPrestCollection read FRPrest write FRPrest;
+    property RRecRepAD: TRRecRepADCollection read FRRecRepAD write FRRecRepAD;
     property RComl: TRComlCollection read FRComl write SetRComl;
-    property RCPRB: TRCPRBCollection read FRCPRB;
+    property RAquis: TRAquisCollection read FRAquis write FRAquis;
+    property RCPRB: TRCPRBCollection read FRCPRB write FRCPRB;
   end;
 
   TinfoCRTomCollection = class(TACBrObjectList)
@@ -125,9 +113,9 @@ type
     FVlrCRTom: Double;
     FVlrCRTomSusp: Double;
   public
-    property CRTom: string read FCRTom;
-    property VlrCRTom: Double read FVlrCRTom;
-    property VlrCRTomSusp: Double read FVlrCRTomSusp;
+    property CRTom: string read FCRTom write FCRTom;
+    property VlrCRTom: Double read FVlrCRTom write FVlrCRTom;
+    property VlrCRTomSusp: Double read FVlrCRTomSusp write FVlrCRTomSusp;
   end;
 
   TRTomCollection = class(TACBrObjectList)
@@ -144,6 +132,7 @@ type
   TRTomCollectionItem = class(TObject)
   private
     FcnpjPrestador: String;
+    Fcno: String;
     FvlrTotalBaseRet: Double;
     FvlrTotalRetPrinc: Double;
     FvlrTotalRetAdic: Double;
@@ -156,12 +145,13 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    property cnpjPrestador: String read FcnpjPrestador;
-    property vlrTotalBaseRet: Double read FvlrTotalBaseRet;
-    property vlrTotalRetPrinc: Double read FvlrTotalRetPrinc;
-    property vlrTotalRetAdic: Double read FvlrTotalRetAdic;
-    property vlrTotalNRetPrinc: Double read FvlrTotalNRetPrinc;
-    property vlrTotalNRetAdic: Double read FvlrTotalNRetAdic;
+    property cnpjPrestador: String read FcnpjPrestador write FcnpjPrestador;
+    property cno: String read Fcno write Fcno;
+    property vlrTotalBaseRet: Double read FvlrTotalBaseRet write FvlrTotalBaseRet;
+    property vlrTotalRetPrinc: Double read FvlrTotalRetPrinc write FvlrTotalRetPrinc;
+    property vlrTotalRetAdic: Double read FvlrTotalRetAdic write FvlrTotalRetAdic;
+    property vlrTotalNRetPrinc: Double read FvlrTotalNRetPrinc write FvlrTotalNRetPrinc;
+    property vlrTotalNRetAdic: Double read FvlrTotalNRetAdic write FvlrTotalNRetAdic;
     property infoCRTom: TinfoCRTomCollection read FinfoCRTom write SetinfoCRTom;
   end;
 
@@ -186,13 +176,13 @@ type
     FvlrTotalNRetPrinc: Double;
     FvlrTotalNRetAdic: Double;
   public
-    property tpInscTomador: TtpInsc read FtpInscTomador;
-    property nrInscTomador: String read FnrInscTomador;
-    property vlrTotalBaseRet: Double read FvlrTotalBaseRet;
-    property vlrTotalRetPrinc: Double read FvlrTotalRetPrinc;
-    property vlrTotalRetAdic: Double read FvlrTotalRetAdic;
-    property vlrTotalNRetPrinc: Double read FvlrTotalNRetPrinc;
-    property vlrTotalNRetAdic: Double read FvlrTotalNRetAdic;
+    property tpInscTomador: TtpInsc read FtpInscTomador write FtpInscTomador;
+    property nrInscTomador: String read FnrInscTomador write FnrInscTomador;
+    property vlrTotalBaseRet: Double read FvlrTotalBaseRet write FvlrTotalBaseRet;
+    property vlrTotalRetPrinc: Double read FvlrTotalRetPrinc write FvlrTotalRetPrinc;
+    property vlrTotalRetAdic: Double read FvlrTotalRetAdic write FvlrTotalRetAdic;
+    property vlrTotalNRetPrinc: Double read FvlrTotalNRetPrinc write FvlrTotalNRetPrinc;
+    property vlrTotalNRetAdic: Double read FvlrTotalNRetAdic write FvlrTotalNRetAdic;
   end;
 
   TRRecRepADCollection = class(TACBrObjectList)
@@ -216,13 +206,13 @@ type
     FvlrCRRecRepAD: Double;
     FvlrCRRecRepADSusp: Double;
   public
-    property cnpjAssocDesp: string read FcnpjAssocDesp;
-    property vlrTotalRep: Double read FvlrTotalRep;
-    property vlrTotalRet: Double read FvlrTotalRet;
-    property vlrTotalNRet: Double read FvlrTotalNRet;
-    property CRRecRepAD: String read FCRRecRepAD;
-    property vlrCRRecRepAD: Double read FvlrCRRecRepAD;
-    property vlrCRRecRepADSusp: Double read FvlrCRRecRepADSusp;
+    property cnpjAssocDesp: string read FcnpjAssocDesp write FcnpjAssocDesp;
+    property vlrTotalRep: Double read FvlrTotalRep write FvlrTotalRep;
+    property vlrTotalRet: Double read FvlrTotalRet write FvlrTotalRet;
+    property vlrTotalNRet: Double read FvlrTotalNRet write FvlrTotalNRet;
+    property CRRecRepAD: String read FCRRecRepAD write FCRRecRepAD;
+    property vlrCRRecRepAD: Double read FvlrCRRecRepAD write FvlrCRRecRepAD;
+    property vlrCRRecRepADSusp: Double read FvlrCRRecRepADSusp write FvlrCRRecRepADSusp;
   end;
 
   TRComlCollection = class(TACBrObjectList)
@@ -248,16 +238,38 @@ type
     FvlrCRComl: Double;
     FvlrCRComlSusp: Double;
   public
-    property vlrCPApur: Double read FvlrCPApur;
-    property vlrRatApur: Double read FvlrRatApur;
-    property vlrSenarApur: Double read FvlrSenarApur;
-    property vlrCPSusp: Double read FvlrCPSusp;
-    property vlrRatSusp: Double read FvlrRatSusp;
-    property vlrSenarSusp: Double read FvlrSenarSusp;
-    property CRComl: String read FCRComl;
-    property vlrCRComl: Double read FvlrCRComl;
-    property vlrCRComlSusp: Double read FvlrCRComlSusp;
+    property vlrCPApur: Double read FvlrCPApur write FvlrCPApur;
+    property vlrRatApur: Double read FvlrRatApur write FvlrRatApur;
+    property vlrSenarApur: Double read FvlrSenarApur write FvlrSenarApur;
+    property vlrCPSusp: Double read FvlrCPSusp write FvlrCPSusp;
+    property vlrRatSusp: Double read FvlrRatSusp write FvlrRatSusp;
+    property vlrSenarSusp: Double read FvlrSenarSusp write FvlrSenarSusp;
+    property CRComl: String read FCRComl write FCRComl;
+    property vlrCRComl: Double read FvlrCRComl write FvlrCRComl;
+    property vlrCRComlSusp: Double read FvlrCRComlSusp write FvlrCRComlSusp;
   end;
+  
+  TRAquisCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TRAquisCollectionItem;
+    procedure SetItem(Index: Integer; Value: TRAquisCollectionItem);
+  public
+    function Add: TRAquisCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TRAquisCollectionItem;
+
+    property Items[Index: Integer]: TRAquisCollectionItem read GetItem write SetItem;
+  end;
+
+  TRAquisCollectionItem = class(TObject)
+  private
+    FCRAquis: String;
+    FvlrCRAquis: Double;
+    FvlrCRAquisSusp: Double;
+  public
+    property CRAquis: String read FCRAquis write FCRAquis;
+    property vlrCRAquis: Double read FvlrCRAquis write FvlrCRAquis;
+    property vlrCRAquisSusp: Double read FvlrCRAquisSusp write FvlrCRAquisSusp;
+  end;  
 
   TRCPRBCollection = class(TACBrObjectList)
   private
@@ -279,12 +291,12 @@ type
     FvlrCRCPRB: Double;
     FvlrCRCPRBSusp: Double;
   public
-    property codRec: Integer read FcodRec;
-    property vlrCPApurTotal: Double read FvlrCPApurTotal;
-    property vlrCPRBSusp: Double read FvlrCPRBSusp;
-    property CRCPRB: String read FCRCPRB;
-    property vlrCRCPRB: Double read FvlrCRCPRB;
-    property vlrCRCPRBSusp: Double read FvlrCRCPRBSusp;
+    property codRec: Integer read FcodRec write FcodRec;
+    property vlrCPApurTotal: Double read FvlrCPApurTotal write FvlrCPApurTotal;
+    property vlrCPRBSusp: Double read FvlrCPRBSusp write FvlrCPRBSusp;
+    property CRCPRB: String read FCRCPRB write FCRCPRB;
+    property vlrCRCPRB: Double read FvlrCRCPRB write FvlrCRCPRB;
+    property vlrCRCPRBSusp: Double read FvlrCRCPRBSusp write FvlrCRCPRBSusp;
   end;
 
   TRetornoEventosCollection = class(TACBrObjectList)
@@ -308,6 +320,10 @@ type
     FiniValid: String;
     FfimValid: string;
     FnrProtocolo: String;
+    FtpEntLig: String;
+    FcnpjLig: String;
+    FtpProc: String;
+    FnrProc: String;
   public
     property id: String read FId write FId;
     property dtHoraRecebimento: String read FdtHoraRecebimento write FdtHoraRecebimento;
@@ -317,6 +333,10 @@ type
     property iniValid: String read FiniValid write FiniValid;
     property fimValid: String read FfimValid write FfimValid;
     property nrProtocolo : string read FnrProtocolo write FnrProtocolo;
+    property tpEntLig: String read FtpEntLig write FtpEntLig;
+    property cnpjLig: String read FcnpjLig write FcnpjLig;
+    property tpProc: String read FtpProc write FtpProc;
+    property nrProc: String read FnrProc write FnrProc;
   end;
 
   TEvtTotalContrib = class(TObject)
@@ -503,6 +523,29 @@ begin
   inherited Items[Index] := Value;
 end;
 
+{ TRAquisCollection }
+
+function TRAquisCollection.Add: TRAquisCollectionItem;
+begin
+  Result := Self.New;
+end;
+
+function TRAquisCollection.GetItem(Index: Integer): TRAquisCollectionItem;
+begin
+  Result := TRAquisCollectionItem(inherited Items[Index]);
+end;
+
+function TRAquisCollection.New: TRAquisCollectionItem;
+begin
+  Result := TRAquisCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+procedure TRAquisCollection.SetItem(Index: Integer; Value: TRAquisCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
 { TinfoCRTomCollection }
 
 function TinfoCRTomCollection.Add: TinfoCRTomCollectionItem;
@@ -536,6 +579,7 @@ begin
   FRPrest    := TRPrestCollection.Create;
   FRRecRepAD := TRRecRepADCollection.Create;
   FRComl     := TRComlCollection.Create;
+  FRAquis    := TRAquisCollection.Create;
   FRCPRB     := TRCPRBCollection.Create;
 end;
 
@@ -545,6 +589,7 @@ begin
   FRPrest.Free;
   FRRecRepAD.Free;
   FRComl.Free;
+  FRAquis.Free;
   FRCPRB.Free;
 
   inherited;
@@ -667,11 +712,13 @@ begin
 
         if leitor.rExtrai(2, 'infoRecEv') <> '' then
         begin
-          infoRecEv.FnrProtEntr := leitor.rCampo(tcStr, 'nrProtEntr');
-          infoRecEv.FdhProcess  := leitor.rCampo(tcDatHor, 'dhProcess');
-          infoRecEv.FtpEv       := leitor.rCampo(tcStr, 'tpEv');
-          infoRecEv.FidEv       := leitor.rCampo(tcStr, 'idEv');
-          infoRecEv.Fhash       := leitor.rCampo(tcStr, 'hash');
+          infoRecEv.nrRecArqBase := leitor.rCampo(tcStr, 'nrRecArqBase');
+          infoRecEv.nrProtEntr := leitor.rCampo(tcStr, 'nrProtEntr');
+          infoRecEv.dhProcess  := leitor.rCampo(tcDatHor, 'dhProcess');
+          infoRecEv.dhRecepcao := leitor.rCampo(tcDatHor, 'dhRecepcao');
+          infoRecEv.tpEv       := leitor.rCampo(tcStr, 'tpEv');
+          infoRecEv.idEv       := leitor.rCampo(tcStr, 'idEv');
+          infoRecEv.hash       := leitor.rCampo(tcStr, 'hash');
         end;
 
         if leitor.rExtrai(2, 'infoTotalContrib') <> '' then
@@ -764,6 +811,18 @@ begin
             end;
 
             i := 0;
+            while Leitor.rExtrai(3, 'RAquis', '', i + 1) <> '' do
+            begin
+              RAquis.New;
+
+              RAquis.Items[i].FCRAquis         := leitor.rCampo(tcStr, 'CRAquis');
+              RAquis.Items[i].FvlrCRAquis      := leitor.rCampo(tcDe2, 'vlrCRAquis');
+              RAquis.Items[i].FvlrCRAquisSusp  := leitor.rCampo(tcDe2, 'vlrCRAquisSusp');
+
+              inc(i);
+            end;
+
+            i := 0;
             while Leitor.rExtrai(3, 'RCPRB', '', i + 1) <> '' do
             begin
               RCPRB.New;
@@ -821,6 +880,10 @@ begin
               nrRecibo          := leitor.rCampo(tcStr, 'nrRecibo');
               situacaoEvento    := leitor.rCampo(tcStr, 'situacaoEvento');
               aplicacaoRecepcao := leitor.rCampo(tcStr, 'aplicacaoRecepcao');
+              tpEntLig          := leitor.rCampo(tcStr, 'tpEntLig');
+              cnpjLig           := leitor.rCampo(tcStr, 'cnpjLig');
+              tpProc            := leitor.rCampo(tcStr, 'tpProc');
+              nrProc            := leitor.rCampo(tcStr, 'nrProc');
 
               inc(i);
             end;
@@ -872,8 +935,10 @@ begin
         end;
 
         sSecao := 'infoRecEv';
+        AIni.WriteString(sSecao, 'nrRecArqBase', infoRecEv.nrRecArqBase);
         AIni.WriteString(sSecao, 'nrProtEntr', infoRecEv.nrProtEntr);
         AIni.WriteString(sSecao, 'dhProcess',  DateToStr(infoRecEv.dhProcess));
+        AIni.WriteString(sSecao, 'dhRecepcao', DateToStr(infoRecEv.dhRecepcao));
         AIni.WriteString(sSecao, 'tpEv',       infoRecEv.tpEv);
         AIni.WriteString(sSecao, 'idEv',       infoRecEv.idEv);
         AIni.WriteString(sSecao, 'hash',       infoRecEv.hash);
@@ -945,6 +1010,15 @@ begin
             AIni.WriteString(sSecao, 'CRComl',       RComl.Items[i].CRComl);
             AIni.WriteFloat(sSecao, 'vlrCRComl',     RComl.Items[i].vlrCRComl);
             AIni.WriteFloat(sSecao, 'vlrCRComlSusp', RComl.Items[i].vlrCRComlSusp);
+          end;
+
+          for i := 0 to RAquis.Count -1 do
+          begin
+            sSecao := 'RAquis' + IntToStrZero(I, 1);
+
+            AIni.WriteString(sSecao,  'CRAquis',        RAquis.Items[i].CRAquis);
+            AIni.WriteFloat(sSecao,   'vlrCRAquis',     RAquis.Items[i].vlrCRAquis);
+            AIni.WriteFloat(sSecao,   'vlrCRAquisSusp', RAquis.Items[i].vlrCRAquisSusp);
           end;
 
           for i := 0 to RCPRB.Count -1 do

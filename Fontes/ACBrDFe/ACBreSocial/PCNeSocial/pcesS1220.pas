@@ -250,7 +250,6 @@ type
 
   TInfoComplemDedCollectionItem = class(TObject)
   private
-    FindTpDeducao: tpIndTpDedu;
     FpenAlim: TPenAlimCollection;
     FprevidCompl: TPrevidComplCollection;
 
@@ -263,7 +262,6 @@ type
     function instPenAlim(): boolean;
     function instPrevidCompl(): boolean;
 
-    property indTpDeducao: tpIndTpDedu read FindTpDeducao write FindTpDeducao;
     property penAlim: TPenAlimCollection read getPenAlim write FpenAlim;
     property previdCompl: TPrevidComplCollection read getPrevidCompl write FprevidCompl;
   end;
@@ -1180,8 +1178,6 @@ begin
   begin
     Gerador.wGrupo('infoComplemDed');
 
-    Gerador.wCampo(tcStr, '', 'indTpDeducao', 1, 2, 1, eStpIndTpDeduToStr(obj.Items[i].indTpDeducao));
-
     if obj.Items[i].instPenAlim() then
       GerarPenAlim(obj.Items[i].penAlim);
     if obj.Items[i].instPrevidCompl() then
@@ -1393,6 +1389,7 @@ end;
 function TEvtInfoIR.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
 
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);

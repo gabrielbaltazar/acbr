@@ -77,8 +77,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings,
-  ACBrDFeUtil;
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -185,7 +184,7 @@ begin
                                               NFSe.Prestador.Endereco.CEP, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'codigoMunipio', 1, 5, 1,
-       CodIBGEToCodTOM(StrToInt(NFSe.Prestador.Endereco.CodigoMunicipio)), ''));
+    CodIBGEToCodTOM(StrToIntDef(NFSe.Prestador.Endereco.CodigoMunicipio, 0)), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'descricaoMunicipio', 1, 60, 1,
                                        NFSe.Prestador.Endereco.xMunicipio, ''));
@@ -269,7 +268,7 @@ begin
                                                 NFSe.Tomador.Endereco.CEP, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'codigoMunipio', 1, 5, 1,
-         CodIBGEToCodTOM(StrToInt(NFSe.Tomador.Endereco.CodigoMunicipio)), ''));
+    CodIBGEToCodTOM(StrToIntDef(NFSe.Tomador.Endereco.CodigoMunicipio, 0)), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'descricaoMunicipio', 1, 60, 1,
                                          NFSe.Tomador.Endereco.xMunicipio, ''));
@@ -340,7 +339,7 @@ begin
                                           NFSe.Intermediario.Endereco.CEP, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'codigoMunipio', 1, 5, 1,
-    CodIBGEToCodTOM(StrToInt(NFSe.Intermediario.Endereco.CodigoMunicipio)), ''));
+    CodIBGEToCodTOM(StrToIntDef(NFSe.Intermediario.Endereco.CodigoMunicipio, 0)), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'descricaoMunicipio', 1, 60, 1,
                                    NFSe.Intermediario.Endereco.xMunicipio, ''));
@@ -385,9 +384,6 @@ begin
 end;
 
 function TNFSeW_CTAConsult.GerarLocalPrestacao: TACBrXmlNode;
-var
-  CodigoIBGE: Integer;
-  xMunicipio, xUF: string;
 begin
   Result := CreateElement('localPrestacao');
 
@@ -398,24 +394,10 @@ begin
                                                  NFSe.Servico.UFPrestacao, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'codigoMunipio', 1, 5, 1,
-                  CodIBGEToCodTOM(StrToInt(NFSe.Servico.CodigoMunicipio)), ''));
-
-  CodigoIBGE := StrToIntDef(NFSe.Servico.CodigoMunicipio, 0);
-  xMunicipio := '';
-  xUF := '';
-
-  try
-    xMunicipio := ObterNomeMunicipio(CodigoIBGE, xUF);
-  except
-    on E:Exception do
-    begin
-      xMunicipio := '';
-      xUF := '';
-    end;
-  end;
+            CodIBGEToCodTOM(StrToIntDef(NFSe.Servico.CodigoMunicipio, 0)), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'descricaoMunicipio', 1, 60, 1,
-                                                               xMunicipio, ''));
+                                   NFSe.Servico.MunicipioPrestacaoServico, ''));
 end;
 
 function TNFSeW_CTAConsult.GerarDeducoes: TACBrXmlNode;
@@ -423,7 +405,7 @@ begin
   Result := CreateElement('deducoes');
 
   Result.AppendChild(AddNode(tcStr, '#1', 'tipo', 1, 1, 1,
-                       TipoDeducaoToStr(NFSe.Servico.Valores.TipoDeducao), ''));
+              FpAOwner.TipoDeducaoToStr(NFSe.Servico.Valores.TipoDeducao), ''));
 end;
 
 function TNFSeW_CTAConsult.GerarDetalhamentoNota: TACBrXmlNode;

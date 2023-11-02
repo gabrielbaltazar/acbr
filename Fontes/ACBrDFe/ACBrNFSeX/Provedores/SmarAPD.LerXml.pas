@@ -142,6 +142,8 @@ begin
       Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Quantidade'), tcDe2);
       ItemListaServico := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoAtividade'), tcStr);
       Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Servico'), tcStr);
+      Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
       if NFSe.Servico.Discriminacao <> '' then
         NFSe.Servico.Discriminacao := NFSe.Servico.Discriminacao + ';';
@@ -167,6 +169,9 @@ begin
 
       NFSe.Servico.Valores.ValorServicos := (NFSe.Servico.Valores.ValorServicos +
                                                                   ValorTotal);
+
+      NFSe.Servico.Discriminacao := StringReplace(NFSe.Servico.Discriminacao,
+                     FpQuebradeLinha, sLineBreak, [rfReplaceAll, rfIgnoreCase]);
     end;
   end;
 end;
@@ -200,6 +205,8 @@ begin
     begin
       Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('quantidade'), tcDe2);
       Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('descricao'), tcStr);
+      Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
       CodServ := ObterConteudo(ANodes[i].Childrens.FindAnyNs('codatividade'), tcStr);
       ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valorunitario'), tcDe2);
       Aliquota := ObterConteudo(ANodes[i].Childrens.FindAnyNs('aliquota'), tcDe2);
@@ -209,6 +216,8 @@ begin
         NFSe.Servico.Valores.IssRetido := stRetencao
       else
         NFSe.Servico.Valores.IssRetido := stNormal;
+
+      ValorTotal := Quantidade * ValorUnitario;
     end;
   end;
 end;
@@ -217,8 +226,12 @@ function TNFSeR_SmarAPD.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -280,6 +293,8 @@ begin
     NaturezaOperacao := StrToNaturezaOperacao(Ok, aValor);
 
     OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('Observacao'), tcStr);
+    OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
     MotivoCancelamento := '';
     Intermediario.Identificacao.CpfCnpj := '';
@@ -400,15 +415,22 @@ begin
 
     with Servico.Valores do
     begin
-      ValorIss         := (ValorServicos * Aliquota) /100;
+      ValorIss := (ValorServicos * Aliquota) /100;
+
+      RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
       ValorLiquidoNfse := ValorServicos -
                                       (ValorDeducoes + DescontoCondicionado +
                                        DescontoIncondicionado + ValorIssRetido +
-                                       ValorPis + ValorCofins + ValorInss +
-                                       ValorIr + ValorCsll);
-      BaseCalculo      := ValorLiquidoNfse;
+                                       RetencoesFederais);
+      BaseCalculo := ValorLiquidoNfse;
+
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
     end;
   end;
+
+  LerCampoLink;
 end;
 
 function TNFSeR_SmarAPD.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
@@ -478,6 +500,8 @@ begin
     end;
 
     OutrasInformacoes := ObterConteudo(ANode.Childrens.FindAnyNs('observacao'), tcStr);
+    OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
     LerFatura(ANode);
     LerServico(ANode);

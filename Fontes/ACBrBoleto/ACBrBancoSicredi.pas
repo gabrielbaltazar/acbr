@@ -71,7 +71,7 @@ type
     function TipoDescontoToString(const AValue: TACBrTipoDesconto): String; override;
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
     function CodOcorrenciaToTipo(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
-    function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
+    function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
     function CodMotivoRejeicaoToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia; const CodMotivo:String): String; override;
 
     function CompOcorrenciaOutrosDadosToDescricao(const CompOcorrencia: TACBrComplementoOcorrenciaOutrosDados): String; override;
@@ -870,7 +870,15 @@ begin
               else if(CodMotivo = 'A7') Then
                 Result := 'A7 -  Título já se encontra na situação Pretendida'
               else if(CodMotivo = 'A8') Then
-                Result := 'A8 -  Valor do Abatimento inválido para cancelamento';
+                Result := 'A8 -  Valor do Abatimento inválido para cancelamento'
+              else if(CodMotivo = 'P1') Then
+                Result := 'P1 -  Confirmado COM QrCode'
+              else if(CodMotivo = 'P2') Then
+                Result := 'P2 -  Confirmado SEM QrCode'
+              else if(CodMotivo = 'P3') Then
+                Result := 'P3 -  Chave Inválida'
+              else if(CodMotivo = 'P6') Then
+                Result := 'P6 -  txid em duplicidade/invalido';
             end;
             01: Result := '01 - Código do banco inválido';
             02: Result := '02 - Código do registro detalhe inválido';
@@ -1005,6 +1013,7 @@ begin
             08: Result := '08 - Em cartório';
             30: Result := '30 - Liquidação no guichê de caixa em cheque';
             31: Result := '31 - Liquidação em banco correspondente';
+            61: Result := '61 - Liquidação PIX ';
           else
             Result := PadLeft(CodMotivo,2,'0') + ' - Outros motivos';
           end;
@@ -1157,7 +1166,12 @@ begin
                Result:= PadLeft(CodMotivo,2,'0') +' - Outros Motivos';
             end;
           end;
-
+        toRetornoIntensaoPagamento: //07
+          case AnsiIndexStr(CodMotivo,['H5']) of
+              0: Result:= 'H5-Recebimento de liquidação fora da rede Sicredi - VLB Inferior - Via compensação';
+            else
+                Result:= PadLeft(CodMotivo,2,'0') +' - Outros Motivos';
+            end;
         toRetornoBaixadoViaArquivo: //09
           case StrToIntDef(CodMotivo,-1) of
             00: Result:= '00-Ocorrência aceita, baixado automaticamente via arquivo';
@@ -1403,6 +1417,15 @@ begin
               Result:= PadLeft(CodMotivo,2,'0') +' - Motivos não identificados';
             end;
           end;
+
+        toRetornoAlteracaoDadosNovaEntrada: //33
+          case AnsiIndexStr(CodMotivo,['H4']) of
+            0 : Result:= 'H4-Alteração de Carteira';
+          else
+            Result:= PadLeft(CodMotivo,2,'0') +' - Outros Motivos';
+          end;
+
+
         toRetornoEntradaNegativacaoRejeitada,
         toRetornoExclusaoNegativacaoRejeitada: //81 e 83
            if CodMotivo = 'S1' then
@@ -1516,7 +1539,7 @@ var
  CodOcorrencia: Integer;
 begin
   Result := '';
-  CodOcorrencia := StrToIntDef(TipoOCorrenciaToCod(TipoOcorrencia),0);
+  CodOcorrencia := StrToIntDef(TipoOcorrenciaToCod(TipoOcorrencia),0);
 
   if (ACBrBanco.ACBrBoleto.LayoutRemessa = c240) then
   begin
@@ -1665,7 +1688,7 @@ begin
   end;
 end;
 
-function TACBrBancoSicredi.TipoOCorrenciaToCod(
+function TACBrBancoSicredi.TipoOcorrenciaToCod(
   const TipoOcorrencia: TACBrTipoOcorrencia): String;
 begin
   Result := '';
@@ -2115,7 +2138,12 @@ begin
                                        '" não é um arquivo de retorno do(a) '+ UpperCase(Nome)));
 
    rCedente       := Trim(Copy(ARetorno[0],73,30));
-   rCNPJCPF       := Copy(ARetorno[0],19,14);
+
+   if ACBrBanco.ACBrBoleto.Cedente.TipoInscricao = pJuridica then
+    rCNPJCPF       := Copy(ARetorno[0],19,14)
+   else
+    rCNPJCPF       := Copy(ARetorno[0],22,11);
+    
    rCodCedente    := Copy(ARetorno[0],33,5);
    rAgencia       := Copy(ARetorno[0],54,4);
    rDigitoAgencia := Copy(ARetorno[0],58,1);
@@ -2231,10 +2259,8 @@ begin
 
         OcorrenciaOriginal.Tipo := CodOcorrenciaToTipo(StrToIntDef(Copy(SegT, 16, 2), 0));
 
-        if Trim(Copy(SegY,82,77))<>'' then begin
-          QrCode.url := Copy(SegY,82,77);
-          QrCode.txId:= Copy(SegY,159,35);
-        end;
+        if Trim(Copy(SegY,82,77))<>'' then
+          QrCode.PIXQRCodeDinamico(Trim(Copy(SegY,82,77)),Trim(Copy(SegY,159,35)), Titulo);
 
 
         IdxMotivo := 214;

@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -101,19 +101,25 @@ begin
   Result := False;
   try
     Leitor.Grupo := Leitor.Arquivo;
-    if leitor.rExtrai(1, 'retEnviCte') <> '' then
-    begin
-               Fversao   := Leitor.rAtributo('versao', 'retEnviCte');
-      (*AR03 *)FtpAmb    := StrToTpAmb(ok, Leitor.rCampo(tcStr, 'tpAmb'));
-      (*AR03a*)FcUF      := Leitor.rCampo(tcInt, 'cUF');
-      (*AR04 *)FverAplic := Leitor.rCampo(tcStr, 'verAplic');
-      (*AR05 *)FcStat    := Leitor.rCampo(tcInt, 'cStat');
-      (*AR06 *)FxMotivo  := Leitor.rCampo(tcStr, 'xMotivo');
 
-      //       Grupo infRec - Dados do Recibo do Lote (Só é gerado se o Lote for aceito)
-      (*AR08 *)infRec.nRec      := Leitor.rCampo(tcStr, 'nRec');
-      (*AR09 *)infRec.FdhRecbto := Leitor.rCampo(tcDatHor, 'dhRecbto');
-      (*AR10 *)infRec.FtMed     := Leitor.rCampo(tcInt, 'tMed');
+    if (leitor.rExtrai(1, 'retEnviCte') <> '') or
+       (leitor.rExtrai(1, 'retEnviCTe') <> '') then
+    begin
+      Fversao := Leitor.rAtributo('versao', 'retEnviCte');
+
+      if Fversao = '' then
+        Fversao := Leitor.rAtributo('versao', 'retEnviCTe');
+
+      FtpAmb := StrToTpAmb(ok, Leitor.rCampo(tcStr, 'tpAmb'));
+      FcUF := Leitor.rCampo(tcInt, 'cUF');
+      FverAplic := Leitor.rCampo(tcStr, 'verAplic');
+      FcStat := Leitor.rCampo(tcInt, 'cStat');
+      FxMotivo := Leitor.rCampo(tcStr, 'xMotivo');
+
+      // Grupo infRec - Dados do Recibo do Lote (Só é gerado se o Lote for aceito)
+      infRec.nRec := Leitor.rCampo(tcStr, 'nRec');
+      infRec.FdhRecbto := Leitor.rCampo(tcDatHor, 'dhRecbto');
+      infRec.FtMed := Leitor.rCampo(tcInt, 'tMed');
 
       Result := True;
     end;

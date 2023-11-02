@@ -37,13 +37,15 @@ unit ACBrBoletoW_Itau;
 interface
 
 uses
-  Classes, SysUtils, ACBrBoletoWS, pcnConversao, ACBrBoletoConversao, ACBrBoleto,
-//  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-//    JsonDataObjects_ACBr,
-//  {$Else}
-    Jsons,
-//  {$EndIf}
-  ACBrUtil.Base;
+  Classes,
+  SysUtils,
+  ACBrBoletoWS,
+  pcnConversao,
+  ACBrBoletoConversao,
+  ACBrBoleto,
+  Jsons,
+  ACBrUtil.Base,
+  ACBrBoletoWS.Rest;
 
 type
 
@@ -243,23 +245,23 @@ begin
           Json.Add('quantidade_pagamento_parcial').Value.AsInteger := QtdePagamentoParcial;
         if QtdeParcelas > 0 then
           Json.Add('quantidade_parcelas').Value.AsInteger := QtdeParcelas;
-          if Instrucao1 <> '' then
+        if Instrucao1 <> '' then
         begin
           Json.Add('instrucao_cobranca_1').Value.AsString := Copy(trim((Instrucao1)), 1, 2);
-          Json.Add('quantidade_dias_1').Value.AsString := Copy(trim((Instrucao1)), 3, 2);
-          //Json.Add('data_instrucao_1').Value.AsString := '';
+          if Copy(trim((Instrucao1)), 3, 2) <> '' then
+            Json.Add('quantidade_dias_1').Value.AsString := Copy(trim((Instrucao1)), 3, 2);
         end;
         if Instrucao2 <> '' then
         begin
           Json.Add('instrucao_cobranca_2').Value.AsString := Copy(trim((Instrucao2)), 1, 2);
-          Json.Add('quantidade_dias_2').Value.AsString := Copy(trim((Instrucao2)), 3, 2);
-          //Json.Add('data_instrucao_2').Value.AsString := '';
+          if Copy(trim((Instrucao2)), 3, 2) <> '' then
+            Json.Add('quantidade_dias_2').Value.AsString := Copy(trim((Instrucao2)), 3, 2);
         end;
         if Instrucao3 <> '' then
         begin
           Json.Add('instrucao_cobranca_3').Value.AsString := Copy(trim((Instrucao3)), 1, 2);
-          Json.Add('quantidade_dias_3').Value.AsString := Copy(trim((Instrucao3)), 3, 2);
-          //Json.Add('data_instrucao_3').Value.AsString := '';
+          if Copy(trim((Instrucao3)), 3, 2) <> '' then
+            Json.Add('quantidade_dias_3').Value.AsString := Copy(trim((Instrucao3)), 3, 2);
         end;
         if ValorAbatimento > 0 then
           Json.Add('valor_abatimento').Value.AsString := IntToStrZero(round(ValorAbatimento * 100), 17);
@@ -596,7 +598,7 @@ begin
             if MultaValorFixo then
               JsonMulta.Add('valor_multa').Value.AsString := IntToStrZero(round(PercentualMulta * 100), 17)
             else
-              JsonMulta.Add('percentual_multa').Value.AsString := IntToStrZero(round(PercentualMulta * 10000), 12);
+              JsonMulta.Add('percentual_multa').Value.AsString := IntToStrZero(round(PercentualMulta * 100000), 12);
 
           end;
 

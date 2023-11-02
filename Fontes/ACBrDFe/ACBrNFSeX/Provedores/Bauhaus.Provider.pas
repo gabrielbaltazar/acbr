@@ -54,6 +54,7 @@ type
 
   public
     function GerarNFSe(ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
@@ -78,8 +79,11 @@ type
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoEmitir(Response: TNFSeEmiteResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
+    procedure TratarRetornoConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
+
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
@@ -112,6 +116,12 @@ begin
     UseCertificateHTTP := False;
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
+    FormatoArqEnvio := tfaJson;
+    FormatoArqRetorno := tfaJson;
+    FormatoArqEnvioSoap := tfaJson;
+    FormatoArqRetornoSoap := tfaJson;
+    FormatoArqRecibo := tfaJson;
+    FormatoArqNota := tfaJson;
   end;
 
   SetXmlNameSpace('');
@@ -221,7 +231,21 @@ begin
         if Assigned(jNfse) then
         begin
           with Response do
+          begin
             NumeroNota := jNfse.AsString['Numero'];
+
+            if AnsiPos('AMBIENTE DE TESTE', jNfse.AsString['Mensagem'] ) > 0 then
+            begin
+              Sucesso := false;
+              NumeroNota := '';
+              DescSituacao := 'ATENÇÃO! AMBIENTE DE TESTE PARA VALIDAÇÃO DE INTEGRAÇÃO.';
+
+              AErro := Response.Erros.New;
+              AErro.Codigo := Cod999;
+              AErro.Descricao := ACBrStr(jNfse.AsString['Mensagem']);
+              AErro.Correcao :=  'ENTRAR EM CONTATO COM A PREFEITURA PARA PEDIR A MUDANÇA PARA AMBIENTE EM PRODUÇÃO DO CNPJ DO EMISSOR';
+            end;
+          end;
         end;
       end;
     except
@@ -238,7 +262,102 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderBauhaus.PrepararConsultaNFSe(
+procedure TACBrNFSeProviderBauhaus.PrepararConsultaNFSeporRps(
+  Response: TNFSeConsultaNFSeporRpsResponse);
+var
+  AErro: TNFSeEventoCollectionItem;
+begin
+  if EstaVazio(Response.NumeroRps) then
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := Cod102;
+      AErro.Descricao := ACBrStr(Desc102);
+      Exit;
+    end;
+
+  Response.ArquivoEnvio := '?NumeroRps=' +
+    Response.NumeroRps;
+
+  FpPath := Response.ArquivoEnvio;
+  FpMethod := 'GET';
+end;
+
+procedure TACBrNFSeProviderBauhaus.TratarRetornoConsultaNFSeporRps(
+  Response: TNFSeConsultaNFSeporRpsResponse);
+var
+  jDocument, jRps, jNfse, jCancel: TACBrJSONObject;
+  AErro: TNFSeEventoCollectionItem;
+  NumRps: string;
+  ANota: TNotaFiscal;
+begin
+  if Response.ArquivoRetorno = '' then
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := Cod201;
+      AErro.Descricao := ACBrStr(Desc201);
+      Exit
+    end;
+
+  jDocument := TACBrJSONObject.Parse(Response.ArquivoRetorno);
+
+  try
+    try
+      ProcessarMensagemDeErros(jDocument, Response);
+      Response.Sucesso := (Response.Erros.Count = 0);
+
+      if Response.Sucesso then
+        begin
+          jNfse := jDocument.AsJSONObject['DadosNfse'];
+          jRps := jNfse.AsJSONObject['Rps'];
+          NumRps := jRps.AsString['Numero'];
+
+          if Assigned(jNfse) then
+            begin
+              with Response do
+                begin
+                  NumeroNota := jNfse.AsString['NumeroNfse'];
+                  SerieNota := jRps.AsString['Serie'];
+                  Data := jNfse.AsISODateTime['DataEmissao'];
+                  Link := jNfse.AsString['LinkNfse'];
+                  Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
+                  Protocolo := jNfse.AsString['CodigoValidacao'];
+                  Situacao := jNfse.AsString['SituacaoNfse'];
+                  NumeroLote := NumRps;
+
+                  if Situacao = '2' then
+                    begin
+                      DescSituacao := 'Cancelada';
+                      jCancel := jNfse.AsJSONObject['Cancelamento'];
+                      DataCanc := jCancel.AsISODate['Data'];
+                    end
+                  else
+                    DescSituacao := 'Normal';
+                end;
+
+              if NumRps <> '' then
+                ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps)
+              else
+                ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(Response.NumeroNota);
+
+              ANota := CarregarXmlNfse(ANota, Response.ArquivoRetorno);
+              SalvarXmlNfse(ANota);
+            end;
+        end;
+    except
+      on E: Exception do
+        begin
+          Response.Sucesso := False;
+          AErro := Response.Erros.New;
+          AErro.Codigo := Cod999;
+          AErro.Descricao := ACBrStr(Desc999 + E.Message);
+        end;
+    end;
+  finally
+    FreeAndNil(jDocument);
+  end;
+end;
+
+procedure TACBrNFSeProviderBauhaus.PrepararConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
@@ -258,7 +377,7 @@ begin
   FpMethod := 'GET';
 end;
 
-procedure TACBrNFSeProviderBauhaus.TratarRetornoConsultaNFSe
+procedure TACBrNFSeProviderBauhaus.TratarRetornoConsultaNFSeporNumero
   (Response: TNFSeConsultaNFSeResponse);
 var
   jDocument, jRps, jNfse, jCancel: TACBrJSONObject;
@@ -300,7 +419,7 @@ begin
               Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
               Protocolo := jNfse.AsString['CodigoValidacao'];
               Situacao := jNfse.AsString['SituacaoNfse'];
-              Lote := NumRps;
+              NumeroLote := NumRps;
 
               if Situacao = '2' then
               begin
@@ -367,11 +486,11 @@ begin
       jo
         .AddPairJSONObject('DadosNota', EmptyStr)
         .AsJSONObject['DadosNota']
-          .AddPair('Numero', StrToInt(NumeroNFSe))
+          .AddPair('Numero', StrToIntDef(NumeroNFSe, 0))
           .AddPair('Cancelamento', TACBrJSONObject.Create
                                      .AddPair('Motivo', MotCancelamento))
           .AddPair('Prestador', TACBrJSONObject.Create
-                                  .AddPair('InscricaoMunicipal', StrToInt(OnlyNumber(Emitente.InscMun))));
+                                  .AddPair('InscricaoMunicipal', StrToIntDef(OnlyNumber(Emitente.InscMun), 0)));
     Response.ArquivoEnvio := jo.ToJSON;
   finally
     jo.Free;
@@ -453,6 +572,14 @@ begin
 end;
 
 function TACBrNFSeXWebserviceBauhaus.GerarNFSe(ACabecalho, AMSG: String): string;
+begin
+  FPMsgOrig := AMSG;
+
+  Result := Executar('', AMSG, [], []);
+end;
+
+function TACBrNFSeXWebserviceBauhaus.ConsultarNFSePorRps(ACabecalho,
+  AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 

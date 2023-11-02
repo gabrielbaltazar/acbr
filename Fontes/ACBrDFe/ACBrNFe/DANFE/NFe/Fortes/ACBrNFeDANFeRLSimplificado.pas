@@ -86,7 +86,6 @@ type
     RLLabel3: TRLLabel;
     rlb05b_Desc_Itens: TRLBand;
     rlmProdutoCodigo: TRLLabel;
-    rlmProdutoDescricao: TRLLabel;
     rlmProdutoUnidade: TRLLabel;
     rlmProdutoQTDE: TRLLabel;
     rlmProdutoValor: TRLLabel;
@@ -164,6 +163,7 @@ type
     RLLabelValor: TRLLabel;
     C: TRLLabel;
     RLLabelLIQ: TRLLabel;
+    rlmProdutoDescricao: TRLMemo;
     procedure RLb02_EmitenteBeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure RLb03_DadosGeraisBeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure RLb04_DestinatarioBeforePrint(Sender: TObject; var PrintIt: Boolean);
@@ -474,8 +474,11 @@ end;
 
 procedure TfrlDANFeRLSimplificado.InicializarDados;
 begin
-     AdicionarFaturaReal;
-     AdicionarFatura;
+  rlmProdutoCodigo.Width    := fpDANFe.LarguraCodProd;
+  rlmProdutoDescricao.Left  := rlmProdutoCodigo.Left + rlmProdutoCodigo.Width + 2;
+  RLLabel4.Left             := rlmProdutoDescricao.Left;
+  AdicionarFaturaReal;
+  AdicionarFatura;
 end;
 
 function TfrlDANFeRLSimplificado.ManterDuplicatas: Integer;
@@ -537,7 +540,7 @@ procedure TfrlDANFeRLSimplificado.rlb05b_Desc_ItensBeforePrint(Sender: TObject; 
   begin
     Result := sXProd;
     if NaoEstaVazio(sinfAdProd) then
-      Result := Result + sLineBreak + sLineBreak + 'InfAd: ' + sinfAdProd;
+      Result := Result + sLineBreak  + sLineBreak + ' InfAd: ' + sinfAdProd;
   end;
 
 begin
@@ -547,7 +550,7 @@ begin
   begin
     rlmProdutoItem.Caption := FormatFloat('000', FNumItem + 1);
     rlmProdutoCodigo.Caption := fpDANFe.ManterCodigo(Prod.cEAN, Prod.CProd);
-    rlmProdutoDescricao.Caption := ManterinfAdProd(Prod.XProd, infAdProd);
+    rlmProdutoDescricao.Lines.Text := ManterinfAdProd(Prod.XProd, infAdProd);
     rlmProdutoQTDE.Caption := fpDANFe.FormatarQuantidade(Prod.qCom);
     rlmProdutoCFOP.Caption := prod.cfop;
     case fpNFe.Emit.CRT of
@@ -557,7 +560,7 @@ begin
         end;
       crtSimplesNacional: begin
         rlmProdutoCST.Caption := OrigToStr(Imposto.ICMS.orig) + CSOSNIcmsToStr(Imposto.ICMS.CSOSN);
-        rlCST.Caption:= 'Csosn';
+        rlCST.Caption:= 'Csosn/Cst';
         end;
     end;
     rlmProdutoValor.Caption := fpDANFe.FormatarValorUnitario(Prod.vUnCom);

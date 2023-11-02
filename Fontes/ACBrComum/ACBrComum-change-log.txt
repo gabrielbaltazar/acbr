@@ -37,6 +37,45 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+01/11/2023
+-- ACBrUtil.FilesIO --
+[+] Implementado a função StringIsPDF que tem como objetivo identificar se a
+    string passada é um PDF ou não.
+   Por: Italo Giurizzato Junior
+
+16/10/2023
+-- ACBrJSON --
+[+] Inclusão de novas funções para facilitar o tratamento do JSON em objetos
+    Por: Elias César
+
+28/07/2023
+-- ACBrJSON --
+[+] Implementado a função IsJSONArray que retorna True se o elemento for um Array ou 
+    False se for um Objeto.
+    Por: Italo Giurizzato Junior
+
+01/07/2023
+-- ACBrUtil.DateTime --
+[*] Ajuste na ParseDataHora para interpretar datas com iniciais do mês ao invés de numeral
+[*] Ajuste na AjustarData para corrigir zeros à esquerda preenchidos em anos com 2 dígitos
+   Por: Renato Rubinho
+
+22/06/2023
+-- ACBrUtil.DateTime --
+[-] Realizado um reverte pois gerou um efeito colateral.
+   Por: Italo Giurizzato Junior
+
+15/06/2023
+-- ACBrUtil.DateTime --
+[-] Ajuste em "StringToDateTime", para processar datas com timezone somente com
+    a hora sem os minutos, Exemplo: '2022-11-11 11:11:11-03'
+   Por: Billbarsch
+
+30/03/2023
+-- ACBr.inc --
+[*] Remoção diretivas de compilação em desuso no componente ACBrCTe.
+   Por: Italo Giurizzato Junior
+
 04/01/2023
 -- ACBrJSON --
 [*] Possível solução para evitar um AV ao executar a funcion CreateJsonObject

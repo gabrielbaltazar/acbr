@@ -46,6 +46,64 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+28/09/2023
+-- ACBrTEFAPIComum --
+[*] Melhorias quando estiver Trantando Transações Pendentes durante a inicializaçao
+    da aplicação, para usar Status mais apropriados.
+
+-- ACBrTEFAPICliSiTef --
+[*] Melhorias na rotina de inicialização
+[-] Correção de mensagens exibidas com o Encode incorreto
+    (por: DSA)
+
+20/09/2023
+-- ACBrTEFPayGoWebComum --
+[-] Correção na validação de Campos com PWDAT_TYPED = "MMAA"
+    www.projetoacbr.com.br/forum/index.php?showtopic=74275
+    (por: DSA)
+
+18/09/2023
+-- ACBrTEFComum, ACBrTEFPayGoComum--
+[*] Inclusão tefstsErroEnergia em TACBrTEFStatusTransacao para realização do teste 51 (Queda de Energia) para homologação PayGo utilizando Componente ACBrTEFAPI.
+    (Por: Antonio Carlos Junior)
+
+18/08/2023
+-- ACBrTEFPayGoComum --
+[-] Aplicado WorkAround para quanto PWINFO_RCPTPRN=1 e PWINFO_RCPTMERCH está presente
+    ocasionado a não impressão da Segunda Via diferenciada do Estabelecimento
+    (por: DSA)
+
+31/05/2023
+-- ACBrTEFAndroidPayGo, ACBrTEFAPIPayGoWeb, ACBrTEFAndroidElginIDH, ACBrTEFAndroidMSitef --
+[-] Correção no método "EfetuarPagamento", que estava compondo a Data de forma errada
+    no Parâmetro "PWINFO_INSTALLMDATE"
+    https://www.projetoacbr.com.br/forum/topic/72464-poss%C3%ADvel-erro-nas-rotinas-do-tef-paygo/
+    (por:  Valdir Dill)
+
+-- ACBrTEFAPI, ACBrTEFAPIPayGoWeb, ACBrTEFPayGoWebComum --
+[+] Adicionado o método "VerificarPresencaPinPad"
+    (por: DSA)
+
+05/05/2023
+-- ACBrTEFAndroid, ACBrTEFAndroidElginIDH, ACBrTEFElginIDHAndroidAPI, ACBrTEFElginIDHComum --
+[+] Adicionado o modelo "tefElginIDH" em TACBrTEFAndroid
+
+-- ACBrTEFAndroid, ACBrTEFAndroidMSitef, ACBrTEFMSitefAndroidAPI, ACBrTEFMSitefComum --
+[+] Adicionado o modelo "tefMSitef" em TACBrTEFAndroid
+https://www.projetoacbr.com.br/forum/topic/71696-componente-elgintef-e-msitef-android/
+   (por: Warquia)
+
+-- ACBrTEFPayGoAndroidAPI --
+[*] Adcionada chamada de Log em TACBrTEFPGWebAndroid.HandleActivityMessage
+[*] PWINFO_RESULTMSG tratado de UTF8 para String Nativa
+    (por: DSA)
+
+24/04/2023
+-- ACBrTEFComum, ACBrTEFDClass --
+[-] Correção para impressão de 2a Via, quando retorno vem no final do campo 029
+    www.projetoacbr.com.br/forum/index.php?showtopic=71768
+    (por: DSA)
+
 18/10/2022
 -- ACBrTEFAndroidPayGo --
 [*] Correção de erro de grafia em "QuandoFinalizarTransacaoAPI"

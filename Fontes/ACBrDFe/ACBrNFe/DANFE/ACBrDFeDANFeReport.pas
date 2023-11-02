@@ -224,7 +224,7 @@ end;
 function TACBrDFeDANFeReport.GetSeparadorPathPDF(const aInitialPath: String): String;
 var
   dhEmissao: TDateTime;
-  DescricaoModelo: String;
+  wLiteral, DescricaoModelo: String;
   ANFe: TNFe;
 begin
   Result := aInitialPath;
@@ -241,17 +241,18 @@ begin
         dhEmissao := Now;
 
       DescricaoModelo := '';
-      if TACBrNFe(ACBrNFe).Configuracoes.Arquivos.AdicionarLiteral then
-      begin
-        case ANFe.Ide.modelo of
-          0: DescricaoModelo := TACBrNFe(FACBrNFe).GetNomeModeloDFe;
-          55: DescricaoModelo := 'NFe';
-          65: DescricaoModelo := 'NFCe';
-        end;
+      case ANFe.Ide.modelo of
+        0: DescricaoModelo := TACBrNFe(FACBrNFe).GetNomeModeloDFe;
+        55: DescricaoModelo := 'NFe';
+        65: DescricaoModelo := 'NFCe';
       end;
+                       
+      wLiteral := '';
+      if TACBrNFe(ACBrNFe).Configuracoes.Arquivos.AdicionarLiteral then
+        wLiteral := DescricaoModelo;
 
       Result := TACBrNFe(FACBrNFe).Configuracoes.Arquivos.GetPath(Result,
-        DescricaoModelo, ANFe.Emit.CNPJCPF, ANFe.Emit.IE, dhEmissao, DescricaoModelo);
+        wLiteral, ANFe.Emit.CNPJCPF, ANFe.Emit.IE, dhEmissao, DescricaoModelo);
     end;
   end;
 end;
@@ -550,7 +551,7 @@ end;
 
 function TACBrDFeDANFeReport.ManterCst(dCRT: TpcnCRT; dCSOSN: TpcnCSOSNIcms; dCST: TpcnCSTIcms): String;
 begin
-  if dCRT = crtSimplesNacional then
+  if (dCRT = crtSimplesNacional) and not (dCST in [cst02, cst15, cst53, cst61]) then
     Result := CSOSNIcmsToStr(dCSOSN)
   else
     Result := CSTICMSToStr(dCST);

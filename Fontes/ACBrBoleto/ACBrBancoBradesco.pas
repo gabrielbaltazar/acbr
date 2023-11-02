@@ -53,6 +53,7 @@ type
     procedure ValidaNossoNumeroResponsavel(out ANossoNumero: String; out ADigVerificador: String;
               const ACBrTitulo: TACBrTitulo); override;
     function MontaInstrucoesCNAB400(const ACBrTitulo :TACBrTitulo; const nRegistro: Integer ): String; override;
+    function GerarLinhaRegistroTransacao400(ACBrTitulo : TACBrTitulo; aRemessa: TStringList): String;
   public
     Constructor create(AOwner: TACBrBanco);
     function MontarCampoNossoNumero(const ACBrTitulo :TACBrTitulo): String; override;
@@ -62,11 +63,14 @@ type
 
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia) : String; override;
     function CodOcorrenciaToTipo(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
-    function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
-    function CodMotivoRejeicaoToDescricao(const TipoOcorrencia:TACBrTipoOcorrencia; CodMotivo:Integer): String; override;
+    function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
+    function CodMotivoRejeicaoToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia; const CodMotivo: String): String; override;
 
     function CodOcorrenciaToTipoRemessa(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
     function TipoOcorrenciaToCodRemessa(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
+
+    Procedure LerRetorno400Transacao4(ACBrTitulo :TACBrTitulo; ALinha:String); override;
+
 
   end;
 
@@ -106,7 +110,7 @@ begin
 
   if (ACBrTitulo.ACBrBoleto.Cedente.ResponEmissao = tbBancoEmite) then
   begin
-    if (ACBrTitulo.NossoNumero = '') or (ACBrTitulo.NossoNumero = PadLeft(ACBrTitulo.NossoNumero,ACBrBanco.TamanhoMaximoNossoNum,'0')) then
+    if (ACBrTitulo.NossoNumero = '') or (ACBrTitulo.NossoNumero = PadLeft('0',ACBrBanco.TamanhoMaximoNossoNum,'0')) then
     begin
       ANossoNumero := StringOfChar('0', CalcularTamMaximoNossoNumero(ACBrTitulo.Carteira, ACBrTitulo.NossoNumero) );
       ADigVerificador := '0';
@@ -293,6 +297,7 @@ begin
     with ACBrTitulo do
     begin
       {REGISTRO P}
+      inc(fpQtdRegsLote);
       ListTransacao.Add(IntToStrZero(ACBrBanco.Numero, 3)    + //1 a 3 - Código do banco
         '0001'                                               + //4 a 7 - Lote de serviço
         '3'                                                  + //8 - Tipo do registro: Registro detalhe
@@ -349,6 +354,7 @@ begin
         ' ');                                                 //240 - Uso exclusivo FEBRABAN/CNAB
 
       {SEGMENTO Q}
+      inc(fpQtdRegsLote);
       ListTransacao.Add(IntToStrZero(ACBrBanco.Numero, 3) + //Código do Banco na Compensação 1 3 3 - Num G001
         '0001'                                              + //Lote Lote de Serviço 4 7 4 - Num *G002
         '3'                                                 + //Tipo de Registro 8 8 1 - Num ‘3’ *G003
@@ -361,7 +367,7 @@ begin
         IfThen(Sacado.Pessoa = pJuridica,'2','1')           + //Tipo Tipo de Inscrição 18 18 1 - Num *G005
         PadLeft(OnlyNumber(Sacado.CNPJCPF), 15, '0')        + //Número Número de Inscrição 19 33 15 - Num *G006
         PadRight(Sacado.NomeSacado, 40, ' ')                + //Nome 34 73 40 - Alfa G013
-        PadRight(Sacado.Logradouro + ' ' + Sacado.Numero +' ' + Sacado.Complemento , 40, ' ') + //Endereço 74 113 40 - Alfa G032
+        PadRight(Sacado.Logradouro + ' ' + Sacado.Numero + ' ' + Sacado.Complemento + ' ' + Sacado.Bairro, 40, ' ') + //Endereço 74 113 40 - Alfa G032
         PadRight(Sacado.Bairro, 15, ' ')                    + //Bairro 114 128 15 - Alfa G032
         PadLeft(copy(OnlyNumber(ACBrTitulo.Sacado.CEP),0,5), 5, '0')                     + //CEP 129 133 5 - Num G034
         PadRight(copy(OnlyNumber(ACBrTitulo.Sacado.CEP),length(OnlyNumber(ACBrTitulo.Sacado.CEP))-2,3), 3, ' ')       + //Sufixo do CEP 134 136 3 - Num G035
@@ -380,6 +386,7 @@ begin
          (TipoDesconto3<>tdNaoConcederDesconto) or
          (PercentualMulta > 0) then
       begin
+        inc(fpQtdRegsLote);
         ListTransacao.Add(IntToStrZero(ACBrBanco.Numero, 3)    + //Código do Banco na Compensação 1 3 3 - Num G001
           '0001'                                               + //Lote de Serviço 4 7 4 - Num *G002
           '3'                                                  + //Tipo de Registro 8 8 1 - Num ‘3’ *G003
@@ -399,7 +406,9 @@ begin
             IntToStrZero(round(PercentualMulta * 100), 15),
           PadRight('', 15, '0'))                               + //Multa Valor/Percentual a Ser Aplicado 75 89 13 2 Num G075
           PadRight('', 10, ' ')                                + //Informação ao Pagador Informação ao Pagador 90 99 10 - Alfa *C036
-          PadRight('', 40, ' ')                                + //Informação 3 Mensagem 3 100 139 40 - Alfa *C037
+          PadRight('', 28, ' ')                                + //Informação 3 Mensagem 3 (Tipo de Operação, Utilização do Cheque Especial, Consulta Saldo após o Vencimento, Número Cód. Identificação/Contrato 100 127 28) - Alfa *C037
+          PadRight('', 8, '0')                                 + //Informação 3 Mensagem 3 Prazo de Validade do Contrato/Autorização 128 135 8 - Num *C037
+          PadRight('', 4, ' ')                                 + //Informação 3 Mensagem 3 Branco 136 139 4 - Alfa *C037
           PadRight('', 40, ' ')                                + //Mensagem 4 140 179 40 - Alfa *C037
           PadRight('', 20, ' ')                                + //CNAB Uso Exclusivo FEBRABAN/CNAB 180 199 20 - Alfa Brancos G004
           PadLeft('', 8, '0')                                  +//Cód. Ocor. do Pagador 200 207 8 - Num *C038
@@ -420,14 +429,15 @@ begin
   end;
 end;
 
-procedure TACBrBancoBradesco.GerarRegistroTransacao400(ACBrTitulo :TACBrTitulo; aRemessa: TStringList);
+function TACBrBancoBradesco.GerarLinhaRegistroTransacao400(ACBrTitulo :TACBrTitulo; aRemessa: TStringList): String;
 var
   sOcorrencia, sEspecie, aAgencia: String;
   sProtesto, sTipoSacado, MensagemCedente, aConta, aDigitoConta: String;
   aCarteira, wLinha, sNossoNumero, sDigitoNossoNumero, sTipoBoleto: String;
   aPercMulta: Double;
-
+  LChaveNFE : String;
 begin
+   Result := '';
    with ACBrTitulo do
    begin
      ValidaNossoNumeroResponsavel(sNossoNumero, sDigitoNossoNumero, ACBrTitulo);
@@ -455,10 +465,22 @@ begin
      { Converte valor em moeda para percentual, pois o arquivo só permite % }
      aPercMulta := ConverterMultaPercentual(ACBrTitulo);
 
+     {Chave da NFe}
+     if ACBrTitulo.ListaDadosNFe.Count>0 then
+       LChaveNFe := ACBrTitulo.ListaDadosNFe[0].ChaveNFe
+     else
+       LChaveNFe := '';
+
      with ACBrBoleto do
      begin
-       if Mensagem.Text <> '' then
-          MensagemCedente:= Mensagem[0];
+       if Sacado.SacadoAvalista.CNPJCPF <> '' then
+       begin
+         MensagemCedente := PadLeft(OnlyNumber(Sacado.SacadoAvalista.CNPJCPF), 15, '0') +  // 335 a 349 - CNPJ do beneficiário final
+         '  ' +                                                                            // 350 a 351 - Brancos
+         PadRight(Sacado.SacadoAvalista.NomeAvalista, 43);                                 // 352 a 394 - Nome do beneficiário final
+       end
+       else if Mensagem.Text <> '' then
+         MensagemCedente:= Mensagem[0];
 
        wLinha:= '1'                                            +  // 001 a 001 - ID Registro
        StringOfChar( '0', 19)                                  +  // 002 a 020 - Dados p/ Débito Automático
@@ -488,21 +510,40 @@ begin
        sTipoSacado + PadLeft(OnlyNumber(Sacado.CNPJCPF),14,'0') +  // 219 a 234 - Tipo de Inscrição + Número de Inscrição do Pagador
        PadRight( Sacado.NomeSacado, 40, ' ')                   +  // 235 a 274 - Nome do Pagador
        PadRight(Sacado.Logradouro + ' ' + Sacado.Numero + ' '  +
-         Sacado.Complemento, 40)                               +  // 275 a 314
+         Sacado.Complemento + ' ' + Sacado.Bairro, 40)         +  // 275 a 314 - Endereço completo do pagador
        PadRight( Sacado.Mensagem, 12, ' ')                     +  // 315 a 326 - 1ª Mensagem
        PadRight( Sacado.CEP, 8 )                               +  // 327 a 334 - CEP
-       PadRight( MensagemCedente, 60 )                         +  // 335 a 394 - 2ª Mensagem
-       IntToStrZero(aRemessa.Count + 1, 6)                     ;  // Nº SEQÜENCIAL DO REGISTRO NO ARQUIVO
+       PadRight( MensagemCedente, 60 )                         +  // 335 a 394 - Beneficiário final ou 2ª Mensagem
+       IntToStrZero(aRemessa.Count + 1, 6)                     +  // Nº SEQÜENCIAL DO REGISTRO NO ARQUIVO
+       LChaveNFe;                                                 // 401 a 444 Chave NFe
 
-       aRemessa.Add(UpperCase(wLinha));
-       wLinha := MontaInstrucoesCNAB400(ACBrTitulo, aRemessa.Count );
-
-       if not(wLinha = EmptyStr) then
-         aRemessa.Add(UpperCase(wLinha));
+       Result := UpperCase(wLinha);
 
       end;
    end;
 
+end;
+
+procedure TACBrBancoBradesco.GerarRegistroTransacao400(ACBrTitulo :TACBrTitulo; aRemessa: TStringList);
+var
+  wLinha : String;
+
+begin
+   aRemessa.Add(UpperCase(GerarLinhaRegistroTransacao400(ACBrTitulo, aRemessa)));
+   wLinha := MontaInstrucoesCNAB400(ACBrTitulo, aRemessa.Count );
+
+   if not(wLinha = EmptyStr) then
+     aRemessa.Add(UpperCase(wLinha));
+end;
+
+procedure TACBrBancoBradesco.LerRetorno400Transacao4(ACBrTitulo :TACBrTitulo; ALinha: String);
+var
+  LURL, LtxId: string;
+begin
+  inherited;
+  LURL := Trim(Copy(ALinha, 29,77));
+  LtxId := Trim(Copy(ALinha,106,35));
+  ACBrTitulo.QrCode.PIXQRCodeDinamico(Lurl, LtxId, ACBrTitulo);
 end;
 
 function TACBrBancoBradesco.TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia): String;
@@ -510,7 +551,7 @@ var
   CodOcorrencia: Integer;
 begin
   Result := '';
-  CodOcorrencia := StrToIntDef(TipoOCorrenciaToCod(TipoOcorrencia),0);
+  CodOcorrencia := StrToIntDef(TipoOcorrenciaToCod(TipoOcorrencia),0);
 
   if (ACBrBanco.ACBrBoleto.LayoutRemessa = c240) then
   begin
@@ -688,7 +729,7 @@ begin
   end;
 end;
 
-function TACBrBancoBradesco.TipoOCorrenciaToCod(
+function TACBrBancoBradesco.TipoOcorrenciaToCod(
   const TipoOcorrencia: TACBrTipoOcorrencia): String;
 begin
   Result := '';
@@ -777,12 +818,11 @@ begin
   end;
 end;
 
-function TACBrBancoBradesco.CodMotivoRejeicaoToDescricao(
-  const TipoOcorrencia: TACBrTipoOcorrencia; CodMotivo: Integer): String;
+function TACBrBancoBradesco.CodMotivoRejeicaoToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia; const CodMotivo: String): String;
 begin
    case TipoOcorrencia of
       toRetornoRegistroConfirmado:
-      case CodMotivo  of
+      case StrToIntDef(CodMotivo,999) of
          00: Result := '00-Ocorrencia aceita';
          01: Result := '01-Codigo de banco inválido';
          04: Result := '04-Cod. movimentacao nao permitido p/ a carteira';
@@ -813,10 +853,27 @@ begin
          89: Result := '89-Email sacado nao enviado - Titulo com debito automatico';
          90: Result := '90-Email sacado nao enviado - Titulo com cobranca sem registro';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         if CodMotivo = 'P1' then
+            Result := 'P1-Registrado com QR CODE PIX'
+         else if CodMotivo = 'P2' then
+            Result := 'P2-Registrado sem QR CODE PIX'
+         else if CodMotivo = 'P3' then
+            Result := 'P3-Chave Pix Inválida'
+         else if CodMotivo = 'P4' then
+            Result := 'P4-Chave Pix sem Cadastro no DICT'
+         else if CodMotivo = 'P5' then
+            Result := 'P5-Chave Pix não Compatível CNPJ/CPF ou Agência/Conta Informada'
+         else if CodMotivo = 'P6' then
+            Result := 'P6-Identificador (TXID) em Duplicidade'
+         else if CodMotivo = 'P7' then
+            Result := 'P7-Identificador (TXID) Inválido ou Não Encontrado'
+         else if CodMotivo = 'P8' then
+            Result := 'P8-Alteração Não Permitida - QR CODE concluído, removido pelo PSP ou removido pelo usuário recebedor'
+         else
+            Result:= CodMotivo +' - Outros Motivos';
       end;
       toRetornoRegistroRecusado:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          02: Result:= '02-Codigo do registro detalhe invalido';
          03: Result:= '03-Codigo da Ocorrencia Invalida';
          04: Result:= '04-Codigo da Ocorrencia nao permitida para a carteira';
@@ -852,58 +909,58 @@ begin
          74: Result:= 'Debito nao agendado - Conforme seu pedido titulo nao registrado';
          75: Result:= 'Debito nao agendado - Tipo de numero de inscricao de debitado invalido';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
       toRetornoLiquidado:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          00: Result:= '00-Titulo pago com dinheiro';
          15: Result:= '15-Titulo pago com cheque';
          42: Result:= '42-Rateio nao efetuado';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
       toRetornoBaixadoViaArquivo:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          00: Result:= '00-Ocorrencia aceita';
          10: Result:= '10=Baixa comandada pelo cliente';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
       toRetornoBaixadoInstAgencia:
-         case CodMotivo of
+         case StrToIntDef(CodMotivo,999) of
             00: Result:= '00-Baixado conforme instrucoes na agencia';
             14: Result:= '14-Titulo protestado';
             15: Result:= '15-Titulo excluido';
             16: Result:= '16-Titulo baixado pelo banco por decurso de prazo';
             20: Result:= '20-Titulo baixado e transferido para desconto';
          else
-            Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+            Result:= CodMotivo +' - Outros Motivos';
          end;
       toRetornoLiquidadoAposBaixaouNaoRegistro:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          00: Result:= '00-Pago com dinheiro';
          15: Result:= '15-Pago com cheque';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
 
       toRetornoLiquidadoEmCartorio:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          00: Result:= '00-Pago com dinheiro';
          15: Result:= '15-Pago com cheque';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
 
       toRetornoEntradaRejeitaCEPIrregular:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          48: Result:= '48-CEP invalido';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
 
       toRetornoBaixaRejeitada:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          04: Result:= '04-Codigo de ocorrencia nao permitido para a carteira';
          07: Result:= '07-Agencia\Conta\Digito invalidos';
          08: Result:= '08-Nosso numero invalido';
@@ -915,11 +972,11 @@ begin
          77: Result:= '70-Transferencia para desconto nao permitido para a carteira';
          85: Result:= '85-Titulo com pagamento vinculado';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
 
       toRetornoDebitoTarifas:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          02: Result:= '02-Tarifa de permanência título cadastrado';
          03: Result:= '03-Tarifa de sustação';
          04: Result:= '04-Tarifa de protesto';
@@ -1024,19 +1081,19 @@ begin
          107: Result:='107-Extrato de protesto';
          110: Result:='110-Tarifa reg/pagto Bradesco Expresso';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
 
       toRetornoOcorrenciasdoSacado:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          78 : Result:= '78-Sacado alega que faturamento e indevido';
          116: Result:= '116-Sacado aceita/reconhece o faturamento';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
 
       toRetornoALteracaoOutrosDadosRejeitada:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          01: Result:= '01-Código do Banco inválido';
          04: Result:= '04-Código de ocorrência não permitido para a carteira';
          05: Result:= '05-Código da ocorrência não numérico';
@@ -1072,11 +1129,11 @@ begin
          88: Result:= '88-E-mail Sacado não lido no prazo 5 dias';
          91: Result:= '91-E-mail sacado não recebido';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
 
       toRetornoComandoRecusado:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          01 : Result:= '01-Código do Banco inválido';
          02 : Result:= '02-Código do registro detalhe inválido';
          04 : Result:= '04-Código de ocorrência não permitido para a carteira';
@@ -1116,20 +1173,20 @@ begin
          94 : Result:= '94-Título Penhorado – Instrução Não Liberada pela Agência';
 
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
 
       toRetornoDesagendamentoDebitoAutomatico:
-      case CodMotivo of
+      case StrToIntDef(CodMotivo,999) of
          81 : Result:= '81-Tentativas esgotadas, baixado';
          82 : Result:= '82-Tentativas esgotadas, pendente';
          83 : Result:= '83-Cancelado pelo Sacado e Mantido Pendente, conforme negociação';
          84 : Result:= '84-Cancelado pelo sacado e baixado, conforme negociação';
       else
-         Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+         Result:= CodMotivo +' - Outros Motivos';
       end;
    else
-      Result:= IntToStrZero(CodMotivo,2) +' - Outros Motivos';
+      Result:= CodMotivo +' - Outros Motivos';
    end;
 
    Result := ACBrSTr(Result);

@@ -236,18 +236,22 @@ begin
 
   // acertar quebras de linhas e abertura e fechamento da lista de parametros
   ParamAdic := StringReplace(Trim(ParamAdicConfig.Text), sLineBreak, ';', [rfReplaceAll]);
-  ParamAdic := '['+ ParamAdic + ']';
+  if NaoEstaVazio(ParamAdic) then
+    ParamAdic := '['+ ParamAdic + ']';
 
   if NaoEstaVazio(fpACBrTEFAPI.DadosEstabelecimento.CNPJ) and
     NaoEstaVazio(fpACBrTEFAPI.DadosAutomacao.CNPJSoftwareHouse) then
   begin
-     ParamAdic := ParamAdic + '[ParmsClient=1='+fpACBrTEFAPI.DadosEstabelecimento.CNPJ+';'+
-                                           '2='+fpACBrTEFAPI.DadosAutomacao.CNPJSoftwareHouse+']';
+    if NaoEstaVazio(ParamAdic) then
+      ParamAdic := ParamAdic + ';';
+
+    ParamAdic := ParamAdic + '[ParmsClient=1='+fpACBrTEFAPI.DadosEstabelecimento.CNPJ+';'+
+                                          '2='+fpACBrTEFAPI.DadosAutomacao.CNPJSoftwareHouse+']';
   end;
 
-  EnderecoIP := fpACBrTEFAPI.DadosTerminal.EnderecoServidor;
-  CodLoja := fpACBrTEFAPI.DadosTerminal.CodFilial;
-  NumeroTerminal := fpACBrTEFAPI.DadosTerminal.CodTerminal;
+  EnderecoIP := IfEmptyThen(fpACBrTEFAPI.DadosTerminal.EnderecoServidor, 'localhost');
+  CodLoja := IfEmptyThen(fpACBrTEFAPI.DadosTerminal.CodFilial, IfEmptyThen(fpACBrTEFAPI.DadosTerminal.CodEmpresa, '00000000' ));
+  NumeroTerminal := IfEmptyThen(fpACBrTEFAPI.DadosTerminal.CodTerminal, 'SE000001');
 
   fpACBrTEFAPI.GravarLog( '*** ConfiguraIntSiTefInterativoEx. '+
                           ' EnderecoIP: ' + EnderecoIP +
@@ -263,7 +267,7 @@ begin
            0,
            PAnsiChar(ParamAdic) );
 
-  fTEFCliSiTefAPI.TraduzirErroInicializacao(Sts);
+  Erro := fTEFCliSiTefAPI.TraduzirErroInicializacao(Sts);
   if (Erro <> '') then
     fpACBrTEFAPI.DoException(ACBrStr(Erro));
 
@@ -285,6 +289,11 @@ begin
     ContinuarRequisicaoSiTef;
 
   Result := (fUltimoRetornoAPI = 0);
+
+  if Result then
+    fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899,103, IntToStr(Trunc(SimpleRoundTo( Valor * 100 ,0))) );
+
+  fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.GravaInformacao(899, 102, fpACBrTEFAPI.RespostasTEF.IdentificadorTransacao);
 end;
 
 procedure TACBrTEFAPIClassCliSiTef.FazerRequisicaoSiTef(Funcao: Integer;
@@ -373,7 +382,6 @@ begin
 
   TefAPI := TACBrTEFAPI(fpACBrTEFAPI);
   RespCliSiTef := TACBrTEFRespCliSiTef(fpACBrTEFAPI.UltimaRespostaTEF);
-  RespCliSiTef.Clear;
   try
     repeat
       fpACBrTEFAPI.GravarLog( 'ContinuaFuncaoSiTefInterativo, Chamando: Continua = '+
@@ -488,7 +496,7 @@ begin
              SL := TStringList.Create;
              try
                SL.Add('SIM');
-               SL.Add('NÃO');
+               SL.Add(ACBrStr('NÃO'));
 
                ItemSelecionado := -1;
                TefAPI.QuandoPerguntarMenu( Mensagem, SL, ItemSelecionado);
@@ -547,10 +555,12 @@ begin
 
            30:  // Deve ser lido um campo cujo tamanho está entre TamMinimo e TamMaximo
            begin
+             DefinicaoCampo.TipoCampo := TipoCampo;
              DefinicaoCampo.TituloPergunta := ACBrStr(Mensagem);
              DefinicaoCampo.TipoDeEntrada := tedTodos;
              DefinicaoCampo.TamanhoMaximo := TamanhoMaximo;
              DefinicaoCampo.TamanhoMinimo := TamanhoMinimo;
+             DefinicaoCampo.MascaraDeCaptura := EmptyStr;
 
              Validado := True;
              TefAPI.QuandoPerguntarCampo(DefinicaoCampo, Resposta, Validado, Interromper);
@@ -559,6 +569,7 @@ begin
 
            31:  // Deve ser lido o número de um cheque. A coleta pode ser feita via leitura de CMC-7, digitação do CMC-7 ou pela digitação da primeira linha do cheque
            begin
+             DefinicaoCampo.TipoCampo := TipoCampo;
              DefinicaoCampo.TituloPergunta := ACBrStr(Mensagem);
              DefinicaoCampo.TipoDeEntrada := tedNumerico;
              DefinicaoCampo.TipoEntradaCodigoBarras := tbQualquer;
@@ -573,6 +584,7 @@ begin
 
            34:  // Deve ser lido um campo monetário ou seja, aceita o delimitador de centavos e devolvido no parâmetro Buffer
            begin
+             DefinicaoCampo.TipoCampo := TipoCampo;
              DefinicaoCampo.TituloPergunta := ACBrStr(Mensagem);
              DefinicaoCampo.TipoDeEntrada := tedNumerico;
              DefinicaoCampo.MascaraDeCaptura := '@@@@@@@@@,@@';
@@ -589,6 +601,7 @@ begin
 
            35:  // Deve ser lido um código em barras ou o mesmo deve ser coletado manualmente.
            begin
+             DefinicaoCampo.TipoCampo := TipoCampo;
              DefinicaoCampo.TituloPergunta := ACBrStr(Mensagem);
              DefinicaoCampo.TipoDeEntrada := tedNumerico;
              DefinicaoCampo.TipoEntradaCodigoBarras := tbLeitor;
@@ -603,6 +616,7 @@ begin
 
            41:  // Análogo ao Comando 30, porém o campo deve ser coletado de forma mascarada
            begin
+             DefinicaoCampo.TipoCampo := TipoCampo;
              DefinicaoCampo.TituloPergunta := ACBrStr(Mensagem);
              DefinicaoCampo.TipoDeEntrada := tedTodos;
              DefinicaoCampo.TamanhoMaximo := TamanhoMaximo;
@@ -693,7 +707,8 @@ begin
                           IfThen(Finalizacao = 1,'SIM','NAO')+
                           ' Documento: ' +DoctoStr+
                           ' Data: '      +DataStr+
-                          ' Hora: '      +HoraStr ) ;
+                          ' Hora: '      +HoraStr+
+                          ' ParametrosAdicionais: '+ParamAdic ) ;
 
   fTEFCliSiTefAPI.FinalizaFuncaoSiTefInterativo( Finalizacao,
                                                  PAnsiChar(DoctoStr),
@@ -734,12 +749,14 @@ end;
 
 procedure TACBrTEFAPIClassCliSiTef.InterpretarRespostaAPI;
 begin
-  inherited;
   fpACBrTEFAPI.GravarLog( fpACBrTEFAPI.UltimaRespostaTEF.Conteudo.Conteudo.Text );
   fpACBrTEFAPI.UltimaRespostaTEF.ViaClienteReduzida := fpACBrTEFAPI.DadosAutomacao.ImprimeViaClienteReduzida;
+  fpACBrTEFAPI.UltimaRespostaTEF.Sucesso := (fUltimoRetornoAPI = 0);
+
+
   fpACBrTEFAPI.UltimaRespostaTEF.ConteudoToProperty;
   if (fUltimoRetornoAPI <> 0) then
-    fpACBrTEFAPI.UltimaRespostaTEF.TextoEspecialOperador := fTEFCliSiTefAPI.TraduzirErroTransacao(fUltimoRetornoAPI);
+    fpACBrTEFAPI.UltimaRespostaTEF.TextoEspecialOperador := ACBrStr(fTEFCliSiTefAPI.TraduzirErroTransacao(fUltimoRetornoAPI));
 end;
 
 function TACBrTEFAPIClassCliSiTef.EfetuarAdministrativa(
@@ -782,7 +799,7 @@ function TACBrTEFAPIClassCliSiTef.EfetuarAdministrativa(const CodOperacaoAdm: st
 var
   OP: Integer;
 begin
-  VerificarIdentificadorVendaInformado;
+
   Op := StrToIntDef(CodOperacaoAdm, CSITEF_OP_Administrativo);
   Result := ExecutarTransacaoSiTef(Op, 0);
 end;
@@ -860,9 +877,11 @@ begin
       Restricoes := Restricoes + CSITEF_RestricoesParcelaAministradora + ';';
     end;
 
+
     SL := TStringList.Create;
     try
       SL.Text := StringReplace(Restricoes, ';', sLineBreak, [rfReplaceAll]);
+
       // Removendo Itens repetidos
       i := 0;
       Restr := '';
@@ -879,13 +898,19 @@ begin
       if (SL.Count > 0) then
       begin
         Restricoes := StringReplace(Trim(SL.Text), sLineBreak, ';', [rfReplaceAll]);
+        if Restricoes <> '' then
+          Restricoes := '['+Restricoes+']';
+        if fParamAdicConfig.Count > 0 then
+           Restricoes := Restricoes + ';'+ Trim(fParamAdicConfig.Text);
+
         if (Restricoes <> '') then
-          fParamAdicFuncao.Add( '['+Restricoes+']' );
+          fParamAdicFuncao.Add( Restricoes );
       end;
     finally
       SL.Free;
     end;
   end;
+
 
   if (Parcelas <> 0) then
     fRespostasPorTipo.ValueInfo[505] := IntToStr(Parcelas);
@@ -893,7 +918,7 @@ begin
   if (DataPreDatado <> 0) then
     fRespostasPorTipo.ValueInfo[506] := FormatDateTime('DDMMYYYY', DataPreDatado);
 
-  Result := ExecutarTransacaoSiTef(fOperacaoVenda, ValorPagto);
+  Result := ExecutarTransacaoSiTef(op, ValorPagto);
 end;
 
 procedure TACBrTEFAPIClassCliSiTef.FinalizarTransacao(const Rede, NSU,
@@ -960,7 +985,7 @@ begin
       TipoDocumento := 1;
 
     dpCNPJ, dpRedCNPJ:
-      TipoDocumento := 1;
+      TipoDocumento := 2;
   else
     fpACBrTEFAPI.DoException(Format(ACBrStr(sACBrTEFAPICapturaNaoSuportada),
       [GetEnumName(TypeInfo(TACBrTEFAPIDadoPinPad), integer(TipoDado) ), ClassName] ));

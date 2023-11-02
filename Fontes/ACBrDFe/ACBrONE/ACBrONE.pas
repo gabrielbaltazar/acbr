@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -75,7 +75,8 @@ type
 
     procedure EnviarEmail(const sPara, sAssunto: String;
       sMensagem: TStrings = nil; sCC: TStrings = nil; Anexos: TStrings = nil;
-      StreamONE: TStream = nil; const NomeArq: String = ''; sReplyTo: TStrings = nil); override;
+      StreamONE: TStream = nil; const NomeArq: String = ''; 
+	  sReplyTo: TStrings = nil; sBCC: TStrings = nil); override;
 
     function GetNomeModeloDFe: String; override;
     function GetNameSpaceURI: String; override;
@@ -114,6 +115,7 @@ type
                                  const NSUFin: string = ''): Boolean;
 
     function ConsultarFoto(const aVerAplic, aNSULeitura: string): Boolean;
+    function ConsultarPlaca(const aVerAplic, aPlaca: string; aDataRef: TDateTime): Boolean;
   published
     property Configuracoes: TConfiguracoesONE read GetConfiguracoes write SetConfiguracoes;
   end;
@@ -143,6 +145,15 @@ begin
     GerarException( WebServices.ConsultarFoto.Msg );
 end;
 
+function TACBrONE.ConsultarPlaca(const aVerAplic, aPlaca: string;
+  aDataRef: TDateTime): Boolean;
+begin
+  Result := WebServices.ConsultaPlaca(aVerAplic, aPlaca, aDataRef);
+
+  if not Result then
+    GerarException( WebServices.ConsultarPlaca.Msg );
+end;
+
 constructor TACBrONE.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -163,14 +174,14 @@ end;
 
 procedure TACBrONE.EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
   sCC: TStrings; Anexos: TStrings; StreamONE: TStream; const NomeArq: String;
-  sReplyTo: TStrings);
+  sReplyTo: TStrings; sBCC: TStrings);
 begin
 {
   SetStatus( stONEEmail );
 
   try
     inherited EnviarEmail(sPara, sAssunto, sMensagem, sCC, Anexos, StreamONE, NomeArq,
-      sReplyTo);
+      sReplyTo, sBCC);
   finally
     SetStatus( stIdleONE );
   end;

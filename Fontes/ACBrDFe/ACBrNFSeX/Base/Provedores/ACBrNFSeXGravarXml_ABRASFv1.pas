@@ -70,10 +70,9 @@ type
     FNrOcorrValorDeducoes: Integer;
     FNrOcorrRazaoSocialInterm: Integer;
     FNrOcorrRespRetencao: Integer;
-    FNrOcorrCodigoPais: Integer;
     FNrOcorrMunIncid: Integer;
     FNrOcorrIdCidade: Integer;
-    FNrOcorrCodPaisTomador: Integer;
+    FNrOcorrCodigoPaisTomador: Integer;
     FNrOcorrStatus: Integer;
     FNrOcorrValorPis: Integer;
     FNrOcorrValorInss: Integer;
@@ -128,7 +127,6 @@ type
     property NrOcorrCodigoCnae: Integer   read FNrOcorrCodigoCnae   write FNrOcorrCodigoCnae;
     property NrOcorrCodTribMun: Integer   read FNrOcorrCodTribMun   write FNrOcorrCodTribMun;
     property NrOcorrRespRetencao: Integer read FNrOcorrRespRetencao write FNrOcorrRespRetencao;
-    property NrOcorrCodigoPais: Integer   read FNrOcorrCodigoPais   write FNrOcorrCodigoPais;
     property NrOcorrMunIncid: Integer     read FNrOcorrMunIncid     write FNrOcorrMunIncid;
     property NrOcorrIdCidade: Integer     read FNrOcorrIdCidade     write FNrOcorrIdCidade;
     property NrOcorrStatus: Integer       read FNrOcorrStatus       write FNrOcorrStatus;
@@ -140,7 +138,7 @@ type
     property NrOcorrValorISSRetido_1: Integer   read FNrOcorrValorISSRetido_1   write FNrOcorrValorISSRetido_1;
     property NrOcorrValorISSRetido_2: Integer   read FNrOcorrValorISSRetido_2   write FNrOcorrValorISSRetido_2;
     property NrOcorrInscEstTomador: Integer     read FNrOcorrInscEstTomador     write FNrOcorrInscEstTomador;
-    property NrOcorrCodPaisTomador: Integer     read FNrOcorrCodPaisTomador     write FNrOcorrCodPaisTomador;
+    property NrOcorrCodigoPaisTomador: Integer  read FNrOcorrCodigoPaisTomador  write FNrOcorrCodigoPaisTomador;
     property NrOcorrRazaoSocialInterm: Integer  read FNrOcorrRazaoSocialInterm  write FNrOcorrRazaoSocialInterm;
     property NrOcorrInscMunTomador: Integer     read FNrOcorrInscMunTomador     write FNrOcorrInscMunTomador;
 
@@ -192,10 +190,9 @@ begin
   FNrOcorrValLiq := 0;
   FNrOcorrCodigoCnae := 0;
   FNrOcorrCodTribMun := 0;
-  FNrOcorrCodigoPais := 0;
   FNrOcorrMunIncid := 0;
-  FNrOcorrCodPaisTomador := 0;
   FNrOcorrInscMunTomador := 0;
+  FNrOcorrCodigoPaisTomador := 0;
 
   FNrOcorrRazaoSocialInterm := 0;
   FNrOcorrValorDeducoes := 0;
@@ -217,7 +214,6 @@ begin
   FNrOcorrValorTotalRecebido := -1;
   FNrOcorrInscEstTomador := -1;
   FNrOcorrOutrasInformacoes := -1;
-  FNrOcorrCodPaisTomador := -1;
 
   FNrOcorrInformacoesComplemetares := -1;
 end;
@@ -227,7 +223,6 @@ var
   NFSeNode, xmlNode: TACBrXmlNode;
 begin
   // Em conformidade com a versão 1 do layout da ABRASF não deve ser alterado
-  // Configuracao;
 
   ListaDeAlertas.Clear;
 
@@ -357,12 +352,7 @@ begin
   Result.AppendChild(AddNode(tcStr, '#32', 'Discriminacao', 1, 2000, 1,
     StringReplace(NFSe.Servico.Discriminacao, ';', FpAOwner.ConfigGeral.QuebradeLinha,
                                      [rfReplaceAll, rfIgnoreCase]), DSC_DISCR));
-{
-  Result.AppendChild(AddNode(tcStr, '#32', 'Discriminacao', 1, 2000, 1,
-    StringReplace(NFSe.Servico.Discriminacao, ';', FAOwner.ConfigGeral.QuebradeLinha,
-                                       [rfReplaceAll, rfIgnoreCase]), DSC_DISCR,
-                       (NFSe.Prestador.Endereco.CodigoMunicipio <> '3304557')));
-}
+
   Result.AppendChild(AddNode(tcStr, '#', 'InformacoesComplementares', 1, 255, NrOcorrInformacoesComplemetares,
                                            NFSe.InformacoesComplementares, ''));
 
@@ -460,7 +450,9 @@ begin
   Result[1] := AddNode(tcStr, '#44', 'Uf', 2, 2, 0,
                                               NFSe.Tomador.Endereco.UF, DSC_UF);
 
-  Result[2] := AddNode(tcStr, '#45', 'CodigoPais', 4, 4, NrOcorrCodPaisTomador,
+  if (OnlyNumber(NFSe.Tomador.Endereco.CodigoMunicipio) = '9999999') or
+     (NrOcorrCodigoPaisTomador = 1) then
+    Result[2] := AddNode(tcInt, '#45', 'CodigoPais', 4, 4, NrOcorrCodigoPaisTomador,
                                    NFSe.Tomador.Endereco.CodigoPais, DSC_CPAIS);
 end;
 

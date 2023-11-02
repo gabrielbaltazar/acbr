@@ -57,6 +57,7 @@ type
     function Recepcionar(ACabecalho, AMSG: String): string; override;
     function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
     function ConsultarLote(ACabecalho, AMSG: String): string; override;
+    function ConsultarLinkNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
@@ -79,6 +80,9 @@ type
     procedure PrepararConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
     procedure TratarRetornoConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
 
+    procedure PrepararConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse); override;
+    procedure TratarRetornoConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse); override;
+
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
@@ -86,12 +90,16 @@ type
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = '';
                                      const AMessageTag: string = 'Erro'); override;
-
+  public
+    function SituacaoLoteRpsToStr(const t: TSituacaoLoteRps): string; override;
+    function StrToSituacaoLoteRps(out ok: boolean; const s: string): TSituacaoLoteRps; override;
+    function SituacaoLoteRpsToDescr(const t: TSituacaoLoteRps): string; override;
   end;
 
 implementation
 
 uses
+  DateUtils,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.XMLHTML,
@@ -198,6 +206,36 @@ begin
       AAlerta.Correcao := '';
     end;
   end;
+end;
+
+function TACBrNFSeProviderConam.SituacaoLoteRpsToStr(const t: TSituacaoLoteRps): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['1', '2', '3', '4', '5'],
+                           [sLoteNaoProcessado, sLoteEmProcessamento,
+                            sLoteProcessadoErro, sLoteProcessadoAviso,
+                            sLoteProcessadoSucesso]);
+end;
+
+function TACBrNFSeProviderConam.StrToSituacaoLoteRps(out ok: boolean; const s: string): TSituacaoLoteRps;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['1', '2', '3', '4', '5'],
+                           [sLoteNaoProcessado, sLoteEmProcessamento,
+                            sLoteProcessadoErro, sLoteProcessadoAviso,
+                            sLoteProcessadoSucesso]);
+end;
+
+function TACBrNFSeProviderConam.SituacaoLoteRpsToDescr(const t: TSituacaoLoteRps): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['Aguardando Processamento', 'Em Processamento',
+                            'Lote Processado com Erro',
+                            'Lote Processado com Aviso',
+                            'Lote Processado com Sucesso'],
+                           [sLoteNaoProcessado, sLoteEmProcessamento,
+                            sLoteProcessadoErro, sLoteProcessadoAviso,
+                            sLoteProcessadoSucesso]);
 end;
 
 procedure TACBrNFSeProviderConam.PrepararEmitir(Response: TNFSeEmiteResponse);
@@ -627,6 +665,8 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANode: TACBrXmlNode;
+  Ok: Boolean;
+  Situacao: TSituacaoLoteRps;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -653,7 +693,11 @@ begin
         with Response do
         begin
           Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('PrtCSerRps'), tcStr);
+          Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('PrtXSts'), tcStr);
         end;
+
+        Situacao := TACBrNFSeX(FAOwner).Provider.StrToSituacaoLoteRps(Ok, Response.Situacao);
+        Response.DescSituacao := TACBrNFSeX(FAOwner).Provider.SituacaoLoteRpsToDescr(Situacao);
       end;
     except
       on E:Exception do
@@ -739,6 +783,7 @@ var
   i: Integer;
   NumRps: String;
   ANota: TNotaFiscal;
+  AResumo: TNFSeResumoCollectionItem;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -790,9 +835,174 @@ begin
               ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
               ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
+
+              AResumo := Response.Resumos.New;
+              AResumo.NumeroNota := ANota.NFSe.Numero;
+              AResumo.Data := ANota.NFSe.DataEmissao;
+              AResumo.Link := ANota.NFSe.Link;
+              AResumo.CodigoVerificacao := ANota.NFSe.CodigoVerificacao;
+              AResumo.Situacao := IntToStr(ANota.NFSe.Situacao);
+
               SalvarXmlNfse(ANota);
             end;
           end;
+        end;
+      end;
+    except
+      on E:Exception do
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod999;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(Document);
+  end;
+end;
+
+procedure TACBrNFSeProviderConam.PrepararConsultaLinkNFSe(
+  Response: TNFSeConsultaLinkNFSeResponse);
+var
+  AErro: TNFSeEventoCollectionItem;
+  Emitente: TEmitenteConfNFSe;
+begin
+  if Response.InfConsultaLinkNFSe.Competencia = 0 then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod131;
+    AErro.Descricao := ACBrStr(Desc131);
+    Exit;
+  end;
+
+  if EstaVazio(Response.InfConsultaLinkNFSe.NumeroNFSe) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod108;
+    AErro.Descricao := ACBrStr(Desc108);
+    Exit;
+  end;
+
+  if EstaVazio(Response.InfConsultaLinkNFSe.SerieNFSe) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod112;
+    AErro.Descricao := ACBrStr(Desc112);
+    Exit;
+  end;
+
+  if Response.InfConsultaLinkNFSe.NumeroRps = 0 then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod102;
+    AErro.Descricao := ACBrStr(Desc102);
+    Exit;
+  end;
+
+  if EstaVazio(Response.InfConsultaLinkNFSe.SerieRps) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod103;
+    AErro.Descricao := ACBrStr(Desc103);
+    Exit;
+  end;
+
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  if EstaVazio(Emitente.WSUser) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod119;
+    AErro.Descricao := ACBrStr(Desc119);
+    Exit;
+  end;
+
+  if EstaVazio(Emitente.WSSenha) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod120;
+    AErro.Descricao := ACBrStr(Desc120);
+    Exit;
+  end;
+
+  Response.ArquivoEnvio :=
+    '<SDT_IMPRESSAO_IN>' +
+      '<Login>' +
+        '<CodigoUsuario>' +
+           Emitente.WSUser +
+        '</CodigoUsuario>' +
+        '<CodigoContribuinte>' +
+           Emitente.WSSenha +
+        '</CodigoContribuinte>' +
+        '<Versao>2.00</Versao>' +
+      '</Login>' +
+      '<Nota>' +
+        '<Competencia_Mes>' +
+          IntToStr(MonthOf(Response.InfConsultaLinkNFSe.Competencia)) +
+        '</Competencia_Mes>' +
+        '<Competencia_Ano>' +
+          IntToStr(YearOf(Response.InfConsultaLinkNFSe.Competencia)) +
+        '</Competencia_Ano>' +
+        '<RPS_Serie>' +
+          Response.InfConsultaLinkNFSe.SerieRps +
+        '</RPS_Serie>' +
+        '<RPS_Numero>' +
+          IntToStr(Response.InfConsultaLinkNFSe.NumeroRps) +
+        '</RPS_Numero>' +
+        '<Nota_Serie>' +
+          Response.InfConsultaLinkNFSe.SerieNFSe +
+        '</Nota_Serie>' +
+        '<Nota_Numero>' +
+          Response.InfConsultaLinkNFSe.NumeroNFSe +
+        '</Nota_Numero>' +
+      '</Nota>' +
+    '</SDT_IMPRESSAO_IN>';
+end;
+
+procedure TACBrNFSeProviderConam.TratarRetornoConsultaLinkNFSe(
+  Response: TNFSeConsultaLinkNFSeResponse);
+var
+  Document: TACBrXmlDocument;
+  AErro: TNFSeEventoCollectionItem;
+  ANode, AuxNode: TACBrXmlNode;
+  ANodeArray: TACBrXmlNodeArray;
+begin
+  Document := TACBrXmlDocument.Create;
+  try
+    try
+      if Response.ArquivoRetorno = '' then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod201;
+        AErro.Descricao := ACBrStr(Desc201);
+        Exit
+      end;
+
+      Document.LoadFromXml(Response.ArquivoRetorno);
+
+      ANode := Document.Root;
+      if ANode <> nil then
+        Response.Sucesso := ObterConteudoTag(ANode.Childrens.FindAnyNs('Sucesso'), tcBool);
+
+      if not Response.Sucesso then
+        ProcessarMensagemErros(Document.Root, Response, 'Messages', 'Message')
+      else
+      begin
+        AuxNode := ANode.Childrens.FindAnyNs('Lista_Notas');
+        if AuxNode <> nil then
+        begin
+          ANodeArray := AuxNode.Childrens.FindAllAnyNs('Nota');
+          if not Assigned(ANodeArray) then
+          begin
+            AErro := Response.Erros.New;
+            AErro.Codigo := Cod203;
+            AErro.Descricao := ACBrStr(Desc203);
+            Exit;
+          end;
+
+          ANode := ANodeArray[0];
+
+          Response.Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('LinkImpressao'), tcStr);
         end;
       end;
     except
@@ -1042,6 +1252,22 @@ begin
                      ['xmlns:nfe="NFe"']);
 end;
 
+function TACBrNFSeXWebserviceConam.ConsultarLinkNFSe(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfe:ws_nfe.IMPRESSAOLINKNFSE>';
+  Request := Request + '<Xml_entrada>' + XmlToStr(AMSG) + '</Xml_entrada>';
+  Request := Request + '</nfe:ws_nfe.IMPRESSAOLINKNFSE>';
+
+  Result := Executar('NFeaction/AWS_NFE.IMPRESSAOLINKNFSE', Request,
+                     ['Xml_saida', 'SDT_IMPRESSAO_OUT'],
+                     ['xmlns:nfe="NFe"']);
+end;
+
 function TACBrNFSeXWebserviceConam.Cancelar(ACabecalho, AMSG: String): string;
 var
   Request: string;
@@ -1062,8 +1288,12 @@ function TACBrNFSeXWebserviceConam.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
+  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
+  Result := RemoverPrefixosDesnecessarios(Result);
+  Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
 end;
 
 end.

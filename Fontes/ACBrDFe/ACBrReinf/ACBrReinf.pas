@@ -100,7 +100,9 @@ type
                                   const AnrInscEstab: String = '';
                                   const AcnpjPrestador: String = '';
                                   const AnrInscTomador: string = '';
-                                  AdtApur: TDateTime = 0): Boolean;
+                                  AdtApur: TDateTime = 0;
+                                  const AcpfCnpjBenef: string = '';
+                                  const AcnpjFonte: string = ''): Boolean;
 
     property Eventos: TEventos read FEventos write FEventos;
     property Status: TStatusReinf read FStatus;
@@ -171,14 +173,17 @@ end;
 
 function TACBrReinf.ConsultaReciboEvento(const APerApur: String;
   ATipoEvento: TTipoEvento; const AnrInscEstab: String;
-  const AcnpjPrestador: String; const AnrInscTomador: string; AdtApur: TDateTime): Boolean;
+  const AcnpjPrestador: String; const AnrInscTomador: string; AdtApur: TDateTime;
+  const AcpfCnpjBenef: String; const AcnpjFonte: String): Boolean;
 begin
   Result := WebServices.ConsultaReciboEvento(APerApur,
                                              ATipoEvento,
                                              AnrInscEstab,
                                              AcnpjPrestador,
                                              AnrInscTomador,
-                                             AdtApur);
+                                             AdtApur,
+                                             AcpfCnpjBenef,
+                                             AcnpjFonte);
 end;
 
 procedure TACBrReinf.AssinarEventos;

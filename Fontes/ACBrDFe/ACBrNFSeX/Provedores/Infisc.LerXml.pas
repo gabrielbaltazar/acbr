@@ -57,6 +57,7 @@ type
     procedure LerEnderecoEmitente(const ANode: TACBrXmlNode);
     procedure LerTomador(const ANode: TACBrXmlNode);
     procedure LerEnderecoTomador(const ANode: TACBrXmlNode);
+    procedure LerDadosObra(const ANode: TACBrXmlNode);
     procedure LerServicos(const ANode: TACBrXmlNode);
     procedure LerTotal(const ANode: TACBrXmlNode);
     procedure LerFatura(const ANode: TACBrXmlNode);
@@ -98,8 +99,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Base, ACBrUtil.Strings,
-  ACBrDFeUtil;
+  ACBrUtil.Base, ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -188,6 +188,30 @@ begin
   end;
 end;
 
+procedure TNFSeR_Infisc.LerDadosObra(const ANode: TACBrXmlNode);
+var
+  AuxNode: TACBrXmlNode;
+begin
+  AuxNode := ANode.Childrens.FindAnyNs('dadosDaObra');
+  if AuxNode <> nil then
+  begin
+    NFSe.ConstrucaoCivil.Endereco.Endereco        := ObterConteudo(AuxNode.Childrens.FindAnyNs('xLogObra'), tcStr);
+    NFSe.ConstrucaoCivil.Endereco.Complemento     := ObterConteudo(AuxNode.Childrens.FindAnyNs('xComplObra'), tcStr);
+    NFSe.ConstrucaoCivil.Endereco.Numero          := ObterConteudo(AuxNode.Childrens.FindAnyNs('vNumeroObra'), tcStr);
+    NFSe.ConstrucaoCivil.Endereco.Bairro          := ObterConteudo(AuxNode.Childrens.FindAnyNs('xBairroObra'), tcStr);
+    NFSe.ConstrucaoCivil.Endereco.CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('xCepObra'), tcStr);
+    NFSe.ConstrucaoCivil.Endereco.CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('cCidadeObra'), tcStr);
+    NFSe.ConstrucaoCivil.Endereco.xMunicipio      := ObterConteudo(AuxNode.Childrens.FindAnyNs('xCidadeObra'), tcStr);
+    NFSe.ConstrucaoCivil.Endereco.UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('xUfObra'), tcStr);
+    NFSe.ConstrucaoCivil.Endereco.CodigoPais      := ObterConteudo(AuxNode.Childrens.FindAnyNs('cPaisObra'), tcInt);
+    NFSe.ConstrucaoCivil.Endereco.xPais           := ObterConteudo(AuxNode.Childrens.FindAnyNs('xPaisObra'), tcStr);
+    NFSe.ConstrucaoCivil.Art                      := ObterConteudo(AuxNode.Childrens.FindAnyNs('numeroArt'), tcStr);
+    NFSe.ConstrucaoCivil.nCei                     := ObterConteudo(AuxNode.Childrens.FindAnyNs('numeroCei'), tcStr);
+    NFSe.ConstrucaoCivil.nProj                    := ObterConteudo(AuxNode.Childrens.FindAnyNs('numeroProj'), tcStr);
+    NFSe.ConstrucaoCivil.nMatri                   := ObterConteudo(AuxNode.Childrens.FindAnyNs('numeroMatri'), tcStr);
+  end;
+end;
+
 procedure TNFSeR_Infisc.LerEnderecoEmitente(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
@@ -204,12 +228,17 @@ begin
       Complemento     := ObterConteudo(AuxNode.Childrens.FindAnyNs('xCpl'), tcStr);
       Bairro          := ObterConteudo(AuxNode.Childrens.FindAnyNs('xBairro'), tcStr);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('cMun'), tcStr);
+      xMunicipio      := ObterConteudo(AuxNode.Childrens.FindAnyNs('xMun'), tcStr);
       UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('UF'), tcStr);
       CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('CEP'), tcStr);
-      xMunicipio      := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
 
-      if UF = '' then
-        UF := xUF;
+      if xMunicipio = '' then
+      begin
+        xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
+
+        if UF = '' then
+          UF := xUF;
+      end;
 
       // versão 1.1
       CodigoPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('cPais'), tcInt);
@@ -240,12 +269,17 @@ begin
       Complemento     := ObterConteudo(AuxNode.Childrens.FindAnyNs('xCpl'), tcStr);
       Bairro          := ObterConteudo(AuxNode.Childrens.FindAnyNs('xBairro'), tcStr);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('cMun'), tcStr);
+      xMunicipio      := ObterConteudo(AuxNode.Childrens.FindAnyNs('xMun'), tcStr);
       UF              := ObterConteudo(AuxNode.Childrens.FindAnyNs('UF'), tcStr);
       CEP             := ObterConteudo(AuxNode.Childrens.FindAnyNs('CEP'), tcStr);
-      xMunicipio      := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
 
-      if UF = '' then
-        UF := xUF;
+      if xMunicipio = '' then
+      begin
+        xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
+
+        if UF = '' then
+          UF := xUF;
+      end;
 
       // versão 1.1
       CodigoPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('cPais'), tcInt);
@@ -322,8 +356,8 @@ begin
       InfID.ID := OnlyNumber(CodigoVerificacao);
 
       hEmi   := ObterConteudo(AuxNode.Childrens.FindAnyNs('hEmi'), tcStr);
-      Hora   := strToInt(Copy(hEmi, 1 , 2));
-      Minuto := strToInt(copy(hEmi, 4 , 2));
+      Hora   := strToIntDef(Copy(hEmi, 1 , 2), 0);
+      Minuto := strToIntDef(copy(hEmi, 4 , 2), 0);
 
       Ano := YearOf(Competencia);
       Mes := MonthOf(Competencia);
@@ -342,7 +376,10 @@ begin
       ModeloNFSe := ObterConteudo(AuxNode.Childrens.FindAnyNs('mod'), tcStr);
 
       aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('cancelada'), tcStr);
-      SituacaoNfse := StrToStatusNFSe(Ok, aValor);
+
+      SituacaoNfse := snNormal;
+      if aValor = 'S' then
+        SituacaoNfse := snCancelado;
 
       MotivoCancelamento := ObterConteudo(AuxNode.Childrens.FindAnyNs('motCanc'), tcStr);
 
@@ -352,6 +389,13 @@ begin
         Producao := snSim
       else
         Producao := snNao;
+
+      aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('empreitadaGlobal'), tcStr);
+
+      if aValor = '1' then
+         EmpreitadaGlobal := EgConstrucaoCivil
+      else
+         EmpreitadaGlobal := EgOutros;
     end;
   end;
 end;
@@ -370,6 +414,9 @@ begin
     NFSe.OutrasInformacoes := NFSe.OutrasInformacoes + ANodes[i].Content;
 //                  ObterConteudo(ANodes[i].Childrens.FindAnyNs('infAdic'), tcStr);
   end;
+
+  NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 end;
 
 procedure TNFSeR_Infisc.LerISS(const ANode: TACBrXmlNode);
@@ -444,6 +491,8 @@ begin
       ValorCofins := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetCOFINS'), tcDe2);
       ValorCsll   := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetCSLL'), tcDe2);
       ValorInss   := ObterConteudo(AuxNode.Childrens.FindAnyNs('vRetINSS'), tcDe2);
+
+      RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
     end;
   end;
 end;
@@ -580,6 +629,9 @@ begin
       DescontoIncondicionado := ObterConteudo(AuxNode.Childrens.FindAnyNs('vDesc'), tcDe2);
       ValorLiquidoNfse       := ObterConteudo(AuxNode.Childrens.FindAnyNs('vtLiq'), tcDe2);
 
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
+
       // versão 1.1
       ValorDespesasNaoTributaveis := ObterConteudo(AuxNode.Childrens.FindAnyNs('vtDespesas'), tcDe2);
     end;
@@ -620,8 +672,12 @@ function TNFSeR_Infisc.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -667,6 +723,7 @@ begin
   LerId(AuxNode);
   LerEmitente(AuxNode);
   LerTomador(AuxNode);
+  LerDadosObra(AuxNode);
   LerServicos(AuxNode);
   LerTotal(AuxNode);
   LerCobranca(AuxNode);
@@ -679,6 +736,8 @@ begin
   LerTransportadora(AuxNode);
   LerFaturas(AuxNode);
   LerInformacoesAdic(AuxNode);
+
+  LerCampoLink;
 end;
 
 function TNFSeR_Infisc.LerXmlRps(const ANode: TACBrXmlNode): Boolean;

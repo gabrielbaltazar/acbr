@@ -181,7 +181,8 @@ type
                             itdFapi,       // 3 - Fapi
                             itdFunpresp,   // 4 - Funpresp
                             itdPensao,     // 5 - Pensão Alimentícia
-                            itdDependentes // 7 - Dependentes
+                            itdDependentes,// 7 - Dependentes
+                            itdDescontoSimplMensal// 8 - Desconto simplificado mensal
                             );
 
   TtpIsencao              = (
@@ -194,6 +195,8 @@ type
                             tiComplAposentadoria,     //  7 - Complementação de aposentadoria, correspondente às contribuições efetuadas no período de 01/01/1989 a 31/12/1995
                             tiAjudaCusto,             //  8 - Ajuda de custo
                             tiRendimentosSemRetencao, //  9 - Rendimentos pagos sem retenção do IR na fonte - Lei 10.833/2003
+                            tiJurosMoraRecebidos,     // 10 – Juros de mora recebidos, devidos pelo atraso no pagamento de remuneração por exercício de emprego, cargo ou função
+                            tiResgatePrevidencia,     // 11 – Resgate de previdência complementar por portador de moléstia grave
                             tiOutros                  // 99 - Outros (especificar)
                             );
 
@@ -265,8 +268,7 @@ type
                             ttdUniaoEstavel,     // 2 - Companheiro(a) com o(a) qual tenha filho ou viva há mais de 5 (cinco) anos ou possua declaração de união estável;
                             ttdFilhoOuEnteado,   // 3 - Filho(a) ou enteado(a);
                             ttdIrmaoNetoBisneto, // 6 - Irmão(ã), neto(a) ou bisneto(a) sem arrimo dos pais, do(a) qual detenha a guarda judicial do(a) qual detenha a guarda judicial;
-                            ttdPaiMae,           // 8 - Pais;
-                            ttdAvoBisavo,        // 9 - Avós e bisavós;
+                            ttdPaisAvoBisavo,    // 9 - Pais, avós e bisavós;
                             ttdMenorComGuarda,   // 10 - Menor pobre do qual detenha a guarda judicial;
                             ttdIncapaz,          // 11 - A pessoa absolutamente incapaz, da qual seja tutor ou curador;
                             ttdExConjuge,        // 12 - Ex-cônjuge;
@@ -290,6 +292,7 @@ type
                             );
 
   TtpIsencaoImunidade     = (
+                            tiiNenhum,                   // 0 - Nenhum
                             tiiTributacaoNormal,         // 1 - Entidade não isenta/não imune - Tributação normal
                             tiiEducacao,                 // 2 - Instituição de educação e de assistência social sem fins lucrativos, a que se refere o art. 12 da Lei nº 9.532, de 10 de dezembro de 1997
                             tiiFilanRecreCultCien        // 3 - Instituição de caráter filantrópico, recreativo, cultural, científico e às associações civis, a que se refere o art. 15 da Lei nº 9.532, de 1997
@@ -319,7 +322,7 @@ type
                             tfrReabertura    // 1 - Reabertura (reabre o movimento, caso esteja fechado)
                             );
 
-  TVersaoReinf = (v1_03_00, v1_03_02, v1_04_00, v1_05_00, v1_05_01, v2_01_01);
+  TVersaoReinf = (v1_03_00, v1_03_02, v1_04_00, v1_05_00, v1_05_01, v2_01_01, v2_01_02);
 
   // ct00 não consta no manual mas consta no manual do desenvolvedor pg 85,
   // é usado para zerar a base de teste.
@@ -624,6 +627,7 @@ begin
     v1_05_00: Result := 1.50;
     v1_05_01: Result := 1.51;
     v2_01_01: Result := 2.21;
+    v2_01_02: Result := 2.22;
   else
     result := 0;
   end;
@@ -632,17 +636,21 @@ end;
 function VersaoReinfToStr(const t: TVersaoReinf): String;
 begin
   result := EnumeradoToStr(t, ['1_03_00', '1_03_02', '1_04_00',
-                               '1_05_00', '1_05_01', '2_01_01'],
+                               '1_05_00', '1_05_01', '2_01_01',
+                               '2_01_02'],
                            [v1_03_00, v1_03_02, v1_04_00,
-                            v1_05_00, v1_05_01, v2_01_01]);
+                            v1_05_00, v1_05_01, v2_01_01,
+                            v2_01_02]);
 end;
 
 function StrToVersaoReinf(out ok: Boolean; const s: String): TVersaoReinf;
 begin
   result := StrToEnumerado(ok, s, ['1_03_00', '1_03_02', '1_04_00',
-                                   '1_05_00', '1_05_01', '2_01_01'],
+                                   '1_05_00', '1_05_01', '2_01_01',
+                                   '2_01_02'],
                            [v1_03_00, v1_03_02, v1_04_00,
-                            v1_05_00, v1_05_01, v2_01_01]);
+                            v1_05_00, v1_05_01, v2_01_01,
+                            v2_01_02]);
 end;
 
 function TipoEventoToStr(const t: TTipoEvento): string;
@@ -913,25 +921,25 @@ end;
 
 function indTpDeducaoToStr(const t: TindTpDeducao): string;
 begin
-  result := EnumeradoToStr2(t, ['1', '2', '3', '4', '5', '7']);
+  result := EnumeradoToStr2(t, ['1', '2', '3', '4', '5', '7', '8']);
 end;
 
 function StrToindTpDeducao(var ok: boolean; const s: string): TindTpDeducao;
 begin
   result := TindTpDeducao(StrToEnumerado2(ok , s, ['1', '2', '3', '4', '5',
-                                                    '7']));
+                                                    '7', '8']));
 end;
 
 function tpIsencaoToStr(const t: TtpIsencao): string;
 begin
   result := EnumeradoToStr2(t, ['1', '2', '3', '4', '5', '6', '7', '8', '9',
-                                '99']);
+                                '10', '11', '99']);
 end;
 
 function StrTotpIsencao(var ok: boolean; const s: string): TtpIsencao;
 begin
   result := TtpIsencao(StrToEnumerado2(ok , s, ['1', '2', '3', '4', '5', '6',
-                                                 '7', '8', '9', '99']));
+                                                 '7', '8', '9', '10', '11', '99']));
 end;
 
 function indPerReferenciaToStr(const t: TindPerReferencia): string;
@@ -1037,13 +1045,13 @@ end;
 
 function tpDependenteToStr(const t: TtpDependente): string;
 begin
-  result := EnumeradoToStr2(t, ['1', '2', '3', '6', '8', '9',
+  result := EnumeradoToStr2(t, ['1', '2', '3', '6', '9',
                                 '10', '11', '12', '99']);
 end;
 
 function StrToTpDependente(var ok: boolean; const s: string): TtpDependente;
 begin
-  result := TtpDependente(StrToEnumerado2(ok , s, ['1', '2', '3', '6', '8', '9',
+  result := TtpDependente(StrToEnumerado2(ok , s, ['1', '2', '3', '6', '9',
                                                    '10', '11', '12', '99']));
 end;
 
@@ -1059,12 +1067,12 @@ end;
 
 function tpIsencaoImunidadeToStr(const t: TtpIsencaoImunidade): string;
 begin
-  result := EnumeradoToStr2(t, ['1', '2', '3']);
+  result := EnumeradoToStr2(t, ['', '1', '2', '3']);
 end;
 
 function StrToTpIsencaoImunidade(var ok: boolean; const s: string): TtpIsencaoImunidade;
 begin
-  result := TTpIsencaoImunidade(StrToEnumerado2(ok , s, ['1', '2', '3']));
+  result := TTpIsencaoImunidade(StrToEnumerado2(ok , s, ['', '1', '2', '3']));
 end;
 
 function tpPerApurQuiToStr(const t: TtpPerApurQui): string;

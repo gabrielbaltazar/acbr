@@ -318,6 +318,7 @@ type
   TNFrefCollectionItem = class(TObject)
   private
     FrefNFe: String;
+    FrefNFeSig: String;
     FrefCTe: String;
     FRefNF: TRefNF;
     FRefECF: TRefECF;
@@ -328,6 +329,7 @@ type
 
     procedure Assign(Source: TNFrefCollectionItem);
     property refNFe: String read FrefNFe write FrefNFe;
+    property refNFeSig: String read FrefNFeSig write FrefNFeSig;
     property refCTe: String read FrefCTe write FrefCTe;
     property RefNF: TRefNF read FRefNF write FRefNF;
     property RefNFP: TRefNFP read FRefNFP write FRefNFP;
@@ -876,6 +878,29 @@ type
     property descr: String read Fdescr write Fdescr;
   end;
 
+  TorigCombCollectionItem = class(TObject)
+  private
+    FindImport: TindImport;
+    FcUFOrig: Integer;
+    FpOrig: Currency;
+  public
+    procedure Assign(Source: TorigCombCollectionItem);
+
+    property indImport: TindImport read FindImport write FindImport;
+    property cUFOrig: Integer read FcUFOrig write FcUFOrig;
+    property pOrig: Currency read FpOrig write FpOrig;
+  end;
+
+  TorigCombCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TorigCombCollectionItem;
+    procedure SetItem(Index: Integer; Value: TorigCombCollectionItem);
+  public
+    function Add: TorigCombCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TorigCombCollectionItem;
+    property Items[Index: Integer]: TorigCombCollectionItem read GetItem write SetItem; default;
+  end;
+
   Tencerrante = class(TObject)
   private
     FnBico: Integer;
@@ -885,6 +910,7 @@ type
     FvEncFin: Currency;
   public
     procedure Assign(Source: Tencerrante);
+
     property nBico: Integer read FnBico write FnBico;
     property nBomba: Integer read FnBomba write FnBomba;
     property nTanque: Integer read FnTanque write FnTanque;
@@ -909,11 +935,15 @@ type
     FICMSInter: TICMSInter;
     FICMSCons: TICMSCons;
     Fencerrante: Tencerrante;
+    FpBio: Currency;
+    ForigComb: TorigCombCollection;
+
+    procedure SetorigComb(const Value: TorigCombCollection);
   public
     constructor Create();
     destructor Destroy; override;
-
     procedure Assign(Source: TComb);
+
     property cProdANP: Integer read FcProdANP write FcProdANP;
     property pMixGN: Currency read FpMixGN write FpMixGN;
     property descANP: String read FdescANP write FdescANP;
@@ -929,6 +959,8 @@ type
     property ICMSInter: TICMSInter read FICMSInter write FICMSInter;
     property ICMSCons: TICMSCons read FICMSCons write FICMSCons;
     property encerrante: Tencerrante read Fencerrante write Fencerrante;
+    property pBio: Currency read FpBio write FpBio;
+    property origComb: TorigCombCollection read ForigComb write SetorigComb;
   end;
 
   TCIDE = class(TObject)
@@ -1169,8 +1201,23 @@ type
     FvFCPDif: Currency;
     FvFCPEfet: Currency;
     FpFCPDif: Currency;
+    FadRemICMS: Currency;
+    FvICMSMono: Currency;
+    FadRemICMSReten: Currency;
+    FvICMSMonoReten: Currency;
+//    FadRemICMSDif: Currency;
+    FvICMSMonoDif: Currency;
+    FadRemICMSRet: Currency;
+    FvICMSMonoRet: Currency;
+    FqBCMono: Currency;
+    FqBCMonoReten: Currency;
+    FpRedAdRem: Currency;
+    FmotRedAdRem: TmotRedAdRem;
+    FvICMSMonoOp: Currency;
+    FqBCMonoRet: Currency;
   public
     procedure Assign(Source: TICMS);
+
     property orig: TpcnOrigemMercadoria read Forig write Forig default oeNacional;
     property CST: TpcnCSTIcms read FCST write FCST default cst00;
     property CSOSN: TpcnCSOSNIcms read FCSOSN write FCSOSN;
@@ -1218,6 +1265,24 @@ type
     property pFCPDif: Currency read FpFCPDif write FpFCPDif;
     property vFCPDif: Currency read FvFCPDif write FvFCPDif;
     property vFCPEfet: Currency read FvFCPEfet write FvFCPEfet;
+    // CST 02, 15
+    property adRemICMS: Currency read FadRemICMS write FadRemICMS;
+    property vICMSMono: Currency read FvICMSMono write FvICMSMono;
+    property qBCMono: Currency read FqBCMono write FqBCMono;
+    // CST 15
+    property adRemICMSReten: Currency read FadRemICMSReten write FadRemICMSReten;
+    property vICMSMonoReten: Currency read FvICMSMonoReten write FvICMSMonoReten;
+    property qBCMonoReten: Currency read FqBCMonoReten write FqBCMonoReten;
+    property pRedAdRem: Currency read FpRedAdRem write FpRedAdRem;
+    property motRedAdRem: TmotRedAdRem read FmotRedAdRem write FmotRedAdRem;
+    // CST 53
+//    property adRemICMSDif: Currency read FadRemICMSDif write FadRemICMSDif;
+    property vICMSMonoOp: Currency read FvICMSMonoOp write FvICMSMonoOp;
+    property vICMSMonoDif: Currency read FvICMSMonoDif write FvICMSMonoDif;
+    // CST 61
+    property adRemICMSRet: Currency read FadRemICMSRet write FadRemICMSRet;
+    property vICMSMonoRet: Currency read FvICMSMonoRet write FvICMSMonoRet;
+    property qBCMonoRet: Currency read FqBCMonoRet write FqBCMonoRet;
   end;
 
   TIPI = class(TObject)
@@ -1358,8 +1423,15 @@ type
     FvOutro: Currency;
     FvNF: Currency;
     FvTotTrib: Currency;
+    FvICMSMono: Currency;
+    FvICMSMonoReten: Currency;
+    FvICMSMonoRet: Currency;
+    FqBCMono: Currency;
+    FqBCMonoReten: Currency;
+    FqBCMonoRet: Currency;
   public
     procedure Assign(Source: TICMSTot);
+
     property vBC: Currency read FvBC write FvBC;
     property vICMS: Currency read FvICMS write FvICMS;
     property vICMSDeson: Currency read FvICMSDeson write FvICMSDeson;
@@ -1383,6 +1455,12 @@ type
     property vOutro: Currency read FvOutro write FvOutro;
     property vNF: Currency read FvNF write FvNF;
     property vTotTrib: Currency read FvTotTrib write FvTotTrib;
+    property vICMSMono: Currency read FvICMSMono write FvICMSMono;
+    property vICMSMonoReten: Currency read FvICMSMonoReten write FvICMSMonoReten;
+    property vICMSMonoRet: Currency read FvICMSMonoRet write FvICMSMonoRet;
+    property qBCMono: Currency read FqBCMono write FqBCMono;
+    property qBCMonoReten: Currency read FqBCMonoReten write FqBCMonoReten;
+    property qBCMonoRet: Currency read FqBCMonoRet write FqBCMonoRet;
   end;
 
   TISSQNtot = class(TObject)
@@ -2290,6 +2368,7 @@ end;
 procedure TNFrefCollectionItem.Assign(Source: TNFrefCollectionItem);
 begin
   refNFe := Source.refNFe;
+  refNFeSig := Source.refNFeSig;
   refCTe := Source.refCTe;
   RefNF.Assign(Source.RefNF);
   RefNFP.Assign(Source.RefNFP);
@@ -2565,16 +2644,21 @@ begin
   ICMSInter.Assign(Source.ICMSInter);
   ICMSCons.Assign(Source.ICMSCons);
   encerrante.Assign(Source.encerrante);
+
+  pBio    := Source.pBio;
+  origComb.Assign(Source.origComb);
 end;
 
 constructor TComb.Create();
 begin
   inherited Create;
+
   FCIDE := TCIDE.Create;
   FICMS := TICMSComb.Create;
   FICMSInter  := TICMSInter.Create;
   FICMScons   := TICMScons.Create;
   Fencerrante := Tencerrante.Create;
+  origComb := TorigCombCollection.Create;
 end;
 
 destructor TComb.Destroy;
@@ -2584,7 +2668,14 @@ begin
   FICMSInter.Free;
   FICMScons.Free;
   Fencerrante.Free;
+  origComb.Free;
+
   inherited;
+end;
+
+procedure TComb.SetorigComb(const Value: TorigCombCollection);
+begin
+  ForigComb := Value;
 end;
 
 { TDICollection }
@@ -3610,6 +3701,20 @@ begin
   pFCPDif  := Source.pFCPDif;
   vFCPDif  := Source.vFCPDif;
   vFCPEfet := Source.vFCPEfet;
+  adRemICMS := Source.adRemICMS;
+  vICMSMono := Source.vICMSMono;
+  adRemICMSReten := Source.adRemICMSReten;
+  vICMSMonoReten := Source.vICMSMonoReten;
+//  adRemICMSDif := Source.adRemICMSDif;
+  vICMSMonoDif := Source.vICMSMonoDif;
+  adRemICMSRet := Source.adRemICMSRet;
+  vICMSMonoRet := Source.vICMSMonoRet;
+  qBCMono := Source.qBCMono;
+  qBCMonoReten := Source.qBCMonoReten;
+  pRedAdRem := Source.pRedAdRem;
+  motRedAdRem := Source.motRedAdRem;
+  FvICMSMonoOp := Source.FvICMSMonoOp;
+  qBCMonoRet := Source.qBCMonoRet;
 end;
 
 { TIPI }
@@ -3703,6 +3808,13 @@ begin
   vFCP         := Source.vFCP;
   vFCPST       := Source.vFCPST;
   vFCPSTRet    := Source.vFCPSTRet;
+
+  vICMSMono := Source.vICMSMono;
+  vICMSMonoReten := Source.vICMSMonoReten;
+  vICMSMonoRet := Source.vICMSMonoRet;
+  qBCMono := Source.qBCMono;
+  qBCMonoReten := Source.qBCMonoReten;
+  qBCMonoRet := Source.qBCMonoRet;
 end;
 
 { TISSQNtot }
@@ -3993,6 +4105,39 @@ procedure TobsItem.Assign(Source: TobsItem);
 begin
   xCampo := Source.xCampo;
   xTexto := Source.xTexto;
+end;
+
+{ TorigCombCollection }
+
+function TorigCombCollection.Add: TorigCombCollectionItem;
+begin
+  Result := Self.New;
+end;
+
+function TorigCombCollection.GetItem(Index: Integer): TorigCombCollectionItem;
+begin
+  Result := TorigCombCollectionItem(inherited Items[Index]);
+end;
+
+function TorigCombCollection.New: TorigCombCollectionItem;
+begin
+  Result := TorigCombCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+procedure TorigCombCollection.SetItem(Index: Integer;
+  Value: TorigCombCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
+{ TorigCombCollectionItem }
+
+procedure TorigCombCollectionItem.Assign(Source: TorigCombCollectionItem);
+begin
+  indImport := Source.indImport;
+  cUFOrig := Source.cUFOrig;
+  pOrig := Source.pOrig;
 end;
 
 end.

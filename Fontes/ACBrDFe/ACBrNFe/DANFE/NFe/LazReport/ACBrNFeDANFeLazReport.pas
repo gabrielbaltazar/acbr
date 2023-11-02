@@ -1773,7 +1773,7 @@ begin
       FieldByName('CRT').AsString := CRTToStr(CRT);
 
       if Trim(FieldByName('CRT').AsString) = '1' then
-        FieldByName('DESCR_CST').AsString := 'CSOSN'
+        FieldByName('DESCR_CST').AsString := 'CSOSN/CST'
       else
         FieldByName('DESCR_CST').AsString := 'CST';
 
@@ -1922,9 +1922,9 @@ begin
       begin
         if FNFe.Ide.tpEmis <> teNormal then
           FieldByName('MensagemFiscal').AsString :=
-            'EMITIDA EM CONTINGÊNCIA' + LineBreak + 'Pendente de autorização'
-        else
-          FieldByName('MensagemFiscal').AsString := 'ÁREA DE MENSAGEM FISCAL';
+            'EMITIDA EM CONTINGÊNCIA' + LineBreak + 'Pendente de autorização';
+        //else
+        //  FieldByName('MensagemFiscal').AsString := 'ÁREA DE MENSAGEM FISCAL';
       end;
 
       FieldByName('URL').AsString :=

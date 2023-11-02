@@ -129,6 +129,7 @@ type
     FMontarPathSchema: Boolean;
     FLayout: TLayout;
     FLayoutNFSe: TLayoutNFSe;
+    FAssinaturas: TAssinaturas;
 
     procedure SetCodigoMunicipio(const Value: Integer);
   public
@@ -139,6 +140,7 @@ type
     procedure GravarIni(const AIni: TCustomIniFile); override;
     procedure LerIni(const AIni: TCustomIniFile); override;
     procedure LerParamsMunicipio;
+
   published
     property CodigoMunicipio: Integer read FCodigoMunicipio write SetCodigoMunicipio;
     property Provedor: TnfseProvedor read FProvedor write FProvedor;
@@ -156,6 +158,8 @@ type
       write FMontarPathSchema default True;
     property Layout: TLayout read FLayout;
     property LayoutNFSe: TLayoutNFSe read FLayoutNFSe write FLayoutNFSe default lnfsProvedor;
+    property Assinaturas: TAssinaturas read FAssinaturas write FAssinaturas default taConfigProvedor;
+    property PIniParams: TMemIniFile read FPIniParams;
   end;
 
   { TArquivosConfNFSe }
@@ -169,8 +173,10 @@ type
     FPathCan: String;
     FNomeLongoNFSe: Boolean;
     FTabServicosExt: Boolean;
+    FIniTabServicos: String;
 
     procedure SetTabServicosExt(const Value: Boolean);
+    function GetIniTabServicos: String;
   public
     constructor Create(AOwner: TConfiguracoes); override;
     procedure Assign(DeArquivosConfNFSe: TArquivosConfNFSe); reintroduce;
@@ -203,6 +209,7 @@ type
       write FNomeLongoNFSe default False;
     property TabServicosExt: Boolean read FTabServicosExt
       write SetTabServicosExt default False;
+    property IniTabServicos: String read GetIniTabServicos write FIniTabServicos;
   end;
 
   { TConfiguracoesNFSe }
@@ -282,6 +289,7 @@ constructor TConfiguracoesNFSe.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
+  FPSessaoIni := 'NFSe';
   WebServices.ResourceName := 'ACBrNFSeXServicos';
 end;
 
@@ -329,6 +337,7 @@ begin
   FConsultaAposCancelar := True;
   FMontarPathSchema := True;
   FLayoutNFSe := lnfsProvedor;
+  FAssinaturas := taConfigProvedor;
 end;
 
 destructor TGeralConfNFSe.Destroy;
@@ -349,6 +358,7 @@ begin
   AIni.WriteBool(fpConfiguracoes.SessaoIni, 'ConsultaAposCancelar', ConsultaAposCancelar);
   AIni.WriteBool(fpConfiguracoes.SessaoIni, 'MontarPathSchema', MontarPathSchema);
   AIni.WriteInteger(fpConfiguracoes.SessaoIni, 'LayoutNFSe', Integer(LayoutNFSe));
+  AIni.WriteInteger(fpConfiguracoes.SessaoIni, 'Assinaturas', Integer(Assinaturas));
 
   // Emitente
   with Emitente do
@@ -390,6 +400,7 @@ begin
   ConsultaAposCancelar := AIni.ReadBool(fpConfiguracoes.SessaoIni, 'ConsultaAposCancelar', ConsultaAposCancelar);
   MontarPathSchema := AIni.ReadBool(fpConfiguracoes.SessaoIni, 'MontarPathSchema', MontarPathSchema);
   LayoutNFSe := TLayoutNFSe(AIni.ReadInteger(fpConfiguracoes.SessaoIni, 'LayoutNFSe', Integer(LayoutNFSe)));
+  Assinaturas := TAssinaturas(AIni.ReadInteger(fpConfiguracoes.SessaoIni, 'Assinaturas', Integer(Assinaturas)));
 
   // Emitente
   with Emitente do
@@ -425,27 +436,33 @@ procedure TGeralConfNFSe.LerParamsMunicipio;
 var
   Ok: Boolean;
   CodIBGE: string;
+  ACBrNFSeXLocal: TACBrNFSeX;
 begin
+  if not Assigned(fpConfiguracoes.Owner) then
+  begin
+    Exit;
+  end;
+
   // Carrega automaticamente o arquivo ACBrNFSeXServicos se necessário.
-  if Assigned(fpConfiguracoes.Owner) then
-    if not (csDesigning in fpConfiguracoes.Owner.ComponentState) then
-      TACBrNFSeX(fpConfiguracoes.Owner).LerCidades;
+  ACBrNFSeXLocal := TACBrNFSeX(fpConfiguracoes.Owner);
+  if not (csDesigning in fpConfiguracoes.Owner.ComponentState) then
+    ACBrNFSeXLocal.LerCidades;
 
   // ===========================================================================
   // Verifica se o código IBGE consta no arquivo: ACBrNFSeXServicos
   // se encontrar carrega os parâmetros definidos.
   // ===========================================================================
-  CodIBGE := IntToStr(FCodigoMunicipio);
-
   FPIniParams.SetStrings(fpConfiguracoes.WebServices.Params);
 
+  CodIBGE := IntToStr(FCodigoMunicipio);
+
   FxMunicipio := FPIniParams.ReadString(CodIBGE, 'Nome', '');
-  FxUF := FPIniParams.ReadString(CodIBGE, 'UF'  , '');
+  FxUF := FPIniParams.ReadString(CodIBGE, 'UF', '');
   FxProvedor := FPIniParams.ReadString(CodIBGE, 'Provedor', '');
   FVersao := StrToVersaoNFSe(Ok, FPIniParams.ReadString(CodIBGE, 'Versao', '1.00'));
 
   if (FxMunicipio <> '') and (FxProvedor = '') and (FLayoutNFSe = lnfsProvedor) then
-    raise EACBrDFeException.Create('Município [' + FxMunicipio +
+    raise EACBrDFeException.Create('CodIBGE/Município: [' + CodIBGE +'/'+FxMunicipio +
             '] não está associado a nenhum Provedor.');
 
   FProvedor := StrToProvedor(FxProvedor);
@@ -461,19 +478,38 @@ begin
     raise EACBrDFeException.Create('Código do Município [' + CodIBGE +
             '] não Encontrado.');
 
-  if Assigned(fpConfiguracoes.Owner) then
-    TACBrNFSeX(fpConfiguracoes.Owner).SetProvider;
+  ACBrNFSeXLocal.SetProvider;
 
-  FLayout := TACBrNFSeX(TConfiguracoesNFSe(Owner).Owner).Provider.ConfigGeral.Layout;
+  if Assigned(ACBrNFSeXLocal.Provider) then
+  begin
+    if Assigned(ACBrNFSeXLocal.Provider.ConfigGeral) then
+      FLayout := ACBrNFSeXLocal.Provider.ConfigGeral.Layout;
+  end;
 end;
 
 procedure TGeralConfNFSe.Assign(DeGeralConfNFSe: TGeralConfNFSe);
 begin
   inherited Assign(DeGeralConfNFSe);
 
-  FProvedor := DeGeralConfNFSe.Provedor;
+  //FPIniParams.SetStrings(DeGeralConfNFSe.FPIniParams);
+  FVersao     := DeGeralConfNFSe.Versao;
+  FxProvedor  := DeGeralConfNFSe.xProvedor;
+  FxMunicipio := DeGeralConfNFSe.xMunicipio;
+  FxUF        := DeGeralConfNFSe.xUF;
+
+  FCNPJPrefeitura        := DeGeralConfNFSe.CNPJPrefeitura;
+  FConsultaLoteAposEnvio := DeGeralConfNFSe.ConsultaLoteAposEnvio;
+  FConsultaAposCancelar  := DeGeralConfNFSe.ConsultaAposCancelar;
+  FMontarPathSchema      := DeGeralConfNFSe.MontarPathSchema;
+  FLayout                := DeGeralConfNFSe.Layout;
+  FLayoutNFSe            := DeGeralConfNFSe.LayoutNFSe;
+  FAssinaturas           := DeGeralConfNFSe.Assinaturas;
 
   FEmitente.Assign(DeGeralConfNFSe.Emitente);
+
+  //Deve ser a última configuração para que não sobrescreva configurações importantes.
+  //Daniel Morais, Panda, Antonio Carlos Junior, Italo Giurizzato Junior, Diego Folieni
+  CodigoMunicipio := DeGeralConfNFSe.CodigoMunicipio;
 end;
 
 procedure TGeralConfNFSe.SetCodigoMunicipio(const Value: Integer);
@@ -568,6 +604,8 @@ procedure TArquivosConfNFSe.SetTabServicosExt(const Value: Boolean);
 begin
   FTabServicosExt := Value;
 
+  if not Assigned(Owner) then Exit;
+  if not Assigned(TConfiguracoesNFSe(Owner).Owner) then Exit;
   if not Assigned(TACBrNFSeX(TConfiguracoesNFSe(Owner).Owner).Provider) then Exit;
 
   with TACBrNFSeX(TConfiguracoesNFSe(Owner).Owner).Provider.ConfigGeral do
@@ -596,6 +634,16 @@ begin
   end;
 end;
 
+function TArquivosConfNFSe.GetIniTabServicos: String;
+begin
+  if FIniTabServicos = '' then
+    if Assigned(fpConfiguracoes.Owner) then
+      if not (csDesigning in fpConfiguracoes.Owner.ComponentState) then
+        FIniTabServicos := ApplicationPath + 'TabServicos.ini';
+
+  Result := FIniTabServicos;
+end;
+
 function TArquivosConfNFSe.GetPathCan(Data: TDateTime = 0;
   const CNPJ: String = ''; const IE: String = ''): String;
 var
@@ -621,8 +669,8 @@ function TArquivosConfNFSe.GetPathEvento(Data: TDateTime; const CNPJ,
 var
   Dir: String;
 begin
-  if FPathCan <> '' then
-    Result := GetPath(FPathCan, 'Eventos', CNPJ, IE, Data)
+  if FPathNFSe <> '' then
+    Result := GetPath(FPathNFSe, 'Eventos', CNPJ, IE, Data)
   else
   begin
     Dir := GetPath(FPathGer, 'NFSe', CNPJ, IE, Data);
@@ -640,7 +688,7 @@ end;
 
 procedure TDadosEmitente.Assign(Source: TPersistent);
 begin
-  if Source is TDownloadConf then
+  if Source is TDadosEmitente then
   begin
     FNomeFantasia := TDadosEmitente(Source).NomeFantasia;
     FInscricaoEstadual := TDadosEmitente(Source).InscricaoEstadual;

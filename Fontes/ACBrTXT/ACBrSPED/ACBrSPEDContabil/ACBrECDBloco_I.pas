@@ -73,7 +73,7 @@ type
   TRegistroI010 = class
   private
     fIND_ESC: String;    /// Indicador da forma de escrituração contábil:G - Livro Diário (Completo sem escrituração auxiliar);R - Livro Diário com Escrituração Resumida (com escrituração auxiliar);A - Livro Diário Auxiliar ao Diário com Escrituração Resumida;B - Livro Balancetes Diários e Balanços;Z - Razão Auxiliar (Livro Contábil Auxiliar conforme leiaute definido nos registros I500 a I555).
-    fCOD_VER_LC: String; /// Código da Versão do Leiaute Contábil (preencher com 1.00).
+    fCOD_VER_LC: String; /// Código da Versão do Leiaute Contábil (Ver manual).
   public
     property IND_ESC: String read fIND_ESC write fIND_ESC;
     property COD_VER_LC: String read fCOD_VER_LC write fCOD_VER_LC;
@@ -417,6 +417,14 @@ type
     fVL_CRED: Currency;       /// Valor total dos créditos no período.
     fVL_SLD_FIN: Currency;    /// Valor do saldo final do período.
     fIND_DC_FIN: String;  /// Indicador da situação do saldo final: D - Devedor; C - Credor.
+
+    fVL_SLD_INI_MF: Currency;    /// Valor do saldo inicial do período.
+    fIND_DC_INI_MF: String;  /// Indicador da situação do saldo inicial:D - Devedor;C - Credor.
+    fVL_DEB_MF: Currency;        /// Valor total dos débitos no período.
+    fVL_CRED_MF: Currency;       /// Valor total dos créditos no período.
+    fVL_SLD_FIN_MF: Currency;    /// Valor do saldo final do período.
+    fIND_DC_FIN_MF: String;  /// Indicador da situação do saldo final: D - Devedor; C - Credor.
+
     FRegistroI157: TRegistroI157List;  /// BLOCO I - Lista de RegistroI157 (FILHO)
   public
     constructor Create; virtual; /// Create
@@ -429,6 +437,13 @@ type
     property VL_CRED: Currency read fVL_CRED write fVL_CRED;
     property VL_SLD_FIN: Currency read fVL_SLD_FIN write fVL_SLD_FIN;
     property IND_DC_FIN: String read fIND_DC_FIN write fIND_DC_FIN;
+
+    property VL_SLD_INI_MF: Currency read fVL_SLD_INI_MF write fVL_SLD_INI_MF;
+    property IND_DC_INI_MF: String read fIND_DC_INI_MF write fIND_DC_INI_MF;
+    property VL_DEB_MF: Currency read fVL_DEB_MF write fVL_DEB_MF;
+    property VL_CRED_MF: Currency read fVL_CRED_MF write fVL_CRED_MF;
+    property VL_SLD_FIN_MF: Currency read fVL_SLD_FIN_MF write fVL_SLD_FIN_MF;
+    property IND_DC_FIN_MF: String read fIND_DC_FIN_MF write fIND_DC_FIN_MF;
 
     property RegistroI157: TRegistroI157List read FRegistroI157 write FRegistroI157;
   end;
@@ -452,11 +467,15 @@ type
     fCOD_CCUS: String;    /// Código do centro de custos.
     fVL_SLD_INI: Currency;    /// Valor do saldo inicial do período.
     fIND_DC_INI: String;  /// Indicador da situação do saldo inicial:D - Devedor;C - Credor.
+    fVL_SLD_INI_MF: Currency;
+    fIND_DC_INI_MF: String;
   public
     property COD_CTA: String read fCOD_CTA write fCOD_CTA;
     property COD_CCUS: String read fCOD_CCUS write fCOD_CCUS;
     property VL_SLD_INI: Currency read fVL_SLD_INI write fVL_SLD_INI;
     property IND_DC_INI: String read fIND_DC_INI write fIND_DC_INI;
+    property VL_SLD_INI_MF: Currency read fVL_SLD_INI_MF write fVL_SLD_INI_MF;
+    property IND_DC_INI_MF: String read fIND_DC_INI_MF write fIND_DC_INI_MF;
   end;
 
   /// Registro I157 - Lista
@@ -479,6 +498,7 @@ type
     fVL_LCTO: Currency;           // Valor do Lançamento
     fIND_LCTO: String;        // Indicador do tipo do lançamento
     fDT_LCTO_EXT: TDateTime;         // Data do lançamento extemporaneo
+    fVL_LCTO_MF: Currency;
 
     fRegistroI250: TRegistroI250List; /// BLOCO I - Lista de RegistroI250 (FILHO)
   public
@@ -490,6 +510,7 @@ type
     property VL_LCTO: Currency read fVL_LCTO write fVL_LCTO;
     property IND_LCTO: String read fIND_LCTO write fIND_LCTO;
     property DT_LCTO_EXT: TDateTime read fDT_LCTO_EXT write fDT_LCTO_EXT;
+    property VL_LCTO_MF: Currency read fVL_LCTO_MF write fVL_LCTO_MF;
     property RegistroI250: TRegistroI250List read fRegistroI250 write fRegistroI250;
   end;
 
@@ -510,6 +531,8 @@ type
     fCOD_CCUS: String;
     fVL_DC: Currency;
     fIND_DC: String;
+    fVL_DC_MF: Currency;
+    fIND_DC_MF: String;
     fNUM_ARQ: String;
     fCOD_HIST_PAD: String;
     fHIST: String;
@@ -523,6 +546,9 @@ type
     property COD_HIST_PAD: String  read fCOD_HIST_PAD write fCOD_HIST_PAD;
     property HIST: String read fHIST write fHIST;
     property COD_PART: String read fCOD_PART write fCOD_PART;
+    property VL_DC_MF: Currency read fVL_DC_MF write fVL_DC_MF;
+    property IND_DC_MF: String read fIND_DC_MF write fIND_DC_MF;
+
   end;
 
   // Registro I250 - lista
@@ -567,15 +593,19 @@ type
 
   TRegistroI310 = class
   private
-    fCOD_CTA: String;     /// Código da conta analítica debitada/creditada.
-    fCOD_CCUS: String;    /// Código do centro de custos.
+    fCOD_CTA: String;       /// Código da conta analítica debitada/creditada.
+    fCOD_CCUS: String;      /// Código do centro de custos.
     fVAL_DEBD: Currency;    /// Total dos débitos do dia.
     fVAL_CRED: Currency;    /// Total dos créditos do dia.
+    fVAL_DEBD_MF: Currency;
+    fVAL_CRED_MF: Currency;
   public
     property COD_CTA: String read fCOD_CTA write fCOD_CTA;
     property COD_CCUS: String read fCOD_CCUS write fCOD_CCUS;
     property VAL_DEBD: Currency read fVAL_DEBD write fVAL_DEBD;
     property VAL_CRED: Currency read fVAL_CRED write fVAL_CRED;
+    property VAL_DEBD_MF: Currency read fVAL_DEBD_MF write fVAL_DEBD_MF;
+    property VAL_CRED_MF: Currency read fVAL_CRED_MF write fVAL_CRED_MF;
   end;
 
   /// Registro I310 - Lista
@@ -623,13 +653,17 @@ type
     fCOD_CTA: String;     /// Código da conta analítica de resultado.
     fCOD_CCUS: String;    /// Código do centro de custos.
     fVL_CTA: Currency;    /// Valor do saldo final antes do lançamento de encerramento.
-    fIND_DC: String;  /// Indicador da situação do saldo final: D - Devedor; C - Credor.
+    fIND_DC: String;      /// Indicador da situação do saldo final: D - Devedor; C - Credor.
+    fIND_DC_MF: String;
+    fVL_CTA_MF: Currency;
 
   public
     property COD_CTA: String read fCOD_CTA write fCOD_CTA;
     property COD_CCUS: String read fCOD_CCUS write fCOD_CCUS;
     property VL_CTA: Currency read fVL_CTA write fVL_CTA;
     property IND_DC: String read fIND_DC write fIND_DC;
+    property VL_CTA_MF: Currency read fVL_CTA_MF write fVL_CTA_MF;
+    property IND_DC_MF: String read fIND_DC_MF write fIND_DC_MF;
   end;
 
   /// Registro I355 - Lista

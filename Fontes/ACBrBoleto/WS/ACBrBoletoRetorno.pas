@@ -211,6 +211,7 @@ type
     FDataAbatimento: TDateTime;
     FDataDesconto: TDateTime;
     FDataDesconto2: TDateTime;
+    FDataDesconto3: TDateTime;
     FDataMoraJuros: TDateTime;
     FDataMulta: TDateTime;
     FDataProtesto: TDateTime;
@@ -222,7 +223,9 @@ type
     FValorAbatimento: Currency;
     FValorDesconto: Currency;
     FValorDesconto2: Currency;
+    FValorDesconto3: Currency;
     FValorMoraJuros: Currency;
+    FValorMulta: Currency;
     FValorIOF: Currency;
     FValorOutrasDespesas: Currency;
     FValorOutrosCreditos: Currency;
@@ -254,6 +257,7 @@ type
     FurlPix: String;
     FtxId: String;
     FCodigoOcorrenciaCartorio: String;
+    FCodigoCanalTituloCobranca: String;
   public
     constructor Create;
     destructor Destroy; override;
@@ -291,6 +295,7 @@ type
     property DataAbatimento: TDateTime read FDataAbatimento write FDataAbatimento ;
     property DataDesconto: TDateTime read FDataDesconto write FDataDesconto ;
     property DataDesconto2: TDateTime read FDataDesconto2 write FDataDesconto2 ;
+    property DataDesconto3: TDateTime read FDataDesconto3 write FDataDesconto3 ;
     property DataMoraJuros: TDateTime read FDataMoraJuros write FDataMoraJuros ;
     property DataMulta: TDateTime read FDataMulta write FDataMulta ;
     property DataProtesto: TDateTime read FDataProtesto write FDataProtesto ;
@@ -302,7 +307,9 @@ type
     property ValorAbatimento: Currency read FValorAbatimento write FValorAbatimento ;
     property ValorDesconto: Currency read FValorDesconto write FValorDesconto ;
     property ValorDesconto2: Currency read FValorDesconto2 write FValorDesconto2 ;
+    property ValorDesconto3: Currency read FValorDesconto3 write FValorDesconto3 ;
     property ValorMoraJuros: Currency read FValorMoraJuros write FValorMoraJuros ;
+    property ValorMulta: Currency read FValorMulta write FValorMulta ;
     property ValorIOF: Currency read FValorIOF write FValorIOF ;
     property ValorOutrasDespesas: Currency read FValorOutrasDespesas write FValorOutrasDespesas ;
     property ValorOutrosCreditos: Currency read FValorOutrosCreditos write FValorOutrosCreditos ;
@@ -328,6 +335,7 @@ type
     property ValorAtual: Extended read FValorAtual write FValorAtual;
     property Contrato: String read FContrato write FContrato;
     property CodigoEstadoTituloCobranca: String read FCodigoEstadoTituloCobranca write FCodigoEstadoTituloCobranca;
+    property CodigoCanalTituloCobranca: String read FCodigoCanalTituloCobranca write FCodigoCanalTituloCobranca;
     property EstadoTituloCobranca: String read FEstadoTituloCobranca write FEstadoTituloCobranca;
     property CodigoOcorrenciaCartorio: String read FCodigoOcorrenciaCartorio write FCodigoOcorrenciaCartorio;
     property DataMovimento: TDateTime read FDataMovimento write FDataMovimento;
@@ -606,6 +614,7 @@ begin
   DataAbatimento:= DeACBrBoletoTituloRet.DataAbatimento;
   DataDesconto:= DeACBrBoletoTituloRet.DataDesconto;
   DataDesconto2:= DeACBrBoletoTituloRet.DataDesconto2;
+  DataDesconto3:= DeACBrBoletoTituloRet.DataDesconto3;
   DataMoraJuros:= DeACBrBoletoTituloRet.DataMoraJuros;
   DataMulta:= DeACBrBoletoTituloRet.DataMulta;
   DataProtesto:= DeACBrBoletoTituloRet.DataProtesto;
@@ -617,7 +626,9 @@ begin
   ValorAbatimento:= DeACBrBoletoTituloRet.ValorAbatimento;
   ValorDesconto:= DeACBrBoletoTituloRet.ValorDesconto;
   ValorDesconto2:= DeACBrBoletoTituloRet.ValorDesconto2;
+  ValorDesconto3:= DeACBrBoletoTituloRet.ValorDesconto3;
   ValorMoraJuros:= DeACBrBoletoTituloRet.ValorMoraJuros;
+  ValorMulta := DeACBrBoletoTituloRet.ValorMulta;
   ValorIOF:= DeACBrBoletoTituloRet.ValorIOF;
   ValorOutrasDespesas:= DeACBrBoletoTituloRet.ValorOutrasDespesas;
   ValorOutrosCreditos:= DeACBrBoletoTituloRet.ValorOutrosCreditos;
@@ -648,6 +659,7 @@ begin
   emv:= DeACBrBoletoTituloRet.EMV;
   urlPix:= DeACBrBoletoTituloRet.UrlPix;
   txId:= DeACBrBoletoTituloRet.TxId;
+  CodigoCanalTituloCobranca := DeACBrBoletoTituloRet.CodigoCanalTituloCobranca;
   Sacado.Assign(DeACBrBoletoTituloRet.Sacado);
   SacadoAvalista.Assign(DeACBrBoletoTituloRet.SacadoAvalista);
 

@@ -141,6 +141,7 @@ type
     FinfoMandElet : TinfoMandElet;
     FinfoDirSind : TinfoDirSind;
     FinfoTrabCedido : TinfoTrabCedido;
+    FlocalTrabGeral: TLocalTrabGeral;
   public
     constructor Create;
     destructor  Destroy; override;
@@ -151,6 +152,7 @@ type
     property infoMandElet : TinfoMandElet read FinfoMandElet write FinfoMandElet;
     property infoDirigenteSindical : TinfoDirSind read FinfoDirSind write FinfoDirSind;
     property infoTrabCedido : TinfoTrabCedido read FinfoTrabCedido write FinfoTrabCedido;
+    property localTrabGeral: TLocalTrabGeral read FLocalTrabGeral write FLocalTrabGeral;
   end;
 
   TinfoMandElet = class(TObject)
@@ -236,6 +238,7 @@ begin
   FinfoMandElet   := TinfoMandElet.Create;
   FinfoDirSind    := TinfoDirSind.Create;
   FinfoTrabCedido := TinfoTrabCedido.Create;
+  FlocalTrabGeral := TLocalTrabGeral.Create;
 end;
 
 destructor TinfoComplementares.Destroy;
@@ -246,7 +249,8 @@ begin
   FinfoMandElet.Free;
   FinfoDirSind.Free;
   FinfoTrabCedido.Free;
-  
+  FlocalTrabGeral.Free;
+
   inherited;
 end;
 
@@ -357,9 +361,10 @@ end;
 
 procedure TEvtTSVAltContr.GerarinfoComplementares(obj: TinfoComplementares);
 begin
-  if (obj.cargoFuncao.codCargo <> EmptyStr) or 
-     (obj.Remuneracao.VrSalFx > 0) or 
-     (obj.infoEstagiario.dtPrevTerm > 0) then
+  if (obj.cargoFuncao.codCargo <> EmptyStr) or
+     (obj.Remuneracao.VrSalFx > 0) or
+     (obj.infoEstagiario.dtPrevTerm > 0) or
+     (obj.localTrabGeral.nrInsc <> '') then
   begin
     Gerador.wGrupo('infoComplementares');
 
@@ -374,6 +379,9 @@ begin
     end;
     
     GerarinfoEstagiario(obj.infoEstagiario);
+
+    if VersaoDF >= veS01_02_00 then
+      GerarLocalTrabGeral(obj.localTrabGeral);
 
     Gerador.wGrupo('/infoComplementares');
   end;
@@ -515,6 +523,7 @@ end;
 function TEvtTSVAltContr.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -581,7 +590,7 @@ begin
       infoTSVAlteracao.dtAlteracao    := StringToDateTime(INIRec.ReadString(sSecao, 'dtAlteracao', '0'));
       infoTSVAlteracao.natAtividade := eSStrToNatAtividade(Ok, INIRec.ReadString(sSecao, 'natAtividade', '1'));
 
-      sSecao := 'infoComplementares';
+      sSecao := 'cargoFuncao';
       if INIRec.ReadString(sSecao, 'codCargo', '') <> '' then
       begin
         infoTSVAlteracao.infoComplementares.cargoFuncao.CodCargo  := INIRec.ReadString(sSecao, 'codCargo', '');
@@ -599,6 +608,16 @@ begin
         infoTSVAlteracao.infoComplementares.remuneracao.UndSalFixo := eSStrToUndSalFixo(Ok, INIRec.ReadString(sSecao, 'undSalFixo', ''));
         infoTSVAlteracao.infoComplementares.remuneracao.DscSalVar  := INIRec.ReadString(sSecao, 'dscSalVar', '');
       end;
+
+      sSecao := 'infoDirigenteSindical';
+      infoTSVAlteracao.infoComplementares.infoDirigenteSindical.tpRegPrev  := eSStrTotpRegPrevFacultativo(Ok, INIRec.ReadString(sSecao, 'tpRegPrev', '0'));
+
+      sSecao := 'infoTrabCedido';
+      infoTSVAlteracao.infoComplementares.infoTrabCedido.tpRegPrev := eSStrTotpRegPrevFacultativo(Ok, INIRec.ReadString(sSecao, 'tpRegPrev', '0'));
+
+      sSecao := 'infoMandElet';
+      infoTSVAlteracao.infoComplementares.infoMandElet.indRemunCargo := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'indRemunCargo', '0'));
+      infoTSVAlteracao.infoComplementares.infoMandElet.tpRegPrev     := eSStrToTpRegPrev(Ok, INIRec.ReadString(sSecao, 'tpRegPrev', '0'));
 
       sSecao := 'infoEstagiario';
       if INIRec.ReadString(sSecao, 'natEstagio', '') <> '' then
@@ -639,6 +658,14 @@ begin
           infoTSVAlteracao.infoComplementares.infoEstagiario.supervisorEstagio.cpfSupervisor := INIRec.ReadString(sSecao, 'cpfSupervisor', '');
           infoTSVAlteracao.infoComplementares.infoEstagiario.supervisorEstagio.nmSuperv      := INIRec.ReadString(sSecao, 'nmSuperv', '');
         end;
+      end;
+
+      sSecao := 'localTrabGeral';
+      if INIRec.ReadString(sSecao, 'tpInsc', '') <> '' then
+      begin
+        infoTSVAlteracao.infoComplementares.LocalTrabGeral.TpInsc   := eSStrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
+        infoTSVAlteracao.infoComplementares.LocalTrabGeral.NrInsc   := INIRec.ReadString(sSecao, 'nrInsc', '');
+        infoTSVAlteracao.infoComplementares.LocalTrabGeral.DescComp := INIRec.ReadString(sSecao, 'descComp', '');
       end;
     end;
 

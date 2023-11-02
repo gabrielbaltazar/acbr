@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -102,7 +102,6 @@ type
     FEvento: TInfEventoCollection;
     FVersao: String;
     FXML: String;
-//    FXML: AnsiString;
     FVersaoDF: TVersaoCTe;
 
     procedure SetEvento(const Value: TInfEventoCollection);
@@ -121,7 +120,6 @@ type
     property Evento: TInfEventoCollection read FEvento   write SetEvento;
     property Versao: String               read FVersao   write FVersao;
     property XML: String                  read FXML      write FXML;
-//    property XML: AnsiString              read FXML      write FXML;
     property VersaoDF: TVersaoCTe         read FVersaoDF write FVersaoDF;
   end;
 
@@ -171,12 +169,18 @@ begin
   Gerador.wGrupo('eventoCTe ' + NAME_SPACE_CTE + ' versao="' + Versao + '"');
 
   Evento.Items[0].InfEvento.Id := 'ID'+ Evento.Items[0].InfEvento.TipoEvento +
-                                        OnlyNumber(Evento.Items[0].InfEvento.chCTe) +
-                                        Format('%.2d', [Evento.Items[0].InfEvento.nSeqEvento]);
+                                    OnlyNumber(Evento.Items[0].InfEvento.chCTe);
+  if VersaoDF >= ve400 then
+    Evento.Items[0].InfEvento.Id := Evento.Items[0].InfEvento.Id +
+                          Format('%.3d', [Evento.Items[0].InfEvento.nSeqEvento])
+  else
+    Evento.Items[0].InfEvento.Id := Evento.Items[0].InfEvento.Id +
+                         Format('%.2d', [Evento.Items[0].InfEvento.nSeqEvento]);
 
   Gerador.wGrupo('infEvento Id="' + Evento.Items[0].InfEvento.Id + '"');
-  if Length(Evento.Items[0].InfEvento.Id) < 54
-   then Gerador.wAlerta('EP04', 'ID', '', 'ID de Evento inválido');
+
+  if Length(Evento.Items[0].InfEvento.Id) < 54 then
+    Gerador.wAlerta('EP04', 'ID', '', 'ID de Evento inválido');
 
   Gerador.wCampo(tcInt, 'EP05', 'cOrgao', 1, 2, 1, Evento.Items[0].InfEvento.cOrgao);
   Gerador.wCampo(tcStr, 'EP06', 'tpAmb ', 1, 1, 1, TpAmbToStr(Evento.Items[0].InfEvento.tpAmb), DSC_TPAMB);
@@ -196,8 +200,8 @@ begin
 
   Gerador.wCampo(tcStr, 'EP08', 'chCTe', 44, 44, 1, Evento.Items[0].InfEvento.chCTe, DSC_CHAVE);
 
-  if not ValidarChave(Evento.Items[0].InfEvento.chCTe)
-   then Gerador.wAlerta('EP08', 'chCTe', '', 'Chave de CTe inválida');
+  if not ValidarChave(Evento.Items[0].InfEvento.chCTe) then
+    Gerador.wAlerta('EP08', 'chCTe', '', 'Chave de CTe inválida');
 
   if VersaoDF >= ve300 then
     Gerador.wCampo(tcStr, 'EP09', 'dhEvento  ', 01, 27, 1, DateTimeTodh(Evento.Items[0].InfEvento.dhEvento) +
@@ -207,9 +211,14 @@ begin
     Gerador.wCampo(tcStr, 'EP09', 'dhEvento  ', 01, 27, 1, FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', Evento.Items[0].InfEvento.dhEvento));
 		
   Gerador.wCampo(tcInt, 'EP10', 'tpEvento  ', 06, 06, 1, Evento.Items[0].InfEvento.TipoEvento);
-  Gerador.wCampo(tcInt, 'EP11', 'nSeqEvento', 01, 02, 1, Evento.Items[0].InfEvento.nSeqEvento);
+
+  if VersaoDF >= ve400 then
+    Gerador.wCampo(tcInt, 'EP11', 'nSeqEvento', 01, 03, 1, Evento.Items[0].InfEvento.nSeqEvento)
+  else
+    Gerador.wCampo(tcInt, 'EP11', 'nSeqEvento', 01, 02, 1, Evento.Items[0].InfEvento.nSeqEvento);
 
   Gerador.wGrupo('detEvento versaoEvento="' + Versao + '"');
+
   case Evento.Items[0].InfEvento.tpEvento of
    teCCe:
      begin
@@ -260,16 +269,16 @@ begin
          Gerador.wAlerta('EP10', 'UF', DSC_UF, ERR_MSG_INVALIDO);
        Gerador.wCampoCNPJCPF('EP11', 'EP12', Evento.Items[0].InfEvento.detEvento.CNPJCPF);
 
-       if Evento.Items[0].InfEvento.detEvento.IE <> ''
-         then begin
-          if Trim(Evento.Items[0].InfEvento.detEvento.IE) = 'ISENTO' then
-            Gerador.wCampo(tcStr, 'EP13', 'IE  ', 00, 14, 0, Evento.Items[0].InfEvento.detEvento.IE, DSC_IE)
-          else
-            Gerador.wCampo(tcStr, 'EP13', 'IE  ', 00, 14, 0, OnlyNumber(Evento.Items[0].InfEvento.detEvento.IE), DSC_IE);
+       if Evento.Items[0].InfEvento.detEvento.IE <> '' then
+       begin
+         if Trim(Evento.Items[0].InfEvento.detEvento.IE) = 'ISENTO' then
+           Gerador.wCampo(tcStr, 'EP13', 'IE  ', 00, 14, 0, Evento.Items[0].InfEvento.detEvento.IE, DSC_IE)
+         else
+           Gerador.wCampo(tcStr, 'EP13', 'IE  ', 00, 14, 0, OnlyNumber(Evento.Items[0].InfEvento.detEvento.IE), DSC_IE);
 
-          if not ValidarIE(Evento.Items[0].InfEvento.detEvento.IE, Evento.Items[0].InfEvento.detEvento.UF) then
-            Gerador.wAlerta('EP13', 'IE', DSC_IE, ERR_MSG_INVALIDO);
-         end;
+         if not ValidarIE(Evento.Items[0].InfEvento.detEvento.IE, Evento.Items[0].InfEvento.detEvento.UF) then
+           Gerador.wAlerta('EP13', 'IE', DSC_IE, ERR_MSG_INVALIDO);
+       end;
 
        if VersaoDF >= ve300 then
          Gerador.wGrupo('/toma4')
@@ -278,9 +287,12 @@ begin
 
        Gerador.wCampo(tcStr, 'EP14', 'modal   ', 02, 02, 1, TpModalToStr(Evento.Items[0].InfEvento.detEvento.modal), DSC_MODAL);
        Gerador.wCampo(tcStr, 'EP15', 'UFIni   ', 02, 02, 1, Evento.Items[0].InfEvento.detEvento.UFIni, DSC_UF);
+
        if not ValidarUF(Evento.Items[0].InfEvento.detEvento.UFIni) then
          Gerador.wAlerta('EP15', 'UFIni', DSC_UF, ERR_MSG_INVALIDO);
+
        Gerador.wCampo(tcStr, 'EP16', 'UFFim   ', 02, 02, 1, Evento.Items[0].InfEvento.detEvento.UFFim, DSC_UF);
+
        if not ValidarUF(Evento.Items[0].InfEvento.detEvento.UFFim) then
          Gerador.wAlerta('EP16', 'UFFim', DSC_UF, ERR_MSG_INVALIDO);
 
@@ -315,10 +327,18 @@ begin
        Gerador.wGrupo('/evPrestDesacordo');
      end;
 
+   teCancPrestDesacordo:
+     begin
+       Gerador.wGrupo('evCancPrestDesacordo');
+       Gerador.wCampo(tcStr, 'EP02', 'descEvento     ', 46, 46, 1, Evento.Items[0].InfEvento.DescEvento);
+       Gerador.wCampo(tcStr, 'EP03', 'nProtEvPrestDes', 01, 15, 1, Evento.Items[0].InfEvento.detEvento.nProt);
+       Gerador.wGrupo('/evCancPrestDesacordo');
+     end;
+
    teGTV:
      begin
        Gerador.wGrupo('evGTV');
-       Gerador.wCampo(tcStr, 'EP02', 'descEvento      ', 33, 033, 1, Evento.Items[0].InfEvento.DescEvento);
+       Gerador.wCampo(tcStr, 'EP02', 'descEvento', 33, 33, 1, Evento.Items[0].InfEvento.DescEvento);
 
        for i := 0 to Evento.Items[0].FInfEvento.detEvento.infGTV.Count - 1 do
        begin
@@ -422,6 +442,44 @@ begin
        Gerador.wCampo(tcStr, 'IP04', 'nProtCE   ', 15, 15, 1, Evento.Items[0].InfEvento.detEvento.nProtCE);
        Gerador.wGrupo('/evCancCECTe');
      end;
+
+   teInsucessoEntregaCTe:
+     begin
+       Gerador.wGrupo('evIECTe');
+       Gerador.wCampo(tcStr, 'EP02', 'descEvento   ', 28, 46, 1, Evento.Items[0].InfEvento.DescEvento);
+       Gerador.wCampo(tcStr, 'EP03', 'nProt        ', 15, 15, 1, Evento.Items[0].InfEvento.detEvento.nProt);
+       Gerador.wCampo(tcStr, 'EP05', 'dhTentativaEntrega', 25, 25, 1, DateTimeTodh(Evento.Items[0].InfEvento.detEvento.dhTentativaEntrega) +
+                                  GetUTC(Evento.Items[0].InfEvento.detEvento.UF,
+                                  Evento.Items[0].InfEvento.detEvento.dhTentativaEntrega), DSC_DEMI);
+       Gerador.wCampo(tcInt, 'EP04', 'nTentativa ', 3, 3, 0, Evento.Items[0].InfEvento.detEvento.nTentativa);
+       Gerador.wCampo(tcStr, 'EP06', 'tpMotivo   ', 1, 1, 1, tpMotivoToStr(Evento.Items[0].InfEvento.detEvento.tpMotivo));
+       Gerador.wCampo(tcStr, 'EP07', 'xJustMotivo', 25, 250, 0, Evento.Items[0].InfEvento.detEvento.xJustMotivo);
+       Gerador.wCampo(tcDe6, 'EP08', 'latitude     ', 01, 10, 0, Evento.Items[0].InfEvento.detEvento.latitude);
+       Gerador.wCampo(tcDe6, 'EP09', 'longitude    ', 01, 11, 0, Evento.Items[0].InfEvento.detEvento.longitude);
+
+       Gerador.wCampo(tcStr, 'EP10', 'hashTentativaEntrega  ', 28, 28, 1, Evento.Items[0].InfEvento.detEvento.hashTentativaEntrega);
+       Gerador.wCampo(tcStr, 'EP11', 'dhHashTentativaEntrega', 25, 25, 1, DateTimeTodh(Evento.Items[0].InfEvento.detEvento.dhHashTentativaEntrega) +
+                                  GetUTC(Evento.Items[0].InfEvento.detEvento.UF,
+                                  Evento.Items[0].InfEvento.detEvento.dhHashTentativaEntrega), DSC_DEMI);
+
+       for i := 0 to Evento.Items[0].FInfEvento.detEvento.infEntrega.Count - 1 do
+       begin
+         Gerador.wGrupo('infEntrega');
+         Gerador.wCampo(tcStr, 'EP12', 'chNFe', 44, 44, 1, Evento.Items[0].InfEvento.detEvento.infEntrega.Items[i].chNFe);
+         Gerador.wGrupo('/infEntrega');
+       end;
+
+       Gerador.wGrupo('/evIECTe');
+     end;
+
+   teCancInsucessoEntregaCTe:
+     begin
+       Gerador.wGrupo('evCancIECTe');
+       Gerador.wCampo(tcStr, 'IP02', 'descEvento', 12, 44, 1, Evento.Items[0].InfEvento.DescEvento);
+       Gerador.wCampo(tcStr, 'IP03', 'nProt     ', 15, 15, 1, Evento.Items[0].InfEvento.detEvento.nProt);
+       Gerador.wCampo(tcStr, 'IP04', 'nProtIE   ', 15, 15, 1, Evento.Items[0].InfEvento.detEvento.nProtIE);
+       Gerador.wGrupo('/evCancIECTe');
+     end;
   end;
   Gerador.wGrupo('/detEvento');
   Gerador.wGrupo('/infEvento');
@@ -505,6 +563,13 @@ begin
 
       infEvento.detEvento.nProtCE := RetEventoCTe.InfEvento.detEvento.nProtCE;
 
+      infEvento.detEvento.dhTentativaEntrega := RetEventoCTe.InfEvento.detEvento.dhTentativaEntrega;
+      infEvento.detEvento.nTentativa := RetEventoCTe.InfEvento.detEvento.nTentativa;
+      infEvento.detEvento.tpMotivo := RetEventoCTe.InfEvento.detEvento.tpMotivo;
+      infEvento.detEvento.xJustMotivo := RetEventoCTe.InfEvento.detEvento.xJustMotivo;
+      infEvento.detEvento.hashTentativaEntrega := RetEventoCTe.InfEvento.detEvento.hashTentativaEntrega;
+      infEvento.detEvento.dhHashTentativaEntrega := RetEventoCTe.InfEvento.detEvento.dhHashTentativaEntrega;
+
       signature.URI             := RetEventoCTe.signature.URI;
       signature.DigestValue     := RetEventoCTe.signature.DigestValue;
       signature.SignatureValue  := RetEventoCTe.signature.SignatureValue;
@@ -571,7 +636,6 @@ begin
         FRetInfEvento.XML         := RetEventoCTe.retEvento.Items[0].RetInfEvento.XML;
       end;
 
-
       for i := 0 to RetEventoCTe.InfEvento.detEvento.infEntrega.Count -1 do
       begin
         infEvento.detEvento.infEntrega.New;
@@ -630,6 +694,7 @@ begin
         infEvento.detEvento.xJust    := INIRec.ReadString(sSecao, 'xJust', '');
         infEvento.detEvento.nProt    := INIRec.ReadString(sSecao, 'nProt', '');
         infEvento.detEvento.nProtCE  := INIRec.ReadString(sSecao, 'nProtCE', '');
+        infEvento.detEvento.nProtIE  := INIRec.ReadString(sSecao, 'nProtIE', '');
 
         case InfEvento.tpEvento of
           teEPEC:
@@ -681,6 +746,11 @@ begin
           tePrestDesacordo:
             begin
               infEvento.detEvento.xOBS := INIRec.ReadString(sSecao, 'xObs', '');
+            end;
+
+          teCancPrestDesacordo:
+            begin
+              infEvento.detEvento.nProt := INIRec.ReadString(sSecao, 'nProt', '');
             end;
 
           teGTV:
@@ -769,6 +839,37 @@ begin
 
               infEvento.detEvento.hashEntrega   := INIRec.ReadString(sSecao, 'hashEntrega', '');
               infEvento.detEvento.dhHashEntrega := StringToDateTime(INIRec.ReadString(sSecao, 'dhHashEntrega', ''));
+
+              Self.Evento.Items[I-1].InfEvento.detEvento.infEntrega.Clear;
+
+              J := 1;
+              while true do
+              begin
+                // J varia de 0000 até 2000
+                sSecao := 'infEntrega' + IntToStrZero(J, 4);
+                sFim   := INIRec.ReadString(sSecao, 'chNFe', 'FIM');
+                if (sFim = 'FIM') or (Length(sFim) <= 0) then
+                  break;
+
+                with Self.Evento.Items[I-1].InfEvento.detEvento.infEntrega.New do
+                  chNFe := sFim;
+
+                Inc(J);
+              end;
+            end;
+
+          teInsucessoEntregaCTe:
+            begin
+              infEvento.detEvento.nProt := INIRec.ReadString(sSecao, 'nProt', '');
+              infEvento.detEvento.dhTentativaEntrega := StringToDateTime(INIRec.ReadString(sSecao, 'dhTentativaEntrega', ''));
+              infEvento.detEvento.nTentativa := INIRec.ReadInteger(sSecao, 'nTentativa', 0);
+              infEvento.detEvento.tpMotivo := StrTotpMotivo(ok, INIRec.ReadString(sSecao, 'tpMotivo', '1'));
+              infEvento.detEvento.xJustMotivo := INIRec.ReadString(sSecao, 'xJustMotivo', '');
+              infEvento.detEvento.latitude  := StringToFloatDef(INIRec.ReadString(sSecao, 'latitude', ''), 0);
+              infEvento.detEvento.longitude := StringToFloatDef(INIRec.ReadString(sSecao, 'longitude', ''), 0);
+
+              infEvento.detEvento.hashTentativaEntrega := INIRec.ReadString(sSecao, 'hashTentativaEntrega', '');
+              infEvento.detEvento.dhHashTentativaEntrega := StringToDateTime(INIRec.ReadString(sSecao, 'dhHashTentativaEntrega', ''));
 
               Self.Evento.Items[I-1].InfEvento.detEvento.infEntrega.Clear;
 

@@ -209,6 +209,7 @@ end;
 function TEvtExcProcTrab.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
 
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -227,8 +228,11 @@ begin
     Gerador.wGrupo('ideProcTrab');
 
     Gerador.wCampo(tcStr, '', 'nrProcTrab' ,  20, 20, 1, self.InfoExclusao.ideProcTrab.nrProcTrab);
-    Gerador.wCampo(tcStr, '', 'cpfTrab'    ,  11, 11, 1, self.InfoExclusao.ideProcTrab.cpfTrab);
-    Gerador.wCampo(tcStr, '', 'perApurPgto',   7,  7, 1, self.InfoExclusao.ideProcTrab.perApurPgto);
+
+    if self.InfoExclusao.tpEvento = teS2500 then
+      Gerador.wCampo(tcStr, '', 'cpfTrab'    ,  11, 11, 1, self.InfoExclusao.ideProcTrab.cpfTrab)
+    else if self.InfoExclusao.tpEvento = teS2501 then
+      Gerador.wCampo(tcStr, '', 'perApurPgto',   7,  7, 1, self.InfoExclusao.ideProcTrab.perApurPgto);
 
     Gerador.wGrupo('/ideProcTrab');
     Gerador.wGrupo('/infoExclusao');
@@ -261,7 +265,7 @@ begin
 
     with Self do
     begin
-      sSecao := 'evtExclusao';
+      sSecao := 'evtExcProcTrab';
       Id         := INIRec.ReadString(sSecao, 'Id', '');
       Sequencial := INIRec.ReadInteger(sSecao, 'Sequencial', 0);
 
@@ -281,7 +285,7 @@ begin
       sSecao := 'ideProcTrab';
       infoExclusao.ideProcTrab.cpfTrab     := INIRec.ReadString(sSecao, 'cpfTrab', EmptyStr);
       infoExclusao.ideProcTrab.nrProcTrab  := INIRec.ReadString(sSecao, 'nrProcTrab', EmptyStr);
-      infoExclusao.ideProcTrab.perApurPgto := INIRec.ReadString(sSecao, 'perApur', EmptyStr);
+      infoExclusao.ideProcTrab.perApurPgto := INIRec.ReadString(sSecao, 'perApurPgto', EmptyStr);
     end;
 
     GerarXML;

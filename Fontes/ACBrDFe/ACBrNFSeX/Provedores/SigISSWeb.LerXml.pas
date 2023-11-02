@@ -69,8 +69,12 @@ function TNFSeR_SigISSWeb.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -132,6 +136,12 @@ begin
         xMunicipio := ObterConteudo(ANode.Childrens.FindAnyNs('cidade_prestador'), tcStr);
         UF := ObterConteudo(ANode.Childrens.FindAnyNs('uf_prestador'), tcStr);
       end;
+
+      with Contato do
+      begin
+        Telefone := ObterConteudo(ANode.Childrens.FindAnyNs('fone_prestador'), tcStr);
+        Email := ObterConteudo(ANode.Childrens.FindAnyNs('email_prestador'), tcStr);
+      end;
     end;
 
     with Tomador do
@@ -176,27 +186,31 @@ begin
     Numero := ObterConteudo(ANode.Childrens.FindAnyNs('numero_nf'), tcStr);
     SeriePrestacao := ObterConteudo(ANode.Childrens.FindAnyNs('serie'), tcStr);
 
-    with ValoresNfse do
-    begin
-      ValorLiquidoNfse := ObterConteudo(ANode.Childrens.FindAnyNs('valor_nf'), tcDe2);
-    end;
-
-    DataEmissao := ObterConteudo(ANode.Childrens.FindAnyNs('data_emissao'), tcDat);
+    DataEmissao := ObterConteudo(ANode.Childrens.FindAnyNs('data_emissao'), tcDatVcto);
 //    <forma_de_pagamento></forma_de_pagamento>
 
     with Servico do
     begin
       Discriminacao := ObterConteudo(ANode.Childrens.FindAnyNs('descricao'), tcStr);
+      Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
       ItemListaServico := ObterConteudo(ANode.Childrens.FindAnyNs('id_codigo_servico'), tcStr);
 
       with Valores do
       begin
+        ValorServicos := ObterConteudo(ANode.Childrens.FindAnyNs('valor_nf'), tcDe2);
         ValorDeducoes := ObterConteudo(ANode.Childrens.FindAnyNs('deducao'), tcDe2);
-        ValorServicos := ObterConteudo(ANode.Childrens.FindAnyNs('valor_servico'), tcDe2);
+        ValorLiquidoNfse := ObterConteudo(ANode.Childrens.FindAnyNs('valor_servico'), tcDe2);
         aValor := ObterConteudo(ANode.Childrens.FindAnyNs('iss_retido'), tcStr);
 
         if aValor = 'S' then
           NFSe.Servico.Valores.IssRetido := stRetencao
+        else
+        if aValor = 'F' then
+          NFSe.Servico.Valores.IssRetido := stRetidoForaMunicipio
+        else
+        if aValor = 'D' then
+          NFSe.Servico.Valores.IssRetido := stDevidoForaMunicipioNaoRetido
         else
           NFSe.Servico.Valores.IssRetido := stNormal;
 
@@ -222,7 +236,17 @@ begin
         BaseCalculo := ObterConteudo(ANode.Childrens.FindAnyNs('bc_inss'), tcDe2);
         AliquotaInss := ObterConteudo(ANode.Childrens.FindAnyNs('aliq_inss'), tcDe2);
         ValorInss := ObterConteudo(ANode.Childrens.FindAnyNs('valor_inss'), tcDe2);
+
+        RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
+        ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                                DescontoIncondicionado;
       end;
+    end;
+
+    with ValoresNfse do
+    begin
+      ValorLiquidoNfse := Servico.Valores.ValorServicos;
     end;
 
 //    <regime>V</regime>
@@ -239,6 +263,8 @@ begin
 
     CodigoVerificacao := ObterConteudo(ANode.Childrens.FindAnyNs('codigo'), tcStr);
   end;
+
+  LerCampoLink;
 end;
 
 function TNFSeR_SigISSWeb.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
@@ -304,13 +330,15 @@ begin
     with Servico do
     begin
       Discriminacao := ObterConteudo(ANode.Childrens.FindAnyNs('descricao'), tcStr);
+      Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
       ItemListaServico := ObterConteudo(ANode.Childrens.FindAnyNs('id_codigo_servico'), tcStr);
 
       with Valores do
       begin
-        ValorLiquidoNfse := ObterConteudo(ANode.Childrens.FindAnyNs('valor_nf'), tcDe2);
+        ValorServicos := ObterConteudo(ANode.Childrens.FindAnyNs('valor_nf'), tcDe2);
         ValorDeducoes := ObterConteudo(ANode.Childrens.FindAnyNs('deducao'), tcDe2);
-        ValorServicos := ObterConteudo(ANode.Childrens.FindAnyNs('valor_servico'), tcDe2);
+        ValorLiquidoNfse := ObterConteudo(ANode.Childrens.FindAnyNs('valor_servico'), tcDe2);
         aValor := ObterConteudo(ANode.Childrens.FindAnyNs('iss_retido'), tcStr);
 
         if aValor = 'S' then
@@ -340,6 +368,9 @@ begin
         BaseCalculo := ObterConteudo(ANode.Childrens.FindAnyNs('bc_inss'), tcDe2);
         AliquotaInss := ObterConteudo(ANode.Childrens.FindAnyNs('aliq_inss'), tcDe2);
         ValorInss := ObterConteudo(ANode.Childrens.FindAnyNs('valor_inss'), tcDe2);
+
+        ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                                DescontoIncondicionado;
       end;
     end;
 

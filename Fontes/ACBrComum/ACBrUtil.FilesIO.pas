@@ -149,6 +149,7 @@ function StringIsINI(const AString: String): Boolean;
 function StringIsAFile(const AString: String): Boolean;
 function StringIsXML(const AString: String): Boolean;
 function StrIsIP(const AValue: String): Boolean;
+function StringIsPDF(const AString: String): Boolean;
 
 procedure ParseNomeArquivo(const ANome: string; out APath, AName, AExt: string);
 
@@ -456,9 +457,13 @@ end;
 function ApplicationPath: String;
 begin
   {$IfDef ANDROID}
-  Result := PathWithDelim(TPath.GetHomePath);
+    {$IFDEF FPC}
+      Result := PathWithDelim(ExtractFilePath(ParamStr(0)));
+    {$ELSE}
+      Result := PathWithDelim(TPath.GetHomePath);
+    {$ENDIF}
   {$Else}
-  Result := PathWithDelim(ExtractFilePath(ParamStr(0)));
+    Result := PathWithDelim(ExtractFilePath(ParamStr(0)));
   {$EndIf}
 end;
 
@@ -1401,6 +1406,11 @@ begin
     Exit;
   if ByteIsOk(TempIP) then
     Result := True;
+end;
+
+function StringIsPDF(const AString: String): Boolean;
+begin
+  Result := (Pos('%PDF-', AString) <> 0);
 end;
 
 procedure ParseNomeArquivo(const ANome: string; out APath, AName, AExt: string);
