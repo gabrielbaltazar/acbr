@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Jurisato Junior                           }
 {                                                                              }
@@ -39,7 +39,9 @@ interface
 uses
   Classes, SysUtils, StrUtils,
   ACBrBPeConfiguracoes,
-  pcnBPe, pcnBPeR, pcnBPeW, pcnConversao, pcnAuxiliar, pcnLeitor;
+  ACBrBPeClass, ACBrBPeXmlReader, ACBrBPeXmlWriter,
+//  pcnConversao,
+  ACBrBPeConversao;
 
 type
 
@@ -48,8 +50,8 @@ type
   Bilhete = class(TCollectionItem)
   private
     FBPe: TBPe;
-    FBPeW: TBPeW;
-    FBPeR: TBPeR;
+    FBPeW: TBPeXmlWriter;
+    FBPeR: TBPeXmlReader;
 
     FConfiguracoes: TConfiguracoesBPe;
     FXMLAssinado: String;
@@ -91,8 +93,8 @@ type
     function GerarXML: String;
     function GravarXML(const NomeArquivo: String = ''; const PathArquivo: String = ''): Boolean;
 
-    function GerarTXT: String;
-    function GravarTXT(const NomeArquivo: String = ''; const PathArquivo: String = ''): Boolean;
+//    function GerarTXT: String;
+//    function GravarTXT(const NomeArquivo: String = ''; const PathArquivo: String = ''): Boolean;
 
     function GravarStream(AStream: TStream): Boolean;
 
@@ -165,7 +167,7 @@ type
 
     function GerarIni: String;
     function GravarXML(const PathNomeArquivo: String = ''): Boolean;
-    function GravarTXT(PathNomeArquivo: String = ''): Boolean;
+//    function GravarTXT(PathNomeArquivo: String = ''): Boolean;
 
     property ACBrBPe: TComponent read FACBrBPe;
   end;
@@ -175,14 +177,15 @@ implementation
 uses
   dateutils, IniFiles,
   synautil,
+  ACBrXmlBase,
   ACBrBPe,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.FilesIO,
   ACBrUtil.XMLHTML,
   ACBrUtil.DateTime,
-  ACBrDFeUtil, pcnConversaoBPe;
-
+  ACBrDFeUtil,
+  ACBrXmlDocument;
 { Bilhete }
 
 constructor Bilhete.Create(Collection2: TCollection);
@@ -190,8 +193,8 @@ begin
   inherited Create(Collection2);
 
   FBPe := TBPe.Create;
-  FBPeW := TBPeW.Create(FBPe);
-  FBPeR := TBPeR.Create(FBPe);
+  FBPeW := TBPeXmlWriter.Create(FBPe);
+  FBPeR := TBPeXmlReader.Create(FBPe);
   FConfiguracoes := TACBrBPe(TBilhetes(Collection).ACBrBPe).Configuracoes;
 
   with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
@@ -201,12 +204,8 @@ begin
     FBPe.infBPe.Versao := VersaoBPeToDbl(Configuracoes.Geral.VersaoDF);
     FBPe.Ide.tpBPe := tbNormal;
     FBPe.Ide.verProc := 'ACBrBPe';
-    FBPe.Ide.tpAmb := Configuracoes.WebServices.Ambiente;
-
-    if Configuracoes.Geral.FormaEmissao = pcnConversao.teNormal then
-      FBPe.Ide.tpEmis := teNormal
-    else
-      FBPe.Ide.tpEmis := teOffLine;
+    FBPe.Ide.tpAmb := TACBrTipoAmbiente(Configuracoes.WebServices.Ambiente);
+    FBPe.Ide.tpEmis  := TACBrTipoEmissao(Configuracoes.Geral.FormaEmissao);
   end;
 end;
 
@@ -215,6 +214,7 @@ begin
   FBPeW.Free;
   FBPeR.Free;
   FBPe.Free;
+
   inherited Destroy;
 end;
 
@@ -244,7 +244,8 @@ procedure Bilhete.Assinar;
 var
   XMLStr: String;
   XMLUTF8: AnsiString;
-  Leitor: TLeitor;
+  Document: TACBrXmlDocument;
+  ANode, SignatureNode, ReferenceNode, X509DataNode: TACBrXmlNode;
 begin
   with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
   begin
@@ -268,15 +269,30 @@ begin
     // SSL.Assinar() sempre responde em UTF8...
     FXMLOriginal := FXMLAssinado;
 
-    Leitor := TLeitor.Create;
+    Document := TACBrXmlDocument.Create;
     try
-      leitor.Grupo := FXMLAssinado;
-      BPe.signature.URI := Leitor.rAtributo('Reference URI=');
-      BPe.signature.DigestValue := Leitor.rCampo(tcStr, 'DigestValue');
-      BPe.signature.SignatureValue := Leitor.rCampo(tcStr, 'SignatureValue');
-      BPe.signature.X509Certificate := Leitor.rCampo(tcStr, 'X509Certificate');
+      try
+        Document.LoadFromXml(FXMLOriginal);
+        ANode := Document.Root;
+
+        if ANode <> nil then
+        begin
+          SignatureNode := ANode.Childrens.FindAnyNs('Signature');
+          ReferenceNode := SignatureNode.Childrens.FindAnyNs('SignedInfo')
+                                        .Childrens.FindAnyNs('Reference');
+          X509DataNode :=  SignatureNode.Childrens.FindAnyNs('KeyInfo')
+                                        .Childrens.FindAnyNs('X509Data');
+
+          BPe.signature.URI := ObterConteudoTag(ReferenceNode.Attributes.Items['URI']);
+          BPe.signature.DigestValue := ObterConteudoTag(ReferenceNode.Childrens.FindAnyNs('DigestValue'), tcStr);
+          BPe.signature.SignatureValue := ObterConteudoTag(SignatureNode.Childrens.FindAnyNs('SignatureValue'), tcStr);
+          BPe.signature.X509Certificate := ObterConteudoTag(X509DataNode.Childrens.FindAnyNs('X509Certificate'), tcStr);
+        end;
+      except
+        //Result := False;
+      end;
     finally
-      Leitor.Free;
+      FreeAndNil(Document);
     end;
 
     if Configuracoes.Geral.ModeloDF = moBPe then
@@ -458,16 +474,10 @@ begin
 end;
 
 function Bilhete.LerXML(const AXML: String): Boolean;
-var
-  XMLStr: String;
 begin
-  XMLOriginal := AXML;  // SetXMLOriginal() irá verificar se AXML está em UTF8
+  XMLOriginal := AXML;
 
-  { Verifica se precisa converter "AXML" de UTF8 para a String nativa da IDE.
-    Isso é necessário, para que as propriedades fiquem com a acentuação correta }
-  XMLStr := ParseText(AXML, True, XmlEhUTF8(AXML));
-
-  FBPeR.Leitor.Arquivo := XMLStr;
+  FBPeR.Arquivo := XMLOriginal;
   FBPeR.LerXml;
 
   Result := True;
@@ -482,7 +492,7 @@ begin
 
   Result := TACBrBPe(TBilhetes(Collection).ACBrBPe).Gravar(FNomeArq, FXMLOriginal);
 end;
-
+{
 function Bilhete.GravarTXT(const NomeArquivo: String; const PathArquivo: String): Boolean;
 var
   ATXT: String;
@@ -492,7 +502,7 @@ begin
   Result := TACBrBPe(TBilhetes(Collection).ACBrBPe).Gravar(
     ChangeFileExt(FNomeArq, '.txt'), ATXT);
 end;
-
+}
 function Bilhete.GravarStream(AStream: TStream): Boolean;
 begin
   if EstaVazio(FXMLOriginal) then
@@ -550,33 +560,31 @@ begin
   with TACBrBPe(TBilhetes(Collection).ACBrBPe) do
   begin
     IdAnterior := BPe.infBPe.ID;
-    FBPeW.Gerador.Opcoes.FormatoAlerta  := Configuracoes.Geral.FormatoAlerta;
-    FBPeW.Gerador.Opcoes.RetirarAcentos := Configuracoes.Geral.RetirarAcentos;
-    FBPeW.Gerador.Opcoes.RetirarEspacos := Configuracoes.Geral.RetirarEspacos;
-    FBPeW.Gerador.Opcoes.IdentarXML     := Configuracoes.Geral.IdentarXML;
+    FBPeW.Opcoes.FormatoAlerta  := Configuracoes.Geral.FormatoAlerta;
+    FBPeW.Opcoes.RetirarAcentos := Configuracoes.Geral.RetirarAcentos;
+    FBPeW.Opcoes.RetirarEspacos := Configuracoes.Geral.RetirarEspacos;
+    FBPeW.Opcoes.IdentarXML     := Configuracoes.Geral.IdentarXML;
     FBPeW.Opcoes.NormatizarMunicipios   := Configuracoes.Arquivos.NormatizarMunicipios;
     FBPeW.Opcoes.PathArquivoMunicipios  := Configuracoes.Arquivos.PathArquivoMunicipios;
 
-    pcnAuxiliar.TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
+    TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
 
     FBPeW.idCSRT := Configuracoes.RespTec.IdCSRT;
     FBPeW.CSRT   := Configuracoes.RespTec.CSRT;
   end;
 
-  FBPeW.Opcoes.GerarTXTSimultaneamente := False;
-
   FBPeW.GerarXml;
   //DEBUG
   //WriteToTXT('c:\temp\Bilhete.xml', FBPeW.Gerador.ArquivoFormatoXML, False, False);
 
-  XMLOriginal := FBPeW.Gerador.ArquivoFormatoXML;  // SetXMLOriginal() irá converter para UTF8
+  XMLOriginal := FBPeW.Document.Xml;
 
   { XML gerado pode ter nova Chave e ID, então devemos calcular novamente o
     nome do arquivo, mantendo o PATH do arquivo carregado }
   if (NaoEstaVazio(FNomeArq) and (IdAnterior <> FBPe.infBPe.ID)) then
     FNomeArq := CalcularNomeArquivoCompleto('', ExtractFilePath(FNomeArq));
 
-  FAlertas := ACBrStr( FBPeW.Gerador.ListaDeAlertas.Text );
+  FAlertas := ACBrStr( FBPeW.ListaDeAlertas.Text );
   Result := FXMLOriginal;
 end;
 
@@ -603,7 +611,7 @@ begin
       INIRec.WriteInteger('ide', 'cBP', Ide.cBP);
       INIRec.WriteString('ide', 'modal', ModalBPeToStr(Ide.modal));
       INIRec.WriteString('ide', 'dhEmi', DateTimeToStr(Ide.dhEmi));
-      INIRec.WriteString('ide', 'tpEmis', tpEmisBPeToStr(Ide.tpEmis));
+      INIRec.WriteString('ide', 'tpEmis', TipoEmissaoToStr(Ide.tpEmis));
       INIRec.WriteString('ide', 'verProc', Ide.verProc);
       INIRec.WriteString('ide', 'tpBPe', tpBPeToStr(Ide.tpBPe));
       INIRec.WriteString('ide','indPres', PresencaCompradorToStr(Ide.indPres));
@@ -762,6 +770,8 @@ begin
       INIRec.WriteFloat('ICMS', 'vICMS', Imp.ICMS.vICMS);
       INIRec.WriteFloat('ICMS', 'pRedBC', Imp.ICMS.pRedBC);
       INIRec.WriteFloat('ICMS', 'vCred', Imp.ICMS.vCred);
+      INIRec.WriteFloat('ICMS', 'vICMSDeson', Imp.ICMS.vICMSDeson);
+      INIRec.WriteString('ICMS', 'cBenef', Imp.ICMS.cBenef);
       INIRec.WriteFloat('ICMS', 'vTotTrib', Imp.vTotTrib);
       INIRec.WriteString('ICMS', 'infAdFisco', Imp.infAdFisco);
 
@@ -837,6 +847,7 @@ begin
   end;
 end;
 
+{
 function Bilhete.GerarTXT: String;
 var
   IdAnterior : String;
@@ -865,7 +876,7 @@ begin
   FAlertas := FBPeW.Gerador.ListaDeAlertas.Text;
   Result := FBPeW.Gerador.ArquivoFormatoTXT;
 end;
-
+}
 function Bilhete.CalcularNomeArquivo: String;
 var
   xID: String;
@@ -1022,16 +1033,16 @@ begin
       versao := FloatToString(infBPe.versao, '.', '#0.00');
       FConfiguracoes.Geral.VersaoDF := StrToVersaoBPe(OK, versao);
 
-      Ide.tpAmb   := StrToTpAmb(OK, INIRec.ReadString( 'ide', 'tpAmb', TpAmbToStr(FConfiguracoes.WebServices.Ambiente)));
+      Ide.tpAmb   := StrToTipoAmbiente(OK, INIRec.ReadString(sSecao, 'tpAmb', IntToStr(Integer(FConfiguracoes.WebServices.Ambiente))));
       Ide.modelo  := INIRec.ReadInteger('ide', 'mod', 63);
       Ide.serie   := INIRec.ReadInteger('ide', 'serie', 1);
       Ide.nBP     := INIRec.ReadInteger('ide', 'nBP', 0);
       Ide.cBP     := INIRec.ReadInteger('ide', 'cBP', 0);
       Ide.modal   := StrToModalBPe(OK, INIRec.ReadString('ide', 'modal', '1'));
       Ide.dhEmi   := StringToDateTime(INIRec.ReadString('ide', 'dhEmi', '0'));
-      Ide.tpEmis  := StrToTpEmisBPe(OK, INIRec.ReadString('ide', 'tpEmis', IntToStr(FConfiguracoes.Geral.FormaEmissaoCodigo)));
+      Ide.tpEmis  := StrToTipoEmissao(OK, INIRec.ReadString(sSecao, 'tpEmis', IntToStr(FConfiguracoes.Geral.FormaEmissaoCodigo)));
       Ide.verProc := INIRec.ReadString('ide', 'verProc', 'ACBrBPe');
-      Ide.tpBPe   := StrTotpBPe(OK,INIRec.ReadString('ide', 'tpBPe', '0'));
+      Ide.tpBPe   := StrTotpBPe(OK, INIRec.ReadString('ide', 'tpBPe', '0'));
       Ide.indPres := StrToPresencaComprador(OK, INIRec.ReadString('ide', 'indPres', '1'));
       Ide.UFIni   := INIRec.ReadString('ide', 'UFIni', '');
       Ide.cMunIni := INIRec.ReadInteger('ide', 'cMunIni', 0);
@@ -1050,7 +1061,7 @@ begin
       Emit.xFant := INIRec.ReadString('emit', 'xFant', '');
       Emit.IM    := INIRec.ReadString('emit', 'IM', '');
       Emit.CNAE  := INIRec.ReadString('emit', 'CNAE', '');
-      Emit.CRT   := StrToCRT(ok, INIRec.ReadString('emit', 'CRT', '3'));
+      Emit.CRT   := StrToCRT(OK, INIRec.ReadString('emit', 'CRT', '3'));
       Emit.TAR   := INIRec.ReadString('emit', 'TAR', '');
 
       Emit.enderEmit.xLgr    := INIRec.ReadString('emit', 'xLgr', '');
@@ -1064,7 +1075,7 @@ begin
       Emit.enderEmit.fone    := INIRec.ReadString('emit', 'fone', '');
       Emit.enderEmit.Email   := INIRec.ReadString('emit', 'Email', '');
 
-      ide.cUF := INIRec.ReadInteger('ide', 'cUF', UFparaCodigo(Emit.enderEmit.UF));
+      ide.cUF := INIRec.ReadInteger('ide', 'cUF', UFparaCodigoUF(Emit.enderEmit.UF));
 
       //
       // Seção [comp] Comprador
@@ -1133,7 +1144,7 @@ begin
       //
       infPassagem.infPassageiro.xNome := INIRec.ReadString('infPassageiro', 'xNome', '');
       infPassagem.infPassageiro.CPF   := INIRec.ReadString('infPassageiro', 'CPF', '');
-      infPassagem.infPassageiro.tpDoc := StrTotpDocumento(Ok, INIRec.ReadString('infPassageiro', 'tpDoc', '1'));
+      infPassagem.infPassageiro.tpDoc := StrTotpDocumento(OK, INIRec.ReadString('infPassageiro', 'tpDoc', '1'));
       infPassagem.infPassageiro.nDoc  := INIRec.ReadString('infPassageiro', 'nDoc', '');
       infPassagem.infPassageiro.xDoc  := INIRec.ReadString('infPassageiro', 'xDoc', '');
       infPassagem.infPassageiro.dNasc := StringToDateTime(INIRec.ReadString('infPassageiro', 'dNasc', '0'));
@@ -1155,10 +1166,10 @@ begin
         begin
           cPercurso    := sFim;
           xPercurso    := INIRec.ReadString(sSecao, 'xPercurso', '');
-          tpViagem     := StrTotpViagem(Ok, INIRec.ReadString(sSecao, 'tpViagem', '00'));
-          tpServ       := StrTotpServico(Ok, INIRec.ReadString(sSecao, 'tpServ', '1'));
-          tpAcomodacao := StrTotpAcomodacao(Ok, INIRec.ReadString(sSecao, 'tpAcomodacao', '1'));
-          tpTrecho     := StrTotpTrecho(Ok, INIRec.ReadString(sSecao, 'tpTrecho', '1'));
+          tpViagem     := StrTotpViagem(OK, INIRec.ReadString(sSecao, 'tpViagem', '00'));
+          tpServ       := StrTotpServico(OK, INIRec.ReadString(sSecao, 'tpServ', '1'));
+          tpAcomodacao := StrTotpAcomodacao(OK, INIRec.ReadString(sSecao, 'tpAcomodacao', '1'));
+          tpTrecho     := StrTotpTrecho(OK, INIRec.ReadString(sSecao, 'tpTrecho', '1'));
           dhViagem     := StringToDateTime(INIRec.ReadString(sSecao, 'dhViagem', '0'));
           dhConexao    := StringToDateTime(INIRec.ReadString(sSecao, 'dhConexao', '0'));
           Prefixo      := INIRec.ReadString(sSecao, 'Prefixo', '');
@@ -1172,8 +1183,8 @@ begin
           begin
             with infTravessia do
             begin
-              tpVeiculo  := StrTotpVeiculo(Ok, INIRec.ReadString(sSecao, 'tpVeiculo', '01'));
-              sitVeiculo := StrToSitVeiculo(Ok, INIRec.ReadString(sSecao, 'sitVeiculo', '01'));
+              tpVeiculo  := StrTotpVeiculo(OK, INIRec.ReadString(sSecao, 'tpVeiculo', '01'));
+              sitVeiculo := StrToSitVeiculo(OK, INIRec.ReadString(sSecao, 'sitVeiculo', '01'));
             end;
           end;
         end;
@@ -1188,7 +1199,7 @@ begin
       infValorBPe.vDesconto  := StringToFloatDef(INIRec.ReadString('infValorBPe', 'vDesconto', ''), 0);
       infValorBPe.vPgto      := StringToFloatDef(INIRec.ReadString('infValorBPe', 'vPgto', ''), 0);
       infValorBPe.vTroco     := StringToFloatDef(INIRec.ReadString('infValorBPe', 'vTroco', ''), 0);
-      infValorBPe.tpDesconto := StrTotpDesconto(Ok, INIRec.ReadString('infValorBPe', 'tpDesconto', '01'));
+      infValorBPe.tpDesconto := StrTotpDesconto(OK, INIRec.ReadString('infValorBPe', 'tpDesconto', '01'));
       infValorBPe.xDesconto  := INIRec.ReadString('infValorBPe', 'xDesconto', '');
       infValorBPe.cDesconto  := INIRec.ReadString('infValorBPe', 'cDesconto', '');
 
@@ -1205,7 +1216,7 @@ begin
 
         with infValorBPe.Comp.New do
         begin
-          tpComp := StrTotpComponente(Ok, sFim);
+          tpComp := StrTotpComponente(OK, sFim);
           vComp  := StringToFloatDef(INIRec.ReadString(sSecao, 'vComp', ''), 0);
         end;
 
@@ -1235,6 +1246,9 @@ begin
             vBCOutraUF    := StringToFloatDef(INIRec.ReadString(sSecao, 'vBCOutraUF', ''), 0);
             pICMSOutraUF  := StringToFloatDef(INIRec.ReadString(sSecao, 'pICMSOutraUF', ''), 0);
             vICMSOutraUF  := StringToFloatDef(INIRec.ReadString(sSecao, 'vICMSOutraUF', ''), 0);
+
+            vICMSDeson := StringToFloatDef(INIRec.ReadString(sSecao, 'vICMSDeson', ''), 0);
+            cBenef     := INIRec.ReadString(sSecao, 'cBenef', '');
           end;
 
           vTotTrib   := StringToFloatDef(INIRec.ReadString(sSecao, 'vTotTrib', ''), 0);
@@ -1272,7 +1286,7 @@ begin
           nDocPag := INIRec.ReadString(sSecao, 'nDocPag', '');
           vPag    := StringToFloatDef(INIRec.ReadString(sSecao, 'vPag', ''), 0);
 
-          tpIntegra := StrTotpIntegra(OK,INIRec.ReadString(sSecao, 'tpIntegra', ''));
+          tpIntegra := StrTotpIntegra(Ok, INIRec.ReadString(sSecao, 'tpIntegra', ''));
           CNPJ      := INIRec.ReadString(sSecao, 'CNPJ', '');
           tBand     := StrToBandeiraCard(OK, INIRec.ReadString(sSecao, 'tBand', '99'));
           xBand     := INIRec.ReadString(sSecao, 'xBand', '');
@@ -1561,6 +1575,9 @@ begin
     P := pos('</BPeProc>', XMLStr);
 
     if P <= 0 then
+      P := pos('</bpeProc>', XMLStr);
+
+    if P <= 0 then
       P := pos('</procBPe>', XMLStr);  // BPe obtida pelo Portal da Receita
 
     if P > 0 then
@@ -1611,7 +1628,7 @@ begin
     Inc(i);
   end;
 end;
-
+{
 function TBilhetes.GravarTXT(PathNomeArquivo: String): Boolean;
 var
   SL: TStringList;
@@ -1654,5 +1671,5 @@ begin
     SL.Free;
   end;
 end;
-
+}
 end.

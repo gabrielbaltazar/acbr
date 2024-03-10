@@ -73,6 +73,9 @@ namespace ACBrLib.Sat
         public delegate int SAT_ConsultarNumeroSessao(IntPtr handle, int cNumeroDeSessao, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int SAT_ConsultarUltimaSessaoFiscal(IntPtr handle, StringBuilder buffer, ref int bufferSize);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int SAT_AtualizarSoftwareSAT(IntPtr handle, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -112,6 +115,9 @@ namespace ACBrLib.Sat
         public delegate int SAT_GerarPDFExtratoVenda(IntPtr handle, string eArquivoXml, string eNomeArquivo, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int SAT_GerarPDFCancelamento(IntPtr handle, string eArqXMLVenda, string eArqXMLCancelamento, string eNomeArquivo, StringBuilder buffer, ref int bufferSize);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int SAT_GerarImpressaoFiscalMFe(IntPtr handle, string eArquivoXml, StringBuilder buffer, ref int bufferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -144,6 +150,7 @@ namespace ACBrLib.Sat
             AddMethod<SAT_ConsultarSAT>("SAT_ConsultarSAT");
             AddMethod<SAT_ConsultarStatusOperacional>("SAT_ConsultarStatusOperacional");
             AddMethod<SAT_ConsultarNumeroSessao>("SAT_ConsultarNumeroSessao");
+            AddMethod<SAT_ConsultarUltimaSessaoFiscal>("SAT_ConsultarUltimaSessaoFiscal");
             AddMethod<SAT_AtualizarSoftwareSAT>("SAT_AtualizarSoftwareSAT");
             AddMethod<SAT_ComunicarCertificadoICPBRASIL>("SAT_ComunicarCertificadoICPBRASIL");
             AddMethod<SAT_ExtrairLogs>("SAT_ExtrairLogs");
@@ -157,6 +164,7 @@ namespace ACBrLib.Sat
             AddMethod<SAT_ImprimirExtratoVenda>("SAT_ImprimirExtratoVenda");
             AddMethod<SAT_ImprimirExtratoResumido>("SAT_ImprimirExtratoResumido");
             AddMethod<SAT_GerarPDFExtratoVenda>("SAT_GerarPDFExtratoVenda");
+            AddMethod<SAT_GerarPDFCancelamento>("SAT_GerarPDFCancelamento");
             AddMethod<SAT_GerarImpressaoFiscalMFe>("SAT_GerarImpressaoFiscalMFe");
             AddMethod<SAT_ImprimirExtratoCancelamento>("SAT_ImprimirExtratoCancelamento");
             AddMethod<SAT_EnviarEmail>("SAT_EnviarEmail");

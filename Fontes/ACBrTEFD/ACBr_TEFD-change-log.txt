@@ -46,6 +46,133 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+08/03/2024
+-- ACBrTEFPayGoWebComum --
+[+] Adicionada a propriedade "IsDebug: Boolean".
+    Se for modificada para True, a TACBrTEFPGWebAPI tentará carregar a DLL de
+    versão DEBUG, para evitar erros com a Proteção ativa do Warsaw
+[-] Correção na acentuação de Msg em Log na chamada de TACBrTEFPGWebAPI.Inicializar
+[*] Modificação em TACBrTEFPGWebAPI.ObterDadoPinPad, após sugestão da Setis, para
+    chamar  xPW_iPPAbort, antes de chamar xPW_iPPGetUserData
+    (por: DSA)
+
+22/02/2024
+-- ACBrTEFPayGoWebComum --
+[*] Tratamento de Mensagens de retorno, e Opções de Menu, para converter de ANSI
+    para a String Nativa da IDE (AnsiToNativeString)
+    (por: DSA)
+
+20/02/2024
+-- ACBrTEFPayGoWebComum --
+[*] TACBrTEFPGWebAPI.AjustarTempoOcioso, melhoria para evitar "Range Error",
+    quando PWINFO_IDLEPROCTIME contém um valor inválido
+    (por: DSA)
+
+25/01/2024
+-- ACBrTEFPayGoWebComum --
+[*] Modificações para suportar nova DLL 4.1.25.3, PayGo Windows no modo atualizador da
+    PGWebLib.
+[+] Adicionado mapeamento para o comando "PW_End".
+    Esta função tem como finalidade encerrar alguns serviços e remover a proteção
+    do Warsaw da automação, possibilitando a realização da atualização.
+[*] Estrutura "TPW_GetData", modificada, removendo campo "bIndice: Byte" que não
+    fazia parte da Estrutura original
+[*] Métodos "ObterDadoCartao", "RealizarOperacaoPinPad", "LogPWGetData", modificados
+    para receber o indice do Parâmetro sendo processado na estrutura TPW_GetData
+[+] Adicionado o método:
+    "function GetPathPGWebLib: String;"
+    Retorna o valor da variável de ambiente "PathPGWebLib" (32 bits) ou
+    "PathPGWebLib_x64" (64 bits), e que contem o Path completo da DLL PGWebLib,
+    com proteção, e que deve ser carregada pela aplicação
+[+] Adicionado o método:
+    "function GetPGWebLibAtualiza: Boolean;"
+    Que Verifica o conteúdo da Variável de Ambiente "PGWebLibAtualiza".
+    Essa variável de ambiente fica com o Valor "TRUE", quando há atualizações
+    disponíveis para a PGWebLib.
+[+] Adicionado o método:
+    "function SetPGWebLibPermiteAtualiza(PermiteAtualizacao: Boolean): Boolean;"
+    Permite que a aplicação configure a variável de ambiente "PGWebLibPermiteAtualiza"
+    Quando a aplicação grava nela o valor "TRUE", permite que o Cliente Windows
+    da Paygo, baixe e atualize a PGWebLib da pasta "PathPGWebLib"
+[+] Adicionada a propriedade: "AtualizaPGWebLibAutomaticamente: Boolean default True"
+    Quando essa propriedade é True (padrão), o valor de "PGWebLibPermiteAtualiza"
+    será ajustado para True, sempre que TACBrTEFPGWebAPI.DesInicializar for chamado
+[*] Método "TACBrTEFPGWebAPI.Destroy", modificado para chamar "DesInicializar"
+[*] Método "TACBrTEFPGWebAPI.Inicializar" mmodificado para configurar a variável
+    de ambiente "PontoDeCaptura", se a propriedade "PontoCaptura" estiver com
+    valor definido
+    a variável de ambiente "CPFCNPJ" se a propriedade "CNPJEstabelecimento"
+    estiver com valor definido.
+[*] Método "TACBrTEFPGWebAPI.Inicializar", grava no Log o estado da variável de
+    ambiente "PGWebLibAtualiza"
+[*] Método "TACBrTEFPGWebAPI.DesInicializar" passa a chamar "PW_End", para
+    encerrar o processo de proteção, e "SetPGWebLibPermiteAtualiza", para
+    permitir a atualização da PGWebLib, conforme o valor da propridade
+     "AtualizaPGWebLibAutomaticamente"
+[*] Método "TACBrTEFPGWebAPI.LibFullName" modificado para usar o Path definido na
+    variável de ambiente "PathPGWebLib", caso a propriedade "PathLib" esteja vazia.
+[*] Método "TACBrTEFPGWebAPI.LoadLibFunctions" modificado para gravar no log,
+    o caminho completo da DLL PGWebLib que está sendo carregada
+    (por: DSA)
+
+28/09/2023
+-- ACBrTEFAPIComum --
+[*] Melhorias quando estiver Trantando Transações Pendentes durante a inicializaçao
+    da aplicação, para usar Status mais apropriados.
+
+-- ACBrTEFAPICliSiTef --
+[*] Melhorias na rotina de inicialização
+[-] Correção de mensagens exibidas com o Encode incorreto
+    (por: DSA)
+
+20/09/2023
+-- ACBrTEFPayGoWebComum --
+[-] Correção na validação de Campos com PWDAT_TYPED = "MMAA"
+    www.projetoacbr.com.br/forum/index.php?showtopic=74275
+    (por: DSA)
+
+18/09/2023
+-- ACBrTEFComum, ACBrTEFPayGoComum--
+[*] Inclusão tefstsErroEnergia em TACBrTEFStatusTransacao para realização do teste 51 (Queda de Energia) para homologação PayGo utilizando Componente ACBrTEFAPI.
+    (Por: Antonio Carlos Junior)
+
+18/08/2023
+-- ACBrTEFPayGoComum --
+[-] Aplicado WorkAround para quanto PWINFO_RCPTPRN=1 e PWINFO_RCPTMERCH está presente
+    ocasionado a não impressão da Segunda Via diferenciada do Estabelecimento
+    (por: DSA)
+
+31/05/2023
+-- ACBrTEFAndroidPayGo, ACBrTEFAPIPayGoWeb, ACBrTEFAndroidElginIDH, ACBrTEFAndroidMSitef --
+[-] Correção no método "EfetuarPagamento", que estava compondo a Data de forma errada
+    no Parâmetro "PWINFO_INSTALLMDATE"
+    https://www.projetoacbr.com.br/forum/topic/72464-poss%C3%ADvel-erro-nas-rotinas-do-tef-paygo/
+    (por:  Valdir Dill)
+
+-- ACBrTEFAPI, ACBrTEFAPIPayGoWeb, ACBrTEFPayGoWebComum --
+[+] Adicionado o método "VerificarPresencaPinPad"
+    (por: DSA)
+
+05/05/2023
+-- ACBrTEFAndroid, ACBrTEFAndroidElginIDH, ACBrTEFElginIDHAndroidAPI, ACBrTEFElginIDHComum --
+[+] Adicionado o modelo "tefElginIDH" em TACBrTEFAndroid
+
+-- ACBrTEFAndroid, ACBrTEFAndroidMSitef, ACBrTEFMSitefAndroidAPI, ACBrTEFMSitefComum --
+[+] Adicionado o modelo "tefMSitef" em TACBrTEFAndroid
+https://www.projetoacbr.com.br/forum/topic/71696-componente-elgintef-e-msitef-android/
+   (por: Warquia)
+
+-- ACBrTEFPayGoAndroidAPI --
+[*] Adcionada chamada de Log em TACBrTEFPGWebAndroid.HandleActivityMessage
+[*] PWINFO_RESULTMSG tratado de UTF8 para String Nativa
+    (por: DSA)
+
+24/04/2023
+-- ACBrTEFComum, ACBrTEFDClass --
+[-] Correção para impressão de 2a Via, quando retorno vem no final do campo 029
+    www.projetoacbr.com.br/forum/index.php?showtopic=71768
+    (por: DSA)
+
 18/10/2022
 -- ACBrTEFAndroidPayGo --
 [*] Correção de erro de grafia em "QuandoFinalizarTransacaoAPI"

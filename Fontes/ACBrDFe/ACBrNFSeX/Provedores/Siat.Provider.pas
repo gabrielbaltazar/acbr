@@ -89,6 +89,14 @@ begin
   begin
     QuebradeLinha := '<br >';
     ModoEnvio := meLoteAssincrono;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarLote := True;
+      ConsultarNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 end;
 
@@ -203,7 +211,7 @@ function TACBrNFSeXWebserviceSiat.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);

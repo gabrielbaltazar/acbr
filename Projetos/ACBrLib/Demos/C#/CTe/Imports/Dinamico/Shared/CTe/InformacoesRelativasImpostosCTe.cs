@@ -7,24 +7,27 @@ namespace ACBrLib.CTe
 {
     public class InformacoesRelativasImpostosCTe
     {
-        public ICMSCTe ICMS00 { get; set; }
+        public ICMS00CTe ICMS00 { get; } = new ICMS00CTe();
 
-        public ICMSCTe ICMS20 { get; set; }
+        public ICMS20CTe ICMS20 { get; set; } = new ICMS20CTe();
 
-        public ICMSCTe ICMS45 { get; set; }
+        public ICMS45CTe ICMS45 { get; set; } = new ICMS45CTe();
 
-        public ICMSCTe ICMS60 { get; set; }
+        public ICMS60CTe ICMS60 { get; set; } = new ICMS60CTe();
 
-        public ICMSCTe ICMS90 { get; set; }
+        public ICMS90CTe ICMS90 { get; set; } = new ICMS90CTe();
 
-        public ICMSCTe ICMSOutraUF { get; set; }
+        public ICMSOutraUFCTe ICMSOutraUF { get; set; } = new ICMSOutraUFCTe();
 
-        public ICMSCTe ICMSSN { get; set; }
+        public ICMSSNCTe ICMSSN { get; set; } = new ICMSSNCTe();
+
+        public ICMSUFFimCTe ICMSUFFim { get; set; } = new ICMSUFFimCTe();
 
         public decimal vTotTrib { get; set; }
 
         public string infAdFisco { get; set; }
 
-        public ICMSUFFimCTe ICMSUFFim { get; set; }
+        public InfTributacaoFederal infTribFed { get; set; } = new InfTributacaoFederal();
+
     }
 }

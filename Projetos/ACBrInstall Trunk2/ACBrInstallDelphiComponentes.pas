@@ -133,7 +133,7 @@ type
     procedure InstalarOutrosRequisitos;
     procedure FazInstalacaoDLLs(const APathBin: string);
     procedure ConfiguraMetodosCompiladores;
-    function FazBroadcastDeAlteracaoDeConfiguracao(cs: PWideChar) : Integer;
+//    function FazBroadcastDeAlteracaoDeConfiguracao(cs: PWideChar) : Integer;
 
   public
     OpcoesInstall: TACBrInstallOpcoes;
@@ -251,8 +251,8 @@ end;
 
 procedure TACBrInstallComponentes.BeforeExecute(Sender: TJclBorlandCommandLineTool);
 const
-  VersoesComNamespaces: array[0..12] of string = ('d16', 'd17','d18','d19','d20','d21','d22','d23','d24','d25',
-                                                  'd26','d27', 'd28');
+  VersoesComNamespaces: array[0..13] of string = ('d16', 'd17','d18','d19','d20','d21','d22','d23','d24','d25',
+                                                  'd26','d27', 'd28','d29');
   NamespacesBase = 'System;Xml;Data;Datasnap;Web;Soap;';
   NamespacesWindows = 'Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Winapi;System.Win;';
   NamespacesOSX = 'Macapi;Posix;System.Mac;';
@@ -804,18 +804,18 @@ begin
   Result := (FCountErros = 0);
 end;
 
-function TACBrInstallComponentes.FazBroadcastDeAlteracaoDeConfiguracao(cs: PWideChar) : Integer;
-var
-  wParam: Integer;
-  lParam: Integer;
-  lpdwResult: PDWORD_PTR;
-begin
-  // enviar um broadcast de atualização para o windows
-  wParam := 0;
-  lParam := LongInt(cs);
-  lpdwResult := nil;
-  Result := SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, wParam, lParam, SMTO_NORMAL, 4000, lpdwResult);
-end;
+//function TACBrInstallComponentes.FazBroadcastDeAlteracaoDeConfiguracao(cs: PWideChar) : Integer;
+//var
+//  wParam: Integer;
+//  lParam: Integer;
+//  lpdwResult: PDWORD_PTR;
+//begin
+//  // enviar um broadcast de atualização para o windows
+//  wParam := 0;
+//  lParam := LongInt(cs);
+//  lpdwResult := nil;
+//  Result := SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, wParam, lParam, SMTO_NORMAL, 4000, lpdwResult);
+//end;
 
 procedure TACBrInstallComponentes.InstalarCapicom(ADestino : TDestino; const APathBin: string);
 begin
@@ -946,49 +946,18 @@ begin
 end;
 
 procedure TACBrInstallComponentes.AdicionaEnvironmentPathNaVersaoEspecificaDoDelphi(const AProcurarRemover: string);
-var
-  PathsAtuais: string;
-  ListaPaths: TStringList;
-  I: Integer;
-  Resultado: Integer;
-const
-  cs: PChar = 'Environment Variables';
+//var
+//  Resultado: Integer;
+//const
+//  cs: PChar = 'Environment Variables';
 begin
-  with FUmaPlataformaDestino do
-  begin
-    // tentar ler o path configurado na ide do delphi, se não existir ler
-    // a atual para complementar e fazer o override
-    PathsAtuais := Trim(InstalacaoAtual.EnvironmentVariables.Values['PATH']);
-    if PathsAtuais = '' then
-      PathsAtuais := GetEnvironmentVariable('PATH');
-    // manipular as strings
-    ListaPaths := TStringList.Create;
-    try
-      ListaPaths.Clear;
-      ListaPaths.Delimiter := ';';
-      ListaPaths.StrictDelimiter := True;
-      ListaPaths.DelimitedText := PathsAtuais;
-      // verificar se existe algo do ACBr e remover apenas se for Win32
-      if (Trim(AProcurarRemover) <> '') and (tPlatformAtual = bpWin32) then
-      begin
-        for I := ListaPaths.Count - 1 downto 0 do
-        begin
-          if Pos(AnsiUpperCase(AProcurarRemover), AnsiUpperCase(ListaPaths[I])) > 0 then
-            ListaPaths.Delete(I);
-        end;
-      end;
-      // adicionar ao path a pasta da biblioteca
-      ListaPaths.Add(sDirLibrary);
-      InstalacaoAtual.ConfigData.WriteString(cs, 'PATH', ListaPaths.DelimitedText);
+  FUmaPlataformaDestino.AdicionaEnvironmentPath(AProcurarRemover, False);
 
-      //Isso é realmente necessário??
-      Resultado := FazBroadcastDeAlteracaoDeConfiguracao(cs);
-      if Resultado = 0 then
-        raise Exception.create('Ocorreu um erro ao tentar configurar o path: ' + SysErrorMessage(GetLastError));
-    finally
-      ListaPaths.Free;
-    end;
-  end;//---endwith
+  //Isso é realmente necessário??
+  // Não é necessário fazer broadcast. A alteração afeta apenas a IDE e não a variável do sistema "PATH".
+//  Resultado := FazBroadcastDeAlteracaoDeConfiguracao(cs);
+//  if Resultado = 0 then
+//    raise Exception.create('Ocorreu um erro ao tentar configurar o path: ' + SysErrorMessage(GetLastError));
 end;
 
 procedure TACBrInstallComponentes.CompilaPacotePorNomeArquivo(const NomePacote: string);
@@ -1137,50 +1106,60 @@ var
   NomePacote: string;
   sDirPackage: string;
 begin
-  with FUmaPlataformaDestino do
+  FUmaPlataformaDestino.ConfiguraDCCPelaPlataformaAtual;
+
+  for iDpk := 0 to listaPacotes.Count - 1 do
   begin
-    FUmaPlataformaDestino.ConfiguraDCCPelaPlataformaAtual;
-
-    for iDpk := 0 to listaPacotes.Count - 1 do
+    if (not listaPacotes[iDpk].MarcadoParaInstalar) then
     begin
-      if (not listaPacotes[iDpk].Checked) then
-      begin
-        InformaProgresso;
-        Continue;
-      end;
-
-      NomePacote := listaPacotes[iDpk].Caption;
-      if (IsDelphiPackage(NomePacote)) then
-      begin
-        FazLog('');
-        // Busca diretório do pacote
-        sDirPackage := FindDirPackage(IncludeTrailingPathDelimiter(PastaACBr) + 'Pacotes\Delphi', NomePacote);
-        FPacoteAtual := sDirPackage + NomePacote;
-        CompilaPacotePorNomeArquivo(NomePacote);
-        if FCountErros> 0 then
-        begin
-          // Parar no primeiro erro para evitar de compilar outros pacotes que
-          // dependem desse que ocasionou erro.
-          Break;
-        end;
-
-        //Compilar também o pacote Design Time se a plataforma form Win32
-        if (tPlatformAtual = bpWin32) and FileExists(sDirPackage + 'DCL'+ NomePacote) then
-        begin
-          FazLog('');
-          FPacoteAtual := sDirPackage + 'DCL'+ NomePacote;
-          CompilaPacotePorNomeArquivo('DCL'+ NomePacote);
-          if FCountErros> 0 then
-          begin
-            // Parar no primeiro erro para evitar de compilar outros pacotes que
-            // dependem desse que ocasionou erro.
-            Break;
-          end;
-        end;
-      end;
       InformaProgresso;
+      Continue;
     end;
-  end;//---endwith
+
+    NomePacote := listaPacotes[iDpk].GetNome;
+    if not (IsDelphiPackage(NomePacote)) then
+    begin
+      FazLog(Format('"%s" não é um pacote Delphi. Pulando pacote.', [NomePacote]));
+      InformaProgresso;
+      Continue;
+    end;
+
+    if not (listaPacotes[iDpk].SuportaVersao(FUmaPlataformaDestino.InstalacaoAtual.IDEPackageVersionNumber)) then
+    begin
+      FazLog(Format('Versão "%s" não suportada para o pacote "%s". Pulando pacote.',
+                    [IntToStr(FUmaPlataformaDestino.InstalacaoAtual.VersionNumber), NomePacote]) );
+      InformaProgresso;
+      Continue;
+    end;
+    FazLog('');
+
+    // Busca diretório completo do pacote
+    sDirPackage := FindDirPackage(IncludeTrailingPathDelimiter(PastaACBr) + 'Pacotes\Delphi', NomePacote);
+    FPacoteAtual := sDirPackage + NomePacote;
+
+    CompilaPacotePorNomeArquivo(NomePacote);
+    if FCountErros> 0 then
+    begin
+      // Parar no primeiro erro para evitar de compilar outros pacotes que
+      // dependem desse que ocasionou erro.
+      Break;
+    end;
+
+    //Compilar também o pacote Design Time se a plataforma form Win32
+    if (FUmaPlataformaDestino.tPlatformAtual = bpWin32) and FileExists(sDirPackage + 'DCL'+ NomePacote) then
+    begin
+      FazLog('');
+      FPacoteAtual := sDirPackage + 'DCL'+ NomePacote;
+      CompilaPacotePorNomeArquivo('DCL'+ NomePacote);
+      if FCountErros> 0 then
+      begin
+        // Parar no primeiro erro para evitar de compilar outros pacotes que
+        // dependem desse que ocasionou erro.
+        Break;
+      end;
+    end;
+    InformaProgresso;
+  end;
 end;
 
 procedure TACBrInstallComponentes.InstalarPacotes(const PastaACBr: string; listaPacotes: TPacotes);
@@ -1190,53 +1169,72 @@ var
   bRunOnly: Boolean;
   sDirPackage: string;
 begin
-  with FUmaPlataformaDestino do
+  for iDpk := 0 to listaPacotes.Count - 1 do
   begin
-    for iDpk := 0 to listaPacotes.Count - 1 do
+    NomePacote := listaPacotes[iDpk].GetNome;
+    if not IsDelphiPackage(NomePacote) then
     begin
-      NomePacote := listaPacotes[iDpk].Caption;
-      if IsDelphiPackage(NomePacote) then
-      begin
-        // Busca diretório do pacote
-        sDirPackage := FindDirPackage(IncludeTrailingPathDelimiter(PastaACBr) + 'Pacotes\Delphi', NomePacote);
-        FPacoteAtual := sDirPackage + NomePacote;
-        GetDPKFileInfo(FPacoteAtual, bRunOnly);
-
-        if bRunOnly then
-        begin
-          //Encontrar o pacote DesignTime correspondente caso exista
-          if FileExists(sDirPackage + 'DCL'+ NomePacote) then
-          begin
-            FPacoteAtual := sDirPackage + 'DCL'+ NomePacote;
-            GetDPKFileInfo(FPacoteAtual, bRunOnly);
-          end;
-        end;
-
-        // instalar somente os pacotes de designtime
-        if not bRunOnly then
-        begin
-          // se o pacote estiver marcado instalar, senão desinstalar
-          if listaPacotes[iDpk].Checked then
-          begin
-            if InstalacaoAtual.InstallPackage(FPacoteAtual, sDirLibrary, sDirLibrary) then
-              InformaSituacao(Format('Pacote "%s" instalado com sucesso.', [NomePacote]))
-            else
-            begin
-              Inc(FCountErros);
-              InformaSituacao(Format('Ocorreu um erro ao instalar o pacote "%s".', [NomePacote]));
-              Break;
-            end;
-          end
-          else
-          begin
-            if InstalacaoAtual.UninstallPackage(FPacoteAtual, sDirLibrary, sDirLibrary) then
-              InformaSituacao(Format('Pacote "%s" removido com sucesso...', [NomePacote]));
-          end;
-        end;
-      end;
       InformaProgresso;
+      Continue;
     end;
-  end;//---endwith
+
+    if not (listaPacotes[iDpk].SuportaVersao(FUmaPlataformaDestino.InstalacaoAtual.IDEPackageVersionNumber)) then
+    begin
+      FazLog(Format('Info: Versão "%s" não suportada para o pacote "%s". Pulando pacote.',
+                    [IntToStr(FUmaPlataformaDestino.InstalacaoAtual.VersionNumber), NomePacote]) );
+      InformaProgresso;
+      Continue;
+    end;
+
+    // Busca diretório do pacote
+    sDirPackage := FindDirPackage(IncludeTrailingPathDelimiter(PastaACBr) + 'Pacotes\Delphi', NomePacote);
+    if (sDirPackage = '') and (not listaPacotes[iDpk].MarcadoParaInstalar) then
+    begin
+      FazLog(Format('Info: Pacote "%s" não localizado. Mas não marcado para instalar... Pulando pacote.',
+                    [NomePacote]) );
+      InformaProgresso;
+      Continue;
+    end;
+
+    FPacoteAtual := sDirPackage + NomePacote;
+    GetDPKFileInfo(FPacoteAtual, bRunOnly);
+
+    if bRunOnly then
+    begin
+      //Encontrar o pacote DesignTime correspondente caso exista
+      if FileExists(sDirPackage + 'DCL'+ NomePacote) then
+      begin
+        FPacoteAtual := sDirPackage + 'DCL'+ NomePacote;
+        GetDPKFileInfo(FPacoteAtual, bRunOnly);
+      end;
+    end;
+
+    // Se continuou Runonly, instalar somente os pacotes de designtime
+    if bRunOnly then
+    begin
+      InformaProgresso;
+      Continue;
+    end;
+
+    // se o pacote estiver marcado instalar, senão desinstalar
+    if listaPacotes[iDpk].MarcadoParaInstalar then
+    begin
+      if FUmaPlataformaDestino.InstalacaoAtual.InstallPackage(FPacoteAtual, FUmaPlataformaDestino.sDirLibrary, FUmaPlataformaDestino.sDirLibrary) then
+        InformaSituacao(Format('Pacote "%s" instalado com sucesso.', [NomePacote]))
+      else
+      begin
+        Inc(FCountErros);
+        InformaSituacao(Format('Ocorreu um erro ao instalar o pacote "%s".', [NomePacote]));
+        Break;
+      end;
+    end
+    else
+    begin
+      if FUmaPlataformaDestino.InstalacaoAtual.UninstallPackage(FPacoteAtual, FUmaPlataformaDestino.sDirLibrary, FUmaPlataformaDestino.sDirLibrary) then
+        InformaSituacao(Format('Pacote "%s" removido com sucesso...', [NomePacote]));
+    end;
+    InformaProgresso;
+  end;
 end;
 
 

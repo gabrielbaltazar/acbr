@@ -39,6 +39,104 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+
+28/02/2024
+-- ACBrDFeXsXmlSec --
+[-] Correção, estava faltando um parâmetro no método Assinar.
+  Por: Italo Giurizzato Junior
+-- ACBrDFeSSL --
+[*] Removido a definição do conteudo do campo IdSignatureValue, agora
+    a função AdicionarSignatureElement vai receber esse campo pré-definido ou
+    uma string vazia (Default).
+-- ACBrDFeXsLibXml2 --
+[*] Removido a definição do conteudo do campo IdSignatureValue, agora
+    a função Assinar vai receber esse campo pré-definido ou
+    uma string vazia (Default).
+-- ACBrXmlBase --
+[*] Os tipos tcStrOrg e tcNumStr estavam retornando uma string vazia, agora
+    vão retornar o conteudo da tag.
+-- ACBrXmlWriter --
+[*] Removido a declaração de algumas constantes que estão definidas em ACBrDFeConsts.
+  Por: Italo Giurizzato Junior
+
+23/02/2024
+-- ACBrDFeSSL/ACBrDFeXsLibXml2/ACBrDFeXsMsXml/ACBrDFeXsMsXmlCapicom/ACBrDFeXsXmlSec --
+[*] Alteração visando gerar um atributo Id na tag SignatureValue.
+    Esse Id esta sendo exigido pelo provedor PRODAUB da cidade de Uberlância/MG.
+  Por: Italo Giurizzato Junior
+
+22/02/2024
+-- ACBrXmlBase --
+[*] Refactoring nas funções de conversão dos tipos: TipoEmissaoToStr, 
+    StrToTipoEmissao, TipoAmbienteToStr e StrToTipoAmbiente.
+  Por: Italo Giurizzato Junior
+
+20/02/2024
+-- ACBrDFeConsts --
+[+] Incluido a constante DSC_QRCODDFe.
+-- ACBrDFeComum.Proc --
+[+] Incluido o campo Id.
+  Por: Italo Giurizzato Junior
+
+14/02/2024
+-- ACBrXmlBase --
+[+] Implementado a procedure LerSignature.
+  Por: Italo Giurizzato Junior
+
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+04/02/2024
+[+] Adicionado as constantes XML_V01 e ENCODING_UTF8_STD.
+  Por: Italo Giurizzato Junior
+
+31/01/2024
+-- ACBrDFe/ACBrDFeWebService --
+[*] Removido a unit pcnConsts e colocado no lugar a ACBrDFeConsts.
+-- ACBrDFeConsts --
+[+] Adicionado essa nova unit que contem as constantes utilizadas pela maioria
+    dos componentes DFe
+  Por: Italo Giurizzato Junior
+
+-- ACBrDFeOpenSSL --
+[*] Melhoria nas mensagens de Erro de TDFeOpenSSL, exibindo o Código e mensagem
+    de erro do próprio OpenSSL
+    (por: DSA)
+
+25/10/2023
+-- ACBrXmlBase --
+[*] Simplificação na function RemoverIdentacao.
+  Por: Italo Giurizzato Junior
+
+24/10/2023
+-- ACBrXmlBase --
+[*] Alterada a function RemoverIdentacao para remover o caracter #10, 
+    alguns XML contem o caracter #10 em vez de #13.
+  Por: Italo Giurizzato Junior
+
+01/03/2023
+-- ACBrDFeSSL/ACBrDFeWebService --
+[+] Acrescentado a propriedade ValidateReturnCode para não gerar uma Exception
+    quando o código estiver fora da faixa 200..202
+  Por: Italo Giurizzato Junior
+
+15/02/2023
+-- ACBrDFeSSL --
+[*] Revertido a alteração, pois poderia gerar um efeito colateral nos demais
+    componentes.
+  Por: Italo Giurizzato Junior
+
+01/02/2023
+-- ACBrDFeSSL/ACBrDFeWebService --
+[*] Alterações visando atender o consumo de API Rest.
+  Por: Italo Giurizzato Junior
+-- Diversos --
+[+] Incluído o parâmetro sBCC (com cópia oculta) no método EnviarEmail em diversos
+    componentes.
+  Por: Alex Heinen
+
 30/12/2022
 -- ACBrDFeXsLibXml2 --
 [*] Remoção de Warnings e Hints.

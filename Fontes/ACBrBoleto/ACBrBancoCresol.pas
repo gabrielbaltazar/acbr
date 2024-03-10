@@ -52,6 +52,7 @@ type
     Constructor Create(AOwner: TACBrBanco);
     function MontarCampoNossoNumero(const ACBrTitulo: TACBrTitulo): String; Override;
     function GerarRegistroTransacao240(ACBrTitulo : TACBrTitulo): String; Override;
+    function GerarRegistroHeader240(NumeroRemessa : Integer): String; Override;
     procedure LerRetorno240(ARetorno: TStringList); Override;
     function DefinePosicaoNossoNumeroRetorno: Integer; Override;
   end;
@@ -80,7 +81,6 @@ end;
 function TACBrBancoCresol.MontarCampoNossoNumero(const ACBrTitulo: TACBrTitulo) : String;
 begin
   Result := ACBrTitulo.NossoNumero + '-' + CalcularDigitoVerificador(ACBrTitulo)
-
 end;
 
 procedure TACBrBancoCresol.LerRetorno240(ARetorno: TStringList);
@@ -232,6 +232,18 @@ begin
 
 end;
 
+function TACBrBancoCresol.GerarRegistroHeader240(NumeroRemessa: Integer): String;
+var LNome : String;
+begin
+  LNome := fpNome;
+  try
+    fpNome := 'CRESOL CONFEDERAÇÃO';
+    Result := inherited GerarRegistroHeader240(NumeroRemessa);
+  finally
+    fpNome := LNome;
+  end;
+end;
+
 function TACBrBancoCresol.GerarRegistroTransacao240(ACBrTitulo: TACBrTitulo): String;
 var
   AEspecieTitulo,
@@ -354,13 +366,14 @@ begin
 
     if (CodigoMora = '') then
     begin
-      CodigoMora := '0';
       if (ValorMoraJuros > 0) then // cjValorDia, cjTaxaMensal
       begin
-        if (CodigoMoraJuros = cjValorDia) then
-          CodigoMora := '0'
-        else if (CodigoMoraJuros = cjTaxaMensal) then
-          CodigoMora := '1';
+        case CodigoMoraJuros of
+          cjValorDia: CodigoMora   := '1';
+          cjTaxaMensal: CodigoMora := '2';
+        else
+          raise Exception.create(ACBrStr('Informar CodigoMoraJuros (cjValordia/cjTaxaMensal) !'));
+        end;
       end;
     end;
 
@@ -375,7 +388,6 @@ begin
     else
     begin
       ADataMoraJuros := PadLeft('', 8, '0');
-      CodigoMora     := '0';
     end;
 
     if (ACBrTitulo.CarteiraEnvio = tceCedente) then

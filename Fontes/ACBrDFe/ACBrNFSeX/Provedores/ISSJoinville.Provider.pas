@@ -92,6 +92,16 @@ begin
     QuebradeLinha := '\n';
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteSincrono := False;
+      EnviarUnitario := False;
+      ConsultarFaixaNfse := False;
+      ConsultarServicoPrestado := False;
+      ConsultarServicoTomado := False;
+      SubstituirNfse := False;
+    end;
   end;
 
   with ConfigAssinar do
@@ -257,7 +267,7 @@ begin
   if FPConfiguracoes.WebServices.AmbienteCodigo = 1 then
     Result := 'https://nfemws.joinville.sc.gov.br/'
   else
-    Result := 'https://nfemwshomologacao.joinville.sc.gov.br/';
+    Result := 'http://nfemwshomologacao.pmjlle.joinville.sc.gov.br/';
 end;
 
 function TACBrNFSeXWebserviceISSJoinville204.Recepcionar(ACabecalho,

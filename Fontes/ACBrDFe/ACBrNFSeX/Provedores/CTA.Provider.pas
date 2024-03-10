@@ -87,8 +87,8 @@ type
     procedure PrepararConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
     procedure TratarRetornoConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
 
     *)
 
@@ -96,6 +96,9 @@ type
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'a';
                                      const AMessageTag: string = 'mensagem'); override;
+  public
+    function TipoTributacaoRPSToStr(const t: TTipoTributacaoRPS): string; override;
+    function StrToTipoTributacaoRPS(out ok: boolean; const s: string): TTipoTributacaoRPS; override;
   end;
 
 implementation
@@ -122,6 +125,15 @@ begin
 
     ConsultaLote := False;
     ConsultaNFSe := False;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerChaveAcesso := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      CancelarNfse := True;
+    end;
   end;
 
   with ConfigWebServices do
@@ -199,7 +211,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := '';
-      AErro.Descricao := ACBrStr(Mensagem);
+      AErro.Descricao := Mensagem;
       AErro.Correcao := '';
     end;
   end;
@@ -301,10 +313,10 @@ var
   AErro: TNFSeEventoCollectionItem;
   AResumo: TNFSeResumoCollectionItem;
   ANode, AuxNode: TACBrXmlNode;
-  ANodeArray: TACBrXmlNodeArray;
-  NumRps: String;
-  ANota: TNotaFiscal;
-  I: Integer;
+//  ANodeArray: TACBrXmlNodeArray;
+//  NumRps: String;
+//  ANota: TNotaFiscal;
+//  I: Integer;
 //  NotaCompleta: Boolean;
 begin
   Document := TACBrXmlDocument.Create;
@@ -328,7 +340,7 @@ begin
       ProcessarMensagemErros(ANode, Response);
 
       Response.Sucesso := (Response.Erros.Count = 0);
-
+      (*
       if False then
       begin
         ANodeArray := ANode.Childrens.FindAllAnyNs('nfse');
@@ -384,6 +396,7 @@ begin
       end
       else
       begin
+      *)
         with Response do
         begin
           AuxNode := ANode.Childrens.FindAnyNs('Rps');
@@ -395,7 +408,7 @@ begin
         AResumo := Response.Resumos.New;
         AResumo.NumeroRps := Response.NumeroRps;
         AResumo.DescSituacao := Response.DescSituacao;
-      end;
+//      end;
     except
       on E:Exception do
       begin
@@ -606,6 +619,29 @@ begin
   end;
 end;
 
+function TACBrNFSeProviderCTA200.StrToTipoTributacaoRPS(out ok: boolean;
+  const s: string): TTipoTributacaoRPS;
+begin
+  Result := StrToEnumerado(Ok, s,
+                      ['0', '1', '2', '2', '2', '2', '3', '3', '4', '5'],
+                      [ttTribnoMun, ttTribforaMun, ttTribnoMunIsento,
+                        ttTribforaMunIsento, ttTribnoMunImune, ttTribforaMunImune,
+                        ttTribnoMunSuspensa, ttTribforaMunSuspensa,
+                        ttSimplesNacional, ttRetidonoMun]);
+end;
+
+function TACBrNFSeProviderCTA200.TipoTributacaoRPSToStr(
+  const t: TTipoTributacaoRPS): string;
+begin
+  Result := EnumeradoToStr(t,
+                      ['0', '1', '2', '2', '2', '2', '3', '3', '4', '5'],
+                      [ttTribnoMun, ttTribforaMun, ttTribnoMunIsento,
+                        ttTribforaMunIsento, ttTribnoMunImune, ttTribforaMunImune,
+                        ttTribnoMunSuspensa, ttTribforaMunSuspensa,
+                        ttSimplesNacional, ttRetidonoMun]);
+
+end;
+
 { TACBrNFSeXWebserviceCTA200 }
 
 function TACBrNFSeXWebserviceCTA200.Recepcionar(ACabecalho,
@@ -644,13 +680,13 @@ begin
                 '</mensagem>' +
               '</a>';
 
-    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+    Result := ParseText(Result);
   end
   else
   begin
     Result := inherited TratarXmlRetornado(aXML);
 
-    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+    Result := ParseText(Result);
     Result := RemoverDeclaracaoXML(Result);
     Result := RemoverIdentacao(Result);
     Result := RemoverCaracteresDesnecessarios(Result);

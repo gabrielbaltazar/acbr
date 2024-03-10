@@ -54,7 +54,7 @@ uses
   {$ELSE}
    Contnrs,
   {$IFEND}
-  ACBrBase, pcnConversao, pcnConsts,
+  ACBrBase, pcnConversao,
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
@@ -158,6 +158,7 @@ type
     FinfoTrabCedido: TinfoTrabCedido;
     FinfoEstagiario: TinfoEstagiario;
     FinfoMandElet: TinfoMandElet;
+    FlocalTrabGeral: TLocalTrabGeral;
   public
     constructor Create;
     destructor  Destroy; override;
@@ -169,6 +170,7 @@ type
     property infoTrabCedido: TinfoTrabCedido read FinfoTrabCedido write FinfoTrabCedido;
     property infoEstagiario: TinfoEstagiario read FinfoEstagiario write FinfoEstagiario;
     property infoMandElet: TinfoMandElet read FinfoMandElet write FinfoMandElet;
+    property localTrabGeral: TLocalTrabGeral read FLocalTrabGeral write FLocalTrabGeral;
   end;
 
   TinfoDirSind = class(TObject)
@@ -319,6 +321,7 @@ begin
   FinfoTrabCedido := TinfoTrabCedido.Create;
   FinfoEstagiario := TinfoEstagiario.Create;
   FinfoMandElet := TinfoMandElet.Create;
+  FlocalTrabGeral := TLocalTrabGeral.Create;
 end;
 
 destructor TinfoComplementares.Destroy;
@@ -330,7 +333,8 @@ begin
   FinfoTrabCedido.Free;
   FinfoEstagiario.Free;
   FinfoMandElet.Free;
-  
+  FLocalTrabGeral.Free;
+
   inherited;
 end;
 
@@ -437,7 +441,8 @@ begin
      ((obj.cargoFuncao.CBOFuncao <> EmptyStr) and (VersaoDF > ve02_05_00)) or
      (obj.Remuneracao.VrSalFx > 0) or (obj.Remuneracao.UndSalFixo = sfNaoaplicavel) or
      (obj.FGTS.DtOpcFGTS > 0) or (obj.infoDirSind.categOrig > 0) or
-     (obj.infoTrabCedido.dtAdmCed > 0) or (obj.infoEstagiario.dtPrevTerm > 0) then
+     (obj.infoTrabCedido.dtAdmCed > 0) or (obj.infoEstagiario.dtPrevTerm > 0) or
+     (obj.localTrabGeral.nrInsc <> '') then
   begin
     Gerador.wGrupo('infoComplementares');
     
@@ -451,6 +456,9 @@ begin
       GerarInfoMandElet(obj.infoMandElet);
       
     GerarinfoEstagiario(obj.infoEstagiario);
+
+    if VersaoDF >= veS01_02_00 then
+      GerarLocalTrabGeral(obj.localTrabGeral);
 
     Gerador.wGrupo('/infoComplementares');
   end;
@@ -651,6 +659,7 @@ end;
 function TEvtTSVInicio.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -805,6 +814,10 @@ begin
         trabalhador.Endereco.Exterior.CodPostal   := INIRec.ReadString(sSecao, 'codPostal', '');
       end;
 
+      sSecao := 'trabImig';
+      trabalhador.trabImig.tmpResid := StrTotpTmpResid(Ok, INIRec.ReadString(sSecao, 'tmpResid', EmptyStr));
+      trabalhador.trabImig.condIng  := StrTotpCondIng(Ok, INIRec.ReadString(sSecao, 'condIng', EmptyStr));
+
       sSecao := 'trabEstrangeiro';
       if INIRec.ReadString(sSecao, 'dtChegada', '') <> '' then
       begin
@@ -831,21 +844,22 @@ begin
       begin
         // de 00 até 99
         sSecao := 'dependente' + IntToStrZero(I, 2);
-        sFim   := INIRec.ReadString(sSecao, 'tpDep', 'FIM');
+        sFim   := INIRec.ReadString(sSecao, 'nmDep', 'FIM');
 
         if (sFim = 'FIM') or (Length(sFim) <= 0) then
           break;
 
         with trabalhador.Dependente.New do
         begin
-          tpDep    := eSStrToTpDep(Ok, sFim);
-          nmDep    := INIRec.ReadString(sSecao, 'nmDep', '');
+          tpDep    := eSStrToTpDep(Ok, INIRec.ReadString(sSecao, 'tpDep', ''));
+          nmDep    := sFim;
           dtNascto := StringToDateTime(INIRec.ReadString(sSecao, 'dtNascto', '0'));
           cpfDep   := INIRec.ReadString(sSecao, 'cpfDep', '');
-          sexoDep  := INIRec.ReadString(sSecao, 'sexoDep', 'F');
+          sexoDep  := INIRec.ReadString(sSecao, 'sexoDep', '');
           depIRRF  := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'depIRRF', 'S'));
           depSF    := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'depSF', 'S'));
           incTrab  := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'incTrab', 'S'));
+          descrDep := INIRec.ReadString(sSecao, 'descrDep', '');
         end;
 
         Inc(I);
@@ -864,8 +878,9 @@ begin
       infoTSVInicio.cadIni         := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'cadIni', 'S'));
       infoTSVInicio.codCateg       := INIRec.ReadInteger(sSecao, 'codCateg', 0);
       infoTSVInicio.dtInicio       := StringToDateTime(INIRec.ReadString(sSecao, 'dtInicio', '0'));
+      infoTSVInicio.nrProcTrab     := INIRec.ReadString(sSecao, 'nrProcTrab', EmptyStr);
       infoTSVInicio.natAtividade   := eSStrToNatAtividade(Ok, INIRec.ReadString(sSecao, 'natAtividade', '1'));
-      infoTSVInicio.matricula      := INIRec.ReadString(sSecao, 'matricula', '');
+      infoTSVInicio.matricula      := INIRec.ReadString(sSecao, 'matricula', EmptyStr);
 
       sSecao := 'cargoFuncao';
       infoTSVInicio.infoComplementares.cargoFuncao.CodCargo    := INIRec.ReadString(sSecao, 'codCargo', '');
@@ -968,6 +983,23 @@ begin
           infoTSVInicio.infoComplementares.infoEstagiario.supervisorEstagio.cpfSupervisor := INIRec.ReadString(sSecao, 'cpfSupervisor', '');
           infoTSVInicio.infoComplementares.infoEstagiario.supervisorEstagio.nmSuperv      := INIRec.ReadString(sSecao, 'nmSuperv', '');
         end;
+      end;
+
+      sSecao := 'localTrabGeral';
+      if INIRec.ReadString(sSecao, 'tpInsc', '') <> '' then
+      begin
+        infoTSVInicio.infoComplementares.LocalTrabGeral.TpInsc   := eSStrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
+        infoTSVInicio.infoComplementares.LocalTrabGeral.NrInsc   := INIRec.ReadString(sSecao, 'nrInsc', '');
+        infoTSVInicio.infoComplementares.LocalTrabGeral.DescComp := INIRec.ReadString(sSecao, 'descComp', '');
+      end;
+
+      sSecao := 'mudancaCPF';
+      if INIRec.ReadString(sSecao, 'cpfAnt', '') <> '' then
+      begin
+        infoTSVInicio.mudancaCPF.cpfAnt := INIRec.ReadString(sSecao, 'cpfAnt', EmptyStr);
+        infoTSVInicio.mudancaCPF.matricAnt := INIRec.ReadString(sSecao, 'matricAnt', EmptyStr);
+        infoTSVInicio.mudancaCPF.dtAltCPF := StringToDateTime(INIRec.ReadString(sSecao, 'dtAltCPF', '0'));
+        infoTSVInicio.mudancaCPF.observacao := INIRec.ReadString(sSecao, 'observacao', EmptyStr);
       end;
 
       sSecao := 'afastamento';

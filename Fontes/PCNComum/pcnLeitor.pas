@@ -89,6 +89,11 @@ type
     property FloatIsIntString: Boolean read FFloatIsIntString write FFloatIsIntString;
   end;
 
+  TLeitorLerValorCampoProc = procedure(const Tipo: TpcnTipoCampo; const Tag, Conteudo: string; var Valor: Variant; var Processado: Boolean);
+
+var
+  OnLeitorLerValorCampo: TLeitorLerValorCampoProc;
+
 implementation
 
 uses
@@ -198,6 +203,7 @@ function TLeitor.rCampo(const Tipo: TpcnTipoCampo; TAG: string; const TAGparada:
 var
   ConteudoTag: string;
   inicio, fim, inicioTAGparada, iDecimais: integer;
+  Processado: Boolean;
 begin
   Tag := UpperCase(Trim(TAG));
   inicio := pos('<' + Tag + '>', UpperCase(FGrupo));
@@ -224,6 +230,13 @@ begin
     ConteudoTag := trim(copy(FGrupo, inicio, fim));
   end;
 
+  Processado := False;
+  if Assigned(OnLeitorLerValorCampo) then
+    OnLeitorLerValorCampo(Tipo, Tag, ConteudoTag, Result, Processado);
+
+  if Processado then
+    Exit;
+
   case Tipo of
     tcStr:
       result := ReverterFiltroTextoXML(ConteudoTag);
@@ -240,6 +253,14 @@ begin
       begin
         if length(ConteudoTag) > 0 then
           result := EncodeDate(StrToInt(copy(ConteudoTag, 07, 4)), StrToInt(copy(ConteudoTag, 04, 2)), StrToInt(copy(ConteudoTag, 01, 2)))
+        else
+          Result := 0;
+      end;
+
+    tcDatBol:
+      begin
+        if length(ConteudoTag) > 0 then
+          result := EncodeDate(StrToInt(copy(ConteudoTag, 05, 4)), StrToInt(copy(ConteudoTag, 03, 2)), StrToInt(copy(ConteudoTag, 01, 2)))
         else
           Result := 0;
       end;
@@ -426,6 +447,9 @@ begin
   else
     FGrupo := FArquivo;
 end;
+
+initialization
+  OnLeitorLerValorCampo := nil;
 
 end.
 

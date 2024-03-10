@@ -52,63 +52,61 @@ type
 
     procedure LerRegistro0; virtual;
 
-    procedure LerRegistro1(I: Integer); virtual;
+    procedure LerRegistro1(nLinha: Integer); virtual;
 
-    procedure LerRegistro5(I: Integer); virtual;
+    procedure LerRegistro5(nLinha: Integer); virtual;
 
-    procedure LerRegistro9(I: Integer); virtual;
+    procedure LerRegistro9(nLinha: Integer); virtual;
 
-    procedure LerSegmentoA(I: Integer); virtual;
+    procedure LerSegmentoA(nLinha: Integer); virtual;
 
-    procedure LerSegmentoB(mSegmentoBList: TSegmentoBList; I: Integer); virtual;
+    procedure LerSegmentoB(mSegmentoBList: TSegmentoBList; nLinha: Integer); virtual;
 
-    procedure LerSegmentoC(mSegmentoCList: TSegmentoCList; I: Integer); virtual;
+    procedure LerSegmentoC(mSegmentoCList: TSegmentoCList; nLinha: Integer); virtual;
 
-    procedure LerSegmentoE(mSegmentoEList: TSegmentoEList; I: Integer); virtual;
+    procedure LerSegmentoE(nLinha: Integer); virtual;
 
-    procedure LerSegmentoF(mSegmentoFList: TSegmentoFList; I: Integer); virtual;
+    procedure LerSegmentoF(mSegmentoFList: TSegmentoFList; nLinha: Integer); virtual;
 
-    procedure LerSegmentoG(I: Integer); virtual;
+    procedure LerSegmentoG(nLinha: Integer); virtual;
 
-    procedure LerSegmentoH(mSegmentoHList: TSegmentoHList; I: Integer); virtual;
+    procedure LerSegmentoH(mSegmentoHList: TSegmentoHList; nLinha: Integer); virtual;
 
-    procedure LerSegmentoJ(I: Integer; var LeuRegistroJ: boolean); virtual;
+    procedure LerSegmentoJ(nLinha: Integer; var LeuRegistroJ: boolean); virtual;
 
-    procedure LerSegmentoJ52(mSegmentoJ52List: TSegmentoJ52List; I: Integer); virtual;
+    procedure LerSegmentoJ52(mSegmentoJ52List: TSegmentoJ52List; nLinha: Integer); virtual;
 
-    procedure LerSegmentoJ99(mSegmentoJ99List: TSegmentoJ99List; I: Integer); virtual;
+    procedure LerSegmentoJ99(mSegmentoJ99List: TSegmentoJ99List; nLinha: Integer); virtual;
 
     procedure LerSegmentoN(mSegmentoN: TSegmentoN); virtual;
 
-    procedure LerSegmentoN1(I: Integer); virtual;
+    procedure LerSegmentoN1(nLinha: Integer); virtual;
 
-    procedure LerSegmentoN2(I: Integer); virtual;
+    procedure LerSegmentoN2(nLinha: Integer); virtual;
 
-    procedure LerSegmentoN3(I: Integer); virtual;
+    procedure LerSegmentoN3(nLinha: Integer); virtual;
 
-    procedure LerSegmentoN4(I: Integer); virtual;
+    procedure LerSegmentoN4(nLinha: Integer); virtual;
 
-    procedure LerSegmentoN567(I: Integer); virtual;
+    procedure LerSegmentoN567(nLinha: Integer); virtual;
 
-    procedure LerSegmentoN8(I: Integer); virtual;
+    procedure LerSegmentoN8(nLinha: Integer); virtual;
 
-    procedure LerSegmentoN9(I: Integer); virtual;
+    procedure LerSegmentoN9(nLinha: Integer); virtual;
 
-    procedure LerSegmentoO(I: Integer); virtual;
+    procedure LerSegmentoO(nLinha: Integer); virtual;
 
-    procedure LerSegmentoW(mSegmentoWList: TSegmentoWList; I: Integer); virtual;
+    procedure LerSegmentoW(mSegmentoWList: TSegmentoWList; nLinha: Integer); virtual;
 
-    procedure LerSegmentoZ(mSegmentoZList: TSegmentoZList; I: Integer); virtual;
+    procedure LerSegmentoZ(mSegmentoZList: TSegmentoZList; nLinha: Integer); virtual;
 
     procedure LerLote;
-    procedure GerarAvisos(const aCodOcorrencia, aDescOcorrencia, aSegmento,
-      aSegmentoFilho, aSeuNumero: string);
+    procedure GerarAvisos(const aCodOcorrencia, aSegmento, aSegmentoFilho,
+                          aSeuNumero: string);
 
     function GetOcorrencia(aOcorrencia: TOcorrencia): string; virtual;
   public
     function LerTxt: Boolean; override;
-
-    function DescricaoRetorno(const ADesc: string): string; virtual;
 
     property ArquivoTXT: TStringList read FArquivoTXT write FArquivoTXT;
   end;
@@ -117,22 +115,41 @@ implementation
 
 { TArquivoR_CNAB240 }
 
-procedure TArquivoR_CNAB240.GerarAvisos(const aCodOcorrencia, aDescOcorrencia,
-  aSegmento, aSegmentoFilho, aSeuNumero: string);
+procedure TArquivoR_CNAB240.GerarAvisos(const aCodOcorrencia, aSegmento,
+  aSegmentoFilho, aSeuNumero: string);
+var
+  xCodigo, xOcorrencias, xDescricao: string;
+  xOcorrencia: TOcorrencia;
+  Ok: Boolean;
 begin
-  if (Length(aCodOcorrencia) > 0) and
-     (POS(aCodOcorrencia, PAGAMENTO_LIBERADO_AVISO) = 0) then
-  begin
-    PagFor.Registro0.Aviso.New;
+  // O código de ocorrencia pode ter até 5 códigos de 2 dígitos cada
+  xOcorrencias := aCodOcorrencia;
 
-    with PagFor.Registro0.Aviso.Last do
+  while length(xOcorrencias) > 0 do
+  begin
+    xCodigo := Copy(xOcorrencias, 1, 2);
+    xOcorrencia := StrToTOcorrencia(Ok, xCodigo);
+
+    if xCodigo <> '  ' then
     begin
-      CodigoRetorno := aCodOcorrencia;
-      MensagemRetorno := aDescOcorrencia;
-      Segmento := aSegmento;
-      SegmentoFilho := aSegmentoFilho;
-      SeuNumero := aSeuNumero;
+      PagFor.Registro0.Aviso.New;
+
+      if Ok then
+        xDescricao := GetOcorrencia(xOcorrencia)
+      else
+        xDescricao := '(' + xCodigo + ') Retorno Nao Identificado';
+
+      with PagFor.Registro0.Aviso.Last do
+      begin
+        CodigoRetorno := xCodigo;
+        MensagemRetorno := xDescricao;
+        Segmento := aSegmento;
+        SegmentoFilho := aSegmentoFilho;
+        SeuNumero := aSeuNumero;
+      end;
     end;
+
+    Delete(xOcorrencias, 1, 2);
   end;
 end;
 
@@ -304,32 +321,6 @@ begin
   end;
 end;
 
-function TArquivoR_CNAB240.DescricaoRetorno(const ADesc: string): string;
-var
-  xDesc, xOcorr: string;
-  xOcorrencia: TOcorrencia;
-  Ok: Boolean;
-begin
-  // O código de ocorrencia pode ter até 5 códigos de 2 dígitos cada
-  xDesc := ADesc;
-
-  while length(xDesc) > 0 do
-  begin
-    xOcorr := Copy(xDesc, 1, 2);
-    xOcorrencia := StrToTOcorrencia(Ok, xOcorr);
-
-    if Ok then
-      Result := Result + '/' + GetOcorrencia(xOcorrencia)
-    else
-      Result := Result + '/ (' + xOcorr + ') Retorno Nao Identificado';
-
-    Delete(xDesc, 1, 2);
-  end;
-
-  if Result <> '' then
-    Delete(Result, 1, 1);
-end;
-
 procedure TArquivoR_CNAB240.LerRegistro0;
 var
   mOk: Boolean;
@@ -370,11 +361,11 @@ begin
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerRegistro1(I: Integer);
+procedure TArquivoR_CNAB240.LerRegistro1(nLinha: Integer);
 var
   mOk: Boolean;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
 
   PagFor.Lote.New;
 
@@ -430,9 +421,9 @@ begin
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerRegistro5(I: Integer);
+procedure TArquivoR_CNAB240.LerRegistro5(nLinha: Integer);
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
 
   case PagFor.Lote.Last.Registro1.Servico.TipoServico of
     tsConciliacaoBancaria:
@@ -465,28 +456,27 @@ begin
   with PagFor.Lote.Last.Registro5 do
   begin
     CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    DescOcorrencia := DescricaoRetorno(CodOcorrencia);
 
-    GerarAvisos(CodOcorrencia, DescOcorrencia, '5', '', '');
+    GerarAvisos(CodOcorrencia, '5', '', '');
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerRegistro9(I: Integer);
+procedure TArquivoR_CNAB240.LerRegistro9(nLinha: Integer);
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
 
   PagFor.Registro9.Totais.QtdeLotes := LerCampo(Linha, 18, 6, tcInt);
   PagFor.Registro9.Totais.QtdeRegistros := LerCampo(Linha, 24, 6, tcInt);
   PagFor.Registro9.Totais.QtdeContasConciliadas := LerCampo(Linha, 30, 6, tcInt);
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoA(I: Integer);
+procedure TArquivoR_CNAB240.LerSegmentoA(nLinha: Integer);
 var
   mOk: Boolean;
   RegSeg: string;
   x: Integer;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3A' then
@@ -529,20 +519,19 @@ begin
 
     Aviso := LerCampo(Linha, 230, 1, tcInt);
     CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    DescOcorrencia := DescricaoRetorno(CodOcorrencia);
 
-    GerarAvisos(CodOcorrencia, DescOcorrencia, 'A', '', Credito.SeuNumero);
+    GerarAvisos(CodOcorrencia, 'A', '', Credito.SeuNumero);
   end;
 
-  Linha := ArquivoTXT.Strings[I+1];
+  Linha := ArquivoTXT.Strings[nLinha+1];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   while Pos(RegSeg, '3B/3C/3D/3E/3F/3Z/') > 0 do
   begin
-    Inc(I); //próxima linha do txt a ser lida
+    Inc(nLinha); //próxima linha do txt a ser lida
     {opcionais do segmento A}
-    LerSegmentoB(PagFor.Lote.Last.SegmentoA.Last.SegmentoB, I);
-    LerSegmentoC(PagFor.Lote.Last.SegmentoA.Last.SegmentoC, I);
+    LerSegmentoB(PagFor.Lote.Last.SegmentoA.Last.SegmentoB, nLinha);
+    LerSegmentoC(PagFor.Lote.Last.SegmentoA.Last.SegmentoC, nLinha);
 //    LerSegmentoE(PagFor.Lote.Last.SegmentoA.Last.SegmentoE, I);
 //    LerSegmentoF(PagFor.Lote.Last.SegmentoA.Last.SegmentoF, I);
 //    LerSegmentoZ(PagFor.Lote.Last.SegmentoA.Last.SegmentoZ, I);
@@ -551,7 +540,7 @@ begin
     begin
       with PagFor.Lote.Last.SegmentoA.Last.SegmentoB.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'A', 'B',
+        GerarAvisos(CodOcorrencia, 'A', 'B',
           PagFor.Lote.Last.SegmentoA.Last.Credito.SeuNumero);
       end;
     end;
@@ -560,7 +549,7 @@ begin
     begin
       with PagFor.Lote.Last.SegmentoA.Last.SegmentoC.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'A', 'C',
+        GerarAvisos(CodOcorrencia, 'A', 'C',
           PagFor.Lote.Last.SegmentoA.Last.Credito.SeuNumero);
       end;
     end;
@@ -569,7 +558,7 @@ begin
     begin
       with PagFor.Lote.Last.SegmentoA.Last.SegmentoE.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'A', 'E',
+        GerarAvisos(CodOcorrencia, 'A', 'E',
           PagFor.Lote.Last.SegmentoA.Last.Credito.SeuNumero);
       end;
     end;
@@ -578,24 +567,24 @@ begin
     begin
       with PagFor.Lote.Last.SegmentoA.Last.SegmentoF.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'A', 'F',
+        GerarAvisos(CodOcorrencia, 'A', 'F',
           PagFor.Lote.Last.SegmentoA.Last.Credito.SeuNumero);
       end;
     end;
     *)
 
-    Linha := ArquivoTXT.Strings[I+1];
+    Linha := ArquivoTXT.Strings[nLinha+1];
     RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
   end;
 end;
 
 procedure TArquivoR_CNAB240.LerSegmentoB(mSegmentoBList: TSegmentoBList;
-  I: Integer);
+  nLinha: Integer);
 var
   mOk: Boolean;
   RegSeg: string;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if (RegSeg <> '3B') then
@@ -634,11 +623,11 @@ begin
 end;
 
 procedure TArquivoR_CNAB240.LerSegmentoC(mSegmentoCList: TSegmentoCList;
-  I: Integer);
+  nLinha: Integer);
 var
   RegSeg: string;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if (RegSeg <> '3C') then
@@ -664,21 +653,20 @@ begin
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoE(mSegmentoEList: TSegmentoEList;
-  I: Integer);
+procedure TArquivoR_CNAB240.LerSegmentoE(nLinha: Integer);
 var
   RegSeg: string;
   Ok: Boolean;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if (RegSeg <> '3E') then
     Exit;
 
-  mSegmentoEList.New;
+  PagFor.Lote.Last.SegmentoE.New;
 
-  with mSegmentoEList.Last do
+  with PagFor.Lote.Last.SegmentoE.Last do
   begin
     Convenio := LerCampo(Linha, 33, 20, tcStr);
 
@@ -707,11 +695,11 @@ begin
 end;
 
 procedure TArquivoR_CNAB240.LerSegmentoF(mSegmentoFList: TSegmentoFList;
-  I: Integer);
+  nLinha: Integer);
 var
   RegSeg: string;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if (RegSeg <> '3F') then
@@ -728,12 +716,12 @@ begin
   // Falta Implementar
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoG(I: Integer);
+procedure TArquivoR_CNAB240.LerSegmentoG(nLinha: Integer);
 var
   mOk: Boolean;
   RegSeg: string;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if (RegSeg <> '3G') then
@@ -773,23 +761,23 @@ begin
 
     Desconto1.Codigo := LerCampo(Linha, 205, 1, tcInt);
     Desconto1.Data := LerCampo(Linha, 206, 8, tcDat);
-    Desconto1.Valor := LerCampo(Linha, 114, 15, tcDe2);
+    Desconto1.Valor := LerCampo(Linha, 214, 15, tcDe2);
 
     CodigoProtesto := LerCampo(Linha, 229, 1, tcInt);
     PrazoProtesto := LerCampo(Linha, 230, 2, tcInt);
     DataLimite := LerCampo(Linha, 232, 8, tcDat);
   end;
 
-  LerSegmentoH(PagFor.Lote.Last.SegmentoG.Last.SegmentoH, I);
+  LerSegmentoH(PagFor.Lote.Last.SegmentoG.Last.SegmentoH, nLinha + 1);
 end;
 
 procedure TArquivoR_CNAB240.LerSegmentoH(mSegmentoHList: TSegmentoHList;
-  I: Integer);
+  nLinha: Integer);
 var
   mOk: Boolean;
   RegSeg: string;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if (RegSeg <> '3H') then
@@ -826,12 +814,12 @@ begin
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoJ(I: Integer; var LeuRegistroJ: boolean);
+procedure TArquivoR_CNAB240.LerSegmentoJ(nLinha: Integer; var LeuRegistroJ: boolean);
 var
   mOk: Boolean;
   RegSeg, RegOpc: string;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
   RegOpc := LerCampo(Linha, 18, 2, tcStr);
 
@@ -862,9 +850,8 @@ begin
       ReferenciaSacado := LerCampo(Linha, 183, 20, tcStr);
       NossoNumero := LerCampo(Linha, 203, 20, tcStr);
       CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-      DescOcorrencia := DescricaoRetorno(CodOcorrencia);
 
-      GerarAvisos(CodOcorrencia, DescOcorrencia, 'J', '', ReferenciaSacado);
+      GerarAvisos(CodOcorrencia, 'J', '', ReferenciaSacado);
     end;
   end;
 
@@ -878,35 +865,35 @@ begin
   if not LeuRegistroJ then
     exit;
 
-  Linha := ArquivoTXT.Strings[I+1];
+  Linha := ArquivoTXT.Strings[nLinha+1];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
   RegOpc := LerCampo(Linha, 18, 2, tcStr);
 
   while (Pos(RegSeg, '3B/3C/3D/3E/3F/3Z/') > 0) or
         (RegSeg = '3J') and (Pos(RegOpc, '52/99/') > 0) do
   begin
-    Inc(I); //próxima linha do txt a ser lida
+    Inc(nLinha); //próxima linha do txt a ser lida
 
     {opcionais segmento J}
-    LerSegmentoJ52(PagFor.Lote.Last.SegmentoJ.Last.SegmentoJ52, I);
-    LerSegmentoJ99(PagFor.Lote.Last.SegmentoJ.Last.SegmentoJ99, I);
+    LerSegmentoJ52(PagFor.Lote.Last.SegmentoJ.Last.SegmentoJ52, nLinha);
+    LerSegmentoJ99(PagFor.Lote.Last.SegmentoJ.Last.SegmentoJ99, nLinha);
 //    LerSegmentoB(PagFor.Lote.Last.SegmentoJ.Last.SegmentoB, I);
 //    LerSegmentoC(PagFor.Lote.Last.SegmentoJ.Last.SegmentoC, I);
-    LerSegmentoZ(PagFor.Lote.Last.SegmentoJ.Last.SegmentoZ, I);
+    LerSegmentoZ(PagFor.Lote.Last.SegmentoJ.Last.SegmentoZ, nLinha);
 
-    Linha := ArquivoTXT.Strings[I+1];
+    Linha := ArquivoTXT.Strings[nLinha+1];
     RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
     RegOpc := LerCampo(Linha, 18, 2, tcStr);
   end;
 end;
 
 procedure TArquivoR_CNAB240.LerSegmentoJ52(mSegmentoJ52List: TSegmentoJ52List;
-  I: Integer);
+  nLinha: Integer);
 var
   mOk: Boolean;
   RegSegOpc: string;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSegOpc := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr) +
                LerCampo(Linha, 18, 2, tcStr);
 
@@ -934,12 +921,12 @@ begin
 end;
 
 procedure TArquivoR_CNAB240.LerSegmentoJ99(mSegmentoJ99List: TSegmentoJ99List;
-  I: Integer);
+  nLinha: Integer);
 var
   mOk: Boolean;
   RegSegOpc: string;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSegOpc := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr) +
                LerCampo(Linha, 18, 2, tcStr);
 
@@ -971,19 +958,18 @@ begin
     DataPagamento := LerCampo(Linha, 88, 8, tcDat);
     ValorPagamento := LerCampo(Linha, 96, 15, tcDe2);
     CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    DescOcorrencia := DescricaoRetorno(CodOcorrencia);
 
-    GerarAvisos(CodOcorrencia, DescOcorrencia, 'N', '', SeuNumero);
+    GerarAvisos(CodOcorrencia, 'N', '', SeuNumero);
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoN1(I: Integer);
+procedure TArquivoR_CNAB240.LerSegmentoN1(nLinha: Integer);
 var
   RegSeg: string;
   x: Integer;
   mOk: Boolean;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3N' then
@@ -999,14 +985,6 @@ begin
   begin
     LerSegmentoN(SegmentoN);
 
-    {
-    SegmentoN.CodMovimento := StrToInMovimento(mOk, LerCampo(Linha, 16, 2, tcStr));
-    SegmentoN.SeuNumero := LerCampo(Linha, 18, 20, tcStr);
-    SegmentoN.NossoNumero := LerCampo(Linha, 38, 20, tcStr);
-    SegmentoN.NomeContribuinte := LerCampo(Linha, 58, 30, tcStr);
-    SegmentoN.DataPagamento := LerCampo(Linha, 88, 8, tcDat);
-    SegmentoN.ValorPagamento := LerCampo(Linha, 96, 15, tcDe2);
-    }
     Receita := LerCampo(Linha, 111, 6, tcInt);
     TipoContribuinte := StrToTpInscricao(mOk, LerCampo(Linha, 117, 2, tcStr));
     idContribuinte := LerCampo(Linha, 119, 14, tcStr);
@@ -1014,47 +992,32 @@ begin
     ValorTributo := LerCampo(Linha, 141, 15, tcDe2);
     ValorOutrasEntidades := LerCampo(Linha, 156, 15, tcDe2);
     AtualizacaoMonetaria := LerCampo(Linha, 171, 15, tcDe2);
-    {
-    SegmentoN.CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    SegmentoN.DescOcorrencia := DescricaoRetorno(SegmentoN.CodOcorrencia);
-
-    if POS(SegmentoN.CodOcorrencia, PAGAMENTO_LIBERADO_AVISO) = 0 then
-    begin
-      PagFor.Registro0.Aviso.New;
-
-      PagFor.Registro0.Aviso.Last.CodigoRetorno := SegmentoN.CodOcorrencia;
-      PagFor.Registro0.Aviso.Last.MensagemRetorno := SegmentoN.DescOcorrencia;
-      PagFor.Registro0.Aviso.Last.Segmento := 'N';
-      PagFor.Registro0.Aviso.Last.SegmentoFilho := '';
-      PagFor.Registro0.Aviso.Last.SeuNumero := SegmentoN.SeuNumero;
-    end;
-    }
   end;
 
   {Adicionais segmento N}
   with PagFor.Lote.Last.SegmentoN1.Last.SegmentoN do
   begin
-    LerSegmentoB(SegmentoB, I);
-    LerSegmentoW(SegmentoW, I);
-    LerSegmentoZ(SegmentoZ, I);
+    LerSegmentoB(SegmentoB, nLinha);
+    LerSegmentoW(SegmentoW, nLinha);
+    LerSegmentoZ(SegmentoZ, nLinha);
 
     for x := 0 to SegmentoB.Count - 1 do
     begin
       with SegmentoB.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'N', 'B', SeuNumero);
+        GerarAvisos(CodOcorrencia, 'N', 'B', SeuNumero);
       end;
     end;
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoN2(I: Integer);
+procedure TArquivoR_CNAB240.LerSegmentoN2(nLinha: Integer);
 var
   RegSeg: string;
   x: Integer;
   mOk: Boolean;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3N' then
@@ -1070,14 +1033,6 @@ begin
   begin
     LerSegmentoN(SegmentoN);
 
-    {
-    SegmentoN.CodMovimento := StrToInMovimento(mOk, LerCampo(Linha, 16, 2, tcStr));
-    SegmentoN.SeuNumero := LerCampo(Linha, 18, 20, tcStr);
-    SegmentoN.NossoNumero := LerCampo(Linha, 38, 20, tcStr);
-    SegmentoN.NomeContribuinte := LerCampo(Linha, 58, 30, tcStr);
-    SegmentoN.DataPagamento := LerCampo(Linha, 88, 8, tcDat);
-    SegmentoN.ValorPagamento := LerCampo(Linha, 96, 15, tcDe2);
-    }
     Receita := LerCampo(Linha, 111, 6, tcInt);
     TipoContribuinte := StrToTpInscricao(mOk, LerCampo(Linha, 117, 2, tcStr));
     idContribuinte := LerCampo(Linha, 119, 14, tcStr);
@@ -1087,47 +1042,32 @@ begin
     Multa := LerCampo(Linha, 175, 15, tcDe2);
     Juros := LerCampo(Linha, 190, 15, tcDe2);
     DataVencimento := LerCampo(Linha, 205, 8, tcDat);
-    {
-    SegmentoN.CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    SegmentoN.DescOcorrencia := DescricaoRetorno(SegmentoN.CodOcorrencia);
-
-    if POS(SegmentoN.CodOcorrencia, PAGAMENTO_LIBERADO_AVISO) = 0 then
-    begin
-      PagFor.Registro0.Aviso.New;
-
-      PagFor.Registro0.Aviso.Last.CodigoRetorno := SegmentoN.CodOcorrencia;
-      PagFor.Registro0.Aviso.Last.MensagemRetorno := SegmentoN.DescOcorrencia;
-      PagFor.Registro0.Aviso.Last.Segmento := 'N';
-      PagFor.Registro0.Aviso.Last.SegmentoFilho := '';
-      PagFor.Registro0.Aviso.Last.SeuNumero := SegmentoN.SeuNumero;
-    end;
-    }
   end;
 
   {Adicionais segmento N}
   with PagFor.Lote.Last.SegmentoN2.Last.SegmentoN do
   begin
-    LerSegmentoB(SegmentoB, i);
-    LerSegmentoW(SegmentoW, i);
-    LerSegmentoZ(SegmentoZ, i);
+    LerSegmentoB(SegmentoB, nLinha);
+    LerSegmentoW(SegmentoW, nLinha);
+    LerSegmentoZ(SegmentoZ, nLinha);
 
     for x := 0 to SegmentoB.Count - 1 do
     begin
       with SegmentoB.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'N', 'B', SeuNumero);
+        GerarAvisos(CodOcorrencia, 'N', 'B', SeuNumero);
       end;
     end;
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoN3(I: Integer);
+procedure TArquivoR_CNAB240.LerSegmentoN3(nLinha: Integer);
 var
   RegSeg: string;
   x: Integer;
   mOk: Boolean;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3N' then
@@ -1143,14 +1083,6 @@ begin
   begin
     LerSegmentoN(SegmentoN);
 
-    {
-    SegmentoN.CodMovimento := StrToInMovimento(mOk, LerCampo(Linha, 16, 2, tcStr));
-    SegmentoN.SeuNumero := LerCampo(Linha, 18, 20, tcStr);
-    SegmentoN.NossoNumero := LerCampo(Linha, 38, 20, tcStr);
-    SegmentoN.NomeContribuinte := LerCampo(Linha, 58, 30, tcStr);
-    SegmentoN.DataPagamento := LerCampo(Linha, 88, 8, tcDat);
-    SegmentoN.ValorPagamento := LerCampo(Linha, 96, 15, tcDe2);
-    }
     Receita := LerCampo(Linha, 111, 6, tcInt);
     TipoContribuinte := StrToTpInscricao(mOk, LerCampo(Linha, 117, 2, tcStr));
     idContribuinte := LerCampo(Linha, 119, 14, tcStr);
@@ -1160,49 +1092,34 @@ begin
     ValorPrincipal := LerCampo(Linha, 165, 15, tcDe2);
     Multa := LerCampo(Linha, 180, 15, tcDe2);
     Juros := LerCampo(Linha, 195, 15, tcDe2);
-    {
-    SegmentoN.CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    SegmentoN.DescOcorrencia := DescricaoRetorno(SegmentoN.CodOcorrencia);
-
-    if POS(SegmentoN.CodOcorrencia, PAGAMENTO_LIBERADO_AVISO) = 0 then
-    begin
-      PagFor.Registro0.Aviso.New;
-
-      PagFor.Registro0.Aviso.Last.CodigoRetorno := SegmentoN.CodOcorrencia;
-      PagFor.Registro0.Aviso.Last.MensagemRetorno := SegmentoN.DescOcorrencia;
-      PagFor.Registro0.Aviso.Last.Segmento := 'N';
-      PagFor.Registro0.Aviso.Last.SegmentoFilho := '';
-      PagFor.Registro0.Aviso.Last.SeuNumero := SegmentoN.SeuNumero;
-    end;
-    }
   end;
 
   {Adicionais segmento N}
 
   with PagFor.Lote.Last.SegmentoN3.Last.SegmentoN do
   begin
-    LerSegmentoB(SegmentoB, I);
-    LerSegmentoW(SegmentoW, I);
-    LerSegmentoZ(SegmentoZ, I);
+    LerSegmentoB(SegmentoB, nLinha);
+    LerSegmentoW(SegmentoW, nLinha);
+    LerSegmentoZ(SegmentoZ, nLinha);
 
     for x := 0 to SegmentoB.Count - 1 do
     begin
       with SegmentoB.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'N', 'B', SeuNumero);
+        GerarAvisos(CodOcorrencia, 'N', 'B', SeuNumero);
       end;
     end;
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoN4(I: Integer);
+procedure TArquivoR_CNAB240.LerSegmentoN4(nLinha: Integer);
 var
   RegSeg: string;
   x: Integer;
   mOk: Boolean;
   Tributo: Integer;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3N' then
@@ -1235,28 +1152,28 @@ begin
 
   with PagFor.Lote.Last.SegmentoN4.Last.SegmentoN do
   begin
-    LerSegmentoB(SegmentoB, I);
-    LerSegmentoW(SegmentoW, I);
-    LerSegmentoZ(SegmentoZ, I);
+    LerSegmentoB(SegmentoB, nLinha);
+    LerSegmentoW(SegmentoW, nLinha);
+    LerSegmentoZ(SegmentoZ, nLinha);
 
     for x := 0 to SegmentoB.Count - 1 do
     begin
       with SegmentoB.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'N', 'B', SeuNumero);
+        GerarAvisos(CodOcorrencia, 'N', 'B', SeuNumero);
       end;
     end;
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoN567(I: Integer);
+procedure TArquivoR_CNAB240.LerSegmentoN567(nLinha: Integer);
 var
   RegSeg: string;
   x: Integer;
   mOk: Boolean;
   Tributo: Integer;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3N' then
@@ -1291,27 +1208,27 @@ begin
 
   with PagFor.Lote.Last.SegmentoN567.Last.SegmentoN do
   begin
-    LerSegmentoB(SegmentoB, I);
-    LerSegmentoW(SegmentoW, I);
-    LerSegmentoZ(SegmentoZ, I);
+    LerSegmentoB(SegmentoB, nLinha);
+    LerSegmentoW(SegmentoW, nLinha);
+    LerSegmentoZ(SegmentoZ, nLinha);
 
     for x := 0 to SegmentoB.Count - 1 do
     begin
       with SegmentoB.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'N', 'B', SeuNumero);
+        GerarAvisos(CodOcorrencia, 'N', 'B', SeuNumero);
       end;
     end;
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoN8(I: Integer);
+procedure TArquivoR_CNAB240.LerSegmentoN8(nLinha: Integer);
 var
   RegSeg: string;
   x: Integer;
   mOk: Boolean;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3N' then
@@ -1342,26 +1259,26 @@ begin
 
   with PagFor.Lote.Last.SegmentoN8.Last.SegmentoN do
   begin
-    LerSegmentoB(SegmentoB, I);
-    LerSegmentoW(SegmentoW, I);
-    LerSegmentoZ(SegmentoZ, I);
+    LerSegmentoB(SegmentoB, nLinha);
+    LerSegmentoW(SegmentoW, nLinha);
+    LerSegmentoZ(SegmentoZ, nLinha);
 
     for x := 0 to SegmentoB.Count - 1 do
     begin
       with SegmentoB.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'N', 'B', SeuNumero);
+        GerarAvisos(CodOcorrencia, 'N', 'B', SeuNumero);
       end;
     end;
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoN9(I: Integer);
+procedure TArquivoR_CNAB240.LerSegmentoN9(nLinha: Integer);
 var
   RegSeg: string;
   x: Integer;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3N' then
@@ -1395,26 +1312,26 @@ begin
   {Adicionais segmento N}
   with PagFor.Lote.Last.SegmentoN9.Last.SegmentoN do
   begin
-    LerSegmentoB(SegmentoB, I);
-    LerSegmentoW(SegmentoW, I);
-    LerSegmentoZ(SegmentoZ, I);
+    LerSegmentoB(SegmentoB, nLinha);
+    LerSegmentoW(SegmentoW, nLinha);
+    LerSegmentoZ(SegmentoZ, nLinha);
 
     for x := 0 to SegmentoB.Count - 1 do
     begin
       with SegmentoB.Items[x] do
       begin
-        GerarAvisos(CodOcorrencia, DescOcorrencia, 'N', 'B', SeuNumero);
+        GerarAvisos(CodOcorrencia, 'N', 'B', SeuNumero);
       end;
     end;
   end;
 end;
 
-procedure TArquivoR_CNAB240.LerSegmentoO(I: Integer);
+procedure TArquivoR_CNAB240.LerSegmentoO(nLinha: Integer);
 var
   mOk: Boolean;
   RegSeg: string;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3O' then
@@ -1433,34 +1350,33 @@ begin
     SeuNumero := LerCampo(Linha, 123, 20, tcStr);
     NossoNumero := LerCampo(Linha, 143, 15, tcStr);
     CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    DescOcorrencia := DescricaoRetorno(CodOcorrencia);
 
-    GerarAvisos(CodOcorrencia, DescOcorrencia, 'O', '', SeuNumero);
+    GerarAvisos(CodOcorrencia, 'O', '', SeuNumero);
   end;
 
-  Linha := ArquivoTXT.Strings[I+1];
+  Linha := ArquivoTXT.Strings[nLinha+1];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   while Pos(RegSeg, '3Z') > 0 do
   begin
-    Inc(i); //próxima linha do txt a ser lida
+    Inc(nLinha); //próxima linha do txt a ser lida
 
     {opcionais segmento O}
-    LerSegmentoW(PagFor.Lote.Last.SegmentoO.Last.SegmentoW, i);
-    LerSegmentoB(PagFor.Lote.Last.SegmentoO.Last.SegmentoB, i);
-    LerSegmentoZ(PagFor.Lote.Last.SegmentoO.Last.SegmentoZ, i);
+    LerSegmentoW(PagFor.Lote.Last.SegmentoO.Last.SegmentoW, nLinha);
+    LerSegmentoB(PagFor.Lote.Last.SegmentoO.Last.SegmentoB, nLinha);
+    LerSegmentoZ(PagFor.Lote.Last.SegmentoO.Last.SegmentoZ, nLinha);
 
-    Linha := ArquivoTXT.Strings[I+1];
+    Linha := ArquivoTXT.Strings[nLinha+1];
     RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
   end;
 end;
 
 procedure TArquivoR_CNAB240.LerSegmentoW(mSegmentoWList: TSegmentoWList;
-  I: Integer);
+  nLinha: Integer);
 var
   RegSeg: string;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3W' then
@@ -1476,18 +1392,17 @@ begin
     Informacoes2 := LerCampo(Linha, 97, 80, tcStr);
     Informacoes3 := LerCampo(Linha, 177, 50, tcStr);
     CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
-    DescOcorrencia := DescricaoRetorno(CodOcorrencia);
 
-    GerarAvisos(CodOcorrencia, DescOcorrencia, 'W', '', '');
+    GerarAvisos(CodOcorrencia, 'W', '', '');
   end;
 end;
 
 procedure TArquivoR_CNAB240.LerSegmentoZ(mSegmentoZList: TSegmentoZList;
-  I: Integer);
+  nLinha: Integer);
 var
   RegSeg: string;
 begin
-  Linha := ArquivoTXT.Strings[I];
+  Linha := ArquivoTXT.Strings[nLinha];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
   if RegSeg <> '3Z' then
@@ -1495,9 +1410,15 @@ begin
 
   mSegmentoZList.New;
 
-  mSegmentoZList.Last.Autenticacao := LerCampo(Linha, 15, 64, tcStr);
-  mSegmentoZList.Last.SeuNumero := LerCampo(Linha, 79, 20, tcStr);
-  mSegmentoZList.Last.NossoNumero := LerCampo(Linha, 104, 15, tcStr);
+  with mSegmentoZList.Last do
+  begin
+    Autenticacao := LerCampo(Linha, 15, 64, tcStr);
+    SeuNumero := LerCampo(Linha, 79, 20, tcStr);
+    NossoNumero := LerCampo(Linha, 104, 15, tcStr);
+    CodOcorrencia := LerCampo(Linha, 231, 10, tcStr);
+
+    GerarAvisos(CodOcorrencia, 'Z', '', '');
+  end;
 end;
 
 procedure TArquivoR_CNAB240.LerLote;
@@ -1513,7 +1434,7 @@ begin
   try
     for I := 1 to ArquivoTXT.Count - 1 do
     begin
-      xReg := Copy(ArquivoTXT.Strings[i], 8, 1);
+      xReg := Copy(ArquivoTXT.Strings[I], 8, 1);
 
       if xReg = '1' then
       begin
@@ -1524,6 +1445,7 @@ begin
       if (xReg <> '1') and (xReg <> '5') and (xReg <> '9') then
       begin
         LerSegmentoA(I);
+        LerSegmentoE(I);
         LerSegmentoG(I);
         LerSegmentoJ(I, LeuRegistroJ);
         LerSegmentoN1(I);

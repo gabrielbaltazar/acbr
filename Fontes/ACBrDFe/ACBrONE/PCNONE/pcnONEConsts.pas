@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -60,9 +60,11 @@ const
   DSC_PesoBrutoTotal = 'Peso Bruto Total';
   DSC_NroEixos = 'Numero de Eixos do Veiculo';
   DSC_tpDist = 'Tipo de Distribuição';
+  DSC_ULTNSU = 'Último NSU recebido pela Empresa';
   DSC_NSUFin = 'NSU Final';
   DSC_xREFCOMPL = 'Detalhe da Localização do Equiplamento';
   DSC_NSULeitura = 'NSU Geral da leitura';
+  DSC_DataRef = 'Data de Referencia';
 
 implementation
 

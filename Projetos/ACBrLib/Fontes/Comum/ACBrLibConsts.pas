@@ -1,4 +1,4 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 { Projeto: Componentes ACBr                                                    }
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
@@ -66,6 +66,8 @@ const
   CChavePorta = 'Porta';
   CChaveDevice = 'Device';
 
+  CSessaoConsultaCNPJ = 'ConsultaCNPJ';
+
   CSessaoSistema = 'Sistema';
   CChaveVersao = 'Versao';
   CChaveDescricao = 'Descricao';
@@ -77,6 +79,7 @@ const
   CChaveEmailCodificacao = 'Codificacao';
   CChaveEmailSSL = 'SSL';
   CChaveEmailTLS = 'TLS';
+  CChaveEmailSSLType = 'SSLType';
   CChaveEmailConfirmacao = 'Confirmacao';
   CChaveEmailConfirmacaoEntrega = 'ConfirmacaoEntrega';
   CChaveEmailSegundoPlano = 'SegundoPlano';
@@ -126,6 +129,8 @@ const
   CChaveCasasDecimaisMaskvUnCom = 'CasasDecimais.MaskvUnCom';
   CChaveCasasDecimaisqCom = 'CasasDecimais.qCom';
   CChaveCasasDecimaisvUnCom = 'CasasDecimais.vUnCom';
+  CChaveCasasDecimaisMaskAliquota = 'CasasDecimais.MaskAliquota';
+  CChaveCasasDecimaisAliquota = 'CasasDecimais.Aliquota';
 
   CSessaoIntegrador = 'Integrador';
   CChaveArqLog = 'ArqLog';
@@ -199,6 +204,7 @@ const
   CSessaoRespRetorno = 'Retorno';
   CSessaoRespDistribuicaoDFe = 'DistribuicaoDFe';
   CSessaoRespConsultaCadastro = 'ConsultaCadastro';
+  CSessaoRespArquivo = 'Arquivo';
 
 resourcestring
   SErrLibSemNome = 'Nome da Biblioteca não foi definido';

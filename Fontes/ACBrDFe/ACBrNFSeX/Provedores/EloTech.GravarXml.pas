@@ -39,8 +39,8 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv2, ACBrNFSeXConversao;
+  ACBrUtil.Strings,
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv2;
 
 type
   { TNFSeW_Elotech203 }
@@ -51,9 +51,14 @@ type
 
     function GerarListaItensServico: TACBrXmlNode; override;
     function GerarItemServico: TACBrXmlNodeArray; override;
+    function GerarDadosDeducao(Item: Integer): TACBrXmlNode;
   end;
 
 implementation
+
+uses
+  ACBrNFSeXConsts,
+  ACBrNFSeXConversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -74,24 +79,69 @@ begin
   NrOcorrCodTribMun_1 := -1;
   NrOcorrCodigoMunic_1 := -1;
 
-  NrOcorrAliquotaPis := 0;
-  NrOcorrRetidoPis := 0;
-  NrOcorrAliquotaCofins := 0;
-  NrOcorrRetidoCofins := 0;
-  NrOcorrAliquotaInss := 0;
-  NrOcorrRetidoInss := 0;
-  NrOcorrAliquotaIr := 0;
-  NrOcorrRetidoIr := 0;
-  NrOcorrAliquotaCsll := 0;
-  NrOcorrRetidoCsll := 0;
+  FormatoItemListaServico := filsSemFormatacao;
+  NrOcorrRespRetencao := -1;
+  NrOcorrValorDeducoes := 1;
+  NrOcorrDescIncond := 1;
+  NrOcorrDescCond := 1;
+  NrOcorrOutrasRet := 1;
+
+  NrOcorrAliquotaPis := 1;
+  NrOcorrRetidoPis := 1;
+  NrOcorrAliquotaCofins := 1;
+  NrOcorrRetidoCofins := 1;
+  NrOcorrAliquotaInss := 1;
+  NrOcorrRetidoInss := 1;
+  NrOcorrAliquotaIr := 1;
+  NrOcorrRetidoIr := 1;
+  NrOcorrAliquotaCsll := 1;
+  NrOcorrRetidoCsll := 1;
   NrOcorrInscEstTomador_2 := 0;
+  NrOcorrValorCpp := 0;
+  NrOcorrAliquotaCpp := 0;
+  NrOcorrRetidoCpp := 0;
 
   GerarIDDeclaracao := False;
+end;
+
+function TNFSeW_Elotech203.GerarDadosDeducao(Item: Integer): TACBrXmlNode;
+var
+  aDoc: string;
+begin
+  Result := nil;
+
+  if NFSe.Servico.ItemServico[Item].DadosDeducao.TipoDeducao = tdNenhum then
+    Exit;
+
+  Result := CreateElement('DadosDeducao');
+
+  Result.AppendChild(AddNode(tcStr, '#', 'TipoDeducao', 1, 1, 1,
+    FpAOwner.TipoDeducaoToStr(NFSe.Servico.ItemServico[Item].DadosDeducao.TipoDeducao)));
+
+  aDoc := OnlyNumber(NFSe.Servico.ItemServico[Item].DadosDeducao.CpfCnpj);
+
+  if length(aDoc) <= 11 then
+    Result.AppendChild(AddNode(tcStr, '#', 'Cpf ', 11, 11, 1, aDoc, DSC_CPF))
+  else
+    Result.AppendChild(AddNode(tcStr, '#', 'Cnpj', 14, 14, 1, aDoc, DSC_CNPJ));
+
+  Result.AppendChild(AddNode(tcStr, '#', 'NumeroNotaFiscalReferencia', 1, 15, 0,
+       NFSe.Servico.ItemServico[Item].DadosDeducao.NumeroNotaFiscalReferencia));
+
+  Result.AppendChild(AddNode(tcDe2, '#', 'ValorTotalNotaFiscal', 1, 15, 1,
+             NFSe.Servico.ItemServico[Item].DadosDeducao.ValorTotalNotaFiscal));
+
+  Result.AppendChild(AddNode(tcDe2, '#', 'PercentualADeduzir', 1, 15, 0,
+               NFSe.Servico.ItemServico[Item].DadosDeducao.PercentualADeduzir));
+
+  Result.AppendChild(AddNode(tcDe2, '#', 'ValorADeduzir', 1, 15, 0,
+                    NFSe.Servico.ItemServico[Item].DadosDeducao.ValorADeduzir));
 end;
 
 function TNFSeW_Elotech203.GerarItemServico: TACBrXmlNodeArray;
 var
   i: integer;
+  item: string;
 begin
   Result := nil;
   SetLength(Result, NFSe.Servico.ItemServico.Count);
@@ -100,13 +150,15 @@ begin
   begin
     Result[i] := CreateElement('ItemServico');
 
+    item := FormatarItemServico(NFSe.Servico.ItemServico[i].ItemListaServico, FormatoItemListaServico);
+
     Result[i].AppendChild(AddNode(tcStr, '#', 'ItemListaServico', 1, 6, 1,
-                                 NFSe.Servico.ItemServico[i].ItemListaServico));
+                                                          item, DSC_CLISTSERV));
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'CodigoCnae', 1, 7, 0,
                                        NFSe.Servico.ItemServico[i].CodigoCnae));
 
-    Result[i].AppendChild(AddNode(tcStr, '#', 'Descricao', 1, 20, 0,
+    Result[i].AppendChild(AddNode(tcStr, '#', 'Descricao', 1, 4000, 0,
                                         NFSe.Servico.ItemServico[i].Descricao));
 
     Result[i].AppendChild(AddNode(tcStr, '#', 'Tributavel', 1, 1, 0,
@@ -123,6 +175,8 @@ begin
 
     Result[i].AppendChild(AddNode(tcDe2, '#', 'ValorLiquido', 1, 17, 1,
                                        NFSe.Servico.ItemServico[i].ValorTotal));
+
+    Result[i].AppendChild(GerarDadosDeducao(i));
   end;
 
   if NFSe.Servico.ItemServico.Count > 10 then

@@ -40,8 +40,13 @@ interface
 uses
   Classes, SysUtils, dateutils,
   ACBrDFe, ACBrDFeWebService,
+  ACBrDFeUtil,
   blcksock, synacode,
-  pcnNFe, pcnRetConsReciDFe, pcnRetConsCad, pcnAuxiliar, pcnConversao, pcnConsts,
+  pcnNFe, pcnRetConsReciDFe,
+  ACBrDFeComum.RetConsCad,
+  pcnConversao,
+  ACBrDFeConsts,
+  pcnNFeConsts,
   pcnConversaoNFe, pcnProcNFe, pcnEnvEventoNFe, pcnRetEnvEventoNFe, pcnRetConsSitNFe, 
   pcnAdmCSCNFCe, pcnRetAdmCSCNFCe, pcnDistDFeInt, pcnRetDistDFeInt, pcnRetEnvNFe,
   ACBrNFeNotasFiscais, ACBrNFeConfiguracoes;
@@ -624,9 +629,12 @@ uses
   ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime, ACBrUtil.XMLHTML,
   ACBrUtil.FilesIO,
   ACBrCompress, ACBrNFe, ACBrConsts,
-  pcnGerador, pcnConsStatServ, pcnRetConsStatServ,
+  pcnGerador,
+  ACBrDFeComum.ConsCad,
+  ACBrDFeComum.ConsStatServ,
+  ACBrDFeComum.RetConsStatServ,
   pcnConsSitNFe, pcnInutNFe, pcnRetInutNFe, pcnConsReciDFe,
-  pcnConsCad, pcnLeitor, ACBrIntegrador;
+  pcnLeitor, ACBrIntegrador;
 
 { TNFeWebService }
 
@@ -829,12 +837,7 @@ begin
     ConsStatServ.TpAmb := FPConfiguracoesNFe.WebServices.Ambiente;
     ConsStatServ.CUF := FPConfiguracoesNFe.WebServices.UFCodigo;
 
-//    ConsStatServ.Versao := FPVersaoServico;
-    AjustarOpcoes( ConsStatServ.Gerador.Opcoes );
-    ConsStatServ.GerarXML;
-
-    // Atribuindo o XML para propriedade interna //
-    FPDadosMsg := ConsStatServ.Gerador.ArquivoFormatoXML;
+    FPDadosMsg := ConsStatServ.GerarXML;
   finally
     ConsStatServ.Free;
   end;
@@ -852,11 +855,11 @@ begin
 
   NFeRetorno := TRetConsStatServ.Create('');
   try
-    NFeRetorno.Leitor.Arquivo := ParseText(FPRetWS);
+    NFeRetorno.XmlRetorno := ParseText(FPRetWS);
     NFeRetorno.LerXml;
 
     Fversao := NFeRetorno.versao;
-    FtpAmb := NFeRetorno.tpAmb;
+    FtpAmb := TpcnTipoAmbiente(NFeRetorno.tpAmb);
     FverAplic := NFeRetorno.verAplic;
     FcStat := NFeRetorno.cStat;
     FxMotivo := NFeRetorno.xMotivo;
@@ -902,7 +905,7 @@ begin
                            'Retorno: %s' + LineBreak +
                            'Observação: %s' + LineBreak),
                    [Fversao, TpAmbToStr(FtpAmb), FverAplic, IntToStr(FcStat),
-                    FxMotivo, CodigoParaUF(FcUF),
+                    FxMotivo, CodigoUFparaUF(FcUF),
                     IfThen(FdhRecbto = 0, '', FormatDateTimeBr(FdhRecbto)),
                     IntToStr(FTMed),
                     IfThen(FdhRetorno = 0, '', FormatDateTimeBr(FdhRetorno)),
@@ -983,6 +986,23 @@ procedure TNFeRecepcao.InicializarServico;
 var
   ok: Boolean;
 begin
+  // Alteração visando atender a NT 2023/002 que elimina o envio em Lote de NFC-e
+  // a partir de 04/09/2023 - Produção
+  if FPConfiguracoesNFe.Geral.ModeloDF = moNFCe then
+  begin
+    Sincrono := True;
+
+    if FNotasFiscais.Count > 1 then
+      GerarException(ACBrStr('ERRO: Conjunto de NFC-e transmitidas (máximo de 1 NFC-e)' +
+        ' excedido. Quantidade atual: ' + IntToStr(FNotasFiscais.Count)));
+  end
+  else
+  begin
+    if FNotasFiscais.Count > 50 then
+      GerarException(ACBrStr('ERRO: Conjunto de NF-e transmitidas (máximo de 50 NF-e)' +
+        ' excedido. Quantidade atual: ' + IntToStr(FNotasFiscais.Count)));
+  end;
+
   if FNotasFiscais.Count > 0 then    // Tem NFe ? Se SIM, use as informações do XML
     FVersaoDF := DblToVersaoDF(ok, FNotasFiscais.Items[0].NFe.infNFe.Versao)
   else
@@ -1296,7 +1316,7 @@ begin
                       FNFeRetornoSincrono.verAplic,
                       IntToStr(FNFeRetornoSincrono.protNFe.cStat),
                       FNFeRetornoSincrono.protNFe.xMotivo,
-                      CodigoParaUF(FNFeRetornoSincrono.cUF),
+                      CodigoUFparaUF(FNFeRetornoSincrono.cUF),
                       FormatDateTimeBr(FNFeRetornoSincrono.dhRecbto),
                       FNFeRetornoSincrono.chNfe])
   else
@@ -1314,7 +1334,7 @@ begin
                       FNFeRetorno.verAplic,
                       IntToStr(FNFeRetorno.cStat),
                       FNFeRetorno.xMotivo,
-                      CodigoParaUF(FNFeRetorno.cUF),
+                      CodigoUFparaUF(FNFeRetorno.cUF),
                       FNFeRetorno.infRec.nRec,
                       IfThen(FNFeRetorno.InfRec.dhRecbto = 0, '',
                              FormatDateTimeBr(FNFeRetorno.InfRec.dhRecbto)),
@@ -1745,7 +1765,7 @@ begin
                    [FNFeRetorno.versao, TpAmbToStr(FNFeRetorno.tpAmb),
                     FNFeRetorno.verAplic, FNFeRetorno.nRec,
                     IntToStr(FNFeRetorno.cStat), FNFeRetorno.xMotivo,
-                    CodigoParaUF(FNFeRetorno.cUF), IntToStr(FNFeRetorno.cMsg),
+                    CodigoUFparaUF(FNFeRetorno.cUF), IntToStr(FNFeRetorno.cMsg),
                     FNFeRetorno.xMsg]);
   {*)}
 end;
@@ -1960,7 +1980,7 @@ begin
                    FNFeRetorno.verAplic, FNFeRetorno.nRec,
                    IntToStr(FNFeRetorno.cStat),
                    FNFeRetorno.xMotivo,
-                   CodigoParaUF(FNFeRetorno.cUF)]);
+                   CodigoUFparaUF(FNFeRetorno.cUF)]);
   {*)}
 end;
 
@@ -2537,7 +2557,7 @@ begin
                            'Protocolo: %s ' + LineBreak +
                            'Digest Value: %s ' + LineBreak),
                    [Fversao, FNFeChave, TpAmbToStr(FTpAmb), FverAplic,
-                    IntToStr(FcStat), FXMotivo, CodigoParaUF(FcUF), FNFeChave,
+                    IntToStr(FcStat), FXMotivo, CodigoUFparaUF(FcUF), FNFeChave,
                     FormatDateTimeBr(FDhRecbto), FProtocolo, FprotNFe.digVal]);
   {*)}
 end;
@@ -2756,7 +2776,7 @@ begin
                            'UF: %s ' + LineBreak +
                            'Recebimento: %s ' + LineBreak),
                    [Fversao, TpAmbToStr(FTpAmb), FverAplic, IntToStr(FcStat),
-                    FxMotivo, CodigoParaUF(FcUF),
+                    FxMotivo, CodigoUFparaUF(FcUF),
                     IfThen(FdhRecbto = 0, '', FormatDateTimeBr(FdhRecbto))]);
   {*)}
 end;
@@ -2904,15 +2924,12 @@ begin
     ConCadNFe.IE := FIE;
     ConCadNFe.CNPJ := FCNPJ;
     ConCadNFe.CPF := FCPF;
-    ConCadNFe.Versao :=  '2.00';
+    ConCadNFe.Versao := FPVersaoServico;
 
-    AjustarOpcoes( ConCadNFe.Gerador.Opcoes );
-    ConCadNFe.GerarXML;
-
-    FPDadosMsg := ConCadNFe.Gerador.ArquivoFormatoXML;
+    FPDadosMsg := ConCadNFe.GerarXML;
 
     if (FPConfiguracoesNFe.Geral.VersaoDF >= ve400) and
-      (UpperCase(FUF) = 'MT') then
+       (UpperCase(FUF) = 'MT') then
     begin
       FPDadosMsg := '<nfeDadosMsg>' + FPDadosMsg + '</nfeDadosMsg>';
     end;
@@ -2930,7 +2947,7 @@ begin
 
   VerificarSemResposta;
 
-  FRetConsCad.Leitor.Arquivo := ParseText(FPRetWS);
+  FRetConsCad.XmlRetorno := ParseText(FPRetWS);
   FRetConsCad.LerXml;
 
   Fversao := FRetConsCad.versao;
@@ -2955,14 +2972,14 @@ begin
                            'Consulta: %s ' + sLineBreak),
                    [FRetConsCad.versao, FRetConsCad.verAplic,
                    IntToStr(FRetConsCad.cStat), FRetConsCad.xMotivo,
-                   CodigoParaUF(FRetConsCad.cUF),
+                   CodigoUFparaUF(FRetConsCad.cUF),
                    FormatDateTimeBr(FRetConsCad.dhCons)]);
   {*)}
 end;
 
 function TNFeConsultaCadastro.GerarUFSoap: String;
 begin
-  Result := '<cUF>' + IntToStr(UFparaCodigo(FUF)) + '</cUF>';
+  Result := '<cUF>' + IntToStr(UFparaCodigoUF(FUF)) + '</cUF>';
 end;
 
 procedure TNFeConsultaCadastro.InicializarServico;
@@ -3711,7 +3728,7 @@ begin
   VerificarSemResposta;
 
   // Processando em UTF8, para poder gravar arquivo corretamente //
-  FretDistDFeInt.Leitor.Arquivo := FPRetWS;
+  FretDistDFeInt.Leitor.Arquivo := ParseText(FPRetWS);
   FretDistDFeInt.LerXml;
 
   for I := 0 to FretDistDFeInt.docZip.Count - 1 do
@@ -3738,11 +3755,12 @@ begin
                       '-procEventoNFe.xml';
       end;
 
-      if NaoEstaVazio(NomeArq) then
-        FlistaArqs.Add( FNomeArq );
-
       aPath := GerarPathDistribuicao(FretDistDFeInt.docZip.Items[I]);
-      FretDistDFeInt.docZip.Items[I].NomeArq := aPath + FNomeArq;
+
+      if NaoEstaVazio(NomeArq) then
+        FlistaArqs.Add(aPath + PathDelim + FNomeArq);
+
+      FretDistDFeInt.docZip.Items[I].NomeArq := aPath + PathDelim + FNomeArq;
 
       if (FPConfiguracoesNFe.Arquivos.Salvar) and NaoEstaVazio(NomeArq) then
       begin
@@ -3758,12 +3776,13 @@ begin
 
   { Processsa novamente, chamando ParseTXT, para converter de UTF8 para a String
     nativa e Decodificar caracteres HTML Entity }
+  {
   FretDistDFeInt.Free;   // Limpando a lista
   FretDistDFeInt := TRetDistDFeInt.Create('NFe');
 
   FretDistDFeInt.Leitor.Arquivo := ParseText(FPRetWS);
   FretDistDFeInt.LerXml;
-
+  }
   FPMsg := FretDistDFeInt.xMotivo;
   Result := (FretDistDFeInt.CStat = 137) or (FretDistDFeInt.CStat = 138);
 end;

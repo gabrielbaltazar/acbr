@@ -39,16 +39,19 @@ interface
 uses
   Classes, SysUtils,
   ACBrBase, ACBrDFeReport,
-  pcnNFe, pcnConversao, pcnAuxiliar;
+  pcnNFe, pcnConversao;
 
 type
   TpcnTributos = (trbNenhum, trbNormal, trbSeparadamente);
   TinfAdcProd = (infNenhum, infDescricao, infSeparadamente);
+  TValorLiquido = (TVLFrete,TVLDesconto, TVLOutros, TVLSeguros);
+  TValorLiquidoFlag = Set of TValorLiquido;
 
   { TACBrDFeDANFeReport }
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
   {$ENDIF RTL230_UP}
+
   TACBrDFeDANFeReport = class(TACBrDFeReport)
   private
     FACBrNFe: TComponent;
@@ -115,7 +118,10 @@ type
     function ManterVprod(dVProd, dvDesc: Double): String; virtual;
     function ManterCst(dCRT: TpcnCRT; dCSOSN: TpcnCSOSNIcms; dCST: TpcnCSTIcms): String; virtual;
     function ManterdvTotTrib(dvTotTrib: Double): String; virtual;
-
+    function CalcularValorLiquidoItem(const ANFE: TNFe;  const ANItem: Integer; ATipoCalculo: TValorLiquidoFlag): Double; overload;
+    function CalcularValorLiquidoItem(const ANFE: TNFe; const ANItem: Integer):Double;overload;
+    function CalcularValorDescontoItem(const ANFE: TNFe; const ANItem: Integer):Double;
+    function CalcularValorDescontoTotal(const ANFE: TNFe):Double;
   public
     property Protocolo: String read FProtocoloNFe write FProtocoloNFe;
     property Cancelada: Boolean read FNFeCancelada write FNFeCancelada default False;
@@ -149,6 +155,36 @@ uses
   StrUtils;
 
 { TACBrDFeDANFeReport }
+
+function TACBrDFeDANFeReport.CalcularValorLiquidoItem(const ANFE: TNFe;  const ANItem: Integer; ATipoCalculo: TValorLiquidoFlag): Double;
+var LProd : TProd;
+  LICMSDesonerado, LOutros, LFrete, LDesconto : Double;
+begin
+  Result := 0;
+  if (ANItem < 0) or (ANItem >= ANFe.Det.Count) then
+    Exit;
+  LProd := ANFe.Det.Items[ ANItem ].Prod;
+
+  LFrete := 0;
+  LDesconto := 0;
+  LOutros := 0;
+  LICMSDesonerado := 0;
+
+  if ExibeICMSDesoneradoComoDesconto then
+    LICMSDesonerado := ANFe.Det.Items[ ANItem ].Imposto.ICMS.vICMSDeson;
+
+  if (TVLFrete in ATipoCalculo) or (TVLSeguros in ATipoCalculo) then
+      LFrete := LProd.vFrete + LProd.vSeg;
+
+  if TVLDesconto in ATipoCalculo then
+      LDesconto := LICMSDesonerado + LProd.vDesc;
+
+  if TVLOutros in ATipoCalculo then
+      LOutros := LProd.vOutro;
+
+  Result := LProd.vProd - LDesconto + LOutros + LFrete;
+
+end;
 
 constructor TACBrDFeDANFeReport.Create(AOwner: TComponent);
 begin
@@ -224,7 +260,7 @@ end;
 function TACBrDFeDANFeReport.GetSeparadorPathPDF(const aInitialPath: String): String;
 var
   dhEmissao: TDateTime;
-  DescricaoModelo: String;
+  wLiteral, DescricaoModelo: String;
   ANFe: TNFe;
 begin
   Result := aInitialPath;
@@ -241,17 +277,18 @@ begin
         dhEmissao := Now;
 
       DescricaoModelo := '';
-      if TACBrNFe(ACBrNFe).Configuracoes.Arquivos.AdicionarLiteral then
-      begin
-        case ANFe.Ide.modelo of
-          0: DescricaoModelo := TACBrNFe(FACBrNFe).GetNomeModeloDFe;
-          55: DescricaoModelo := 'NFe';
-          65: DescricaoModelo := 'NFCe';
-        end;
+      case ANFe.Ide.modelo of
+        0: DescricaoModelo := TACBrNFe(FACBrNFe).GetNomeModeloDFe;
+        55: DescricaoModelo := 'NFe';
+        65: DescricaoModelo := 'NFCe';
       end;
 
+      wLiteral := '';
+      if TACBrNFe(ACBrNFe).Configuracoes.Arquivos.AdicionarLiteral then
+        wLiteral := DescricaoModelo;
+
       Result := TACBrNFe(FACBrNFe).Configuracoes.Arquivos.GetPath(Result,
-        DescricaoModelo, ANFe.Emit.CNPJCPF, ANFe.Emit.IE, dhEmissao, DescricaoModelo);
+        wLiteral, ANFe.Emit.CNPJCPF, ANFe.Emit.IE, dhEmissao, DescricaoModelo);
     end;
   end;
 end;
@@ -400,7 +437,7 @@ begin
   if infAdFisco > '' then
   begin
     if ANFe.InfAdic.infCpl > '' then
-      Result := infAdFisco + IIf(Copy(infAdFisco, Length(infAdFisco), 1) = ';', '', '; ')
+      Result := infAdFisco + IfThen(Copy(infAdFisco, Length(infAdFisco), 1) = ';', '', '; ')
     else
       Result := infAdFisco;
   end;
@@ -550,7 +587,7 @@ end;
 
 function TACBrDFeDANFeReport.ManterCst(dCRT: TpcnCRT; dCSOSN: TpcnCSOSNIcms; dCST: TpcnCSTIcms): String;
 begin
-  if dCRT = crtSimplesNacional then
+  if (dCRT = crtSimplesNacional) and not (dCST in [cst02, cst15, cst53, cst61]) then
     Result := CSOSNIcmsToStr(dCSOSN)
   else
     Result := CSTICMSToStr(dCST);
@@ -566,6 +603,39 @@ begin
     dValor := 0;
 
   Result := FormatFloatBr(dValor);
+end;
+
+function TACBrDFeDANFeReport.CalcularValorDescontoTotal(const ANFE: TNFe): Double;
+var LICMSDesonerado : Double;
+begin
+  if ExibeICMSDesoneradoComoDesconto then
+    LICMSDesonerado := ANFE.Total.ICMSTot.vICMSDeson
+  else
+    LICMSDesonerado := 0;
+
+  Result := ANFE.Total.ICMSTot.vDesc + LICMSDesonerado;
+end;
+
+function TACBrDFeDANFeReport.CalcularValorLiquidoItem(const ANFE: TNFe; const ANItem: Integer): Double;
+begin
+  Result := CalcularValorLiquidoItem(ANFE, ANItem, [TVLFrete, TVLDesconto, TVLOutros, TVLSeguros]);
+end;
+
+function TACBrDFeDANFeReport.CalcularValorDescontoItem(const ANFE: TNFe; const ANItem: Integer): Double;
+var LProd : TProd;
+  LICMSDesonerado : Double;
+begin
+  Result := 0;
+  if (ANItem < 0) or (ANItem >= ANFE.Det.Count) then
+    Exit;
+  LProd := ANFE.Det.Items[ANItem].Prod;
+
+  if ExibeICMSDesoneradoComoDesconto then
+    LICMSDesonerado := ANFE.Det.Items[ANItem].Imposto.ICMS.vICMSDeson
+  else
+    LICMSDesonerado := 0;
+
+  Result := LProd.vDesc + LICMSDesonerado;
 end;
 
 end.

@@ -145,6 +145,7 @@ type
     FDataOcorrencia: TDateTime;
     FDataCredito: TDateTime;
     FDataBaixa: TDateTime;
+    FDataMovimento: TDateTime;
     FDataMoraJuros: TDateTime;
     FValorDespesaCobranca: Currency;
     FValorAbatimento: Currency;
@@ -154,10 +155,15 @@ type
     FValorOutrasDespesas: Currency;
     FValorOutrosCreditos: Currency;
     FValorRecebido: Currency;
+    FValorPago: Currency;
     FSeuNumero: String;
     FCodTipoOcorrencia: String;
     FDescricaoTipoOcorrencia: String;
     FRejeicoes: TObjectList;
+    FHoraBaixa: String;
+    FEstadoTituloCobranca : String;
+
+
 
   public
     constructor Create(const AID: Integer; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao); reintroduce;
@@ -176,6 +182,7 @@ type
     property DataOcorrencia: TDateTime read FDataOcorrencia write FDataOcorrencia;
     property DataCredito: TDateTime read FDataCredito write FDataCredito;
     property DataBaixa: TDateTime read FDataBaixa write FDataBaixa;
+    property DataMovimento: TDateTime read FDataMovimento write FDataMovimento;
     property DataMoraJuros: TDateTime read FDataMoraJuros write FDataMoraJuros;
     property ValorDocumento: Currency read FValorDocumento write FValorDocumento;
     property ValorDespesaCobranca: Currency read FValorDespesaCobranca write FValorDespesaCobranca;
@@ -186,10 +193,16 @@ type
     property ValorOutrasDespesas: Currency read FValorOutrasDespesas write FValorOutrasDespesas;
     property ValorOutrosCreditos: Currency read FValorOutrosCreditos write FValorOutrosCreditos;
     property ValorRecebido: Currency read FValorRecebido write FValorRecebido;
+    property ValorPago: Currency read FValorPago write FValorPago;
     property SeuNumero: String read FSeuNumero write FSeuNumero;
     property CodTipoOcorrencia: String read FCodTipoOcorrencia write FCodTipoOcorrencia;
     property DescricaoTipoOcorrencia: String read FDescricaoTipoOcorrencia write FDescricaoTipoOcorrencia;
     property Rejeicoes: TObjectList read FRejeicoes write FRejeicoes;
+    property EstadoTituloCobranca: String read FEstadoTituloCobranca write FEstadoTituloCobranca;
+    property HoraBaixa: String read FHoraBaixa write FHoraBaixa;
+   
+
+
 
   end;
 
@@ -310,6 +323,8 @@ type
     FDataProtesto: TDateTime;
     FDiasDeProtesto: Integer;
     FDataBaixa: TDateTime;
+    FHoraBaixa: String;
+    FDataMovimento : TDateTime;
     FDataLimitePagto: TDateTime;
     FValorDespesaCobranca: Currency;
     FValorAbatimento: Currency;
@@ -338,6 +353,8 @@ type
     Femv: String;
     Furl_Pix: String;
     FTx_ID: String;
+    FCodigoCanalTituloCobranca: String;
+    FEstadoTituloCobranca: String;
 
   public
     constructor Create( AID: Integer; const ATipo: TACBrLibRespostaTipo; const AFormato: TACBrLibCodificacao);
@@ -381,6 +398,8 @@ type
     property DataProtesto: TDateTime read FDataProtesto write FDataProtesto ;
     property DiasDeProtesto: Integer read FDiasDeProtesto write FDiasDeProtesto ;
     property DataBaixa: TDateTime read FDataBaixa write FDataBaixa ;
+    property HoraBaixa: String read FHoraBaixa write FHoraBaixa;
+    property DataMovimento: TDateTime read FDataMovimento write FDataMovimento ;
     property DataLimitePagto: TDateTime read FDataLimitePagto write FDataLimitePagto ;
     property ValorDespesaCobranca: Currency read FValorDespesaCobranca write FValorDespesaCobranca ;
     property ValorAbatimento: Currency read FValorAbatimento write FValorAbatimento ;
@@ -409,6 +428,10 @@ type
     property emv: String read Femv write Femv;
     property url_Pix: String read Furl_Pix write Furl_Pix;
     property Tx_ID: String read FTx_ID write FTx_ID;
+    property CodigoCanalTituloCobranca: String read FCodigoCanalTituloCobranca write FCodigoCanalTituloCobranca;
+    property EstadoTituloCobranca: String read FEstadoTituloCobranca write FEstadoTituloCobranca;
+
+
 
   end;
 
@@ -446,7 +469,11 @@ type
     FCodRetorno: String;
     FOriRetorno: String;
     FMsgRetorno: String;
-    FExcecao: String;
+    FExcecao   : String;
+
+    FHTTPResultCode:Integer;
+    FJSON: String;
+
     FIndicadorContinuidade: Boolean;
     FProximoIndice: Integer;
 
@@ -487,6 +514,9 @@ type
     property CodRetorno: String                  read FCodRetorno                  write FCodRetorno;
     property OriRetorno: String                  read FOriRetorno                  write FOriRetorno;
     property MsgRetorno: String                  read FMsgRetorno                  write FMsgRetorno;
+    property HTTPResultCode: Integer             read FHTTPResultCode              write FHTTPResultCode;
+    property JSON: String                        read FJSON                        write FJSON;
+
     property Excecao: String                     read FExcecao                     write FExcecao;
     property IndicadorContinuidade: Boolean      read FIndicadorContinuidade       write FIndicadorContinuidade;
     property ProximoIndice: Integer              read FProximoIndice               write FProximoIndice;
@@ -601,7 +631,7 @@ constructor TRetornoTituloWeb.Create(AID: Integer;
 var
   AChave: String;
 begin
-  AChave := CSessaoTituloRetorno + IntToStr(AID + 1);
+  AChave := CSessaoTituloRetorno + IntToStr(AID); //TK-4477
 
   inherited Create(AChave, ATipo, AFormato);
   FAID:= AID;
@@ -654,7 +684,9 @@ begin
     DataMulta:= DadosRet.TituloRet.DataMulta;
     DataProtesto:= DadosRet.TituloRet.DataProtesto;
     DiasDeProtesto:= DadosRet.TituloRet.DiasDeProtesto;
-    DataBaixa:= DadosRet.TituloRet.DataBaixa;
+    DataBaixa := DadosRet.TituloRet.DataBaixa;
+    HoraBaixa := DadosRet.TituloRet.HoraBaixa;
+    DataMovimento:= DadosRet.TituloRet.DataMovimento;
     DataLimitePagto:= DadosRet.TituloRet.DataLimitePagto;
     ValorDespesaCobranca:= DadosRet.TituloRet.ValorDespesaCobranca;
     ValorAbatimento:= DadosRet.TituloRet.ValorAbatimento;
@@ -680,6 +712,8 @@ begin
     ValorMaxPagamento:= DadosRet.TituloRet.ValorMaxPagamento;
     PercentualMinPagamento:= DadosRet.TituloRet.PercentualMinPagamento;
     PercentualMaxPagamento:= DadosRet.TituloRet.PercentualMaxPagamento;
+    CodigoCanalTituloCobranca:=DadosRet.TituloRet.CodigoCanalTituloCobranca;
+    EstadoTituloCobranca:=DadosRet.TituloRet.EstadoTituloCobranca;;
 
     if ( DadosRet.TituloRet.EMV  <> EmptyStr) then
     begin
@@ -722,6 +756,9 @@ begin
   CodRetorno:= RetEnvio.CodRetorno;
   OriRetorno:= RetEnvio.OriRetorno;
   MsgRetorno:= RetEnvio.MsgRetorno;
+  HTTPResultCode := RetEnvio.HTTPResultCode;
+  JSON := RetEnvio.JSON;
+
   Excecao:= RetEnvio.DadosRet.Excecao;
   IndicadorContinuidade:= RetEnvio.indicadorContinuidade;
 
@@ -751,6 +788,8 @@ begin
   IDLinhaDig:= RetEnvio.DadosRet.IDBoleto.LinhaDig;
   IDNossoNum:= RetEnvio.DadosRet.IDBoleto.NossoNum;
   IDURL:= RetEnvio.DadosRet.IDBoleto.URL;
+
+
 
   for J:= 0 to  RetEnvio.ListaRejeicao.Count -1 do
   begin
@@ -832,7 +871,7 @@ end;
 constructor TRetornoDadosTitulo.Create(const AID: Integer; const ATipo: TACBrLibRespostaTipo;
   const AFormato: TACBrLibCodificacao);
 begin
-  inherited Create(CSessaoTitulo + IntToStr(AID + 1), ATipo, AFormato);
+  inherited Create(CSessaoTitulo + IntToStr(AID+1), ATipo, AFormato);
   FID := AID;
   FRejeicoes := TObjectList.Create(True);
 
@@ -864,6 +903,7 @@ begin
     DataOcorrencia := ACBrBoleto.ListadeBoletos[FID].DataOcorrencia;
     DataCredito := ACBrBoleto.ListadeBoletos[FID].DataCredito;
     DataBaixa := ACBrBoleto.ListadeBoletos[FID].DataBaixa;
+    HoraBaixa := ACBrBoleto.ListadeBoletos[FID].HoraBaixa;
     DataMoraJuros := ACBrBoleto.ListadeBoletos[FID].DataMoraJuros;
     ValorDespesaCobranca := ACBrBoleto.ListadeBoletos[FID].ValorDespesaCobranca;
     ValorAbatimento := ACBrBoleto.ListadeBoletos[FID].ValorAbatimento;
@@ -873,6 +913,7 @@ begin
     ValorOutrasDespesas := ACBrBoleto.ListadeBoletos[FID].ValorOutrasDespesas;
     ValorOutrosCreditos := ACBrBoleto.ListadeBoletos[FID].ValorOutrosCreditos;
     ValorRecebido := ACBrBoleto.ListadeBoletos[FID].ValorRecebido;
+    ValorPago := ACBrBoleto.ListadeBoletos[FID].ValorPago;
     SeuNumero := ACBrBoleto.ListadeBoletos[FID].SeuNumero;
     CodTipoOcorrencia := GetEnumName( TypeInfo(TACBrTipoOcorrencia),
                                              Integer(ACBrBoleto.ListadeBoletos[FID].OcorrenciaOriginal.Tipo));

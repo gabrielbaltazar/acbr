@@ -39,8 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
-  ACBrNFSeXParametros, ACBrNFSeXConversao,
+  ACBrNFSeXParametros,
   ACBrNFSeXGravarXml_ABRASFv1, ACBrNFSeXGravarXml_ABRASFv2;
 
 type
@@ -68,7 +67,9 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings;
+  ACBrUtil.Strings,
+  ACBrNFSeXConsts,
+  ACBrNFSeXConversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -137,9 +138,6 @@ begin
 
   FormatoAliq := tcDe2;
 
-  GerarEnderecoExterior := True;
-
-  NrOcorrNIFTomador := 0;
   NrOcorrCodTribMun_1 := 0;
   NrOcorrCodigoNBS := 0;
   NrOcorrInformacoesComplemetares := 0;
@@ -160,6 +158,16 @@ begin
   if (NFSe.Tomador.Endereco.CodigoMunicipio = '9999999') or
      (NFSe.Tomador.Endereco.UF = 'EX') then
     NrOcorrCodigoPaisServico := 1;
+
+  if (NFSe.OptanteSimplesNacional = snSim) or
+     (NFSe.RegimeEspecialTributacao = retMicroempresarioIndividual) then
+  begin
+    if FpAOwner.ConfigGeral.Params.TemParametro('TagAliquotaObrigSN') then
+      NrOcorrAliquota := 1;
+
+    if FpAOwner.ConfigGeral.Params.TemParametro('TagValorISSObrigSN') then
+      NrOcorrValorIss := 1;
+  end;
 
   Result := inherited GerarXml;
 end;

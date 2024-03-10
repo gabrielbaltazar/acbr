@@ -66,6 +66,7 @@ type
 
     procedure TratarRetornoEmitir(Response: TNFSeEmiteResponse); override;
     procedure TratarRetornoConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
+    procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
     procedure GerarMsgDadosCancelaNFSe(Response: TNFSeCancelaNFSeResponse;
       Params: TNFSeParamsResponse); override;
@@ -94,6 +95,13 @@ begin
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
     CancPreencherCodVerificacao := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarUnitario := True;
+      ConsultarRps := True;
+      CancelarNfse := True;
+    end;
   end;
 
   with ConfigAssinar do
@@ -180,7 +188,7 @@ begin
                                      '<CodigoMunicipio>' +
                                         IntToStr(TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio) +
                                      '</CodigoMunicipio>' +
-                                     CodVerif +
+                                     CodigoVerificacao +
                                      Motivo +
                                      '<Id>' +
                                         InfoCanc.ChaveNFSe +
@@ -199,8 +207,8 @@ function TACBrNFSeProviderCenti202.SituacaoTributariaToStr(
   const t: TnfseSituacaoTributaria): string;
 begin
   Result := EnumeradoToStr(t,
-                             ['0', '1', '2'],
-                             [stRetencao, stNormal, stSubstituicao]);
+                             ['1', '2'],
+                             [stRetencao, stNormal]);
 end;
 
 function TACBrNFSeProviderCenti202.StrToSituacaoTributaria(out ok: boolean;
@@ -280,7 +288,7 @@ begin
           with Response do
           begin
             NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
-            CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+            CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
           end;
 
           NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('IdentificacaoRps'), tcStr);
@@ -293,6 +301,82 @@ begin
       end;
 
       Response.Sucesso := (Response.Erros.Count = 0);
+    except
+      on E:Exception do
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod999;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(Document);
+  end;
+end;
+
+procedure TACBrNFSeProviderCenti202.TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse);
+var
+  Document: TACBrXmlDocument;
+  Status: string;
+  AErro: TNFSeEventoCollectionItem;
+  ANode: TACBrXmlNode;
+begin
+  Status := '';
+  Document := TACBrXmlDocument.Create;
+
+  try
+    try
+      if Response.ArquivoRetorno = '' then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod201;
+        AErro.Descricao := ACBrStr(Desc201);
+        Exit
+      end;
+
+      Document.LoadFromXml(Response.ArquivoRetorno);
+
+      ProcessarMensagemErros(Document.Root, Response);
+
+      Response.Sucesso := (Response.Erros.Count = 0);
+
+      ANode := Document.Root;
+
+      ANode := ANode.Childrens.FindAnyNs('ListaNfse');
+
+      if not Assigned(ANode) then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod202;
+        AErro.Descricao := ACBrStr(Desc202);
+        Exit;
+      end;
+
+      ANode := ANode.Childrens.FindAnyNs('CompNfse');
+
+      if not Assigned(ANode) then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod203;
+        AErro.Descricao := ACBrStr(Desc203);
+        Exit;
+      end;
+
+      ANode := ANode.Childrens.FindAnyNs('Nfse');
+      if not Assigned(ANode) or (ANode = nil) then Exit;
+
+      ANode := ANode.Childrens.FindAnyNs('InfNfse');
+      if not Assigned(ANode) or (ANode = nil) then Exit;
+
+      Status := ObterConteudoTag(ANode.Childrens.FindAnyNs('Status'), tcStr);
+
+      if Status <> '3' then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod204;
+        AErro.Descricao := ACBrStr(Desc204);
+        Exit;
+      end;
     except
       on E:Exception do
       begin
@@ -379,7 +463,7 @@ begin
         with Response do
         begin
           NumeroNota := NumNFSe;
-          CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+          CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
           Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataEmissao'), FpFormatoDataEmissao);
         end;
 

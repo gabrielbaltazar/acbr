@@ -66,7 +66,7 @@ type
     procedure GerarRegistroTrailler400(ARemessa : TStringList);  override;
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia) : String; override;
     function CodOcorrenciaToTipo(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
-    function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
+    function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia):String; override;
     Procedure LerRetorno240(ARetorno:TStringList); override;
     procedure LerRetorno400(ARetorno: TStringList); override;
     function CodMotivoRejeicaoToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia; CodMotivo: Integer): String; override;
@@ -350,15 +350,35 @@ begin
      else
        ADataDesconto := PadRight('', 8, '0');
 
-     if (DataProtesto > 0) then
-     begin
-       case TipoDiasProtesto of
-         diCorridos : ProtestoBaixa := '1';
-         diUteis    : ProtestoBaixa := '2';
+     case CodigoNegativacao of
+       cnProtestarCorrido: ProtestoBaixa := '1';
+       cnProtestarUteis: ProtestoBaixa := '2';
+       cnNaoProtestar: ProtestoBaixa := '3';
+       cnNegativar: begin
+         case TipoDiasNegativacao of
+           diCorridos: ProtestoBaixa := '4';
+           diUteis: ProtestoBaixa := '5';
+         end;
        end;
-     end
+       cnNaoNegativar: ProtestoBaixa := '6';
      else
-       ProtestoBaixa:= '3';
+       if (DataNegativacao > 0) then
+       begin
+         case TipoDiasNegativacao of
+           diCorridos: ProtestoBaixa := '4';
+           diUteis: ProtestoBaixa := '5';
+         end;
+       end
+       else if (DataProtesto > 0) then
+       begin
+         case TipoDiasProtesto of
+           diCorridos : ProtestoBaixa := '1';
+           diUteis    : ProtestoBaixa := '2';
+         end;
+       end
+       else
+         ProtestoBaixa:= '3';
+     end;
 
      {SEGMENTO P}
      Result:= IntToStrZero(ACBrBanco.Numero, 3)                                         + // 1 a 3 - Código do banco
@@ -929,7 +949,7 @@ begin
    {ACBrBanco.TamanhoMaximoNossoNum := 10;}
 end;
 
-function TACBrBancoCredisis.TipoOCorrenciaToCod (
+function TACBrBancoCredisis.TipoOcorrenciaToCod (
    const TipoOcorrencia: TACBrTipoOcorrencia ) : String;
 begin
    Result := '';
@@ -1010,7 +1030,7 @@ var
 begin
 
   Result := '';
-  CodOcorrencia := StrToIntDef(TipoOCorrenciaToCod(TipoOcorrencia),0);
+  CodOcorrencia := StrToIntDef(TipoOcorrenciaToCod(TipoOcorrencia),0);
 
   if (ACBrBanco.ACBrBoleto.LayoutRemessa = c240) then
   begin

@@ -84,6 +84,15 @@ begin
 
   ConfigGeral.ConsultaNFSe := False;
 
+  with ConfigGeral.ServicosDisponibilizados do
+  begin
+    ConsultarRps := False;
+    ConsultarFaixaNfse := False;
+    ConsultarServicoPrestado := False;
+    ConsultarServicoTomado := False;
+    SubstituirNfse := False;
+  end;
+
   ConfigAssinar.IncluirURI := False;
 
   ConfigWebServices.AtribVerLote := '';
@@ -159,7 +168,7 @@ begin
       Response.ArquivoEnvio := '<' + Prefixo + TagEnvio + NameSpace + '>' +
                              '<' + Prefixo + 'LoteRps' + NameSpace2 + '>' +
                                '<' + Prefixo2 + 'NumeroLote>' +
-                                  Response.Lote +
+                                  Response.NumeroLote +
                                '</' + Prefixo2 + 'NumeroLote>' +
                                Prestador +
                                '<' + Prefixo2 + 'QuantidadeRps>' +
@@ -170,7 +179,7 @@ begin
                                '</' + Prefixo2 + 'ListaRps>' +
 
                                '<' + Prefixo2 + 'Id>' +
-                                  'Lote_' + Response.Lote +
+                                  'Lote_' + Response.NumeroLote +
                                '</' + Prefixo2 + 'Id>' +
                                '<' + Prefixo2 + 'Versao>' +
                                   ConfigWebServices.VersaoDados +

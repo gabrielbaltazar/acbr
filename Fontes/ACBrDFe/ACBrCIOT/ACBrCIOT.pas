@@ -40,7 +40,7 @@ uses
   Classes, SysUtils,
   ACBrDFe, ACBrDFeConfiguracoes, ACBrDFeException, ACBrBase,
   ACBrCIOTConfiguracoes, ACBrCIOTWebServices, ACBrCIOTContratos,
-  pcnConversao, pcnConversaoCIOT;
+  ACBrCIOTConversao;
 
 const
   ACBRCIOT_VERSAO = '1.0.0';
@@ -75,7 +75,8 @@ type
 
     procedure EnviarEmail(const sPara, sAssunto: String;
       sMensagem: TStrings = nil; sCC: TStrings = nil; Anexos: TStrings = nil;
-      StreamCIOT: TStream = nil; const NomeArq: String = ''; sReplyTo: TStrings = nil); override;
+      StreamCIOT: TStream = nil; const NomeArq: String = ''; 
+	  sReplyTo: TStrings = nil; sBCC: TStrings = nil); override;
 
     function Enviar(const ANomePDF: String = ''): Boolean;
 
@@ -108,8 +109,7 @@ implementation
 uses
   dateutils,
   ACBrUtil.Base,
-  ACBrUtil.Strings,
-  pcnAuxiliar;
+  ACBrUtil.Strings;
 
 {$IFDEF FPC}
  {$R ACBrCIOTServicos.rc}
@@ -137,13 +137,13 @@ end;
 
 procedure TACBrCIOT.EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
   sCC: TStrings; Anexos: TStrings; StreamCIOT: TStream; const NomeArq: String;
-  sReplyTo: TStrings);
+  sReplyTo: TStrings; sBCC: TStrings);
 begin
   SetStatus( stCIOTEmail );
 
   try
     inherited EnviarEmail(sPara, sAssunto, sMensagem, sCC, Anexos, StreamCIOT, NomeArq,
-      sReplyTo);
+      sReplyTo, sBCC);
   finally
     SetStatus( stCIOTIdle );
   end;

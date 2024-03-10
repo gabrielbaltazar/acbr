@@ -115,6 +115,8 @@ begin
           AliquotaInss := ObterConteudo(ANodes[i].Childrens.FindAnyNs('TributoAliquota'), tcDe2);
           ValorInss    := ObterConteudo(ANodes[i].Childrens.FindAnyNs('TributoValor'), tcDe2);
         end;
+
+        RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
       end;
     end;
   end;
@@ -124,8 +126,12 @@ function TNFSeR_Conam.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -251,12 +257,14 @@ begin
     with Servico do
     begin
       Discriminacao    := ObterConteudo(AuxNode.Childrens.FindAnyNs('DiscrSrv'), tcStr);
+      Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
+      VerificarSeConteudoEhLista(Discriminacao);
+
       ItemListaServico := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodSrv'), tcStr);
 
-      if FpAOwner.ConfigGeral.TabServicosExt then
-        xItemListaServico := ObterDescricaoServico(OnlyNumber(ItemListaServico))
-      else
-        xItemListaServico := CodItemServToDesc(OnlyNumber(ItemListaServico));
+      xItemListaServico := ItemListaServicoDescricao(ItemListaServico);
     end;
 
     ValorIssRet := ObterConteudo(AuxNode.Childrens.FindAnyNs('VlIssRet'), tcDe2);
@@ -315,9 +323,17 @@ begin
       end;
     end;
 
+    with NFSe.Servico.Valores do
+    begin
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
+    end;
+
     //valores dos tributos
     LerReg30(AuxNode);
   end;
+
+  LerCampoLink;
 end;
 
 function TNFSeR_Conam.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
@@ -363,6 +379,10 @@ begin
       ItemListaServico := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodSrv'), tcStr);
 
       Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('DiscrSrv'), tcStr);
+      Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
+      VerificarSeConteudoEhLista(Discriminacao);
 
       with Valores do
       begin
@@ -459,6 +479,12 @@ begin
       email.New;
       email[i].emailCC := aValor;
 //      Inc(i);
+    end;
+
+    with NFSe.Servico.Valores do
+    begin
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
     end;
 
     //valores dos tributos

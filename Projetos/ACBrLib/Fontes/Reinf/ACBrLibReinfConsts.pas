@@ -41,11 +41,12 @@ uses
 
 const
   CLibReinfNome = 'ACBrLibReinf';
-  CLibReinfVersao = '0.0.1';
+  CLibReinfVersao = '1.0.0.8';
 
   CSessaoRespEnvio = 'retornoLoteEventos';
   CSessaoRespEnvioideTransmissor = 'ideTransmissor';
   CSessaoRespEnviostatus = 'status';
+  CSessaoRespEnviodadosRecepcaoLote = 'dadosRecepcaoLote';
   CSessaoRespEnvioocorrencias = 'ocorrencias';
 
   CSessaoRespEnvioevento = 'evento';
@@ -55,7 +56,12 @@ const
   CSessaoRespConsulta = 'evtTotalContrib';
   CSessaoRespConsultainfoTotalContrib = 'infoTotalContrib';
 
+  CSessaoRespEnvioevtRet = 'evtRet';
+
+  CSessaoRespEnvioevtRetCons = 'evtRetCons';
+
   CSessaoRetornoideEvento = 'ideEvento';
+  CSessaoRetornoideContribuinte = 'ideContribuinte';
   CSessaoRetornoideContri = 'ideContri';
   CSessaoRetornoideStatus = 'ideStatus';
   CSessaoRetornoregOcorrs = 'regOcorrs';
@@ -66,11 +72,36 @@ const
   CSessaoRetornoinfoCRTom = 'infoCRTom';
   CSessaoRetornoRPrest = 'RPrest';
   CSessaoRetornoRRecRepAD = 'RRecRepAD'; 
-  CSessaoRetornoRComl = 'RComl'; 
-  CSessaoRetornoRCPRB = 'RCPRB'; 
+  CSessaoRetornoRComl = 'RComl';
+  CSessaoRetornoRAquis = 'RAquis';
+  CSessaoRetornoRCPRB = 'RCPRB';
   CSessaoRetornoRRecEspetDesp = 'RRecEspetDesp';
 
+  CSessaoRespideEstab = 'ideEstab';
+  CSessaoResptottotApurMen = 'totApurMen';
+  CSessaoResptotApurTribMen = 'totApurTribMen';
+  CSessaoResptottotApurQui = 'totApurQui';
+  CSessaoResptotApurTribQui = 'totApurTribQui';
+  CSessaoResptottotApurDec = 'totApurDec';
+  CSessaoResptotApurTribDec = 'totApurTribDec';
+  CSessaoResptottotApurSem = 'totApurSem';
+  CSessaoResptotApurTribSem = 'totApurTribSem';
+  CSessaoResptottotApurDia = 'totApurDia';
+  CSessaoResptotApurTribDia = 'totApurTribDia';
+
+  CSessaoRespinfoCR_CNR = 'infoCR_CNR';
+  CSessaoRespinfoTotalCR = 'infoTotalCR';
+
   CSessaoReinf = 'Reinf';
+
+  ErrValidacaoReinf = -11;
+
+Resourcestring
+  SErroReinfAbrir = 'Erro ao abrir o arquivo do Reinf: %s';
+  SMsgReinfEventoAdicionado = 'Evento Adicionado: %s';
+  SErroReinfConsulta = 'Erro ao Consultar Evento - Parâmetro não Preenchido';
+  SInfEventosCarregados = '%d Evento(s) Carregado(s)';
+  SInfReinfCarregadas = '%d Reinf(s) Carregada(s)';
 
 implementation
 

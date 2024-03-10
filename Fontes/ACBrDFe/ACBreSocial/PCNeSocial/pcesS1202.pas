@@ -59,12 +59,12 @@ uses
 		System.Contnrs,
   {$IfEnd}
   ACBrBase,
-  pcnConversao, 
+  ACBrDFeConsts,
+  pcnConversao,
 	pcnGerador,
   ACBrUtil.Base,
   ACBrUtil.FilesIO,
   ACBrUtil.DateTime,
-  pcnConsts,
   pcesCommon, 
 	pcesConversaoeSocial, 
 	pcesGerador;
@@ -759,6 +759,7 @@ end;
 function TEvtRmnRPPS.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
 
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -850,10 +851,14 @@ begin
         dmDevItem.ideDmDev := sFim;
         dmDevItem.codCateg := INIRec.ReadInteger(sSecao, 'codCateg', 0);
         dmDevItem.indRRA   := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'indRRA', EmptyStr));
+
+        sSecao := 'infoRRA'+ IntToStrZero(I, 3);
         dmDevItem.infoRRA.tpProcRRA := eSStrToTpProcRRA(Ok, INIRec.ReadString(sSecao, 'tpProcRRA', EmptyStr));
         dmDevItem.infoRRA.nrProcRRA := INIRec.ReadString(sSecao, 'nrProcRRA', EmptyStr);
         dmDevItem.infoRRA.descRRA   := INIRec.ReadString(sSecao, 'descRRA' , EmptyStr);
         dmDevItem.infoRRA.qtdMesesRRA := StrToFloatDef(INIRec.ReadString(sSecao, 'qtdMesesRRA', EmptyStr), 0);
+
+        sSecao := 'despProcJud'+ IntToStrZero(I, 3);
         dmDevItem.infoRRA.despProcJud.vlrDespCustas := StrToFloatDef(INIRec.ReadString(sSecao, 'vlrDespCustas', EmptyStr), 0);
         dmDevItem.infoRRA.despProcJud.vlrDespAdvogados := StrToFloatDef(INIRec.ReadString(sSecao, 'vlrDespAdvogados', EmptyStr), 0);
 
@@ -861,7 +866,7 @@ begin
         while (true) do
         begin
           //De 0 a 99;
-          sSecao := 'ideADV'+ IntToStrZero(I,3) + IntToStrZero(J,2);
+          sSecao := 'ideAdv'+ IntToStrZero(I,3) + IntToStrZero(J,2);
           sFim   := INIRec.ReadString(sSecao, 'nrInsc', 'FIM');
 
           if(Length(sFim) <= 0) or (sFim = 'FIM')then
@@ -957,7 +962,7 @@ begin
 
               ideEstabItem := ideEstab.New;
               ideEstabItem.tpInsc := eSStrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
-              IdeEstabItem.nrInsc := INIRec.ReadString(sSecao, 'nrIncs', EmptyStr);
+              IdeEstabItem.nrInsc := INIRec.ReadString(sSecao, 'nrInsc', EmptyStr);
 
               L := 1;
               while(true) do

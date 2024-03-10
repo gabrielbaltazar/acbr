@@ -46,7 +46,7 @@ uses
   ACBrBase,
   pcnConversao, pcnGerador,
   ACBrUtil.Base, ACBrUtil.FilesIO,
-  pcnConsts,
+  ACBrDFeConsts,
   pcnCommonReinf, pcnConversaoReinf, pcnGeradorReinf;
 
 type
@@ -507,7 +507,7 @@ begin
   try
     Self.VersaoDF := TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF;
 
-    Self.Id := GerarChaveReinf(now, self.ideContri.NrInsc, self.Sequencial);
+    Self.Id := GerarChaveReinf(now, self.ideContri.NrInsc, self.Sequencial, self.ideContri.TpInsc);
 
     GerarCabecalho('evtInfoCPRB');
     Gerador.wGrupo('evtCPRB id="' + Self.Id + '"');

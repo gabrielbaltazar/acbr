@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -37,8 +37,10 @@ unit pcnConsFoto;
 interface
 
 uses
-  SysUtils, Classes, pcnAuxiliar, pcnConversao, pcnGerador, ACBrUtil.Base,
-  pcnConsts, pcnONEConsts;
+  SysUtils, Classes,
+  ACBrDFeConsts,
+  pcnConversao, pcnGerador, ACBrUtil.Base,
+  pcnONEConsts;
 
 type
 

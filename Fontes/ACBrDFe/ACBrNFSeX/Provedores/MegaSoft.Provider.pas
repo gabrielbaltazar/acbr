@@ -80,6 +80,18 @@ begin
   begin
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := False;
+      EnviarLoteSincrono := False;
+      ConsultarLote := False;
+      ConsultarFaixaNfse := False;
+      ConsultarServicoPrestado := False;
+      ConsultarServicoTomado := False;
+      CancelarNfse := False;
+      SubstituirNfse := False;
+    end;
   end;
 
   ConfigAssinar.RpsGerarNFSe := True;
@@ -94,7 +106,13 @@ begin
 
   ConfigMsgDados.DadosCabecalho := GetCabecalho('');
 
-  SetNomeXSD('nfse_v01.xsd');
+  SetNomeXSD('***');
+
+  with ConfigSchemas do
+  begin
+    GerarNFSe := 'nfse_v01.xsd';
+    ConsultarNFSeRps := 'nfse_v01.xsd';
+  end;
 end;
 
 function TACBrNFSeProviderMegaSoft200.CriarGeradorXml(
@@ -195,7 +213,7 @@ function TACBrNFSeXWebserviceMegaSoft200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := RemoverIdentacao(Result);

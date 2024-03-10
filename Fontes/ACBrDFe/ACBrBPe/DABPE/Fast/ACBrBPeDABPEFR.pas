@@ -54,7 +54,7 @@ uses
   ACBrBPe, 
   pcnConversao, 
   StrUtils, 
-  pcnConversaoBPe,
+  ACBrBPeConversao,
   Graphics, 
   ACBrDFe;
 
@@ -140,7 +140,7 @@ type
 implementation
 
 uses
-  ACBrDFeUtil, ACBrDelphiZXingQRCode,pcnAuxiliar,ACBrImage;
+  ACBrDFeUtil, ACBrDelphiZXingQRCode, ACBrImage;
 
 { TACBrBPeDABPEFR }
 

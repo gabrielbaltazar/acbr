@@ -36,7 +36,15 @@ unit ACBrBoletoRet_Santander;
 interface
 
 uses
-  Classes, SysUtils, ACBrBoleto, ACBrBoletoWS, ACBrBoletoRetorno,  ACBrUtil, DateUtils, pcnConversao;
+  Classes,
+  SysUtils,
+  ACBrBoleto,
+  ACBrBoletoWS,
+  ACBrBoletoRetorno,
+  ACBrUtil,
+  DateUtils,
+  pcnConversao,
+  ACBrBoletoWS.SOAP;
 
 type
   { TRetornoEnvio_Santander }
@@ -75,8 +83,14 @@ function TRetornoEnvio_Santander.LerRetorno(const ARetornoWS: TACBrBoletoRetorno
 var
   RetornoSantander: TACBrBoletoRetornoWS;
   lXML: String;
+  TipoOperacao : TOperacao;
 begin
   Result := True;
+
+  TipoOperacao := ACBrBoleto.Configuracoes.WebService.Operacao;
+  ARetornoWS.HTTPResultCode := HTTPResultCode;
+  ARetornoWS.JSONEnvio      := EnvWs;
+  ARetornoWS.Header.Operacao := TipoOperacao;
 
   lXML := StringReplace(Leitor.Arquivo, 'ns2:', '', [rfReplaceAll]) ;
   lXML := StringReplace(lXML, C_URL_Retorno, '', [rfReplaceAll]) ;

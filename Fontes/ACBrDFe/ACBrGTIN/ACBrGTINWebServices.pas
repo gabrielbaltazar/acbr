@@ -38,7 +38,8 @@ interface
 
 uses
   Classes, SysUtils, synacode,
-  pcnConversao, pcnConsts,
+  ACBrDFeConsts,
+  pcnConversao,
   ACBrDFe, ACBrDFeWebService,
   ACBrGTINConversao, ACBrGTINConfiguracoes;
 
@@ -363,7 +364,7 @@ begin
     FdhResp := GTINRetorno.dhResp;
     FtpGTIN := GTINRetorno.tpGTIN;
     FxProd := GTINRetorno.xProd;
-    FNCM := GTINRetorno.NCM;
+    FNCM := PadLeft(GTINRetorno.NCM, 8, '0');
     FCEST := GTINRetorno.CEST;
 
     Result := True;

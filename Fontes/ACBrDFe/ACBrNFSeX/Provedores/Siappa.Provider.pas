@@ -73,8 +73,8 @@ type
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoEmitir(Response: TNFSeEmiteResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
@@ -118,8 +118,19 @@ begin
   with ConfigGeral do
   begin
     ModoEnvio := meLoteSincrono;
+
+    Autenticacao.RequerLogin := True;
+    Autenticacao.RequerChaveAutorizacao := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarNfse := True;
+      CancelarNfse := True;
+      GerarToken := True;
+    end;
   end;
-                               
+
   ConfigSchemas.Validar := False;
 end;
 
@@ -189,7 +200,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs(AMessageTag + '_out_codigo_retorno'), tcStr);
-      AErro.Descricao := ACBrStr(vDescricao);
+      AErro.Descricao := vDescricao;
       AErro.Correcao := '';
     end;
   end;
@@ -247,7 +258,7 @@ begin
           NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ws_001_out_nfse_numero'), tcStr);
           Data := EncodeDataHora( ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ws_001_out_nfse_data_hora'), tcStr),
                                   'DD/MM/YYYY HH:NN:SS' );
-          CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ws_001_out_nfse_cod_validacao'), tcStr);
+          CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ws_001_out_nfse_cod_validacao'), tcStr);
           Link := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ws_001_out_nfse_url_emissao'), tcStr);
         end;
       end;
@@ -264,7 +275,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderSiappa.PrepararConsultaNFSe(
+procedure TACBrNFSeProviderSiappa.PrepararConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
@@ -363,7 +374,7 @@ begin
                            '</Sdt_ws_003_in_cons_nfse_token>';
 end;
 
-procedure TACBrNFSeProviderSiappa.TratarRetornoConsultaNFSe(
+procedure TACBrNFSeProviderSiappa.TratarRetornoConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   Document: TACBrXmlDocument;

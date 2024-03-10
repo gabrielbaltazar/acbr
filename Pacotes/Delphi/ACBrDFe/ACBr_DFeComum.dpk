@@ -37,6 +37,8 @@ requires
   ACBr_TCP;
 
 contains
+  ACBrDFeConsts in '..\..\..\Fontes\ACBrDFe\ACBrDFeConsts.pas',
+
   ACBrXmlBase in '..\..\..\Fontes\ACBrDFe\ACBrXmlBase.pas',
   ACBrXmlDocument in '..\..\..\Fontes\ACBrDFe\ACBrXmlDocument.pas',
   ACBrXmlReader in '..\..\..\Fontes\ACBrDFe\ACBrXmlReader.pas',
@@ -48,7 +50,19 @@ contains
   ACBrDFe in '..\..\..\Fontes\ACBrDFe\ACBrDFe.pas',
   ACBrDFeException in '..\..\..\Fontes\ACBrDFe\ACBrDFeException.pas',
   ACBrDFeSSL in '..\..\..\Fontes\ACBrDFe\ACBrDFeSSL.pas',
-  
+
+  ACBrDFeComum.ConsCad in '..\..\..\Fontes\ACBrDFe\Comum\ACBrDFeComum.ConsCad.pas',
+  ACBrDFeComum.RetConsCad in '..\..\..\Fontes\ACBrDFe\Comum\ACBrDFeComum.RetConsCad.pas',
+  ACBrDFeComum.ConsReciDFe in '..\..\..\Fontes\ACBrDFe\Comum\ACBrDFeComum.ConsReciDFe.pas',
+  ACBrDFeComum.RetConsReciDFe in '..\..\..\Fontes\ACBrDFe\Comum\ACBrDFeComum.RetConsReciDFe.pas',
+  ACBrDFeComum.ConsStatServ in '..\..\..\Fontes\ACBrDFe\Comum\ACBrDFeComum.ConsStatServ.pas',
+  ACBrDFeComum.RetConsStatServ in '..\..\..\Fontes\ACBrDFe\Comum\ACBrDFeComum.RetConsStatServ.pas',
+  ACBrDFeComum.Proc in '..\..\..\Fontes\ACBrDFe\Comum\ACBrDFeComum.Proc.pas',
+  ACBrDFeComum.DistDFeInt in '..\..\..\Fontes\ACBrDFe\Comum\ACBrDFeComum.DistDFeInt.pas',
+  ACBrDFeComum.RetDistDFeInt in '..\..\..\Fontes\ACBrDFe\Comum\ACBrDFeComum.RetDistDFeInt.pas',
+  ACBrDFeComum.SignatureClass in '..\..\..\Fontes\ACBrDFe\Comum\ACBrDFeComum.SignatureClass.pas',
+  ACBrDFeComum.RetEnvio in '..\..\..\Fontes\ACBrDFe\Comum\ACBrDFeComum.RetEnvio.pas',
+
   {$IfNDef DFE_SEM_MSXML}
     ACBrMSXML2_TLB in '..\..\..\Fontes\Terceiros\Ole\ACBrMSXML2_TLB.pas',
   {$EndIf}

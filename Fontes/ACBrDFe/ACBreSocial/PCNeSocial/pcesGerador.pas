@@ -51,7 +51,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils, variants,
-  pcnGerador, pcnLeitor, pcnConversao, pcnAuxiliar, pcnConsts,
+  pcnGerador, pcnLeitor, pcnConversao,
+  ACBrDFeConsts,
   pcesCommon, pcesConversaoeSocial;
 
 type
@@ -239,8 +240,7 @@ begin
   ArqXML := XMLEvento;
 
   // XML já deve estar em UTF8, para poder ser assinado //
-  ArqXML := RemoverDeclaracaoXML(ArqXML);//Para forçar a conversão em UTF8.
-  ArqXML := ConverteXMLtoUTF8(ArqXML);
+  ArqXML := NativeStringToUTF8(ArqXML);
   FXMLOriginal := ArqXML;
 
   with TACBreSocial(FACBreSocial) do
@@ -307,7 +307,7 @@ begin
   lFileName := CaminhoArquivo;
   lStr:= TStringList.Create;
   try
-    lStr.Text := NativeStringToUTF8(string(XML));
+    lStr.Text := string(XML);
     lStr.SaveToFile(ChangeFileExt(lFileName,'.xml'));
   finally
     lStr.Free;
@@ -348,7 +348,7 @@ var
   Evento: string;
 begin
   AXML := FXMLAssinado;
-  Evento := SchemaeSocialToStr(Schema) + PrefixoVersao +
+  Evento := SchemaeSocialToStr(Schema) + '-' +
           VersaoeSocialToStrSchemas(TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF);
 
 
@@ -393,7 +393,7 @@ procedure TeSocialEvento.GerarCabecalho(const Namespace: String);
 begin
   with TACBreSocial(FACBreSocial) do
   begin
-    SSL.NameSpaceURI := ACBRESOCIAL_NAMESPACE_URI + Namespace + '/v' +
+    SSL.NameSpaceURI := ACBRESOCIAL_NAMESPACE_URI + Namespace + '/' +
                         VersaoeSocialToStrSchemas(Configuracoes.Geral.VersaoDF);
 
     Gerador.wGrupo(ENCODING_UTF8, '', False);
@@ -436,13 +436,13 @@ begin
       Result := Result + copy(OnlyNumber(Copy(CNPJF, 1, 8)) + '00000000000000', 1, 14);
   end;
 
-  Result := Result + pcnAuxiliar.IntToStrZero(nAno, 4);
-  Result := Result + pcnAuxiliar.IntToStrZero(nMes, 2);
-  Result := Result + pcnAuxiliar.IntToStrZero(nDia, 2);
-  Result := Result + pcnAuxiliar.IntToStrZero(nHora, 2);
-  Result := Result + pcnAuxiliar.IntToStrZero(nMin, 2);
-  Result := Result + pcnAuxiliar.IntToStrZero(nSeg, 2);
-  Result := Result + pcnAuxiliar.IntToStrZero(sequencial, 5);
+  Result := Result + IntToStrZero(nAno, 4);
+  Result := Result + IntToStrZero(nMes, 2);
+  Result := Result + IntToStrZero(nDia, 2);
+  Result := Result + IntToStrZero(nHora, 2);
+  Result := Result + IntToStrZero(nMin, 2);
+  Result := Result + IntToStrZero(nSeg, 2);
+  Result := Result + IntToStrZero(sequencial, 5);
 end;
 
 procedure TeSocialEvento.GerarCNH(pCnh: TCNH);
@@ -560,7 +560,7 @@ begin
     Gerador.wCampo(tcDat, '', 'dtNascto', 10, 10, 1, pDependente.Items[i].DtNascto);
     Gerador.wCampo(tcStr, '', 'cpfDep',   11, 11, 0, pDependente.Items[i].CpfDep);
 
-    if (VersaoDF > ve02_05_00) then
+    if (VersaoDF >= ve02_05_00) then
       if (pDependente.Items[i].sexoDep = 'F') or (pDependente.Items[i].sexoDep = 'M') then
         Gerador.wCampo(tcStr, '', 'sexoDep',   1,  1, 0, pDependente.Items[i].sexoDep);
 
@@ -574,6 +574,9 @@ begin
     else
       Gerador.wCampo(tcStr, '', 'incTrab',   1,  1, 1, eSSimNaoToStr(pDependente.Items[i].incTrab));
 
+    if VersaoDF >= veS01_02_00 then
+      Gerador.wCampo(tcStr, '', 'descrDep',  0, 100, 0, pDependente.Items[i].descrDep);
+    
     Gerador.wGrupo('/dependente');
   end;
 
@@ -981,10 +984,6 @@ begin
     Gerador.wCampo(tcStr, '', 'justContr',   1, 999, 1, pTrabTemporario.justContr);
 
     if VersaoDF <= ve02_05_00 then
-      if (pTrabTemporario.tpinclContr <> icNenhum) then
-        Gerador.wCampo(tcInt, '', 'tpInclContr', 1,   1, 1, eSTpInclContrToStr(pTrabTemporario.tpinclContr));
-
-    if VersaoDF <= ve02_05_00 then
       GerarIdeTomadorServ(pTrabTemporario.ideTomadorServ)
     else
       GerarIdeEstabVinc(pTrabTemporario.ideEstabVinc);
@@ -1128,7 +1127,7 @@ begin
 
   if (pEmp.TpInsc = tiCNPJ) then
   begin
-    if (VersaoDF <= veS01_00_00) or bProcJudFap or (pTpInscEstab = tiCNO) then
+    if (pAliqRat.Fap > 0) or bProcJudFap or (pTpInscEstab = tiCNO) then
       Gerador.wCampo(tcDe4, '', 'fap',          1, 5, 0, pAliqRat.Fap);
 
     if (VersaoDF <= ve02_05_00) then
@@ -1426,12 +1425,24 @@ end;
 
 procedure TeSocialEvento.GerarInfoAprend(pAprend: TAprend);
 begin
-  if (pAprend.NrInsc <> EmptyStr) then
+  if (pAprend.NrInsc <> EmptyStr) or (pAprend.cnpjEntQual <> EmptyStr) then
   begin
     Gerador.wGrupo('aprend');
 
-    Gerador.wCampo(tcStr, '', 'tpInsc', 1,  1, 1, eSTpInscricaoToStr(pAprend.TpInsc));
-    Gerador.wCampo(tcStr, '', 'nrInsc', 1, 15, 1, pAprend.NrInsc);
+    if VersaoDF >= veS01_02_00 then
+    begin
+      Gerador.wCampo(tcStr, '', 'indAprend',   1,  1, 1, eStpIndAprendToStr(pAprend.indAprend));
+      Gerador.wCampo(tcStr, '', 'cnpjEntQual', 0, 15, 0, pAprend.cnpjEntQual);
+    end;
+
+    if pAprend.NrInsc <> EmptyStr then
+    begin
+      Gerador.wCampo(tcStr, '', 'tpInsc', 1,  1, 1, eSTpInscricaoToStr(pAprend.TpInsc));
+      Gerador.wCampo(tcStr, '', 'nrInsc', 1, 15, 1, pAprend.NrInsc);
+    end;
+
+    if VersaoDF >= veS01_02_00 then
+      Gerador.wCampo(tcStr, '', 'cnpjPrat', 0, 15, 0, pAprend.cnpjPrat);
 
     Gerador.wGrupo('/aprend');
   end;
@@ -1456,6 +1467,9 @@ begin
 
     Gerador.wCampo(tcStr, '', 'cnpjSindCategProf', 14, 14, 1, pInfoCeletista.cnpjSindCategProf);
 
+    if (VersaoDF >= veS01_02_00) and (pInfoCeletista.matAnotJud <> '') then
+      Gerador.wCampo(tcStr, '', 'matAnotJud',  1, 30, 1, pInfoCeletista.matAnotJud);
+    
     if (pInfoCeletista.FGTS.DtOpcFGTS > 0) then
       GerarFGTS(pInfoCeletista.FGTS);
 
@@ -1482,8 +1496,8 @@ begin
     Gerador.wCampo(tcStr, '', 'defIntelectual', 1, 1, 1, eSSimNaoToStr(pInfoDeficiencia.DefIntelectual));
     Gerador.wCampo(tcStr, '', 'reabReadap',     1, 1, 1, eSSimNaoToStr(pInfoDeficiencia.reabReadap));
 
-    if (pTipo <> 3) then
-      Gerador.wCampo(tcStr, '', 'infoCota', 1, 1, 1, eSSimNaoToStr(pInfoDeficiencia.infoCota));
+    if (pTipo <> 3) and (pInfoDeficiencia.infoCota <> snfNada) then
+      Gerador.wCampo(tcStr, '', 'infoCota', 1, 1, 1, eSSimNaoFacultativoToStr(pInfoDeficiencia.infoCota));
 
     Gerador.wCampo(tcStr, '', 'observacao', 1, 255, 0, pInfoDeficiencia.Observacao);
 
@@ -1847,7 +1861,7 @@ begin
   Gerador.wGrupo('emitente');
 
   Gerador.wCampo(tcStr, '', 'nmEmit', 1, 70, 1, pEmitente.nmEmit);
-  Gerador.wCampo(tcStr, '', 'ideOC',  1,  1, 1, eSIdeOCToStr(pEmitente.ideOC));
+  Gerador.wCampo(tcStr, '', 'ideOC',  1,  1, 1, eSIdeOCToStrEX(pEmitente.ideOC));
 
   case ATipoEvento of
     teS2210: Gerador.wCampo(tcStr, '', 'nrOC', 1, 14, 1, pEmitente.nrOc);

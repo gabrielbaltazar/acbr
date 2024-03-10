@@ -470,7 +470,7 @@ function TACBrNFSeXWebserviceSigCorp203.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
 end;
@@ -480,14 +480,7 @@ end;
 procedure TACBrNFSeProviderSigCorp204.Configuracao;
 begin
   inherited Configuracao;
-  {
-  // Usado na leitura do envio
-  FpFormatoDataRecebimento := tcDatUSA;
-  // Usado na leitura das informações de cancelamento
-  FpFormatoDataHora := tcDatHor;
-  // Usado na leitura da data de emissão da NFS-e
-  FpFormatoDataEmissao := tcDatHor;
-  }
+
   with ConfigGeral do
   begin
     QuebradeLinha := '|';
@@ -565,7 +558,15 @@ end;
 
 function TACBrNFSeXWebserviceSigCorp204.GetSoapAction: string;
 begin
-  Result := URL + '#';
+  if TACBrNFSeX(FPDFeOwner).Configuracoes.WebServices.AmbienteCodigo = 1 then
+    Result := TACBrNFSeX(FPDFeOwner).Provider.ConfigWebServices.Producao.SoapAction
+  else
+    Result := TACBrNFSeX(FPDFeOwner).Provider.ConfigWebServices.Homologacao.SoapAction;
+
+  if Result = '' then
+    Result := URL;
+
+  Result := Result + '#';
 end;
 
 function TACBrNFSeXWebserviceSigCorp204.Recepcionar(ACabecalho,
@@ -576,7 +577,7 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:RecepcionarLoteRps>';
-  Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
+  Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
   Request := Request + '</ws:RecepcionarLoteRps>';
 
   Result := Executar(SoapAction + 'RecepcionarLoteRps', Request,
@@ -592,7 +593,7 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:RecepcionarLoteRpsSincrono>';
-  Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
+  Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
   Request := Request + '</ws:RecepcionarLoteRpsSincrono>';
 
   Result := Executar(SoapAction + 'RecepcionarLoteRpsSincrono', Request,
@@ -608,7 +609,7 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:GerarNfse>';
-  Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
+  Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
   Request := Request + '</ws:GerarNfse>';
 
   Result := Executar(SoapAction + 'GerarNfse', Request,
@@ -624,7 +625,7 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:ConsultarLoteRps>';
-  Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
+  Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
   Request := Request + '</ws:ConsultarLoteRps>';
 
   Result := Executar(SoapAction + 'ConsultarLoteRps', Request,
@@ -640,7 +641,7 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:ConsultarNfsePorRps>';
-  Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
+  Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
   Request := Request + '</ws:ConsultarNfsePorRps>';
 
   Result := Executar(SoapAction + 'ConsultarNfsePorRps', Request,
@@ -656,7 +657,7 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:ConsultarNfseFaixa>';
-  Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
+  Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
   Request := Request + '</ws:ConsultarNfseFaixa>';
 
   Result := Executar(SoapAction + 'ConsultarNfseFaixa', Request,
@@ -672,7 +673,7 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:ConsultarNfseServicoPrestado>';
-  Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
+  Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
   Request := Request + '</ws:ConsultarNfseServicoPrestado>';
 
   Result := Executar(SoapAction + 'ConsultarNfseServicoPrestado', Request,
@@ -688,7 +689,7 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:ConsultarNfseServicoTomado>';
-  Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
+  Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
   Request := Request + '</ws:ConsultarNfseServicoTomado>';
 
   Result := Executar(SoapAction + 'ConsultarNfseServicoTomado', Request,
@@ -704,7 +705,7 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:CancelarNfse>';
-  Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
+  Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
   Request := Request + '</ws:CancelarNfse>';
 
   Result := Executar(SoapAction + 'CancelarNfse', Request,
@@ -720,7 +721,7 @@ begin
   FPMsgOrig := AMSG;
 
   Request := '<ws:SubstituirNfse>';
-  Request := Request + '<xml>' + XmlToStr(AMSG) + '</xml>';
+  Request := Request + '<xml>' + IncluirCDATA(AMSG) + '</xml>';
   Request := Request + '</ws:SubstituirNfse>';
 
   Result := Executar(SoapAction + 'SubstituirNfse', Request,
@@ -733,7 +734,7 @@ function TACBrNFSeXWebserviceSigCorp204.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
 end;

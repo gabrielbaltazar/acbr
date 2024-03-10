@@ -71,7 +71,7 @@ type
     function TipoDescontoToString(const AValue: TACBrTipoDesconto): String; override;
     function TipoOcorrenciaToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
     function CodOcorrenciaToTipo(const CodOcorrencia:Integer): TACBrTipoOcorrencia; override;
-    function TipoOCorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
+    function TipoOcorrenciaToCod(const TipoOcorrencia: TACBrTipoOcorrencia): String; override;
     function CodMotivoRejeicaoToDescricao(const TipoOcorrencia: TACBrTipoOcorrencia; const CodMotivo:String): String; override;
 
     function CompOcorrenciaOutrosDadosToDescricao(const CompOcorrencia: TACBrComplementoOcorrenciaOutrosDados): String; override;
@@ -870,7 +870,15 @@ begin
               else if(CodMotivo = 'A7') Then
                 Result := 'A7 -  Título já se encontra na situação Pretendida'
               else if(CodMotivo = 'A8') Then
-                Result := 'A8 -  Valor do Abatimento inválido para cancelamento';
+                Result := 'A8 -  Valor do Abatimento inválido para cancelamento'
+              else if(CodMotivo = 'P1') Then
+                Result := 'P1 -  Confirmado COM QrCode'
+              else if(CodMotivo = 'P2') Then
+                Result := 'P2 -  Confirmado SEM QrCode'
+              else if(CodMotivo = 'P3') Then
+                Result := 'P3 -  Chave Inválida'
+              else if(CodMotivo = 'P6') Then
+                Result := 'P6 -  txid em duplicidade/invalido';
             end;
             01: Result := '01 - Código do banco inválido';
             02: Result := '02 - Código do registro detalhe inválido';
@@ -1005,6 +1013,7 @@ begin
             08: Result := '08 - Em cartório';
             30: Result := '30 - Liquidação no guichê de caixa em cheque';
             31: Result := '31 - Liquidação em banco correspondente';
+            61: Result := '61 - Liquidação PIX ';
           else
             Result := PadLeft(CodMotivo,2,'0') + ' - Outros motivos';
           end;
@@ -1157,7 +1166,12 @@ begin
                Result:= PadLeft(CodMotivo,2,'0') +' - Outros Motivos';
             end;
           end;
-
+        toRetornoIntensaoPagamento: //07
+          case AnsiIndexStr(CodMotivo,['H5']) of
+              0: Result:= 'H5-Recebimento de liquidação fora da rede Sicredi - VLB Inferior - Via compensação';
+            else
+                Result:= PadLeft(CodMotivo,2,'0') +' - Outros Motivos';
+            end;
         toRetornoBaixadoViaArquivo: //09
           case StrToIntDef(CodMotivo,-1) of
             00: Result:= '00-Ocorrência aceita, baixado automaticamente via arquivo';
@@ -1403,6 +1417,15 @@ begin
               Result:= PadLeft(CodMotivo,2,'0') +' - Motivos não identificados';
             end;
           end;
+
+        toRetornoAlteracaoDadosNovaEntrada: //33
+          case AnsiIndexStr(CodMotivo,['H4']) of
+            0 : Result:= 'H4-Alteração de Carteira';
+          else
+            Result:= PadLeft(CodMotivo,2,'0') +' - Outros Motivos';
+          end;
+
+
         toRetornoEntradaNegativacaoRejeitada,
         toRetornoExclusaoNegativacaoRejeitada: //81 e 83
            if CodMotivo = 'S1' then
@@ -1460,7 +1483,7 @@ begin
          end;
 
          NomeFixo := DirArqRemessa + PathDelim +
-                     Copy(Cedente.CodigoCedente,1,5)+ codMesSicredi +
+                     PadLeft(Copy(Cedente.CodigoCedente, 1, 5), 5, '0')  + codMesSicredi +
                      FormatDateTime( 'dd', Now );
 
          NomeArq := NomeFixo + '.crm';
@@ -1516,7 +1539,7 @@ var
  CodOcorrencia: Integer;
 begin
   Result := '';
-  CodOcorrencia := StrToIntDef(TipoOCorrenciaToCod(TipoOcorrencia),0);
+  CodOcorrencia := StrToIntDef(TipoOcorrenciaToCod(TipoOcorrencia),0);
 
   if (ACBrBanco.ACBrBoleto.LayoutRemessa = c240) then
   begin
@@ -1665,7 +1688,7 @@ begin
   end;
 end;
 
-function TACBrBancoSicredi.TipoOCorrenciaToCod(
+function TACBrBancoSicredi.TipoOcorrenciaToCod(
   const TipoOcorrencia: TACBrTipoOcorrencia): String;
 begin
   Result := '';
@@ -1842,6 +1865,8 @@ var
     Especie, EndSacado, Ocorrencia: String;
     TipoAvalista: Char;
     lDataDesconto: String;
+    LCodigoMoraJuros : String;
+    LTitulo: TACBrTitulo;
 begin
   with ACBrBanco.ACBrBoleto.Cedente, ACBrTitulo do
   begin
@@ -1944,6 +1969,9 @@ begin
        tbBancoNaoReemite : ATipoBoleto := '5' + '2';
      end;
 
+    {Codigo Mora Juros}
+    LCodigoMoraJuros := DefineCodigoMoraJuros(ACBrTitulo);
+
     {Tipo Documento}
     ATipoDoc:= DefineTipoDocumento;
 
@@ -1977,7 +2005,7 @@ begin
              PadLeft(Especie, 2, '0')                                         + // 107 a 108 - Espécie do título
              AceiteStr                                                        + // 109 a 109 - Identificação de título aceito/não aceito
              FormatDateTime('ddmmyyyy', DataDocumento)                        + // 110 a 117 - Data da emissão do título
-             IfThen( (ValorMoraJuros > 0) and (CodigoMora= ''), '1', PadRight(CodigoMora, 1, '3') )   + // 118 a 118 - Código do juro de mora
+             LCodigoMoraJuros                                                 + // 118 a 118 - Código do juro de mora
              IfThen((DataMoraJuros > 0),
                      FormatDateTime('ddmmyyyy', DataMoraJuros),
                                     '00000000')                               + // 119 a 126 - Data do juro de mora
@@ -1991,7 +2019,7 @@ begin
              CodProtestoNegativacao                                           + // 221 a 221 - Código para protesto
              DiasProtestoNegativacao                                          + // 222 a 223 - Número de dias para protesto
              '1'                                                              + // 224 a 224 - Código para baixa/devolução
-             '060'                                                            + // 225 a 227 - Nº de dias para baixa/devolução
+             '000'                                                            + // 225 a 227 - Nº de dias para baixa/devolução (O Sicredi não utiliza esse campo)
              '09'                                                             + // 228 a 229 - Código da moeda = "09"
              PadRight('', 10, '0')                                            + // 230 a 239 - Nº do contrato da operação de crédito
              Space(1);                                                          // 240 a 240 - Uso exclusivo FEBRABAN/CNAB
@@ -2048,26 +2076,14 @@ begin
                IfThen((PercentualMulta > 0),
                       IntToStrZero(round(PercentualMulta * 100), 15),
                       PadLeft('', 15, '0'))                                + // 75 - 89 Percentual de multa. Informar zeros se não cobrar
-               space(10);                                                   // 90-99 Informações do sacado
-
-               if Mensagem.Count > 0 then
-               begin
-                 Result :=  Result + PadRight(Copy(Mensagem[0],1,40),40);    // 100-139 Menssagem livre
-
-                 if Mensagem.Count > 1 then
-                   Result := Result + PadRight(Copy(Mensagem[1],1,40),40)    // 140-179 Menssagem livre
-                 else
-                   Result := Result + Space(40);
-               end
-               else
-                 Result := Result + Space(80);
-
-               Result := Result +
+               space(10)                                                   + // 90-99 Informações do sacado
+  			   space(40)    											   + // 100-139 Menssagem livre
+               space(40)    											   + // 140-179 Menssagem livre
                space(20)                                                   + // 180-199 Uso da FEBRABAN "Brancos"
                PadLeft('0', 08, '0')                                       + // 200-207 Código oco. sacado "0000000"
                PadLeft('0', 3, '0')                                        + // 208-210 Código do banco na conta de débito "000"
                PadLeft('0', 5, '0')                                        + // 211-215 Código da ag. debito
-               ' '                                                         + // 216 Digito da agencia
+               '0'                                                         + // 216 Digito da agencia (O Sicredi não usa esse campo, preencher com zeros)
                PadLeft('0', 12, '0')                                       + // 217-228 Conta corrente para debito
                ' '                                                         + // 229 Digito conta de debito
                ' '                                                         + // 230 Dv agencia e conta
@@ -2115,7 +2131,12 @@ begin
                                        '" não é um arquivo de retorno do(a) '+ UpperCase(Nome)));
 
    rCedente       := Trim(Copy(ARetorno[0],73,30));
-   rCNPJCPF       := Copy(ARetorno[0],19,14);
+
+   if ACBrBanco.ACBrBoleto.Cedente.TipoInscricao = pJuridica then
+    rCNPJCPF       := Copy(ARetorno[0],19,14)
+   else
+    rCNPJCPF       := Copy(ARetorno[0],22,11);
+    
    rCodCedente    := Copy(ARetorno[0],33,5);
    rAgencia       := Copy(ARetorno[0],54,4);
    rDigitoAgencia := Copy(ARetorno[0],58,1);
@@ -2231,10 +2252,8 @@ begin
 
         OcorrenciaOriginal.Tipo := CodOcorrenciaToTipo(StrToIntDef(Copy(SegT, 16, 2), 0));
 
-        if Trim(Copy(SegY,82,77))<>'' then begin
-          QrCode.url := Copy(SegY,82,77);
-          QrCode.txId:= Copy(SegY,159,35);
-        end;
+        if Trim(Copy(SegY,82,77))<>'' then
+          QrCode.PIXQRCodeDinamico(Trim(Copy(SegY,82,77)),Trim(Copy(SegY,159,35)), Titulo);
 
 
         IdxMotivo := 214;

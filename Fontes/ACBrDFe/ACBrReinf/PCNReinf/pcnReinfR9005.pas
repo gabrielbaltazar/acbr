@@ -119,17 +119,25 @@ type
 
   TInfoRecEv = class(TObject)
   private
+    FnrRecArqBase: String;
+    FnrProtEntr: String;
     FnrProtLote: String;
     FdhProcess: TDateTime;
+    FdhRecepcao: TDateTime;
     FtpEv: String;
     FidEv: String;
     Fhash: String;
+    FfechRet: TtpFechRet;
   public
-    property nrProtLote: String read FnrProtLote;
-    property dhProcess: TDateTime read FdhProcess;
-    property tpEv: String read FtpEv;
-    property idEv: String read FidEv;
-    property hash: String read Fhash;
+    property nrRecArqBase: String read FnrRecArqBase write FnrRecArqBase;
+    property nrProtEntr: String read FnrProtEntr write FnrProtEntr;
+    property nrProtLote: String read FnrProtLote write FnrProtLote;
+    property dhProcess: TDateTime read FdhProcess write FdhProcess;
+    property dhRecepcao: TDateTime read FdhRecepcao write FdhRecepcao;
+    property tpEv: String read FtpEv write FtpEv;
+    property idEv: String read FidEv write FidEv;
+    property hash: String read Fhash write Fhash;
+    property fechRet: TtpFechRet read FfechRet write FfechRet;
   end;
 
   TInfoTotal = class(TObject)
@@ -152,6 +160,7 @@ type
     FnrInsc: string;
     FnrInscBenef: string;
     FnmBenef: string;
+    FideEvtAdic: string;
     FtotApurMen: TtotApurMenCollection;
     FtotApurQui: TtotApurQuiCollection;
     FtotApurDec: TtotApurDecCollection;
@@ -171,6 +180,7 @@ type
     property nrInsc: string read FnrInsc write FnrInsc;
     property nrInscBenef: string read FnrInscBenef write FnrInscBenef;
     property nmBenef: string read FnmBenef write FnmBenef;
+    property ideEvtAdic: string read FideEvtAdic write FideEvtAdic;
     property totApurMen: TtotApurMenCollection read FtotApurMen write SettotApurMen;
     property totApurQui: TtotApurQuiCollection read FtotApurQui write SettotApurQui;
     property totApurDec: TtotApurDecCollection read FtotApurDec write SettotApurDec;
@@ -429,7 +439,10 @@ type
 implementation
 
 uses
-  IniFiles, pcnAuxiliar, ACBrUtil.Strings, pcnConversao, DateUtils;
+  IniFiles,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  pcnConversao, DateUtils;
 
 { TR9005 }
 
@@ -545,8 +558,10 @@ begin
 
       if leitor.rExtrai(2, 'infoRecEv') <> '' then
       begin
+        infoRecEv.FnrRecArqBase := leitor.rCampo(tcStr, 'nrRecArqBase');
         infoRecEv.FnrProtLote := leitor.rCampo(tcStr, 'nrProtLote');
         infoRecEv.FdhProcess  := leitor.rCampo(tcDatHor, 'dhProcess');
+        infoRecEv.FdhRecepcao := leitor.rCampo(tcDatHor, 'dhRecepcao');
         infoRecEv.FtpEv       := leitor.rCampo(tcStr, 'tpEv');
         infoRecEv.FidEv       := leitor.rCampo(tcStr, 'idEv');
         infoRecEv.Fhash       := leitor.rCampo(tcStr, 'hash');
@@ -562,10 +577,12 @@ begin
           infoTotal.ideEstab.nrInsc      := leitor.rCampo(tcStr, 'nrInsc');
           infoTotal.ideEstab.nrInscBenef := leitor.rCampo(tcStr, 'nrInscBenef');
           infoTotal.ideEstab.nmBenef     := leitor.rCampo(tcStr, 'nmBenef');
+          infoTotal.ideEstab.ideEvtAdic  := leitor.rCampo(tcStr, 'ideEvtAdic');
 
           i := 0;
           while Leitor.rExtrai(4, 'totApurMen', '', i + 1) <> '' do
           begin
+            infoTotal.ideEstab.totApurMen.New;
             infoTotal.ideEstab.totApurMen.Items[i].FCRMen            := leitor.rCampo(tcStr, 'CRMen');
             infoTotal.ideEstab.totApurMen.Items[i].FvlrBaseCRMen     := leitor.rCampo(tcDe2, 'vlrBaseCRMen');
             infoTotal.ideEstab.totApurMen.Items[i].FvlrBaseCRMenSusp := leitor.rCampo(tcDe2, 'vlrBaseCRMenSusp');
@@ -583,6 +600,7 @@ begin
           i := 0;
           while Leitor.rExtrai(4, 'totApurQui', '', i + 1) <> '' do
           begin
+            infoTotal.ideEstab.totApurQui.New;
             infoTotal.ideEstab.totApurQui.Items[i].FperApurQui       := StrToTpPerApurQui(ok, leitor.rCampo(tcStr, 'perApurQui'));
             infoTotal.ideEstab.totApurQui.Items[i].FCRQui            := leitor.rCampo(tcStr, 'CRQui');
             infoTotal.ideEstab.totApurQui.Items[i].FvlrBaseCRQui     := leitor.rCampo(tcDe2, 'vlrBaseCRQui');
@@ -601,6 +619,7 @@ begin
           i := 0;
           while Leitor.rExtrai(4, 'totApurDec', '', i + 1) <> '' do
           begin
+            infoTotal.ideEstab.totApurDec.New;
             infoTotal.ideEstab.totApurDec.Items[i].FperApurDec       := StrToTpPerApurDec(ok, leitor.rCampo(tcStr, 'perApurDec'));
             infoTotal.ideEstab.totApurDec.Items[i].FCRDec            := leitor.rCampo(tcStr, 'CRDec');
             infoTotal.ideEstab.totApurDec.Items[i].FvlrBaseCRDec     := leitor.rCampo(tcDe2, 'vlrBaseCRDec');
@@ -619,6 +638,7 @@ begin
           i := 0;
           while Leitor.rExtrai(4, 'totApurSem', '', i + 1) <> '' do
           begin
+            infoTotal.ideEstab.totApurSem.New;
             infoTotal.ideEstab.totApurSem.Items[i].FperApurSem       := StrToTpPerApurSem(ok, leitor.rCampo(tcStr, 'perApurSem'));
             infoTotal.ideEstab.totApurSem.Items[i].FCRSem            := leitor.rCampo(tcStr, 'CRSem');
             infoTotal.ideEstab.totApurSem.Items[i].FvlrBaseCRSem     := leitor.rCampo(tcDe2, 'vlrBaseCRSem');
@@ -637,6 +657,7 @@ begin
           i := 0;
           while Leitor.rExtrai(4, 'totApurDia', '', i + 1) <> '' do
           begin
+            infoTotal.ideEstab.totApurDia.New;
             infoTotal.ideEstab.totApurDia.Items[i].FperApurDia       := leitor.rCampo(tcStr, 'perApurDia');
             infoTotal.ideEstab.totApurDia.Items[i].FCRDia            := leitor.rCampo(tcStr, 'CRDia');
             infoTotal.ideEstab.totApurDia.Items[i].FvlrBaseCRDia     := leitor.rCampo(tcDe2, 'vlrBaseCRDia');
@@ -701,8 +722,10 @@ begin
       end;
 
       sSecao := 'infoRecEv';
+      AIni.WriteString(sSecao, 'nrRecArqBase', infoRecEv.nrRecArqBase);
       AIni.WriteString(sSecao, 'nrProtLote', infoRecEv.nrProtLote);
       AIni.WriteString(sSecao, 'dhProcess',  DateToStr(infoRecEv.dhProcess));
+      AIni.WriteString(sSecao, 'dhRecepcao', DateToStr(infoRecEv.dhRecepcao));
       AIni.WriteString(sSecao, 'tpEv',       infoRecEv.tpEv);
       AIni.WriteString(sSecao, 'idEv',       infoRecEv.idEv);
       AIni.WriteString(sSecao, 'hash',       infoRecEv.hash);
@@ -717,6 +740,7 @@ begin
         AIni.WriteString(sSecao, 'nrInsc',      infoTotal.ideEstab.nrInsc);
         AIni.WriteString(sSecao, 'nrInscBenef', infoTotal.ideEstab.nrInscBenef);
         AIni.WriteString(sSecao, 'nmBenef',     infoTotal.ideEstab.nmBenef);
+        AIni.WriteString(sSecao, 'ideEvtAdic',  infoTotal.ideEstab.ideEvtAdic);
 
         for i := 0 to infoTotal.ideEstab.totApurMen.Count - 1 do
         begin
@@ -828,12 +852,20 @@ end;
 
 constructor TideEstab.Create;
 begin
-  FtotApurMen := TtotApurMenCollection.Create
+  FtotApurMen := TtotApurMenCollection.Create;
+  FtotApurQui := TtotApurQuiCollection.Create;
+  FtotApurDec := TtotApurDecCollection.Create;
+  FtotApurSem := TtotApurSemCollection.Create;
+  FtotApurDia := TtotApurDiaCollection.Create;
 end;
 
 destructor TideEstab.Destroy;
 begin
   FtotApurMen.Free;
+  FtotApurQui.Free;
+  FtotApurDec.Free;
+  FtotApurSem.Free;
+  FtotApurDia.Free;
 
   inherited;
 end;

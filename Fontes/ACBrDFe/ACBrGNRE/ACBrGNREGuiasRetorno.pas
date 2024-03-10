@@ -43,7 +43,6 @@ uses
   ACBrGNREGuiaClass,
   pgnreGNRERetorno, 
   pcnConversao, 
-  pcnAuxiliar, 
   pcnLeitor;
 
 type
@@ -264,9 +263,8 @@ function TGuiasRetorno.LerXML(AXML: String): Boolean;
 var
   GNRERetorno: TGNRERetorno;
   i, j, k, Nivel, cProd, codIBGE: Integer;
-  xInfo, xUF, xCodUF: string;
+  xInfo, xUF, xCodUF, tipoValor: string;
   Leitor: TLeitor;
-  ValorTotal: Double;
 begin
   Result := False;
   Leitor := TLeitor.Create;
@@ -283,7 +281,7 @@ begin
       GNRERetorno.SituacaoGuia          := Leitor.rCampo(tcStr, 'situacaoGuia');
       GNRERetorno.UFFavorecida          := Leitor.rCampo(tcStr, 'ufFavorecida');
       GNRERetorno.tipoGnre              := Leitor.rCampo(tcStr, 'tipoGnre');
-      ValorTotal                        := Leitor.rCampo(tcDe2, 'valorGNRE');
+      GNRERetorno.valorGNRE             := Leitor.rCampo(tcDe2, 'valorGNRE');
       GNRERetorno.DataLimitePagamento   := DateToStr(Leitor.rCampo(tcDat, 'dataLimitePagamento'));
       GNRERetorno.IdentificadorGuia     := Leitor.rCampo(tcInt, 'identificadorGuia');
       GNRERetorno.NumeroControle        := Leitor.rCampo(tcStr, 'nossoNumero');
@@ -380,56 +378,56 @@ begin
           begin
             {
             11 - Valor Principal ICMS
-            12 - Valor Principal Fundo de Pobreza (FP)
+            12 - Valor Principal Fundo Estadual de Combate a Pobreza
             21 - Valor Total ICMS
-            22 - Valor Total FP
+            22 - Valor Total Fundo de Combate a Pobreza
             31 - Valor Multa ICMS
-            32 - Valor Multa FP
+            32 - Valor Multa Fundo de Combate a Pobreza
             41 - Valor Juros ICMS
-            42 - Valor Juros FP
+            42 - Valor Juros Fundo de Combate a Pobreza
             51 - Valor Atualização Monetaria ICMS
-            52 - Valor Atualização Monetaria FP
+            52 - Valor Atualização Monetaria Fundo de Combate a Pobreza
             }
-            if Leitor.rAtributo('tipo=', 'valor') = '11' then
+            tipoValor := Leitor.rAtributo('tipo=', 'valor');
+
+            if tipoValor = '11' then
               GNRERetorno.ValorPrincICMS := Leitor.rCampo(tcDe2, 'valor');
 
-            if GNRERetorno.ValorPrincICMS <> 0 then
-              GNRERetorno.ValorPrincipal := GNRERetorno.ValorPrincICMS
-            else
-              GNRERetorno.ValorPrincipal := ValorTotal;
-
-            if Leitor.rAtributo('tipo=', 'valor') = '12' then
-            begin
+            if tipoValor = '12' then
               GNRERetorno.ValorFECP := Leitor.rCampo(tcDe2, 'valor');
-              GNRERetorno.ValorPrincipal := GNRERetorno.ValorPrincipal - GNRERetorno.ValorFECP;
-            end;
 
-            if Leitor.rAtributo('tipo=', 'valor') = '21' then
+            if tipoValor = '21' then
               GNRERetorno.ValorICMS := Leitor.rCampo(tcDe2, 'valor');
 
-            if Leitor.rAtributo('tipo=', 'valor') = '22' then
+            if tipoValor = '22' then
               GNRERetorno.ValorFCP := Leitor.rCampo(tcDe2, 'valor');
 
-            if Leitor.rAtributo('tipo=', 'valor') = '31' then
+            if tipoValor = '31' then
               GNRERetorno.Multa := Leitor.rCampo(tcDe2, 'valor');
 
-            if Leitor.rAtributo('tipo=', 'valor') = '32' then
+            if tipoValor = '32' then
               GNRERetorno.MultaFCP := Leitor.rCampo(tcDe2, 'valor');
 
-            if Leitor.rAtributo('tipo=', 'valor') = '41' then
+            if tipoValor = '41' then
               GNRERetorno.Juros := Leitor.rCampo(tcDe2, 'valor');
 
-            if Leitor.rAtributo('tipo=', 'valor') = '42' then
+            if tipoValor = '42' then
               GNRERetorno.JurosFCP := Leitor.rCampo(tcDe2, 'valor');
 
-            if Leitor.rAtributo('tipo=', 'valor') = '51' then
+            if tipoValor = '51' then
               GNRERetorno.AtualizacaoMonetaria := Leitor.rCampo(tcDe2, 'valor');
 
-            if Leitor.rAtributo('tipo=', 'valor') = '52' then
+            if tipoValor = '52' then
               GNRERetorno.AtualizacaoMonetariaFCP := Leitor.rCampo(tcDe2, 'valor');
 
             Inc(k);
           end;
+
+          GNRERetorno.ValorPrincipal := GNRERetorno.ValorPrincICMS +
+                                        GNRERetorno.ValorFECP;
+
+          if GNRERetorno.ValorPrincipal = 0 then
+            GNRERetorno.ValorPrincipal := GNRERetorno.ValorICMS;
 
           if Leitor.rExtrai(Nivel, 'contribuinteDestinatario') <> '' then
           begin

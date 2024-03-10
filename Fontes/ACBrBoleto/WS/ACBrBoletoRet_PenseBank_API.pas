@@ -39,13 +39,15 @@ unit ACBrBoletoRet_PenseBank_API;
 interface
 
 uses
-  Classes, SysUtils, ACBrBoleto,ACBrBoletoWS, ACBrBoletoRetorno,
-//  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-//    JsonDataObjects_ACBr,
-//  {$Else}
-    Jsons,
-//  {$EndIf}
-   DateUtils, pcnConversao;
+  Classes,
+  SysUtils,
+  ACBrBoleto,
+  ACBrBoletoWS,
+  ACBrBoletoRetorno,
+  Jsons,
+  DateUtils,
+  pcnConversao,
+  ACBrBoletoWS.Rest;
 
 type
 
@@ -97,9 +99,9 @@ begin
   Result := True;
 
   TipoOperacao := ACBrBoleto.Configuracoes.WebService.Operacao;
-
-  ARetornoWs.JSONEnvio      := EnvWs;
   ARetornoWS.HTTPResultCode := HTTPResultCode;
+  ARetornoWS.JSONEnvio      := EnvWs;
+  ARetornoWS.Header.Operacao := TipoOperacao;
 
   if RetWS <> '' then
   begin

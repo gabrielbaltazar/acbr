@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -47,7 +47,7 @@ uses
    System.Contnrs,
   {$IFEND}
   ACBrBase,
-  pcnConversao, pcnGerador, pcnSignature, pcteProcCTe, pcteConversaoCTe;
+  pcnConversao, pcnSignature, pcteProcCTe, pcteConversaoCTe;
 
 type
   TInfCTe = class;
@@ -316,6 +316,23 @@ type
     property infVeiculo: TinfVeiculoCollection read FinfVeiculo write SetinfVeiculo;
   end;
 
+  TInfCteCompCollectionItem = class(TObject)
+  private
+    FchCTe: String;
+  public
+    property chCTe: String read FchCTe write FchCTe;
+  end;
+
+  TInfCteCompCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TInfCteCompCollectionItem;
+    procedure SetItem(Index: Integer; Value: TInfCteCompCollectionItem);
+  public
+    function Add: TInfCteCompCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TInfCteCompCollectionItem;
+    property Items[Index: Integer]: TInfCteCompCollectionItem read GetItem write SetItem; default;
+  end;
+
   TCTe = class(TObject)
   private
     FinfCTe: TInfCTe;
@@ -334,6 +351,7 @@ type
 
     FinfCTeNorm: TInfCTeNorm;
     FinfCteComp: TInfCteComp;
+    FinfCteComp10: TInfCteCompCollection;
     FInfCteAnu: TInfCteAnu;
     FautXML: TautXMLCollection;
     FinfRespTec: TinfRespTec;
@@ -346,6 +364,7 @@ type
     FProcCTe: TProcCTe;
     FSignature: TSignature;
 
+    procedure SetinfCteComp10(const Value: TInfCteCompCollection);
     procedure SetautXML(const Value: TautXMLCollection);
   public
     constructor Create;
@@ -367,6 +386,7 @@ type
 
     property infCTeNorm: TInfCTeNorm read FinfCTeNorm write FinfCTeNorm;
     property infCteComp: TInfCteComp read FinfCteComp write FinfCteComp;
+    property infCteComp10: TInfCteCompCollection read FinfCteComp10 write SetinfCteComp10;
     property infCteAnu: TInfCteAnu   read FinfCteAnu  write FinfCteAnu;
 
     property autXML: TautXMLCollection read FautXML write SetautXML;
@@ -441,6 +461,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property cUF: Integer                 read FcUF            write FcUF;
     property cCT: Integer                 read FcCT            write FcCT;
     property CFOP: Integer                read FCFOP           write FCFOP;
@@ -505,6 +526,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property toma: TpcteTomador   read Ftoma      write Ftoma;
     property CNPJCPF: String      read FCNPJCPF   write FCNPJCPF;
     property IE: String           read FIE        write FIE;
@@ -544,6 +566,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property CNPJCPF: String          read FCNPJCPF   write FCNPJCPF;
     property IE: String               read FIE        write FIE;
     property xNome: String            read FxNome     write FxNome;
@@ -618,6 +641,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property xCaracAd: String  read FxCaracAd  write FxCaracAd;
     property xCaracSer: String read FxCaracSer write FxCaracSer;
     property xEmi: String      read FxEmi      write FxEmi;
@@ -642,6 +666,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property xOrig: String         read FxOrig write FxOrig;
     property pass: TPassCollection read Fpass  write SetPass;
     property xDest: String         read FxDest write FxDest;
@@ -679,6 +704,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property TipoData: TpcteTipoDataPeriodo      read FTipoData write FTipoData;
     property TipoHora: TpcteTipoHorarioIntervalo read FTipoHora write FTipoHora;
 
@@ -802,6 +828,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property CNPJCPF: String       read FCNPJCPF   write FCNPJCPF;
     property IE: String            read FIE        write FIE;
     property xNome: String         read FxNome     write FxNome;
@@ -846,6 +873,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property CNPJCPF: String       read FCNPJCPF    write FCNPJCPF;
     property IE: String            read FIE         write FIE;
     property xNome: String         read FxNome      write FxNome;
@@ -865,6 +893,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property CNPJCPF: String       read FCNPJCPF    write FCNPJCPF;
     property IE: String            read FIE         write FIE;
     property xNome: String         read FxNome      write FxNome;
@@ -886,6 +915,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property CNPJCPF: String      read FCNPJCPF   write FCNPJCPF;
     property IE: String           read FIE        write FIE;
     property xNome: String        read FxNome     write FxNome;
@@ -949,6 +979,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property vTPrest: Currency     read FvTPrest write FvTPrest;
     property vRec: Currency        read FvRec    write FvRec;
     property Comp: TCompCollection read FComp    write SetComp;
@@ -964,6 +995,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property ICMS: TICMS             read FICMS        write FICMS;
     property vTotTrib: Currency      read FvTotTrib    write FvTotTrib;
     property infAdFisco: String      read FInfAdFisco  write FInfAdFisco;
@@ -984,6 +1016,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property SituTrib: TpcnCSTIcms     read FSituTrib    write FSituTrib;
     property ICMS00: TCST00            read FCST00       write FCST00;
     property ICMS20: TCST20            read FCST20       write FCST20;
@@ -1014,19 +1047,27 @@ type
     FvBC    : Currency;
     FpICMS  : Currency;
     FvICMS  : Currency;
+    FvICMSDeson: Double;
+    FcBenef: string;
   public
     property CST: TpcnCSTIcms read FCST    write FCST default cst20;
     property pRedBC: Currency read FpRedBC write FpRedBC;
     property vBC: Currency    read FvBC    write FvBC;
     property pICMS: Currency  read FpICMS  write FpICMS;
     property vICMS: Currency  read FvICMS  write FvICMS;
+    property vICMSDeson: Double read FvICMSDeson write FvICMSDeson;
+    property cBenef: string     read FcBenef     write FcBenef;
   end;
 
   TCST45 = class(TObject)
   private
     FCST : TpcnCSTIcms;
+    FvICMSDeson: Double;
+    FcBenef: string;
   public
     property CST: TpcnCSTIcms read FCST write FCST;
+    property vICMSDeson: Double read FvICMSDeson write FvICMSDeson;
+    property cBenef: string     read FcBenef     write FcBenef;
   end;
 
   TCST60 = class(TObject)
@@ -1036,12 +1077,16 @@ type
     FvICMSSTRet : Currency;
     FpICMSSTRet : Currency;
     FvCred      : Currency;
+    FvICMSDeson: Double;
+    FcBenef: string;
   public
     property CST: TpcnCSTIcms     read FCST        write FCST default cst60;
     property vBCSTRet: Currency   read FvBCSTRet   write FvBCSTRet;
     property vICMSSTRet: Currency read FvICMSSTRet write FvICMSSTRet;
     property pICMSSTRet: Currency read FpICMSSTRet write FpICMSSTRet;
     property vCred: Currency      read FvCred      write FvCred;
+    property vICMSDeson: Double read FvICMSDeson write FvICMSDeson;
+    property cBenef: string     read FcBenef     write FcBenef;
   end;
 
   TCST90 = class(TObject)
@@ -1052,6 +1097,8 @@ type
     FpICMS  : Currency;
     FvICMS  : Currency;
     FvCred  : Currency;
+    FvICMSDeson: Double;
+    FcBenef: string;
   public
     property CST: TpcnCSTIcms read FCST    write FCST default cst90;
     property pRedBC: Currency read FpRedBC write FpRedBC;
@@ -1059,6 +1106,8 @@ type
     property pICMS: Currency  read FpICMS  write FpICMS;
     property vICMS: Currency  read FvICMS  write FvICMS;
     property vCred: Currency  read FvCred  write FvCred;
+    property vICMSDeson: Double read FvICMSDeson write FvICMSDeson;
+    property cBenef: string     read FcBenef     write FcBenef;
   end;
 
   TICMSOutraUF = class(TObject)
@@ -1068,18 +1117,26 @@ type
     FvBCOutraUF    : Currency;
     FpICMSOutraUF  : Currency;
     FvICMSOutraUF  : Currency;
+    FvICMSDeson: Double;
+    FcBenef: string;
   public
     property CST: TpcnCSTIcms        read FCST           write FCST default cst90;
     property pRedBCOutraUF: Currency read FpRedBCOutraUF write FpRedBCOutraUF;
     property vBCOutraUF: Currency    read FvBCOutraUF    write FvBCOutraUF;
     property pICMSOutraUF: Currency  read FpICMSOutraUF  write FpICMSOutraUF;
     property vICMSOutraUF: Currency  read FvICMSOutraUF  write FvICMSOutraUF;
+    property vICMSDeson: Double read FvICMSDeson write FvICMSDeson;
+    property cBenef: string     read FcBenef     write FcBenef;
   end;
+
+  { TICMSSN }
 
   TICMSSN = class(TObject)
   private
+    FCST: TpcnCSTIcms;
     FindSN : Integer;
   public
+    property CST: TpcnCSTIcms        read FCST           write FCST default cst90;
     property indSN: Integer read FindSN write FindSN default 1;
   end;
 
@@ -1265,6 +1322,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property vCarga: Currency      read FvCarga      write FvCarga;
     property proPred: String       read FproPred     write FproPred;
     property xOutCat: String       read FxOutCat     write FxOutCat;
@@ -1305,6 +1363,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property infNF: TInfNFCollection         read FinfNF     write SetInfNF;
     property infNFe: TInfNFeCollection       read FinfNFe    write SetInfNFe;
     property infOutros: TInfOutrosCollection read FinfOutros write SetInfOutros;
@@ -1427,6 +1486,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property tpUnidTransp: TpcnUnidTransp            read FtpUnidTransp  write FtpUnidTransp;
     property idUnidTransp: String                    read FidUnidTransp  write FidUnidTransp;
     property lacUnidTransp: TlacUnidTranspCollection read FlacUnidTransp write FlacUnidTransp;
@@ -1459,6 +1519,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property chave: String                              read Fchave         write Fchave;
     property PIN: String                                read FPIN           write FPIN;
     property dPrev: TDateTime                           read FdPrev         write FdPrev;
@@ -1501,6 +1562,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property tpDoc: TpcteTipoDocumento                     read FtpDoc         write FtpDoc;
     property descOutros: String                            read FdescOutros    write FdescOutros;
     property nDoc: String                                  read FnDoc          write FnDoc;
@@ -1529,6 +1591,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property emiDocAnt: TEmiDocAntCollection read FemiDocAnt write SetEmiDocAnt;
   end;
 
@@ -1711,6 +1774,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property serie: String   read Fserie  write Fserie;
     property nOcc: Integer   read FnOcc   write FnOcc;
     property dEmi: TDateTime read FdEmi   write FdEmi;
@@ -1842,6 +1906,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property TAF: String            read FTAF            write FTAF;
     property NroRegEstadual: String read FNroRegEstadual write FNroRegEstadual;
     property veic: TVeicOS          read Fveic           write Fveic;
@@ -1857,6 +1922,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property placa: String   read Fplaca   write Fplaca;
     property RENAVAM: String read FRENAVAM write FRENAVAM;
     property prop: TPropOS   read Fprop    write Fprop;
@@ -2042,6 +2108,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property nCont: String           read FnCont  write FnCont;
     property Lacre: TLacreCollection read FLacre  write FLacre;
     property infDoc: TinfDocAquav    read FinfDoc write FinfDoc;
@@ -2054,6 +2121,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property infNF: TInfNFAquavCollection   read FinfNF  write FinfNF;
     property infNFe: TInfNFeAquavCollection read FinfNFe write FinfNFe;
   end;
@@ -2117,6 +2185,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property tpTraf: TpcteTipoTrafego      read FtpTraf   write FtpTraf;
     property trafMut: TTrafMut             read FtrafMut  write FTrafMut;
     property fluxo: String                 read Ffluxo    write Ffluxo;
@@ -2318,6 +2387,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property fat: TFat           read Ffat write Ffat;
     property dup: TDupCollection read Fdup write SetDup;
   end;
@@ -2366,6 +2436,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property chCte: String             read FchCte         write FchCte;
     property refCteAnu: String         read FrefCteAnu     write FrefCteAnu;
     property tomaICMS: TTomaICMS       read FtomaICMS      write FtomaICMS;
@@ -2381,6 +2452,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property refNFe: String read FrefNFe write FrefNFe;
     property refNF: TRefNF  read FrefNF  write FrefNF;
     property refCte: String read FrefCte write FrefCte;
@@ -2430,6 +2502,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property vTPrest: Currency             read FvTPrest  write FvTPrest;
     property compComp: TCompCompCollection read FcompComp write SetCompComp;
   end;
@@ -2442,6 +2515,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property ICMSComp: TICMSComp read FICMSComp   write FICMSComp;
     property vTotTrib: Currency  read FvTotTrib   write FvTotTrib;
     property infAdFisco: String  read FinfAdFisco write FinfAdFisco;
@@ -2460,6 +2534,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     property SituTrib: TpcnCSTIcms     read FSituTrib    write FSituTrib;
     property ICMS00: TCST00            read FCST00       write FCST00;
     property ICMS20: TCST20            read FCST20       write FCST20;
@@ -2578,6 +2653,7 @@ uses
 constructor TCTe.Create;
 begin
   inherited Create;
+
   FinfCTe := TInfCTe.Create;
   Fide    := TIde.Create;
   Fcompl  := TCompl.Create;
@@ -2594,6 +2670,7 @@ begin
 
   FinfCTeNorm := TInfCTeNorm.Create;
   FinfCTeComp := TInfCteComp.Create;
+  FinfCTeComp10 := TInfCteCompCollection.Create;
   FinfCteAnu  := TInfCteAnu.Create;
   FautXML     := TautXMLCollection.Create;
 
@@ -2626,6 +2703,7 @@ begin
 
   FinfCTeNorm.Free;
   FInfCTeComp.Free;
+  FInfCTeComp10.Free;
   FInfCTeAnu.Free;
   FautXML.Free;
   FinfRespTec.Free;
@@ -2646,14 +2724,19 @@ begin
   FautXML := Value;
 end;
 
+procedure TCTe.SetinfCteComp10(const Value: TInfCteCompCollection);
+begin
+  FinfCteComp10 := Value;
+end;
+
 { TInfCTe }
 
 function TInfCTe.GetVersaoStr: String;
 begin
   if FVersao <= 0 then
-     Result := V2_00
+     Result := 'versao="2.00"'
   else
-     Result := 'versao="'+FloatToString(FVersao,'.','#0.00')+'"';
+     Result := 'versao="' + FloatToString(FVersao, '.', '#0.00') + '"';
 end;
 
 { TIde }
@@ -2661,6 +2744,7 @@ end;
 constructor TIde.Create;
 begin
   inherited Create;
+
   FToma03 := TToma03.Create;
   FToma4  := TToma4.Create;
   FinfPercurso := TinfPercursoCollection.Create;
@@ -2672,6 +2756,7 @@ begin
   FToma03.Free;
   FToma4.Free;
   FinfPercurso.Free;
+
   inherited;
 end;
 
@@ -2685,12 +2770,14 @@ end;
 constructor TToma4.Create;
 begin
   inherited Create;
+
   FEnderToma := TEndereco.Create;
 end;
 
 destructor TToma4.Destroy;
 begin
   FEnderToma.Free;
+
   inherited;
 end;
 
@@ -2724,6 +2811,7 @@ end;
 constructor TCompl.Create;
 begin
   inherited Create;
+
   Ffluxo    := TFluxo.Create;
   FEntrega  := TEntrega.Create;
   FObsCont  := TObsContCollection.Create;
@@ -2736,6 +2824,7 @@ begin
   FEntrega.Free;
   FObsCont.Free;
   FObsFisco.Free;
+
   inherited;
 end;
 
@@ -2754,12 +2843,14 @@ end;
 constructor TFluxo.Create;
 begin
   inherited Create;
+
   Fpass := TPassCollection.Create;
 end;
 
 destructor TFluxo.Destroy;
 begin
   Fpass.Free;
+
   inherited;
 end;
 
@@ -2797,6 +2888,7 @@ end;
 constructor TEntrega.Create;
 begin
   inherited Create;
+
   FsemData   := TSemData.Create;
   FcomData   := TComData.Create;
   FnoPeriodo := TNoPeriodo.Create;
@@ -2813,6 +2905,7 @@ begin
   FsemHora.Free;
   FcomHora.Free;
   FnoInter.Free;
+
   inherited;
 end;
 
@@ -2846,12 +2939,14 @@ end;
 constructor TEmit.Create;
 begin
   inherited Create;
+
   FEnderEmit := TEnderEmit.Create;
 end;
 
 destructor TEmit.Destroy;
 begin
   FEnderEmit.Free;
+
   inherited;
 end;
 
@@ -2860,6 +2955,7 @@ end;
 constructor TRem.Create;
 begin
   inherited Create;
+
   FEnderReme := TEndereco.Create;
   FlocColeta := TlocColeta.Create;
 end;
@@ -2868,6 +2964,7 @@ destructor TRem.Destroy;
 begin
   FEnderReme.Free;
   FlocColeta.Free;
+
   inherited;
 end;
 
@@ -2876,12 +2973,14 @@ end;
 constructor TExped.Create;
 begin
   inherited Create;
+
   FEnderExped := TEndereco.Create;
 end;
 
 destructor TExped.Destroy;
 begin
   FEnderExped.Free;
+
   inherited;
 end;
 
@@ -2890,12 +2989,14 @@ end;
 constructor TReceb.Create;
 begin
   inherited Create;
+
   FEnderReceb := TEndereco.Create;
 end;
 
 destructor TReceb.Destroy;
 begin
   FEnderReceb.Free;
+
   inherited;
 end;
 
@@ -2904,6 +3005,7 @@ end;
 constructor TDest.Create;
 begin
   inherited Create;
+
   FEnderDest := TEndereco.Create;
   FlocEnt    := TlocEnt.Create;
 end;
@@ -2912,6 +3014,7 @@ destructor TDest.Destroy;
 begin
   FEnderDest.Free;
   FlocEnt.Free;
+
   inherited;
 end;
 
@@ -2920,12 +3023,14 @@ end;
 constructor TVPrest.Create;
 begin
   inherited Create;
+
   FComp := TCompCollection.Create;
 end;
 
 destructor TVPrest.Destroy;
 begin
   FComp.Free;
+
   inherited;
 end;
 
@@ -2963,6 +3068,7 @@ end;
 constructor TImp.Create;
 begin
   inherited Create;
+
   FICMS := TICMS.Create;
   FICMSUFFim := TICMSUFFim.Create;
   FinfTribFed := TinfTribFed.Create;
@@ -2973,6 +3079,7 @@ begin
   FICMS.free;
   FICMSUFFim.free;
   FinfTribFed.Free;
+
   inherited;
 end;
 
@@ -2981,6 +3088,7 @@ end;
 constructor TICMS.Create;
 begin
   inherited Create;
+
   FCST00       := TCST00.create;
   FCST20       := TCST20.create;
   FCST45       := TCST45.create;
@@ -2999,6 +3107,7 @@ begin
   FCST90.Free;
   FICMSOutraUF.Free;
   FICMSSN.Free;
+
   inherited;
 end;
 
@@ -3007,6 +3116,7 @@ end;
 constructor TInfCTeNorm.Create;
 begin
   inherited Create;
+
   FinfCarga := TInfCarga.Create;
   FinfDoc   := TInfDoc.Create;
   FdocAnt   := TDocAnt.Create;
@@ -3091,12 +3201,14 @@ end;
 constructor TInfCarga.Create;
 begin
   inherited Create;
+
   FinfQ := TInfQCollection.Create;
 end;
 
 destructor TInfCarga.Destroy;
 begin
   FinfQ.Free;
+
   inherited;
 end;
 
@@ -3134,6 +3246,7 @@ end;
 constructor TInfDoc.Create;
 begin
   inherited Create;
+
   FinfNF     := TInfNFCollection.Create;
   FinfNFe    := TInfNFeCollection.Create;
   FinfOutros := TInfOutrosCollection.Create;
@@ -3144,6 +3257,7 @@ begin
   FinfNF.Free;
   FinfNFe.Free;
   FinfOutros.Free;
+
   inherited;
 end;
 
@@ -3191,6 +3305,7 @@ end;
 constructor TInfNFCollectionItem.Create;
 begin
   inherited Create;
+
   FinfUnidTransp := TInfUnidTranspNFCollection.Create;
   FinfUnidCarga  := TInfUnidCargaNFCollection.Create;
 end;
@@ -3199,6 +3314,7 @@ destructor TInfNFCollectionItem.Destroy;
 begin
   FinfUnidTransp.Free;
   FinfUnidCarga.Free;
+
   inherited;
 end;
 
@@ -3232,6 +3348,7 @@ end;
 constructor TinfUnidTranspCollectionItem.Create;
 begin
   inherited Create;
+
   FlacUnidTransp := TlacUnidTranspCollection.Create;
   FinfUnidCarga  := TinfUnidCargaCollection.Create;
 end;
@@ -3240,6 +3357,7 @@ destructor TinfUnidTranspCollectionItem.Destroy;
 begin
   FlacUnidTransp.Free;
   FinfUnidCarga.Free;
+
   inherited;
 end;
 
@@ -3273,12 +3391,14 @@ end;
 constructor TinfUnidCargaCollectionItem.Create;
 begin
   inherited Create;
+
   FlacUnidCarga := TlacUnidCargaCollection.Create;
 end;
 
 destructor TinfUnidCargaCollectionItem.Destroy;
 begin
   FlacUnidCarga.Free;
+
   inherited;
 end;
 
@@ -3311,6 +3431,7 @@ end;
 constructor TInfNFeCollectionItem.Create;
 begin
   inherited Create;
+
   FinfUnidTransp := TInfUnidTranspNFeCollection.Create;
   FinfUnidCarga  := TInfUnidCargaNFeCollection.Create;
 end;
@@ -3319,6 +3440,7 @@ destructor TInfNFeCollectionItem.Destroy;
 begin
   FinfUnidTransp.Free;
   FinfUnidCarga.Free;
+
   inherited;
 end;
 
@@ -3352,6 +3474,7 @@ end;
 constructor TInfOutrosCollectionItem.Create;
 begin
   inherited Create;
+
   FinfUnidTransp := TInfUnidTranspOutrosCollection.Create;
   FinfUnidCarga  := TInfUnidCargaOutrosCollection.Create;
 end;
@@ -3360,6 +3483,7 @@ destructor TInfOutrosCollectionItem.Destroy;
 begin
   FinfUnidTransp.Free;
   FinfUnidCarga.Free;
+
   inherited;
 end;
 
@@ -3393,12 +3517,14 @@ end;
 constructor TDocAnt.Create;
 begin
   inherited Create;
+
   FemiDocAnt := TEmiDocAntCollection.Create;
 end;
 
 destructor TDocAnt.Destroy;
 begin
   FemiDocAnt.Free;
+
   inherited;
 end;
 
@@ -3437,12 +3563,14 @@ end;
 constructor TEmiDocAntCollectionItem.Create;
 begin
   inherited Create;
+
   FidDocAnt := TidDocAntCollection.Create;
 end;
 
 destructor TEmiDocAntCollectionItem.Destroy;
 begin
   FidDocAnt.Free;
+
   inherited;
 end;
 
@@ -3482,6 +3610,7 @@ end;
 constructor TIdDocAntCollectionItem.Create;
 begin
   inherited Create;
+
   FidDocAntPap := TidDocAntPapCollection.Create;
   FidDocAntEle := TidDocAntEleCollection.Create;
 end;
@@ -3490,6 +3619,7 @@ destructor TIdDocAntCollectionItem.Destroy;
 begin
   FidDocAntPap.Free;
   FidDocAntEle.Free;
+
   inherited;
 end;
 
@@ -3584,6 +3714,7 @@ end;
 constructor TRodo.Create;
 begin
   inherited Create;
+
   Focc     := TOccCollection.Create;
   FvalePed := TValePedCollection.Create;
   Fveic    := TVeicCollection.Create;
@@ -3598,6 +3729,7 @@ begin
   Fveic.Free;
   FlacRodo.Free;
   Fmoto.Free;
+
   inherited;
 end;
 
@@ -3655,12 +3787,14 @@ end;
 constructor TOccCollectionItem.Create;
 begin
   inherited Create;
+
   FemiOCC := TEmiOCC.Create;
 end;
 
 destructor TOccCollectionItem.Destroy;
 begin
   FemiOCC.Free;
+
   inherited;
 end;
 
@@ -3718,12 +3852,14 @@ end;
 constructor TVeicCollectionItem.Create;
 begin
   inherited Create;
+
   Fprop := TProp.Create;
 end;
 
 destructor TVeicCollectionItem.Destroy;
 begin
   Fprop.Free;
+
   inherited;
 end;
 
@@ -3756,6 +3892,7 @@ end;
 constructor TAereo.Create;
 begin
   inherited Create;
+
   Ftarifa   := TTarifa.Create;
   FnatCarga := TNatCarga.Create;
 end;
@@ -3764,18 +3901,21 @@ destructor TAereo.Destroy;
 begin
   Ftarifa.Free;
   FnatCarga.Free;
+
   inherited;
 end;
 
 constructor TNatCarga.Create;
 begin
   inherited Create;
+
   FcinfManu := TpInfManuCollection.Create;
 end;
 
 destructor TNatCarga.Destroy;
 begin
   FcinfManu.Free;
+
   inherited Destroy;
 end;
 
@@ -3812,6 +3952,7 @@ end;
 constructor TAquav.Create;
 begin
   inherited Create;
+
   Fbalsa   := TBalsaCollection.Create;
   FdetCont := TdetContCollection.Create;
 end;
@@ -3820,6 +3961,7 @@ destructor TAquav.Destroy;
 begin
   Fbalsa.Free;
   FdetCont.Free;
+
   inherited;
 end;
 
@@ -3887,6 +4029,7 @@ end;
 constructor TdetContCollectionItem.Create;
 begin
   inherited Create;
+
   FLacre  := TLacreCollection.Create;
   FinfDoc := TInfDocAquav.Create;
 end;
@@ -3895,6 +4038,7 @@ destructor TdetContCollectionItem.Destroy;
 begin
   FLacre.Free;
   FinfDoc.Free;
+
   inherited;
 end;
 
@@ -3927,6 +4071,7 @@ end;
 constructor TInfDocAquav.Create;
 begin
   inherited Create;
+
   FinfNF  := TinfNFAquavCollection.Create;
   FinfNFe := TinfNFeAquavCollection.Create;
 end;
@@ -3935,6 +4080,7 @@ destructor TInfDocAquav.Destroy;
 begin
   FinfNF.Free;
   FinfNFe.Free;
+
   inherited;
 end;
 
@@ -3994,6 +4140,7 @@ end;
 constructor TFerrov.Create;
 begin
   inherited Create;
+
   FtrafMut  := TTrafMut.Create;
   FferroEnv := TFerroEnvCollection.Create;
   FdetVag   := TDetVagCollection.Create;
@@ -4004,6 +4151,7 @@ begin
   FtrafMut.Free;
   FferroEnv.Free;
   FdetVag.Free;
+
   inherited;
 end;
 
@@ -4047,12 +4195,14 @@ end;
 constructor TFerroEnvCollectionItem.Create;
 begin
   inherited Create;
+
   FenderFerro := TEnderFerro.Create;
 end;
 
 destructor TFerroEnvCollectionItem.Destroy;
 begin
   FenderFerro.Free;
+
   inherited;
 end;
 
@@ -4134,6 +4284,7 @@ end;
 constructor TCobr.Create;
 begin
   inherited Create;
+
   Ffat := TFat.Create;
   Fdup := TDupCollection.Create;
 end;
@@ -4142,6 +4293,7 @@ destructor TCobr.Destroy;
 begin
   Ffat.Free;
   Fdup.Free;
+
   inherited;
 end;
 
@@ -4179,6 +4331,7 @@ end;
 constructor TInfCteSub.Create;
 begin
   inherited Create;
+
   FtomaICMS    := TTomaICMS.Create;
   FtomaNaoICMS := TTomaNaoICMS.Create;
   FindAlteraToma := tiNao;
@@ -4188,6 +4341,7 @@ destructor TInfCteSub.Destroy;
 begin
   FtomaICMS.Free;
   FtomaNaoICMS.Free;
+
   inherited;
 end;
 
@@ -4196,12 +4350,14 @@ end;
 constructor TTomaICMS.Create;
 begin
   inherited Create;
+
   FrefNF := TRefNF.Create;
 end;
 
 destructor TTomaICMS.Destroy;
 begin
   FrefNF.Free;
+
   inherited;
 end;
 
@@ -4210,12 +4366,14 @@ end;
 constructor TVPresComp.Create;
 begin
   inherited Create;
+
   FcompComp := TCompCompCollection.Create;
 end;
 
 destructor TVPresComp.Destroy;
 begin
   FcompComp.Free;
+
   inherited;
 end;
 
@@ -4229,12 +4387,14 @@ end;
 constructor TImpComp.Create;
 begin
   inherited Create;
+
   FICMSComp := TICMSComp.Create;
 end;
 
 destructor TImpComp.Destroy;
 begin
   FICMSComp.Free;
+
   inherited;
 end;
 
@@ -4243,6 +4403,7 @@ end;
 constructor TICMSComp.Create;
 begin
   inherited Create;
+
   FCST00       := TCST00.create;
   FCST20       := TCST20.create;
   FCST45       := TCST45.create;
@@ -4261,6 +4422,7 @@ begin
   FCST90.Free;
   FICMSOutraUF.Free;
   FICMSSN.Free;
+
   inherited;
 end;
 
@@ -4318,12 +4480,14 @@ end;
 constructor TInfServVinc.Create;
 begin
   inherited Create;
+
   FinfCTeMultimodal := TinfCTeMultimodalCollection.Create;
 end;
 
 destructor TInfServVinc.Destroy;
 begin
   FinfCTeMultimodal.Free;
+
   inherited;
 end;
 
@@ -4332,12 +4496,14 @@ end;
 constructor TToma.Create;
 begin
   inherited Create;
+
   FEnderToma := TEndereco.Create;
 end;
 
 destructor TToma.Destroy;
 begin
   FEnderToma.Free;
+
   inherited;
 end;
 
@@ -4371,6 +4537,7 @@ end;
 constructor TVeicOS.Create;
 begin
   inherited Create;
+
   Fprop := TPropOS.Create;
 end;
 
@@ -4386,6 +4553,7 @@ end;
 constructor TRodoOS.Create;
 begin
   inherited Create;
+
   Fveic := TVeicOS.Create;
   FinfFretamento := TinfFretamento.Create;
 end;
@@ -4542,6 +4710,31 @@ end;
 
 procedure TinfVeiculoCollection.SetItem(Index: Integer;
   Value: TinfVeiculoCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
+{ TInfCteCompCollection }
+
+function TInfCteCompCollection.Add: TInfCteCompCollectionItem;
+begin
+  Result := Self.New;
+end;
+
+function TInfCteCompCollection.GetItem(
+  Index: Integer): TInfCteCompCollectionItem;
+begin
+  Result := TInfCteCompCollectionItem(inherited Items[Index]);
+end;
+
+function TInfCteCompCollection.New: TInfCteCompCollectionItem;
+begin
+  Result := TInfCteCompCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+procedure TInfCteCompCollection.SetItem(Index: Integer;
+  Value: TInfCteCompCollectionItem);
 begin
   inherited Items[Index] := Value;
 end;

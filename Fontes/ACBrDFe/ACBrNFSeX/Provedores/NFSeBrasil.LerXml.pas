@@ -52,7 +52,7 @@ type
     procedure LerTomadorServico(const ANode: TACBrXmlNode);
     procedure LerIdentificacaoTomador(const ANode: TACBrXmlNode);
 
-    procedure LerInfNfse(const ANode: TACBrXmlNode);
+    procedure LerInfNfse(const ANode: TACBrXmlNode); override;
     procedure LerIdentificacaoRps(const ANode: TACBrXmlNode);
     procedure LerServico(const ANode: TACBrXmlNode);
     procedure LerValores(const ANode: TACBrXmlNode);
@@ -152,11 +152,13 @@ begin
 
     SCompet := ObterConteudo(AuxNode.Childrens.FindAnyNs('Competencia'), tcStr);
 
-    NFSe.Competencia := EncodeDate(StrToInt(Copy(SCompet, 1, 4)),
-                                   StrToInt(Copy(SCompet, 5, 2)), 1);
+    NFSe.Competencia := EncodeDate(StrToIntDef(Copy(SCompet, 1, 4), 0),
+                                   StrToIntDef(Copy(SCompet, 5, 2), 0), 1);
 
     NFSe.NfseSubstituida := ObterConteudo(AuxNode.Childrens.FindAnyNs('NfseSubstituida'), tcStr);
     NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('OutrasInformacoes'), tcStr);
+    NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
     LerServico(AuxNode);
 
@@ -196,7 +198,8 @@ end;
 procedure TNFSeR_NFSeBrasil.LerServico(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
-  CodigoItemServico: string;
+  CodigoItemServico, UFMunicipioPrestacao: string;
+  CodMunicipioPrestacao: Integer;
 begin
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
@@ -212,10 +215,24 @@ begin
     begin
       ItemListaServico          := NormatizarItemListaServico(CodigoItemServico);
       xItemListaServico         := ItemListaServicoDescricao(ItemListaServico);
+
+      if xItemListaServico = '' then
+        xItemListaServico := ObterConteudo(AuxNode.Childrens.FindAnyNs('DescricaoItemListaServico'), tcStr);
+
       CodigoCnae                := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoCnae'), tcStr);
       CodigoTributacaoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoTributacaoMunicipio'), tcStr);
       Discriminacao             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Discriminacao'), tcStr);
-      CodigoMunicipio           := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoMunicipio'), tcStr);
+      Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
+      VerificarSeConteudoEhLista(Discriminacao);
+
+      CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoMunicipio'), tcStr);
+
+      CodMunicipioPrestacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('MunicipioPrestacaoServico'), tcInt);
+
+      if CodMunicipioPrestacao > 0 then
+        MunicipioPrestacaoServico := ObterNomeMunicipioUF(CodMunicipioPrestacao, UFMunicipioPrestacao);
     end;
   end;
 end;
@@ -274,6 +291,11 @@ begin
 
       DescontoCondicionado   := StringToFloatDef(StringReplace(AuxNode.Childrens.FindAnyNs('ValorDescontoCondicionado').Content, '.', '', [rfReplaceAll]), 0);
       DescontoIncondicionado := StringToFloatDef(StringReplace(AuxNode.Childrens.FindAnyNs('ValorDescontoIncondicionado').Content, '.', '', [rfReplaceAll]), 0);
+
+      RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
     end;
   end;
 end;
@@ -282,6 +304,8 @@ function TNFSeR_NFSeBrasil.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
 
@@ -291,6 +315,8 @@ begin
 
   // Alguns provedores não retornam o XML em UTF-8
   Arquivo := ConverteXMLtoUTF8(Arquivo);
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -325,7 +351,7 @@ begin
 
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
-  AuxNode1 := ANode.Childrens.FindAnyNs('tcCompNfse');
+  AuxNode1 := ANode.Childrens.FindAnyNs('CompNfse');
 
   if AuxNode1 = nil then
   begin
@@ -339,6 +365,8 @@ begin
 
   LerNfseCancelamento(AuxNode1);
   LerNfseSubstituicao(AuxNode1);
+
+  LerCampoLink;
 end;
 
 end.

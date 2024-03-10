@@ -40,11 +40,12 @@ uses
   Classes, SysUtils, synacode,
   ACBrDFe, ACBrDFeWebService,
   pmdfeMDFe,
-  pcnRetConsReciDFe, pcnAuxiliar, pcnConversao, pmdfeConversaoMDFe,
+  pcnRetConsReciDFe,
+  pcnConversao, pmdfeConversaoMDFe,
   pmdfeProcMDFe, pmdfeEnvEventoMDFe, pmdfeRetEnvEventoMDFe,
   pmdfeRetConsSitMDFe, pmdfeRetConsMDFeNaoEnc, pmdfeRetEnvMDFe,
   pcnDistDFeInt, pcnRetDistDFeInt,
-  ACBrMDFeManifestos, ACBrMDFeConfiguracoes;
+  ACBrMDFeManifestos, ACBrMDFeConfiguracoes, pmdfeProcInfraSA;
 
 type
 
@@ -282,6 +283,7 @@ type
 
     FprotMDFe: TProcMDFe;
     FprocEventoMDFe: TRetEventoMDFeCollection;
+    FprocInfraSA: TProcInfraSA;
 
     procedure SetMDFeChave(const AValue: String);
   protected
@@ -313,6 +315,7 @@ type
 
     property protMDFe: TProcMDFe read FprotMDFe;
     property procEventoMDFe: TRetEventoMDFeCollection read FprocEventoMDFe;
+    property procInfraSA: TProcInfraSA read FprocInfraSA;
   end;
 
   { TMDFeEnvEvento }
@@ -494,13 +497,17 @@ implementation
 
 uses
   StrUtils, Math,
+  ACBrDFeConsts,
+  ACBrDFeUtil,
   ACBrUtil.Base,
   ACBrUtil.XMLHTML,
   ACBrUtil.Strings,
   ACBrUtil.DateTime,
   ACBrUtil.FilesIO,
-  ACBrCompress, ACBrMDFe, pmdfeConsts, pcnConsts,
-  pcnGerador, pcnLeitor, pcnConsStatServ, pcnRetConsStatServ,
+  ACBrCompress, ACBrMDFe, pmdfeConsts,
+  pcnGerador, pcnLeitor,
+  ACBrDFeComum.ConsStatServ,
+  ACBrDFeComum.RetConsStatServ,
   pmdfeConsSitMDFe, pcnConsReciDFe, pmdfeConsMDFeNaoEnc;
 
 { TMDFeWebService }
@@ -606,14 +613,8 @@ begin
   try
     ConsStatServ.TpAmb := FPConfiguracoesMDFe.WebServices.Ambiente;
     ConsStatServ.CUF := FPConfiguracoesMDFe.WebServices.UFCodigo;
-//    ConsStatServ.Versao := FPVersaoServico;
 
-    AjustarOpcoes( ConsStatServ.Gerador.Opcoes );
-
-    ConsStatServ.GerarXML;
-
-    // Atribuindo o XML para propriedade interna //
-    FPDadosMsg := ConsStatServ.Gerador.ArquivoFormatoXML;
+    FPDadosMsg := ConsStatServ.GerarXML;
   finally
     ConsStatServ.Free;
   end;
@@ -627,11 +628,11 @@ begin
 
   MDFeRetorno := TRetConsStatServ.Create('MDFe');
   try
-    MDFeRetorno.Leitor.Arquivo := ParseText(FPRetWS);
+    MDFeRetorno.XmlRetorno := ParseText(FPRetWS);
     MDFeRetorno.LerXml;
 
     Fversao := MDFeRetorno.versao;
-    FtpAmb := MDFeRetorno.tpAmb;
+    FtpAmb := TpcnTipoAmbiente(MDFeRetorno.tpAmb);
     FverAplic := MDFeRetorno.verAplic;
     FcStat := MDFeRetorno.cStat;
     FxMotivo := MDFeRetorno.xMotivo;
@@ -665,7 +666,7 @@ begin
                            'Retorno: %s' + LineBreak +
                            'Observação: %s' + LineBreak),
                    [Fversao, TpAmbToStr(FtpAmb), FverAplic, IntToStr(FcStat),
-                    FxMotivo, CodigoParaUF(FcUF),
+                    FxMotivo, CodigoUFparaUF(FcUF),
                     IfThen(FdhRecbto = 0, '', FormatDateTimeBr(FdhRecbto)),
                     IntToStr(FTMed),
                     IfThen(FdhRetorno = 0, '', FormatDateTimeBr(FdhRetorno)),
@@ -874,6 +875,7 @@ begin
 
     FcUF := FMDFeRetornoSincrono.cUF;
     chMDFe := FMDFeRetornoSincrono.ProtMDFe.chMDFe;
+    FdhRecbto := FMDFeRetornoSincrono.ProtMDFe.dhRecbto;
 
     if (FMDFeRetornoSincrono.protMDFe.cStat > 0) then
       FcStat := FMDFeRetornoSincrono.protMDFe.cStat
@@ -999,7 +1001,7 @@ begin
                       FMDFeRetornoSincrono.verAplic,
                       IntToStr(FMDFeRetornoSincrono.cStat),
                       FMDFeRetornoSincrono.xMotivo,
-                      CodigoParaUF(FMDFeRetornoSincrono.cUF),
+                      CodigoUFparaUF(FMDFeRetornoSincrono.cUF),
                       FormatDateTimeBr(FMDFeRetornoSincrono.protMDFe.dhRecbto),
                       FMDFeRetornoSincrono.chMDFe])
   else
@@ -1017,7 +1019,7 @@ begin
                         FMDFeRetorno.verAplic,
                         IntToStr(FMDFeRetorno.cStat),
                         FMDFeRetorno.xMotivo,
-                        CodigoParaUF(FMDFeRetorno.cUF),
+                        CodigoUFparaUF(FMDFeRetorno.cUF),
                         FMDFeRetorno.infRec.nRec,
                         IfThen(FMDFeRetorno.InfRec.dhRecbto = 0, '',
                                FormatDateTimeBr(FMDFeRetorno.InfRec.dhRecbto)),
@@ -1385,7 +1387,7 @@ begin
                    [FMDFeRetorno.versao, TpAmbToStr(FMDFeRetorno.tpAmb),
                     FMDFeRetorno.verAplic, FMDFeRetorno.nRec,
                     IntToStr(FMDFeRetorno.cStat), FMDFeRetorno.xMotivo,
-                    CodigoParaUF(FMDFeRetorno.cUF), IntToStr(FMDFeRetorno.cMsg),
+                    CodigoUFparaUF(FMDFeRetorno.cUF), IntToStr(FMDFeRetorno.cMsg),
                     FMDFeRetorno.xMsg]);
 end;
 
@@ -1546,7 +1548,7 @@ begin
                    FMDFeRetorno.verAplic, FMDFeRetorno.nRec,
                    IntToStr(FMDFeRetorno.cStat),
                    FMDFeRetorno.xMotivo,
-                   CodigoParaUF(FMDFeRetorno.cUF)]);
+                   CodigoUFparaUF(FMDFeRetorno.cUF)]);
 end;
 
 { TMDFeConsulta }
@@ -1563,6 +1565,7 @@ destructor TMDFeConsulta.Destroy;
 begin
   FprotMDFe.Free;
   FprocEventoMDFe.Free;
+  FprocInfraSA.Free;
 
   inherited Destroy;
 end;
@@ -1598,6 +1601,8 @@ begin
 
   FprotMDFe       := TProcMDFe.Create;
   FprocEventoMDFe := TRetEventoMDFeCollection.Create;
+
+  FprocInfraSA := TProcInfraSA.Create;
 end;
 
 procedure TMDFeConsulta.SetMDFeChave(const AValue: String);
@@ -1741,6 +1746,9 @@ begin
     FcUF := MDFeRetorno.cUF;
 //    FMDFeChave := MDFeRetorno.chMDFe;
     FPMsg := FXMotivo;
+
+    FprocInfraSA.nProtDTe := MDFeRetorno.procInfraSA.nProtDTe;
+    FprocInfraSA.dhProt := MDFeRetorno.procInfraSA.dhProt;
 
     // <protMDFe> - Retorno dos dados do ENVIO da NF-e
     // Considerá-los apenas se não existir nenhum evento de cancelamento (110111)
@@ -2017,7 +2025,7 @@ begin
                            'Protocolo: %s ' + LineBreak +
                            'Digest Value: %s ' + LineBreak),
                    [Fversao, FMDFeChave, TpAmbToStr(FTpAmb), FverAplic,
-                    IntToStr(FcStat), FXMotivo, CodigoParaUF(FcUF), FMDFeChave,
+                    IntToStr(FcStat), FXMotivo, CodigoUFparaUF(FcUF), FMDFeChave,
                     FormatDateTimeBr(FDhRecbto), FProtocolo, FprotMDFe.digVal]);
 end;
 
@@ -2150,6 +2158,8 @@ begin
             infEvento.detEvento.dtEnc := FEvento.Evento[i].InfEvento.detEvento.dtEnc;
             infEvento.detEvento.cUF   := FEvento.Evento[i].InfEvento.detEvento.cUF;
             infEvento.detEvento.cMun  := FEvento.Evento[i].InfEvento.detEvento.cMun;
+
+            infEvento.detEvento.indEncPorTerceiro := FEvento.Evento[i].InfEvento.detEvento.indEncPorTerceiro;
           end;
 
           teInclusaoCondutor:
@@ -2632,7 +2642,7 @@ begin
                    [FRetConsMDFeNaoEnc.versao, TpAmbToStr(FRetConsMDFeNaoEnc.tpAmb),
                     FRetConsMDFeNaoEnc.verAplic, IntToStr(FRetConsMDFeNaoEnc.cStat),
                     FRetConsMDFeNaoEnc.xMotivo,
-                    CodigoParaUF(FRetConsMDFeNaoEnc.cUF)]);
+                    CodigoUFparaUF(FRetConsMDFeNaoEnc.cUF)]);
 end;
 
 function TMDFeConsultaMDFeNaoEnc.GerarMsgErro(E: Exception): String;
@@ -2715,7 +2725,7 @@ begin
   FPRetWS := SeparaDados(FPRetornoWS, 'mdfeDistDFeInteresseResult');
 
   // Processando em UTF8, para poder gravar arquivo corretamente //
-  FretDistDFeInt.Leitor.Arquivo := FPRetWS;
+  FretDistDFeInt.Leitor.Arquivo := ParseText(FPRetWS);
   FretDistDFeInt.LerXml;
 
   for I := 0 to FretDistDFeInt.docZip.Count - 1 do
@@ -2762,12 +2772,13 @@ begin
 
   { Processsa novamente, chamando ParseTXT, para converter de UTF8 para a String
     nativa e Decodificar caracteres HTML Entity }
+  {
   FretDistDFeInt.Free;   // Limpando a lista
   FretDistDFeInt := TRetDistDFeInt.Create('MDFe');
 
   FretDistDFeInt.Leitor.Arquivo := ParseText(FPRetWS);
   FretDistDFeInt.LerXml;
-
+  }
   FPMsg := FretDistDFeInt.xMotivo;
   Result := (FretDistDFeInt.CStat = 137) or (FretDistDFeInt.CStat = 138);
 end;

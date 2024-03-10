@@ -54,7 +54,7 @@ uses
   {$ELSE}
    Contnrs,
   {$IFEND}
-  ACBrBase, pcnConversao, ACBrUtil.Strings, pcnConsts,
+  ACBrBase, pcnConversao, ACBrUtil.Strings,
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
@@ -150,6 +150,8 @@ implementation
 
 uses
   IniFiles,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
   ACBreSocial;
 
 { TS2231Collection }
@@ -272,27 +274,34 @@ end;
 
 procedure TEvtCessao.GerarIniCessao(pIniCessao: TIniCessao);
 begin
-  Gerador.wGrupo('iniCessao');
-  
-  Gerador.wCampo(tcDat, '', 'dtIniCessao', 10, 10, 1, pIniCessao.dtIniCessao);
-  Gerador.wCampo(tcStr, '', 'cnpjCess',    14, 14, 1, pIniCessao.cnpjCess);
-  Gerador.wCampo(tcStr, '', 'respRemun',    1,  1, 1, eSSimNaoToStr(pIniCessao.respRemun));
-  
-  Gerador.wGrupo('/iniCessao');
+  if pIniCessao.dtIniCessao > 0 then
+  begin
+    Gerador.wGrupo('iniCessao');
+
+    Gerador.wCampo(tcDat, '', 'dtIniCessao', 10, 10, 1, pIniCessao.dtIniCessao);
+    Gerador.wCampo(tcStr, '', 'cnpjCess',    14, 14, 1, pIniCessao.cnpjCess);
+    Gerador.wCampo(tcStr, '', 'respRemun',    1,  1, 1, eSSimNaoToStr(pIniCessao.respRemun));
+
+    Gerador.wGrupo('/iniCessao');
+  end;
 end;
 
 procedure TEvtCessao.GerarFimCessao(pFimCessao: TFimCessao);
 begin
-  Gerador.wGrupo('fimCessao');
-  
-  Gerador.wCampo(tcDat, '', 'dtTermCessao', 10, 10, 1, pFimCessao.dtTermCessao);
+  if pFimCessao.dtTermCessao > 0 then
+  begin
+    Gerador.wGrupo('fimCessao');
 
-  Gerador.wGrupo('/fimCessao');
+    Gerador.wCampo(tcDat, '', 'dtTermCessao', 10, 10, 1, pFimCessao.dtTermCessao);
+
+    Gerador.wGrupo('/fimCessao');
+  end;
 end;
 
 function TEvtCessao.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -322,13 +331,57 @@ begin
 end;
 
 function TEvtCessao.LerArqIni(const AIniString: String): Boolean;
-//var
-//  INIRec: TMemIniFile;
-//  Ok: Boolean;
-//  sSecao, sFim: String;
-//  I: Integer;
+var
+  INIRec: TMemIniFile;
+  Ok: Boolean;
+  sSecao, sFim: String;
+  I: Integer;
 begin
   Result := True;
+
+  INIRec := TMemIniFile.Create('');
+  try
+    LerIniArquivoOuString(AIniString, INIRec);
+
+    with Self do
+    begin
+      sSecao := 'evtCessao';
+      Id         := INIRec.ReadString(sSecao, 'Id', '');
+      Sequencial := INIRec.ReadInteger(sSecao, 'Sequencial', 0);
+
+      sSecao := 'ideEvento';
+      ideEvento.indRetif    := eSStrToIndRetificacao(Ok, INIRec.ReadString(sSecao, 'indRetif', '1'));
+      ideEvento.NrRecibo    := INIRec.ReadString(sSecao, 'nrRecibo', EmptyStr);
+      ideEvento.ProcEmi     := eSStrToProcEmi(Ok, INIRec.ReadString(sSecao, 'procEmi', '1'));
+      ideEvento.VerProc     := INIRec.ReadString(sSecao, 'verProc', EmptyStr);
+
+      sSecao := 'ideEmpregador';
+      ideEmpregador.TpInsc       := eSStrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
+      ideEmpregador.NrInsc       := INIRec.ReadString(sSecao, 'nrInsc', EmptyStr);
+
+      sSecao := 'ideVinculo';
+      ideVinculo.CpfTrab   := INIRec.ReadString(sSecao, 'cpfTrab', EmptyStr);
+      ideVinculo.Matricula := INIRec.ReadString(sSecao, 'matricula', EmptyStr);
+
+      sSecao := 'iniCessao';
+      if INIRec.ReadString(sSecao, 'dtIniCessao', '') <> '' then
+      begin
+        InfoCessao.iniCessao.dtIniCessao := StringToDateTime(INIRec.ReadString(sSecao, 'dtIniCessao', '0'));
+        InfoCessao.iniCessao.cnpjCess    := INIRec.ReadString(sSecao, 'cnpjCess', '00');
+        InfoCessao.iniCessao.respRemun   := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'respRemun', 'S'));
+      end;
+
+      sSecao := 'fimCessao';
+      InfoCessao.fimCessao.dtTermCessao := StringToDateTime(INIRec.ReadString(sSecao, 'dtTermCessao', '0'));
+
+    end;
+
+    GerarXML;
+    XML := FXML;
+  finally
+    INIRec.Free;
+  end;
+
 end;
 
 end.

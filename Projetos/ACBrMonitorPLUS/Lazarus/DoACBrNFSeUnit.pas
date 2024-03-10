@@ -36,9 +36,10 @@ unit DoACBrNFSeUnit;
 interface
 
 uses
-  Classes, SysUtils, CmdUnit, ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings,
+  Classes, SysUtils, CmdUnit,
+  ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrUtil.Math,
   ACBrMonitorConsts, ACBrMonitorConfig, DoACBrDFeUnit, ACBrNFSeX,
-  ACBrNFSeConversao, ACBrLibResposta, ACBrLibNFSeRespostas;
+  ACBrNFSeXConversao, ACBrLibResposta, ACBrLibNFSeRespostas;
 
 type
 
@@ -75,6 +76,20 @@ end;
 
 {TMetodoAdicionarRPS}
 TMetodoAdicionarRPS = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
+{ TMetodoLimparLoteRPS }
+
+TMetodoLimparLoteRPS = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
+{ TMetodoTotalRPSLote }
+
+TMetodoTotalRPSLote = class(TACBrMetodo)
 public
   procedure Executar; override;
 end;
@@ -129,6 +144,12 @@ end;
 
 {TMetodoConsultarNFSeGenerico}
 TMetodoConsultarNFSeGenerico = class(TACBrMetodo)
+public
+   procedure Executar; override;
+end;
+
+{TMetodoConsultarLinkNFSe}
+TMetodoConsultarLinkNFSe = class(TACBrMetodo)
 public
    procedure Executar; override;
 end;
@@ -223,17 +244,265 @@ public
    procedure Executar; override;
 end;
 
+// Usado pelos provedores que geram token por WebService
+{TMetodoGerarTokenNFSe}
+TMetodoGerarTokenNFSe = class(TACBrMetodo)
+public
+   procedure Executar; override;
+end;
+
+// Usado pelo Padrão Nacional
+{TMetodoConsultarDPSPorChave}
+TMetodoConsultarDPSPorChave = class(TACBrMetodo)
+public
+   procedure Executar; override;
+end;
+
+{TMetodoConsultarNFSePorChave}
+TMetodoConsultarNFSePorChave = class(TACBrMetodo)
+public
+   procedure Executar; override;
+end;
+
+{TMetodoObterDANFSE}
+TMetodoObterDANFSE = class(TACBrMetodo)
+public
+   procedure Executar; override;
+end;
+
+{TMetodoEnviarEventoNFSe}
+TMetodoEnviarEventoNFSe = class(TACBrMetodo)
+public
+   procedure Executar; override;
+end;
+
+{TMetodoConsultarEventoNFSe}
+TMetodoConsultarEventoNFSe = class(TACBrMetodo)
+public
+   procedure Executar; override;
+end;
+
+{TMetodoConsultarDFeNFSePorNSU}
+TMetodoConsultarDFeNFSePorNSU = class(TACBrMetodo)
+public
+   procedure Executar; override;
+end;
+
+{TMetodoConsultarDFeNFSePorChave}
+TMetodoConsultarDFeNFSePorChave = class(TACBrMetodo)
+public
+   procedure Executar; override;
+end;
+
+{TMetodoConsultarParametrosNFSe}
+TMetodoConsultarParametrosNFSe = class(TACBrMetodo)
+public
+   procedure Executar; override;
+end;
+
+{ TMetodoObterInformacoesProvedor }
+
+TMetodoObterInformacoesProvedor = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
+{ TMetodoSetLayoutNFSe }
+
+TMetodoSetLayoutNFSe = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
+{ TMetodoSetCodigoMunicipio }
+
+TMetodoSetCodigoMunicipio = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
+{ TMetodoSetEmitente }
+
+TMetodoSetEmitente = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
+{ TMetodoSetAutenticacaoNFSe }
+
+TMetodoSetAutenticacaoNFSe = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
 
 implementation
 
 uses
-  Forms, DoACBrUnit, ACBrNFSeGravarXmlEnvioConsultarNFSe, ACBrNFSeGravarXmlEnvioCancelarNFSe;
+  Forms, DoACBrUnit, strutils, IniFiles,
+  ACBrNFSeXWebserviceBase;
+
+{ TMetodoSetAutenticacaoNFSe }
+
+{ Params: 0 - WSUser: Usuário
+          1 - WSSenha: Senha
+          2 - WSChaveAcesso: Chave de acesso
+          3 - WSChaveAutoriz: Chave Autenticação
+          4 - WSFraseSecr: Frase Secreta
+}
+procedure TMetodoSetAutenticacaoNFSe.Executar;
+var
+  AUsuario, ASenha, AChaveAcesso, AChaveAutenticacao, AFraseSecreta: String;
+begin
+  AUsuario := fpCmd.Params(0);
+  ASenha := fpCmd.Params(1);
+  AChaveAcesso := fpCmd.Params(2);
+  AChaveAutenticacao := fpCmd.Params(3);
+  AFraseSecreta := fpCmd.Params(4);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    ACBrNFSeX.Configuracoes.Geral.Emitente.WSUser := AUsuario;
+    ACBrNFSeX.Configuracoes.Geral.Emitente.WSSenha := ASenha;
+    ACBrNFSeX.Configuracoes.Geral.Emitente.WSChaveAcesso := AChaveAcesso;
+    ACBrNFSeX.Configuracoes.Geral.Emitente.WSChaveAutoriz := AChaveAutenticacao;
+    ACBrNFSeX.Configuracoes.Geral.Emitente.WSFraseSecr := AFraseSecreta;
+
+    with MonitorConfig.NFSE do
+    begin
+      Usuario := AUsuario;
+      Senha := ASenha;
+      ChaveAcesso := AChaveAcesso;
+      ChaveAutenticacao := AChaveAutenticacao;
+      FraseSecreta := AFraseSecreta;
+    end;
+
+    MonitorConfig.SalvarArquivo;
+  end;
+
+end;
+
+{ TMetodoSetEmitente }
+
+{ Params: 0 - CNPJ do emitente da NFSe
+          1 - Inscrição Municipal do emitente da NFSe
+          2 - Razão Social do emitente da NFSe
+}
+procedure TMetodoSetEmitente.Executar;
+var
+  ACNPJEmitente, AIMEmitente, ARazaoSocial: String;
+begin
+  ACNPJEmitente := fpCmd.Params(0);
+  AIMEmitente   := fpCmd.Params(1);
+  ARazaoSocial  := fpCmd.Params(2);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    ACBrNFSeX.Configuracoes.Geral.Emitente.CNPJ :=  ACNPJEmitente;
+    ACBrNFSeX.Configuracoes.Geral.Emitente.InscMun := AIMEmitente;
+    ACBrNFSeX.Configuracoes.Geral.Emitente.RazSocial := ARazaoSocial;
+
+    with MonitorConfig.NFSE do
+    begin
+      CNPJEmitente := ACNPJEmitente;
+      IMEmitente := AIMEmitente;
+      NomeEmitente := ARazaoSocial;
+    end;
+    MonitorConfig.SalvarArquivo;
+  end;
+end;
+
+{ TMetodoSetCodigoMunicipio }
+
+{ Params: 0 - Código IBGE do Município}
+procedure TMetodoSetCodigoMunicipio.Executar;
+var
+  ACodMunicipio: Integer;
+  ANomeMunicipio, AUFMunicipio: String;
+  ListaMunicipios: TMemIniFile;
+begin
+  ACodMunicipio := StrToIntDef(fpCmd.Params(0), 0);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+
+    ListaMunicipios := TMemIniFile.Create('');
+    try
+      ListaMunicipios.SetStrings(ACBrNFSeX.Configuracoes.WebServices.Params);
+      ANomeMunicipio := ListaMunicipios.ReadString(IntToStr(ACodMunicipio), 'Nome', '');
+      AUFMunicipio := ListaMunicipios.ReadString(IntToStr(ACodMunicipio), 'UF', '');
+    finally
+      ListaMunicipios.Free;
+    end;
+
+    ACBrNFSeX.Configuracoes.Geral.CodigoMunicipio := ACodMunicipio;
+
+    with MonitorConfig.NFSE do
+    begin
+      CodigoMunicipio := ACodMunicipio;
+      NomeMunicipio := ANomeMunicipio;
+      UFMunicipio := AUFMunicipio;
+    end;
+
+    MonitorConfig.SalvarArquivo;
+  end;
+end;
+
+{ TMetodoSetLayoutNFSe }
+
+{ Params: 0 - LayoutNFSe}
+procedure TMetodoSetLayoutNFSe.Executar;
+var
+  ALayout: string;
+  OK: boolean;
+begin
+  ALayout := fpCmd.Params(0);
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    ACBrNFSeX.Configuracoes.Geral.LayoutNFSe := StrToLayoutNFSe(Ok, ALayout);
+
+    with MonitorConfig.NFSE do
+      LayoutProvedor := StrToIntDef(LayoutNFSeToStr(ACBrNFSeX.Configuracoes.Geral.LayoutNFSe), 0);
+
+    MonitorConfig.SalvarArquivo;
+  end;
+end;
+
+{ TMetodoObterInformacoesProvedor }
+
+procedure TMetodoObterInformacoesProvedor.Executar;
+var
+  RespObterInfo: TObterInformacoesProvedorResposta;
+begin
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    RespObterInfo := TObterInformacoesProvedorResposta.Create(TpResp, codUTF8);
+    try
+      RespObterInfo.Processar(ACBrNFSeX.Configuracoes.Geral);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespObterInfo.Gerar;
+    finally
+      RespObterInfo.Free;
+    end;
+  end;
+end;
+
+{ TMetodoTotalRPSLote }
+
+procedure TMetodoTotalRPSLote.Executar;
+begin
+  fpCmd.Resposta := IntToStr(TACBrObjetoNFSe(fpObjetoDono).ACBrNFSeX.NotasFiscais.Count);
+end;
+
+{ TMetodoLimparLoteRPS }
+
+procedure TMetodoLimparLoteRPS.Executar;
+begin
+  TACBrObjetoNFSe(fpObjetoDono).ACBrNFSeX.NotasFiscais.Clear;
+  fpCmd.Resposta := 'Lote de RPS limpo!';
+end;
 
 { TMetodoImprimirPDFNFSe }
 
-{ Params: 0 - PathXML - Uma String com um Path completo para um arquivo XML NFSe
-                         ou Uma String com conteúdo XML NFe
-}
+{ Params: 0 - PathXML - Uma String com um Path completo para um arquivo XML NFSe ou Uma String com conteúdo XML NFe }
 procedure TMetodoImprimirPDFNFSe.Executar;
 var
   APathXML : String;
@@ -250,22 +519,18 @@ begin
       ACBrNFSeX.NotasFiscais.ImprimirPDF;
 
       if ACBrNFSeX.NotasFiscais.Items[0].NomeArqRps <> '' then
-        fpCmd.Resposta := ACBrNFSeX.NotasFiscais.Items[0].NomeArqRps
+        fpCmd.Resposta := fpCmd.Resposta + ACBrNFSeX.NotasFiscais.Items[0].NomeArqRps
       else
-        fpCmd.Resposta :=  ACBrNFSeX.NotasFiscais.Items[0].NomeArq;
-
+        fpCmd.Resposta :=  fpCmd.Resposta + ACBrNFSeX.NotasFiscais.Items[0].NomeArq;
     finally
       CargaDFe.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoImprimirNFSe }
 
-{ Params: 0 - PathXML - Uma String com um Path completo para um arquivo XML NFSe
-                         ou Uma String com conteúdo XML NFe
+{ Params: 0 - PathXML - Uma String com um Path completo para um arquivo XML NFSe ou Uma String com conteúdo XML NFe
           1 - Impressora: String com Nome da Impressora
           2 - Copias: Integer Número de Copias
           3 - Preview: 1 para Mostrar Preview
@@ -299,13 +564,10 @@ begin
       ACBrNFSeX.DANFSE.MostraPreview:= APreview;
 
       ACBrNFSeX.NotasFiscais.Imprimir;
-
     finally
       CargaDFe.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoEnviarEmailNFSe }
@@ -315,18 +577,14 @@ end;
           2 - Boolean 1 : Envia PDF
           3 - Assunto: String com Assunto do e-mail
           4 - Copia: String com e-mails copia (Separados ;)
-          5 - Anexo: String com Path de Anexos (Separados ;) }
+          5 - Anexo: String com Path de Anexos (Separados ;)
+          6 - Replay: String ReplayTo (Separados ;)
+}
 procedure TMetodoEnviarEmailNFSe.Executar;
 var
-
-  ADestinatario: String;
-  APathXML: String;
-  AEmailCopias: String;
-  AAnexos: String;
+  sAssunto, ADestinatario, APathXML, AEmailCopias, AAnexos, AAssunto, AReplay: string;
   AEnviaPDF: Boolean;
-  AAssunto: String;
-
-  slMensagemEmail, slCC, slAnexos: TStringList;
+  slMensagemEmail, slCC, slAnexos, slReplay: TStringList;
   CargaDFe: TACBrCarregarNFSe;
 begin
   ADestinatario := fpCmd.Params(0);
@@ -335,28 +593,49 @@ begin
   AAssunto := fpCmd.Params(3);
   AEmailCopias := fpCmd.Params(4);
   AAnexos := fpCmd.Params(5);
+  AReplay := fpCmd.Params(6);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.NotasFiscais.Clear;
 
+    slMensagemEmail := TStringList.Create;
     slCC := TStringList.Create;
     slAnexos := TStringList.Create;
-    slMensagemEmail := TStringList.Create;
+    slReplay := TStringList.Create;
     try
       CargaDFe := TACBrCarregarNFSe.Create(ACBrNFSeX, APathXML);
       try
+        DoConfiguraDANFSe(True, '');
+
+        with MonitorConfig.DFE.Email do
+        begin
+          slMensagemEmail.Text := DoSubstituirVariaveis( StringToBinaryString(MensagemNFSe) );
+
+          sAssunto := AssuntoNFSe;
+        end;
 
         QuebrarLinha(AEmailCopias, slCC);
         QuebrarLinha(AAnexos, slAnexos);
+        QuebrarLinha(AReplay, slReplay);
 
         try
           ACBrNFSeX.NotasFiscais.Items[0].EnviarEmail(ADestinatario,
-            AAssunto,
+            DoSubstituirVariaveis( IfThen( NaoEstaVazio(AAssunto), AAssunto, sAssunto) ),
             slMensagemEmail,
             AEnviaPDF,
+            // Enviar PDF junto
             slCC,
-            slAnexos);
+            // Lista com emails que serão enviado cópias - TStrings
+            slAnexos,
+            // Lista de slAnexos - TStrings
+            slReplay);
+            // Lista de ReplayTo - TStrings
+
+          if not (MonitorConfig.Email.SegundoPlano) then
+            fpCmd.Resposta := 'E-mail enviado com sucesso!'
+          else
+            fpCmd.Resposta := 'Enviando e-mail em segundo plano...';
 
         except
           on E: Exception do
@@ -365,29 +644,28 @@ begin
       finally
         CargaDFe.Free;
       end;
-
     finally
       slCC.Free;
       slAnexos.Free;
       slMensagemEmail.Free;
-
+      slReplay.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoSubstituirNFSe }
 
 { Params: 0 - NumNFSe: String - Numero da NFSe
-          1 - CodCancelamento: String - Código de Verificação.
-          2 - Motivo: String - Motivo do Cancelamento
-          3 - NumLote: Integer - Numero do Lote
-          4 - CodVerificacao: String - Código de Verificação
+          1 - SerieNFSe: String - Serie da NFSe
+          2 - CodCancelamento: String - Código de Verificação.
+          3 - Motivo: String - Motivo do Cancelamento
+          4 - NumLote: Integer - Numero do Lote
+          5 - CodVerificacao: String - Código de Verificação
 }
 procedure TMetodoSubstituirNFSe.Executar;
 var
   ANumNFSe: String;
+  ASerieNFSe: String;
   ACodCancelamento: String;
   AMotivo: String;
   ANumLote: String;
@@ -395,54 +673,61 @@ var
   RespSubstituir: TSubstituirNFSeResposta;
 begin
   ANumNFSe := fpCmd.Params(0);
-  ACodCancelamento := fpCmd.Params(1);
-  AMotivo := fpCmd.Params(2);
-  ANumLote := fpCmd.Params(3);
-  ACodVerificacao := fpCmd.Params(4);
+  ASerieNFSe := fpCmd.Params(1);
+  ACodCancelamento := fpCmd.Params(2);
+  AMotivo := fpCmd.Params(3);
+  ANumLote := fpCmd.Params(4);
+  ACodVerificacao := fpCmd.Params(5);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
-    ACBrNFSeX.SubstituirNFSe(ANumNFSe, ACodCancelamento, AMotivo, ANumLote, ACodVerificacao);
+    ACBrNFSeX.SubstituirNFSe(ANumNFSe, ASerieNFSe, ACodCancelamento, AMotivo,
+                             ANumLote, ACodVerificacao);
 
-    RespSubstituir := TSubstituirNFSeResposta.Create( TpResp, codUTF8);
+    RespSubstituir := TSubstituirNFSeResposta.Create(TpResp, codUTF8);
       try
-        RespSubstituir.Processar(ACBrNFSeX.WebServices.SubNFSe);
-        fpCmd.Resposta := sLineBreak + RespSubstituir.Gerar;
+        RespSubstituir.Processar(ACBrNFSeX.WebService.SubstituiNFSe);
+        fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespSubstituir.Gerar;
       finally
         RespSubstituir.Free;
       end;
-
   end;
-
 end;
 
 { TMetodoLinkNFSe }
 
 { Params: 0 - NumNFSe: String - Numero da NFSe
           1 - CodVerificacao: String - Código de Verificação.
+          2 - ChaveAcesso: String - Chave de Acesso.
+          3 - ValorServico: String - Valor do Serviço.
 }
 procedure TMetodoLinkNFSe.Executar;
 var
   ANumNFSe: String;
   ACodVerificacao: String;
+  AChaveAcesso: String;
+  AValorServico: String;
   SLink: String;
-  RespLink: TLinkResposta;
+  RespLink: TLinkNFSeResposta;
 begin
   ANumNFSe := fpCmd.Params(0);
   ACodVerificacao := fpCmd.Params(1);
+  AChaveAcesso := fpCmd.Params(2);
+  AValorServico := fpCmd.Params(3);
+
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
-    SLink:= ACBrNFSeX.LinkNFSe(ANumNFSe, ACodVerificacao);
-    RespLink := TLinkResposta.Create( TpResp, codUTF8, SLink);
-      try
-        RespLink.Processar();
-        fpCmd.Resposta := sLineBreak + RespLink.Gerar;
-      finally
-        RespLink.Free;
-      end;
+    SLink:= ACBrNFSeX.LinkNFSe(ANumNFSe, ACodVerificacao, AChaveAcesso,
+                               AValorServico);
 
+    RespLink := TLinkNFSeResposta.Create(TpResp, codUTF8);
+    try
+      RespLink.Processar(SLink);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespLink.Gerar;
+    finally
+      RespLink.Free;
+    end;
   end;
-
 end;
 
 { TMetodoCancelarNFSe }
@@ -465,10 +750,10 @@ begin
       InfCancelamento.LerFromIni(APathIni);
       ACBrNFSeX.CancelarNFSe(InfCancelamento);
 
-      RespCancelar := TCancelarNFSeResposta.Create( TpResp, codUTF8);
+      RespCancelar := TCancelarNFSeResposta.Create(TpResp, codUTF8);
       try
-        RespCancelar.Processar(ACBrNFSeX.WebServices.CancNFSe);
-        fpCmd.Resposta := sLineBreak + RespCancelar.Gerar;
+        RespCancelar.Processar(ACBrNFSeX.WebService.CancelaNFSe);
+        fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespCancelar.Gerar;
       finally
         RespCancelar.Free;
       end;
@@ -476,9 +761,7 @@ begin
     finally
       InfCancelamento.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeServicoTomadoPorPeriodo }
@@ -496,22 +779,20 @@ var
 begin
   ADataIni := StrToDateTimeDef(fpCmd.Params(0), 0);
   ADataFim := StrToDateTimeDef(fpCmd.Params(1), 0);
-  APagina := StrToIntDef(fpCmd.Params(2), 0);
+  APagina := StrToIntDef(fpCmd.Params(2), 1);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.ConsultarNFSeServicoTomadoPorPeriodo(ADataIni, ADataFim, APagina);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-      RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-      fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+      RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
       RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeServicoTomadoPorIntermediario }
@@ -529,22 +810,20 @@ var
 begin
   ACNPJCPF := fpCmd.Params(0);
   AIM := fpCmd.Params(1);
-  APagina := StrToIntDef(fpCmd.Params(2), 0);
+  APagina := StrToIntDef(fpCmd.Params(2), 1);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.ConsultarNFSeServicoTomadoPorIntermediario(ACNPJCPF, AIM, APagina);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-      RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-      fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+      RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
       RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeServicoTomadoPorTomador }
@@ -562,22 +841,20 @@ var
 begin
   ACNPJCPF := fpCmd.Params(0);
   AIM := fpCmd.Params(1);
-  APagina := StrToIntDef(fpCmd.Params(2), 0);
+  APagina := StrToIntDef(fpCmd.Params(2), 1);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.ConsultarNFSeServicoTomadoPorTomador(ACNPJCPF, AIM, APagina);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-      RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-      fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+      RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
       RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeServicoTomadoPorPrestador }
@@ -595,22 +872,20 @@ var
 begin
   ACNPJCPF := fpCmd.Params(0);
   AIM := fpCmd.Params(1);
-  APagina := StrToIntDef(fpCmd.Params(2), 0);
+  APagina := StrToIntDef(fpCmd.Params(2), 1);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.ConsultarNFSeServicoTomadoPorPrestador(ACNPJCPF, AIM, APagina);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-      RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-      fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+      RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
       RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeServicoTomadoPorNumero }
@@ -625,22 +900,20 @@ var
   RespConsulta: TConsultaNFSeResposta;
 begin
   ANumNFSe := fpCmd.Params(0);
-  APagina := StrToIntDef(fpCmd.Params(1), 0);
+  APagina := StrToIntDef(fpCmd.Params(1), 1);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.ConsultarNFSeServicoTomadoPorNumero(ANumNFSe, APagina);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-      RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-      fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+      RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
       RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeServicoPrestadoPorPeriodo }
@@ -658,22 +931,20 @@ var
 begin
   ADataIni := StrToDateTimeDef(fpCmd.Params(0), 0);
   ADataFim := StrToDateTimeDef(fpCmd.Params(1), 0);
-  APagina := StrToIntDef(fpCmd.Params(2), 0);
+  APagina := StrToIntDef(fpCmd.Params(2), 1);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.ConsultarNFSeServicoPrestadoPorPeriodo(ADataIni, ADataFim, APagina);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-      RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-      fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+      RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
       RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeServicoPrestadoPorIntermediario }
@@ -691,22 +962,20 @@ var
 begin
   ACNPJ_CPF := fpCmd.Params(0);
   AIM := fpCmd.Params(1);
-  APagina := StrToIntDef(fpCmd.Params(2), 0);
+  APagina := StrToIntDef(fpCmd.Params(2), 1);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.ConsultarNFSeServicoPrestadoPorIntermediario(ACNPJ_CPF, AIM, APagina);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-      RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-      fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+      RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
       RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeServicoPrestadoPorTomador }
@@ -724,22 +993,20 @@ var
 begin
   ACNPJ_CPF := fpCmd.Params(0);
   AIM := fpCmd.Params(1);
-  APagina := StrToIntDef(fpCmd.Params(2), 0);
+  APagina := StrToIntDef(fpCmd.Params(2), 1);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.ConsultarNFSeServicoPrestadoPorTomador(ACNPJ_CPF, AIM, APagina);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-      RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-      fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+      RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
       RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeServicoPrestadoPorNumero }
@@ -754,22 +1021,20 @@ var
   RespConsulta: TConsultaNFSeResposta;
 begin
   ANumNFSe := fpCmd.Params(0);
-  APagina := StrToIntDef(fpCmd.Params(1), 0);
+  APagina := StrToIntDef(fpCmd.Params(1), 1);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.ConsultarNFSeServicoPrestadoPorNumero(ANumNFSe, APagina);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-      RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-      fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+      RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
       RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeGenerico }
@@ -788,12 +1053,12 @@ begin
     InfConsultaNFSe := TInfConsultaNFSe.Create;
     try
       InfConsultaNFSe.LerFromIni(APathIni);
-      ACBrNFSeX.ConsultarNFSe(InfConsultaNFSe);
+      ACBrNFSeX.ConsultarNFSeGenerico(InfConsultaNFSe);
 
-      RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+      RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
       try
-         RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-         fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+         RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+         fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
       finally
          RespConsulta.Free;
       end;
@@ -801,9 +1066,38 @@ begin
     Finally
       InfConsultaNFSe.Free;
     end;
-
   end;
+end;
 
+{ TMetodoConsultarLinkNFSe }
+
+{ Params: 0 - Path_ini: String  Path com os parametros de consulta link NFSe}
+procedure TMetodoConsultarLinkNFSe.Executar;
+var
+  APathIni: String;
+  InfConsultaLinkNFSe: TInfConsultaLinkNFSe;
+  RespConsultaLinkNFSe: TConsultarLinkNFSeResposta;
+begin
+  APathIni := fpCmd.Params(0);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    InfConsultaLinkNFSe := TInfConsultaLinkNFSe.Create;
+    try
+      InfConsultaLinkNFSe.LerFromIni(APathIni);
+      ACBrNFSeX.ConsultarLinkNFSe(InfConsultaLinkNFSe);
+
+      RespConsultaLinkNFSe := TConsultarLinkNFSeResposta.Create(TpResp, codUTF8);
+      try
+        RespConsultaLinkNFSe.Processar(ACBrNFSeX.WebService.ConsultaLinkNFSe);
+        fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsultaLinkNFSe.Gerar;
+      finally
+        RespConsultaLinkNFSe.Free;
+      end;
+    finally
+      InfConsultaLinkNFSe.Free;
+    end;
+  end;
 end;
 
 { TMetodoConsultarNFSeporFaixa }
@@ -821,22 +1115,20 @@ var
 begin
   AFaixaIni := fpCmd.Params(0);
   AFaixaFim := fpCmd.Params(1);
-  APagina := StrToIntDef(fpCmd.Params(2), 0);
+  APagina := StrToIntDef(fpCmd.Params(2), 1);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.ConsultarNFSePorFaixa(AFaixaIni, AFaixaFim, APagina);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-       RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-       fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+       RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+       fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
        RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeporPeriodo }
@@ -856,23 +1148,21 @@ var
 begin
   ADataIni := StrToDateTimeDef(fpCmd.Params(0), 0);
   ADataFim := StrToDateTimeDef(fpCmd.Params(1), 0);
-  APagina := StrToIntDef(fpCmd.Params(2), 0);
+  APagina := StrToIntDef(fpCmd.Params(2), 1);
   ANumeroLote := fpCmd.Params(3);
 
   with TACBrObjetoNFSe(fpObjetoDono) do
   begin
     ACBrNFSeX.ConsultarNFSePorPeriodo(ADataIni, ADataFim, APagina, ANumeroLote);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-       RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-       fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+       RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+       fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
        RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarNFSeporNumero }
@@ -889,15 +1179,14 @@ begin
   begin
     ACBrNFSeX.ConsultarNFSePorNumero(ANumeroNFSe);
 
-    RespConsulta := TConsultaNFSeResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeResposta.Create(TpResp, codUTF8);
     try
-       RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNFSe);
-       fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+       RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+       fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
        RespConsulta.Free;
     end;
   end;
-
 end;
 
 { TMetodoConsultarNFSeporRPS }
@@ -923,16 +1212,14 @@ begin
   begin
     ACBrNFSeX.ConsultarNFSePorRps(ANumeroRPS, ASerieRPS, ATipoRPS, ACodigoVerificacao);
 
-    RespConsulta := TConsultaNFSeporRPSResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaNFSeporRPSResposta.Create(TpResp, codUTF8);
     try
-       RespConsulta.Processar(ACBrNFSeX.WebServices.ConsNfseRps);
-       fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+       RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaNFSeporRps);
+       fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
        RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarLote }
@@ -943,7 +1230,7 @@ procedure TMetodoConsultarLote.Executar;
 var
   AProtocolo: String;
   ALote: String;
-  RespConsulta: TConsultaLoteResposta;
+  RespConsulta: TConsultaLoteRpsResposta;
 begin
   AProtocolo := fpCmd.Params(0);
   ALote := fpCmd.Params(1);
@@ -952,16 +1239,14 @@ begin
   begin
     ACBrNFSeX.ConsultarLoteRps(AProtocolo, ALote);
 
-    RespConsulta := TConsultaLoteResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaLoteRpsResposta.Create(TpResp, codUTF8);
     try
-       RespConsulta.Processar(ACBrNFSeX.WebServices.ConsLote);
-       fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+       RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaLoteRps);
+       fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
        RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoConsultarSituacaoLote }
@@ -972,7 +1257,7 @@ procedure TMetodoConsultarSituacaoLote.Executar;
 var
   AProtocolo: String;
   ALote: String;
-  RespConsulta: TConsultaSituacaoLoteResposta;
+  RespConsulta: TConsultaSituacaoResposta;
 begin
   AProtocolo := fpCmd.Params(0);
   ALote := fpCmd.Params(1);
@@ -981,29 +1266,26 @@ begin
   begin
     ACBrNFSeX.ConsultarSituacao(AProtocolo, ALote);
 
-    RespConsulta := TConsultaSituacaoLoteResposta.Create( TpResp, codUTF8);
+    RespConsulta := TConsultaSituacaoResposta.Create(TpResp, codUTF8);
     try
-       RespConsulta.Processar(ACBrNFSeX.WebServices.ConsSitLoteRPS);
-       fpCmd.Resposta := sLineBreak + RespConsulta.Gerar;
+       RespConsulta.Processar(ACBrNFSeX.WebService.ConsultaSituacao);
+       fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsulta.Gerar;
     finally
        RespConsulta.Free;
     end;
-
   end;
-
 end;
 
 { TMetodoGerarLoteRPS }
 
-{ Params: 0 - IniFile - Uma String com um Path completo arquivo .ini RPS
-                         ou Uma String com conteúdo txt do RPS
+{ Params: 0 - IniFile - Uma String com um Path completo arquivo .ini RPS ou Uma String com conteúdo txt do RPS
           1 - NumeroLote: String com número do lote a ser adicionado }
 
 procedure TMetodoGerarLoteRPS.Executar;
 var
   AIni: String;
   ALote: String;
-  RespEnvio: TEnvioResposta;
+  RespGerar: TGerarLoteResposta;
 begin
   AIni := fpCmd.Params(0);
   ALote := fpCmd.Params(1);
@@ -1016,22 +1298,19 @@ begin
     ACBrNFSeX.NotasFiscais.Transacao:= True;
 
     try
-      if ACBrNFSeX.GerarLote(ALote) then
+      ACBrNFSeX.GerarLote(ALote);
 
-        RespEnvio := TEnvioResposta.Create( TpResp, codUTF8);
-        try
-           RespEnvio.Processar(ACBrNFSeX);
-           fpCmd.Resposta := sLineBreak + RespEnvio.Gerar;
-        finally
-           RespEnvio.Free;
-        end;
-
+      RespGerar := TGerarLoteResposta.Create(TpResp, codUTF8);
+      try
+        RespGerar.Processar(ACBrNFSeX.WebService.Gerar);
+        fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespGerar.Gerar;
+      finally
+        RespGerar.Free;
+      end;
     finally
-       ACBrNFSeX.NotasFiscais.Clear;
+      ACBrNFSeX.NotasFiscais.Clear;
     end;
-
   end;
-
 end;
 
 { TMetodoEnviarLoteRPS }
@@ -1044,7 +1323,7 @@ var
   ALote: String;
   AModoEnvio: Integer;
 
-  RespEnvio: TEnvioResposta;
+  RespEnvio: TEmiteResposta;
 begin
   ALote         := fpCmd.Params(0);
   AModoEnvio    := StrToIntDef(fpCmd.Params(1), 0);
@@ -1058,9 +1337,9 @@ begin
       try
         ACBrNFSeX.Emitir(ALote, TmodoEnvio(AModoEnvio), False);
 
-        RespEnvio := TEnvioResposta.Create( TpResp, codUTF8);
+        RespEnvio := TEmiteResposta.Create(TpResp, codUTF8);
         try
-           RespEnvio.Processar(ACBrNFSeX);
+           RespEnvio.Processar(ACBrNFSeX.WebService.Emite);
            fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespEnvio.Gerar;
         finally
            RespEnvio.Free;
@@ -1069,24 +1348,19 @@ begin
       finally
          ACBrNFSeX.NotasFiscais.Clear;
       end;
-
     end;
-
   end;
-
 end;
 
 { TMetodoAdicionarRPS }
 
-{ Params: 0 - IniFile - Uma String com um Path completo arquivo .ini RPS
-                         ou Uma String com conteúdo txt do RPS
+{ Params: 0 - IniFile - Uma String com um Path completo arquivo .ini RPS ou Uma String com conteúdo txt do RPS
           1 - NumeroLote: String com número do lote a ser adicionado }
 
 procedure TMetodoAdicionarRPS.Executar;
 var
   AIni: String;
   ALote: String;
-
 begin
   AIni := fpCmd.Params(0);
   ALote := fpCmd.Params(1);
@@ -1096,25 +1370,28 @@ begin
     {ForceDirectories(PathWithDelim(ExtractFilePath(Application.ExeName)) +
       'LotesNFSe' + PathDelim + 'Lote' + trim(ALote)); }
 
-    LerIniNFSe(AIni);
-    ACBrNFSeX.NotasFiscais.NumeroLote:= ALote;
-    ACBrNFSeX.NotasFiscais.Transacao:= True;
+    if ACBrNFSeX.NotasFiscais.Count < 50 then
+    begin
+      LerIniNFSe(AIni);
+      ACBrNFSeX.NotasFiscais.NumeroLote:= ALote;
+      ACBrNFSeX.NotasFiscais.Transacao:= True;
 
-    {ArqNFe := PathWithDelim(PathWithDelim(ExtractFilePath(Application.ExeName)) +
-      'LotesNFSe' + PathDelim + 'Lote' + trim(ALote)) + OnlyNumber(
-      ACBrNFSeX.NotasFiscais.Items[0].) + '-nfe.xml';
-    ACBrNFe.NotasFiscais.GravarXML(ExtractFilePath(ArqNFe));}
+      {ArqNFe := PathWithDelim(PathWithDelim(ExtractFilePath(Application.ExeName)) +
+        'LotesNFSe' + PathDelim + 'Lote' + trim(ALote)) + OnlyNumber(
+        ACBrNFSeX.NotasFiscais.Items[0].) + '-nfe.xml';
+      ACBrNFe.NotasFiscais.GravarXML(ExtractFilePath(ArqNFe));}
 
-    fpCmd.Resposta := 'Total RPS Adicionados= ' + IntToStr(ACBrNFSeX.NotasFiscais.Count) ;
-
+      fpCmd.Resposta := 'Total RPS Adicionados= ' + IntToStr(ACBrNFSeX.NotasFiscais.Count);
+    end else
+    begin
+      fpCmd.Resposta := 'Limite de RPS por Lote(50) atingido, envie o lote ou limpe a lista';
+    end;
   end;
-
 end;
 
 { TMetodoCriarEnviarRPS }
 
-{ Params: 0 - AIni - Uma String com um Path completo arquivo .ini RPS
-                         ou Uma String com conteúdo txt do RPS
+{ Params: 0 - AIni - Uma String com um Path completo arquivo .ini RPS ou Uma String com conteúdo txt do RPS
           1 - ALote: Integer com número do lote a ser adicionado
           2 - AModoEnvio: Integer com Indice ModoEnvio [0- Automatico, 1- LoteAssincrono, 2- LoteSincrono, 3- Unitario]
           3 - AImprimir: Boolean
@@ -1130,8 +1407,7 @@ var
   //Salva: Boolean;
   Alertas: String;
   Resp: String;
-  RespEnvio: TEnvioResposta;
-
+  RespEnvio: TEmiteResposta;
 begin
   AIni          := fpCmd.Params(0);
   ALote         := fpCmd.Params(1);
@@ -1163,20 +1439,285 @@ begin
     try
       ACBrNFSeX.Emitir(ALote, TmodoEnvio(AModoEnvio), AImprime);
 
-      RespEnvio := TEnvioResposta.Create( TpResp, codUTF8);
+      RespEnvio := TEmiteResposta.Create(TpResp, codUTF8);
       try
-         RespEnvio.Processar(ACBrNFSeX);
+         RespEnvio.Processar(ACBrNFSeX.WebService.Emite);
          fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespEnvio.Gerar;
       finally
          RespEnvio.Free;
       end;
-
     finally
        ACBrNFSeX.NotasFiscais.Clear;
     end;
-
   end;
+end;
 
+{ TMetodoGerarTokenNFSe }
+
+procedure TMetodoGerarTokenNFSe.Executar;
+var
+  RespGerarToken: TGerarTokenResposta;
+begin
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    ACBrNFSeX.GerarToken;
+
+    RespGerarToken := TGerarTokenResposta.Create(TpResp, codUTF8);
+    try
+      RespGerarToken.Processar(ACBrNFSeX.WebService.GerarToken);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespGerarToken.Gerar;
+    finally
+      RespGerarToken.Free;
+    end;
+  end;
+end;
+
+{ TMetodoConsultarDPSPorChave }
+
+{ Params: 0 - AChaveDPS: String com a chave do DPS
+}
+procedure TMetodoConsultarDPSPorChave.Executar;
+var
+  AChaveDPS: String;
+
+  RespConsultarDPS: TConsultaNFSePorRpsResposta;
+begin
+  AChaveDPS := fpCmd.Params(0);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    ACBrNFSeX.ConsultarDPSPorChave(AChaveDPS);
+
+    RespConsultarDPS := TConsultaNFSePorRpsResposta.Create(TpResp, codUTF8);
+    try
+      RespConsultarDPS.Processar(ACBrNFSeX.WebService.ConsultaNFSeporRps);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsultarDPS.Gerar;
+    finally
+      RespConsultarDPS.Free;
+    end;
+  end;
+end;
+
+{ TMetodoConsultarNFSePorChave }
+
+{ Params: 0 - AChaveNFSe: String com a chave da NFSe
+}
+procedure TMetodoConsultarNFSePorChave.Executar;
+var
+  AChaveNFSe: String;
+
+  RespConsultarNFSe: TConsultaNFSeResposta;
+begin
+  AChaveNFSe := fpCmd.Params(0);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    ACBrNFSeX.ConsultarNFSePorChave(AChaveNFSe);
+
+    RespConsultarNFSe := TConsultaNFSeResposta.Create(TpResp, codUTF8);
+    try
+      RespConsultarNFSe.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsultarNFSe.Gerar;
+    finally
+      RespConsultarNFSe.Free;
+    end;
+  end;
+end;
+
+{ TMetodoObterDANFSE }
+
+{ Params: 0 - AChaveNFSe: String com a chave da NFSe
+}
+procedure TMetodoObterDANFSE.Executar;
+var
+  AChaveNFSe: String;
+
+  RespObterDANFSE: TConsultaNFSeResposta;
+begin
+  AChaveNFSe := fpCmd.Params(0);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    ACBrNFSeX.ObterDANFSE(AChaveNFSe);
+
+    RespObterDANFSE := TConsultaNFSeResposta.Create(TpResp, codUTF8);
+    try
+      RespObterDANFSE.Processar(ACBrNFSeX.WebService.ConsultaNFSe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespObterDANFSE.Gerar;
+    finally
+      RespObterDANFSE.Free;
+    end;
+  end;
+end;
+
+{ TMetodoEnviarEventoNFSe }
+
+{ Params: 0 - Path_Ini : String Path do ini com dados do evento
+}
+procedure TMetodoEnviarEventoNFSe.Executar;
+var
+  APathIni: String;
+  InfEvento: TInfEvento;
+  RespEnviarEvento: TEnviarEventoResposta;
+begin
+  APathIni := fpCmd.Params(0);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    InfEvento := TInfEvento.Create;
+    try
+      InfEvento.LerFromIni(APathIni);
+      ACBrNFSeX.EnviarEvento(InfEvento);
+
+      RespEnviarEvento := TEnviarEventoResposta.Create(TpResp, codUTF8);
+      try
+        RespEnviarEvento.Processar(ACBrNFSeX.WebService.EnviarEvento);
+        fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespEnviarEvento.Gerar;
+      finally
+        RespEnviarEvento.Free;
+      end;
+    finally
+      InfEvento.Free;
+    end;
+  end;
+end;
+
+{ TMetodoConsultarEventoNFSe }
+
+{ Params: 0 - AChaveNFSe: String com a chave da NFSe
+          1 - ATipoEvento: String com o tipo de evento: [e101101, e105102,
+              e101103, e105104, e105105, e202201, e203202, e204203, e205204,
+              e202205, e203206, e204207, e205208, e305101, e305102, e305103]
+          2 - ANumSeq: Integer com o numero sequencial do evento
+}
+procedure TMetodoConsultarEventoNFSe.Executar;
+var
+  AChaveNFSe: String;
+  ATipoEvento: String;
+  ANumSeq: Integer;
+  Ok: Boolean;
+
+  RespConsultarEvento: TConsultaEventoResposta;
+begin
+  AChaveNFSe  := fpCmd.Params(0);
+  ATipoEvento := fpCmd.Params(1);
+  ANumSeq     := StrToIntDef(fpCmd.Params(2), 0);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    if (AChaveNFSe <> '') and (ATipoEvento = '') and (ANumSeq = 0) then
+      ACBrNFSeX.ConsultarEvento(AChaveNFSe);
+
+    if (AChaveNFSe <> '') and (ATipoEvento <> '') and (ANumSeq = 0) then
+      ACBrNFSeX.ConsultarEvento(AChaveNFSe, StrTotpEvento(Ok, ATipoEvento));
+
+    if (AChaveNFSe <> '') and (ATipoEvento <> '') and (ANumSeq > 0) then
+      ACBrNFSeX.ConsultarEvento(AChaveNFSe, StrTotpEvento(Ok, ATipoEvento),
+        ANumSeq);
+
+    RespConsultarEvento := TConsultaEventoResposta.Create(TpResp, codUTF8);
+    try
+      RespConsultarEvento.Processar(ACBrNFSeX.WebService.ConsultarEvento);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsultarEvento.Gerar;
+    finally
+      RespConsultarEvento.Free;
+    end;
+  end;
+end;
+
+{ TMetodoConsultarDFeNFSePorNSU }
+
+{ Params: 0 - ANSU: String com o numero sequencial unico
+}
+procedure TMetodoConsultarDFeNFSePorNSU.Executar;
+var
+  ANSU: String;
+
+  RespConsultarDFe: TConsultaDFeResposta;
+begin
+  ANSU := fpCmd.Params(0);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    ACBrNFSeX.ConsultarDFe(StrToIntDef(ANSU, 0));
+
+    RespConsultarDFe := TConsultaDFeResposta.Create(TpResp, codUTF8);
+    try
+      RespConsultarDFe.Processar(ACBrNFSeX.WebService.ConsultarDFe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsultarDFe.Gerar;
+    finally
+      RespConsultarDFe.Free;
+    end;
+  end;
+end;
+
+{ TMetodoConsultarDFeNFSePorChave }
+
+{ Params: 0 - AChaveNFSe: String com a chave da NFSe
+}
+procedure TMetodoConsultarDFeNFSePorChave.Executar;
+var
+  AChaveNFSe: String;
+
+  RespConsultarDFe: TConsultaDFeResposta;
+begin
+  AChaveNFSe := fpCmd.Params(0);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    ACBrNFSeX.ConsultarDFe(AChaveNFSe);
+
+    RespConsultarDFe := TConsultaDFeResposta.Create(TpResp, codUTF8);
+    try
+      RespConsultarDFe.Processar(ACBrNFSeX.WebService.ConsultarDFe);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsultarDFe.Gerar;
+    finally
+      RespConsultarDFe.Free;
+    end;
+  end;
+end;
+
+{ TMetodoConsultarParametrosNFSe }
+
+{ Params: 0 - ATipoParam: Integer com o Tipo de Parametro: [0, 1, 2, 3, 4, 5]
+               0 = Aliquota;
+               1 = HistoricoAliquota;
+               2 = Convenio;
+               3 = RegimesEspeciais;
+               4 = Retencoes;
+               5 = Beneficios
+          1 - ACodServico: String com o Código do Serviço
+          2 - ACompetencia: TDateTime com a data de competencia
+          3 - ANumBeneficio: String com o numero do beneficio
+}
+procedure TMetodoConsultarParametrosNFSe.Executar;
+var
+  ATipoParam: Integer;
+  ACodServico: string;
+  ACompetencia: TDateTime;
+  ANumBeneficio: string;
+  TipoParametro: TParamMunic;
+
+  RespConsultaParametros: TConsultaParametrosResposta;
+begin
+  ATipoParam := StrToIntDef(fpCmd.Params(0), 0);
+  ACodServico := fpCmd.Params(1);
+  ACompetencia := StrToDateDef(fpCmd.Params(2), Date);
+  ANumBeneficio := fpCmd.Params(3);
+  TipoParametro:= TParamMunic(ATipoParam);
+
+  with TACBrObjetoNFSe(fpObjetoDono) do
+  begin
+    ACBrNFSeX.ConsultarParametros(TipoParametro, ACodServico, ACompetencia, ANumBeneficio);
+
+    RespConsultaParametros := TConsultaParametrosResposta.Create(TpResp, codUTF8);
+    try
+      RespConsultaParametros.Processar(ACBrNFSeX.WebService.ConsultarParam);
+      fpCmd.Resposta := fpCmd.Resposta + sLineBreak + RespConsultaParametros.Gerar;
+    finally
+      RespConsultaParametros.Free;
+    end;
+  end;
 end;
 
 { TACBrCarregarNFSe }
@@ -1250,6 +1791,26 @@ begin
   ListaDeMetodos.Add(CMetodoImprimirNFSe);
   ListaDeMetodos.Add(CMetodoImprimirPDFNFSe);
 
+  ListaDeMetodos.Add(CMetodoGerarTokenNFSe);
+
+  ListaDeMetodos.Add(CMetodoConsultarDPSPorChave);
+  ListaDeMetodos.Add(CMetodoConsultarNFSePorChave);
+  ListaDeMetodos.Add(CMetodoObterDANFSE);
+  ListaDeMetodos.Add(CMetodoEnviarEventoNFSe);
+  ListaDeMetodos.Add(CMetodoConsultarEventoNFSe);
+  ListaDeMetodos.Add(CMetodoConsultarDFeNFSePorNSU);
+  ListaDeMetodos.Add(CMetodoConsultarDFeNFSePorChave);
+  ListaDeMetodos.Add(CMetodoConsultarParametrosNFSe);
+
+  ListaDeMetodos.Add(CMetodoLimparLoteRPS);
+  ListaDeMetodos.Add(CMetodoTotalRPSLote);
+  ListaDeMetodos.Add(CMetodoObterInformacoesProvedor);
+  ListaDeMetodos.Add(CMetodoSetLayoutNFSe);
+  ListaDeMetodos.Add(CMetodoSetCodigoMunicipio);
+  ListaDeMetodos.Add(CMetodoSetEmitente);
+  ListaDeMetodos.Add(CMetodoSetAutenticacaoNFSe);
+  ListaDeMetodos.Add(CMetodoConsultarLinkNFSe);
+
   // DoACBrUnit
   ListaDeMetodos.Add(CMetodoSavetofile);
   ListaDeMetodos.Add(CMetodoLoadfromfile);
@@ -1267,7 +1828,6 @@ begin
   ListaDeMetodos.Add(CMetodoBye);
   ListaDeMetodos.Add(CMetodoFim);
   ListaDeMetodos.Add(CMetodoSair);
-
 end;
 
 procedure TACBrObjetoNFSe.Executar(ACmd: TACBrCmd);
@@ -1309,6 +1869,23 @@ begin
     23  : AMetodoClass := TMetodoEnviarEmailNFSe;
     24  : AMetodoClass := TMetodoImprimirNFSe;
     25  : AMetodoClass := TMetodoImprimirPDFNFSe;
+    26  : AMetodoClass := TMetodoGerarTokenNFSe;
+    27  : AMetodoClass := TMetodoConsultarDPSPorChave;
+    28  : AMetodoClass := TMetodoConsultarNFSePorChave;
+    29  : AMetodoClass := TMetodoObterDANFSE;
+    30  : AMetodoClass := TMetodoEnviarEventoNFSe;
+    31  : AMetodoClass := TMetodoConsultarEventoNFSe;
+    32  : AMetodoClass := TMetodoConsultarDFeNFSePorNSU;
+    33  : AMetodoClass := TMetodoConsultarDFeNFSePorChave;
+    34  : AMetodoClass := TMetodoConsultarParametrosNFSe;
+    35  : AMetodoClass := TMetodoLimparLoteRPS;
+    36  : AMetodoClass := TMetodoTotalRPSLote;
+    37  : AMetodoClass := TMetodoObterInformacoesProvedor;
+    38  : AMetodoClass := TMetodoSetLayoutNFSe;
+    39  : AMetodoClass := TMetodoSetCodigoMunicipio;
+    40  : AMetodoClass := TMetodoSetEmitente;
+    41  : AMetodoClass := TMetodoSetAutenticacaoNFSe;
+    42  : AMetodoClass := TMetodoConsultarLinkNFSe;
 
     else
     begin
@@ -1318,9 +1895,7 @@ begin
       finally
         AACBrUnit.Free;
       end;
-
     end;
-
   end;
 
   if Assigned(AMetodoClass) then
@@ -1332,18 +1907,14 @@ begin
       Ametodo.Free;
     end;
   end;
-
 end;
 
 procedure TACBrObjetoNFSe.LerIniNFSe(ArqINI: String);
 begin
   with fACBrNFSeX do
   begin
-    NotasFiscais.Clear;
     NotasFiscais.LoadFromIni ( ArqINI );
-
   end;
-
 end;
 
 end.

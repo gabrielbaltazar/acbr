@@ -1495,21 +1495,29 @@ var
 begin
   LJson := TACBrJSONObject.Parse(fOwner.RespHTTP.Text);
 
-  try
-    LACBrCEPEnderecos := fOwner.Enderecos.New;
+  if (LJson.AsString['cep'] <> '') then
+  begin
+    try
+      LACBrCEPEnderecos := fOwner.Enderecos.New;
 
-    LACBrCEPEnderecos.CEP             := LJson.AsString['cep'];
-    LACBrCEPEnderecos.Bairro          := LJson.AsString['bairro'];
-    LACBrCEPEnderecos.Logradouro      := LJson.AsString['logradouro'];
-    LACBrCEPEnderecos.Municipio       := LJson.AsJSONObject['cidade'].AsString['nome'];
-    LACBrCEPEnderecos.IBGE_Municipio  := LJson.AsJSONObject['cidade'].AsString['ibge'];
-    LACBrCEPEnderecos.UF              := LJson.AsJSONObject['estado'].AsString['sigla'];
-    LACBrCEPEnderecos.Latitude        := LJson.AsString['latitude'];
-    LACBrCEPEnderecos.Longitude       := LJson.AsString['longitude'];
-    LACBrCEPEnderecos.Altitude        := LJson.AsString['altitude'];
-  finally
+      LACBrCEPEnderecos.CEP             := LJson.AsString['cep'];
+      LACBrCEPEnderecos.Bairro          := LJson.AsString['bairro'];
+      LACBrCEPEnderecos.Logradouro      := LJson.AsString['logradouro'];
+      LACBrCEPEnderecos.Municipio       := LJson.AsJSONObject['cidade'].AsString['nome'];
+      LACBrCEPEnderecos.IBGE_Municipio  := LJson.AsJSONObject['cidade'].AsString['ibge'];
+      LACBrCEPEnderecos.UF              := LJson.AsJSONObject['estado'].AsString['sigla'];
+      LACBrCEPEnderecos.Latitude        := LJson.AsString['latitude'];
+      LACBrCEPEnderecos.Longitude       := LJson.AsString['longitude'];
+      LACBrCEPEnderecos.Altitude        := LJson.AsString['altitude'];
+    finally
+      LJson.Free;
+
+      BuscaEfetuada;
+    end;
+  end
+  else
+  begin
     LJson.Free;
-
     BuscaEfetuada;
   end;
 end;
@@ -1668,7 +1676,7 @@ begin
     LACBrCEPEnderecos.Municipio       := LJson.AsString['city'];
     LACBrCEPEnderecos.UF              := LJson.AsString['state'];
     LACBrCEPEnderecos.Longitude       := LJson.AsJSONObject['location'].AsJSONObject['coordinates'].AsString['longitude'];
-    LACBrCEPEnderecos.Latitude        := LJson.AsJSONObject['location'].AsJSONObject['coordinates'].AsString['longitude'];
+    LACBrCEPEnderecos.Latitude        := LJson.AsJSONObject['location'].AsJSONObject['coordinates'].AsString['latitude'];
   finally
     LJson.Free;
     BuscaEfetuada;

@@ -90,6 +90,10 @@ procedure TACBrNFSeProviderFisco203.Configuracao;
 begin
   inherited Configuracao;
 
+  FpFormatoDataRecebimento := tcDatVcto;
+  FpFormatoDataEmissao := tcDatVcto;
+  FpFormatoDataHora := tcDatVcto;
+
   ConfigGeral.ConsultaPorFaixaPreencherNumNfseFinal := True;
 
   with ConfigWebServices do
@@ -318,7 +322,7 @@ function TACBrNFSeXWebserviceFisco203.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 

@@ -44,6 +44,189 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+06/03/2024
+--- Diversos ---
+[+] Implementado método NFSE_ConsultarLinkNFSe
+    Por: Renato Rubinho
+
+05/03/2024
+-- ACBrMonitor1.lfm, ACBrMonitorConfig.pas, ACBrMonitor1.pas,  --
+[*] TK-5131-1  Ajuste para uso de Proxy na consulta CNPJ 
+  Por: Daniel Morais InfoCotidiano
+
+04/03/2024
+-- DoACBrCTeUnit --
+[*] Faz um Refactoring nos comandos CriarEnviarCTe e EnviarCTe adicionando o caminho dos arquivos gerados no retorno e tornando a geração do PDF independente a impressão.
+  Por: Diego Folieni
+
+27/02/2024
+-- DoACBrCTeUnit --
+[*] Corrige a rotina do comando EnviarCTe que estava consultando recibo independente do modo de envio.
+  Por: Diego Folieni
+
+26/02/2024
+-- AsciiToHex --
+[*] TK-5014-1  Ajuste para utilizar função existente em math AsciiToHex para exibir a criptografia
+  Por: Daniel Morais InfoCotidiano
+
+26/02/2024
+-- ACBrMonitor1 --
+[*] TK-5014-1  Ajuste para não ser exibidos na tela ou log senhas de métodos / comando 
+  Por: Daniel Morais InfoCotidiano
+
+21/02/2024
+-- DoACBrBpeUnit, ACBrMonitor1 --
+[*] Alterações visando compatibilização com o refactory feito no componente ACBrBPe.
+  Por: Diego Folieni / Italo Giurizzato Junior
+
+19/02/2024
+-- ACBrMonitorConfig, ACBrMonitor1 (pas, lfm), ACBrMonitorConsts, DoCNPJUnit--
+[*] TK-5014 Ajustado para funcionar com a nova consulta CNPJ
+  Por: Daniel Morais InfoCotidiano
+-- ACBrMonitor.hnd, Diversos inis --
+[+] Enviados arquivos ini de modelo da versão 1.2 do e-Social e configurado help do monitor
+  Por: Renato Rubinho
+
+02/02/2024
+-- DoBoletoUnit, ACBrMonitor.hnd --
+[*] Ajustado o metodo BOLETO.EnviarEmailBoleto para tambem receber parametro de assunto e mensagem
+  Atualizado o manual  
+  Por: Daniel Morais /Validado: Victor H Gonzales - Pandaaa
+
+29/01/2024
+-- ACBrLibReinfRespostas --
+[-] Corrigido preenchimento do grupo dadosRecepcaoLote no retorno da consulta de protocolo do Reinf
+  Por: Renato Rubinho
+
+22/01/2024
+-- ACBrLibReinfConsts.pas, ACBrLibReinfRespostas.pas --
+[*] Corrigida seção "ideContribuinte" no início dos dados de retorno da consulta de protocolo
+  Por: Renato Rubinho
+
+04/01/2024
+-- ACBrMonitor.hnd --
+[*] Atualizado documentação da nova consulta CNPJ, removido captcha
+  Por: Daniel Morais InfoCotidiano
+
+04/01/2024
+--- DoCNPJUnit, ACBrMonitorConfig, ACBrMonitor1, ACBrMonitor1.lfm, ACBrMonitorConsts  ---
+[*] Ajustado para utilizar novo componente de consulta CNPJ
+  Por: Daniel Morais InfoCotidiano
+
+26/12/2023
+-- ACBrMonitor.hnd --
+[+] Documenta os novos métodos SetLayoutNFSe, SetCodigoMunicipio, SetEmitente e SetAutenticacaoNFSe.
+  Por: Diego Folieni
+  
+-- DoACBrNFSeUnit, ACBrMonitorConsts --
+[+] Adiciona os métodos SetLayoutNFSe, SetCodigoMunicipio, SetEmitente e SetAutenticacaoNFSe
+  Por: Diego Folieni
+
+19/12/2023
+-- ACBrMonitor.hnd --
+[*] Ajustes na documentação do Reinf
+  Por: Renato Rubinho
+
+15/12/2023
+-- DoACBrNFSeUnit, ACBrMonitorConsts --
+[+] Adiciona o método NFSe.ObterInformacoesProvedor
+  Por: Diego Folieni
+
+07/12/2023
+-- ACBrMonitor1 --
+[*] Ajuste visando impedir que salve uma cidade sem provedor atribuído na configuração de NFSe
+  Por: Diego Folieni
+
+16/11/2023
+-- ACBrMonitor.hnd --
+[*] Adicionado método SetTipoContribuinte na documentação
+   Por: Renato Rubinho
+
+14/11/2023
+-- ACBrMonitorConsts, DoACBrReinfUnit, pcnConversaoReinf --
+[+] Implementado método SetTipoContribuinte para setar o valor no monitor e criadas funções de conversão para o enumerado
+   Por: Renato Rubinho
+
+27/10/2023
+--- DoACBrReinfUnit ---
+[*] Centralizadas classes e métodos de respostas com a ACBrLibReinf
+   Por: Renato Rubinho
+
+09/10/2023
+-- ACBrMonitorConsts, DoACBrReinfUnit --
+[+] Implementado método setVersaoDF, para alterar a versão do leiaute
+  Por: Renato Rubinho
+
+06/10/2023
+-- pcnReinfR9005, pcnReinfRetConsulta_R9011, pcnReinfRetConsulta_R9015, pcnReinfRetEventos --
+[*] Unificadas e Centralizadas classes do componente
+  Por: Renato Rubinho
+-- ACBrLibReinfConsts, ACBrLibReinfRespostas, DoACBrReinfUnit --
+[+] Implementados retornos na consulta da versão 2.1.2: R9001, R9005, R9011, R9015
+  Por: Renato Rubinho
+
+04/10/2023
+-- DoACBrGNReUnit --
+[*] Melhoria no método GNRe.GerarXML
+  Por: Diego Folieni
+
+29/09/2023
+-- ACBrMonitor1 --
+[*] Correção do Path do GTIN
+  Por: IMATECH / Revisão: Alexandre de Paula
+-- ACBrLibReinfConsts, ACBrLibReinfRespostas, DoACBrReinfUnit --
+[+] Adicionar grupo dadosRecepcaoLote no retorno do envio de eventos da versão 2.1
+  Por: Renato Rubinho / Revisão: Diego Folieni
+
+24/07/2023
+-- DoACBrNFSeUnit, ACBrMonitorConsts --
+[+] Adicionar os métodos LimparLoteRPS e TotalRPSLote visando auxiliar no uso de múltiplos RPS por Lote
+  Por: Diego Folieni #TK-4228
+
+10/07/2023
+-- ACBrMonitor1 --
+[*] Ajuste visando sanar erro de interpretação ao enviar o conteúdo do INI ao invés do caminho nos comandos
+    da NFSe que aceitam INI como parâmetro.
+   Por: Diego F
+
+05/07/2023
+-- ACBrMonitor1 --
+[*] Ajuste visando sanar obrigatoriedade de configurar o certificado para que salvasse as configurações.
+   Por: Diego F
+
+03/07/2023
+-- ACBrMonitor1 --
+[*] Ajuste visando corrigir problema de uninitialized function result ao usar 
+    o comando e enviar email para NFSe
+    Por: Diego F
+
+27/06/2023
+--- DoACBrNFSeUnit ---
+[*] Alterações visando uma possível correção para os problemas de retorno
+    do path no comando GerarLoteRps e uso do assunto e mensagem padrão no
+    envio de email.
+    Por: Italo Giurizzato Junior
+
+23/06/2023
+-- ACBrMonitorPLUS.iss --
+[*] Adiciona o arquivo de INI e os Schemas para a NFSe --
+  Por: Diego F
+
+15/06/2023
+--- DoETQUnit, ACBrMonitorConsts, ACBrMonitor (Manual) ---
+[+] Novo método ETQ.ImprimirQRCode
+    Por: Alexandre de Paula
+
+28/04/2023
+--- ACBrMonitorPLUS.iss ---
+[*] Correção diretório logos Boleto
+    Por: Daniel Morais
+
+12/04/2023
+-- ACBrMonitorConsts, DoSATUnit  --
+[*] Novo método para ConsultarUltimaSessaoFiscal do SAT 
+   Por: Daniel Morais
+
 17/01/2023
 -- ACbrMonitor1, DoACBreSocial --
 [*] Corrige problema de número de parâmetros incorretos nas novas funções StrToVersaoeSocialEx

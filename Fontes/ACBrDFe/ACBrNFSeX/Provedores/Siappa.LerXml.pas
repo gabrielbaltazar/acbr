@@ -47,8 +47,6 @@ type
   TNFSeR_Siappa = class(TNFSeRClass)
   protected
     procedure LerTomador(const ANode: TACBrXmlNode);
-
-    procedure SetxItemListaServico(Codigo: string);
   public
     function LerXml: Boolean; override;
     function LerXmlRps(const ANode: TACBrXmlNode): Boolean;
@@ -100,8 +98,12 @@ function TNFSeR_Siappa.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -167,44 +169,34 @@ begin
 
   LerTomador(AuxNode);
 
-  with NFSe do
+  with NFSe.Servico do
   begin
-    Servico.Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_DES_DET'), tcStr);
-    Servico.Valores.ValorServicos := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_VLR_BRUTO'), tcDe2);
-    Servico.Valores.ValorIss := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_VLR_ISSQN'), tcDe2);
-    Servico.Valores.BaseCalculo := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_VLR_BASE_CALC'), tcDe2);
-    Servico.Valores.Aliquota := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_ALQ_APL'), tcDe2);
-    Servico.Valores.ValorLiquidoNfse := Servico.Valores.ValorServicos;
+    Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_DES_DET'), tcStr);
+    Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
+    VerificarSeConteudoEhLista(Discriminacao);
+
+    Valores.ValorServicos := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_VLR_BRUTO'), tcDe2);
+    Valores.ValorIss := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_VLR_ISSQN'), tcDe2);
+    Valores.BaseCalculo := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_VLR_BASE_CALC'), tcDe2);
+    Valores.Aliquota := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_ALQ_APL'), tcDe2);
+    Valores.ValorLiquidoNfse := Valores.ValorServicos;
+
+    Valores.ValorTotalNotaFiscal := Valores.ValorServicos - Valores.DescontoCondicionado -
+                                    Valores.DescontoIncondicionado;
   end;
 
   NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_DES_RES'), tcStr);
+  NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
+  LerCampoLink;
 end;
 
 function TNFSeR_Siappa.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
 begin
   Result := False;
-end;
-
-procedure TNFSeR_Siappa.SetxItemListaServico(Codigo: string);
-var
-  Item: Integer;
-  ItemServico: string;
-begin
-  NFSe.Servico.ItemListaServico := Codigo;
-
-  Item := StrToIntDef(OnlyNumber(Nfse.Servico.ItemListaServico), 0);
-  if Item < 100 then
-    Item := Item * 100 + 1;
-
-  ItemServico := FormatFloat('0000', Item);
-
-  NFSe.Servico.ItemListaServico := Copy(ItemServico, 1, 2) + '.' +
-                                     Copy(ItemServico, 3, 2);
-
-  if FpAOwner.ConfigGeral.TabServicosExt then
-    NFSe.Servico.xItemListaServico := ObterDescricaoServico(ItemServico)
-  else
-    NFSe.Servico.xItemListaServico := CodItemServToDesc(ItemServico);
 end;
 
 end.

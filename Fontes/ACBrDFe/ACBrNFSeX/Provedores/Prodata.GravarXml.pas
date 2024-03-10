@@ -67,9 +67,10 @@ begin
   NrOcorrValorInss := 1;
   NrOcorrValorIr := 1;
   NrOcorrValorCsll := 1;
-  NrOcorrValorIss := 1;
   NrOcorrAliquota := 1;
-  NrOcorrValorISS := -1;
+  NrOcorrValorIss := -1;
+
+  FormatoItemListaServico := filsComFormatacaoSemZeroEsquerda;
 end;
 
 end.

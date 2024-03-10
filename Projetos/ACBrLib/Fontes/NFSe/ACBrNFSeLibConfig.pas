@@ -4,7 +4,7 @@
 { mentos de Automação Comercial utilizados no Brasil                           }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Rafael Teno Dias                                }
+{ Colaboradores nesse arquivo: Antonio Carlos Junior                           }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -160,7 +160,7 @@ begin
   FTomadorInscEstadual := AIni.ReadString(CSessaoDANFSE, CChaveTIE, FTomadorInscEstadual);
   FTomadorInscMunicipal := AIni.ReadString(CSessaoDANFSE, CChaveTIM, FTomadorInscMunicipal);
   FTomadorFone := AIni.ReadString(CSessaoDANFSE, CChaveTFone, FTomadorFone);
-  FTomadorEndereco := AIni.ReadString(CSessaoDANFSE, CChavePUF, CChaveTEndereco);
+  FTomadorEndereco := AIni.ReadString(CSessaoDANFSE, CChaveTEndereco, FTomadorEndereco);
   FTomadorComplemento := AIni.ReadString(CSessaoDANFSE, CChaveTComplemento, FTomadorComplemento);
   FTomadorEmail:= AIni.ReadString(CSessaoDANFSE, CChaveTEMail, FTomadorEmail);
 
@@ -190,7 +190,7 @@ begin
   AIni.WriteString(CSessaoDANFSE, CChaveTIE, FTomadorInscEstadual);
   AIni.WriteString(CSessaoDANFSE, CChaveTIM, FTomadorInscMunicipal);
   AIni.WriteString(CSessaoDANFSE, CChaveTFone, FTomadorFone);
-  AIni.WriteString(CSessaoDANFSE, CChavePUF, CChaveTEndereco);
+  AIni.WriteString(CSessaoDANFSE, CChaveTEndereco, FTomadorEndereco );
   AIni.WriteString(CSessaoDANFSE, CChaveTComplemento, FTomadorComplemento);
   AIni.WriteString(CSessaoDANFSE, CChaveTEMail, FTomadorEmail);
 
@@ -307,19 +307,19 @@ begin
   FNFSeConfig.ChaveCryptINI := ChaveCrypt;
 
   if Assigned(Owner) then
-    TACBrLibNFSe(Owner).DM.AplicarConfiguracoes;
+    TACBrLibNFSe(Owner).NFSeDM.AplicarConfiguracoes;
 end;
 
 procedure TLibNFSeConfig.Travar;
 begin
   if Assigned(Owner) then
-    TACBrLibNFSe(Owner).DM.Travar;
+    TACBrLibNFSe(Owner).NFSeDM.Travar;
 end;
 
 procedure TLibNFSeConfig.Destravar;
 begin
   if Assigned(Owner) then
-    TACBrLibNFSe(Owner).DM.Destravar;
+    TACBrLibNFSe(Owner).NFSeDM.Destravar;
 end;
 
 end.

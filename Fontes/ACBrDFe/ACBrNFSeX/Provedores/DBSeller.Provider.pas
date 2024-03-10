@@ -145,7 +145,7 @@ begin
   Request := Request + '</e:RecepcionarLoteRps>';
 
   Result := Executar('', Request,
-                     ['return'], [Namespace]);
+                     ['return', 'EnviarLoteRpsResposta'], [Namespace]);
 end;
 
 function TACBrNFSeXWebserviceDBSeller.ConsultarLote(ACabecalho, AMSG: String): string;
@@ -187,7 +187,7 @@ begin
   Request := Request + '</e:ConsultarNfsePorRps>';
 
   Result := Executar('', Request,
-                     ['return', 'ConsultarNfsePorRpsResposta'], [Namespace]);
+                     ['return', 'ConsultarNfseRpsResposta'], [Namespace]);
 end;
 
 function TACBrNFSeXWebserviceDBSeller.ConsultarNFSe(ACabecalho, AMSG: String): string;
@@ -223,8 +223,9 @@ function TACBrNFSeXWebserviceDBSeller.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverPrefixosDesnecessarios(Result);
 end;
 
 { TACBrNFSeProviderDBSeller }
@@ -293,7 +294,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('CodigoErro'), tcStr);
-        AErro.Descricao := ACBrStr(Mensagem);
+        AErro.Descricao := Mensagem;
         AErro.Correcao := '';
       end;
     end;
@@ -471,7 +472,7 @@ function TACBrNFSeXWebserviceDBSeller204.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
 end;
@@ -556,7 +557,7 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('CodigoErro'), tcStr);
-        AErro.Descricao := ACBrStr(Mensagem);
+        AErro.Descricao := Mensagem;
         AErro.Correcao := '';
       end;
     end;

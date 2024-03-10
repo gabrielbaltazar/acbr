@@ -116,7 +116,9 @@ namespace ACBrLib.Boleto
 
         public bool Verso { get; set; }
 
-        public List<BoletoNotaFiscal> NotaFiscais { get; } = new List<BoletoNotaFiscal>();
+        public QrCode QrCode { get;} = new QrCode();
+
+    public List<BoletoNotaFiscal> NotaFiscais { get; } = new List<BoletoNotaFiscal>();
 
         #endregion Properties
 
@@ -139,6 +141,7 @@ namespace ACBrLib.Boleto
             iniFile.WriteToIni(this, sessao);
             iniFile.WriteToIni(OcorrenciaOriginal, sessao);
             iniFile.WriteToIni(Sacado, sessao);
+            iniFile.WriteToIni(QrCode, sessao);
             if (!string.IsNullOrEmpty(Sacado.Avalista.CNPJCPF) || (Sacado.Avalista.Pessoa == ACBrPessoa.pNenhum) )
                 iniFile.WriteToIni(Sacado.Avalista, sessao);
 

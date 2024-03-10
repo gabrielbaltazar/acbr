@@ -91,6 +91,12 @@ public
   procedure Executar; override;
 end;
 
+{ TMetodoGerarXML }
+TMetodoGerarXML = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
 { TMetodoSetFormaEmissao}
 TMetodoSetFormaEmissao = class(TACBrMetodo)
 public
@@ -98,6 +104,32 @@ public
 end;
 
 implementation
+
+{ TMetodoGerarXML }
+
+procedure TMetodoGerarXML.Executar;
+var
+  AIni: string;
+  ADevolverXML: Boolean;
+begin
+  AIni := fpCmd.Params(0);
+  ADevolverXML := StrToBoolDef(fpCmd.Params(1), False);
+
+  with TACBrObjetoGNRe(fpObjetoDono) do
+  begin
+    ACBrGNRe.Guias.Clear;
+    ACBrGNRe.Guias.LoadFromIni(AIni);
+
+    ACBrGNRe.Guias.GerarGNRe;
+    ACBrGNRe.Guias[0].GravarXML;
+    fpCmd.Resposta:= 'Arquivo guia gerado em: ' +
+                     ACBrGNRe.Guias[0].NomeArq + sLineBreak;
+
+    if ADevolverXML then
+      fpCmd.Resposta := fpCmd.Resposta + 'XML: ' + ACBrGNRe.Guias[0].XML;
+
+  end;
+end;
 
 { TACBrCarregarGNRe }
 
@@ -146,6 +178,7 @@ begin
   ListaDeMetodos.Add(CMetodoImprimirGNRePDF);
   ListaDeMetodos.Add(CMetodoGerarGuia);
   ListaDeMetodos.Add(CMetodoSetFormaEmissao);
+  ListaDeMetodos.Add(CMetodoGerarXMLGNRe);
 end;
 
 procedure TACBrObjetoGNRe.Executar(ACmd: TACBrCmd);
@@ -165,6 +198,7 @@ begin
     2  : AMetodoClass := TMetodoImprimirGNRePDF;
     3  : AMetodoClass := TMetodoGerarGuia;
     4  : AMetodoClass := TMetodoSetFormaEmissao;
+    5  : AMetodoClass := TMetodoGerarXML;
   end;
 
   if Assigned(AMetodoClass) then

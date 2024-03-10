@@ -282,10 +282,8 @@ begin
     FXML := Leitor.Arquivo;
 
     // Capturar a versão do evento
-    s := Copy(FXML, Pos('/evt/evtIrrf/', FXML)+18, 16);
-    s := Copy(s, 1, Pos('"', s)-1);
-    Self.VersaoDF := StrToEnumerado(ok, s, ['v02_04_01', 'v02_04_02', 'v02_05_00', 'v_S_01_00_00','v_S_01_01_00'],
-                                              [ve02_04_01, ve02_04_02, ve02_05_00, veS01_00_00, veS01_01_00]);
+    s := Copy(FXML, Pos('/evt/evtIrrf/', FXML)+13, 12);
+    Self.VersaoDF := StrToVersaoeSocialSchemas(s);
 
     if leitor.rExtrai(1, 'evtIrrf') <> '' then
     begin
@@ -324,7 +322,9 @@ begin
             InfoIRRF.InfoCRMen.New;
             InfoIRRF.InfoCRMen.Items[i].FCRMen       := leitor.rCampo(tcStr, 'CRMen');
             InfoIRRF.InfoCRMen.Items[i].FvrCRMen     := leitor.rCampo(tcDe2, 'vrCRMen');
-            InfoIRRF.InfoCRMen.Items[i].FvrCRMenSusp := leitor.rCampo(tcDe2, 'vrCRMenSusp');
+
+            if VersaoDF <= veS01_01_00 then
+              InfoIRRF.InfoCRMen.Items[i].FvrCRMenSusp := leitor.rCampo(tcDe2, 'vrCRMenSusp');
 
             inc(i);
           end;
@@ -336,7 +336,9 @@ begin
             InfoIRRF.InfoCRDia.Items[i].FperApurDia  := leitor.rCampo(tcInt, 'perApurDia');
             InfoIRRF.InfoCRDia.Items[i].FCRDia       := leitor.rCampo(tcStr, 'CRDia');
             InfoIRRF.InfoCRDia.Items[i].FvrCRDia     := leitor.rCampo(tcDe2, 'vrCRDia');
-            InfoIRRF.InfoCRDia.Items[i].FvrCRDiaSusp := leitor.rCampo(tcDe2, 'vrCRDiaSusp');
+
+            if VersaoDF <= veS01_01_00 then
+              InfoIRRF.InfoCRDia.Items[i].FvrCRDiaSusp := leitor.rCampo(tcDe2, 'vrCRDiaSusp');
 
             inc(i);
           end;

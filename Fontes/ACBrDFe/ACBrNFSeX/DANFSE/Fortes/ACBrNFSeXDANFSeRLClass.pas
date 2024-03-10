@@ -66,7 +66,7 @@ implementation
 uses
   ACBrUtil.FilesIO,
   ACBrNFSeX, ACBrNFSeXConversao, ACBrNFSeXDANFSeRL,
-  ACBrNFSeXDANFSeRLRetrato, ACBrNFSeXDANFSeRLSimplISS;
+  ACBrNFSeXDANFSeRLRetrato, ACBrNFSeXDANFSeRLSimplISS, ACBrNFSeXDANFSeRLISSNet;
 
 constructor TACBrNFSeXDANFSeRL.Create(AOwner: TComponent);
 begin
@@ -86,9 +86,14 @@ var
   Notas: array of TNFSe;
   fqrXDANFSeRLRetrato: TfrlXDANFSeRL;
 begin
-  case TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor of
+  SetDadosPrestador;
+  Provedor := TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor;
+
+  case Provedor of
     proSimplISS:
       fqrXDANFSeRLRetrato := TfrlXDANFSeRLSimplISS.Create(Self);
+    proIssNet:
+      fqrXDANFSeRLRetrato := TfrlXDANFSeRLISSNet.Create(Self);
   else
     fqrXDANFSeRLRetrato := TfrlXDANFSeRLRetrato.Create(Self);
   end;
@@ -118,9 +123,14 @@ var
   i: integer;
   fqrXDANFSeRLRetrato: TfrlXDANFSeRL;
 begin
-  case TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor of
+  SetDadosPrestador;
+  Provedor := TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor;
+
+  case Provedor of
     proSimplISS:
       fqrXDANFSeRLRetrato := TfrlXDANFSeRLSimplISS.Create(Self);
+    proIssNet:
+      fqrXDANFSeRLRetrato := TfrlXDANFSeRLISSNet.Create(Self);
   else
     fqrXDANFSeRLRetrato := TfrlXDANFSeRLRetrato.Create(Self);
   end;
@@ -154,9 +164,14 @@ var
   i: integer;
   fqrXDANFSeRLRetrato: TfrlXDANFSeRL;
 begin
-  case TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor of
+  SetDadosPrestador;
+  Provedor := TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor;
+
+  case Provedor of
     proSimplISS:
       fqrXDANFSeRLRetrato := TfrlXDANFSeRLSimplISS.Create(Self);
+    proIssNet:
+      fqrXDANFSeRLRetrato := TfrlXDANFSeRLISSNet.Create(Self);
   else
     fqrXDANFSeRLRetrato := TfrlXDANFSeRLRetrato.Create(Self);
   end;

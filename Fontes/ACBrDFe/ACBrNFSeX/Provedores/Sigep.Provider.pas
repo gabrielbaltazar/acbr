@@ -64,6 +64,13 @@ type
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
     procedure ValidarSchema(Response: TNFSeWebserviceResponse; aMetodo: TMetodo); override;
+
+  public
+    function TipoRPSToStr(const t:TTipoRPS): string; override;
+    function StrToTipoRPS(out ok: boolean; const s: string): TTipoRPS; override;
+
+    function StatusRPSToStr(const t: TStatusRPS): string; override;
+    function StrToStatusRPS(out ok: boolean; const s: string): TStatusRPS; override;
   end;
 
 implementation
@@ -85,6 +92,18 @@ begin
     ConsultaNFSe := False;
     CancPreencherMotivo := True;
     CancPreencherCodVerificacao := True;
+
+    Autenticacao.RequerLogin := True;
+    Autenticacao.RequerChaveAcesso := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := False;
+      ConsultarFaixaNfse := False;
+      ConsultarServicoPrestado := False;
+      ConsultarServicoTomado := False;
+      SubstituirNfse := False;
+    end;
   end;
 
   with ConfigAssinar do
@@ -238,6 +257,36 @@ begin
   inherited ValidarSchema(Response, aMetodo);
 end;
 
+function TACBrNFSeProviderSigep200.TipoRPSToStr(const t: TTipoRPS): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['R1', 'R2', 'R3', ''],
+                           [trRPS, trNFConjugada, trCupom, trNone]);
+end;
+
+function TACBrNFSeProviderSigep200.StrToTipoRPS(out ok: boolean;
+  const s: string): TTipoRPS;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['R1', 'R2', 'R3', ''],
+                           [trRPS, trNFConjugada, trCupom, trNone]);
+end;
+
+function TACBrNFSeProviderSigep200.StatusRPSToStr(const t: TStatusRPS): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['CO', 'CA'],
+                           [srNormal, srCancelado]);
+end;
+
+function TACBrNFSeProviderSigep200.StrToStatusRPS(out ok: boolean;
+  const s: string): TStatusRPS;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['CO', 'CA'],
+                           [srNormal, srCancelado]);
+end;
+
 { TACBrNFSeXWebserviceSigep200 }
 
 function TACBrNFSeXWebserviceSigep200.RecepcionarSincrono(ACabecalho,
@@ -329,7 +378,6 @@ begin
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
-  Result := string(NativeStringToUTF8(Result));
 end;
 
 end.

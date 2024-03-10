@@ -1556,7 +1556,7 @@ object frmACBrCTe: TfrmACBrCTe
         end
         object btnImprimirEvento: TButton
           Left = 8
-          Top = 103
+          Top = 141
           Width = 177
           Height = 25
           Caption = 'Imprimir Evento'
@@ -1565,7 +1565,7 @@ object frmACBrCTe: TfrmACBrCTe
         end
         object btnEnviarEventoEmail: TButton
           Left = 374
-          Top = 103
+          Top = 141
           Width = 177
           Height = 25
           Caption = 'Enviar Evento Email'
@@ -1610,12 +1610,21 @@ object frmACBrCTe: TfrmACBrCTe
         end
         object btnGerarPDFEvento: TButton
           Left = 191
-          Top = 103
+          Top = 141
           Width = 177
           Height = 25
           Caption = 'Gerar PDF Evento'
           TabOrder = 9
           OnClick = btnGerarPDFEventoClick
+        end
+        object btnInsucessoEntrega: TButton
+          Left = 8
+          Top = 103
+          Width = 177
+          Height = 25
+          Caption = 'Insucesso de Entrega'
+          TabOrder = 10
+          OnClick = btnInsucessoEntregaClick
         end
       end
       object tsInutilizacao: TTabSheet
@@ -1831,6 +1840,8 @@ object frmACBrCTe: TfrmACBrCTe
     CasasDecimais.vUnCom = 2
     CasasDecimais.MaskqCom = ',0.00'
     CasasDecimais.MaskvUnCom = ',0.00'
+    CasasDecimais.Aliquota = 2
+    CasasDecimais.MaskAliquota = ',0.00'
     ACBrCTE = ACBrCTe1
     ImprimirHoraSaida = True
     TipoDACTE = tiSemGeracao

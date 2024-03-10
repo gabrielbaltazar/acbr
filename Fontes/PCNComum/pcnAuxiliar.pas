@@ -80,69 +80,80 @@ type
     property TimeZoneStr: String read FTimeZoneStr write SetTimeZoneStr;
   end;
 
-function CodigoParaUF(const codigo: integer): string;
-function DateTimeTodh(DataHora: TDateTime): string;
-function TimeToDecimal(const ATime: TDateTime): Double;
-function DateTimeToDataHora(DataHora: TDateTime): string;
-function ExecutarAjusteTagNro(Corrigir: boolean; Nro: string): string;
-function FiltrarTextoXML(const RetirarEspacos: boolean; aTexto: String; RetirarAcentos: boolean = True; SubstituirQuebrasLinha: Boolean = True; const QuebraLinha: String = ';'): String;
+  TAjustarDataHoraParaUfFunc = function(DataHora: TDateTime; const UF: string; out TimeZoneStr: string): TDateTime;
+
+function DateTimeWithTimeZone(DataHora: TDateTime; cUF: integer): string; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function DateTimeWithTimeZone(DataHora: TDateTime; const UF: string): string; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function AjustarDataHoraParaUf(DataHora: TDateTime; cUF: integer): TDateTime; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function AjustarDataHoraParaUf(DataHora: TDateTime; const UF: string): TDateTime; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function AjustarDataHoraParaUf(DataHora: TDateTime; cUF: integer; out TimeZoneStr: string): TDateTime; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function AjustarDataHoraParaUf(DataHora: TDateTime; const UF: string; out TimeZoneStr: string): TDateTime; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+
+function CodigoParaUF(const codigo: integer): string; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método CodigoUfparaUF da Unit ACBrUtil.Base.pas' {$ENDIF};
+function DateTimeTodh(DataHora: TDateTime): string; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function TimeToDecimal(const ATime: TDateTime): Double; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function DateTimeToDataHora(DataHora: TDateTime): string; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function ExecutarAjusteTagNro(Corrigir: boolean; Nro: string): string; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function FiltrarTextoXML(const RetirarEspacos: boolean; aTexto: String; RetirarAcentos: boolean = True; SubstituirQuebrasLinha: Boolean = True; const QuebraLinha: String = ';'): String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.XMLHTML.pas' {$ENDIF};
 function IIf(const condicao: Boolean; const Verdadeiro, Falso: Variant): Variant;
 function IntToStrZero(const Numero: integer; const tamanho: integer): string;
-function GerarDigito(out Digito: integer; chave: string): boolean;
-function ReverterFiltroTextoXML(aTexto: String): String;
-function UFparaCodigo(const UF: string): integer;
-function ValidarAAMM(const AAMM: string): boolean;
-function ValidarCListServ(const cListServ: integer): boolean;
-function ValidarChave(const chave: string): boolean;
-function ValidarCodigoPais(const iPais: integer): smallint;
-function ValidarCodigoUF(const Codigo: integer): boolean;
-function ValidarCNPJ(const numero: string): boolean;
-function ValidarCPF(const numero: string): boolean;
-function ValidarCNPJouCPF(const numero: string): boolean;
-function ValidarMod(const modelo: integer; versao : Real): boolean;
-function ValidarMunicipio(const Municipio: integer): boolean;
-function ValidarNumeros(const s: string): boolean;
-function ValidarUF(const UF: string): boolean;
-function ValidarIE(const IE, UF: string): boolean;
-function ValidarISUF(const ISUF: string): boolean;
-function ValidarGTIN(const numero: string): boolean;
-function ValidarPrefixoGTIN(const numero: string): boolean;
-function SubStrEmSubStr(const SubStr1: string; SubStr2: string): boolean;
-function xml4line(texto: String): String;
+function GerarDigito(out Digito: integer; chave: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ReverterFiltroTextoXML(aTexto: String): String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.XMLHTML.pas' {$ENDIF};
+function UFparaCodigo(const UF: string): integer; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método UFparaCodigoUF da Unit ACBrUtil.Base.pas' {$ENDIF};
+function ValidarAAMM(const AAMM: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarCListServ(const cListServ: integer): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarChave(const chave: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarCodigoPais(const iPais: integer): smallint; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarCodigoUF(const Codigo: integer): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarCNPJ(const numero: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarCPF(const numero: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarCNPJouCPF(const numero: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarMod(const modelo: integer; versao : Real): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarMunicipio(const Municipio: integer): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarNumeros(const s: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarUF(const UF: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarIE(const IE, UF: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarISUF(const ISUF: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarGTIN(const numero: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarPrefixoGTIN(const numero: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function SubStrEmSubStr(const SubStr1: string; SubStr2: string): boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.Strings.pas' {$ENDIF};
+function xml4line(texto: String): String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.XMLHTML.pas' {$ENDIF};
 function RetornarPosEx(const SubStr, S: String; Offset: Cardinal = 1): Integer;
-function DateTimeTodhUTC(DataHora: TDateTime; const TZD: string): string;
-function GetUTC(UF: string; const dataHora: TDateTime): string;
-function GetUTCSistema: String;
-function IsHorarioDeVerao(const UF: string; const dataHora: TDateTime): Boolean;
-function GetPrimeiroDomingoDoMes(const ano, mes: Integer): TDateTime;
-function GetTerceiroDomingoDoMes(const ano, mes: Integer): TDateTime;
-function GetInicioDoHorarioDeVerao(const ano: Integer): TDateTime;
-function GetFimDoHorarioDeVerao(const ano: Integer): TDateTime;
-function GetDataDoCarnaval(const ano: Integer): TDateTime;
-function GetDataDaPascoa(const ano: Integer): TDateTime;
+function DateTimeTodhUTC(DataHora: TDateTime; const TZD: string): string; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function GetUTC(UF: string; const dataHora: TDateTime): string; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function GetUTCSistema: String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function GetUTCUF(UF: string; const dataHora: TDateTime): String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function IsHorarioDeVerao(const UF: string; const dataHora: TDateTime): Boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function GetPrimeiroDomingoDoMes(const ano, mes: Integer): TDateTime; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function GetTerceiroDomingoDoMes(const ano, mes: Integer): TDateTime; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function GetInicioDoHorarioDeVerao(const ano: Integer): TDateTime; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function GetFimDoHorarioDeVerao(const ano: Integer): TDateTime; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function GetDataDoCarnaval(const ano: Integer): TDateTime; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
+function GetDataDaPascoa(const ano: Integer): TDateTime; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
 
-function ExtrairModeloChaveAcesso(const AChave: String): String;
-function ExtrairUFChaveAcesso(const AChave: String): Integer;
+function ExtrairModeloChaveAcesso(const AChave: String): String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ExtrairUFChaveAcesso(const AChave: String): Integer; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
 function ExtrairCNPJChaveAcesso(const AChave: String): String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função ExtrairCNPJCPFChaveAcesso'{$EndIf};
-function ExtrairCNPJCPFChaveAcesso(const AChave: String): String;
-function ExtrairSerieChaveAcesso(const AChave: String): Integer;
-function ExtrairNumeroChaveAcesso(const AChave: String): Integer;
-function ExtrairCodigoChaveAcesso(const AChave: String): Integer;
-function ExtrairTipoEmissaoChaveAcesso(const AChave: String): Integer;
-function ExtrairDigitoChaveAcesso(const AChave: string): Integer;
+function ExtrairCNPJCPFChaveAcesso(const AChave: String): String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ExtrairSerieChaveAcesso(const AChave: String): Integer; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ExtrairNumeroChaveAcesso(const AChave: String): Integer; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ExtrairCodigoChaveAcesso(const AChave: String): Integer; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ExtrairTipoEmissaoChaveAcesso(const AChave: String): Integer; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ExtrairDigitoChaveAcesso(const AChave: string): Integer; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
 
-function TimeZoneConf: TTimeZoneConf;
+function TimeZoneConf: TTimeZoneConf; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrUtil.DateTime.pas' {$ENDIF};
 
-function ValidarCodigoDFe(AcDF, AnDF: Integer; ADigitos: Integer = 8): Boolean;
-function ValidarProtocolo(const AProtocolo: string): Boolean;
-function ValidarRecibo(const ARecibo: string): Boolean;
+function ValidarCodigoDFe(AcDF, AnDF: Integer; ADigitos: Integer = 8): Boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarProtocolo(const AProtocolo: string): Boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ValidarRecibo(const ARecibo: string): Boolean; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
 
-function ExtrairChaveMsg(const AMsg: String): String;
-function ExtrairProtocoloMsg(const AMsg: String): String;
-function ExtrairReciboMsg(const AMsg: String): String;
+function ExtrairChaveMsg(const AMsg: String): String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ExtrairProtocoloMsg(const AMsg: String): String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
+function ExtrairReciboMsg(const AMsg: String): String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método da Unit ACBrDFeUtil.pas' {$ENDIF};
 
 var
   TimeZoneConfInstance: TTimeZoneConf;
+  OnAjustarDataHoraParaUf: TAjustarDataHoraParaUfFunc;
 
 implementation
 
@@ -152,6 +163,48 @@ uses
   ACBrUtil.Math,
   ACBrUtil.XMLHTML,
   ACBrValidador;
+
+function DateTimeWithTimeZone(DataHora: TDateTime; cUF: integer): string; overload;
+begin
+  Result := DateTimeWithTimeZone(DataHora, CodigoParaUF(cUF));
+end;
+
+function DateTimeWithTimeZone(DataHora: TDateTime; const UF: string): string; overload;
+var
+  TimeZoneStr: string;
+begin
+  DataHora := AjustarDataHoraParaUf(DataHora, UF, TimeZoneStr);
+  Result := DateTimeTodhUTC(DataHora, TimeZoneStr);
+end;
+
+function AjustarDataHoraParaUf(DataHora: TDateTime; cUF: integer): TDateTime; overload;
+begin
+  Result := AjustarDataHoraParaUf(DataHora, CodigoParaUF(cUF));
+end;
+
+function AjustarDataHoraParaUf(DataHora: TDateTime; const UF: string): TDateTime; overload;
+var
+  TimeZoneStr: string;
+begin
+  Result := AjustarDataHoraParaUf(DataHora, UF, TimeZoneStr);
+end;
+
+function AjustarDataHoraParaUf(DataHora: TDateTime; cUF: integer; out TimeZoneStr: string): TDateTime; overload;
+begin
+  Result := AjustarDataHoraParaUf(DataHora, CodigoParaUF(cUF), TimeZoneStr);
+end;
+
+function AjustarDataHoraParaUf(DataHora: TDateTime; const UF: string; out TimeZoneStr: string): TDateTime; overload;
+begin
+  if Assigned(OnAjustarDataHoraParaUf) then
+    Result := OnAjustarDataHoraParaUf(DataHora, UF, TimeZoneStr)
+  else
+  begin
+    // Sem conversão para não quebrar o comportamento atual do ACBr
+    Result := DataHora;
+    TimeZoneStr := GetUTC(UF, DataHora);
+  end;
+end;
 
 function CodigoParaUF(const codigo: integer): string;
 const
@@ -658,6 +711,20 @@ begin
 end;
 
 function GetUTC(UF: string; const dataHora: TDateTime): string;
+begin
+  case TimeZoneConf.ModoDeteccao of
+    tzSistema:
+      Result := GetUTCSistema;
+
+    tzPCN:
+      Result := GetUTCUF(UF, dataHora);
+
+    tzManual:
+      Result := TimeZoneConf.TimeZoneStr;
+  end;
+end;
+
+function GetUTCUF(UF: string; const dataHora: TDateTime): String;
 const
   UTC5 = '.AC.';
   UTC4 = '.AM.RR.RO.MT.MS.';
@@ -665,40 +732,29 @@ const
 var
   HorarioDeVerao: Boolean;
 begin
-  case TimeZoneConf.ModoDeteccao of
-    tzSistema:
-        Result := GetUTCSistema;
+  if (UF = '90') or (UF = '91') or (UF = '') then
+    UF := 'DF';
 
-    tzPCN:
-      begin
-        if (UF = '90') or (UF = '91') or (UF = '') then
-           UF := 'DF';
+  HorarioDeVerao := IsHorarioDeVerao(UF, dataHora);
+  Result := '-03:00';  // TimeZone de Brasília
 
-        HorarioDeVerao := IsHorarioDeVerao(UF, dataHora);
-        Result := '-03:00';  // TimeZone de Brasília
-
-        if AnsiPos('.' + UF + '.', UTC4) > 0 then
-        begin
-          Result := '-04:00';
-          if HorarioDeVerao then
-            Result := '-03:00';
-        end
-        else
-        if AnsiPos('.' + UF + '.', UTC3) > 0 then
-        begin
-          Result := '-03:00';
-          if HorarioDeVerao then
-            Result := '-02:00';
-        end
-        else
-        if AnsiPos('.' + UF + '.', UTC5) > 0 then
-        begin
-          Result := '-05:00';
-        end;
-      end;
-
-    tzManual:
-      Result := TimeZoneConf.TimeZoneStr;
+  if AnsiPos('.' + UF + '.', UTC4) > 0 then
+  begin
+    Result := '-04:00';
+    if HorarioDeVerao then
+      Result := '-03:00';
+  end
+  else
+  if AnsiPos('.' + UF + '.', UTC3) > 0 then
+  begin
+    Result := '-03:00';
+    if HorarioDeVerao then
+      Result := '-02:00';
+  end
+  else
+  if AnsiPos('.' + UF + '.', UTC5) > 0 then
+  begin
+    Result := '-05:00';
   end;
 end;
 
@@ -1200,6 +1256,7 @@ end;
 
 initialization
   TimeZoneConfInstance := nil;
+  OnAjustarDataHoraParaUf := nil;
 
 finalization;
   if Assigned( TimeZoneConfInstance ) then

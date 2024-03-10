@@ -13,6 +13,8 @@ uses
   ACBrNCMs, ACBrCotacao, ACBrMail, ACBrConsultaCPF, ACBrSpedTabelas, 
   ACBrSedex, ACBrWinReqRespClass, ACBrWinHTTPReqResp, ACBrWinINetReqResp, 
   ACBrFeriado, ACBrFeriadoWSCalendario, ACBrFeriadoWSClass, ACBrFeriadoWSJSON, 
+  ACBrConsultaCNPJ.WS, ACBrConsultaCNPJ.WS.BrasilAPI, 
+  ACBrConsultaCNPJ.WS.ReceitaWS, ACBrConsultaCNPJ.WS.CNPJWS, 
   LazarusPackageIntf;
 
 implementation

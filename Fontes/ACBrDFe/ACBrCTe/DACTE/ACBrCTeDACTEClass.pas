@@ -52,6 +52,7 @@ type
 
   TACBrCTeDACTEClass = class(TACBrDFeReport)
   private
+    FPosCanhotoLayout: TPosReciboLayout;
     procedure SetACBrCTE(const Value: TComponent);
     procedure ErroAbstract(const NomeProcedure: string);
 
@@ -75,10 +76,13 @@ type
     destructor Destroy; override;
 
     procedure ImprimirDACTe(ACTE: TCTE = nil); virtual;
-    procedure ImprimirDACTePDF(ACTE: TCTE = nil);overload; virtual;
+    procedure ImprimirDACTePDF(ACTE: TCTE = nil); overload; virtual;
     procedure ImprimirDACTePDF(AStream: TStream; ACTe: TCTe = nil); overload; virtual;
+
     procedure ImprimirEVENTO(ACTE: TCTe = nil); virtual;
-    procedure ImprimirEVENTOPDF(ACTE: TCTe = nil); virtual;
+    procedure ImprimirEVENTOPDF(ACTE: TCTe = nil); overload; virtual;
+    procedure ImprimirEVENTOPDF(AStream: TStream; ACTe: TCTe = nil); overload; virtual;
+
     procedure ImprimirINUTILIZACAO(ACTE: TCTe = nil); virtual;
     procedure ImprimirINUTILIZACAOPDF(ACTE: TCTe = nil); virtual;
   published
@@ -92,6 +96,7 @@ type
     property ExibeResumoCanhoto: boolean read FResumoCanhoto write FResumoCanhoto;
     property EPECEnviado: boolean read FEPECEnviado write FEPECEnviado;
     property PosCanhoto: TPosRecibo read FPosCanhoto write FPosCanhoto default prCabecalho;
+    property PosCanhotoLayout: TPosReciboLayout read FPosCanhotoLayout write FPosCanhotoLayout default prlPadrao;
     property ImprimeDescPorc: boolean read FImprimirDescPorc write FImprimirDescPorc;
   end;
 
@@ -111,6 +116,8 @@ begin
   FCancelada := False;
   FResumoCanhoto := False;
   FEPECEnviado := False;
+  FPosCanhoto := prCabecalho;
+  FPosCanhotoLayout := prlPadrao;
 end;
 
 destructor TACBrCTeDACTEClass.Destroy;
@@ -182,6 +189,11 @@ begin
 end;
 
 procedure TACBrCTeDACTEClass.ImprimirEVENTOPDF(ACTE: TCTe);
+begin
+  ErroAbstract('ImprimirEVENTOPDF');
+end;
+
+procedure TACBrCTeDACTEClass.ImprimirEVENTOPDF(AStream: TStream; ACTe: TCTe);
 begin
   ErroAbstract('ImprimirEVENTOPDF');
 end;

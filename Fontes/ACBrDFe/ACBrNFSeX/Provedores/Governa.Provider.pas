@@ -107,6 +107,16 @@ begin
     ConsultaNFSe := False;
     DetalharServico := True;
 
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerChaveAcesso := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarRps := True;
+      CancelarNfse := True;
+    end;
+
     FpVersaoArquivo := Params.ValorParametro('VersaoArquivo');
   end;
 
@@ -174,11 +184,11 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Codigo;
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('tsDesOco'), tcStr));
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('tsDesOco'), tcStr);
       AErro.Correcao := '';
 
       if AErro.Descricao = '' then
-        AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+        AErro.Descricao := ANodeArray[I].AsString;
     end;
   end;
 end;
@@ -285,7 +295,7 @@ begin
           begin
             NumeroRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('tsNumRps'), tcStr);
             NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('tsNumNot'), tcStr);
-            CodVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('tsCodVer'), tcStr);
+            CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('tsCodVer'), tcStr);
             Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('tsFlgRet'), tcStr);
             DescSituacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('tsDesOco'), tcStr);
           end;
@@ -310,7 +320,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
 begin
-  if EstaVazio(Response.NumRPS) then
+  if EstaVazio(Response.NumeroRps) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod102;
@@ -318,7 +328,7 @@ begin
     Exit;
   end;
 
-  if EstaVazio(Response.CodVerificacao) then
+  if EstaVazio(Response.CodigoVerificacao) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod117;
@@ -339,8 +349,8 @@ begin
                              Emitente.WSChaveAcesso +
                           '</tsChvAcs>' +
                           '<tcInfConsultaRPS>' +
-                            '<tsNumRPS>' + Response.NumRPS + '</tsNumRPS>' +
-                            '<tsCodVer>' + Response.CodVerificacao + '</tsCodVer>' +
+                            '<tsNumRPS>' + Response.NumeroRps + '</tsNumRPS>' +
+                            '<tsCodVer>' + Response.CodigoVerificacao + '</tsCodVer>' +
                           '</tcInfConsultaRPS>' +
                        '</tcConsultaRPS>';
 end;
@@ -388,7 +398,7 @@ begin
           begin
             NumeroRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('tsNumRps'), tcStr);
             NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('tsNumNot'), tcStr);
-            CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('tsCodVer'), tcStr);
+            CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('tsCodVer'), tcStr);
             Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('tsFlgRet'), tcStr);
             DescSituacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('tsDesOco'), tcStr);
           end;
@@ -523,7 +533,7 @@ begin
           with Response do
           begin
             NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('tsNumNot'), tcStr);
-            CodVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('tsCodVer'), tcStr);
+            CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('tsCodVer'), tcStr);
             Situacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('tsFlgRet'), tcStr);
             DescSituacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('tsDesOco'), tcStr);
           end;
@@ -596,7 +606,7 @@ function TACBrNFSeXWebserviceGoverna.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
 end;
 
 end.

@@ -202,7 +202,7 @@ function TACBrNFSeXWebserviceThema.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
@@ -259,8 +259,8 @@ function TACBrNFSeProviderThema.NaturezaOperacaoDescricao(
   const t: TnfseNaturezaOperacao): string;
 begin
   case t of
-    no63 : Result := '6.3 - Tributação fora do municipio sem retenção de ISS';
-    no64 : Result := '6.4 - Tributacao fora do municipio com retenção de ISS';
+    no63 : Result := '6.3 - Tributação fora do municipio com retenção de ISS';
+    no64 : Result := '6.4 - Tributacao fora do municipio sem retenção de ISS';
   else
     Result := inherited NaturezaOperacaoDescricao(t);
   end;
@@ -385,13 +385,13 @@ begin
     Versao := '';
 
   if ConfigGeral.Identificador <> '' then
-    IdAttr := ' ' + ConfigGeral.Identificador + '="Lote_' + Response.Lote + '"'
+    IdAttr := ' ' + ConfigGeral.Identificador + '="Lote_' + Response.NumeroLote + '"'
   else
     IdAttr := '';
 
   Response.ArquivoEnvio := '<' + Prefixo + TagEnvio + NameSpace + '>' +
                          '<' + Prefixo + 'LoteRps' + NameSpaceLote + IdAttr  + Versao + '>' +
-                           '<' + PrefixoTS + 'NumeroLote>' + Response.Lote + '</' + PrefixoTS + 'NumeroLote>' +
+                           '<' + PrefixoTS + 'NumeroLote>' + Response.NumeroLote + '</' + PrefixoTS + 'NumeroLote>' +
                            '<' + PrefixoTS + 'Cnpj>' + OnlyNumber(Emitente.CNPJ) + '</' + PrefixoTS + 'Cnpj>' +
                            GetInscMunic(Emitente.InscMun, PrefixoTS) +
                            '<' + PrefixoTS + 'QuantidadeRps>' +

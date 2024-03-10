@@ -39,9 +39,8 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
   ACBrNFSeXClass,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml;
 
 type
   { Provedor com layout próprio }
@@ -63,7 +62,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings;
+  ACBrUtil.Strings, ACBrNFSeXConversao, ACBrNFSeXConsts;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -99,7 +98,7 @@ begin
                                     NFSe.IdentificacaoRps.Serie, DSC_SERIERPS));
 
   NFSeNode.AppendChild(AddNode(tcDatHor, '#1', 'dtEmissaoRps', 19, 19, 1,
-                                                   NFSe.DataEmissao, DSC_DEMI));
+                                                  NFSe.DataEmissao, DSC_DHEMI));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'stRps', 1, 1, 1, '1', ''));
 
@@ -127,6 +126,9 @@ begin
 
   xmlNode := GerarRetencoes;
   NFSeNode.AppendChild(xmlNode);
+
+  if NFSe.Servico.Valores.DescontoIncondicionado > 0 then
+    NFseNode.AppendChild(AddNode(tcDe2, '#1', 'vlDesconto', 1, 15, 1, NFSe.Servico.Valores.DescontoIncondicionado, ''));
 
   Result := True;
 end;
@@ -164,7 +166,7 @@ var
 
   procedure tratarSerItem(AItemServico: string);
   begin
-    iAux := StrToInt(OnlyNumber(AItemServico)); //Ex.: 1402, 901
+    iAux := StrToIntDef(OnlyNumber(AItemServico), 0); //Ex.: 1402, 901
 
     if (iAux > 999) then //Ex.: 1402
     begin
@@ -334,6 +336,9 @@ begin
 
     Result.AppendChild(AddNode(tcStr, '#1', 'nrInscricaoEstadual', 1, 20, 0,
                       NFSe.Tomador.IdentificacaoTomador.InscricaoEstadual, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'nrInscricaoMunicipal', 1, 20, 0,
+                      NFSe.Tomador.IdentificacaoTomador.InscricaoMunicipal, ''));
 
     Result.AppendChild(AddNode(tcStr, '#1', 'dsEndereco', 1, 40, 1,
                                            NFSe.Tomador.Endereco.Endereco, ''));

@@ -45,7 +45,8 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrPIXCD, ACBrBase, ACBrOpenSSLUtils;
+  {$IFDEF RTL230_UP}ACBrBase,{$ENDIF RTL230_UP}
+  ACBrPIXCD, ACBrOpenSSLUtils;
 
 const
   cItauURLSandbox = 'https://devportal.itau.com.br/sandboxapi';

@@ -129,6 +129,9 @@ namespace ACBrLib.CTe
 
         #endregion Ini
 
+        public void CarregarCTe(CTe cte) => CarregarINI(cte.ToString());
+
+        public CTe ObterCTe(int aIndex) => CTe.Load(ObterIni(aIndex));
         public void CarregarXML(string eArquivoOuXml)
         {
             var method = GetMethod<CTE_CarregarXML>();
@@ -326,7 +329,7 @@ namespace ACBrLib.CTe
             return ProcessResult(buffer, bufferLen);
         }
 
-        public string Consultar(string eChaveOuCTe, bool AExtrairEventos = false)
+        public ConsultaCTeResposta Consultar(string eChaveOuCTe, bool AExtrairEventos = false)
         {
             var bufferLen = BUFFER_LEN;
             var buffer = new StringBuilder(bufferLen);
@@ -336,7 +339,7 @@ namespace ACBrLib.CTe
 
             CheckResult(ret);
 
-            return ProcessResult(buffer, bufferLen);
+            return ConsultaCTeResposta.LerResposta(ProcessResult(buffer, bufferLen));
         }
 
         public string ConsultaCadastro(string cUF, string nDocumento, bool nIE)
@@ -352,7 +355,7 @@ namespace ACBrLib.CTe
             return ProcessResult(buffer, bufferLen);
         }
 
-        public string Inutilizar(string acnpj, string aJustificativa, int ano, int modelo,
+        public InutilizacaoCTeResposta Inutilizar(string acnpj, string aJustificativa, int ano, int modelo,
             int serie, int numeroInicial, int numeroFinal)
         {
             var bufferLen = BUFFER_LEN;
@@ -363,10 +366,10 @@ namespace ACBrLib.CTe
 
             CheckResult(ret);
 
-            return ProcessResult(buffer, bufferLen);
+            return InutilizacaoCTeResposta.LerResposta(ProcessResult(buffer, bufferLen));
         }
 
-        public string Enviar(int aLote, bool imprimir = false, bool sincrono = false)
+        public EnvioRetornoResposta Enviar(int aLote, bool imprimir = false, bool sincrono = false)
         {
             var bufferLen = BUFFER_LEN;
             var buffer = new StringBuilder(bufferLen);
@@ -376,7 +379,7 @@ namespace ACBrLib.CTe
 
             CheckResult(ret);
 
-            return ProcessResult(buffer, bufferLen);
+            return EnvioRetornoResposta.LerResposta(ProcessResult(buffer, bufferLen), "CTe");
         }
 
         public string ConsultarRecibo(string aRecibo)
@@ -392,7 +395,7 @@ namespace ACBrLib.CTe
             return ProcessResult(buffer, bufferLen);
         }
 
-        public string Cancelar(string eChave, string eJustificativa, string eCNPJ, int aLote)
+        public CancelamentoCTeResposta Cancelar(string eChave, string eJustificativa, string eCNPJ, int aLote)
         {
             var bufferLen = BUFFER_LEN;
             var buffer = new StringBuilder(bufferLen);
@@ -402,7 +405,7 @@ namespace ACBrLib.CTe
 
             CheckResult(ret);
 
-            return ProcessResult(buffer, bufferLen);
+            return CancelamentoCTeResposta.LerResposta(ProcessResult(buffer, bufferLen));
         }
 
         public string EnviarEvento(int aLote)

@@ -45,7 +45,6 @@ uses
   pmdfeMDFeR, 
   pmdfeMDFeW, 
   pcnConversao, 
-  pcnAuxiliar, 
   pcnLeitor;
 
 type
@@ -84,7 +83,8 @@ type
     constructor Create(Collection2: TCollection); override;
     destructor Destroy; override;
     procedure Imprimir;
-    procedure ImprimirPDF;
+    procedure ImprimirPDF; overload;
+    function ImprimirPDF(AStream: TStream): Boolean; overload;
 
     procedure Assinar;
     procedure Validar;
@@ -150,7 +150,8 @@ type
     function VerificarAssinatura(out Erros: String): Boolean;
     function ValidarRegrasdeNegocios(out Erros: String): Boolean;
     procedure Imprimir;
-    procedure ImprimirPDF;
+    procedure ImprimirPDF; overload;
+    procedure ImprimirPDF(AStream: TStream); overload;
 
     function Add: Manifesto;
     function Insert(Index: integer): Manifesto;
@@ -235,6 +236,21 @@ begin
       raise EACBrMDFeException.Create('Componente DAMDFE não associado.')
     else
       DAMDFE.ImprimirDAMDFEPDF(MDFe);
+  end;
+end;
+
+function Manifesto.ImprimirPDF(AStream: TStream): Boolean;
+begin
+  with TACBrMDFe(TManifestos(Collection).ACBrMDFe) do
+  begin
+    if not Assigned(DAMDFE) then
+      raise EACBrMDFeException.Create('Componente DAMDFE não associado.')
+    else
+    begin
+      AStream.Size := 0;
+      DAMDFE.ImprimirDAMDFEPDF(AStream, MDFe);
+      Result := True;
+    end;
   end;
 end;
 
@@ -564,7 +580,6 @@ begin
     begin
       INIRec.WriteInteger('ide', 'cUF', Ide.cUF);
       INIRec.WriteString('ide', 'tpEmit', TpEmitenteToStr(Ide.tpEmit));
-      INIRec.WriteString('ide', 'tpTransp', TTransportadorToStr(Ide.tpTransp));
       INIRec.WriteString('ide', 'mod', Ide.modelo);
       INIRec.WriteInteger('ide', 'serie', Ide.serie);
       INIRec.WriteInteger('ide', 'nMDF', Ide.nMDF);
@@ -1235,7 +1250,7 @@ begin
     FMDFeW.Opcoes.NormatizarMunicipios   := Configuracoes.Arquivos.NormatizarMunicipios;
     FMDFeW.Opcoes.PathArquivoMunicipios  := Configuracoes.Arquivos.PathArquivoMunicipios;
 
-    pcnAuxiliar.TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
+    TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
 
     FMDFeW.idCSRT := Configuracoes.RespTec.IdCSRT;
     FMDFeW.CSRT   := Configuracoes.RespTec.CSRT;
@@ -1476,7 +1491,7 @@ begin
       Emit.enderEmit.fone    := INIRec.ReadString('emit', 'fone', '');
       Emit.enderEmit.email   := INIRec.ReadString('emit', 'email', '');
 
-      ide.cUF := INIRec.ReadInteger('ide', 'cUF', UFparaCodigo(Emit.enderEmit.UF));
+      ide.cUF := INIRec.ReadInteger('ide', 'cUF', UFparaCodigoUF(Emit.enderEmit.UF));
 
       //*********************************************************************
       //
@@ -2506,7 +2521,13 @@ end;
 procedure TManifestos.ImprimirPDF;
 begin
   VerificarDAMDFE;
-  TACBrMDFe(FACBrMDFE).DAMDFE.ImprimirDAMDFEPDF(nil);
+  TACBrMDFe(FACBrMDFE).DAMDFE.ImprimirDAMDFEPDF;
+end;
+
+procedure TManifestos.ImprimirPDF(AStream: TStream);
+begin
+  VerificarDAMDFE;
+  TACBrMDFe(FACBrMDFE).DAMDFE.ImprimirDAMDFEPDF(AStream);
 end;
 
 function TManifestos.Insert(Index: integer): Manifesto;

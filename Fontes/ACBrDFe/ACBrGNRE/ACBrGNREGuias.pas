@@ -43,7 +43,6 @@ uses
   StrUtils,
   ACBrDFeUtil, 
   pcnConversao, 
-  pcnAuxiliar, 
   pcnLeitor,
   ACBrGNREConfiguracoes,
   pgnreGNRE, 
@@ -94,6 +93,7 @@ type
     function ValidarRegrasdeNegocios: Boolean;
     function LerXML(AXML: String): Boolean;
     function LerArqIni(const AIniString: String): Boolean;
+    function GerarGNReIni: String;
     function GerarXML: String;
     function GravarXML(NomeArquivo: String = ''; PathArquivo: String = ''): Boolean;
     function GravarStream(AStream: TStream): Boolean;
@@ -151,6 +151,7 @@ type
     function LoadFromStream(AStream: TStringStream; AGerarGNRE: Boolean = True): Boolean;
     function LoadFromString(AXMLString: String; AGerarGNRE: Boolean = True): Boolean;
     function LoadFromIni(AIniString: String): Boolean;
+    function GerarIni: String;
     function GravarXML(PathNomeArquivo: String = ''): Boolean;
 
     property ACBrGNRE: TComponent read FACBrGNRE;
@@ -304,8 +305,9 @@ end;
 function Guia.LerArqIni(const AIniString: String): Boolean;
 var
   IniGuia: TMemIniFile;
-  sSecao: String;
+  sSecao, sFIM: String;
   ok: Boolean;
+  i: integer;
 begin
   IniGuia := TMemIniFile.Create('');
   try
@@ -362,6 +364,14 @@ begin
         referencia.periodo := IniGuia.ReadInteger(sSecao,'referenciaPeriodo',0);
         c10_valorTotal     := StringToFloatDef(IniGuia.ReadString(sSecao,'ValorTotal',''),0);
         c06_valorPrincipal := StringToFloatDef(IniGuia.ReadString(sSecao,'ValorPrincipal',''),0);
+        ValorFECP          := StringToFloatDef(IniGuia.ReadString(sSecao,'ValorFECP', ''), 0);
+        TotalFECP          := StringToFloatDef(IniGuia.ReadString(sSecao,'TotalFECP', ''), 0);
+        MultaFECP          := StringToFloatDef(IniGuia.ReadString(sSecao,'MultaFECP', ''), 0);
+        JurosFECP          := StringToFloatDef(IniGuia.ReadString(sSecao,'JurosFECP', ''), 0);
+        AtualMonetFECP     := StringToFloatDef(IniGuia.ReadString(sSecao,'AtualMonetFECP', ''), 0);
+        MultaICMS          := StringToFloatDef(IniGuia.ReadString(sSecao,'MultaICMS', ''), 0);
+        JurosICMS          := StringToFloatDef(IniGuia.ReadString(sSecao,'JurosICMS', ''), 0);
+        AtualMonetICMS     := StringToFloatDef(IniGuia.ReadString(sSecao,'AtualMonetICMS', ''), 0);
       end;
 
       //Destinatario
@@ -378,19 +388,43 @@ begin
         c38_municipioDestinatario         := IniGuia.ReadString(sSecao,'cidade','');
       end;
 
-      //Outras Informacoes
-      sSecao := 'CampoExtra';
 
-      if IniGuia.SectionExists(sSecao) then
+      camposExtras.Clear;
+      i := 1;
+      while true do
       begin
-        camposExtras.Clear;
+        //Outras Informacoes
+        sSecao := 'CampoExtra' + IntToStrZero(I, 1);
+
+        sFIM := IniGuia.ReadString(sSecao, 'codigo', 'FIM');
+
+        if (Length(sFIM) <= 0) or (sFIM = 'FIM') then
+          break;
 
         with camposExtras.New do
         begin
-          CampoExtra.codigo := IniGuia.ReadInteger(sSecao,'codigo',0);
+          CampoExtra.codigo := StrToIntDef(sFIM, 0);
           CampoExtra.tipo   := IniGuia.ReadString(sSecao,'tipo','');
           CampoExtra.valor  := IniGuia.ReadString(sSecao,'valor','');
         end;
+
+        Inc(i);
+      end;
+
+      if camposExtras.Count = 0 then
+      begin
+        sSecao := 'CampoExtra';
+
+        if IniGuia.SectionExists(sSecao) then
+        begin
+          with camposExtras.New do
+          begin
+            CampoExtra.codigo := IniGuia.ReadInteger(sSecao, 'codigo', 0);
+            CampoExtra.tipo   := IniGuia.ReadString(sSecao,'tipo','');
+            CampoExtra.valor  := IniGuia.ReadString(sSecao,'valor','');
+          end;
+        end;
+
       end;
 
     end;
@@ -472,6 +506,83 @@ begin
   end;
 end;
 
+function Guia.GerarGNReIni: String;
+var
+  INIRec: TMemIniFile;
+  IniGuia: TStringList;
+  sSecao: String;
+  i: Integer;
+begin
+  INIRec := TMemIniFile.Create('');
+  try
+    with FGNRe do
+    begin
+      sSecao := 'Emitente';
+      INIRec.WriteInteger(sSecao, 'tipo', FGNRe.c27_tipoIdentificacaoEmitente);
+      INIRec.WriteString(sSecao, 'IE', FGNRe.c17_inscricaoEstadualEmitente);
+      INIRec.WriteString(sSecao, 'id', FGNRe.c03_idContribuinteEmitente);
+      INIRec.WriteString(sSecao, 'RazaoSocial', FGNRe.c16_razaoSocialEmitente);
+      INIRec.WriteString(sSecao, 'Endereco', FGNRe.c18_enderecoEmitente);
+      INIRec.WriteString(sSecao, 'Cidade', FGNRe.c19_municipioEmitente);
+      INIRec.WriteString(sSecao, 'UF', FGNRe.c20_ufEnderecoEmitente);
+      INIRec.WriteString(sSecao, 'Cep', FGNRe.c21_cepEmitente);
+      INIRec.WriteString(sSecao, 'Telefone', FGNRe.c22_telefoneEmitente);
+
+      sSecao := 'Complemento';
+      INIRec.WriteString(sSecao, 'IdentificadorGuia', FGNRe.c42_identificadorGuia);
+      INIRec.WriteInteger(sSecao, 'tipoDocOrigem', FGNRe.c28_tipoDocOrigem);
+      INIRec.WriteString(sSecao, 'DocOrigem', FGNRe.c04_docOrigem);
+      INIRec.WriteInteger(sSecao, 'detalhamentoReceita', FGNRe.c25_detalhamentoReceita);
+      INIRec.WriteInteger(sSecao, 'produto', FGNRe.c26_produto);
+
+      sSecao := 'Referencia';
+      INIRec.WriteString(sSecao, 'tipoGNRe', TipoGNREToStr(FGNRe.tipoGNRE));
+      INIRec.WriteString(sSecao, 'convenio', FGNRe.c15_convenio);
+      INIRec.WriteInteger(sSecao, 'receita', FGNRe.c02_receita);
+      INIRec.WriteString(sSecao, 'ufFavorecida', FGNRe.c01_UfFavorecida);
+      INIRec.WriteDateTime(sSecao, 'dataVencimento', FGNRe.c14_dataVencimento);
+      INIRec.WriteDateTime(sSecao, 'dataPagamento', FGNRe.c33_dataPagamento);
+      INIRec.WriteInteger(sSecao, 'referenciaAno', FGNRe.referencia.ano);
+      INIRec.WriteString(sSecao, 'referenciaMes', FGNRe.referencia.mes);
+      INIRec.WriteInteger(sSecao, 'referenciaPeriodo', FGNRe.referencia.periodo);
+      INIRec.WriteFloat(sSecao, 'ValorTotal', FGNRe.c10_valorTotal);
+      INIRec.WriteFloat(sSecao, 'ValorPrincipal', FGNRe.c06_valorPrincipal);
+      INIRec.WriteFloat(sSecao, 'ValorFECP', FGNRe.ValorFECP);
+      INIRec.WriteFloat(sSecao, 'TotalFECP', FGNRe.TotalFECP);
+      INIRec.WriteFloat(sSecao, 'JurosFECP', FGNRe.JurosFECP);
+      INIRec.WriteFloat(sSecao, 'AtualMonetFECP', FGNRe.AtualMonetFECP);
+      INIRec.WriteFloat(sSecao, 'MultaICMS', FGNRe.MultaICMS);
+      INIRec.WriteFloat(sSecao, 'JurosICMS', FGNRe.JurosICMS);
+      INIRec.WriteFloat(sSecao, 'AtualMonetICMS', FGNRe.AtualMonetICMS);
+
+      sSecao := 'Destinatario';
+      INIRec.WriteInteger(sSecao, 'tipo', FGNRe.c34_tipoIdentificacaoDestinatario);
+      INIRec.WriteString(sSecao, 'ie', FGNRe.c36_inscricaoEstadualDestinatario);
+      INIRec.WriteString(sSecao, 'id', FGNRe.c35_idContribuinteDestinatario);
+      INIRec.WriteString(sSecao, 'razaosocial', FGNRe.c37_razaoSocialDestinatario);
+      INIRec.WriteString(sSecao, 'cidade', FGNRe.c38_municipioDestinatario);
+
+      for i := 0 to FGNRe.camposExtras.Count - 1 do
+      begin
+        sSecao := 'CampoExtra' + IntToStrZero(i+1, 1);
+        INIRec.WriteInteger(sSecao, 'codigo', FGNRe.camposExtras[i].CampoExtra.codigo);
+        INIRec.WriteString(sSecao, 'tipo', FGNRe.camposExtras[i].CampoExtra.tipo);
+        INIRec.WriteString(sSecao, 'valor', FGNRe.camposExtras[i].CampoExtra.valor);
+      end;
+    end;
+
+    IniGuia := TStringList.Create;
+    try
+      IniRec.GetStrings(IniGuia);
+      Result := StringReplace(IniGuia.Text, sLineBreak + sLineBreak, sLineBreak, [rfReplaceAll]);
+    finally
+      IniGuia.Free;
+    end;
+  finally
+    INIRec.Free;
+  end;
+end;
+
 function Guia.GerarXML: String;
 var
   IdAnterior : String;
@@ -486,7 +597,7 @@ begin
 
     FGNREW.Versao := Configuracoes.Geral.VersaoDF;
 
-    pcnAuxiliar.TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
+    TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
   end;
 
   FGNREW.GerarXml;
@@ -652,6 +763,13 @@ var
 begin
   for i := 0 to Self.Count - 1 do
     Self.Items[i].GerarXML;
+end;
+
+function TGuias.GerarIni: String;
+begin
+  Result := '';
+  if (Self.Count > 0)then
+    Result := Self.Items[0].GerarGNReIni;
 end;
 
 function TGuias.GetItem(Index: integer): Guia;

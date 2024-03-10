@@ -108,6 +108,34 @@ function CharInSet(C: WideChar; const CharSet: TSysCharSet): Boolean; overload;
 function CreateFormatSettings: TFormatSettings;
 {$ENDIF}
 
+{$IfNDef FPC}
+  {$IFNDEF DELPHI2007_UP}
+  type TBytes = array of Byte;
+  {$ENDIF}
+{$ENDIF}
+
+{$IfNDef FPC}
+  {$IFNDEF DELPHI2009_UP}
+  const
+    TMSGrow = 4096; { Use 4k blocks. vindo do arquivo streams.inc}
+    SMemoryStreamError = 'Out of memory while expanding memory stream'; {rtlconst.inc}
+
+  type
+  //Baseado no código do FPC/Lazarus 2.2.6
+  { TBytesStream }
+    TBytesStream = class(TMemoryStream)
+    private
+      FBytes: TBytes;
+    protected
+      //  PtrInt = NativeInt = LongInt em Delphis anteriores...
+      function Realloc(var NewCapacity: LongInt): Pointer; override;
+    public
+      constructor Create(const ABytes: TBytes); overload; //virtual;
+      property Bytes: TBytes read FBytes;
+    end;
+  {$ENDIF}
+{$ENDIF}
+
 
 implementation
 
@@ -237,5 +265,46 @@ begin
   {$ENDIF}
 end;
 {$ENDIF}
+
+{$IfNDef FPC}
+  {$IFNDEF DELPHI2009_UP}
+  {****************************************************************************}
+  {*                              TBytesStream                                *}
+  {****************************************************************************}
+  //Baseado no código do FPC/Lazarus 2.2.6
+
+  constructor TBytesStream.Create(const ABytes: TBytes);
+  begin
+    inherited Create;
+    FBytes:=ABytes;
+    SetPointer(Pointer(FBytes),Length(FBytes));
+//    FCapacity:=Length(FBytes);
+    Capacity:=Length(FBytes);
+  end;
+
+    function TBytesStream.Realloc(var NewCapacity: LongInt): Pointer;
+  begin
+    // adapt TMemoryStream code to use with dynamic array
+    if NewCapacity<0 Then
+      NewCapacity:=0
+    else
+      begin
+        if (NewCapacity>Capacity) and (NewCapacity < (5*Capacity) div 4) then
+          NewCapacity := (5*Capacity) div 4;
+        NewCapacity := (NewCapacity + (TMSGrow-1)) and not (TMSGROW-1);
+      end;
+    if NewCapacity=Capacity then
+      Result:=Pointer(FBytes)
+    else
+      begin
+        SetLength(FBytes,Newcapacity);
+        Result:=Pointer(FBytes);
+        if (Result=nil) and (Newcapacity>0) then
+          raise EStreamError.Create(SMemoryStreamError);
+      end;
+  end;
+{$ENDIF}
+{$ENDIF}
+
 
 end.

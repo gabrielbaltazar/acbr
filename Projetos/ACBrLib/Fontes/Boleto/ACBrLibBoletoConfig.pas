@@ -54,6 +54,7 @@ type
     FImprimirMensagemPadrao: Boolean;
     FLayoutRemessa: TACBrLayoutRemessa;
     FLeCedenteRetorno: Boolean;
+    FLerNossoNumeroCompleto: Boolean;
     FNomeArqRemessa: String;
     FNomeArqRetorno: String;
     FNumeroArquivo: Integer;
@@ -74,6 +75,7 @@ type
     property ImprimirMensagemPadrao: Boolean read FImprimirMensagemPadrao write FImprimirMensagemPadrao;
     property LayoutRemessa: TACBrLayoutRemessa read FLayoutRemessa write FLayoutRemessa;
     property LeCedenteRetorno: Boolean read FLeCedenteRetorno write FLeCedenteRetorno;
+    property LerNossoNumeroCompleto: Boolean read FLerNossoNumeroCompleto write FLerNossoNumeroCompleto;
     property NomeArqRemessa: String read FNomeArqRemessa write FNomeArqRemessa;
     property NomeArqRetorno: String read FNomeArqRetorno write FNomeArqRetorno;
     property NumeroArquivo: Integer read FNumeroArquivo write FNumeroArquivo;
@@ -215,6 +217,10 @@ type
     FDirLogo: String;
     FFiltro: TACBrBoletoFCFiltro;
     FLayout: TACBrBolLayOut;
+    FMargemDireita: double;
+    FMargemEsquerda: double;
+    FMargemInferior: double;
+    FMargemSuperior: double;
     FMostrarPreview: Boolean;
     FMostrarProgresso: Boolean;
     FMostrarSetup: Boolean;
@@ -244,6 +250,10 @@ type
     property AlterarEscalaPadrao: Boolean read FAlterarEscalaPadrao write FAlterarEscalaPadrao;
     property NovaEscala: Integer read FNovaEscala write FNovaEscala;
     property CalcularNomeArquivoPDFIndividual: Boolean read FCalcularNomeArquivoPDFIndividual write FCalcularNomeArquivoPDFIndividual;
+    property MargemInferior  : double read FMargemInferior   write FMargemInferior;
+    property MargemSuperior  : double read FMargemSuperior   write FMargemSuperior;
+    property MargemEsquerda  : double read FMargemEsquerda   write FMargemEsquerda;
+    property MargemDireita   : double read FMargemDireita    write FMargemDireita;
 
   end;
 
@@ -255,6 +265,8 @@ type
     FOperacao: TOperacao;
     FVersaoDF: String;
     FUseCertificateHTTP: Boolean;
+    FArquivoCRT: String;
+    FArquivoKEY: String;
 
   public
     constructor Create;
@@ -267,6 +279,8 @@ type
     property Operacao: TOperacao read FOperacao write FOperacao;
     property VersaoDF: String read FVersaoDF write FVersaoDF;
     property UseCertificateHTTP: Boolean read FUseCertificateHTTP write FUseCertificateHTTP;
+    property ArquivoCRT: String read FArquivoCRT write FArquivoCRT;
+    property ArquivoKEY: String read FArquivoKEY write FArquivoKEY;
 
   end;
 
@@ -341,6 +355,8 @@ begin
   FOperacao:= tpInclui;
   FVersaoDF:= '1.2';
   FUseCertificateHTTP:= False;
+  FArquivoCRT:= '';
+  FArquivoKEY:= '';
 
 end;
 
@@ -351,6 +367,8 @@ begin
   Operacao:= TOperacao( AIni.ReadInteger(CSessaoBoletoWebService, CChaveOperacao, integer(Operacao) ) );
   VersaoDF:= AIni.ReadString(CSessaoBoletoWebService, CChaveVersaoDF, VersaoDF );
   UseCertificateHTTP:= AIni.ReadBool(CSessaoBoletoWebService, CChaveUseCertificateHTTP, UseCertificateHTTP );
+  ArquivoCRT:= AIni.ReadString(CSessaoBoletoWebService, CChaveArquivoCRT, ArquivoCRT);
+  ArquivoKEY:= AIni.ReadString(CSessaoBoletoWebService, CChaveArquivoKEY, ArquivoKEY);
 end;
 
 procedure TBoletoConfigWS.GravarIni(const AIni: TCustomIniFile);
@@ -360,6 +378,8 @@ begin
   AIni.WriteInteger(CSessaoBoletoWebService, CChaveOperacao, integer(Operacao) );
   AIni.WriteString(CSessaoBoletoWebService, CChaveVersaoDF, VersaoDF );
   AIni.WriteBool(CSessaoBoletoWebService, CChaveUseCertificateHTTP, UseCertificateHTTP );
+  AIni.WriteString(CSessaoBoletoWebService, CChaveArquivoCRT, ArquivoCRT);
+  AIni.WriteString(CSessaoBoletoWebService, CChaveArquivoKEY, ArquivoKEY);
 end;
 
 { TBoletoCedenteWS }
@@ -517,6 +537,10 @@ begin
   FAlterarEscalaPadrao:= False;
   FNovaEscala:= 96;
   FCalcularNomeArquivoPDFIndividual:= False;
+  FMargemInferior:=5;
+  FMargemSuperior:=5;
+  FMargemEsquerda:=4;
+  FMargemDireita:=3;
 end;
 
 procedure TBoletoFCFortesConfig.LerIni(const AIni: TCustomIniFile);
@@ -534,6 +558,11 @@ begin
   AlterarEscalaPadrao:= AIni.ReadBool(CSessaoBoletoFCFortesConfig, CChaveAlterarEscalaPadrao, AlterarEscalaPadrao );
   NovaEscala:= AIni.ReadInteger(CSessaoBoletoFCFortesConfig, CChaveNovaEscala, NovaEscala);
   CalcularNomeArquivoPDFIndividual := AIni.ReadBool(CSessaoBoletoFCFortesConfig, CChaveCalcularNomeArquivoPDFIndividual, CalcularNomeArquivoPDFIndividual);
+  MargemInferior:= AIni.ReadFloat(CSessaoBoletoFCFortesConfig, CChaveMargemInferior, MargemInferior );
+  MargemSuperior:= AIni.ReadFloat(CSessaoBoletoFCFortesConfig, CChaveMargemSuperior, MargemSuperior );
+  MargemEsquerda:= AIni.ReadFloat(CSessaoBoletoFCFortesConfig, CChaveMargemEsquerda, MargemEsquerda );
+  MargemDireita := AIni.ReadFloat(CSessaoBoletoFCFortesConfig, CChaveMargemDireita,  MargemDireita );
+
 
 end;
 
@@ -552,6 +581,10 @@ begin
   AIni.WriteBool(CSessaoBoletoFCFortesConfig, CChaveAlterarEscalaPadrao, AlterarEscalaPadrao);
   AIni.WriteInteger(CSessaoBoletoFCFortesConfig, CChaveNovaEscala, NovaEscala );
   AIni.WriteBool(CSessaoBoletoFCFortesConfig, CChaveCalcularNomeArquivoPDFIndividual, CalcularNomeArquivoPDFIndividual );
+  AIni.WriteFloat(CSessaoBoletoFCFortesConfig, CChaveMargemInferior, MargemInferior  );
+  AIni.WriteFloat(CSessaoBoletoFCFortesConfig, CChaveMargemSuperior, MargemSuperior  );
+  AIni.WriteFloat(CSessaoBoletoFCFortesConfig, CChaveMargemEsquerda, MargemEsquerda  );
+  AIni.WriteFloat(CSessaoBoletoFCFortesConfig, CChaveMargemDireita,  MargemDireita  );
 
 end;
 
@@ -589,14 +622,25 @@ begin
 end;
 
 procedure TBoletoCedenteConfig.LerIni(const AIni: TCustomIniFile);
+var
+  LTipoInscricao: integer;
 begin
+
+  CNPJCPF:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCNPJCPF, CNPJCPF );
+
+  LTipoInscricao:= AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveTipoInscricao, 1);
+
+  if (TACBrPessoaCedente(LTipoInscricao) >= Low(TACBrPessoaCedente)) and (TACBrPessoaCedente(LTipoInscricao) <= High(TACBrPessoaCedente)) then
+     TipoInscricao := TACBrPessoaCedente( LTipoInscricao )
+  else
+    TipoInscricao := pJuridica;
+
   Agencia:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveAgencia, Agencia);
   AgenciaDigito:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveAgenciaDigito, AgenciaDigito );
   Bairro:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveBairro, Bairro );
   CaracTitulo:= TACBrCaracTitulo( AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveCaracTitulo, integer(CaracTitulo) ));
   CEP:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCEP, CEP );
   Cidade:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCidade, Cidade );
-  CNPJCPF:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCNPJCPF, CNPJCPF );
   CodigoCedente:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCodigoCedente, CodigoCedente );
   CodigoTransmissao:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveCodigoTransmissao, CodigoTransmissao );
   Complemento:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveComplemento, Complemento );
@@ -611,7 +655,6 @@ begin
   Telefone:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveTelefone, Telefone);
   TipoCarteira:= TACBrTipoCarteira( AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveTipoCarteira, integer(TipoCarteira) ));
   TipoDocumento:= TACBrTipoDocumento( AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveTipoDocumento, integer(TipoDocumento) ));
-  TipoInscricao:= TACBrPessoaCedente( AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveTipoInscricao, integer(TipoInscricao) ));
   UF:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveUF, UF );
   DigitoVerificadorAgenciaConta:= AIni.ReadString(CSessaoBoletoCedenteConfig, CChaveDigitoVerificadorAgenciaConta, DigitoVerificadorAgenciaConta);
   IdentDistribuicao:= TACBrIdentDistribuicao(AIni.ReadInteger(CSessaoBoletoCedenteConfig, CChaveIdentDistribuicao, integer(FIdentDistribuicao)));
@@ -729,6 +772,7 @@ begin
     LayoutRemessa:= c400;
   end;
   LeCedenteRetorno := AIni.ReadBool(CSessaoBoletoDiretorioConfig, CChaveLeCedenteRetorno, LeCedenteRetorno);
+  LerNossoNumeroCompleto:= AIni.ReadBool(CSessaoBoletoDiretorioConfig, CChaveLerNossoNumeroCompleto, LerNossoNumeroCompleto);
   NomeArqRemessa := AIni.ReadString(CSessaoBoletoDiretorioConfig, CChaveNomeArqRemessa, NomeArqRemessa);
   NomeArqRetorno := AIni.ReadString(CSessaoBoletoDiretorioConfig, CChaveNomeArqRetorno, NomeArqRetorno);
   NumeroArquivo := AIni.ReadInteger(CSessaoBoletoDiretorioConfig, CChaveNumeroArquivo, NumeroArquivo);
@@ -751,6 +795,7 @@ begin
     AIni.WriteInteger(CSessaoBoletoDiretorioConfig, CChaveLayoutRemessa, 0 );
   end;
   AIni.WriteBool(CSessaoBoletoDiretorioConfig, CChaveLeCedenteRetorno, LeCedenteRetorno);
+  Aini.WriteBool(CSessaoBoletoDiretorioConfig, CChaveLerNossoNumeroCompleto, LerNossoNumeroCompleto);
   AIni.WriteString(CSessaoBoletoDiretorioConfig, CChaveNomeArqRemessa, NomeArqRemessa);
   AIni.WriteString(CSessaoBoletoDiretorioConfig, CChaveNomeArqRetorno, NomeArqRetorno);
   AIni.WriteInteger(CSessaoBoletoDiretorioConfig, CChaveNumeroArquivo, NumeroArquivo);

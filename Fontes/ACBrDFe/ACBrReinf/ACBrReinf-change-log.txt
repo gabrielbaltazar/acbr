@@ -42,6 +42,194 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+03/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnConsts.
+  Por: Italo Giurizzato Junior
+
+31/01/2024
+-- pcnReinfConsulta.pas --
+[-] Corrigida consulta de recibo dos eventos R-2055 e R-4020
+  Por: Renato Rubinho
+
+23/11/2023
+-- ACBrReinfWebServices --
+[*] Levantada exceção, no tratamento de retornos, quando for utilizada versão de leiaute descontinuada ou ainda não implementada
+  Por: Renato Rubinho
+
+20/11/2023
+-- Frm_ACBrReinf --
+[*] Melhorias no programa de exemplo visualizando os xmls de envio e retorno
+  Por: Renato Rubinho
+
+06/11/2023
+-- Frm_ACBrReinf --
+[*] Melhorias no programa de exemplo para geração das retificadoras dos eventos sem mexer no fonte e removido o Registro R2070
+  Por: Renato Rubinho
+
+01/11/2023
+-- pcnGeradorReinf --
+[*] Correção para leitura do id do evento ao importar xml assinado
+-- Frm_ACBrReinf --
+[*] Melhorias no programa de exemplo para geração de todos os eventos sem precisar alterar no fonte
+-- Arquivos ini --
+[*] Ajustados todos os arquivos ini de exemplo, validada leitura e envio na versão 2.1.2
+  Por: Renato Rubinho
+
+06/10/2023
+-- ACBrReinfLoteEventos --
+[*] Correção no envio de eventos por pessoa física ou órgão público
+  Por: Edson Costa / Renato Rubinho
+
+29/09/2023
+-- ACBrReinfWebServices, pcnReinfRetConsulta, pcnReinfRetConsulta_R9011 --
+[*] Unificadas classes TEvtTotalContrib do R5011 e R9011 e criada função para retornar os valores de acordo com a versão
+  Por: Renato Rubinho
+
+27/09/2023
+-- pcnConversaoReinf --
+[*] Corrigida lista de retornos das funções de conversão do enum TtpDependente 
+  Por: marcelo.l / Revisão: Alexandre de Paula
+
+25/09/2023
+-- pcnGeradorReinf --
+[*] Configurada Produção para gerar os eventos síncronos, da versão 1.5.1, na versão 2.1.2
+  Por: JRM Martins / Renato Rubinho
+
+20/09/2023
+-- pcnReinfR4020 --
+[*] Corrigido número de ocorrências do cnpjBenef no R-4020
+  Por: Renato Rubinho
+
+15/09/2023
+-- ACBrReinfLoteEventos --
+[*] Criado destructor na TItemLoteEventos e liberado FLeitor da memória
+  Por: Alexandre Felippeto Henzen / Renato Rubinho
+
+15/09/2023
+-- evt4010PagtoBeneficiarioPF-v2_01_02.xsd --
+[*] Correção no schema referente à NT 03/2023
+  Por: Renato Rubinho
+
+06/09/2023
+-- pcnConversaoReinf, evt4010PagtoBeneficiarioPF-v2_01_02.xsd --
+[*] Ajustes da NT 03/2023
+  Por: Renato Rubinho
+
+22/08/2023
+-- pcnGeradorReinf --
+[*] Configurada Produção Restrita para gerar os eventos síncronos, da versão 1.5.1, na versão 2.1.2
+  Por: Renato Rubinho
+
+07/08/2023
+-- Diversos --
+[*] Atualizados schemas disponibilizados para a versão 2.1.2
+  Por: Renato Rubinho
+https://www.projetoacbr.com.br/forum/topic/71721-reinf-publicada-vers%C3%A3o-212-dos-layouts-com-exig%C3%AAncia-para-a-compet%C3%AAncia-de-setembro2023/?do=findComment&comment=475688&_rid=62658
+
+26/07/2023
+-- ACBrReinfWebServices --
+[*] Controle para exibir alerta claro quando a versão do leiaute utilizada não estiver disponível
+  Por: Renato Rubinho
+
+21/07/2023
+-- Diversos --
+[*] Ajustes da NT 02/2023, validação dos schemas e implementações da versão 2.1.2 em homologação
+  Por: Renato Rubinho
+-- pcnReinfRetEventos --
+[*]  Adicionando o campo nrRecArqBase na TInfoRecEv para carregamento correto na leitura do grupo infoRecEv
+  Por: Hudson G Leite / Renato Rubinho
+
+01/06/2023
+-- Diversos --
+[*] Implementação da versão 2.1.2
+  Por: Renato Rubinho
+
+22/05/2023
+-- pcnReinfRetConsulta_R9011 --
+[+] Grupo RAquis do evento R-9011 - Consolidação de bases e tributos - Contrib. previdenciária
+  Por: Luiz Miguel Peres
+
+17/04/2023
+-- pcnGeradorReinf, Diversos --
+[*] Adicionado parâmetro TpInsc na função GerarChaveReinf, sendo considerado na geração da chave
+  Por: Messias Antonio Natal / Renato Rubinho
+
+03/04/2023
+-- ACBrReinfWebServices --
+[*] Alterados prefixos das consultas de protocolo e recibo para melhor identificação dos arquivos gerados
+  Por: Renato Rubinho
+
+15/03/2023
+-- pcnReinfRetConsulta_R9015 --
+[*] Adicionadas propriedades perApurXXX nos grupos totApurQui, totApurDec, totApurSem e totApurDia do R9015
+   Por: Rogerio Morato Scarazatti / Renato Rubinho   
+
+02/03/2023
+-- pcnReinfR1000 --
+[*] Adiciona a propriedade PossuiNaturezaJuridicaNaRegra para ser usada em validação para geração do grupo infoEFR
+   Por: MessiasNatal13 / Renato Rubinho   
+
+01/03/2023
+-- ACBrReinfWebServices --
+[*] Ajustes nas chamadas a API Rest do Reinf versão 2.1.1
+  Por: Italo Giurizzato Junior
+
+14/02/2023
+-- pcnReinfR4010 --
+[*] Adiciona validação para que verifique se o conteúdo de compFP é diferente de zero para decidir se vai ou não gerar a Tag.
+   Por: Diego F 
+
+14/02/2023
+-- pcnReinfRetConsulta_R9011 --
+[*] Não estava tratando os campos de retorno do R-1050 e R-1070.
+   Por: Renato Rubinho
+
+13/02/2023
+-- pcnReinfR9005 --
+[*] Correção para evitar erro ao consultar protocolo.
+   Por: thi4182/Renato Rubinho
+
+09/02/2023
+-- Diversos --
+[*] Correções/Melhorias detectadas após o último SVN.
+  Por: Renato Rubinho
+
+08/02/2023
+-- Diversos --
+[+] Implementado a consultar por eventos para a versão 2.1.1.
+  Por: Renato Rubinho/Italo Giurizzato Junior
+
+06/02/2023
+-- Diversos --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+-- ACBrReinfWebServices/ACBrReinfLoteEventos --
+[*] Não estavam sendo alimentados os registros 4020, 4040 e 4080.
+  Por: Renato Rubinho
+
+03/02/2023
+-- ACBrReinfWebServices --
+[*] Trava da Consulta por Recibo na versão 2.1 em diante.
+  Por: Renato Rubinho
+
+02/02/2023
+-- ACBrReinfWebServices --
+[*] Para as versões anteriores a 2.1.1 a separação do XML de retorno da consulta
+    R5001 estava errada.
+  Por: Renato Rubinho
+
+01/02/2023
+-- Diversos --
+[*] Alterações visando atender o consumo de API Rest utilizado pela versão
+    2.1.1
+  Por: Renato Rubinho/Italo Giurizzato Junior
+
 20/09/2022
 -- pcnConversaoReinf -- 
 [*] Remoção do enumerador v1_02_00, uma vez que nem existe no arquivo 

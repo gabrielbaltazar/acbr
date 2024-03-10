@@ -37,9 +37,12 @@ interface
 
 uses
   SysUtils, Classes,
-  ACBrUtil.Strings,
-  ACBrUtil.FilesIO,
-  pcnAuxiliar, pcnConversao, pcnGerador, pcnConsts, pcnCFeCanc;
+  ACBrDFeUtil,
+  ACBrDFeConsts,
+  ACBrCFeConsts,
+  pcnConversao,
+  pcnGerador,
+  pcnCFeCanc;
 
 type
 
@@ -94,10 +97,14 @@ type
     property ValidarListaServicos: boolean read FValidarListaServicos write FValidarListaServicos;
   end;
 
-  ////////////////////////////////////////////////////////////////////////////////
-
 
 implementation
+
+uses
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.FilesIO,
+  StrUtils;
 
 { TCFeCancW }
 
@@ -143,7 +150,7 @@ begin
     if not ValidarCodigoUF(CFeCanc.ide.cUF) then
       Gerador.wAlerta('B02', 'cUF', DSC_CUF, ERR_MSG_INVALIDO);
 
-    Gerador.wCampo(tcStr, 'B03', 'cNF      ', 06, 06, 1, IntToStrZero(CFeCanc.ide.cNF, 6), DSC_CNF);
+    Gerador.wCampo(tcStr, 'B03', 'cNF      ', 06, 06, 1, IntToStrZero(CFeCanc.ide.cNF, 6), DSC_CDF);
     Gerador.wCampo(tcInt, 'B04', 'mod      ', 02, 02, 1, CFeCanc.ide.modelo, DSC_MOD);
     Gerador.wCampo(tcInt, 'B05', 'nserieSAT', 09, 09, 1, CFeCanc.ide.nserieSAT, DSC_SERIE);
     Gerador.wCampo(tcInt, 'B06', 'nCFe     ', 06, 06, 1, IntToStrZero(CFeCanc.ide.nCFe,6), DSC_NCFE);
@@ -179,7 +186,7 @@ begin
     InscEst := Trim(OnlyNumber(CFeCanc.Emit.IE));
     //Caso a IE possua menos do que 12 dígitos, o AC deve preencher com espaços à direita. ER 2.21.08
     if Length(InscEst) < 12 then
-      InscEst := PadRight(InscEst,12,' ');
+      InscEst := ACBrUtil.Strings.PadRight(InscEst,12,' ');
 
     Gerador.wCampo(tcStrOrig, 'C12', 'IE', 2, 14, 1, InscEst, DSC_IE);
 
@@ -245,7 +252,7 @@ begin
 
     for i := 0 to CFeCanc.InfAdic.obsFisco.Count - 1 do
     begin
-      Gerador.wGrupo('obsFisco xCampo="' + trim(CFeCanc.InfAdic.obsFisco[i].xCampo) + '"', IIf(CFeCanc.infCFe.versao >= 0.08,'ZA02','Z04'));
+      Gerador.wGrupo('obsFisco xCampo="' + trim(CFeCanc.InfAdic.obsFisco[i].xCampo) + '"', IfThen(CFeCanc.infCFe.versao >= 0.08,'ZA02','Z04'));
 
       if length(trim(CFeCanc.InfAdic.obsFisco[i].xCampo)) > 20 then
         Gerador.wAlerta('Z04', 'xCampo', DSC_XCAMPO, ERR_MSG_MAIOR);

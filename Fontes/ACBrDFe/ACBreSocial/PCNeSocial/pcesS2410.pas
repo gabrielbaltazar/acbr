@@ -54,7 +54,7 @@ uses
   {$ELSE}
    Contnrs,
   {$IFEND}
-  ACBrBase, pcnConversao, ACBrUtil.Strings, pcnConsts,
+  ACBrBase, pcnConversao, ACBrUtil.Strings,
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
@@ -513,7 +513,7 @@ begin
     
   Gerador.wGrupo('infoPenMorte');
 
-  Gerador.wCampo(tcStr, '', 'tpPenMorte',  1,  1, 1, eStpTpPenMorteToStr(pInfoPenMorte.tpPenMorte));
+  Gerador.wCampo(tcStr, '', 'tpPenMorte',  1,  1, 1, eStpTpPenMorteToStrEX(pInfoPenMorte.tpPenMorte));
 
   GerarInstPenMorte(pInfoPenMorte.instPenMorte);
     
@@ -530,7 +530,7 @@ begin
   Gerador.wGrupo('infoBenTermino');
 
   Gerador.wCampo(tcDat, '', 'dtTermBeneficio', 10, 10, 1, pInfoBenTermino.dtTermBeneficio);
-  Gerador.wCampo(tcInt, '', 'mtvTermino',       2,  2, 1, eStpTpMotCessBenefToStr(pInfoBenTermino.mtvTermino));
+  Gerador.wCampo(tcInt, '', 'mtvTermino',       2,  2, 1, eStpTpMotCessBenefToStrEX(pInfoBenTermino.mtvTermino));
 
   Gerador.wGrupo('/infoBenTermino');
 end;
@@ -565,6 +565,7 @@ end;
 function TEvtCdBenIn.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);

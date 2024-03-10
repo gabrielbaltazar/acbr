@@ -52,9 +52,10 @@ type
     FQtdeRegistros: Integer;
     FQtdeLotes: Integer;
     FQtdeContasConc: Integer;
-    FSequencialDeLote: Integer;
+    FSequencialDoRegistroNoLote: Integer;
     FQtdeRegistrosLote: Integer;
     FveRegistro1: String;
+    FpFormaLancamento: TFormaLancamento;
 
     procedure GeraRegistro0; virtual;
 
@@ -206,18 +207,29 @@ begin
     Inc(FQtdeContasConc);
 
   FQtdeRegistrosLote := 1;
-  FSequencialDeLote  := 0;
+  FSequencialDoRegistroNoLote := 0;
+
+  FpFormaLancamento := PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento;
 
   GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
   GravarCampo(FQtdeLotes, 4, tcInt);
   GravarCampo(1, 1, tcInt);
   GravarCampo(TpOperacaoToStr(PagFor.Lote.Items[I].Registro1.Servico.Operacao), 1, tcStr);
   GravarCampo(TpServicoToStr(PagFor.Lote.Items[I].Registro1.Servico.TipoServico), 2, tcStr);
-  GravarCampo(FmLancamentoToStr(PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento), 2, tcStr);
+  GravarCampo(FmLancamentoToStr(FpFormaLancamento), 2, tcStr);
 
-  case PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento of
+  case FpFormaLancamento of
+    {flCartaoSalario, flCreditoContaPoupanca, flCreditoContaCorrenteMesmaTitularidade,
+     flDocMesmaTitularidade, flPagamentoConcessionarias, flLiquidacaoTitulosProprioBanco,
+     flLiberacaoTitulosNotaFiscalEletronica, flLiquidacaoParcelasNaoRegistrada,
+     flFGTSGFIP, flExtratoContaCorrente, flTEDOutraTitularidade,
+     flTEDMesmaTitularidade, flTEDTransferencia, flDebitoContaCorrente,
+     flExtratoGestaoCaixa, flDepositoJudicialContaCorrente, flCartaoSalarioItau,
+     flDepositoJudicialPoupanca, flExtratoContaInvestimento, flPIXTransferencia,
+     flPIXQRCode, flNenhum}
+
     flCreditoContaCorrente, flChequePagamento, flDocTed, flOPDisposicao,
-    flPagamentoAutenticacao:
+    flPagamentoAutenticacao, flPagamentoContas:
       Versao := '046';
 
     flLiquidacaoTitulosOutrosBancos:
@@ -326,12 +338,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
-      Inc(FSequencialDeLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('A', 1, tcStr);
       GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
@@ -382,37 +394,46 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('B', 1, tcStr);
       GravarCampo(' ', 3, tcStr);
       GravarCampo(TpInscricaoToStr(Inscricao.Tipo), 1, tcStr);
       GravarCampo(Inscricao.Numero, 14, tcStrZero);
-      GravarCampo(Informacao10, 35, tcStr);
-      GravarCampo(Informacao11, 60, tcStr);
-      GravarCampo(Informacao12, 99, tcStr);
-      GravarCampo(CodigoUG, 6, tcInt);
-      GravarCampo(CodigoISPB, 8, tcInt);
-      {
-      GravarCampo(Endereco.Logradouro, 30, tcStr, True);
-      GravarCampo(Endereco.Numero, 5, tcStrZero);
-      GravarCampo(Endereco.Complemento, 15, tcStr, True);
-      GravarCampo(Endereco.Bairro, 15, tcStr, True);
-      GravarCampo(Endereco.Cidade, 20, tcStr, True);
-      GravarCampo(Endereco.CEP, 8, tcInt);
-      GravarCampo(Endereco.Estado, 2, tcStr);
-      GravarCampo(DataVencimento, 8, tcDat);
-      GravarCampo(Valor, 15, tcDe2);
-      GravarCampo(Abatimento, 15, tcDe2);
-      GravarCampo(Desconto, 15, tcDe2);
-      GravarCampo(Mora, 15, tcDe2);
-      GravarCampo(Multa, 15, tcDe2);
-      GravarCampo(CodigoDOC, 15, tcStr);
-      GravarCampo(Aviso, 1, tcInt);
-      }
+
+      case FpFormaLancamento of
+        flDebitoContaCorrente:
+          begin
+            GravarCampo(Endereco.Logradouro, 30, tcStr, True);
+            GravarCampo(Endereco.Numero, 5, tcStrZero);
+            GravarCampo(Endereco.Complemento, 15, tcStr, True);
+            GravarCampo(Endereco.Bairro, 15, tcStr, True);
+            GravarCampo(Endereco.Cidade, 20, tcStr, True);
+            GravarCampo(Endereco.CEP, 8, tcInt);
+            GravarCampo(Endereco.Estado, 2, tcStr);
+            GravarCampo(DataVencimento, 8, tcDat);
+            GravarCampo(Valor, 15, tcDe2);
+            GravarCampo(Abatimento, 15, tcDe2);
+            GravarCampo(Desconto, 15, tcDe2);
+            GravarCampo(Mora, 15, tcDe2);
+            GravarCampo(Multa, 15, tcDe2);
+            GravarCampo(CodigoDOC, 15, tcStr);
+            GravarCampo(' ', 15, tcStr);
+          end;
+      else
+        begin
+          GravarCampo(Informacao10, 35, tcStr);
+          GravarCampo(Informacao11, 60, tcStr);
+          GravarCampo(Informacao12, 99, tcStr);
+          GravarCampo(CodigoUG, 6, tcInt);
+          GravarCampo(CodigoISPB, 8, tcInt);
+        end;
+      end;
+
       ValidarLinha('B');
       IncluirLinha;
     end;
@@ -436,7 +457,7 @@ begin
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('C', 1, tcStr);
       GravarCampo(' ', 3, tcStr);
       GravarCampo(ValorIR, 15, tcDe2);
@@ -472,12 +493,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
-      Inc(FSequencialDeLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('J', 1, tcStr);
       GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
@@ -520,11 +541,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('J', 1, tcStr);
       GravarCampo(' ', 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
@@ -562,14 +584,14 @@ begin
   begin
     Inc(FQtdeRegistros);
     Inc(FQtdeRegistrosLote);
-    Inc(FSequencialDeLote);
+    Inc(FSequencialDoRegistroNoLote);
 
     GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
     GravarCampo(FQtdeLotes, 4, tcInt);
     GravarCampo('3', 1, tcStr);
-    GravarCampo(FSequencialDeLote, 5, tcInt);
+    GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
     GravarCampo('N', 1, tcStr);
-    GravarCampo('0', 1, tcStr);
+    GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
     GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
     GravarCampo(SeuNumero, 20, tcStr);
     GravarCampo(NossoNumero, 20, tcStr);
@@ -870,14 +892,14 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
-      Inc(FSequencialDeLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('O', 1, tcStr);
-      GravarCampo('0', 1, tcStr);
+      GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
       GravarCampo(CodigoBarras, 44, tcStr);
       GravarCampo(NomeConcessionaria, 30, tcStr, True);
@@ -912,11 +934,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('W', 1, tcStr);
       GravarCampo(ComplementoRegistro, 1, tcInt);
       GravarCampo(Informacoes1ou2, 1, tcStr);
@@ -958,11 +981,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('Z', 1, tcStr);
       GravarCampo(Autenticacao, 64, tcStr);
       GravarCampo(SeuNumero, 25, tcStr);

@@ -96,6 +96,12 @@ begin
 
   ConfigGeral.UseCertificateHTTP := False;
 
+  with ConfigGeral.ServicosDisponibilizados do
+  begin
+    ConsultarServicoPrestado := False;
+    ConsultarServicoTomado := False;
+  end;
+
   with ConfigWebServices do
   begin
     VersaoDados := '2.02';
@@ -152,7 +158,11 @@ begin
   if TACBrNFSeX(FPDFeOwner).Configuracoes.WebServices.AmbienteCodigo = 1 then
     Result := 'https://www.ereceita.net.br/'
   else
-    Result := 'https://www3.ereceita.net.br/ereceita/rpp/';
+    Result := 'https://www3.ereceita.net.br/';
+
+  // comentado a linha abaixo por conta da cidade São Gotardo/MG em 08/09/2023
+  // por: Italo
+//    Result := 'https://www3.ereceita.net.br/ereceita/rpp/';
 end;
 
 function TACBrNFSeXWebserviceeReceita202.Recepcionar(ACabecalho,
@@ -287,7 +297,7 @@ function TACBrNFSeXWebserviceeReceita202.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 

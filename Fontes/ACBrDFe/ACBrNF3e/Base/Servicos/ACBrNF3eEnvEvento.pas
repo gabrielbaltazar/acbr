@@ -45,8 +45,9 @@ uses
   {$IFEND}
   ACBrBase,
   pcnConversao,
+//  ACBrDFeComum.SignatureClass,
   pcnSignature,
-  ACBrNF3eEvento, pcnConsts, ACBrNF3eConsts;
+  ACBrNF3eEventoClass, ACBrNF3eConsts;
 
 type
   EventoException = class(Exception);
@@ -107,7 +108,6 @@ uses
   ACBrDFeUtil, ACBrXmlBase,
   ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.FilesIO, ACBrUtil.DateTime,
   ACBrNF3eRetEnvEvento,
-  pcnAuxiliar,
   ACBrNF3eConversao;
 
 { TInfEventoCollection }
@@ -178,79 +178,82 @@ end;
 function TEventoNF3e.GerarXML: string;
 var
   i: Integer;
-  sDoc, sModelo, CNPJCPF, xEvento: String;
+  sDoc, CNPJCPF, xEvento: String;
 begin
-  sModelo := Copy(OnlyNumber(Evento.Items[i].InfEvento.chNF3e), 21, 2);
-
-  Evento.Items[i].InfEvento.id := 'ID'+
+  for i := 0 to Evento.Count - 1 do
+  begin
+    Evento.Items[i].InfEvento.id := 'ID'+
                                     Evento.Items[i].InfEvento.TipoEvento +
                                     OnlyNumber(Evento.Items[i].InfEvento.chNF3e) +
                                     Format('%.2d', [Evento.Items[i].InfEvento.nSeqEvento]);
 
-//  if Length(Evento.Items[i].InfEvento.id) < 54 then
-//    wAlerta('FP04', 'ID', '', 'ID de Evento inválido');
+  //  if Length(Evento.Items[i].InfEvento.id) < 54 then
+  //    wAlerta('FP04', 'ID', '', 'ID de Evento inválido');
 
-  sDoc := OnlyNumber(Evento.Items[i].InfEvento.CNPJ);
+    sDoc := OnlyNumber(Evento.Items[i].InfEvento.CNPJ);
 
-  if EstaVazio(sDoc) then
-    sDoc := ExtrairCNPJChaveAcesso(Evento.Items[i].InfEvento.chNF3e);
+    if EstaVazio(sDoc) then
+      sDoc := ExtrairCNPJCPFChaveAcesso(Evento.Items[i].InfEvento.chNF3e);
 
-  case Length( sDoc ) of
-    14: begin
-          CNPJCPF := '<CNPJ>' + sDoc + '</CNPJ>';
+    case Length( sDoc ) of
+      14: begin
+            CNPJCPF := '<CNPJ>' + sDoc + '</CNPJ>';
 
-//          if not ValidarCNPJ( sDoc ) then
-//            Gerador.wAlerta('FP07', 'CNPJ', DSC_CNPJ, ERR_MSG_INVALIDO);
+  //          if not ValidarCNPJ( sDoc ) then
+  //            Gerador.wAlerta('FP07', 'CNPJ', DSC_CNPJ, ERR_MSG_INVALIDO);
+          end;
+      11: begin
+            CNPJCPF := '<CPF>' + sDoc + '</CPF>';
+
+  //          if not ValidarCPF( sDoc ) then
+  //            Gerador.wAlerta('FP07', 'CPF', DSC_CPF, ERR_MSG_INVALIDO);
+          end;
+    end;
+
+  //    if not ValidarChave(Evento.Items[i].InfEvento.chNF3e) then
+  //      Gerador.wAlerta('FP08', 'chNF3e', '', 'Chave de NF3e inválida');
+
+    case Evento.Items[i].InfEvento.tpEvento of
+      teCancelamento:
+        begin
+          xEvento := '<evCancNF3e>' +
+                       '<descEvento>' + Evento.Items[i].InfEvento.DescEvento + '</descEvento>' +
+                       '<nProt>' + Evento.Items[i].InfEvento.detEvento.nProt + '</nProt>' +
+                       '<xJust>' + Evento.Items[i].InfEvento.detEvento.xJust + '</xJust>' +
+                     '</evCancNF3e>';
         end;
-    11: begin
-          CNPJCPF := '<CPF>' + sDoc + '</CPF>';
+    else
+      xEvento := '';
+    end;
 
-//          if not ValidarCPF( sDoc ) then
-//            Gerador.wAlerta('FP07', 'CPF', DSC_CPF, ERR_MSG_INVALIDO);
-        end;
-  end;
+    Xml := '<eventoNF3e ' + NAME_SPACE_NF3e + ' versao="' + versao + '">' +
+             '<infEvento Id="' + Evento.Items[i].InfEvento.id + '">' +
+               '<cOrgao>' + IntToStr(FEvento.Items[i].FInfEvento.cOrgao) + '</cOrgao>' +
+               '<tpAmb>' + TipoAmbienteToStr(Evento.Items[i].InfEvento.tpAmb) + '</tpAmb>' +
+               CNPJCPF +
+               '<chNF3e>' + Evento.Items[i].InfEvento.chNF3e + '</chNF3e>' +
+               '<dhEvento>' +
+                  FormatDateTime('yyyy-mm-dd"T"hh:nn:ss',
+                                 Evento.Items[i].InfEvento.dhEvento) +
+                              GetUTC(CodigoUFparaUF(Evento.Items[i].InfEvento.cOrgao),
+                                     Evento.Items[i].InfEvento.dhEvento) +
+               '</dhEvento>' +
+               '<tpEvento>' + Evento.Items[i].InfEvento.TipoEvento + '</tpEvento>' +
+               '<nSeqEvento>' + IntToStr(Evento.Items[i].InfEvento.nSeqEvento) + '</nSeqEvento>' +
 
-//    if not ValidarChave(Evento.Items[i].InfEvento.chNF3e) then
-//      Gerador.wAlerta('FP08', 'chNF3e', '', 'Chave de NF3e inválida');
+               '<detEvento versaoEvento="' + Versao + '">' +
+                   xEvento +
+               '</detEvento>' +
 
-  case Evento.Items[i].InfEvento.tpEvento of
-    teCancelamento:
-      begin
-        xEvento := '<nProt>' + Evento.Items[i].InfEvento.detEvento.nProt + '</nProt>' +
-                   '<xJust>' + Evento.Items[i].InfEvento.detEvento.xJust + '</xJust>';
-      end;
-  else
-    xEvento := '';
-  end;
-
-  Xml := '<eventoNF3e ' + NAME_SPACE_NF3e + ' versao="' + versao + '">' +
-           '<infEvento Id="' + Evento.Items[i].InfEvento.id + '">' +
-             '<cOrgao>' + IntToStr(FEvento.Items[i].FInfEvento.cOrgao) + '</cOrgao>' +
-             '<tpAmb>' + TipoAmbienteToStr(Evento.Items[i].InfEvento.tpAmb) + '</tpAmb>' +
-             CNPJCPF +
-             '<chNF3e>' + Evento.Items[i].InfEvento.chNF3e + '</chNF3e>' +
-             '<dhEvento>' +
-                FormatDateTime('yyyy-mm-dd"T"hh:nn:ss',
-                               Evento.Items[i].InfEvento.dhEvento) +
-                            GetUTC(CodigoParaUF(Evento.Items[i].InfEvento.cOrgao),
-                                   Evento.Items[i].InfEvento.dhEvento) +
-             '</dhEvento>' +
-             '<tpEvento>' + Evento.Items[i].InfEvento.TipoEvento + '</tpEvento>' +
-             '<nSeqEvento>' + IntToStr(Evento.Items[i].InfEvento.nSeqEvento) + '</nSeqEvento>' +
-
-             '<detEvento versaoEvento="' + Versao + '">' +
-               '<descEvento>' + Evento.Items[i].InfEvento.DescEvento + '</descEvento>' +
-                 xEvento +
-             '</detEvento>' +
-
-           '</infEvento>' +
-         '</eventoNF3e>';
+             '</infEvento>' +
+           '</eventoNF3e>';
 
 
-  if Evento.Items[i].signature.URI <> '' then
-  begin
-    Evento.Items[i].signature.GerarXML;
-    Xml := Xml + Evento.Items[i].signature.Gerador.ArquivoFormatoXML;
+    if Evento.Items[i].signature.URI <> '' then
+    begin
+      Evento.Items[i].signature.GerarXML;
+      Xml := Xml + Evento.Items[i].signature.Gerador.ArquivoFormatoXML;
+    end;
   end;
 
   Result := Xml;
@@ -280,47 +283,45 @@ var
 begin
   RetEventoNF3e := TRetEventoNF3e.Create;
   try
-    RetEventoNF3e.Leitor.Arquivo := AXML;
+    RetEventoNF3e.XmlRetorno := AXML;
     Result := RetEventoNF3e.LerXml;
+
     with FEvento.New do
     begin
-      infEvento.ID            := RetEventoNF3e.InfEvento.id;
-      infEvento.cOrgao        := RetEventoNF3e.InfEvento.cOrgao;
-      infEvento.tpAmb         := RetEventoNF3e.InfEvento.tpAmb;
-      infEvento.CNPJ          := RetEventoNF3e.InfEvento.CNPJ;
-      infEvento.chNF3e         := RetEventoNF3e.InfEvento.chNF3e;
-      infEvento.dhEvento      := RetEventoNF3e.InfEvento.dhEvento;
-      infEvento.tpEvento      := RetEventoNF3e.InfEvento.tpEvento;
-      infEvento.nSeqEvento    := RetEventoNF3e.InfEvento.nSeqEvento;
+      infEvento.ID            := RetEventoNF3e.RetInfEvento.id;
+      infEvento.cOrgao        := RetEventoNF3e.RetInfEvento.cOrgao;
+      infEvento.tpAmb         := RetEventoNF3e.RetInfEvento.tpAmb;
+//      infEvento.CNPJ          := RetEventoNF3e.RetInfEvento.CNPJ;
+      infEvento.chNF3e        := RetEventoNF3e.RetInfEvento.chNF3e;
+//      infEvento.dhEvento      := RetEventoNF3e.RetInfEvento.dhEvento;
+      infEvento.tpEvento      := RetEventoNF3e.RetInfEvento.tpEvento;
+      infEvento.nSeqEvento    := RetEventoNF3e.RetInfEvento.nSeqEvento;
 
-      infEvento.DetEvento.descEvento := RetEventoNF3e.InfEvento.DetEvento.descEvento;
-      infEvento.DetEvento.nProt      := RetEventoNF3e.InfEvento.DetEvento.nProt;
-      infEvento.DetEvento.xJust      := RetEventoNF3e.InfEvento.DetEvento.xJust;
+      infEvento.DetEvento.descEvento := RetEventoNF3e.RetInfEvento.xEvento;
+      infEvento.DetEvento.nProt      := RetEventoNF3e.RetInfEvento.nProt;
+//      infEvento.DetEvento.xJust      := RetEventoNF3e.RetInfEvento.xJust;
 
       signature.URI             := RetEventoNF3e.signature.URI;
       signature.DigestValue     := RetEventoNF3e.signature.DigestValue;
       signature.SignatureValue  := RetEventoNF3e.signature.SignatureValue;
       signature.X509Certificate := RetEventoNF3e.signature.X509Certificate;
 
-      if RetEventoNF3e.retEvento.Count > 0 then
-      begin
-        FRetInfEvento.Id := RetEventoNF3e.retEvento.Items[0].RetInfEvento.Id;
-        FRetInfEvento.tpAmb := RetEventoNF3e.retEvento.Items[0].RetInfEvento.tpAmb;
-        FRetInfEvento.verAplic := RetEventoNF3e.retEvento.Items[0].RetInfEvento.verAplic;
-        FRetInfEvento.cOrgao := RetEventoNF3e.retEvento.Items[0].RetInfEvento.cOrgao;
-        FRetInfEvento.cStat := RetEventoNF3e.retEvento.Items[0].RetInfEvento.cStat;
-        FRetInfEvento.xMotivo := RetEventoNF3e.retEvento.Items[0].RetInfEvento.xMotivo;
-        FRetInfEvento.chNF3e := RetEventoNF3e.retEvento.Items[0].RetInfEvento.chNF3e;
-        FRetInfEvento.tpEvento := RetEventoNF3e.retEvento.Items[0].RetInfEvento.tpEvento;
-        FRetInfEvento.xEvento := RetEventoNF3e.retEvento.Items[0].RetInfEvento.xEvento;
-        FRetInfEvento.nSeqEvento := RetEventoNF3e.retEvento.Items[0].RetInfEvento.nSeqEvento;
-        FRetInfEvento.cOrgaoAutor := RetEventoNF3e.retEvento.Items[0].RetInfEvento.cOrgaoAutor;
-        FRetInfEvento.CNPJDest := RetEventoNF3e.retEvento.Items[0].RetInfEvento.CNPJDest;
-        FRetInfEvento.emailDest := RetEventoNF3e.retEvento.Items[0].RetInfEvento.emailDest;
-        FRetInfEvento.dhRegEvento := RetEventoNF3e.retEvento.Items[0].RetInfEvento.dhRegEvento;
-        FRetInfEvento.nProt := RetEventoNF3e.retEvento.Items[0].RetInfEvento.nProt;
-        FRetInfEvento.XML := RetEventoNF3e.retEvento.Items[0].RetInfEvento.XML;
-      end;
+      FRetInfEvento.Id := RetEventoNF3e.RetInfEvento.Id;
+      FRetInfEvento.tpAmb := RetEventoNF3e.RetInfEvento.tpAmb;
+      FRetInfEvento.verAplic := RetEventoNF3e.RetInfEvento.verAplic;
+      FRetInfEvento.cOrgao := RetEventoNF3e.RetInfEvento.cOrgao;
+      FRetInfEvento.cStat := RetEventoNF3e.RetInfEvento.cStat;
+      FRetInfEvento.xMotivo := RetEventoNF3e.RetInfEvento.xMotivo;
+      FRetInfEvento.chNF3e := RetEventoNF3e.RetInfEvento.chNF3e;
+      FRetInfEvento.tpEvento := RetEventoNF3e.RetInfEvento.tpEvento;
+      FRetInfEvento.xEvento := RetEventoNF3e.RetInfEvento.xEvento;
+      FRetInfEvento.nSeqEvento := RetEventoNF3e.RetInfEvento.nSeqEvento;
+      FRetInfEvento.cOrgaoAutor := RetEventoNF3e.RetInfEvento.cOrgaoAutor;
+      FRetInfEvento.CNPJDest := RetEventoNF3e.RetInfEvento.CNPJDest;
+      FRetInfEvento.emailDest := RetEventoNF3e.RetInfEvento.emailDest;
+      FRetInfEvento.dhRegEvento := RetEventoNF3e.RetInfEvento.dhRegEvento;
+      FRetInfEvento.nProt := RetEventoNF3e.RetInfEvento.nProt;
+      FRetInfEvento.XML := RetEventoNF3e.RetInfEvento.XML;
     end;
   finally
     RetEventoNF3e.Free;

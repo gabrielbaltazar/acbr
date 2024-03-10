@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using ACBrLib.Core;
 using ACBrLib.Core.DFe;
@@ -178,13 +179,17 @@ namespace ACBrLib.NFe
 
                     if (produto.Combustivel.Encerrante.nBico > 0)
                         iniData.WriteToIni(produto.Combustivel.Encerrante, $"encerrante{i + 1:000}");
+
+                    if (produto.Combustivel.OrigComb.Count > 0)
+                        for (var k = 0; k < produto.Combustivel.OrigComb.Count; k++)
+                             iniData.WriteToIni(produto.Combustivel.OrigComb[k], $"origComb{i + 1:000}{k + 1:00}");
                 }
 
                 iniData.WriteToIni(produto.ICMS, $"ICMS{i + 1:000}");
                 if (produto.ICMSUFDEST.pICMSInterPart.HasValue)
                     iniData.WriteToIni(produto.ICMSUFDEST, $"ICMSUFDEST{i + 1:000}");
 
-                if (produto.IPI.qSelo.HasValue)
+                if (!String.IsNullOrEmpty(produto.IPI.cEnq))
                     iniData.WriteToIni(produto.IPI, $"IPI{i + 1:000}");
 
                 if (produto.II.vBC.HasValue)
@@ -358,7 +363,7 @@ namespace ACBrLib.NFe
                 do
                 {
                     k++;
-                    rastroItem = iniData.ReadFromIni<RastroNFe>($"rastro{i:000}{k:000}");
+                    rastroItem = iniData.ReadFromIni<RastroNFe>($"Rastro{i:000}{k:000}");
                     if (rastroItem == null) continue;
 
                     produto.Rastro.Add(rastroItem);
@@ -391,6 +396,18 @@ namespace ACBrLib.NFe
                 iniData.ReadFromIni(produto.Combustivel, $"Combustivel{i:000}");
                 iniData.ReadFromIni(produto.Combustivel.CIDE, $"CIDE{i:000}");
                 iniData.ReadFromIni(produto.Combustivel.Encerrante, $"encerrante{i:000}");
+
+                k = 0;
+                OrigCombNFe OrigComb;
+                do
+                {
+                    k++;
+                    OrigComb = iniData.ReadFromIni<OrigCombNFe>($"origComb{i:000}{k:00}");
+                    if (OrigComb == null) continue;
+
+                    produto.Combustivel.OrigComb.Add(OrigComb);
+                } while (OrigComb != null);
+
                 iniData.ReadFromIni(produto.ICMS, $"ICMS{i:000}");
                 iniData.ReadFromIni(produto.IPI, $"IPI{i:000}");
                 iniData.ReadFromIni(produto.II, $"II{i:000}");

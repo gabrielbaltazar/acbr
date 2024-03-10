@@ -76,8 +76,11 @@ type
 implementation
 
 uses
-  synacode, DateUtils, pcnAuxiliar,
-  ACBrDFeException, ACBrUtil.Math, ACBrUtil.XMLHTML,
+  synacode, DateUtils,
+  ACBrDFeException,
+  ACBrUtil.DateTime,
+  ACBrUtil.Math, 
+  ACBrUtil.XMLHTML,
   ACBrNFSeX,
   SSInformatica.GravarXml, SSInformatica.LerXml;
 
@@ -87,20 +90,9 @@ procedure TACBrNFSeProviderSSInformatica203.Configuracao;
 begin
   inherited Configuracao;
 
-  with ConfigAssinar do
-  begin
-    Rps               := True;
-    LoteRps           := False;
-    ConsultarSituacao := False;
-    ConsultarLote     := False;
-    ConsultarNFSeRps  := False;
-    ConsultarNFSe     := False;
-    CancelarNFSe      := False;
-    RpsGerarNFSe      := False;
-    LoteGerarNFSe     := False;
-    RpsSubstituirNFSe := False;
-    SubstituirNFSe    := False;
-  end;
+  ConfigGeral.Autenticacao.RequerLogin := True;
+
+  ConfigAssinar.Rps := True;
 
   with ConfigWebServices do
   begin
@@ -372,7 +364,7 @@ function TACBrNFSeXWebserviceSSInformatica203.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
 end;
 

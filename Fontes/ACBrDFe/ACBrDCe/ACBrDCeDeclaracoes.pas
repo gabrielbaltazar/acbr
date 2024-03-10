@@ -3,7 +3,7 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
 { Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
@@ -42,10 +42,9 @@ uses
 	StrUtils,
   ACBrDCeConfiguracoes,
   ACBrDCeClass, 
-	ACBrDCeLerXml, 
-	ACBrDCeGravarXml, 
-	pcnConversao, 
-	pcnAuxiliar;
+	ACBrDCeXmlReader,
+	ACBrDCeXmlWriter,
+	pcnConversao;
 
 type
 
@@ -176,10 +175,14 @@ uses
   Dateutils, 
 	IniFiles,
   synautil, 
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.XMLHTML,
+  ACBrUtil.FilesIO,
+  ACBrUtil.DateTime,
 	ACBrXmlBase,
-  ACBrDCe, 
-	ACBrUtil.Strings, 
-	ACBrDFeUtil, 
+  ACBrDCe,
+	ACBrDFeUtil,
 	ACBrDCeConversao;
 
 { Declaracao }
@@ -200,7 +203,7 @@ begin
 
     FDCe.Ide.verProc := 'ACBrDCe';
     FDCe.Ide.tpAmb := TACBrTipoAmbiente(Integer(Configuracoes.WebServices.Ambiente));
-    FDCe.Ide.tpEmis := TTipoEmissao(Integer(Configuracoes.Geral.FormaEmissao));
+    FDCe.Ide.tpEmis := TACBrTipoEmissao(Integer(Configuracoes.Geral.FormaEmissao));
   end;
 end;
 
@@ -317,21 +320,6 @@ begin
   if AXML = '' then
     AXML := XMLOriginal;
 
-  AXMLModal := Trim(RetornarConteudoEntre(AXML, '<infModal', '</infModal>'));
-
-  case TACBrDCe(TDeclaracoes(Collection).ACBrDCe).IdentificaSchemaModal(AXML) of
-    schDCeModalAereo:       TagModal := 'aereo';
-    schDCeModalAquaviario:  TagModal := 'aquav';
-    schDCeModalFerroviario: TagModal := 'ferrov';
-    schDCeModalRodoviario:  TagModal := 'rodo';
-  end;
-
-  AXMLModal := '<' + TagModal + ' xmlns="' + ACBRDCe_NAMESPACE + '">' +
-                  Trim(RetornarConteudoEntre(AXML, '<' + TagModal + '>', '</' + TagModal + '>')) +
-               '</' + TagModal + '>';
-
-  AXMLModal := '<?xml version="1.0" encoding="UTF-8" ?>' + AXMLModal;
-
   with TACBrDCe(TDeclaracoes(Collection).ACBrDCe) do
   begin
     ALayout := LayDCeRecepcao;
@@ -346,19 +334,6 @@ begin
     end
     else
     begin
-      ModalEhValido := SSL.Validar(AXMLModal, GerarNomeArqSchemaModal(AXML, FDCe.infDCe.Versao), Erro);
-
-      if not ModalEhValido then
-      begin
-        FErroValidacao := ACBrStr('Falha na validação do Modal do Declaracao: ') +
-          IntToStr(DCe.Ide.nDC) + sLineBreak + FAlertas ;
-        FErroValidacaoCompleto := FErroValidacao + sLineBreak + Erro;
-
-        raise EACBrDCeException.CreateDef(
-          IfThen(Configuracoes.Geral.ExibirErroSchema, ErroValidacaoCompleto,
-          ErroValidacao));
-      end;
-
       DCeEhValida := SSL.Validar(AXML, GerarNomeArqSchema(ALayout, FDCe.infDCe.Versao), Erro);
     end;
 
@@ -1215,7 +1190,7 @@ begin
     FDCeW.Opcoes.NormatizarMunicipios  := Configuracoes.Arquivos.NormatizarMunicipios;
     FDCeW.Opcoes.PathArquivoMunicipios := Configuracoes.Arquivos.PathArquivoMunicipios;
 
-    pcnAuxiliar.TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
+    TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
   end;
 
   FDCeW.GerarXml;

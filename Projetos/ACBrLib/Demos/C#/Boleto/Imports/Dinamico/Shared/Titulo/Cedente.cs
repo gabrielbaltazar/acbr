@@ -59,6 +59,16 @@ namespace ACBrLib.Boleto
 
         public ACBrResponEmissao RespEmis { get; set; } = ACBrResponEmissao.tbCliEmite;
 
+        public ACBrPessoa TipoPessoa { get; set; } = ACBrPessoa.pJuridica;
+
+        public string Operacao { get; set; }
+
+        public IdentDistribuicao IdentDistribuicao { get; set; }
+
+        public string ChavePIX { get; set; }
+
+        public TipoChavePIX TipoChavePIX { get; set; }
+
         #endregion Properties
 
         #region Methods

@@ -97,7 +97,7 @@ type
 
     procedure EnviarEmail(const sPara, sAssunto: String;
       sMensagem: TStrings = nil; sCC: TStrings = nil; Anexos: TStrings = nil;
-      StreamNFe: TStream = nil; const NomeArq: String = ''; sReplyTo: TStrings = nil); override;
+      StreamNFe: TStream = nil; const NomeArq: String = ''; sReplyTo: TStrings = nil; sBCC: TStrings = nil); override;
 
     function Enviar(ALote: Int64; Imprimir: Boolean = True;
       Sincrono: Boolean = False; Zipado: Boolean = False): Boolean; overload;
@@ -180,7 +180,9 @@ implementation
 
 uses
   strutils, dateutils, math,
-  pcnAuxiliar, synacode;
+  ACBrDFeUtil,
+  ACBrUtil.DateTime,
+  synacode;
 
 {$IFDEF FPC}
  {$R ACBrNFeServicos.rc}
@@ -214,13 +216,13 @@ end;
 
 procedure TACBrNFe.EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
   sCC: TStrings; Anexos: TStrings; StreamNFe: TStream; const NomeArq: String;
-  sReplyTo: TStrings);
+  sReplyTo: TStrings; sBCC: TStrings);
 begin
   SetStatus( stNFeEmail );
 
   try
     inherited EnviarEmail(sPara, sAssunto, sMensagem, sCC, Anexos, StreamNFe, NomeArq,
-      sReplyTo);
+      sReplyTo, sBCC);
   finally
     SetStatus( stIdle );
   end;
@@ -557,7 +559,7 @@ begin
 
   // Passo 1
   sdhEmi_HEX := AsciiToHex(DateTimeTodh(DataHoraEmissao) +
-    GetUTC(CodigoParaUF(CUF), DataHoraEmissao));
+    GetUTC(CodigoUFparaUF(CUF), DataHoraEmissao));
   sdigVal_HEX := AsciiToHex(DigestValue);
 
   if (CUF in [35, 41, 50]) then

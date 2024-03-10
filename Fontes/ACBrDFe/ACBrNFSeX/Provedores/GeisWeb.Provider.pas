@@ -82,8 +82,8 @@ type
     procedure PrepararConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
     procedure TratarRetornoConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
@@ -118,6 +118,14 @@ begin
   begin
     Identificador := '';
     ModoEnvio := meLoteSincrono;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarLote := True;
+      ConsultarNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   ConfigAssinar.Rps := True;
@@ -187,10 +195,7 @@ var
   ANodeArray: TACBrXmlNodeArray;
   AErro: TNFSeEventoCollectionItem;
 begin
-//  ANode := RootNode.Childrens.FindAnyNs(AListTag);
-
-//  if (ANode = nil) then
-    ANode := RootNode;
+  ANode := RootNode;
 
   ANodeArray := ANode.Childrens.FindAllAnyNs(AMessageTag);
 
@@ -200,7 +205,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Erro'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Status'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Status'), tcStr);
     AErro.Correcao := '';
   end;
 end;
@@ -257,7 +262,7 @@ begin
                              OnlyNumber(Emitente.CNPJ) +
                            '</CnpjCpf>' +
                            '<NumeroLote>' +
-                             Response.Lote +
+                             Response.NumeroLote +
                            '</NumeroLote>' +
                            Xml +
                          '</EnviaLoteRps>';
@@ -269,7 +274,7 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANodeArray: TACBrXmlNodeArray;
-  ANode, AuxNode, AuxNode2: TACBrXmlNode;
+  ANode, AuxNode: TACBrXmlNode;
   i: Integer;
   NumRps: String;
   ANota: TNotaFiscal;
@@ -294,7 +299,7 @@ begin
 
       Response.Sucesso := (Response.Erros.Count = 0);
 
-      ANodeArray := ANode.Childrens.FindAllAnyNs('EnviaLoteRPSResposta');
+      ANodeArray := ANode.Childrens.FindAllAnyNs('Nfse');
 
       if not Assigned(ANodeArray) then
       begin
@@ -307,9 +312,9 @@ begin
 
       for I := Low(ANodeArray) to High(ANodeArray) do
       begin
-        AuxNode2 := ANodeArray[I].Childrens.FindAnyNs('Nfse');
+        ANode := ANodeArray[I];
 
-        if AuxNode2 =  nil then
+        if ANode =  nil then
         begin
           Response.Sucesso := False;
           AErro := Response.Erros.New;
@@ -317,8 +322,6 @@ begin
           AErro.Descricao := ACBrStr(Desc203);
           Exit;
         end;
-
-        ANode := AuxNode2;
 
         with Response do
         begin
@@ -336,7 +339,7 @@ begin
           with Response do
           begin
             NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroNfse'), tcStr);
-            CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+            CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
           end;
 
           ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
@@ -344,7 +347,7 @@ begin
           ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
 
           ANota.NFSe.Numero := Response.NumeroNota;
-          ANota.NFSe.CodigoVerificacao := Response.CodVerificacao;
+          ANota.NFSe.CodigoVerificacao := Response.CodigoVerificacao;
 
           SalvarXmlNfse(ANota);
         end;
@@ -368,7 +371,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
 begin
-  if EstaVazio(Response.Lote) then
+  if EstaVazio(Response.NumeroLote) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod111;
@@ -387,7 +390,7 @@ begin
                              OnlyNumber(Emitente.CNPJ) +
                            '</CnpjCpfPrestador>' +
                            '<NumeroLote>' +
-                             Response.Lote +
+                             Response.NumeroLote +
                            '</NumeroLote>' +
                          '</Consulta>' +
                        '</ConsultaLoteRps>';
@@ -442,6 +445,14 @@ begin
         if AuxNode <> nil then
           NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroRps'), tcStr);
 
+        if NumRps = '' then
+        begin
+          AuxNode := ANode.Childrens.FindAnyNs('IdentificacaoRps');
+
+          if AuxNode <> nil then
+            NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroRps'), tcStr);
+        end;
+
         ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
         ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
@@ -460,7 +471,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderGeisWeb.PrepararConsultaNFSe(
+procedure TACBrNFSeProviderGeisWeb.PrepararConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
@@ -541,7 +552,7 @@ begin
                            '</ConsultaNfse>';
 end;
 
-procedure TACBrNFSeProviderGeisWeb.TratarRetornoConsultaNFSe(
+procedure TACBrNFSeProviderGeisWeb.TratarRetornoConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   Document: TACBrXmlDocument;
@@ -670,7 +681,7 @@ begin
 
       Response.Sucesso := (Response.Erros.Count = 0);
 
-      Response.Lote := ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroLote'), tcStr);
+      Response.NumeroLote := ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroLote'), tcStr);
 
       ANodeArray := ANode.Childrens.FindAllAnyNs('Nfse');
 
@@ -824,10 +835,10 @@ function TACBrNFSeXWebserviceGeisWeb.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := StrToXml(Result);
+  Result := ParseText(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := string(NativeStringToUTF8(Result));
+  Result := Trim(StringReplace(Result, '&', '&amp;', [rfReplaceAll]));
 end;
 
 end.

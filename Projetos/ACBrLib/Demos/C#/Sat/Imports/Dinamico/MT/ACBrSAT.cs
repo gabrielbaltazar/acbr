@@ -246,6 +246,19 @@ namespace ACBrLib.Sat
             return ConsultarSessaoSatResposta.LerResposta(ProcessResult(buffer, bufferLen));
         }
 
+        public ConsultarUltimaSessaoFiscalResposta ConsultarUltimaSessaoFiscal()
+        {
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<SAT_ConsultarUltimaSessaoFiscal>();
+            var ret = ExecuteMethod(() => method(libHandle, buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            return ConsultarUltimaSessaoFiscalResposta.LerResposta(ProcessResult(buffer, bufferLen));
+        }
+
         public AtualizarSoftwareSatResposta AtualizarSoftwareSAT()
         {
             var bufferLen = BUFFER_LEN;
@@ -393,6 +406,19 @@ namespace ACBrLib.Sat
 
             var method = GetMethod<SAT_GerarPDFExtratoVenda>();
             var ret = ExecuteMethod(() => method(libHandle, ToUTF8(eArquivoXml), ToUTF8(eNomeArquivo), buffer, ref bufferLen));
+
+            CheckResult(ret);
+
+            return PDFExtratoVendaResposta.LerResposta(ProcessResult(buffer, bufferLen));
+        }
+
+        public PDFExtratoVendaResposta GerarPDFCancelamento(string eArqXMLVenda, string eArqXMLCancelamento, string eNomeArquivo)
+        {
+            var bufferLen = BUFFER_LEN;
+            var buffer = new StringBuilder(bufferLen);
+
+            var method = GetMethod<SAT_GerarPDFCancelamento>();
+            var ret = ExecuteMethod(() => method(libHandle, ToUTF8(eArqXMLVenda), ToUTF8(eArqXMLCancelamento), ToUTF8(eNomeArquivo), buffer, ref bufferLen));
 
             CheckResult(ret);
 

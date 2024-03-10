@@ -47,7 +47,7 @@ uses
    System.Contnrs,
   {$IFEND}
   ACBrBase,
-  pcnAuxiliar, pcnConversao, pcnLeitor, pmdfeEventoMDFe, pcnSignature;
+  pcnConversao, pcnLeitor, pmdfeEventoMDFe, pcnSignature;
 
 type
   TRetInfEventoCollectionItem = class;
@@ -173,6 +173,7 @@ function TRetEventoMDFe.LerXml: boolean;
 var
   ok: boolean;
   i, j: Integer;
+  sAux: string;
 begin
   Result := False;
 
@@ -201,6 +202,11 @@ begin
           infEvento.detEvento.xJust      := Leitor.rCampo(tcStr, 'xJust');
           infEvento.detEvento.xNome      := Leitor.rCampo(tcStr, 'xNome');
           infEvento.detEvento.CPF        := Leitor.rCampo(tcStr, 'CPF');
+
+          sAux := Leitor.rCampo(tcStr, 'indEncPorTerceiro');
+
+          if sAux = '1' then
+            infEvento.detEvento.indEncPorTerceiro := tiSim;
 
           infEvento.detEvento.cMunCarrega := Leitor.rCampo(tcInt, 'cMunCarrega');
           infEvento.detEvento.xMunCarrega := Leitor.rCampo(tcStr, 'xMunCarrega');
@@ -242,7 +248,9 @@ begin
               indPag    := StrToTIndPag(ok, Leitor.rCampo(tcStr, 'indPag'));
               vAdiant   := Leitor.rCampo(tcDe2, 'vAdiant');
 
-              indAntecipaAdiant := StrToTIndicador(ok, Leitor.rCampo(tcStr, 'indAntecipaAdiant'));
+              if Leitor.rCampo(tcStr, 'indAntecipaAdiant') <> '' then
+                indAntecipaAdiant := StrToTIndicador(ok, Leitor.rCampo(tcStr, 'indAntecipaAdiant'));
+
               tpAntecip := StrTotpAntecip(ok, Leitor.rCampo(tcStr, 'tpAntecip'));
 
               j := 0;

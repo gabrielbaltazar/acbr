@@ -76,15 +76,14 @@ type
 implementation
 
 uses
+  ACBrDFeConsts,
   pcnConversao,
-  pcnConsts,
   pcnGerador,
   synacode,
   ACBrUtil.Strings,
   ACBrUtil.XMLHTML,
   ACBrUtil.FilesIO,
   ACBrPAFNFCe,
-  pcnAuxiliar,
   pcnLeitor;
 
 

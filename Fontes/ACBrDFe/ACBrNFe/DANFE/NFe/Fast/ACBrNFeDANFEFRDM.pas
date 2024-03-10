@@ -1089,6 +1089,10 @@ begin
         FieldByName('vISSQN').AsString          := FormatFloatBr( Imposto.ISSQN.vISSQN    ,',0.00');
         FieldByName('vBcISSQN').AsString        := FormatFloatBr( Imposto.ISSQN.vBC       ,',0.00');
 
+        FieldByName('ValorDescontos').AsString  := FormatFloatBr( FDANFEClassOwner.CalcularValorDescontoItem(FNFe, inItem), ',0.00');
+        FieldByName('ValorLiquido').AsString    := FormatFloatBr( FDANFEClassOwner.CalcularValorLiquidoItem(FNFe, inItem), ',0.00');
+
+        (*
         if FDANFEClassOwner.ExibeICMSDesoneradoComoDesconto then
         begin
           FieldByName('ValorDescontos').AsString  := FormatFloatBr( Prod.vDesc + Imposto.ICMS.vICMSDeson, ',0.00');
@@ -1098,7 +1102,9 @@ begin
         begin
           FieldByName('ValorDescontos').AsString  := FormatFloatBr( Prod.vDesc, ',0.00');
           FieldByName('ValorLiquido').AsString    := FormatFloatBr( Prod.vProd - Prod.vDesc + Prod.vOutro + Prod.vFrete + Prod.vSeg, ',0.00');
+
         end;
+        *)
         FieldByName('ValorAcrescimos').AsString   := FormatFloatBr( Prod.vOutro + Prod.vFrete + Prod.vSeg, ',0.00');
         FieldByName('xPed').AsString              := Prod.xPed;
         FieldByName('nItemPed').AsInteger         := Prod.nItem;
@@ -1236,10 +1242,10 @@ begin
       FieldByName('IEST').AsString      := IEST;
       FieldByName('CRT').AsString       := CRTToStr(CRT);
 
-      if (Trim(FieldByName('CRT').AsString) = '1') then
-        FieldByName('DESCR_CST').AsString := 'CSOSN'
-      else
-        FieldByName('DESCR_CST').AsString := 'CST';
+      case CRT of
+        crtSimplesNacional: FieldByName('DESCR_CST').AsString := 'CSOSN / CST';
+        crtRegimeNormal, crtSimplesExcessoReceita: FieldByName('DESCR_CST').AsString := 'CST';
+      end;
 
       cdsEmitente.FieldByName('DADOS_ENDERECO').AsString    := Trim(FieldByName('XLgr').AsString) + ', ' +
                                                                 Trim(FieldByName('Nro').AsString);
@@ -1402,8 +1408,8 @@ begin
       if FNFe.Ide.TpAmb = taHomologacao then
         FieldByName('MensagemFiscal').AsString := FieldByName('MensagemFiscal').AsString+LineBreak+LineBreak+ACBrStr('EMITIDA EM AMBIENTE DE HOMOLOGAÇÃO - SEM VALOR FISCAL');
 
-      if EstaVazio(FieldByName('MensagemFiscal').AsString) then
-        FieldByName('MensagemFiscal').AsString := ACBrStr('ÁREA DE MENSAGEM FISCAL');
+      //if EstaVazio(FieldByName('MensagemFiscal').AsString) then
+      //  FieldByName('MensagemFiscal').AsString := ACBrStr('ÁREA DE MENSAGEM FISCAL');
 
       if EstaVazio(FNFe.infNFeSupl.urlChave) then
         FieldByName('URL').AsString := TACBrNFe(DANFEClassOwner.ACBrNFe).GetURLConsultaNFCe(FNFe.Ide.cUF, FNFe.Ide.tpAmb, FNFe.infNFe.Versao)
@@ -1428,9 +1434,11 @@ var
   vTemp         : TStringList;
   IndexCampo    : Integer;
   Campos        : TSplitResult;
-  BufferInfCpl  : String;
+  BufferInfCpl  : string;
   wObs          : string;
   wLinhasObs    : integer;
+  LContingencia : string;
+  LTpEmis       : string;
 begin
   wLinhasObs  := 0;
   BufferInfCpl:= '';
@@ -1439,7 +1447,22 @@ begin
   try
     if (FDANFEClassOwner is TACBrNFeDANFEClass) then
     begin
-      wObs := TACBrNFeDANFEClass(FDANFEClassOwner).ManterDocreferenciados(FNFe) +
+      case FNFe.Ide.tpEmis of
+        teSVCAN : LTpEmis := 'SVC-AN';
+        teSVCRS : LTpEmis := 'SVC-RS';
+      end;
+      if FNFe.Ide.tpEmis in [teSVCAN, teSVCRS] then
+      begin
+        LContingencia := '<b>CONTINGÊNCIA %s Entrada em contingência em: %s com justificativa: %s.</b>';
+        LContingencia := Format(LContingencia,[LTpEmis,
+                                               DateTimeToStr(FNFe.Ide.dhCont),
+                                               FNFe.Ide.xJust]) + sLineBreak;
+      end;
+
+
+
+      wObs := LContingencia +
+              TACBrNFeDANFEClass(FDANFEClassOwner).ManterDocreferenciados(FNFe) +
               TACBrNFeDANFEClass(FDANFEClassOwner).ManterPagamentos(FNFe) +
               TACBrNFeDANFEClass(FDANFEClassOwner).ManterSuframa(FNFe) +
               FDANFEClassOwner.ManterInfAdFisco(FNFe) +
@@ -1575,6 +1598,18 @@ var
   vStream             : TMemoryStream;
   vStringStream       : TStringStream;
   P: Integer;
+
+  procedure AdicionaMensagem0(const AMensagem : String);
+  var LMensagem : String;
+  begin
+    LMensagem := cdsParametros.FieldByName('Mensagem0').AsString;
+    if LMensagem <> '' then
+      LMensagem := LMensagem + sLineBreak;
+      
+    LMensagem := LMensagem + ACBrStr( AMensagem );
+    cdsParametros.FieldByName('Mensagem0').AsString := Trim( LMensagem );
+  end;
+
 begin
   { parâmetros }
   with cdsParametros do
@@ -1617,40 +1652,22 @@ begin
       end;
 
       if (FNFe.Ide.TpAmb = taHomologacao) then
-      begin
-        if (FNFe.Ide.tpEmis in [teContingencia, teFSDA, teSCAN, teDPEC, teSVCAN, teSVCRS, teSVCSP]) then
-        begin
-          if (FNFe.procNFe.cStat in [101,135, 151, 155]) then
-            FieldByName('Mensagem0').AsString := ACBrStr('NFe sem Valor Fiscal - HOMOLOGAÇÃO ' +
-                                                        #10#13+'NFe em Contingência - CANCELADA')
-          else
-            FieldByName('Mensagem0').AsString := ACBrStr('NFe sem Valor Fiscal - HOMOLOGAÇÃO'+
-                                                        #10#13+'NFe em Contingência');
-        end
-        else
-          FieldByName('Mensagem0').AsString :=ACBrStr( 'NFe sem Valor Fiscal - HOMOLOGAÇÃO')
-      end
-      else
-      begin
-        if not (FNFe.Ide.tpEmis in [teContingencia, teFSDA, teSVCAN, teSVCRS, teSVCSP]) then
-        begin
-          //prioridade para opção Cancelada
-          if (FDANFEClassOwner.Cancelada) or
-             ((NaoEstaVazio(FNFe.procNFe.nProt)) and
-              (FNFe.procNFe.cStat in [101,135,151,155])) then
-            FieldByName('Mensagem0').AsString := 'NFe Cancelada'
-          else if ( FNFe.procNFe.cStat = 110 ) or
-                  ( FNFe.procNFe.cStat = 301 ) or
-                  ( FNFe.procNFe.cStat = 302 ) or
-                  ( FNFe.procNFe.cStat = 303 ) then
-            FieldByName('Mensagem0').AsString := 'NFe denegada pelo Fisco'
-          else if ((EstaVazio(FDANFEClassOwner.Protocolo)) and
-                   (EstaVazio(FNFe.procNFe.nProt))) then
-            FieldByName('Mensagem0').AsString := ACBrStr( 'NFe sem Autorização de Uso da SEFAZ')
-          else if (FNFe.Ide.tpImp = tiSimplificado) then
-            FieldByName('Mensagem0').AsString := ACBrStr( 'EMISSÃO NORMAL' );
-        end;
-      end;
+        AdicionaMensagem0('SEM VALOR FISCAL');
+
+      if (FNFe.procNFe.cStat in [101,135, 151, 155]) or TACBrNFeDANFEClass(DANFEClassOwner).Cancelada then
+        AdicionaMensagem0('NFE CANCELADA');
+
+      if ( FNFe.procNFe.cStat = 110 ) or
+         ( FNFe.procNFe.cStat = 301 )  or
+         ( FNFe.procNFe.cStat = 302 )  or
+         ( FNFe.procNFe.cStat = 303 ) then
+        AdicionaMensagem0('NFe DENEGADA pelo Fisco');
+
+      if ((EstaVazio(FDANFEClassOwner.Protocolo)) and (EstaVazio(FNFe.procNFe.nProt))) then
+      AdicionaMensagem0('Sem Autorização de Uso da SEFAZ');
+
+      if (FNFe.Ide.tpImp = tiSimplificado) then
+        AdicionaMensagem0( 'EMISSÃO NORMAL' );
 
       case FNFe.Ide.tpEmis of
         teNormal,

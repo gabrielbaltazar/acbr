@@ -55,7 +55,7 @@ uses
    Contnrs,
   {$IFEND}
   ACBrBase,
-  pcnConversao, pcnGerador, pcnConsts,
+  pcnConversao, pcnGerador,
   pcesCommon, pcesConversaoeSocial, pcesGerador,
   pcnLeitor;
 
@@ -294,6 +294,7 @@ end;
 function TEvtTabAmbiente.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);

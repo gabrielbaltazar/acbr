@@ -39,7 +39,6 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXGravarXml_ABRASFv2,
   ACBrNFSeXConversao;
 
@@ -111,7 +110,8 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings, ACBrDFeUtil;
+  ACBrUtil.Strings, ACBrDFeUtil,
+  ACBrNFSeXConsts;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -1047,7 +1047,7 @@ begin
   if (FPVersao = ve100) and (NFSe.Servico.MunicipioIncidencia <> 0) then
   begin
     xUF := '';
-    xCidade := ObterNomeMunicipio(NFSe.Servico.MunicipioIncidencia, xUF, '', False);
+    xCidade := ObterNomeMunicipioUF(NFSe.Servico.MunicipioIncidencia, xUF);
 
     Result.AppendChild(AddNode(tcStr, '#1', 'Praca', 1, 60, 1,
                                                       xCidade + '-' + xUF, ''));
@@ -1154,6 +1154,8 @@ end;
 procedure TNFSeW_Infisc201.Configuracao;
 begin
   inherited Configuracao;
+
+  NrOcorrCodigoPaisTomador := 1;
 
   GerarNSRps := False;
 end;

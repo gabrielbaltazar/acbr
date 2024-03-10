@@ -82,6 +82,14 @@ begin
   begin
     UseCertificateHTTP := False;
     ConsultaNFSe := False;
+
+    with ServicosDisponibilizados do
+    begin
+      ConsultarFaixaNfse := False;
+      ConsultarServicoPrestado := False;
+      ConsultarServicoTomado := False;
+      SubstituirNfse := False;
+    end;
   end;
 
   with ConfigAssinar do
@@ -235,7 +243,7 @@ function TACBrNFSeXWebserviceDesenvolve203.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 

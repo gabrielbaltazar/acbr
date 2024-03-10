@@ -63,6 +63,9 @@ type
 
     procedure TratarRetornoEmitir(Response: TNFSeEmiteResponse); override;
     procedure TratarRetornoConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
+
+    function VerificarAlerta(const ACodigo, AMensagem: string): Boolean; override;
+    function VerificarErro(const ACodigo, AMensagem: string): Boolean; override;
   end;
 
 implementation
@@ -83,6 +86,18 @@ begin
     QuebradeLinha := '\s\n';
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := False;
+      EnviarLoteSincrono := False;
+      ConsultarLote := False;
+      ConsultarFaixaNfse := False;
+      ConsultarServicoPrestado := False;
+      ConsultarServicoTomado := False;
+      CancelarNfse := False;
+      SubstituirNfse := False;
+    end;
   end;
 
   with ConfigAssinar do
@@ -186,7 +201,7 @@ begin
         with Response do
         begin
           NumeroNota := NumNFSe;
-          CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+          CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
           Data := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataEmissao'), tcDatHor);
         end;
 
@@ -300,7 +315,7 @@ begin
           with Response do
           begin
             NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
-            CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
+            CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
           end;
 
           AuxNode := AuxNode.Childrens.FindAnyNs('DeclaracaoPrestacaoServico');
@@ -359,6 +374,24 @@ begin
   inherited ValidarSchema(Response, aMetodo);
 end;
 
+function TACBrNFSeProviderISSGoiania200.VerificarAlerta(const ACodigo,
+  AMensagem: string): Boolean;
+begin
+  if ACodigo = 'L000' then
+    Result := True
+  else
+    Result := inherited VerificarAlerta(ACodigo, AMensagem);
+end;
+
+function TACBrNFSeProviderISSGoiania200.VerificarErro(const ACodigo,
+  AMensagem: string): Boolean;
+begin
+  if ACodigo = 'L000' then
+    Result := False
+  else
+    Result := inherited VerificarErro(ACodigo, AMensagem);
+end;
+
 { TACBrNFSeXWebserviceISSGoiania200 }
 
 function TACBrNFSeXWebserviceISSGoiania200.GerarNFSe(ACabecalho,
@@ -398,7 +431,7 @@ function TACBrNFSeXWebserviceISSGoiania200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;

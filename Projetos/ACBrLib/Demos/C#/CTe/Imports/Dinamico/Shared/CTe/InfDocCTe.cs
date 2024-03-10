@@ -8,8 +8,10 @@ namespace ACBrLib.Core.CTe
 {
     public class InfDocCTe
     {
-        public InfNFeCTe infNFe { get; set; }
+        public List<InfNFCTe> infNF { get; set; } = new List<InfNFCTe>();
 
-        public InfOutrosCTe infOutros { get; set; }
+        public List<InfNFeCTe> infNFe { get; set; } = new List<InfNFeCTe>();
+
+        public List<InfOutrosCTe> infOutros { get; set; } = new List<InfOutrosCTe>();
     }
 }

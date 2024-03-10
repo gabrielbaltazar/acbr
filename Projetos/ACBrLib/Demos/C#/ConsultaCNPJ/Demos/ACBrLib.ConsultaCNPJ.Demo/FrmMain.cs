@@ -3,10 +3,9 @@ using System.IO;
 using System.Windows.Forms;
 using ACBrLib;
 using ACBrLib.Core;
-using ACBrLib.Core.DFe;
 using ACBrLib.ConsultaCNPJ;
 using System.Linq;
-using System.Drawing;
+using static ACBrLib.ConsultaCNPJ.ACBrConsultaCNPJ;
 
 namespace ACBrLibConsultaCNPJ.Demo
 {
@@ -51,6 +50,8 @@ namespace ACBrLibConsultaCNPJ.Demo
                 ACBrCNPJ.Config.Principal.LogPath = logPath;
                 ACBrCNPJ.ConfigGravar();
 
+                LoadConfig();
+
             }
             finally
             {
@@ -70,14 +71,18 @@ namespace ACBrLibConsultaCNPJ.Demo
         {
             try
             {
-                var eCNPJ = "";
-                if (InputBox.Show("Consultar CNPJ", "Informe o CNPJ:", ref eCNPJ) != DialogResult.OK) return;
+                rtbRespostas.Clear();
 
-                var codCaptcha = "";
-                if (InputBox.Show("Consultar CNPJ", "Informe o Captcha:", ref codCaptcha) != DialogResult.OK) return;
+                if (!string.IsNullOrEmpty(edtCNPJ.Text))
+                {
+                    var ret = ACBrCNPJ.Consultar(edtCNPJ.Text);
+                    rtbRespostas.AppendText(ret);
+                }
+                else
+                {
+                    MessageBox.Show("Informe o CNPJ !");
+                }
 
-                var ret = ACBrCNPJ.Consultar(eCNPJ, codCaptcha);
-                rtbRespostas.AppendText(ret);
 
             }
             catch (Exception exception)
@@ -105,5 +110,69 @@ namespace ACBrLibConsultaCNPJ.Demo
         }
 
         #endregion Methods
+
+        private void btnSalvarINI_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SalvarConfig();
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, @"Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+        }
+
+        private void SalvarConfig()
+        {
+            SplashScreenManager.Show<FrmWait>();
+            SplashScreenManager.ShowInfo(SplashInfo.Message, "Salvando...");
+
+            try
+            {
+
+                ACBrCNPJ.Config.Provedor = cmbServico.SelectedIndex;
+                ACBrCNPJ.Config.Usuario  = txtUsuario.Text;
+                ACBrCNPJ.Config.Senha = txtSenha.Text;
+
+                ACBrCNPJ.Config.Proxy.Servidor = textHost.Text;
+                ACBrCNPJ.Config.Proxy.Porta = textPort.Text;
+                ACBrCNPJ.Config.Proxy.Usuario = textUser.Text;
+                ACBrCNPJ.Config.Proxy.Senha = textPassword.Text;
+
+                ACBrCNPJ.ConfigGravar();
+
+                Application.DoEvents();
+            }
+            finally
+            {
+                SplashScreenManager.Close();
+            }
+        }
+
+        private void btnLerINI_Click(object sender, EventArgs e)
+        {
+            var file = Helpers.OpenFile("Arquivos Ini (*.ini)|*.ini|Todos os Arquivos (*.*)|*.*");
+            if (!File.Exists(file)) return;
+
+            LoadConfig(file);
+        }
+
+        private void LoadConfig(string file = "ACBrLib.ini")
+        {
+            ACBrCNPJ.ConfigLer(file);
+
+            cmbServico.SelectedIndex = ACBrCNPJ.Config.Provedor;
+            txtUsuario.Text = ACBrCNPJ.Config.Usuario;
+            txtSenha.Text = ACBrCNPJ.Config.Senha;
+
+            textHost.Text = ACBrCNPJ.Config.Proxy.Servidor;
+            textPort.Text = ACBrCNPJ.Config.Proxy.Porta;
+            textUser.Text = ACBrCNPJ.Config.Proxy.Usuario;
+            textPassword.Text = ACBrCNPJ.Config.Proxy.Senha;
+
+
+        }
     }
 }

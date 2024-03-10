@@ -3,7 +3,7 @@
 |==============================================================================|
 | Content: SSL support by OpenSSL                                              |
 |==============================================================================|
-| Copyright (c)1999-2017, Lukas Gebauer                                        |
+| Copyright (c)1999-2022, Lukas Gebauer                                        |
 | All rights reserved.                                                         |
 |                                                                              |
 | Redistribution and use in source and binary forms, with or without           |
@@ -33,7 +33,7 @@
 | DAMAGE.                                                                      |
 |==============================================================================|
 | The Initial Developer of the Original Code is Lukas Gebauer (Czech Republic).|
-| Portions created by Lukas Gebauer are Copyright (c)2005-2017.                |
+| Portions created by Lukas Gebauer are Copyright (c)2005-2022.                |
 | Portions created by Petr Fejfar are Copyright (c)2011-2012.                  |
 | Portions created by Pepak are Copyright (c)2018.                             |
 | All Rights Reserved.                                                         |
@@ -49,9 +49,9 @@
 {:@abstract(SSL plugin for OpenSSL)
 
 Compatibility with OpenSSL versions:
-0.9.6 should work, known mysterious crashing on FreePascal and Linux platform.
-0.9.7 - 1.0.0 working fine.
-1.1.0 should work, under testing.
+1.0.0
+1.1.x
+3.x.x 
 
 OpenSSL libraries are loaded dynamicly - you not need OpenSSL librares even you
 compile your application with this unit. SSL just not working when you not have
@@ -95,7 +95,7 @@ unit ssl_openssl;
 interface
 
 uses
-  SysUtils, Classes,
+  SysUtils, Classes, StrUtils,
   blcksock, synsock, synautil, synafpc,
 {$IfDef CIL}
   System.Text,
@@ -106,25 +106,27 @@ type
   {:@abstract(class implementing OpenSSL SSL plugin.)
    Instance of this class will be created for each @link(TTCPBlockSocket).
    You not need to create instance of this class, all is done by Synapse itself!}
+
+  { TSSLOpenSSL }
+
   TSSLOpenSSL = class(TCustomSSL)
   private
-    FServer: boolean;
+    FAllowUnsafeLegacyRenegotiation: Boolean;
   protected
     FSsl: PSSL;
     Fctx: PSSL_CTX;
-    function NeedSigningCertificate: boolean; virtual;
     function SSLCheck: Boolean;
-    function SetSslKeys: boolean; virtual;
-    function Init: Boolean;
+    function SetSslKeys: boolean;
+    function Init(server:Boolean): Boolean;
     function DeInit: Boolean;
-    function Prepare: Boolean;
+    function Prepare(server:Boolean): Boolean;
     function LoadPFX(pfxdata: ansistring): Boolean;
     function CreateSelfSignedCert(Host: string): Boolean; override;
-    property Server: boolean read FServer;
   public
     {:See @inherited}
     constructor Create(const Value: TTCPBlockSocket); override;
     destructor Destroy; override;
+
     {:See @inherited}
     function LibVersion: String; override;
     {:See @inherited}
@@ -156,7 +158,7 @@ type
     {:See @inherited}
     function GetPeerNameHash: cardinal; override; {pf}
     {:See @inherited}
-    function GetPeerFingerprint: ansistring; override;
+    function GetPeerFingerprint: AnsiString; override;
     {:See @inherited}
     function GetCertInfo: string; override;
     {:See @inherited}
@@ -167,6 +169,9 @@ type
     function GetCipherAlgBits: integer; override;
     {:See @inherited}
     function GetVerifyCert: integer; override;
+
+    property AllowUnsafeLegacyRenegotiation: Boolean read FAllowUnsafeLegacyRenegotiation
+      write FAllowUnsafeLegacyRenegotiation default True;
   end;
 
 implementation
@@ -193,6 +198,7 @@ end;
 constructor TSSLOpenSSL.Create(const Value: TTCPBlockSocket);
 begin
   inherited Create(Value);
+  FAllowUnsafeLegacyRenegotiation := True;
   FCiphers := 'DEFAULT';
   FSsl := nil;
   Fctx := nil;
@@ -206,7 +212,7 @@ end;
 
 function TSSLOpenSSL.LibVersion: String;
 begin
-  Result := SSLeayversion(0);
+  Result := OpenSSLversion(0);
 end;
 
 function TSSLOpenSSL.LibName: String;
@@ -260,8 +266,9 @@ begin
   try
     rsa := RsaGenerateKey(2048, $10001, nil, nil);
     EvpPkeyAssign(pk, EVP_PKEY_RSA, rsa);
-    X509SetVersion(x, 2);
-    Asn1IntegerSet(X509getSerialNumber(x), 0);
+    X509SetVersion(x, 2); //it is version 3!
+//  Asn1IntegerSet(X509getSerialNumber(x), 0);
+    Asn1IntegerSet(X509getSerialNumber(x), GetTick);
     t := Asn1UtctimeNew;
     try
       X509GmtimeAdj(t, -60 * 60 *24);
@@ -276,7 +283,8 @@ begin
     X509NameAddEntryByTxt(Name, 'C', $1001, 'CZ', -1, -1, 0);
     X509NameAddEntryByTxt(Name, 'CN', $1001, host, -1, -1, 0);
     x509SetIssuerName(x, Name);
-    x509Sign(x, pk, EvpGetDigestByName('SHA1'));
+    s := IfThen(LibVersionIsGreaterThan1_0_0, 'SHA256', 'SHA1');
+    x509Sign(x, pk, EvpGetDigestByName(s));
     b := BioNew(BioSMem);
     try
       i2dX509Bio(b, x);
@@ -327,11 +335,15 @@ begin
   end;
 end;
 
-function TSSLOpenSSL.LoadPFX(pfxdata: Ansistring): Boolean;
+function TSSLOpenSSL.LoadPFX(pfxdata: ansistring): Boolean;
 var
   cert, pkey, ca: SslPtr;
+  certx: PAnsiChar;
   b: PBIO;
   p12: SslPtr;
+  i: Integer;
+  Store: PX509_STORE;
+  iTotal: Integer;
 begin
   Result := False;
   b := BioNew(BioSMem);
@@ -352,7 +364,30 @@ begin
 
         //  Set Certificate Verification chain
         if Result and (ca <> nil) then
-          SslCtxCtrl(Fctx, SSL_CTRL_CHAIN, 0, ca);
+        begin
+          if LibVersionIsGreaterThan1_0_0 then
+          begin
+            iTotal := OPENSSL_sk_num(ca);
+            if iTotal > 0 then
+            begin
+              Store := SSL_CTX_get_cert_store(Fctx);
+              for I := 0 to iTotal - 1 do
+              begin
+                certx := OPENSSL_sk_value(ca, I);
+                if certx <> nil then
+                begin
+                  if X509_STORE_add_cert(Store, certx) = 0  then
+                  begin
+                    // already exists
+                  end;
+                 //X509_free(Cert);
+                end;
+              end;
+            end;
+          end
+          else
+            SslCtxCtrl(Fctx, SSL_CTRL_CHAIN, 0, ca);
+        end;
       {pf}
       finally
         EvpPkeyFree(pkey);
@@ -371,7 +406,7 @@ end;
 function TSSLOpenSSL.SetSslKeys: boolean;
 var
   st: TFileStream;
-  s: string;
+  s: AnsiString;
 begin
   Result := False;
   if not assigned(FCtx) then
@@ -423,12 +458,7 @@ begin
   end;
 end;
 
-function TSSLOpenSSL.NeedSigningCertificate: boolean;
-begin
-  Result := (FCertificateFile = '') and (FCertificate = '') and (FPFXfile = '') and (FPFX = '');
-end;
-
-function TSSLOpenSSL.Init: Boolean;
+function TSSLOpenSSL.Init(server: Boolean): Boolean;
 var
   s: AnsiString;
 begin
@@ -442,67 +472,97 @@ begin
 
   FLastErrorDesc := '';
   FLastError := 0;
-  Fctx := nil;
-  case FSSLType of
-    LT_SSLv2:
-      Fctx := SslCtxNew(SslMethodV2);
-    LT_SSLv3:
-      Fctx := SslCtxNew(SslMethodV3);
-    LT_TLSv1:
-      Fctx := SslCtxNew(SslMethodTLSV1);
-    LT_TLSv1_1:
-      Fctx := SslCtxNew(SslMethodTLSV11);
-    LT_TLSv1_2:
-      Fctx := SslCtxNew(SslMethodTLSV12);
-    LT_TLSv1_3:
-      Fctx := SslCtxNew(SslMethodTLSV13);
-    LT_all:
-      begin
-        //try new call for OpenSSL 1.1.0 first
-        Fctx := SslCtxNew(SslMethodTLS);
-        if Fctx=nil then
-          //callback to previous versions
-          Fctx := SslCtxNew(SslMethodV23);
-      end;
+  if LibVersionIsGreaterThan1_0_0 then
+    Fctx := SslCtxNew(SslMethodTLS) // best common protocol
   else
-    Exit;
+  begin
+    Fctx := nil;
+    case FSSLType of
+      LT_SSLv2:
+        Fctx := SslCtxNew(SslMethodV2);
+      LT_SSLv3:
+        Fctx := SslCtxNew(SslMethodV3);
+      LT_TLSv1:
+        Fctx := SslCtxNew(SslMethodTLSV1);
+      LT_TLSv1_1:
+        Fctx := SslCtxNew(SslMethodTLSV11);
+      LT_TLSv1_2:
+        Fctx := SslCtxNew(SslMethodTLSV12);
+      LT_all:
+        begin
+          //try new call for OpenSSL 1.1.0 first
+          Fctx := SslCtxNew(SslMethodTLS);
+          if Fctx=nil then
+            //callback to previous versions
+            Fctx := SslCtxNew(SslMethodV23);
+        end;
+    end;
   end;
+
   if Fctx = nil then
   begin
     SSLCheck;
     Exit;
-  end
-  else
+  end;
+
+  if LibVersionIsGreaterThan1_0_0 then
   begin
-    s := FCiphers;
-    SslCtxSetCipherList(Fctx, s);
-    if FVerifyCert then
-      SslCtxSetVerify(FCtx, SSL_VERIFY_PEER, nil)
-    else
-      SslCtxSetVerify(FCtx, SSL_VERIFY_NONE, nil);
+    //limit support to specific protocol only
+    case FSSLType of
+      LT_TLSv1:
+        begin
+          SslCtxCtrl(Fctx, SSL_CTRL_SET_MIN_PROTO_VERSION, TLS1_VERSION, nil);
+          SslCtxCtrl(Fctx, SSL_CTRL_SET_MAX_PROTO_VERSION, TLS1_VERSION, nil);
+        end;
+      LT_TLSv1_1:
+        begin
+          SslCtxCtrl(Fctx, SSL_CTRL_SET_MIN_PROTO_VERSION, TLS1_1_VERSION, nil);
+          SslCtxCtrl(Fctx, SSL_CTRL_SET_MAX_PROTO_VERSION, TLS1_1_VERSION, nil);
+        end;
+      LT_TLSv1_2:
+        begin
+          SslCtxCtrl(Fctx, SSL_CTRL_SET_MIN_PROTO_VERSION, TLS1_2_VERSION, nil);
+          SslCtxCtrl(Fctx, SSL_CTRL_SET_MAX_PROTO_VERSION, TLS1_2_VERSION, nil);
+        end;
+      LT_TLSv1_3:
+        begin
+          SslCtxCtrl(Fctx, SSL_CTRL_SET_MIN_PROTO_VERSION, TLS1_3_VERSION, nil);
+          SslCtxCtrl(Fctx, SSL_CTRL_SET_MAX_PROTO_VERSION, TLS1_3_VERSION, nil);
+        end;
+    end;
+
+    if AllowUnsafeLegacyRenegotiation then
+      SSLCtxSetOptions(Fctx, SSL_OP_LEGACY_SERVER_CONNECT);
+  end;
+
+  s := FCiphers;
+  SslCtxSetCipherList(Fctx, s);
+  if FVerifyCert then
+    SslCtxSetVerify(FCtx, SSL_VERIFY_PEER, nil)
+  else
+    SslCtxSetVerify(FCtx, SSL_VERIFY_NONE, nil);
 {$IFNDEF CIL}
-    SslCtxSetDefaultPasswdCb(FCtx, @PasswordCallback);
-    SslCtxSetDefaultPasswdCbUserdata(FCtx, self);
+  SslCtxSetDefaultPasswdCb(FCtx, @PasswordCallback);
+  SslCtxSetDefaultPasswdCbUserdata(FCtx, self);
 {$ENDIF}
 
-    if server and NeedSigningCertificate then
-    begin
-      CreateSelfSignedcert(FSocket.ResolveIPToName(FSocket.GetRemoteSinIP));
-    end;
-
-    if not SetSSLKeys then
-      Exit
-    else
-    begin
-      Fssl := nil;
-      Fssl := SslNew(Fctx);
-      if Fssl = nil then
-      begin
-        SSLCheck;
-        exit;
-      end;
-    end;
+  if server and (FCertificateFile = '') and (FCertificate = '')
+    and (FPFXfile = '') and (FPFX = '') then
+  begin
+    CreateSelfSignedcert(FSocket.ResolveIPToName(FSocket.GetRemoteSinIP));
   end;
+
+  if not SetSSLKeys then
+    Exit;
+
+  Fssl := nil;
+  Fssl := SslNew(Fctx);
+  if Fssl = nil then
+  begin
+    SSLCheck;
+    exit;
+  end;
+
   Result := true;
 end;
 
@@ -521,11 +581,11 @@ begin
   FSSLEnabled := False;
 end;
 
-function TSSLOpenSSL.Prepare: Boolean;
+function TSSLOpenSSL.Prepare(server: Boolean): Boolean;
 begin
   Result := false;
   DeInit;
-  if Init then
+  if Init(server) then
     Result := true
   else
     DeInit;
@@ -540,8 +600,7 @@ begin
   Result := False;
   if FSocket.Socket = INVALID_SOCKET then
     Exit;
-  FServer := False;
-  if Prepare then
+  if Prepare(False) then
   begin
 {$IFDEF CIL}
     if sslsetfd(FSsl, FSocket.Socket.Handle.ToInt32) < 1 then
@@ -599,8 +658,7 @@ begin
   Result := False;
   if FSocket.Socket = INVALID_SOCKET then
     Exit;
-  FServer := True;
-  if Prepare then
+  if Prepare(True) then
   begin
 {$IFDEF CIL}
     if sslsetfd(FSsl, FSocket.Socket.Handle.ToInt32) < 1 then
@@ -702,7 +760,7 @@ begin
   {pf}// Verze 1.1.0 byla s else tak jak to ted mam,
       // ve verzi 1.1.1 bylo ELSE zruseno, ale pak je SSL_ERROR_ZERO_RETURN
       // propagovano jako Chyba.
-  {pf} else {/pf} if (err <> 0) then   
+  {pf} else {/pf} if (err <> 0) then
     FLastError := err;
 end;
 
@@ -833,10 +891,11 @@ begin
   X509Free(cert);
 end;
 
-function TSSLOpenSSL.GetPeerFingerprint: ansistring;
+function TSSLOpenSSL.GetPeerFingerprint: AnsiString;
 var
   cert: PX509;
   x: integer;
+  s: String;
 {$IFDEF CIL}
   sb: StringBuilder;
 {$ENDIF}
@@ -852,15 +911,17 @@ begin
     Result := '';
     Exit;
   end;
+
+  s := IfThen(LibVersionIsGreaterThan1_0_0, 'SHA1', 'MD5');
 {$IFDEF CIL}
   sb := StringBuilder.Create(EVP_MAX_MD_SIZE);
-  X509Digest(cert, EvpGetDigestByName('MD5'), sb, x);
+  X509Digest(cert, EvpGetDigestByName(s), sb, x);
   sb.Length := x;
   Result := sb.ToString;
 {$ELSE}
   setlength(Result, EVP_MAX_MD_SIZE);
   x := 0;
-  X509Digest(cert, EvpGetDigestByName('MD5'), Result, x);
+  X509Digest(cert, EvpGetDigestByName(s), Result, x);
   SetLength(Result, x);
 {$ENDIF}
   X509Free(cert);

@@ -58,6 +58,7 @@ type
     function Cancelar(ACabecalho, AMSG: String): string; override;
     function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderSudoeste202 = class (TACBrNFSeProviderABRASFv2)
@@ -77,7 +78,7 @@ type
 implementation
 
 uses
-  ACBrDFeException, ACBrUtil.Strings,
+  ACBrDFeException, ACBrUtil.Strings, ACBrUtil.XMLHTML,
   Sudoeste.GravarXml, Sudoeste.LerXml;
 
 { TACBrNFSeProviderSudoeste202 }
@@ -150,8 +151,8 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr));
-    AErro.Correcao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr);
+    AErro.Correcao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr);
 
    Exit;
   end;
@@ -345,6 +346,20 @@ begin
   Result := Executar('', Request,
                      ['SubstituirNfseReturn', 'SubstituirNfseResposta'],
                      ['xmlns:def="http://DefaultNamespace"']);
+end;
+
+function TACBrNFSeXWebserviceSudoeste202.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  // Remoção de lixo
+  Result := Trim(StringReplace(Result, '@@RETORNO', '', [rfReplaceAll]));
+
+  Result := ParseText(Result);
+  Result := RemoverDeclaracaoXML(Result);
+  Result := RemoverIdentacao(Result);
+  Result := RemoverPrefixosDesnecessarios(Result);
 end;
 
 end.

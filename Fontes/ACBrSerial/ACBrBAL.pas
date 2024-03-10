@@ -63,7 +63,7 @@ TACBrBALModelo = (balNenhum, balFilizola, balToledo, balToledo2090, balToledo218
                   balMarelCG62XL, balWeightechWT3000_ABS, balToledo2090N, balToledoBCS21,
                   balPrecision, balDigitron_UL, balLibratekWT3000IR, balToledoTi420,
                   balWeightechWT27R_ETH, balCapital, balMarte, balLenkeLK2500,
-                  balWeighTRUTest, balUranoUDC);
+                  balWeighTRUTest, balUranoUDC, balSiciliano);
 
 TACBrBALLePeso = procedure(Peso : Double; Resposta : AnsiString) of object ;
 
@@ -107,6 +107,8 @@ TACBrBALLePeso = procedure(Peso : Double; Resposta : AnsiString) of object ;
     procedure SetMonitorarBalanca(const Value: Boolean);
     procedure SetIntervalo(const Value: Integer);
     function GetUltimaResposta: AnsiString;
+    procedure SetOnGravarLog(const Value: TACBrGravarLog);
+    function GetOnGravarLog: TACBrGravarLog;
   protected
 
   public
@@ -135,7 +137,10 @@ TACBrBALLePeso = procedure(Peso : Double; Resposta : AnsiString) of object ;
         write SetIntervalo default 200 ;
      property MonitorarBalanca : Boolean read fsMonitorarBalanca
         write SetMonitorarBalanca default False ;
-     property ArqLOG : String      read GetArqLOG write SetArqLOG ;
+
+     property ArqLOG : String read GetArqLOG write SetArqLOG;
+     property OnGravarLog: TACBrGravarLog read GetOnGravarLog write SetOnGravarLog;
+
      property PosIni: Integer read GetPosini write SetPosIni default 0;
      property PosFim: Integer read GetPosFim write SetPosFim default 0;
      { Instancia do Componente ACBrDevice, será passada para fsBAL.create }
@@ -155,7 +160,7 @@ uses
   ACBrBALToledo2090N, ACBrBALToledoBCS21, ACBrBALPrecision,
   ACBrBALDigitron_UL, ACBrBALLibratekWT3000IR, ACBrBALToledoTi420,
   ACBrBALWeightechWT27R_ETH, ACBrBALCapital, ACBrBALMarte, ACBrBalLenkeLK2500,
-  ACBrBALWeighTRUTest, ACBrBALUranoUDC, ACBrUtil.Strings,
+  ACBrBALWeighTRUTest, ACBrBALUranoUDC, ACBrBALSiciliano, ACBrUtil.Strings,
   {$IFDEF COMPILER6_UP} StrUtils {$ELSE} ACBrD5{$ENDIF};
 
 { TACBrBAL }
@@ -208,6 +213,7 @@ procedure TACBrBAL.SetModelo(const Value: TACBrBALModelo);
 var
   wArqLOG: String;
   wPosIni, wPosFim: Integer;
+  wOnGravarLog: TACBrGravarLog;
 begin
   if (fsModelo = Value) then
     Exit;
@@ -216,6 +222,7 @@ begin
     raise Exception.Create(ACBrStr('Não é possível mudar o Modelo com ACBrBAL Ativo'));
 
   wArqLOG := ArqLOG;
+  wOnGravarLog := OnGravarLog;
   wPosIni := 0;
   wPosFim := 0;
 
@@ -264,6 +271,7 @@ begin
      balLenkeLK2500          : fsBAL := TACBrBalLenkeLK2500.Create(Self);
      balWeighTRUTest         : fsBAL := TACBrBALWeighTRUTest.Create(Self);
      balUranoUDC             : fsBal := TACBrBalUranoUDC.Create(Self);
+     balSiciliano            : fsBal := TACBrBALSiciliano.Create(Self);
   else
      fsBAL := TACBrBALClass.Create(Self);
   end;
@@ -271,6 +279,7 @@ begin
   fsBAL.PosIni := wPosIni;
   fsBAL.PosFim := wPosFim;
   ArqLOG       := wArqLOG;
+  OnGravarLog  := wOnGravarLog;
   fsModelo     := Value;
 end;
 
@@ -314,6 +323,11 @@ end;
 function TACBrBAL.GetModeloStrClass: String;
 begin
   Result := ACBrStr(fsBAL.ModeloStr) ;
+end;
+
+function TACBrBAL.GetOnGravarLog: TACBrGravarLog;
+begin
+  Result := fsBAL.OnGravarLog;
 end;
 
 function TACBrBAL.GetPorta: String;
@@ -409,6 +423,11 @@ procedure TACBrBAL.SetMonitorarBalanca(const Value: Boolean);
 begin
   fsMonitorarBalanca := Value;
   Intervalo := fsIntervalo ; { isso apenas verifica se precisa ligar o timer }
+end;
+
+procedure TACBrBAL.SetOnGravarLog(const Value: TACBrGravarLog);
+begin
+  fsBAL.OnGravarLog := Value;
 end;
 
 procedure TACBrBAL.SetIntervalo(const Value: Integer);

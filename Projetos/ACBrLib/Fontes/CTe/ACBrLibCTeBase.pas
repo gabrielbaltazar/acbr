@@ -109,11 +109,12 @@ type
                                const AEnviaPDF: Boolean; const eAssunto, eCC, eAnexos, eMensagem: PChar): longint;
     function Imprimir(const cImpressora: PChar; nNumCopias: Integer; const cProtocolo, bMostrarPreview: PChar): longint;
     function ImprimirPDF: longint;
+    function SalvarPDF(const sResposta: PChar; var esTamanho: longint): longint;
     function ImprimirEvento(const eArquivoXmlCTe, eArquivoXmlEvento: PChar): longint;
     function ImprimirEventoPDF(const eArquivoXmlCTe, eArquivoXmlEvento: PChar): longint;
+    function SalvarEventoPDF(const eArquivoXmlCTe, eArquivoXmlEvento: PChar;  sResposta: PChar; var esTamanho: longint): longint;
     function ImprimirInutilizacao(const eArquivoXml: PChar): longint;
     function ImprimirInutilizacaoPDF(const eArquivoXml: PChar): longint;
-
   end;
   
 
@@ -131,7 +132,7 @@ uses
 constructor TACBrLibCTe.Create(ArqConfig: string; ChaveCrypt: ansistring);
 begin
   inherited Create(ArqConfig, ChaveCrypt);
-
+  TraduzirUltimoRetorno := False;
   FCTeDM := TLibCTeDM.Create(nil);
   FCTeDM.Lib := Self;
 end;
@@ -466,7 +467,7 @@ end;
 function TACBrLibCTe.LimparListaEventos: longint;  
 begin
   try
-    GravarLog('NFE_LimparListaEventos', logNormal);
+    GravarLog('CTE_LimparListaEventos', logNormal);
 
     CTeDM.Travar;
     try
@@ -936,6 +937,9 @@ begin
         finally
           RespEnvio.Free;
         end;
+
+        if CTeDM.ACBrCTe1.Configuracoes.Geral.VersaoDF >= ve400 then
+           ASincrono := True;
 
         if not ASincrono or ((NaoEstaVazio(WebServices.Enviar.Recibo)) and (WebServices.Enviar.cStat = 103)) then
         begin
@@ -1436,7 +1440,9 @@ begin
           MoverStringParaPChar(Resposta, sResposta, esTamanho);
           Result := SetRetorno(ErrOK, Resposta);
         except
-          raise EACBrLibException.Create(ErrRetorno, ACBrCTe1.WebServices.DistribuicaoDFe.retDistDFeInt.xMotivo);
+          on E: Exception do
+            raise EACBrLibException.Create(ErrRetorno, E.ToString + sLineBreak +
+                'retDistDFeInt.xMotivo: '+ ACBrCTe1.WebServices.DistribuicaoDFe.retDistDFeInt.xMotivo);
         end;
       end;
     finally
@@ -1803,6 +1809,40 @@ begin
   end;
 end;
 
+function TACBrLibCTe.SalvarPDF(const sResposta: PChar; var esTamanho: longint): longint;
+var
+  AStream: TMemoryStream;
+  Resposta: AnsiString;
+begin
+  try
+    GravarLog('CTE_SalvarPDF', logNormal);
+
+    CTeDM.Travar;
+
+    AStream := TMemoryStream.Create;
+
+    try
+      CTeDM.ConfigurarImpressao('', True);
+
+      CTeDM.ACBrCTe1.Conhecimentos.ImprimirPDF(AStream);
+      Resposta := StreamToBase64(AStream);
+
+      MoverStringParaPChar(Resposta, sResposta, esTamanho);
+      Result := SetRetorno(ErrOK, Resposta);
+    finally
+      CTeDM.FinalizarImpressao;
+      AStream.Free;
+      CTeDM.Destravar;
+    end;
+  except
+    on E: EACBrLibException do
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+
+    on E: Exception do
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+  end;
+end;
+
 function TACBrLibCTe.ImprimirEvento(const eArquivoXmlCTe, eArquivoXmlEvento: PChar): longint;  
 var
   EhArquivo: boolean;
@@ -1900,6 +1940,68 @@ begin
       Result := SetRetorno(ErrOK);
     finally
       CTeDM.FinalizarImpressao;
+      CTeDM.Destravar;
+    end;
+  except
+    on E: EACBrLibException do
+      Result := SetRetorno(E.Erro, ConverterUTF8ParaAnsi(E.Message));
+
+    on E: Exception do
+      Result := SetRetorno(ErrExecutandoMetodo, ConverterUTF8ParaAnsi(E.Message));
+  end;
+end;
+
+function TACBrLibCTe.SalvarEventoPDF(const eArquivoXmlCTe, eArquivoXmlEvento: PChar;  sResposta: PChar; var esTamanho: longint): longint;
+var
+  EhArquivo: boolean;
+  AArquivoXmlCTe: string;
+  AArquivoXmlEvento: string;
+  AStream: TMemoryStream;
+  Resposta: Ansistring;
+begin
+  try
+    AArquivoXmlCTe := ConverterAnsiParaUTF8(eArquivoXmlCTe);
+    AArquivoXmlEvento := ConverterAnsiParaUTF8(eArquivoXmlEvento);
+
+    if Config.Log.Nivel > logNormal then
+       GravarLog('CTE_SalvarEventoPDF(' + AArquivoXmlCTe + ',' + AArquivoXmlEvento + ' )', logCompleto, True)
+    else
+      GravarLog('CTE_SalvarEventoPDF', logNormal);
+
+    CTeDM.Travar;
+    AStream := TMemoryStream.Create;
+
+    try
+      EhArquivo := StringEhArquivo(AArquivoXmlCTe);
+
+      if EhArquivo then
+      VerificarArquivoExiste(AArquivoXmlCTe);
+
+      if EhArquivo then
+         CTeDM.ACBrCTe1.Conhecimentos.LoadFromFile(AArquivoXmlCTe)
+      else
+         CTeDM.ACBrCTe1.Conhecimentos.LoadFromString(AArquivoXmlCTe);
+
+      EhArquivo := StringEhArquivo(AArquivoXmlEvento);
+
+      if EhArquivo then
+      VerificarArquivoExiste(AArquivoXmlEvento);
+
+      if EhArquivo then
+         CTeDM.ACBrCTe1.EventoCTe.LerXML(AArquivoXmlEvento)
+      else
+         CTeDM.ACBrCTe1.EventoCTe.LerXMLFromString(AArquivoXmlEvento);
+
+      CTeDM.ConfigurarImpressao('', True);
+      CTeDM.ACBrCTe1.DACTE.ImprimirEventoPDF(AStream);
+
+      Resposta := StreamToBase64(AStream);
+
+      MoverStringParaPChar(Resposta, sResposta, esTamanho);
+      Result := SetRetorno(ErrOK, Resposta);
+    finally
+      CTeDM.FinalizarImpressao;
+      AStream.Free;
       CTeDM.Destravar;
     end;
   except

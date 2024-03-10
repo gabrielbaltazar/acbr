@@ -38,6 +38,52 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+16/02/2024
+-- ACBrVirtualPrinter -- 
+[+] Adicionado evento para capturar a linha que será impressa antes da decodificação
+    por: Régys Silveira
+
+01/08/2023
+-- ACBrBALToledo --
+[*] Correção de AV em retorno vazio no ProtocoloP03
+https://www.projetoacbr.com.br/forum/topic/72812-access-violation-acbrmter-balan%C3%A7a-prix-fit-3/
+  Por: William F. L. / Renato Rubinho
+
+25/07/2023
+-- ACBrWinUSBDevice --
+[*] Melhoria para usar FrendlyName, quando Fabricante for igual, ao usado na Tabela
+    VID/PID interna do ACBr
+    (por: DSA)
+
+07/07/2023
+[*]TK-3919 ACBrCHQBematech- Removido verificação em linha devido a incompatibilicade com a impressora "DP20 – Plus Document Printer"
+https://www.projetoacbr.com.br/forum/topic/72010-teste-acbrchq/
+Por : Sistema Auditor Verificado: Daniel Morais
+
+27/02/2023
+-- ACBrBALSelfCheckout --
+[+] Incluída nova classe para modelos de balança utilizarem caso também possuam os novos comandos
+
+-- ACBrBALToledo --
+[*] Alterado para herdar da nova classe TACBrBALSelfCheckout
+    Por: Elias César
+
+27/02/2023
+-- ACBrBALToledo --
+[*] Alteração para converter o retorno de resposta de balanças com pesagem maior que 30kg
+[+] Inclusão de novos comandos 'AtivarTara', 'DesativarTara' e 'ZerarDispositivo' (Incluídos 
+    apenas na classe TACBrBALToledo)
+    Por: Warquia Pereira e Daniel Infocotidiano
+
+22/02/2023
+-- ACBrBAL* --
+[+] Adicionado o evento OnGravarLog
+    (por: DSA)
+
+27/01/2023
+[*] TK-3548 Alterar Exceção do ACBrDevice Bluetooth quando não há dispositivo
+  por : Victor H Gonzales - Pandaaa
+
 19/01/2023
 -- ACBrDevice --
 [+] Adicionado o método:

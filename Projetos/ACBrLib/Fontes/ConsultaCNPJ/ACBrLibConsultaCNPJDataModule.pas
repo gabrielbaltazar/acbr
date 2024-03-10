@@ -86,6 +86,19 @@ var
   pLibConfig: TLibConsultaCNPJConfig;
 begin
   pLibConfig := TLibConsultaCNPJConfig(TACBrLibConsultaCNPJ(Lib).Config);
+
+  with ACBrConsultaCNPJ1 do
+  begin
+    Provedor      := pLibConfig.ConsultaCNPJConfig.Provedor;
+    Usuario       := pLibConfig.ConsultaCNPJConfig.Usuario;
+    Senha         := pLibConfig.ConsultaCNPJConfig.Senha;
+    ProxyHost     := pLibConfig.ConsultaCNPJConfig.proxyHost;
+    ProxyPort     := pLibConfig.ConsultaCNPJConfig.ProxyPort;
+    ProxyUser     := pLibConfig.ConsultaCNPJConfig.ProxyUser;
+    ProxyPass     := pLibConfig.ConsultaCNPJConfig.ProxyPass;
+  end;
+
+
 end;
 
 procedure TLibConsultaCNPJDM.GravarLog(AMsg: String; NivelLog: TNivelLog;

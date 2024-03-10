@@ -78,6 +78,17 @@ procedure TACBrNFSeProviderSystemPro201.Configuracao;
 begin
   inherited Configuracao;
 
+  ConfigGeral.ConsultaPorFaixaPreencherNumNfseFinal := True;
+
+  with ConfigGeral.ServicosDisponibilizados do
+  begin
+    EnviarLoteAssincrono := False;
+    ConsultarLote := False;
+    ConsultarRps := False;
+    ConsultarServicoPrestado := False;
+    ConsultarServicoTomado := False;
+  end;
+
   with ConfigAssinar do
   begin
     LoteRps := True;
@@ -219,7 +230,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 

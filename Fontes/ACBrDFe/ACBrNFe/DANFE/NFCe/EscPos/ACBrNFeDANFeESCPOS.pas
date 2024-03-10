@@ -39,7 +39,7 @@ interface
 uses
   Classes, SysUtils, {$IFDEF FPC} LResources, {$ENDIF}
   ACBrBase, ACBrNFeDANFEClass, ACBrPosPrinter,
-  pcnNFe, pcnEnvEventoNFe, pcnInutNFe;
+  pcnNFe, pcnEnvEventoNFe, pcnInutNFe, ACBrDFeDANFeReport;
 
 const
   CLarguraRegiaoEsquerda = 270;
@@ -108,19 +108,24 @@ type
 implementation
 
 uses
-  strutils, Math,
-  ACBrNFe, ACBrValidador,
-  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime,
-  ACBrDFeUtil, ACBrConsts, ACBrDFeDANFeReport,
-  pcnConversao, pcnAuxiliar;
+  strutils,
+  Math,
+  ACBrNFe,
+  ACBrValidador,
+  ACBrUtil.Base,
+  ACBrUtil.Strings,
+  ACBrUtil.DateTime,
+  ACBrDFeUtil,
+  ACBrConsts,
+  pcnConversao,
+  ACBrImage;
 
 { TACBrNFeDANFeESCPOS }
 
 constructor TACBrNFeDANFeESCPOS.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-
-  FPosPrinter := Nil;
+  FPosPrinter        := Nil;
   FSuportaCondensado := True;
 end;
 
@@ -215,15 +220,17 @@ begin
       DadosCabecalho.Free;
     end;
     FPosPrinter.Buffer.Add('</zera><mp>' +
-                           FPosPrinter.ConfigurarRegiaoModoPagina(0,0,Altura,CLarguraRegiaoEsquerda) +
-                           '</logo>');
+                          FPosPrinter.ConfigurarRegiaoModoPagina(0,0,Altura,CLarguraRegiaoEsquerda));
+
+    FPosPrinter.Buffer.Add(IfThen(FPosPrinter.ValidaLogoBmp(logo),'<bmp>'+Logo+'</bmp>','</lf></logo>'));
+
     FPosPrinter.Buffer.Add(FPosPrinter.ConfigurarRegiaoModoPagina(CLarguraRegiaoEsquerda,0,Altura,325) +
-                           TextoLateral +
-                           '</mp>');
+                          TextoLateral +
+                          '</mp>');
   end
   else
   begin
-    FPosPrinter.Buffer.Add('</zera></ce></logo>');
+    FPosPrinter.Buffer.Add('</zera></ce>'+ IfThen(FPosPrinter.ValidaLogoBmp(logo),'<bmp>'+Logo+'</bmp>','</lf></logo>'));
 
     if (Trim(FpNFe.Emit.xFant) <> '') and ImprimeNomeFantasia then
        FPosPrinter.Buffer.Add('</ce>'+TagLigaCondensado+'<n>' +  FpNFe.Emit.xFant + '</n>');
@@ -267,7 +274,7 @@ procedure TACBrNFeDANFeESCPOS.GerarDetalhesProdutosServicos;
 var
   i: Integer;
   nTamDescricao: Integer;
-  VlrAcrescimo, VlrLiquido: Double;
+  VlrAcrescimo, VlrLiquido, LDesconto: Double;
   sItem, sCodigo, sDescricao, sQuantidade, sUnidade, sVlrUnitario, sVlrProduto,
     LinhaCmd: String;
   sDescricaoAd: String;
@@ -341,14 +348,14 @@ begin
         if ImprimeDescAcrescItem then
         begin
           VlrAcrescimo := Prod.vSeg + Prod.vOutro;
-          VlrLiquido   := (Prod.qCom * Prod.vUnCom) + (VlrAcrescimo + Prod.vFrete) - Prod.vDesc;
-
+          VlrLiquido   := CalcularValorLiquidoItem(FpNFe, i);
+          LDesconto    := CalcularValorDescontoItem(FpNFe, i);
           // desconto
-          if Prod.vDesc > 0 then
+          if LDesconto > 0 then
           begin
             LinhaCmd := '</ae>'+TagLigaCondensado + padSpace(
-                'Desconto ' + padLeft(FormatFloatBr(Prod.vDesc, '-,0.00'), 15, ' ')
-                +IIf((VlrAcrescimo+Prod.vFrete > 0),'','|' + FormatFloatBr(VlrLiquido)) ,
+                'Desconto ' + padLeft(FormatFloatBr(LDesconto, '-,0.00'), 15, ' ')
+                +IfThen((VlrAcrescimo+Prod.vFrete > 0),'','|' + FormatFloatBr(VlrLiquido)) ,
                 ColunasCondensado, '|');
             FPosPrinter.Buffer.Add('</ae>'+TagLigaCondensado + LinhaCmd);
           end;
@@ -358,7 +365,7 @@ begin
           begin
             LinhaCmd := '</ae>'+TagLigaCondensado + padSpace(
                 'Frete ' + padLeft(FormatFloatBr(Prod.vFrete, '+,0.00'), 15, ' ')
-                +IIf((VlrAcrescimo > 0),'','|' + FormatFloatBr(VlrLiquido)) ,
+                +IfThen((VlrAcrescimo > 0),'','|' + FormatFloatBr(VlrLiquido)) ,
                 ColunasCondensado, '|');
             FPosPrinter.Buffer.Add('</ae>'+TagLigaCondensado + LinhaCmd);
           end;
@@ -391,6 +398,7 @@ var
   SufixoTitulo, TagLigaExpandido, TagDesligaExpandido: String;
   FatorExp: Integer;
   ImprimeTotalNoFinal: Boolean;
+  LValorDesconto : Double;
 begin
   if (ColunasCondensado >= 46) then
   begin
@@ -426,9 +434,11 @@ begin
        FormatFloatBr(FpNFe.Total.ICMSTot.vProd + FpNFe.Total.ISSQNtot.vServ),
        ColunasCondensado div FatorExp, '|') + TagDesligaExpandido);
 
-  if (FpNFe.Total.ICMSTot.vDesc > 0) then
+  LValorDesconto := CalcularValorDescontoTotal(FpNFe);
+
+  if (LValorDesconto > 0) then
     FPosPrinter.Buffer.Add(TagLigaCondensado + PadSpace('Desconto'+SufixoTitulo+'|' +
-       FormatFloatBr(FpNFe.Total.ICMSTot.vDesc, '-,0.00'),
+       FormatFloatBr(LValorDesconto, '-,0.00'),
        ColunasCondensado, '|'));
 
   if (FpNFe.Total.ICMSTot.vOutro+FpNFe.Total.ICMSTot.vSeg) > 0 then
@@ -467,7 +477,7 @@ begin
     end;
   end;
 
-  Troco := IIf(FpNFe.pag.vTroco > 0,FpNFe.pag.vTroco,vTroco);
+  Troco := IfThen(FpNFe.pag.vTroco > 0,FpNFe.pag.vTroco,vTroco);
 
   if Troco > 0 then
     FPosPrinter.Buffer.Add(TagLigaCondensado + PadSpace('Troco R$|' +
@@ -957,6 +967,7 @@ begin
   else
     Result := FpNFe.infNFeSupl.qrCode;
 end;
+
 
 function TACBrNFeDANFeESCPOS.ColunasCondensado: Integer;
 begin

@@ -39,8 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml;
 
 type
   { Provedor com layout próprio }
@@ -56,7 +55,8 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings;
+  ACBrUtil.Strings,
+  ACBrNFSeXConversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -144,17 +144,17 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'fone_destinatario', 1, 10, 0,
                                           NFSe.Tomador.Contato.Telefone, ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'email_destinatario', 1, 100, 0,
+  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'email_destinatario', 1, 100, 1,
                                              NFSe.Tomador.Contato.Email, ''));
 
   NFSeNode.AppendChild(AddNode(tcDe2, '#1', 'valor_nf', 1, 15, 1,
-                                    NFSe.Servico.Valores.ValorLiquidoNfse, ''));
+                                    NFSe.Servico.Valores.ValorServicos, ''));
 
   NFSeNode.AppendChild(AddNode(tcDe2, '#1', 'deducao', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorDeducoes, ''));
 
   NFSeNode.AppendChild(AddNode(tcDe2, '#1', 'valor_servico', 1, 15, 1,
-                                       NFSe.Servico.Valores.ValorServicos, ''));
+                                       NFSe.Servico.Valores.ValorLiquidoNfse, ''));
 
   NFSeNode.AppendChild(AddNode(tcDatVcto, '#1', 'data_emissao', 10, 10, 1,
                                                          NFSe.DataEmissao, ''));
@@ -172,6 +172,10 @@ begin
 
   if NFSe.Servico.Valores.IssRetido = stRetencao then
     NFSeNode.AppendChild(AddNode(tcStr, '#1', 'iss_retido', 1, 1, 1, 'S', ''))
+  else if NFSe.Servico.Valores.IssRetido = stRetidoForaMunicipio then
+    NFSeNode.AppendChild(AddNode(tcStr, '#1', 'iss_retido', 1, 1, 1, 'F', ''))
+  else if NFSe.Servico.Valores.IssRetido = stDevidoForaMunicipioNaoRetido then
+    NFSeNode.AppendChild(AddNode(tcStr, '#1', 'iss_retido', 1, 1, 1, 'D', ''))
   else
     NFSeNode.AppendChild(AddNode(tcStr, '#1', 'iss_retido', 1, 1, 1, 'N', ''));
 

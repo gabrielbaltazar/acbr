@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -42,7 +42,8 @@ uses
 const
   NAME_SPACE_CTE = 'xmlns="http://www.portalfiscal.inf.br/cte"';
 
-  xRazao = 'CT-E EMITIDO EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL';
+  xRazao3 = 'CT-E EMITIDO EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL';
+  xRazao4 = 'CTE EMITIDO EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL';
 
   DSC_TPCTe    = 'Tipo do Conhecimento';
   DSC_CMUNEMI  = 'Código do Município onde o CT-e está sendo emitido';
@@ -173,6 +174,87 @@ const
   DSC_VESPECIE    = 'Valor em Espécie';
   DSC_TPNUMERARIO = 'Tipo de Numerário';
   DSC_XMOEDAESTR  = 'Nome da Moeda Estrangeira';
+
+  DSC_NATOP = 'Descrição da Natureza da Operação';
+  DSC_INDPAG = 'Indicador da forma de pagamento';
+  DSC_REFCTE = 'Chave de acesso do CT-e referenciado';
+  DSC_MODAL  = 'Tipo de Modal';
+  DSC_IEST = 'Inscrição Estadual do Substituto tributário';
+  DSC_ISUF = 'Inscrição na SUFRAMA';
+
+  DSC_VBC = 'Valor da BC do ICMS';
+  DSC_VBCST = 'Valor da BC do ICMS ST';
+  DSC_VST = 'Valor do ICMS Substituição Tributária';
+  DSC_PICMS = 'Alíquota do imposto';
+  DSC_VICMS = 'Valor do ICMS';
+  DSC_PREDBC = 'Percentual da Redução de BC';
+  DSC_VPIS = 'Valor do PIS';
+  DSC_VCOFINS = 'Valor do COFINS';
+  DSC_VIR = 'Valor do IR';
+  DSC_VINSS = 'Valor do INSS';
+  DSC_VCSLL = 'Valor do CSLL';
+  DSC_REFNFE = 'Chave de acesso das NF-e referenciadas';
+  DSC_VNF = 'Valor Total do DF-e';
+  DSC_CUNID  = 'Código da unidade de medida';
+  DSC_VPROD = 'Valor Total Bruto dos Produtos ou Serviços';
+  DSC_VDOC   = 'Valor do documento';
+  DSC_TPNF = 'Tipo do Documento Fiscal';
+
+  DSC_TPUNIDTRANSP = 'Tipo de Unidade de Transporte';
+  DSC_IDUNIDTRANSP = 'Identificação da Unidade de Transporte';
+  DSC_TPUNIDCARGA  = 'Tipo de Unidade de Carga';
+  DSC_IDUNIDCARGA  = 'Identificação da Unidade de Carga';
+  DSC_NLACRE = 'Número dos Lacres';
+  DSC_QTDRAT = 'Quantidade Rateada';
+  DSC_LACR   = 'Grupo de lacres';
+  DSC_UFPER    = 'Sigla da UF do percurso do veículo';
+
+  DSC_RESPSEG  = 'Responsável pelo Seguro';
+  DSC_XSEG     = 'Nome da Seguradora';
+  DSC_NAPOL    = 'Número da Apólice';
+  DSC_NAVER    = 'Número da Averbação';
+  DSC_INFSEG   = 'Informações de seguro da carga';
+
+  DSC_RNTRC  = 'Registro Nacional de Transportadores Rodoviários de Carga';
+  DSC_LOTA   = 'Indicador de lotação';
+  DSC_VVALEPED  = 'Valor do Vale-Pedagio';
+  DSC_RENAVAM = 'RENAVAM';
+  DSC_PLACA = 'Placa do Veículo';
+  DSC_TPVEIC = 'Tipo de Veículo';
+  DSC_TPPROP = 'Tipo de Proprietário';
+  DSC_TPROD  = 'Tipo de Rodado';
+  DSC_TPCAR  = 'Tipo de Carroceria';
+  DSC_VAFRMM = 'Valor da AFRMM';
+
+  DSC_TPNAV     = 'Tipo de Navegação';
+  DSC_IRIN      = 'Irin do navio sempre deverá ser informado';
+
+  DSC_VFRETE = 'Valor Total do Frete';
+  DSC_VAGAO = 'Identificação do vagão';
+
+  DSC_NONU      = 'Número ONU/UN';
+  DSC_XNOMEAE   = 'Nome apropriado para embarque do produto';
+  DSC_XCLARISCO = 'Classe e Risco secundário';
+  DSC_GREMB     = 'Grupo de Embalagem';
+  DSC_QTOTPROD  = 'Quantidade total por produto';
+  DSC_QVOLTIPO  = 'Quantidade e tipo de volumes';
+
+  DSC_CHASSI = 'Número do chassi';
+  DSC_CCOR = 'Cor do Veículo';
+  DSC_XCOR = 'Descrição da Cor';
+  DSC_CMOD = 'Modelo do Veículo';
+
+  DSC_NFAT = 'Número da fatura';
+  DSC_VORIG = 'Valor Original da Fatura';
+  DSC_VDESC = 'Valor do desconto';
+  DSC_VLIQ = 'Valor Líquido da Fatura';
+
+  DSC_NDUP = 'Número da duplicata';
+  DSC_DVENC = 'Data de vencimento';
+  DSC_VDUP = 'Valor da duplicata';
+
+  DSC_VICMSDESON = 'Valor de ICMS de Desoneração';
+  DSC_CBENEF = 'Código do Benefício Fiscal';
 
 implementation
 

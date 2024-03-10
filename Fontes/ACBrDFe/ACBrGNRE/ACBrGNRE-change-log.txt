@@ -45,6 +45,80 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+01/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnConsts.
+  Por: Italo Giurizzato Junior
+
+22/01/2024
+-- ACBrGNREWebServices/pgnreConsResLoteGNRE/pgnreRetConsResLoteGNRE --
+[*] Incluído na consulta do lote a tag opcional: incluirPDFGuias para que no
+    retorno consta as guias no formato PDF.
+  Por: Jacke Venson/Italo Giurizzato Junior
+
+03/01/2024
+-- ACBrGNReGuiasRetorno, pgnreRetConsResLoteGNRe --
+[*] Otimização na leitura dos valores.
+  Por: Diego Folieni
+-- pgnreRetConsResLoteGNRE --
+[*] Adiciona na leitura do retorno as propriedades ValorFCP, AtualizacaoMonetariaFCP, JurosFCP e MultaFCP.
+  Por: Diego Folieni
+
+07/11/2023
+-- ACBrGNReGuias --
+[*] Ajuste para que não quebre para quem usa CampoExtra sem identificação.
+ Por: Diego Folieni
+[*] Melhoria nas rotinas de leitura e geração do ini para atender número de ocorrências do elemento CampoExtra
+ Por: Diego Folieni
+
+21/90/2023
+-- ACBrGNReGuias --
+[*] Adiciona uma rotina para gerar o INI do GNRe, visando compatibilidade com outros DFes e facilidade em testes.
+ Por: Diego Folieni
+
+15/09/2023
+-- pgnreGNRE, pgnreGNREW --
+[*] Adição da propriedade e tag numeroControle e alteração no nº de ocorrências de dataPagamento para que fique de acordo com schema
+ Por: Diego Folieni
+
+01/08/2023
+-- ACBrGNReGuias --
+[*] Adiciona na leitura do INI os campos ValorFECP, TotalFECP, MultaFECP, JurosFECP
+    AutalMonetFECP, MultaICMS, JurosICMS e AtualMonetICMS.
+  Por: Diego Folieni #TK-4200
+
+12/05/2023
+[*]TK-3925 [Atualização FR3 Obrigatória] GNRE FR Valores FCP
+  Por : Victor H Gonzales - Pandaaa
+11/05/2023
+-- Diversos --
+[*] Remoção de regras de negócio na impressão da Guia em Fortes Report.
+   Por: Italo Giurizzato Junior
+
+05/05/2023
+-- Diversos --
+[*] Alteração para imprimir a guia na versão 2.00 corretamente independente se 
+    tem ou não tem FECP e quando só tem o valor FECP.
+    Alteração feita na impressão em Fortes Report.
+   Por: Italo Giurizzato Junior
+
+03/05/2023
+-- ACBrGNREGuiasRetorno.pas --
+[-] Alteração visando a não deduzir o valor do FECP quando este for diferente de
+    zero.
+   Por: Italo Giurizzato Junior
+
+03/03/2023
+-- ACBrGNREGuiasRetorno.pas --
+[-] Estava duplicando o valor da guia quando tem tipo 22.
+  Por: Isolopak
+
 07/12/2022
 -- Diversos --
 [*] Melhorias para obter o nome do municipio ao carregar o XML para posterior

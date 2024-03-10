@@ -7,7 +7,7 @@ namespace ACBrLib.CTe
 {
     public class RemetenteCTe
     {
-        public long CNPJCPF { get; set; }
+        public string CNPJCPF { get; set; }
 
         public string IE { get; set; }
 
@@ -15,10 +15,28 @@ namespace ACBrLib.CTe
 
         public string xFant { get; set; }
 
-        public int fone { get; set; }
-
-        public EnderRemeCTe enderReme { get; set; }
+        public string fone { get; set; }
 
         public string email { get; set; }
+
+        public string xLgr { get; set; }
+
+        public string nro { get; set; }
+
+        public string xCpl { get; set; }
+
+        public string xBairro { get; set; }
+
+        public int cMun { get; set; }
+
+        public string xMun { get; set; }
+
+        public string CEP { get; set; }
+
+        public string UF { get; set; }
+
+        public int cPais { get; set; }
+
+        public string xPais { get; set; }
     }
 }

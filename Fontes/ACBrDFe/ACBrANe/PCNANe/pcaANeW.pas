@@ -41,7 +41,9 @@ uses
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.XMLHTML,
-  pcnAuxiliar, pcnConversao, pcnGerador, pcnConsts, pcaConversao, pcaANe;
+  pcnConversao, pcnGerador,
+  ACBrDFeConsts,
+  pcaConversao, pcaANe;
 
 type
 

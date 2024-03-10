@@ -49,10 +49,18 @@ type
 
   end;
 
+  { TNFSeW_Etherium204 }
+
+  TNFSeW_Etherium204 = class(TNFSeW_ABRASFv2)
+  protected
+    procedure Configuracao; override;
+
+  end;
+
 implementation
 
 uses
-  ACBrNFSeXConversao;
+  ACBrNFSeXConversao, ACBrXmlBase;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -66,6 +74,23 @@ begin
   inherited Configuracao;
 
   FormatoItemListaServico := filsComFormatacao;
+  FormatoAliq := tcDe2;
+end;
+
+{ TNFSeW_Etherium204 }
+
+procedure TNFSeW_Etherium204.Configuracao;
+begin
+  inherited Configuracao;
+
+  FormatoAliq := tcDe2;
+
+  NrOcorrInformacoesComplemetares := 0;
+  NrOcorrCepTomador := 1;
+  NrOcorrAliquota := 1;
+  NrOcorrCodigoPaisTomador := -1;
+
+  TagTomador := 'TomadorServico';
 end;
 
 end.

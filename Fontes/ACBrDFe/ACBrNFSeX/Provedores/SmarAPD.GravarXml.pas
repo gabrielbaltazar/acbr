@@ -39,10 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
-  ACBrNFSeX,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXGravarXml_ABRASFv2,
-  ACBrNFSeXConversao;
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXGravarXml_ABRASFv2;
 
 type
   { TNFSeW_SmarAPD }
@@ -77,7 +74,11 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings, ACBrUtil.DateTime;
+  ACBrNFSeX,
+  ACBrNFSeXConversao,
+  ACBrNFSeXConsts,
+  ACBrUtil.Strings,
+  ACBrUtil.DateTime;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -165,7 +166,7 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'fonetomador', 1, 50, 1,
                                             NFSe.Tomador.Contato.Telefone, ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'faxtomador', 1, 60, 1, '', ''));
+  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'faxtomador', 1, 60, 0, '', ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'ceptomador', 1, 8, 1,
                                     OnlyNumber(NFSe.Tomador.Endereco.CEP), ''));
@@ -182,29 +183,31 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'inscricaoestadualtomador', 1, 14, 1,
           OnlyNumber(NFSe.Tomador.IdentificacaoTomador.InscricaoEstadual), ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'inscricaomunicipaltomador', 1, 14, 1,
+  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'inscricaomunicipaltomador', 1, 14, 0,
          OnlyNumber(NFSe.Tomador.IdentificacaoTomador.InscricaoMunicipal), ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'observacao', 1, 50, 1,
                                                    NFSe.OutrasInformacoes, ''));
 
-  NFSeNode.AppendChild(Gerartbfatura);
+  if NFSe.CondicaoPagamento.Parcelas.Count > 0 then
+    NFSeNode.AppendChild(Gerartbfatura);
+
   NFSeNode.AppendChild(Gerartbservico);
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'razaotransportadora', 1, 255, 1,
+  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'razaotransportadora', 1, 255, 0,
                                            NFSe.Transportadora.xNomeTrans, ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'cpfcnpjtransportadora', 1, 20, 1,
+  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'cpfcnpjtransportadora', 1, 20, 0,
                             OnlyNumber(NFSe.Transportadora.xCpfCnpjTrans), ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'enderecotransportadora', 1, 255, 1,
+  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'enderecotransportadora', 1, 255, 0,
                                             NFSe.Transportadora.xEndTrans, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'tipofrete', 1, 1, 1, '2', ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'quantidade', 1, 1, 1, '', ''));
+  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'quantidade', 1, 1, 0, '', ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'especie', 1, 1, 1, '', ''));
+  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'especie', 1, 1, 0, '', ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#2', 'pesoliquido', 1, 1, 1, '0', ''));
 
@@ -225,22 +228,11 @@ begin
   NFSeNode.AppendChild(AddNode(tcDe2, '#2', 'inss', 1, 15, 1,
                                            NFSe.Servico.Valores.ValorInss, ''));
 
-  if (NFSe.Servico.Valores.ValorDeducoes > 0) then
-  begin
-    NFSeNode.AppendChild(AddNode(tcStr, '#2', 'descdeducoesconstrucao', 1, 500, 1,
+  NFSeNode.AppendChild(AddNode(tcStr, '#2', 'descdeducoesconstrucao', 1, 500, 0,
                                 NFSe.Servico.Valores.JustificativaDeducao, ''));
 
-    NFSeNode.AppendChild(AddNode(tcDe2, '#2', 'totaldeducoesconstrucao', 1, 15, 1,
+  NFSeNode.AppendChild(AddNode(tcDe2, '#2', 'totaldeducoesconstrucao', 1, 15, 0,
                                        NFSe.Servico.Valores.ValorDeducoes, ''));
-  end
-  else
-  begin
-    NFSeNode.AppendChild(AddNode(tcStr, '#2', 'descdeducoesconstrucao', 1, 500, 1,
-                                                                       '', ''));
-
-    NFSeNode.AppendChild(AddNode(tcStr, '#2', 'totaldeducoesconstrucao', 1, 15, 1,
-                                                                       '', ''));
-  end;
 
   if NFSe.TipoTributacaoRPS = ttTribnoMun then
     NFSeNode.AppendChild(AddNode(tcStr, '#1', 'tributadonomunicipio', 1, 5, 1,
@@ -381,12 +373,9 @@ begin
 
   FormatoAliq := tcDe2;
 
-  NrOcorrNIFTomador := 0;
   NrOcorrValTotTrib := 0;
   NrOcorrAliquota := 1;
   NrOcorrCodigoPaisServico := -1;
-
-  GerarEnderecoExterior := True;
 end;
 
 { TNFSeW_SmarAPD204 }
@@ -398,12 +387,9 @@ begin
   FormatoAliq := tcDe2;
 
   NrOcorrInformacoesComplemetares := 0;
-  NrOcorrNIFTomador := 0;
   NrOcorrValTotTrib := 0;
   NrOcorrCodigoPaisServico := -1;
   NrOcorrCodigoPaisTomador := -1;
-
-  GerarEnderecoExterior := True;
 
   TagTomador := 'TomadorServico';
 end;

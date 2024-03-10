@@ -1,9 +1,9 @@
 {==============================================================================|
 | Project : Ararat Synapse                                       | 003.009.000 |
 |==============================================================================|
-| Content: SSL support by OpenSSL                                              |
+| Content: SSL support by OpenSSL  0.9 - 3.0                                   |
 |==============================================================================|
-| Copyright (c)1999-2017, Lukas Gebauer                                        |
+| Copyright (c)1999-2022, Lukas Gebauer                                        |
 | All rights reserved.                                                         |
 |                                                                              |
 | Redistribution and use in source and binary forms, with or without           |
@@ -33,7 +33,7 @@
 | DAMAGE.                                                                      |
 |==============================================================================|
 | The Initial Developer of the Original Code is Lukas Gebauer (Czech Republic).|
-| Portions created by Lukas Gebauer are Copyright (c)2002-2017.                |
+| Portions created by Lukas Gebauer are Copyright (c)2002-2022.                |
 | Portions created by Petr Fejfar are Copyright (c)2011-2012.                  |
 | Portions created by Pepak are Copyright (c)2018.                             |
 | All Rights Reserved.                                                         |
@@ -96,7 +96,9 @@ uses
   SysUtils, Classes,
   synafpc
 {$IfDef ANDROID}
-  ,System.IOUtils
+  {$IFNDEF FPC}
+    ,System.IOUtils
+  {$ENDIF}
 {$EndIf}
 {$IFDEF POSIX}
   ,System.Generics.Collections, System.Generics.Defaults
@@ -141,13 +143,15 @@ var
      DLLUtilNames: array[1..2] of string = ('emcrpt10.dll','crypto.dll');
     {$ENDIF OS2GCC}
    {$ELSE OS2}
-    DLLSSLNames: array[1..16] of string = ('libssl.so',  // this file only exist in dev-packages that are not installed by default on most distributions
+    DLLSSLNames: array[1..17] of string = ('libssl.so',  // this file only exist in dev-packages that are not installed by default on most distributions
+                                           'libssl.so.3',
                                            'libssl.so.1.1', 'libssl.so.10', 'libssl.so.1.1.1', 'libssl.so.1.1.0',
                                            'libssl.so.1.0.2', 'libssl.so.1.0.1', 'libssl.so.1.0.0',
                                            'libssl.so.0.9.8', 'libssl.so.0.9.7', 'libssl.so.0.9.6', 'libssl.so.0.9.5',
                                            'libssl.so.0.9.4', 'libssl.so.0.9.3', 'libssl.so.0.9.2', 'libssl.so.0.9.1'
                                           );
-    DLLUtilNames: array[1..16] of string = ('libcrypto.so', // this file only exist in dev-packages that are not installed by default on most distributions
+    DLLUtilNames: array[1..17] of string = ('libcrypto.so', // this file only exist in dev-packages that are not installed by default on most distributions
+                                            'libcrypto.so.3',
                                             'libcrypto.so.1.1', 'libcrypto.so.10', 'libcrypto.so.1.1.1', 'libcrypto.so.1.1.0',
                                             'libcrypto.so.1.0.2', 'libcrypto.so.1.0.1', 'libcrypto.so.1.0.0',
                                             'libcrypto.so.0.9.8', 'libcrypto.so.0.9.7', 'libcrypto.so.0.9.6', 'libcrypto.so.0.9.5',
@@ -156,9 +160,17 @@ var
    {$ENDIF OS2}
   {$ENDIF}
  {$ELSE}
-  DLLSSLNames: array[1..4] of string = ({$IfDef WIN64}'libssl-1_1-x64.dll'{$Else}'libssl-1_1.dll'{$EndIf},
+  DLLSSLNames: array[1..5] of string = ({$IfDef WIN64}
+                                         'libssl-3-x64.dll','libssl-1_1-x64.dll'
+                                        {$Else}
+                                         'libssl-3.dll','libssl-1_1.dll'
+                                        {$EndIf},
                                         'ssleay32.dll', 'libssl32.dll', 'libssl.dll');
-  DLLUtilNames: array[1..4] of string = ({$IfDef WIN64}'libcrypto-1_1-x64.dll'{$Else}'libcrypto-1_1.dll'{$EndIf},
+  DLLUtilNames: array[1..5] of string = ({$IfDef WIN64}
+                                          'libcrypto-3-x64.dll','libcrypto-1_1-x64.dll'
+                                         {$Else}
+                                          'libcrypto-3.dll','libcrypto-1_1.dll'
+                                         {$EndIf},
                                          'libeay32.dll', 'libcrypto.dll', 'libeay.dll');
  {$ENDIF}
 {$ENDIF}
@@ -175,6 +187,7 @@ type
   PSSL_METHOD = SslPtr;
   PX509 = SslPtr;
   PX509_NAME = SslPtr;
+  PX509_STORE = SslPtr;
   PEVP_MD	= SslPtr;
   PInteger = ^Integer;
   PBIO_METHOD = SslPtr;
@@ -216,6 +229,7 @@ const
   SSL_OP_NO_SSLv2 = $01000000;
   SSL_OP_NO_SSLv3 = $02000000;
   SSL_OP_NO_TLSv1 = $04000000;
+  SSL_OP_LEGACY_SERVER_CONNECT = $00000004;
   SSL_OP_ALL = $000FFFFF;
   SSL_VERIFY_NONE = $00;
   SSL_VERIFY_PEER = $01;
@@ -267,8 +281,15 @@ const
   EVP_PKEY_RSA = 6;
 
   SSL_CTRL_SET_TLSEXT_HOSTNAME = 55;
+  SSL_CTRL_SET_MIN_PROTO_VERSION = 123;
+  SSL_CTRL_SET_MAX_PROTO_VERSION = 124;
+
   TLSEXT_NAMETYPE_host_name = 0;
 
+  TLS1_VERSION = $0301;
+  TLS1_1_VERSION = $0302;
+  TLS1_2_VERSION = $0303;
+  TLS1_3_VERSION = $0304;
 var
   SSLLibPath: String = '';
   SSLLibHandle: TLibHandle = 0;
@@ -341,11 +362,6 @@ var
     SetLastError = False, CallingConvention= CallingConvention.cdecl,
     EntryPoint = 'TLSv1_2_method')]
     function SslMethodTLSV12:PSSL_METHOD;  external;
-
-  [DllImport(DLLSSLName, CharSet = CharSet.Ansi,
-    SetLastError = False, CallingConvention= CallingConvention.cdecl,
-    EntryPoint = 'TLSv1_3_method')]
-    function SslMethodTLSV13:PSSL_METHOD;  external;
 
   [DllImport(DLLSSLName, CharSet = CharSet.Ansi,
     SetLastError = False, CallingConvention= CallingConvention.cdecl,
@@ -757,7 +773,6 @@ var
 {$ELSE}
 // libssl.dll
   function SslGetError(s: PSSL; ret_code: Integer):Integer;
-  function OpenSSLVersion(t: Integer):AnsiString;
   function SslLibraryInit:Integer;
   procedure SslLoadErrorStrings;
   function SslCtxSetCipherList(arg0: PSSL_CTX; var str: AnsiString):Integer;
@@ -769,7 +784,6 @@ var
   function SslMethodTLSV1:PSSL_METHOD;
   function SslMethodTLSV11:PSSL_METHOD;
   function SslMethodTLSV12:PSSL_METHOD;
-  function SslMethodTLSV13:PSSL_METHOD;
   function SslMethodV23:PSSL_METHOD;
   function SslMethodTLS:PSSL_METHOD;
   function SslCtxUsePrivateKey(ctx: PSSL_CTX; pkey: SslPtr):Integer;
@@ -784,6 +798,9 @@ var
   procedure SslCtxSetDefaultPasswdCbUserdata(ctx: PSSL_CTX; u: SslPtr);
   function SslCtxLoadVerifyLocations(ctx: PSSL_CTX; const CAfile: AnsiString; const CApath: AnsiString):Integer;
   function SslCtxCtrl(ctx: PSSL_CTX; cmd: integer; larg: integer; parg: SslPtr): integer;
+  function SSLCtxSetOptions(ctx: PSSL_CTX; options: Integer): Integer;
+  function SslCtxSetMinProtoVersion(ctx: PSSL_CTX; version: integer): integer;
+  function SslCtxSetMaxProtoVersion(ctx: PSSL_CTX; version: integer): integer;
   function SslNew(ctx: PSSL_CTX):PSSL;
   procedure SslFree(ssl: PSSL);
   function SslAccept(ssl: PSSL):Integer;
@@ -826,7 +843,9 @@ var
   function EvpPkeyAssign(pkey: EVP_PKEY; _type: integer; key: Prsa): integer;
   function EvpGetDigestByName(Name: AnsiString): PEVP_MD;
   procedure EVPcleanup;
+  function OpenSSLversion(t: integer): Ansistring;
   function SSLeayversion(t: integer): Ansistring;
+  function OpenSSLVersionNum(): Integer;
   procedure ErrErrorString(e: integer; var buf: Ansistring; len: integer);
   function ErrGetError: integer;
   procedure ErrClearError;
@@ -854,7 +873,10 @@ var
   function d2iX509bio(b:PBIO; x:PX509):  PX509;    {pf}
   function PEMReadBioX509(b:PBIO; {var x:PX509;}x:PSslPtr; callback:PFunction; cb_arg: SslPtr):  PX509;    {pf}
   procedure SkX509PopFree(st: PSTACK; func: TSkPopFreeFunc); {pf}
-
+  function OPENSSL_sk_num(Stack: PSTACK): Integer;
+  function OPENSSL_sk_value(Stack: PSTACK; Item: Integer): PAnsiChar;
+  function X509_STORE_add_cert(Store: PX509_STORE; Cert: PX509): Integer;
+  function SSL_CTX_get_cert_store(const Ctx: PSSL_CTX): PX509_STORE;
 
   function i2dPrivateKeyBio(b: PBIO; pkey: EVP_PKEY): integer;
 
@@ -868,6 +890,9 @@ var
 function IsSSLloaded: Boolean;
 function InitSSLInterface: Boolean;
 function DestroySSLInterface: Boolean;
+
+function LibNumVersion: String;
+function LibVersionIsGreaterThan1_0_0: Boolean;
 
 var
   _X509Free: TX509Free = nil; {pf}
@@ -885,7 +910,6 @@ uses
 type
 // libssl.dll
   TSslGetError = function(s: PSSL; ret_code: Integer):Integer; cdecl;
-  TOpenSSLversion = function(arg: Integer):PAnsiChar; cdecl;
   TSslLibraryInit = function:Integer; cdecl;
   TSslLoadErrorStrings = procedure; cdecl;
   TSslCtxSetCipherList = function(arg0: PSSL_CTX; str: PAnsiChar):Integer; cdecl;
@@ -897,7 +921,6 @@ type
   TSslMethodTLSV1 = function:PSSL_METHOD; cdecl;
   TSslMethodTLSV11 = function:PSSL_METHOD; cdecl;
   TSslMethodTLSV12 = function:PSSL_METHOD; cdecl;
-  TSslMethodTLSV13 = function:PSSL_METHOD; cdecl;
   TSslMethodV23 = function:PSSL_METHOD; cdecl;
   TSslMethodTLS = function:PSSL_METHOD; cdecl;
   TSslCtxUsePrivateKey = function(ctx: PSSL_CTX; pkey: sslptr):Integer; cdecl;
@@ -912,6 +935,9 @@ type
   TSslCtxSetDefaultPasswdCbUserdata = procedure(ctx: PSSL_CTX; u: SslPtr); cdecl;
   TSslCtxLoadVerifyLocations = function(ctx: PSSL_CTX; const CAfile: PAnsiChar; const CApath: PAnsiChar):Integer; cdecl;
   TSslCtxCtrl = function(ctx: PSSL_CTX; cmd: integer; larg: integer; parg: SslPtr): integer; cdecl;
+  TSSLCtxSetOptions = function(ctx: PSSL_CTX; options: Integer): Integer; cdecl;
+  TSslCtxSetMinProtoVersion = function(ctx: PSSL_CTX; version: integer): integer; cdecl;
+  TSslCtxSetMaxProtoVersion = function(ctx: PSSL_CTX; version: integer): integer; cdecl;
   TSslNew = function(ctx: PSSL_CTX):PSSL; cdecl;
   TSslFree = procedure(ssl: PSSL); cdecl;
   TSslAccept = function(ssl: PSSL):Integer; cdecl;
@@ -933,6 +959,15 @@ type
   TSSLSetTlsextHostName = function(ssl: PSSL; buf: PAnsiChar):Integer; cdecl;
 
 // libeay.dll
+  TOPENSSL_sk_new_null =  function: PSTACK; cdecl;
+  TOPENSSL_sk_num = function(Stack: PSTACK): Integer; cdecl;
+  TOPENSSL_sk_value = function(Stack: PSTACK; Item: Integer): PAnsiChar; cdecl;
+  TOPENSSL_sk_free = procedure(Stack: PSTACK); cdecl;
+  TOPENSSL_sk_insert = function(Stack: PSTACK; Data: PAnsiChar; Index: Integer): Integer; cdecl;
+  TX509_dup = function(X: PX509): PX509; cdecl;
+  TSSL_CTX_get_cert_store =  function(const Ctx: PSSL_CTX): PX509_STORE;cdecl;
+  TX509_STORE_add_cert = function(Store: PX509_STORE; Cert: PX509): Integer; cdecl;
+
   TX509New = function: PX509; cdecl;
   TX509NameOneline = function(a: PX509_NAME; buf: PAnsiChar; size: Integer):PAnsiChar; cdecl;
   TX509GetSubjectName = function(a: PX509):PX509_NAME; cdecl;
@@ -955,7 +990,8 @@ type
   TEvpPkeyAssign = function(pkey: EVP_PKEY; _type: integer; key: Prsa): integer; cdecl;
   TEvpGetDigestByName = function(Name: PAnsiChar): PEVP_MD; cdecl;
   TEVPcleanup = procedure; cdecl;
-  TSSLeayversion = function(t: integer): PAnsiChar; cdecl;
+  TOpenSSLversion = function(t: integer): PAnsiChar; cdecl;
+  TOpenSSLVersionNum = function(): integer; cdecl;
   TErrErrorString = procedure(e: integer; buf: PAnsiChar; len: integer); cdecl;
   TErrGetError = function: integer; cdecl;
   TErrClearError = procedure; cdecl;
@@ -996,7 +1032,6 @@ type
 var
 // libssl.dll
   _SslGetError: TSslGetError = nil;
-  _OpenSSLVersion: TOpenSSLversion = nil;
   _SslLibraryInit: TSslLibraryInit = nil;
   _SslLoadErrorStrings: TSslLoadErrorStrings = nil;
   _SslCtxSetCipherList: TSslCtxSetCipherList = nil;
@@ -1008,7 +1043,6 @@ var
   _SslMethodTLSV1: TSslMethodTLSV1 = nil;
   _SslMethodTLSV11: TSslMethodTLSV11 = nil;
   _SslMethodTLSV12: TSslMethodTLSV12 = nil;
-  _SslMethodTLSV13: TSslMethodTLSV13 = nil;
   _SslMethodV23: TSslMethodV23 = nil;
   _SslMethodTLS: TSslMethodTLS = nil;
   _SslCtxUsePrivateKey: TSslCtxUsePrivateKey = nil;
@@ -1023,6 +1057,9 @@ var
   _SslCtxSetDefaultPasswdCbUserdata: TSslCtxSetDefaultPasswdCbUserdata = nil;
   _SslCtxLoadVerifyLocations: TSslCtxLoadVerifyLocations = nil;
   _SslCtxCtrl: TSslCtxCtrl = nil;
+  _SSLCtxSetOptions: TSSLCtxSetOptions = nil;
+  _SslCtxSetMinProtoVersion: TSslCtxSetMinProtoVersion = nil;
+  _SslCtxSetMaxProtoVersion: TSslCtxSetMaxProtoVersion = nil;
   _SslNew: TSslNew = nil;
   _SslFree: TSslFree = nil;
   _SslAccept: TSslAccept = nil;
@@ -1042,6 +1079,14 @@ var
   _SSLCtrl: TSSLCtrl = nil;
 
 // libeay.dll
+  _OPENSSL_sk_new_null: TOPENSSL_sk_new_null  = nil;
+  _OPENSSL_sk_num: TOPENSSL_sk_num  = nil;
+  _OPENSSL_sk_value: TOPENSSL_sk_value  = nil;
+  _OPENSSL_sk_free: TOPENSSL_sk_free   = nil;
+  _OPENSSL_sk_insert: TOPENSSL_sk_insert = nil;
+  _SSL_CTX_get_cert_store : TSSL_CTX_get_cert_store = nil;
+  _X509_STORE_add_cert : TX509_STORE_add_cert = nil;
+
   _X509New: TX509New = nil;
   _X509NameOneline: TX509NameOneline = nil;
   _X509GetSubjectName: TX509GetSubjectName = nil;
@@ -1063,7 +1108,8 @@ var
   _EvpPkeyAssign: TEvpPkeyAssign = nil;
   _EvpGetDigestByName: TEvpGetDigestByName = nil;
   _EVPcleanup: TEVPcleanup = nil;
-  _SSLeayversion: TSSLeayversion = nil;
+  _OpenSSLversion: TOpenSSLversion = nil;
+  _OpenSSLVersionNum: TOpenSSLVersionNum = Nil;
   _ErrErrorString: TErrErrorString = nil;
   _ErrGetError: TErrGetError = nil;
   _ErrClearError: TErrClearError = nil;
@@ -1124,14 +1170,6 @@ begin
     Result := _SslGetError(s, ret_code)
   else
     Result := SSL_ERROR_SSL;
-end;
-
-function OpenSSLVersion(t: Integer): AnsiString;
-begin
-  if InitSSLInterface and Assigned(_OpenSSLVersion) then
-    Result := _OpenSSLVersion(t)
-  else
-    Result := '';
 end;
 
 function SslLibraryInit:Integer;
@@ -1214,14 +1252,6 @@ function SslMethodTLSV12:PSSL_METHOD;
 begin
   if InitSSLInterface and Assigned(_SslMethodTLSV12) then
     Result := _SslMethodTLSV12
-  else
-    Result := nil;
-end;
-
-function SslMethodTLSV13:PSSL_METHOD;
-begin
-  if InitSSLInterface and Assigned(_SslMethodTLSV13) then
-    Result := _SslMethodTLSV13
   else
     Result := nil;
 end;
@@ -1330,6 +1360,30 @@ function SslCtxCtrl(ctx: PSSL_CTX; cmd: integer; larg: integer; parg: SslPtr): i
 begin
   if InitSSLInterface and Assigned(_SslCtxCtrl) then
     Result := _SslCtxCtrl(ctx, cmd, larg, parg)
+  else
+    Result := 0;
+end;
+
+function SSLCtxSetOptions(ctx: PSSL_CTX; options: Integer): Integer;
+begin
+  if InitSSLInterface and Assigned(_SSLCtxSetOptions) then
+    Result := _SSLCtxSetOptions(ctx, options)
+  else
+    Result := 0;
+end;
+
+function SslCtxSetMinProtoVersion(ctx: PSSL_CTX; version: integer): integer;
+begin
+  if InitSSLInterface and Assigned(_SslCtxSetMinProtoVersion) then
+    Result := _SslCtxSetMinProtoVersion(ctx, version)
+  else
+    Result := 0;
+end;
+
+function SslCtxSetMaxProtoVersion(ctx: PSSL_CTX; version: integer): integer;
+begin
+  if InitSSLInterface and Assigned(_SslCtxSetMaxProtoVersion) then
+    Result := _SslCtxSetMaxProtoVersion(ctx, version)
   else
     Result := 0;
 end;
@@ -1541,12 +1595,25 @@ begin
     _EvpPkeyFree(pk);
 end;
 
-function SSLeayversion(t: integer): Ansistring;
+function OpenSSLversion(t: integer): Ansistring;
 begin
-  if InitSSLInterface and Assigned(_SSLeayversion) then
-    Result := PAnsiChar(_SSLeayversion(t))
+  if InitSSLInterface and Assigned(_OpenSSLversion) then
+    Result := _OpenSSLversion(t)
   else
     Result := '';
+end;
+
+function SSLeayversion(t: integer): Ansistring;
+begin
+  Result := OpenSSLVersion(t);
+end;
+
+function OpenSSLVersionNum: Integer;
+begin
+  if InitSSLInterface and Assigned(_OpenSSLVersionNum) then
+    Result := _OpenSSLVersionNum()
+  else
+    Result := 0;
 end;
 
 procedure ErrErrorString(e: integer; var buf: Ansistring; len: integer);
@@ -1807,6 +1874,38 @@ begin
     Result := nil;
 end;
 
+function OPENSSL_sk_num(Stack: PSTACK): Integer;
+begin
+  if InitSSLInterface and Assigned(_OPENSSL_sk_num) then
+    Result := _OPENSSL_sk_num(Stack)
+  else
+    Result := -1;
+end;
+
+function SSL_CTX_get_cert_store(const Ctx: PSSL_CTX): PX509_STORE;
+begin
+  if InitSSLInterface and Assigned(_SSL_CTX_get_cert_store) then
+    Result := _SSL_CTX_get_cert_store(Ctx)
+  else
+    Result := Nil;
+end;
+
+function OPENSSL_sk_value(Stack: PSTACK; Item: Integer): PAnsiChar;
+begin
+  if InitSSLInterface and Assigned(_OPENSSL_sk_value) then
+    Result := _OPENSSL_sk_value(Stack, Item)
+  else
+    Result := Nil;
+end;
+
+function X509_STORE_add_cert(Store: PX509_STORE; Cert: PX509): Integer;
+begin
+  if InitSSLInterface and Assigned(_X509_STORE_add_cert) then
+    Result := _X509_STORE_add_cert(Store, Cert)
+  else
+    Result := -1;
+end;
+
 procedure SkX509PopFree(st: PSTACK; func:TSkPopFreeFunc); {pf}
 begin
   if InitSSLInterface and Assigned(_SkX509PopFree) then
@@ -1992,8 +2091,7 @@ begin
 {$ELSE}
       {$IfDef ANDROID}
       if (SSLLibPath = '') then     // Try to load from "./assets/internal/" first
-        SSLLibPath := TPath.GetDocumentsPath;
-
+        SSLLibPath := {$IFNDEF FPC}TPath.GetDocumentsPath{$ELSE}'./assets/internal/'{$ENDIF} ;
       Ok := LoadLibraries;
       if (not Ok) then         // Try System Default Lib
       begin
@@ -2019,7 +2117,6 @@ begin
         _SslMethodTLSV1 := GetProcAddr(SSLLibHandle, 'TLSv1_method');
         _SslMethodTLSV11 := GetProcAddr(SSLLibHandle, 'TLSv1_1_method');
         _SslMethodTLSV12 := GetProcAddr(SSLLibHandle, 'TLSv1_2_method');
-        _SslMethodTLSV13 := GetProcAddr(SSLLibHandle, 'TLSv1_3_method');
         _SslMethodV23 := GetProcAddr(SSLLibHandle, 'SSLv23_method');
         _SslMethodTLS := GetProcAddr(SSLLibHandle, 'TLS_method');
         _SslCtxUsePrivateKey := GetProcAddr(SSLLibHandle, 'SSL_CTX_use_PrivateKey');
@@ -2036,6 +2133,9 @@ begin
         _SslCtxSetDefaultPasswdCbUserdata := GetProcAddr(SSLLibHandle, 'SSL_CTX_set_default_passwd_cb_userdata');
         _SslCtxLoadVerifyLocations := GetProcAddr(SSLLibHandle, 'SSL_CTX_load_verify_locations');
         _SslCtxCtrl := GetProcAddr(SSLLibHandle, 'SSL_CTX_ctrl');
+        _SSLCtxSetOptions := GetProcAddr(SSLLibHandle, 'SSL_CTX_set_options');
+        _SslCtxSetMinProtoVersion := GetProcAddr(SSLLibHandle, 'SSL_CTX_set_min_proto_version');
+        _SslCtxSetMaxProtoVersion := GetProcAddr(SSLLibHandle, 'SSL_CTX_set_max_proto_version');
         _SslNew := GetProcAddr(SSLLibHandle, 'SSL_new');
         _SslFree := GetProcAddr(SSLLibHandle, 'SSL_free');
         _SslAccept := GetProcAddr(SSLLibHandle, 'SSL_accept');
@@ -2045,7 +2145,10 @@ begin
         _SslPeek := GetProcAddr(SSLLibHandle, 'SSL_peek');
         _SslWrite := GetProcAddr(SSLLibHandle, 'SSL_write');
         _SslPending := GetProcAddr(SSLLibHandle, 'SSL_pending');
-        _SslGetPeerCertificate := GetProcAddr(SSLLibHandle, 'SSL_get_peer_certificate');
+        _SslGetPeerCertificate := GetProcAddr(SSLLibHandle, 'SSL_get1_peer_certificate');
+        if not Assigned(_SslGetPeerCertificate) then
+          _SslGetPeerCertificate := GetProcAddr(SSLLibHandle, 'SSL_get_peer_certificate');
+         
         _SslGetVersion := GetProcAddr(SSLLibHandle, 'SSL_get_version');
         _SslCtxSetVerify := GetProcAddr(SSLLibHandle, 'SSL_CTX_set_verify');
         _SslGetCurrentCipher := GetProcAddr(SSLLibHandle, 'SSL_get_current_cipher');
@@ -2054,9 +2157,13 @@ begin
         _SslGetVerifyResult := GetProcAddr(SSLLibHandle, 'SSL_get_verify_result');
         _SslCtrl := GetProcAddr(SSLLibHandle, 'SSL_ctrl');
 
-        _OpenSSLVersion := GetProcAddr(SSLUtilHandle, 'OpenSSL_version');
-        if not Assigned(_OpenSSLVersion) then
-          _OpenSSLVersion := GetProcAddr(SSLUtilHandle, 'SSLeay_version');  // Version 1.0.x
+        _OPENSSL_sk_new_null:= GetProcAddr(SSLUtilHandle, 'OPENSSL_sk_new_null');
+        _OPENSSL_sk_num:= GetProcAddr(SSLUtilHandle, 'OPENSSL_sk_num');
+        _OPENSSL_sk_value:= GetProcAddr(SSLUtilHandle, 'OPENSSL_sk_value');
+        _OPENSSL_sk_free:= GetProcAddr(SSLUtilHandle, 'OPENSSL_sk_free');
+        _OPENSSL_sk_insert:= GetProcAddr(SSLUtilHandle, 'OPENSSL_sk_insert');
+        _SSL_CTX_get_cert_store:= GetProcAddr(SSLLibHandle, 'SSL_CTX_get_cert_store');
+        _X509_STORE_add_cert := GetProcAddr(SSLUtilHandle, 'X509_STORE_add_cert');
 
         _X509New := GetProcAddr(SSLUtilHandle, 'X509_new');
         _X509Free := GetProcAddr(SSLUtilHandle, 'X509_free');
@@ -2072,15 +2179,24 @@ begin
         _X509NameAddEntryByTxt := GetProcAddr(SSLUtilHandle, 'X509_NAME_add_entry_by_txt');
         _X509Sign := GetProcAddr(SSLUtilHandle, 'X509_sign');
         _X509GmtimeAdj := GetProcAddr(SSLUtilHandle, 'X509_gmtime_adj');
-        _X509SetNotBefore := GetProcAddr(SSLUtilHandle, 'X509_set_notBefore');
-        _X509SetNotAfter := GetProcAddr(SSLUtilHandle, 'X509_set_notAfter');
+        _X509SetNotBefore := GetProcAddr(SSLUtilHandle, 'X509_set1_notBefore');
+        if not Assigned(_X509SetNotBefore) then
+          _X509SetNotBefore := GetProcAddr(SSLUtilHandle, 'X509_set_notBefore');
+        _X509SetNotAfter := GetProcAddr(SSLUtilHandle, 'X509_set1_notAfter');
+        if not Assigned(_X509SetNotAfter) then
+          _X509SetNotAfter := GetProcAddr(SSLUtilHandle, 'X509_set_notAfter');
         _X509GetSerialNumber := GetProcAddr(SSLUtilHandle, 'X509_get_serialNumber');
         _EvpPkeyNew := GetProcAddr(SSLUtilHandle, 'EVP_PKEY_new');
         _EvpPkeyFree := GetProcAddr(SSLUtilHandle, 'EVP_PKEY_free');
         _EvpPkeyAssign := GetProcAddr(SSLUtilHandle, 'EVP_PKEY_assign');
         _EVPCleanup := GetProcAddr(SSLUtilHandle, 'EVP_cleanup');
         _EvpGetDigestByName := GetProcAddr(SSLUtilHandle, 'EVP_get_digestbyname');
-        _SSLeayversion := GetProcAddr(SSLUtilHandle, 'SSLeay_version');
+        _OpenSSLVersionNum := GetProcAddr(SSLUtilHandle, 'OpenSSL_version_num');
+        if not Assigned(_OpenSSLVersionNum) then
+          _OpenSSLVersionNum := GetProcAddr(SSLUtilHandle, 'SSLeay');  // Version 1.0.x
+        _OpenSSLversion := GetProcAddr(SSLUtilHandle, 'OpenSSL_version');
+        if not Assigned(_OpenSSLVersion) then
+          _OpenSSLVersion := GetProcAddr(SSLUtilHandle, 'SSLeay_version');  // Version 1.0.x
         _ErrErrorString := GetProcAddr(SSLUtilHandle, 'ERR_error_string_n');
         _ErrGetError := GetProcAddr(SSLUtilHandle, 'ERR_get_error');
         _ErrClearError := GetProcAddr(SSLUtilHandle, 'ERR_clear_error');
@@ -2204,7 +2320,6 @@ begin
 
 {$IFNDEF CIL}
     _SslGetError := nil;
-    _SslGetVersion := nil;
     _SslLibraryInit := nil;
     _SslLoadErrorStrings := nil;
     _SslCtxSetCipherList := nil;
@@ -2216,7 +2331,6 @@ begin
     _SslMethodTLSV1 := nil;
     _SslMethodTLSV11 := nil;
     _SslMethodTLSV12 := nil;
-    _SslMethodTLSV13 := nil;
     _SslMethodV23 := nil;
     _SslMethodTLS := nil;
     _SslCtxUsePrivateKey := nil;
@@ -2231,6 +2345,9 @@ begin
     _SslCtxSetDefaultPasswdCbUserdata := nil;
     _SslCtxLoadVerifyLocations := nil;
     _SslCtxCtrl := nil;
+    _SSLCtxSetOptions := nil;
+    _SslCtxSetMinProtoVersion := nil;
+    _SslCtxSetMaxProtoVersion := nil;
     _SslNew := nil;
     _SslFree := nil;
     _SslAccept := nil;
@@ -2248,6 +2365,13 @@ begin
     _SslCipherGetBits := nil;
     _SslGetVerifyResult := nil;
     _SslCtrl := nil;
+    _OPENSSL_sk_new_null := nil;
+    _OPENSSL_sk_num := nil;
+    _OPENSSL_sk_value := nil;
+    _OPENSSL_sk_free := nil;
+    _OPENSSL_sk_insert := nil;
+    _SSL_CTX_get_cert_store := nil;
+    _X509_STORE_add_cert := nil;
 
     _X509New := nil;
     _X509Free := nil;
@@ -2271,7 +2395,8 @@ begin
     _EvpPkeyAssign := nil;
     _EVPCleanup := nil;
     _EvpGetDigestByName := nil;
-    _SSLeayversion := nil;
+    _OpenSSLversion := nil;
+    _OpenSSLVersionNum := Nil;
     _ErrErrorString := nil;
     _ErrGetError := nil;
     _ErrClearError := nil;
@@ -2316,6 +2441,22 @@ end;
 function IsSSLloaded: Boolean;
 begin
   Result := SSLLoaded;
+end;
+
+function LibNumVersion: String;
+begin
+  Result := IntToHex(OpenSSLVersionNum, 9);
+end;
+
+function LibVersionIsGreaterThan1_0_0: Boolean;
+var
+  Major, Minor: Integer;
+  s: String;
+begin
+  s := LibNumVersion;
+  Major := StrToIntDef(copy(s, 1, 2), 0);
+  Minor := StrToIntDef(copy(s, 3, 2), 0);
+  Result :=  (Major > 1) or ((Major = 1) and (Minor > 0));
 end;
 
 initialization

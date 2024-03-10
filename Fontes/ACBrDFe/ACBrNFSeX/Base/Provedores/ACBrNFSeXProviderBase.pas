@@ -51,6 +51,7 @@ type
     FConfigMsgDados: TConfigMsgDados;
     FConfigAssinar: TConfigAssinar;
     FConfigSchemas: TConfigSchemas;
+    FDefaultNameSpaceURI: string;
 
     function GetConfigGeral: TConfigGeral;
     function GetConfigWebServices: TConfigWebServices;
@@ -64,6 +65,7 @@ type
     function GetConsultaLoteRpsResponse: TNFSeConsultaLoteRpsResponse;
     function GetConsultaNFSeporRpsResponse: TNFSeConsultaNFSeporRpsResponse;
     function GetConsultaNFSeResponse: TNFSeConsultaNFSeResponse;
+    function GetConsultaLinkNFSeResponse: TNFSeConsultaLinkNFSeResponse;
     function GetCancelaNFSeResponse: TNFSeCancelaNFSeResponse;
     function GetSubstituiNFSeResponse: TNFSeSubstituiNFSeResponse;
     function GetGerarTokenResponse: TNFSeGerarTokenResponse;
@@ -71,6 +73,7 @@ type
     function GetConsultarEventoResponse: TNFSeConsultarEventoResponse;
     function GetConsultarDFeResponse: TNFSeConsultarDFeResponse;
     function GetConsultarParamResponse: TNFSeConsultarParamResponse;
+    function GetConsultarSeqRpsResponse: TNFSeConsultarSeqRpsResponse;
 
   protected
     FAOwner: TACBrDFe;
@@ -80,6 +83,7 @@ type
     procedure CarregarURL; virtual;
     procedure SetNomeXSD(const aNome: string);
     procedure SetXmlNameSpace(const aNameSpace: string);
+    procedure SetNameSpaceURI(const aMetodo: TMetodo);
     procedure SalvarXmlRps(aNota: TNotaFiscal);
     procedure SalvarXmlNfse(aNota: TNotaFiscal);
     procedure SalvarPDFNfse(const aNome: string; const aPDF: AnsiString);
@@ -88,6 +92,7 @@ type
     function CarregarXmlNfse(aNota: TNotaFiscal; aXml: string): TNotaFiscal;
 
     function GetWebServiceURL(const AMetodo: TMetodo): string;
+    function SetIdSignatureValue(const ConteudoXml, docElement, IdAttr: string): string;  virtual;
 
     function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; virtual; abstract;
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; virtual; abstract;
@@ -136,6 +141,13 @@ type
       Params: TNFSeParamsResponse); virtual; abstract;
     procedure AssinarConsultaNFSe(Response: TNFSeConsultaNFSeResponse); virtual;
     procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); virtual; abstract;
+
+    //metodos para geração e tratamento dos dados do metodo ConsultaLinkNFSe
+    procedure PrepararConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse); virtual; abstract;
+    procedure GerarMsgDadosConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse;
+      Params: TNFSeParamsResponse); virtual; abstract;
+    procedure AssinarConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse); virtual;
+    procedure TratarRetornoConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse); virtual; abstract;
 
     //metodos para geração e tratamento dos dados do metodo CancelaNFSe
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); virtual; abstract;
@@ -186,6 +198,12 @@ type
     procedure AssinarConsultarParam(Response: TNFSeConsultarParamResponse); virtual;
     procedure TratarRetornoConsultarParam(Response: TNFSeConsultarParamResponse); virtual; abstract;
 
+    //método usado para consultar o último rps convertido em nfse
+    procedure PrepararConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); virtual; abstract;
+    procedure GerarMsgDadosConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); virtual; abstract;
+    procedure AssinarConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); virtual;
+    procedure TratarRetornoConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); virtual; abstract;
+
   public
     constructor Create(AOwner: TACBrDFe);
     destructor Destroy; override;
@@ -202,6 +220,7 @@ type
     procedure ConsultaLoteRps; virtual;
     procedure ConsultaNFSeporRps; virtual;
     procedure ConsultaNFSe; virtual;
+    procedure ConsultaLinkNFSe; virtual;
     procedure CancelaNFSe; virtual;
     procedure SubstituiNFSe; virtual;
     procedure GerarToken; virtual;
@@ -209,6 +228,7 @@ type
     procedure ConsultarEvento; virtual;
     procedure ConsultarDFe; virtual;
     procedure ConsultarParam; virtual;
+    procedure ConsultarSeqRps; virtual;
 
     property ConfigGeral: TConfigGeral read GetConfigGeral;
     property ConfigWebServices: TConfigWebServices read GetConfigWebServices;
@@ -222,6 +242,7 @@ type
     property ConsultaLoteRpsResponse: TNFSeConsultaLoteRpsResponse read GetConsultaLoteRpsResponse;
     property ConsultaNFSeporRpsResponse: TNFSeConsultaNFSeporRpsResponse read GetConsultaNFSeporRpsResponse;
     property ConsultaNFSeResponse: TNFSeConsultaNFSeResponse read GetConsultaNFSeResponse;
+    property ConsultaLinkNFSeResponse: TNFSeConsultaLinkNFSeResponse read GetConsultaLinkNFSeResponse;
     property CancelaNFSeResponse: TNFSeCancelaNFSeResponse read GetCancelaNFSeResponse;
     property SubstituiNFSeResponse: TNFSeSubstituiNFSeResponse read GetSubstituiNFSeResponse;
     property GerarTokenResponse: TNFSeGerarTokenResponse read GetGerarTokenResponse;
@@ -229,6 +250,11 @@ type
     property ConsultarEventoResponse: TNFSeConsultarEventoResponse read GetConsultarEventoResponse;
     property ConsultarDFeResponse: TNFSeConsultarDFeResponse read GetConsultarDFeResponse;
     property ConsultarParamResponse: TNFSeConsultarParamResponse read GetConsultarParamResponse;
+    property ConsultarSeqRpsResponse: TNFSeConsultarSeqRpsResponse read GetConsultarSeqRpsResponse;
+
+    function SituacaoLoteRpsToStr(const t: TSituacaoLoteRps): string; virtual;
+    function StrToSituacaoLoteRps(out ok: boolean; const s: string): TSituacaoLoteRps; virtual;
+    function SituacaoLoteRpsToDescr(const t: TSituacaoLoteRps): string; virtual;
 
     function SimNaoToStr(const t: TnfseSimNao): string; virtual;
     function StrToSimNao(out ok: boolean; const s: string): TnfseSimNao; virtual;
@@ -264,15 +290,28 @@ type
     function TributacaoToStr(const t: TTributacao): string; virtual;
     function StrToTributacao(out ok: boolean; const s: string): TTributacao; virtual;
     function TributacaoDescricao(const t: TTributacao): String; virtual;
+
+    function TipoDeducaoToStr(const t: TTipoDeducao): string; virtual;
+    function StrToTipoDeducao(out ok: Boolean; const s: string): TTipoDeducao; virtual;
+
+    function TipoTributacaoRPSToStr(const t: TTipoTributacaoRPS): string; virtual;
+    function StrToTipoTributacaoRPS(out ok: boolean; const s: string): TTipoTributacaoRPS; virtual;
+
+    function CondicaoPagToStr(const t: TnfseCondicaoPagamento): string; virtual;
+    function StrToCondicaoPag(out ok: boolean; const s: string): TnfseCondicaoPagamento; virtual;
+
+    function StatusRPSToStr(const t: TStatusRPS): string; virtual;
+    function StrToStatusRPS(out ok: boolean; const s: string): TStatusRPS; virtual;
   end;
 
 implementation
 
 uses
   IniFiles,
-  pcnAuxiliar,
-  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.FilesIO,
-  ACBrXmlBase, ACBrDFeException,
+  ACBrConsts,
+  ACBrUtil.DateTime,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.FilesIO, ACBrUtil.XMLHTML,
+  ACBrXmlBase, ACBrDFeException, ACBrDFeUtil,
   ACBrNFSeX, ACBrNFSeXConfiguracoes, ACBrNFSeXConsts;
 
 { TACBrNFSeXProvider }
@@ -378,6 +417,11 @@ begin
   Result := TACBrNFSeX(FAOwner).Webservice.ConsultarDFe;
 end;
 
+function TACBrNFSeXProvider.GetConsultaLinkNFSeResponse: TNFSeConsultaLinkNFSeResponse;
+begin
+  Result := TACBrNFSeX(FAOwner).Webservice.ConsultaLinkNFSe;
+end;
+
 function TACBrNFSeXProvider.GetCancelaNFSeResponse: TNFSeCancelaNFSeResponse;
 begin
   Result := TACBrNFSeX(FAOwner).Webservice.CancelaNFSe;
@@ -396,6 +440,11 @@ end;
 function TACBrNFSeXProvider.GetEnviarEventoResponse: TNFSeEnviarEventoResponse;
 begin
   Result := TACBrNFSeX(FAOwner).Webservice.EnviarEvento;
+end;
+
+function TACBrNFSeXProvider.GetConsultarSeqRpsResponse: TNFSeConsultarSeqRpsResponse;
+begin
+  Result := TACBrNFSeX(FAOwner).WebService.ConsultarSeqRps;
 end;
 
 function TACBrNFSeXProvider.GetSchemaPath: string;
@@ -465,6 +514,9 @@ begin
         tmConsultarEvento: Result := ConsultarEvento;
         tmConsultarDFe: Result := ConsultarDFe;
         tmConsultarParam: Result := ConsultarParam;
+        tmConsultarSeqRps: Result := ConsultarSeqRps;
+        tmConsultarLinkNFSe: Result := ConsultarLinkNFSe;
+        tmConsultarNFSePorChave: Result := ConsultarNFSePorChave;
       else
         Result := '';
       end;
@@ -500,11 +552,24 @@ begin
         tmConsultarEvento: Result := ConsultarEvento;
         tmConsultarDFe: Result := ConsultarDFe;
         tmConsultarParam: Result := ConsultarParam;
+        tmConsultarSeqRps: Result := ConsultarSeqRps;
+        tmConsultarLinkNFSe: Result := ConsultarLinkNFSe;
+        tmConsultarNFSePorChave: Result := ConsultarNFSePorChave;
       else
         Result := '';
       end;
     end;
   end;
+end;
+
+function TACBrNFSeXProvider.SetIdSignatureValue(const ConteudoXml, docElement,
+  IdAttr: string): string;
+begin
+  if ConfigAssinar.IdSignatureValue <> '' then
+    Result := ' Id="' + ConfigAssinar.IdSignatureValue +
+              EncontrarURI(ConteudoXml, docElement, IdAttr) + '"'
+  else
+    Result := '';
 end;
 
 function TACBrNFSeXProvider.GetConfigMsgDados: TConfigMsgDados;
@@ -549,6 +614,7 @@ begin
     UseAuthorizationHeader := False;
     NumMaxRpsGerar  := 1;
     NumMaxRpsEnviar := 50;
+    NumMinRpsEnviar := 1;
     ModoEnvio := meAutomatico;
     TabServicosExt := False;
     Identificador := 'Id';
@@ -560,11 +626,53 @@ begin
     CancPreencherSerieNfse := False;
     CancPreencherCodVerificacao := False;
     DetalharServico := False;
+    FormatoArqEnvio := tfaXml;
+    FormatoArqRetorno := tfaXml;
+    FormatoArqEnvioSoap := tfaXml;
+    FormatoArqRetornoSoap := tfaXml;
+    FormatoArqRecibo := tfaXml;
+    FormatoArqNota := tfaXml;
+    FormatoArqEvento := tfaXml;
+
+    with Autenticacao do
+    begin
+      RequerCertificado := True;
+      RequerLogin := False;
+      RequerChaveAcesso := False;
+      RequerChaveAutorizacao := False;
+      RequerFraseSecreta := False;
+    end;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := False;
+      EnviarLoteSincrono := False;
+      EnviarUnitario := False;
+      ConsultarSituacao := False;
+      ConsultarLote := False;
+      ConsultarRps := False;
+      ConsultarNfse := False;
+      ConsultarFaixaNfse := False;
+      ConsultarServicoPrestado := False;
+      ConsultarServicoTomado := False;
+      CancelarNfse := False;
+      SubstituirNfse := False;
+      GerarToken := False;
+      EnviarEvento := False;
+      ConsultarEvento := False;
+      ConsultarDFe := False;
+      ConsultarParam := False;
+      ConsultarSeqRps := False;
+      ConsultarLinkNfse := False;
+      ConsultarNfseChave := False;
+      TestarEnvio := False;
+    end;
 
     with TACBrNFSeX(FAOwner) do
     begin
       Provedor := Configuracoes.Geral.Provedor;
       Versao := Configuracoes.Geral.Versao;
+      xMunicipio := Configuracoes.Geral.xMunicipio;
 
       if Configuracoes.WebServices.AmbienteCodigo = 1 then
         Ambiente := taProducao
@@ -572,6 +680,7 @@ begin
         Ambiente := taHomologacao;
 
       CodIBGE := IntToStr(Configuracoes.Geral.CodigoMunicipio);
+      IniTabServicos := Configuracoes.Arquivos.IniTabServicos;
     end;
   end;
 
@@ -638,6 +747,14 @@ begin
       xmlns := '';
       InfElemento := '';
       DocElemento := 'ConsultarNfseEnvio';
+    end;
+
+    // Usado para geração da Consulta da NFSe Por Chave
+    with ConsultarNFSePorChave do
+    begin
+      xmlns := '';
+      InfElemento := '';
+      DocElemento := '';
     end;
 
     // Usado para geração da Consulta da NFSe Por Faixa
@@ -743,6 +860,20 @@ begin
       InfElemento := '';
       DocElemento := '';
     end;
+
+    with ConsultarSeqRps do
+    begin
+      xmlns := '';
+      InfElemento := '';
+      DocElemento := '';
+    end;
+
+    with ConsultarLinkNFSe do
+    begin
+      xmlns := '';
+      InfElemento := '';
+      DocElemento := '';
+    end;
   end;
 
   // Inicializa os parâmetros de configuração: Assinar
@@ -754,6 +885,7 @@ begin
     ConsultarLote := False;
     ConsultarNFSeRps := False;
     ConsultarNFSe := False;
+    ConsultarNFSePorChave := False;
     ConsultarNFSePorFaixa := False;
     ConsultarNFSeServicoPrestado := False;
     ConsultarNFSeServicoTomado := False;
@@ -769,10 +901,14 @@ begin
     ConsultarEvento := False;
     ConsultarDFe := False;
     ConsultarParam := False;
+    ConsultarSeqRps := False;
+    ConsultarLinkNFSe := False;
 
     IncluirURI := True;
 
     AssinaturaAdicional := False;
+    Assinaturas := TACBrNFSeX(FAOwner).Configuracoes.Geral.Assinaturas;
+	IdSignatureValue := '';
   end;
 
   SetNomeXSD('nfse.xsd');
@@ -785,21 +921,14 @@ end;
 procedure TACBrNFSeXProvider.CarregarURL;
 var
   IniParams: TMemIniFile;
-  Sessao, Msg: String;
+  Sessao: String;
 begin
-  Msg := 'Arquivos:' + #13 +
-         'ACBrNFSeXServicos.ini e ou ACBrNFSeXServicos.res desatualizados' + #13 +
-         'Favor atualizar.';
-
   IniParams := TMemIniFile.Create('');
 
   with TACBrNFSeX(FAOwner) do
   begin
     IniParams.SetStrings(Configuracoes.WebServices.Params);
   end;
-
-  if IniParams.ReadString('3130309', 'Params1', '') <> '' then
-    raise EACBrDFeException.Create(Msg);
 
   try
     with TACBrNFSeX(FAOwner) do
@@ -834,13 +963,15 @@ begin
         ConfigWebServices.LoadUrlHomologacao(IniParams, Sessao);
       end;
 
-      if ConfigWebServices.Producao.LinkURL = '' then
+      if (ConfigWebServices.Producao.LinkURL = '') or
+         (Configuracoes.Geral.Provedor = proPadraoNacional) then
       begin
         Sessao := Configuracoes.Geral.xProvedor;
         ConfigWebServices.LoadlinkUrlProducao(IniParams, Sessao);
       end;
 
-      if ConfigWebServices.Homologacao.LinkURL = '' then
+      if (ConfigWebServices.Homologacao.LinkURL = '') or
+         (Configuracoes.Geral.Provedor = proPadraoNacional) then
       begin
         Sessao := Configuracoes.Geral.xProvedor;
         ConfigWebServices.LoadLinkUrlHomologacao(IniParams, Sessao);
@@ -908,23 +1039,44 @@ begin
 end;
 
 procedure TACBrNFSeXProvider.SalvarXmlRps(aNota: TNotaFiscal);
+var
+  Extensao: string;
+  ConteudoEhXml: Boolean;
 begin
   if FAOwner.Configuracoes.Arquivos.Salvar then
   begin
-    if NaoEstaVazio(aNota.NomeArqRps) then
-      TACBrNFSeX(FAOwner).Gravar(aNota.NomeArqRps, aNota.XmlRps)
+    case ConfigGeral.FormatoArqRecibo of
+      tfaJson:
+        Extensao := '.json';
+      tfaTxt:
+        Extensao := '.txt';
     else
-    begin
-      aNota.NomeArqRps := aNota.CalcularNomeArquivoCompleto(aNota.NomeArqRps, '');
-      TACBrNFSeX(FAOwner).Gravar(aNota.NomeArqRps, aNota.XmlRps);
+      Extensao := '.xml';
     end;
+
+    if ConfigGeral.FormatoArqRecibo <> tfaXml then
+    begin
+      aNota.XmlRps := RemoverDeclaracaoXML(aNota.XmlRps);
+      ConteudoEhXml := False;
+    end
+    else
+      ConteudoEhXml := True;
+
+    if EstaVazio(aNota.NomeArqRps) then
+      aNota.NomeArqRps := aNota.CalcularNomeArquivoCompleto(aNota.NomeArqRps, '');
+
+    if not ConteudoEhXml then
+      aNota.NomeArqRps := StringReplace(aNota.NomeArqRps, '.xml', Extensao, [rfReplaceAll]);
+
+    TACBrNFSeX(FAOwner).Gravar(aNota.NomeArqRps, aNota.XmlRps, '', ConteudoEhXml);
   end;
 end;
 
 procedure TACBrNFSeXProvider.SalvarXmlNfse(aNota: TNotaFiscal);
 var
-  aPath, aNomeArq: string;
+  aPath, aNomeArq, Extensao: string;
   aConfig: TConfiguracoesNFSe;
+  ConteudoEhXml: Boolean;
 begin
   aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
 
@@ -936,7 +1088,29 @@ begin
   aNota.Confirmada := True;
 
   if FAOwner.Configuracoes.Arquivos.Salvar then
-    TACBrNFSeX(FAOwner).Gravar(aNota.NomeArq, aNota.XmlNfse);
+  begin
+    case ConfigGeral.FormatoArqNota of
+      tfaJson:
+        Extensao := '.json';
+      tfaTxt:
+        Extensao := '.txt';
+    else
+      Extensao := '.xml';
+    end;
+
+    if ConfigGeral.FormatoArqNota <> tfaXml then
+    begin
+      aNota.XmlNfse := RemoverDeclaracaoXML(aNota.XmlNfse);
+      ConteudoEhXml := False;
+    end
+    else
+      ConteudoEhXml := True;
+
+    if not ConteudoEhXml then
+      aNota.NomeArq := StringReplace(aNota.NomeArq, '.xml', Extensao, [rfReplaceAll]);
+
+    TACBrNFSeX(FAOwner).Gravar(aNota.NomeArq, aNota.XmlNfse, '', ConteudoEhXml);
+  end;
 end;
 
 procedure TACBrNFSeXProvider.SalvarPDFNfse(const aNome: string;
@@ -952,15 +1126,16 @@ begin
 
   aNomeArq := PathWithDelim(aPath) + aNome + '-nfse.pdf';
 
-  if FAOwner.Configuracoes.Arquivos.Salvar then
-    WriteToTXT(aNomeArq, aPDF, False, False);
+  WriteToTXT(aNomeArq, aPDF, False, False);
 end;
 
 procedure TACBrNFSeXProvider.SalvarXmlEvento(const aNome: string;
   const  aEvento: AnsiString);
 var
-  aPath, aNomeArq: string;
+  aPath, aNomeArq, Extensao: string;
   aConfig: TConfiguracoesNFSe;
+  ConteudoEhXml: Boolean;
+  ArqEvento: AnsiString;
 begin
   aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
 
@@ -970,7 +1145,65 @@ begin
   aNomeArq := PathWithDelim(aPath) + aNome + '.xml';
 
   if FAOwner.Configuracoes.Arquivos.Salvar then
-    WriteToTXT(aNomeArq, aEvento, False, False);
+  begin
+    case ConfigGeral.FormatoArqEvento of
+      tfaJson:
+        Extensao := '.json';
+      tfaTxt:
+        Extensao := '.txt';
+    else
+      Extensao := '.xml';
+    end;
+
+    if ConfigGeral.FormatoArqEvento <> tfaXml then
+    begin
+      ArqEvento := RemoverDeclaracaoXML(aEvento);
+      ConteudoEhXml := False;
+    end
+    else
+    begin
+      ArqEvento := aEvento;
+      ConteudoEhXml := True;
+    end;
+
+    if not ConteudoEhXml then
+      aNomeArq := StringReplace(aNomeArq, '.xml', Extensao, [rfReplaceAll]);
+
+    WriteToTXT(aNomeArq, ArqEvento, False, False);
+  end;
+end;
+
+procedure TACBrNFSeXProvider.SetNameSpaceURI(const aMetodo: TMetodo);
+var
+  xNameSpaceURI: String;
+begin
+  case aMetodo of
+    tmRecepcionar: xNameSpaceURI := ConfigMsgDados.LoteRps.xmlns;
+    tmRecepcionarSincrono: xNameSpaceURI := ConfigMsgDados.LoteRpsSincrono.xmlns;
+    tmConsultarSituacao: xNameSpaceURI := ConfigMsgDados.ConsultarSituacao.xmlns;
+    tmConsultarLote: xNameSpaceURI := ConfigMsgDados.ConsultarLote.xmlns;
+    tmConsultarNFSePorRps: xNameSpaceURI := ConfigMsgDados.ConsultarNFSeRps.xmlns;
+    tmConsultarNFSe: xNameSpaceURI := ConfigMsgDados.ConsultarNFSe.xmlns;
+    tmConsultarNFSePorChave: xNameSpaceURI := ConfigMsgDados.ConsultarNFSePorChave.xmlns;
+    tmConsultarNFSePorFaixa: xNameSpaceURI := ConfigMsgDados.ConsultarNFSePorFaixa.xmlns;
+    tmConsultarNFSeServicoPrestado: xNameSpaceURI := ConfigMsgDados.ConsultarNFSeServicoPrestado.xmlns;
+    tmConsultarNFSeServicoTomado: xNameSpaceURI := ConfigMsgDados.ConsultarNFSeServicoTomado.xmlns;
+    tmCancelarNFSe: xNameSpaceURI := ConfigMsgDados.CancelarNFSe.xmlns;
+    tmGerar: xNameSpaceURI := ConfigMsgDados.GerarNFSe.xmlns;
+    tmSubstituirNFSe: xNameSpaceURI := ConfigMsgDados.SubstituirNFSe.xmlns;
+    tmAbrirSessao: xNameSpaceURI := ConfigMsgDados.AbrirSessao.xmlns;
+    tmFecharSessao: xNameSpaceURI := ConfigMsgDados.FecharSessao.xmlns;
+    tmGerarToken: xNameSpaceURI := ConfigMsgDados.GerarToken.xmlns;
+    tmEnviarEvento: xNameSpaceURI := ConfigMsgDados.EnviarEvento.xmlns;
+    tmConsultarEvento: xNameSpaceURI := ConfigMsgDados.ConsultarEvento.xmlns;
+    tmConsultarDFe: xNameSpaceURI := ConfigMsgDados.ConsultarDFe.xmlns;
+    tmConsultarParam: xNameSpaceURI := ConfigMsgDados.ConsultarParam.xmlns;
+    tmConsultarSeqRps: xNameSpaceURI := ConfigMsgDados.ConsultarSeqRps.xmlns;
+    tmConsultarLinkNFSe: xNameSpaceURI := ConfigMsgDados.ConsultarLinkNFSe.xmlns;
+  else
+    xNameSpaceURI := FDefaultNameSpaceURI;
+  end;
+  TACBrNFSeX(FAOwner).SSL.NameSpaceURI := xNameSpaceURI
 end;
 
 procedure TACBrNFSeXProvider.SetNomeXSD(const aNome: string);
@@ -982,6 +1215,7 @@ begin
     ConsultarLote := aNome;
     ConsultarNFSeRps := aNome;
     ConsultarNFSe := aNome;
+    ConsultarNFSePorChave := aNome;
     ConsultarNFSePorFaixa := aNome;
     ConsultarNFSeServicoPrestado := aNome;
     ConsultarNFSeServicoTomado := aNome;
@@ -997,6 +1231,8 @@ begin
     ConsultarEvento := aNome;
     ConsultarDFe := aNome;
     ConsultarParam := aNome;
+    ConsultarSeqRps := aNome;
+    ConsultarLinkNFSe := aNome;
 
     Validar := True;
   end;
@@ -1013,6 +1249,7 @@ begin
     ConsultarLote.xmlns := aNameSpace;
     ConsultarNFSeRps.xmlns := aNameSpace;
     ConsultarNFSe.xmlns := aNameSpace;
+    ConsultarNFSePorChave.xmlns := aNameSpace;
     ConsultarNFSePorFaixa.xmlns := aNameSpace;
     ConsultarNFSeServicoPrestado.xmlns := aNameSpace;
     ConsultarNFSeServicoTomado.xmlns := aNameSpace;
@@ -1026,9 +1263,36 @@ begin
     ConsultarEvento.xmlns := aNameSpace;
     ConsultarDFe.xmlns := aNameSpace;
     ConsultarParam.xmlns := aNameSpace;
+    ConsultarSeqRps.xmlns := aNameSpace;
+    ConsultarLinkNFSe.xmlns := aNameSpace;
   end;
 
-  TACBrNFSeX(FAOwner).SSL.NameSpaceURI := aNameSpace;
+  FDefaultNameSpaceURI := aNameSpace;
+end;
+
+function TACBrNFSeXProvider.SituacaoLoteRpsToStr(const t: TSituacaoLoteRps): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['1', '2', '3', '4'],
+                           [sLoteNaoRecibo, sLoteNaoProcessado,
+                            sLoteProcessadoErro, sLoteProcessadoSucesso]);
+end;
+
+function TACBrNFSeXProvider.StrToSituacaoLoteRps(out ok: boolean; const s: string): TSituacaoLoteRps;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['1', '2', '3', '4'],
+                           [sLoteNaoRecibo, sLoteNaoProcessado,
+                            sLoteProcessadoErro, sLoteProcessadoSucesso]);
+end;
+
+function TACBrNFSeXProvider.SituacaoLoteRpsToDescr(const t: TSituacaoLoteRps): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['Lote Não Recebido', 'Lote Não Processado',
+                            'Lote Processado com Erro', 'Lote Processado com Sucesso'],
+                           [sLoteNaoRecibo, sLoteNaoProcessado,
+                            sLoteProcessadoErro, sLoteProcessadoSucesso]);
 end;
 
 function TACBrNFSeXProvider.SimNaoToStr(const t: TnfseSimNao): string;
@@ -1067,8 +1331,8 @@ function TACBrNFSeXProvider.SituacaoTributariaDescricao(
 begin
   case t of
     stRetencao     : Result := '1 - Sim' ;
-    stNormal       : Result := '2 - Não' ;
-    stSubstituicao : Result := '3 - Substituição' ;
+    stNormal       : Result := '2 - Nao' ;
+    stSubstituicao : Result := '3 - Substituicao' ;
     stNenhum       : Result := '' ;
   else
     Result := '';
@@ -1115,23 +1379,25 @@ begin
       else
         AWriter.Ambiente := taHomologacao;
 
-      AWriter.CodMunEmit     := Configuracoes.Geral.CodigoMunicipio;
+      AWriter.CodMunEmit := Configuracoes.Geral.CodigoMunicipio;
       AWriter.CNPJPrefeitura := Configuracoes.Geral.CNPJPrefeitura;
 
-      AWriter.Usuario      := Configuracoes.Geral.Emitente.WSUser;
-      AWriter.Senha        := Configuracoes.Geral.Emitente.WSSenha;
-      AWriter.ChaveAcesso  := Configuracoes.Geral.Emitente.WSChaveAcesso;
+      AWriter.Usuario := Configuracoes.Geral.Emitente.WSUser;
+      AWriter.Senha := Configuracoes.Geral.Emitente.WSSenha;
+      AWriter.ChaveAcesso := Configuracoes.Geral.Emitente.WSChaveAcesso;
       AWriter.ChaveAutoriz := Configuracoes.Geral.Emitente.WSChaveAutoriz;
       AWriter.FraseSecreta := Configuracoes.Geral.Emitente.WSFraseSecr;
-      AWriter.Provedor     := Configuracoes.Geral.Provedor;
-      AWriter.VersaoNFSe   := Configuracoes.Geral.Versao;
+      AWriter.Provedor := Configuracoes.Geral.Provedor;
+      AWriter.VersaoNFSe := Configuracoes.Geral.Versao;
+      AWriter.IniParams := Configuracoes.Geral.PIniParams;
+      AWriter.FormatoDiscriminacao := Configuracoes.Geral.FormatoDiscriminacao;
 
-      pcnAuxiliar.TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
+      TimeZoneConf.Assign(Configuracoes.WebServices.TimeZoneConf);
 
-      AWriter.Opcoes.FormatoAlerta  := Configuracoes.Geral.FormatoAlerta;
+      AWriter.Opcoes.FormatoAlerta := Configuracoes.Geral.FormatoAlerta;
       AWriter.Opcoes.RetirarAcentos := Configuracoes.Geral.RetirarAcentos;
       AWriter.Opcoes.RetirarEspacos := Configuracoes.Geral.RetirarEspacos;
-      AWriter.Opcoes.IdentarXML     := Configuracoes.Geral.IdentarXML;
+      AWriter.Opcoes.IdentarXML := Configuracoes.Geral.IdentarXML;
     end;
 
     Result := AWriter.GerarXml;
@@ -1164,6 +1430,7 @@ begin
         AReader.Ambiente := taHomologacao;
 
       AReader.Provedor := Configuracoes.Geral.Provedor;
+      AReader.IniParams := Configuracoes.Geral.PIniParams;
     end;
 
     Result := AReader.LerXml;
@@ -1431,6 +1698,79 @@ begin
                             ttTributavelFixo, ttTributavelSN, ttMEI]);
 end;
 
+function TACBrNFSeXProvider.TipoDeducaoToStr(const t: TTipoDeducao): string;
+begin
+  result := EnumeradoToStr(t,
+                           ['1', '2', '3', '4', '5', '6', '7'],
+                 [tdNenhum, tdMateriais, tdPercentual, tdValor, tdPercMateriais,
+                  tdVeiculacao, tdIntermediacao]);
+end;
+
+function TACBrNFSeXProvider.StrToTipoDeducao(out ok: Boolean;
+  const s: string): TTipoDeducao;
+begin
+  result := StrToEnumerado(ok, s,
+                           ['1', '2', '3', '4', '5', '6', '7'],
+                 [tdNenhum, tdMateriais, tdPercentual, tdValor, tdPercMateriais,
+                  tdVeiculacao, tdIntermediacao]);
+end;
+
+function TACBrNFSeXProvider.TipoTributacaoRPSToStr(const t: TTipoTributacaoRPS): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['T', 'F', 'A', 'B', 'M', 'N', 'X', 'V', 'P'],
+                           [ttTribnoMun, ttTribforaMun,
+                            ttTribnoMunIsento, ttTribforaMunIsento,
+                            ttTribnoMunImune, ttTribforaMunImune,
+                            ttTribnoMunSuspensa, ttTribforaMunSuspensa,
+                            ttExpServicos]);
+end;
+
+function TACBrNFSeXProvider.StrToTipoTributacaoRPS(out ok: Boolean;
+  const s: string): TTipoTributacaoRPS;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['T', 'F', 'A', 'B', 'M', 'N', 'X', 'V', 'P'],
+                           [ttTribnoMun, ttTribforaMun,
+                            ttTribnoMunIsento, ttTribforaMunIsento,
+                            ttTribnoMunImune, ttTribforaMunImune,
+                            ttTribnoMunSuspensa, ttTribforaMunSuspensa,
+                            ttExpServicos]);
+end;
+
+function TACBrNFSeXProvider.CondicaoPagToStr(
+  const t: TnfseCondicaoPagamento): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['1', '2', '3', '4', '5'],
+                           [cpAVista, cpNaApresentacao, cpAPrazo, cpCartaoDebito,
+                            cpCartaoCredito]);
+end;
+
+function TACBrNFSeXProvider.StrToCondicaoPag(out ok: boolean;
+  const s: string): TnfseCondicaoPagamento;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['1', '2', '3', '4', '5'],
+                           [cpAVista, cpNaApresentacao, cpAPrazo, cpCartaoDebito,
+                            cpCartaoCredito]);
+end;
+
+function TACBrNFSeXProvider.StatusRPSToStr(const t: TStatusRPS): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['1', '2'],
+                           [srNormal, srCancelado]);
+end;
+
+function TACBrNFSeXProvider.StrToStatusRPS(out ok: boolean;
+  const s: string): TStatusRPS;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['1', '2'],
+                           [srNormal, srCancelado]);
+end;
+
 function TACBrNFSeXProvider.PrepararRpsParaLote(const aXml: string): string;
 var
   i: Integer;
@@ -1453,6 +1793,8 @@ var
 begin
   if not ConfigSchemas.Validar Then Exit;
 
+  SetNameSpaceURI(aMetodo);
+
   Erros := '';
   Schema := '';
 
@@ -1463,6 +1805,7 @@ begin
     tmConsultarNFSePorRps: Schema := ConfigSchemas.ConsultarNFSeRps;
 
     tmConsultarNFSe: Schema := ConfigSchemas.ConsultarNFSe;
+    tmConsultarNFSePorChave: Schema := ConfigSchemas.ConsultarNFSePorChave;
     tmConsultarNFSePorFaixa: Schema := ConfigSchemas.ConsultarNFSePorFaixa;
     tmConsultarNFSeServicoPrestado: Schema := ConfigSchemas.ConsultarNFSeServicoPrestado;
     tmConsultarNFSeServicoTomado: Schema := ConfigSchemas.ConsultarNFSeServicoTomado;
@@ -1478,6 +1821,8 @@ begin
     tmConsultarEvento: Schema := ConfigSchemas.ConsultarEvento;
     tmConsultarDFe: Schema := ConfigSchemas.ConsultarDFe;
     tmConsultarParam: Schema := ConfigSchemas.ConsultarParam;
+    tmConsultarSeqRps: Schema := ConfigSchemas.ConsultarSeqRps;
+    tmConsultarLinkNFSe: Schema := ConfigSchemas.ConsultarLinkNFSe;
   else
     // tmTeste
     Schema := ConfigSchemas.Teste;
@@ -1508,6 +1853,10 @@ end;
 
 procedure TACBrNFSeXProvider.GeraLote;
 begin
+  GerarResponse.Erros.Clear;
+  GerarResponse.Alertas.Clear;
+  GerarResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeRecepcao);
 
   if GerarResponse.ModoEnvio = meAutomatico then
@@ -1533,9 +1882,9 @@ begin
   end;
 
   case GerarResponse.ModoEnvio of
-    meLoteAssincrono,
-    meTeste: ValidarSchema(GerarResponse, tmRecepcionar);
-    meLoteSincrono: ValidarSchema(GerarResponse, tmRecepcionarSincrono);
+    meLoteAssincrono: ValidarSchema(EmiteResponse, tmRecepcionar);
+    meLoteSincrono: ValidarSchema(EmiteResponse, tmRecepcionarSincrono);
+    meTeste: ValidarSchema(EmiteResponse, tmTeste);
   else
     // meUnitario
     ValidarSchema(GerarResponse, tmGerar);
@@ -1547,7 +1896,7 @@ begin
     Exit;
   end;
 
-  GerarResponse.NomeArq := GerarResponse.Lote + '-env-lot.xml';
+  GerarResponse.NomeArq := GerarResponse.NumeroLote + '-env-lot.xml';
 
   FAOwner.Gravar(GerarResponse.NomeArq, GerarResponse.ArquivoEnvio);
 
@@ -1562,10 +1911,16 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  EmiteResponse.Erros.Clear;
+  EmiteResponse.Alertas.Clear;
+  EmiteResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeRecepcao);
 
   if EmiteResponse.ModoEnvio = meAutomatico then
     EmiteResponse.ModoEnvio := ConfigGeral.ModoEnvio;
+
+  EmiteResponse.MinRps := ConfigGeral.NumMinRpsEnviar;
 
   if EmiteResponse.ModoEnvio <> meUnitario then
     EmiteResponse.MaxRps := ConfigGeral.NumMaxRpsEnviar
@@ -1611,29 +1966,30 @@ begin
         meLoteAssincrono:
           begin
             AService := CriarServiceClient(tmRecepcionar);
-            AService.Prefixo := EmiteResponse.Lote;
+            AService.Prefixo := EmiteResponse.NumeroLote;
             EmiteResponse.ArquivoRetorno := AService.Recepcionar(ConfigMsgDados.DadosCabecalho, EmiteResponse.ArquivoEnvio);
           end;
 
         meTeste:
           begin
-            AService := CriarServiceClient(tmRecepcionar);
-            AService.Prefixo := EmiteResponse.Lote;
+            AService := CriarServiceClient(tmTeste);
+            AService.Prefixo := EmiteResponse.NumeroLote;
             EmiteResponse.ArquivoRetorno := AService.TesteEnvio(ConfigMsgDados.DadosCabecalho, EmiteResponse.ArquivoEnvio);
           end;
 
         meLoteSincrono:
           begin
             AService := CriarServiceClient(tmRecepcionarSincrono);
-            AService.Prefixo := EmiteResponse.Lote;
+            AService.Prefixo := EmiteResponse.NumeroLote;
             EmiteResponse.ArquivoRetorno := AService.RecepcionarSincrono(ConfigMsgDados.DadosCabecalho, EmiteResponse.ArquivoEnvio);
           end;
       else
         // meUnitario
         begin
           AService := CriarServiceClient(tmGerar);
-          AService.Prefixo := EmiteResponse.Lote;
+          AService.Prefixo := EmiteResponse.NumeroLote;
           EmiteResponse.ArquivoRetorno := AService.GerarNFSe(ConfigMsgDados.DadosCabecalho, EmiteResponse.ArquivoEnvio);
+          EmiteResponse.HtmlRetorno    := AService.HtmlRetorno;
         end;
       end;
 
@@ -1674,6 +2030,10 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultaSituacaoResponse.Erros.Clear;
+  ConsultaSituacaoResponse.Alertas.Clear;
+  ConsultaSituacaoResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeConsultaSituacao);
 
   PrepararConsultaSituacao(ConsultaSituacaoResponse);
@@ -1745,6 +2105,10 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultaLoteRpsResponse.Erros.Clear;
+  ConsultaLoteRpsResponse.Alertas.Clear;
+  ConsultaLoteRpsResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeConsulta);
 
   PrepararConsultaLoteRps(ConsultaLoteRpsResponse);
@@ -1815,6 +2179,10 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultaNFSeporRpsResponse.Erros.Clear;
+  ConsultaNFSeporRpsResponse.Alertas.Clear;
+  ConsultaNFSeporRpsResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeConsulta);
 
   PrepararConsultaNFSeporRps(ConsultaNFSeporRpsResponse);
@@ -1845,7 +2213,7 @@ begin
       TACBrNFSeX(FAOwner).SetStatus(stNFSeEnvioWebService);
 
       AService := CriarServiceClient(tmConsultarNFSePorRps);
-      AService.Prefixo := ConsultaNFSeporRpsResponse.NumRPS + ConsultaNFSeporRpsResponse.Serie;
+      AService.Prefixo := ConsultaNFSeporRpsResponse.NumeroRps + ConsultaNFSeporRpsResponse.SerieRps;
       ConsultaNFSeporRpsResponse.ArquivoRetorno := AService.ConsultarNFSePorRps(ConfigMsgDados.DadosCabecalho,
                                                                             ConsultaNFSeporRpsResponse.ArquivoEnvio);
 
@@ -1886,6 +2254,10 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultarEventoResponse.Erros.Clear;
+  ConsultarEventoResponse.Alertas.Clear;
+  ConsultarEventoResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeConsultarEvento);
 
   PrepararConsultarEvento(ConsultarEventoResponse);
@@ -1957,6 +2329,10 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultarParamResponse.Erros.Clear;
+  ConsultarParamResponse.Alertas.Clear;
+  ConsultarParamResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeConsultarParam);
 
   PrepararConsultarParam(ConsultarParamResponse);
@@ -1986,7 +2362,7 @@ begin
     try
       TACBrNFSeX(FAOwner).SetStatus(stNFSeEnvioWebService);
       AService := CriarServiceClient(tmConsultarParam);
-      AService.Prefixo := IntToStr(ConsultarParamResponse.CodigoMunic) +
+      AService.Prefixo := IntToStr(ConsultarParamResponse.CodigoMunicipio) +
         '-' + ParamMunicToStr(ConsultarParamResponse.tpParamMunic);
 
       ConsultarParamResponse.ArquivoRetorno := AService.ConsultarParam(ConfigMsgDados.DadosCabecalho,
@@ -2029,6 +2405,10 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultarDFeResponse.Erros.Clear;
+  ConsultarDFeResponse.Alertas.Clear;
+  ConsultarDFeResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeConsultarDFe);
 
   PrepararConsultarDFe(ConsultarDFeResponse);
@@ -2101,6 +2481,10 @@ var
   AErro: TNFSeEventoCollectionItem;
   Prefixo: string;
 begin
+  ConsultaNFSeResponse.Erros.Clear;
+  ConsultaNFSeResponse.Alertas.Clear;
+  ConsultaNFSeResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeConsulta);
 
   PrepararConsultaNFSe(ConsultaNFSeResponse);
@@ -2143,25 +2527,41 @@ begin
 
       case ConsultaNFSeResponse.Metodo of
         tmConsultarNFSePorFaixa:
-          ConsultaNFSeResponse.ArquivoRetorno := AService.ConsultarNFSePorFaixa(ConfigMsgDados.DadosCabecalho,
-                                                                            ConsultaNFSeResponse.ArquivoEnvio);
-
+          begin
+            ConsultaNFSeResponse.InfConsultaNFSe.tpConsulta := tcPorFaixa;
+            ConsultaNFSeResponse.ArquivoRetorno := AService.ConsultarNFSePorFaixa(ConfigMsgDados.DadosCabecalho,
+                                                                              ConsultaNFSeResponse.ArquivoEnvio);
+          end;
         tmConsultarNFSeServicoPrestado:
-          ConsultaNFSeResponse.ArquivoRetorno := AService.ConsultarNFSeServicoPrestado(ConfigMsgDados.DadosCabecalho,
-                                                                                   ConsultaNFSeResponse.ArquivoEnvio);
-
+          begin
+            ConsultaNFSeResponse.InfConsultaNFSe.tpConsulta := tcServicoPrestado;
+            ConsultaNFSeResponse.ArquivoRetorno := AService.ConsultarNFSeServicoPrestado(ConfigMsgDados.DadosCabecalho,
+                                                                                     ConsultaNFSeResponse.ArquivoEnvio);
+          end;
         tmConsultarNFSeServicoTomado:
-          ConsultaNFSeResponse.ArquivoRetorno := AService.ConsultarNFSeServicoTomado(ConfigMsgDados.DadosCabecalho,
-                                                                                 ConsultaNFSeResponse.ArquivoEnvio);
-
+          begin
+            ConsultaNFSeResponse.InfConsultaNFSe.tpConsulta := tcServicoTomado;
+            ConsultaNFSeResponse.ArquivoRetorno := AService.ConsultarNFSeServicoTomado(ConfigMsgDados.DadosCabecalho,
+                                                                                   ConsultaNFSeResponse.ArquivoEnvio);
+          end;
+        tmConsultarNFSePorChave:
+          begin
+            ConsultaNFSeResponse.InfConsultaNFSe.tpConsulta := tcPorChave;
+            ConsultaNFSeResponse.ArquivoRetorno := AService.ConsultarNFSePorChave(ConfigMsgDados.DadosCabecalho,
+                                                                                  ConsultaNFSeResponse.ArquivoEnvio);
+          end;
       else
-        ConsultaNFSeResponse.ArquivoRetorno := AService.ConsultarNFSe(ConfigMsgDados.DadosCabecalho,
-                                                                  ConsultaNFSeResponse.ArquivoEnvio);
+        begin
+          ConsultaNFSeResponse.InfConsultaNFSe.tpConsulta := tcPorNumero;
+          ConsultaNFSeResponse.ArquivoRetorno := AService.ConsultarNFSe(ConfigMsgDados.DadosCabecalho,
+                                                                    ConsultaNFSeResponse.ArquivoEnvio);
+        end;
       end;
 
       ConsultaNFSeResponse.Sucesso := True;
       ConsultaNFSeResponse.EnvelopeEnvio := AService.Envio;
       ConsultaNFSeResponse.EnvelopeRetorno := AService.Retorno;
+      ConsultaNFSeResponse.HtmlRetorno := AService.HtmlRetorno;
     except
       on E:Exception do
       begin
@@ -2191,12 +2591,90 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
 end;
 
+procedure TACBrNFSeXProvider.ConsultaLinkNFSe;
+var
+  AService: TACBrNFSeXWebservice;
+  AErro: TNFSeEventoCollectionItem;
+begin
+  ConsultaLinkNFSeResponse.Erros.Clear;
+  ConsultaLinkNFSeResponse.Alertas.Clear;
+  ConsultaLinkNFSeResponse.Resumos.Clear;
+
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeConsulta);
+
+  PrepararConsultaLinkNFSe(ConsultaLinkNFSeResponse);
+  if (ConsultaLinkNFSeResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  AssinarConsultaLinkNFSe(ConsultaLinkNFSeResponse);
+  if (ConsultaLinkNFSeResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  ValidarSchema(ConsultaLinkNFSeResponse, ConsultaLinkNFSeResponse.Metodo);
+  if (ConsultaLinkNFSeResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  AService := nil;
+
+  try
+    try
+      TACBrNFSeX(FAOwner).SetStatus(stNFSeConsulta);
+      AService := CriarServiceClient(ConsultaLinkNFSeResponse.Metodo);
+      AService.Prefixo := ConsultaLinkNFSeResponse.Protocolo;
+
+      ConsultaLinkNFSeResponse.ArquivoRetorno := AService.ConsultarLinkNFSe(ConfigMsgDados.DadosCabecalho, ConsultaLinkNFSeResponse.ArquivoEnvio);
+
+      ConsultaLinkNFSeResponse.Sucesso := True;
+      ConsultaLinkNFSeResponse.EnvelopeEnvio := AService.Envio;
+      ConsultaLinkNFSeResponse.EnvelopeRetorno := AService.Retorno;
+    except
+      on E:Exception do
+      begin
+        if AService <> nil then
+        begin
+          ConsultaLinkNFSeResponse.EnvelopeEnvio := AService.Envio;
+          ConsultaLinkNFSeResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
+        AErro := ConsultaLinkNFSeResponse.Erros.New;
+        AErro.Codigo := Cod999;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(AService);
+  end;
+
+  if not ConsultaLinkNFSeResponse.Sucesso then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
+  TratarRetornoConsultaLinkNFSe(ConsultaLinkNFSeResponse);
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+end;
+
 procedure TACBrNFSeXProvider.CancelaNFSe;
 var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
   aConfig: TConfiguracoesNFSe;
 begin
+  CancelaNFSeResponse.Erros.Clear;
+  CancelaNFSeResponse.Alertas.Clear;
+  CancelaNFSeResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeCancelamento);
 
   PrepararCancelaNFSe(CancelaNFSeResponse);
@@ -2278,10 +2756,19 @@ var
   AErro: TNFSeEventoCollectionItem;
   Cancelamento: TNFSeCancelaNFSeResponse;
 begin
+  SubstituiNFSeResponse.Erros.Clear;
+  SubstituiNFSeResponse.Alertas.Clear;
+  SubstituiNFSeResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeSubstituicao);
 
   Cancelamento := TNFSeCancelaNFSeResponse.Create;
+
   try
+    Cancelamento.Erros.Clear;
+    Cancelamento.Alertas.Clear;
+    Cancelamento.Resumos.Clear;
+
     with Cancelamento.InfCancelamento do
     begin
       NumeroNFSe := SubstituiNFSeResponse.InfCancelamento.NumeroNFSe;
@@ -2381,6 +2868,10 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  GerarTokenResponse.Erros.Clear;
+  GerarTokenResponse.Alertas.Clear;
+  GerarTokenResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeGerarToken);
 
   PrepararGerarToken(GerarTokenResponse);
@@ -2452,6 +2943,10 @@ var
   AErro: TNFSeEventoCollectionItem;
   aConfig: TConfiguracoesNFSe;
 begin
+  EnviarEventoResponse.Erros.Clear;
+  EnviarEventoResponse.Alertas.Clear;
+  EnviarEventoResponse.Resumos.Clear;
+
   TACBrNFSeX(FAOwner).SetStatus(stNFSeGerarToken);
 
   PrepararEnviarEvento(EnviarEventoResponse);
@@ -2523,10 +3018,120 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
 end;
 
+procedure TACBrNFSeXProvider.ConsultarSeqRps;
+var
+  AService: TACBrNFSeXWebservice;
+  AErro: TNFSeEventoCollectionItem;
+begin
+  ConsultarSeqRpsResponse.Erros.Clear;
+  ConsultarSeqRpsResponse.Alertas.Clear;
+  ConsultarSeqRpsResponse.Resumos.Clear;
+
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeConsultarSeqRps);
+
+  PrepararConsultarSeqRps(ConsultarSeqRpsResponse);
+  if (ConsultarSeqRpsResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  AssinarConsultarSeqRps(ConsultarSeqRpsResponse);
+  if (ConsultarSeqRpsResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  ValidarSchema(ConsultarSeqRpsResponse, tmConsultarSeqRps);
+  if (ConsultarSeqRpsResponse.Erros.Count > 0) then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  AService := nil;
+
+  try
+    try
+      TACBrNFSeX(FAOwner).SetStatus(stNFSeEnvioWebService);
+      AService := CriarServiceClient(tmConsultarSeqRps);
+
+      ConsultarSeqRpsResponse.ArquivoRetorno := AService.ConsultarSeqRps(ConfigMsgDados.DadosCabecalho,
+                                                           ConsultarSeqRpsResponse.ArquivoEnvio);
+
+      ConsultarSeqRpsResponse.Sucesso := True;
+      ConsultarSeqRpsResponse.EnvelopeEnvio := AService.Envio;
+      ConsultarSeqRpsResponse.EnvelopeRetorno := AService.Retorno;
+    except
+      on E:Exception do
+      begin
+        if AService <> nil then
+        begin
+          ConsultarSeqRpsResponse.EnvelopeEnvio := AService.Envio;
+          ConsultarSeqRpsResponse.EnvelopeRetorno := AService.Retorno;
+        end;
+
+        AErro := ConsultarSeqRpsResponse.Erros.New;
+        AErro.Codigo := Cod999;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(AService);
+  end;
+
+  if not ConsultarSeqRpsResponse.Sucesso then
+  begin
+    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+    Exit;
+  end;
+
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
+  TratarRetornoConsultarSeqRps(ConsultarSeqRpsResponse);
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+end;
+
+procedure TACBrNFSeXProvider.AssinarConsultaLinkNFSe(
+  Response: TNFSeConsultaLinkNFSeResponse);
+var
+  IdAttr, Prefixo, IdAttrSig: string;
+  AErro: TNFSeEventoCollectionItem;
+begin
+  if not ConfigAssinar.ConsultarLinkNFSe then Exit;
+
+  if ConfigAssinar.IncluirURI then
+    IdAttr := ConfigGeral.Identificador
+  else
+    IdAttr := 'ID';
+
+  if ConfigMsgDados.Prefixo = '' then
+    Prefixo := ''
+  else
+    Prefixo := ConfigMsgDados.Prefixo + ':';
+
+  try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                      ConfigMsgDados.ConsultarLinkNFSe.DocElemento, IdAttr);
+
+    Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+      Prefixo + ConfigMsgDados.ConsultarLinkNFSe.DocElemento,
+      ConfigMsgDados.ConsultarLinkNFSe.InfElemento, '', '', '', IdAttr,
+      IdAttrSig);
+  except
+    on E:Exception do
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := Cod801;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
+    end;
+  end;
+end;
+
 procedure TACBrNFSeXProvider.AssinarCancelaNFSe(
   Response: TNFSeCancelaNFSeResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.CancelarNFSe then Exit;
@@ -2542,9 +3147,12 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                      ConfigMsgDados.CancelarNFSe.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.CancelarNFSe.DocElemento,
-      ConfigMsgDados.CancelarNFSe.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.CancelarNFSe.InfElemento, '', '', '', IdAttr, IdAttrSig);
   except
     on E:Exception do
     begin
@@ -2558,7 +3166,7 @@ end;
 procedure TACBrNFSeXProvider.AssinarConsultaLoteRps(
   Response: TNFSeConsultaLoteRpsResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.ConsultarLote then Exit;
@@ -2574,9 +3182,12 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                      ConfigMsgDados.ConsultarLote.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.ConsultarLote.DocElemento,
-      ConfigMsgDados.ConsultarLote.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.ConsultarLote.InfElemento, '', '', '', IdAttr, IdAttrSig);
   except
     on E:Exception do
     begin
@@ -2590,10 +3201,22 @@ end;
 procedure TACBrNFSeXProvider.AssinarConsultaNFSe(
   Response: TNFSeConsultaNFSeResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
-  if not ConfigAssinar.ConsultarNFSe then Exit;
+  case Response.InfConsultaNFSe.tpConsulta of
+    tcPorPeriodo,
+    tcPorFaixa:
+      if not ConfigAssinar.ConsultarNFSePorFaixa then Exit;
+
+    tcServicoPrestado:
+      if not ConfigAssinar.ConsultarNFSeServicoPrestado then Exit;
+
+    tcServicoTomado:
+      if not ConfigAssinar.ConsultarNFSeServicoTomado then Exit;
+  else
+    if not ConfigAssinar.ConsultarNFSe then Exit;
+  end;
 
   if ConfigAssinar.IncluirURI then
     IdAttr := ConfigGeral.Identificador
@@ -2606,9 +3229,51 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
-    Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
-      Prefixo + ConfigMsgDados.ConsultarNFSe.DocElemento,
-      ConfigMsgDados.ConsultarNFSe.InfElemento, '', '', '', IdAttr);
+    case Response.InfConsultaNFSe.tpConsulta of
+      tcPorPeriodo,
+      tcPorFaixa:
+        begin
+          IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                      ConfigMsgDados.ConsultarNFSePorFaixa.DocElemento, IdAttr);
+
+          Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+            Prefixo + ConfigMsgDados.ConsultarNFSePorFaixa.DocElemento,
+            ConfigMsgDados.ConsultarNFSePorFaixa.InfElemento, '', '', '', IdAttr,
+            IdAttrSig);
+        end;
+
+      tcServicoPrestado:
+        begin
+          IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+               ConfigMsgDados.ConsultarNFSeServicoPrestado.DocElemento, IdAttr);
+
+          Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+            Prefixo + ConfigMsgDados.ConsultarNFSeServicoPrestado.DocElemento,
+            ConfigMsgDados.ConsultarNFSeServicoPrestado.InfElemento, '', '', '',
+            IdAttr, IdAttrSig);
+        end;
+
+      tcServicoTomado:
+        begin
+          IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                 ConfigMsgDados.ConsultarNFSeServicoTomado.DocElemento, IdAttr);
+
+          Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+            Prefixo + ConfigMsgDados.ConsultarNFSeServicoTomado.DocElemento,
+            ConfigMsgDados.ConsultarNFSeServicoTomado.InfElemento, '', '', '',
+            IdAttr, IdAttrSig);
+        end
+    else
+      begin
+        IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                        ConfigMsgDados.ConsultarNFSe.DocElemento, IdAttr);
+
+        Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+          Prefixo + ConfigMsgDados.ConsultarNFSe.DocElemento,
+          ConfigMsgDados.ConsultarNFSe.InfElemento, '', '', '', IdAttr,
+          IdAttrSig);
+      end;
+    end;
   except
     on E:Exception do
     begin
@@ -2622,7 +3287,7 @@ end;
 procedure TACBrNFSeXProvider.AssinarConsultaNFSeporRps(
   Response: TNFSeConsultaNFSeporRpsResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.ConsultarNFSeRps then Exit;
@@ -2638,9 +3303,13 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                           ConfigMsgDados.ConsultarNFSeRps.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.ConsultarNFSeRps.DocElemento,
-      ConfigMsgDados.ConsultarNFSeRps.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.ConsultarNFSeRps.InfElemento, '', '', '', IdAttr,
+      IdAttrSig);
   except
     on E:Exception do
     begin
@@ -2654,7 +3323,7 @@ end;
 procedure TACBrNFSeXProvider.AssinarConsultarEvento(
   Response: TNFSeConsultarEventoResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.ConsultarEvento then Exit;
@@ -2670,9 +3339,12 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                            ConfigMsgDados.ConsultarEvento.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.ConsultarEvento.DocElemento,
-      ConfigMsgDados.ConsultarEvento.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.ConsultarEvento.InfElemento, '', '', '', IdAttr, IdAttrSig);
   except
     on E:Exception do
     begin
@@ -2686,7 +3358,7 @@ end;
 procedure TACBrNFSeXProvider.AssinarConsultarParam(
   Response: TNFSeConsultarParamResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.ConsultarParam then Exit;
@@ -2702,9 +3374,12 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                            ConfigMsgDados.ConsultarParam.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.ConsultarParam.DocElemento,
-      ConfigMsgDados.ConsultarParam.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.ConsultarParam.InfElemento, '', '', '', IdAttr, IdAttrSig);
   except
     on E:Exception do
     begin
@@ -2717,7 +3392,7 @@ end;
 
 procedure TACBrNFSeXProvider.AssinarConsultaSituacao(Response: TNFSeConsultaSituacaoResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.ConsultarSituacao then Exit;
@@ -2733,9 +3408,13 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                            ConfigMsgDados.ConsultarSituacao.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.ConsultarSituacao.DocElemento,
-      ConfigMsgDados.ConsultarSituacao.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.ConsultarSituacao.InfElemento, '', '', '', IdAttr,
+      IdAttrSig);
   except
     on E:Exception do
     begin
@@ -2748,7 +3427,7 @@ end;
 
 procedure TACBrNFSeXProvider.AssinarEmitir(Response: TNFSeEmiteResponse);
 var
-  IdAttr, Prefixo, PrefixoTS: string;
+  IdAttr, Prefixo, PrefixoTS, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   case Response.ModoEnvio of
@@ -2778,19 +3457,37 @@ begin
   try
     case Response.ModoEnvio of
       meLoteSincrono:
-        Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
-          Prefixo + ConfigMsgDados.LoteRpsSincrono.DocElemento,
-          Prefixo + ConfigMsgDados.LoteRpsSincrono.InfElemento, '', '', '', IdAttr);
+        begin
+          IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                            ConfigMsgDados.LoteRpsSincrono.DocElemento, IdAttr);
+
+          Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+            Prefixo + ConfigMsgDados.LoteRpsSincrono.DocElemento,
+            Prefixo + ConfigMsgDados.LoteRpsSincrono.InfElemento, '', '', '',
+            IdAttr, IdAttrSig);
+        end;
 
       meTeste,
       meLoteAssincrono:
-        Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
-          Prefixo + ConfigMsgDados.LoteRps.DocElemento,
-          {Prefixo + }ConfigMsgDados.LoteRps.InfElemento, '', '', '', IdAttr);
+        begin
+          IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                                    ConfigMsgDados.LoteRps.DocElemento, IdAttr);
+
+          Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+            Prefixo + ConfigMsgDados.LoteRps.DocElemento,
+            {Prefixo + }ConfigMsgDados.LoteRps.InfElemento, '', '', '',
+            IdAttr, IdAttrSig);
+        end
     else
-      Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
-        Prefixo + ConfigMsgDados.GerarNFSe.DocElemento,
-        PrefixoTS + ConfigMsgDados.GerarNFSe.InfElemento, '', '', '', IdAttr);
+      begin
+        IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                                  ConfigMsgDados.GerarNFSe.DocElemento, IdAttr);
+
+        Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+          Prefixo + ConfigMsgDados.GerarNFSe.DocElemento,
+          PrefixoTS + ConfigMsgDados.GerarNFSe.InfElemento, '', '', '',
+          IdAttr, IdAttrSig);
+      end;
     end;
   except
     on E:Exception do
@@ -2804,7 +3501,7 @@ end;
 
 procedure TACBrNFSeXProvider.AssinarSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.SubstituirNFSe then Exit;
@@ -2820,9 +3517,12 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                            ConfigMsgDados.SubstituirNFSe.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.SubstituirNFSe.DocElemento,
-      ConfigMsgDados.SubstituirNFSe.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.SubstituirNFSe.InfElemento, '', '', '', IdAttr, IdAttrSig);
   except
     on E:Exception do
     begin
@@ -2836,7 +3536,7 @@ end;
 procedure TACBrNFSeXProvider.AssinarGerarToken(
   Response: TNFSeGerarTokenResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.GerarToken then Exit;
@@ -2852,9 +3552,12 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                            ConfigMsgDados.GerarToken.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.GerarToken.DocElemento,
-      ConfigMsgDados.GerarToken.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.GerarToken.InfElemento, '', '', '', IdAttr, IdAttrSig);
   except
     on E:Exception do
     begin
@@ -2868,7 +3571,7 @@ end;
 procedure TACBrNFSeXProvider.AssinarEnviarEvento(
   Response: TNFSeEnviarEventoResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.EnviarEvento then Exit;
@@ -2884,9 +3587,12 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                            ConfigMsgDados.EnviarEvento.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.EnviarEvento.DocElemento,
-      ConfigMsgDados.EnviarEvento.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.EnviarEvento.InfElemento, '', '', '', IdAttr, IdAttrSig);
   except
     on E:Exception do
     begin
@@ -2900,7 +3606,7 @@ end;
 procedure TACBrNFSeXProvider.AssinarConsultarDFe(
   Response: TNFSeConsultarDFeResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.ConsultarDFe then Exit;
@@ -2916,9 +3622,47 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                            ConfigMsgDados.ConsultarDFe.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.ConsultarDFe.DocElemento,
-      ConfigMsgDados.ConsultarDFe.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.ConsultarDFe.InfElemento, '', '', '', IdAttr, IdAttrSig);
+  except
+    on E:Exception do
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := Cod801;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
+    end;
+  end;
+end;
+
+procedure TACBrNFSeXProvider.AssinarConsultarSeqRps(
+  Response: TNFSeConsultarSeqRpsResponse);
+var
+  IdAttr, Prefixo, IdAttrSig: string;
+  AErro: TNFSeEventoCollectionItem;
+begin
+  if not ConfigAssinar.ConsultarParam then Exit;
+
+  if ConfigAssinar.IncluirURI then
+    IdAttr := ConfigGeral.Identificador
+  else
+    IdAttr := 'ID';
+
+  if ConfigMsgDados.Prefixo = '' then
+    Prefixo := ''
+  else
+    Prefixo := ConfigMsgDados.Prefixo + ':';
+
+  try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                            ConfigMsgDados.ConsultarParam.DocElemento, IdAttr);
+
+    Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+      Prefixo + ConfigMsgDados.ConsultarParam.DocElemento,
+      ConfigMsgDados.ConsultarParam.InfElemento, '', '', '', IdAttr, IdAttrSig);
   except
     on E:Exception do
     begin

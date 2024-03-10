@@ -41,19 +41,18 @@ uses
   pcnConversao;
 
 type
-  TTpEmitenteMDFe = (teTransportadora, teTranspCargaPropria,
-                     teTranspCTeGlobalizado);
-
-  TModalMDFe      = (moRodoviario, moAereo, moAquaviario, moFerroviario);
+  TStatusACBrMDFe = (stMDFeIdle, stMDFeStatusServico, stMDFeRecepcao, stMDFeRetRecepcao,
+                     stMDFeConsulta, stMDFeRecibo, stMDFeEmail, stMDFeEvento,
+                     stMDFeDistDFeInt, stMDFeEnvioWebService);
 
   TVersaoMDFe     = (ve100, ve300);
 
-  TLayOutMDFe     = (LayMDFeRecepcao, LayMDFeRetRecepcao, LayMDFeConsulta,
-                     LayMDFeStatusServico, LayMDFeEvento, LayMDFeConsNaoEnc,
-                     LayMDFeDistDFeInt, LayMDFeRecepcaoSinc);
+const
+  TVersaoMDFeArrayStrings: array[TVersaoMDFe] of string = ('1.00', '3.00');
+  TVersaoMDFeArrayDouble: array[TVersaoMDFe] of Double = (1.00, 3.00);
 
+type
   TSchemaMDFe     = (schErro, schMDFe, schEventoMDFe,
-                 //    schresMDFe, schresEvento, schprocMDFe, schprocEventoMDFe,
                      schconsReciMDFe, schconsSitMDFe, schconsStatServMDFe,
                      schmdfeModalAereo, schmdfeModalAquaviario,
                      schmdfeModalFerroviario, schmdfeModalRodoviario,
@@ -62,37 +61,112 @@ type
                      schevPagtoOperMDFe, schevConfirmaServMDFe,
                      schevAlteracaoPagtoServMDFe);
 
-  TStatusACBrMDFe = (stMDFeIdle, stMDFeStatusServico, stMDFeRecepcao, stMDFeRetRecepcao,
-                     stMDFeConsulta, stMDFeRecibo, stMDFeEmail, stMDFeEvento,
-                     stMDFeDistDFeInt, stMDFeEnvioWebService);
+const
+  TSchemaMDFeArrayStrings: array[TSchemaMDFe] of string = ('', '', '', '',
+    '', '', '', '', '', '', 'evCancMDFe', 'evEncMDFe', 'evIncCondutorMDFe',
+    'distDFeInt', 'consMDFeNaoEnc', 'evInclusaoDFeMDFe', 'evPagtoOperMDFe',
+    'evConfirmaServMDFe', 'evAlteracaoPagtoServMDFe');
 
+type
+  TLayOutMDFe     = (LayMDFeRecepcao, LayMDFeRetRecepcao, LayMDFeConsulta,
+                     LayMDFeStatusServico, LayMDFeEvento, LayMDFeConsNaoEnc,
+                     LayMDFeDistDFeInt, LayMDFeRecepcaoSinc,
+                     LayMDFeURLQRCode, LayURLConsultaMDFe);
+
+const
+  TLayOutMDFeArrayStrings: array[TLayOutMDFe] of string = ('MDFeRecepcao',
+    'MDFeRetRecepcao', 'MDFeConsultaProtocolo', 'MDFeStatusServico',
+    'RecepcaoEvento', 'MDFeConsNaoEnc', 'MDFeDistDFeInt', 'MDFeRecepcaoSinc',
+    'URL-QRCode', 'URL-ConsultaMDFe');
+
+type
+  TTpEmitenteMDFe = (teTransportadora, teTranspCargaPropria,
+                     teTranspCTeGlobalizado);
+
+const
+  TTpEmitenteMDFeArrayStrings: array[TTpEmitenteMDFe] of string = ('1', '2', '3');
+
+type
+  TModalMDFe      = (moRodoviario, moAereo, moAquaviario, moFerroviario);
+
+const
+  TModalMDFeArrayStrings: array[TModalMDFe] of string = ('1', '2', '3', '4');
+
+type
   TTransportadorMDFe = (ttNenhum, ttETC, ttTAC, ttCTC);
 
+const
+  TTransportadorMDFeArrayStrings: array[TTransportadorMDFe] of string = ('',
+    '1', '2', '3');
+
+type
   TRspSegMDFe = (rsEmitente, rsTomadorServico);
 
+const
+  TRspSegMDFeArrayStrings: array[TRspSegMDFe] of string = ('1', '2');
+  TRspSegMDFeDescArrayStrings: array[TRspSegMDFe] of string = ('EMITENTE',
+    'TOMADOR SERVICO');
+
+type
   TCarga = (tcGranelSolido, tcGranelLiquido, tcFrigorificada, tcConteinerizada,
             tcCargaGeral, tcNeogranel, tcPerigosaGranelSolido,
             tcPerigosaGranelLiquido, tcPerigosaCargaFrigorificada,
             tcPerigosaConteinerizada, tcPerigosaCargaGeral);
 
+const
+  TCargaArrayStrings: array[TCarga] of string = ('01', '02', '03', '04', '05',
+    '06', '07', '08', '09', '10', '11');
+
+type
   TIndPag = (ipVista, ipPrazo);
 
+const
+  TIndPagArrayStrings: array[TIndPag] of string = ('0', '1');
+
+type
   TComp = (tcValePedagio, tcImpostos, tcDespesas, tcOutros);
 
+const
+  TCompArrayStrings: array[TComp] of string = ('01', '02', '03', '99');
+
+type
   TtpValePed = (tvpNenhum, tvpTAG, tvpCupom, tvpCartao);
 
+const
+  TtpValePedArrayStrings: array[TtpValePed] of string = ('', '01', '02', '03');
+  TtpValePedDescArrayStrings: array[TtpValePed] of string = ('Nenhum', 'TAG',
+    'Cupom', 'Cartão');
+
+type
   TcategCombVeic = (tcNenhum, tcVeicCom2Eixos, tcVeicCom3Eixos, tcVeicCom4Eixos,
                     tcVeicCom5Eixos, tcVeicCom6Eixos, tcVeicCom7Eixos,
                     tcVeicCom8Eixos, tcVeicCom9Eixos, tcVeicCom10Eixos,
                     tcVeicComAcima10Eixos);
 
+const
+  TcategCombVeicArrayStrings: array[TcategCombVeic] of string = ('', '02', '04',
+    '06', '07', '08', '10', '11', '12', '13', '14');
+  TcategCombVeicDescArrayStrings: array[TcategCombVeic] of string = ('',
+    'Veículo Comercial 2 eixos', 'Veículo Comercial 3 eixos',
+    'Veículo Comercial 4 eixos', 'Veículo Comercial 5 eixos',
+    'Veículo Comercial 6 eixos', 'Veículo Comercial 7 eixos',
+    'Veículo Comercial 8 eixos', 'Veículo Comercial 9 eixos',
+    'Veículo Comercial 10 eixos', 'Veículo Comercial Acima de 10 eixos');
+
+type
   TtpAntecip = (taNenhum, taNaoPermiteAntecipar, taPermiteAntecipar,
                 taPermiteAnteciparComConfirmacao);
 
-function StrToEnumerado(out ok: boolean; const s: string; const AString: array of string;
-  const AEnumerados: array of variant): variant;
-function EnumeradoToStr(const t: variant; const AString:
-  array of string; const AEnumerados: array of variant): variant;
+const
+  TtpAntecipArrayStrings: array[TtpAntecip] of string = ('', '0', '1', '2');
+
+const
+  TIndicadorArrayStrings: array[TIndicador] of string = ('1', '');
+
+{
+  Declaração das funções de conversão
+}
+function StrToTpEventoMDFe(out ok: boolean; const s: string): TpcnTpEvento;
 
 function TpEmitenteToStr(const t: TTpEmitenteMDFe): String;
 function StrToTpEmitente(out ok: Boolean; const s: String): TTpEmitenteMDFe;
@@ -146,39 +220,21 @@ function StrTocategCombVeic(out ok: Boolean; const s: String): TcategCombVeic;
 function tpAntecipToStr(const t: TtpAntecip): String;
 function StrTotpAntecip(out ok: Boolean; const s: String): TtpAntecip;
 
-function StrToTpEventoMDFe(out ok: boolean; const s: string): TpcnTpEvento;
-
 implementation
 
 uses
   typinfo;
 
-function StrToEnumerado(out ok: boolean; const s: string; const AString:
-  array of string; const AEnumerados: array of variant): variant;
-var
-  i: integer;
+function StrToTpEventoMDFe(out ok: boolean; const s: string): TpcnTpEvento;
 begin
-  result := -1;
-  for i := Low(AString) to High(AString) do
-    if AnsiSameText(s, AString[i]) then
-      result := AEnumerados[i];
-  ok := result <> -1;
-  if not ok then
-    result := AEnumerados[0];
+  Result := StrToEnumerado(ok, s,
+            ['-99999', '110111', '110112', '110114', '110115', '110116',
+             '310112', '510620', '110117', '110118'],
+            [teNaoMapeado, teCancelamento, teEncerramento, teInclusaoCondutor,
+             teInclusaoDFe, tePagamentoOperacao, teEncerramentoFisco,
+             teRegistroPassagemBRId, teConfirmaServMDFe,
+             teAlteracaoPagtoServMDFe]);
 end;
-
-function EnumeradoToStr(const t: variant; const AString:
-  array of string; const AEnumerados: array of variant): variant;
-var
-  i: integer;
-begin
-  result := '';
-  for i := Low(AEnumerados) to High(AEnumerados) do
-    if t = AEnumerados[i] then
-      result := AString[i];
-end;
-
-// Tipo de Emitente*************************************************************
 
 function TpEmitenteToStr(const t: TTpEmitenteMDFe): String;
 begin
@@ -211,8 +267,6 @@ begin
     Result := schErro;
   end;
 end;
-
-// Modal************************************************************************
 
 function ModalToStr(const t: TModalMDFe): String;
 begin
@@ -487,17 +541,6 @@ begin
   Result := StrToEnumerado(ok, s, ['', '0', '1', '2'],
                           [taNenhum, taNaoPermiteAntecipar, taPermiteAntecipar,
                            taPermiteAnteciparComConfirmacao]);
-end;
-
-function StrToTpEventoMDFe(out ok: boolean; const s: string): TpcnTpEvento;
-begin
-  Result := StrToEnumerado(ok, s,
-            ['-99999', '110111', '110112', '110114', '110115', '110116',
-             '310112', '510620', '110117', '110118'],
-            [teNaoMapeado, teCancelamento, teEncerramento, teInclusaoCondutor,
-             teInclusaoDFe, tePagamentoOperacao, teEncerramentoFisco,
-             teRegistroPassagemBRId, teConfirmaServMDFe,
-             teAlteracaoPagtoServMDFe]);
 end;
 
 initialization

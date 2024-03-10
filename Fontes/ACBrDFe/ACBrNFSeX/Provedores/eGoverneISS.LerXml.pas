@@ -141,8 +141,12 @@ function TNFSeR_eGoverneISS.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -176,17 +180,19 @@ function TNFSeR_eGoverneISS.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
 begin
   Result := True;
 
+  if not Assigned(ANode) or (ANode = nil) then Exit;
+
   // Falta Implementar (Não tem schema para tomar como base)
 
   (*
-
-  if not Assigned(ANode) or (ANode = nil) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('notasFiscais');
 
   if AuxNode = nil then
     AuxNode := ANode.Childrens.FindAnyNs('nfeRpsNotaFiscal');
   *)
+
+  LerCampoLink;
 end;
 
 function TNFSeR_eGoverneISS.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
@@ -207,6 +213,8 @@ begin
       Producao := snNao;
 
     OutrasInformacoes := ObterConteudo(ANode.Childrens.FindAnyNs('InformacoesAdicionais'), tcStr);
+    OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
     with Servico do
     begin
@@ -231,6 +239,8 @@ begin
         OutrasRetencoes := ObterConteudo(ANode.Childrens.FindAnyNs('ValorOutrosImpostos'), tcDe2);
 
         ValorPis := ObterConteudo(ANode.Childrens.FindAnyNs('ValorPisPasep'), tcDe2);
+
+        RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
       end;
     end;
 

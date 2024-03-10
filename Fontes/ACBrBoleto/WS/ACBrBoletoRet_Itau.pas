@@ -37,13 +37,15 @@ unit ACBrBoletoRet_Itau;
 interface
 
 uses
-  Classes, SysUtils, ACBrBoleto,ACBrBoletoWS, ACBrBoletoRetorno,
-//  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-//    JsonDataObjects_ACBr,
-//  {$Else}
-    Jsons,
-//  {$EndIf}
-   DateUtils, pcnConversao;
+  Classes,
+  SysUtils,
+  ACBrBoleto,
+  ACBrBoletoWS,
+  ACBrBoletoRetorno,
+  Jsons,
+  DateUtils,
+  ACBrBoletoWS.Rest,
+  pcnConversao;
 
 type
 
@@ -63,7 +65,9 @@ type
 implementation
 
 uses
- ACBrUtil.Strings, ACBrUtil.DateTime;
+ ACBrUtil.Strings,
+ ACBrUtil.DateTime,
+ ACBrBoletoConversao;
 
 { TRetornoEnvio }
 
@@ -81,10 +85,11 @@ end;
 function TRetornoEnvio_Itau.LerRetorno(const ARetornoWS: TACBrBoletoRetornoWS): Boolean;
 var
   AJson: TJson;
-  AJSonRejeicao: TJsonObject;
+  AJSonRejeicao, AJSonRejeicaoMSG: TJsonObject;
   ARejeicao: TACBrBoletoRejeicao;
   AJSonResp: TJsonArray;
   I: Integer;
+  TipoOperacao : TOperacao;
 begin
   Result := True;
 
@@ -93,7 +98,10 @@ begin
     try
       with ARetornoWS do
       begin
-
+        TipoOperacao := ACBrBoleto.Configuracoes.WebService.Operacao;
+        ARetornoWS.HTTPResultCode := HTTPResultCode;
+        ARetornoWS.JSONEnvio      := EnvWs;
+        ARetornoWS.Header.Operacao := TipoOperacao;
         AJSon := TJson.Create;
         try
           AJSon.Parse(RetWS);
@@ -101,15 +109,16 @@ begin
           begin
             CodRetorno := AJson.Values['codigo'].AsString;
             OriRetorno := AJson.Values['mensagem'].AsString;
-            AJSonResp := AJson.Values['campos'].AsArray;
+            AJSonResp := AJson.Values['detalhes'].AsArray;
             For I := 0 to AJSonResp.Count-1 do
             begin
               AJSonRejeicao := AJSonResp[I].AsObject;
 
               ARejeicao := CriarRejeicaoLista;
-              ARejeicao.Campo := AJSonRejeicao.Values['campo'].AsString;
-              ARejeicao.Mensagem := AJSonRejeicao.Values['mensagem'].AsString;
-              ARejeicao.Valor := AJSonRejeicao.Values['valor'].AsString;
+              AJSonRejeicaoMSG := AJSonRejeicao.Values['mensagem'].AsObject;
+              ARejeicao.Campo := AJSonRejeicaoMSG.Values['campo'].AsString;
+              ARejeicao.Mensagem := AJSonRejeicaoMSG.Values['mensagem'].AsString;
+              ARejeicao.Valor := AJSonRejeicaoMSG.Values['valor'].AsString;
             end;
           end
           else

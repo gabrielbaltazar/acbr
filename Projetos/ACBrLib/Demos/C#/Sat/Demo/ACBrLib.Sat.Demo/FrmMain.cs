@@ -123,6 +123,12 @@ namespace ACBrLib.Sat.Demo
             rtbRespostas.AppendLine(ret.Resposta);
         }
 
+        private void btnConsultarUltimaSessaoFiscal_Click(object sender, EventArgs e)
+        {
+            var ret = acbrSat.ConsultarUltimaSessaoFiscal();
+            rtbRespostas.AppendLine(ret.Resposta);
+        }
+
         private void btnCriarCFe_Click(object sender, EventArgs e)
         {
             var iniPath = Helpers.OpenFile("Arquivo Ini CFe (*.ini)|*.ini|Todo os Arquivos (*.*)|*.*");
@@ -184,6 +190,27 @@ namespace ACBrLib.Sat.Demo
 
             acbrSat.ImprimirExtratoVenda(xmlPath, cbbImpressora.Text);
             rtbRespostas.AppendLine("Impressão efetuada com sucesso.");
+        }
+
+        private void btnGerarPDF_Click(object sender, EventArgs e)
+        {
+            var xmlPath = Helpers.OpenFile("Arquivo Xml CFe (*.xml)|*.xml|Todo os Arquivos (*.*)|*.*");
+            if (string.IsNullOrEmpty(xmlPath)) return;
+
+            acbrSat.GerarPDFExtratoVenda(xmlPath, "PDF CFe-SAT");
+            rtbRespostas.AppendLine("PDF salvo com sucesso.");
+        }
+
+        private void btnGerarPDFCancelamento_Click(object sender, EventArgs e)
+        {
+            var xmlVenda = Helpers.OpenFile("Arquivo Xml CFe (*.xml)|*.xml|Todo os Arquivos (*.*)|*.*");
+            if (string.IsNullOrEmpty(xmlVenda)) return;
+
+            var xmlCancelamento = Helpers.OpenFile("Arquivo Xml CFe (*.xml)|*.xml|Todo os Arquivos (*.*)|*.*");
+            if (string.IsNullOrEmpty(xmlCancelamento)) return;
+
+            acbrSat.GerarPDFCancelamento(xmlVenda, xmlCancelamento, "PDF CFe-SAT Cancelamento");
+            rtbRespostas.AppendLine("PDF Cancelamento salvo com sucesso.");
         }
 
         private void btnImprimirCFeCanc_Click(object sender, EventArgs e)

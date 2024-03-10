@@ -55,10 +55,11 @@ uses
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
    System.Contnrs,
   {$IfEnd}
-  ACBrBase, pcnAuxiliar, pcnConversao, pcnLeitor,
+  ACBrBase,
+  pcnConversao, pcnLeitor,
   pcesCommon, pcesRetornoClass, pcesConversaoeSocial,
   pcesS5001, pcesS5002, pcesS5011, pcesS5012, pcesS5003, 
-  pcesS5013, pcesS5501;
+  pcesS5013, pcesS5501, pcesS5503;
 
 type
   TtotCollectionItem = class;
@@ -463,7 +464,6 @@ begin
                       while Leitor.rExtrai(10, 'horarioIntervalo', '', k + 1) <> '' do
                       begin
                         RetEventos.Items[i].Recibo.Contrato.horContratual.horario.Items[j].horarioIntervalo.New;
-                        RetEventos.Items[i].Recibo.Contrato.horContratual.horario.Items[j].horarioIntervalo.Items[k].tpInterv   := eSStrToTpIntervalo(ok, FLeitor.rCampo(tcStr, 'tpInterv'));
                         RetEventos.Items[i].Recibo.Contrato.horContratual.horario.Items[j].horarioIntervalo.Items[k].durInterv  := FLeitor.rCampo(tcInt, 'durInterv');
                         RetEventos.Items[i].Recibo.Contrato.horContratual.horario.Items[j].horarioIntervalo.Items[k].iniInterv  := FLeitor.rCampo(tcStr, 'iniInterv');
                         RetEventos.Items[i].Recibo.Contrato.horContratual.horario.Items[j].horarioIntervalo.Items[k].termInterv := FLeitor.rCampo(tcStr, 'termInterv');
@@ -529,6 +529,11 @@ begin
               RetEventos.Items[i].tot.Items[j].Evento.Xml := RetEventos.Items[i].tot.Items[j].XML;
             end;
 
+            if RetEventos.Items[i].tot.Items[j].tipo = 'S5503' then
+            begin
+              RetEventos.Items[i].tot.Items[j].Evento := TS5503.Create;
+              RetEventos.Items[i].tot.Items[j].Evento.Xml := RetEventos.Items[i].tot.Items[j].XML;
+            end;
             inc(j);
           end;
 

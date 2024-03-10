@@ -50,7 +50,8 @@ uses
      {$ENDIF}
    {$ENDIF}
   {$ENDIF}
-  ACBrDFeConfiguracoes, ACBrIntegrador, ACBrDFe, pcnConsts, pcnGerador;
+  ACBrDFeConfiguracoes, ACBrIntegrador, ACBrDFe,
+  pcnGerador;
 
 const
   CErroSemResposta = 'Erro ao obter resposta do webservice.';
@@ -84,6 +85,7 @@ type
     FPSoapAction: String;
     FPMimeType: String;
     FPAuthorizationHeader: string;
+    FPValidateReturnCode: Boolean;
   protected
     procedure FazerLog(const Msg: String; Exibir: Boolean = False); virtual;
     procedure GerarException(const Msg: String; E: Exception = nil); virtual;
@@ -140,18 +142,20 @@ type
     property Msg: String read FPMsg;
     property ArqEnv: String read FPArqEnv;
     property ArqResp: String read FPArqResp;
+    property ValidateReturnCode: Boolean read FPValidateReturnCode;
   end;
 
 implementation
 
 uses
   strutils,
+  ACBrDFeConsts,
   ACBrDFeUtil, ACBrDFeException,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.DateTime,
   ACBrUtil.XMLHTML,
-  pcnAuxiliar, synacode;
+  synacode;
 
 { TDFeWebService }
 
@@ -178,6 +182,7 @@ begin
   FPSoapAction := '';
   FPMimeType := '';  // Vazio, usará por default: 'application/soap+xml'
   FPAuthorizationHeader := '';
+  FPValidateReturnCode := True;
 
   Clear;
 end;
@@ -368,7 +373,7 @@ begin
   }
 
   if (EstaVazio(FPMimeType) or (Pos('xml',LowerCase(FPMimeType)) > 0 )) and
-     ( not XmlEstaAssinado(FPEnvelopeSoap)) then
+     ( not XmlEstaAssinado(FPEnvelopeSoap)) and (not EstaVazio(FPEnvelopeSoap)) then
   begin
     FPEnvelopeSoap := ConverteXMLtoUTF8(FPEnvelopeSoap);
   end;
@@ -416,7 +421,7 @@ begin
       begin
         try
           FPRetornoWS := FPDFeOwner.SSL.Enviar(FPEnvelopeSoap, FPURL, FPSoapAction,
-                                             FPMimeType, FPAuthorizationHeader);
+                                 FPMimeType, FPAuthorizationHeader, FPValidateReturnCode);
         finally
           HTTPResultCode := FPDFeOwner.SSL.HTTPResultCode;
           InternalErrorCode := FPDFeOwner.SSL.InternalErrorCode;
@@ -541,7 +546,7 @@ begin
   AOpcoes.RetirarAcentos := FPDFeOwner.Configuracoes.Geral.RetirarAcentos;
   AOpcoes.RetirarEspacos := FPDFeOwner.Configuracoes.Geral.RetirarEspacos;
   AOpcoes.IdentarXML := FPDFeOwner.Configuracoes.Geral.IdentarXML;
-  pcnAuxiliar.TimeZoneConf.Assign( FPDFeOwner.Configuracoes.WebServices.TimeZoneConf );
+  TimeZoneConf.Assign( FPDFeOwner.Configuracoes.WebServices.TimeZoneConf );
   AOpcoes.QuebraLinha := FPDFeOwner.Configuracoes.WebServices.QuebradeLinha;
 end;
 

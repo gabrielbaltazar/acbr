@@ -37,7 +37,10 @@ unit ACBrLibComum;
 interface
 
 uses
-  Classes, SysUtils, fileinfo,
+  Classes,
+  SysUtils,
+  fileinfo,
+  ACBrUtil.FilesIO,
   {$IFDEF Demo} ACBrLibDemo, {$ENDIF}
   ACBrLibConfig;
 
@@ -67,6 +70,7 @@ type
     FNome: String;
     FDescricao: String;
     FVersao: String;
+    FTraduzirUltimoRetorno: Boolean;
 
     function GetNome: String;
     function GetDescricao: String;
@@ -93,6 +97,7 @@ type
     property Nome: String read GetNome;
     property Versao: String read GetVersao;
     property Descricao: String read GetDescricao;
+    property TraduzirUltimoRetorno: Boolean read FTraduzirUltimoRetorno write FTraduzirUltimoRetorno;
 
     procedure GravarLog(AMsg: String; NivelLog: TNivelLog; Traduzir: Boolean = False);
     procedure MoverStringParaPChar(const AString: String; sDest: PChar; var esTamanho: longint);
@@ -160,8 +165,8 @@ procedure LiberarLib(libHandle: PLibHandle);
 // Le um arquivo em Disco e retorna o seu conteúdo //
 function LerArquivoParaString(AArquivo: String): AnsiString;
 
-function StringToB64Crypt(AString: String; AChave: AnsiString = ''): String;
-function B64CryptToString(ABase64Str: String; AChave: AnsiString = ''): String;
+function StringToB64Crypt(AString: AnsiString; AChave: AnsiString = ''): String;
+function B64CryptToString(ABase64Str: String; AChave: AnsiString = ''): AnsiString;
 
 function StreamToBase64(AStream: TStream):AnsiString;
 
@@ -182,9 +187,11 @@ var
 implementation
 
 uses
-  strutils, strings,
-  synacode, synautil,
-  ACBrConsts, ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.DateTime, ACBrUtil.Strings,
+  strutils,
+  strings,
+  synacode,
+  synautil,
+  ACBrConsts, ACBrUtil.Base, ACBrUtil.DateTime, ACBrUtil.Strings,
   ACBrLibConsts, ACBrLibResposta;
 
 { EACBrLibException }
@@ -208,6 +215,7 @@ begin
   FNome := '';
   FVersao := '';
   FDescricao := '';
+  FTraduzirUltimoRetorno := True;
 
   fpFileVerInfo := TFileVersionInfo.Create(Nil);
   fpFileVerInfo.ReadFileInfo;
@@ -421,15 +429,15 @@ begin
 end;
 
 function TACBrLib.UltimoRetorno(const sMensagem: PChar; var esTamanho: longint): longint;
-Var
-  Ret: Ansistring;
+//Var
+  //Ret: Ansistring;
 begin
   try
     GravarLog('LIB_UltimoRetorno', logNormal);
     MoverStringParaPChar(Retorno.Mensagem, sMensagem, esTamanho);
     Result := Retorno.Codigo;
     if (Config.Log.Nivel >= logCompleto) then
-      GravarLog('   Codigo:' + IntToStr(Result) + ', Mensagem:' + string(sMensagem), logCompleto, True);
+      GravarLog('   Codigo:' + IntToStr(Result) + ', Mensagem:' + string(sMensagem), logCompleto, TraduzirUltimoRetorno);
   except
     on E: EACBrLibException do
       Result := SetRetorno(E.Erro, E.Message);
@@ -825,7 +833,7 @@ begin
   end;
 end;
 
-function StringToB64Crypt(AString: String; AChave: AnsiString = ''): String;
+function StringToB64Crypt(AString: AnsiString; AChave: AnsiString): String;
 begin
   if (Length(AChave) = 0) then
     AChave := CLibChaveCrypt;
@@ -833,7 +841,7 @@ begin
   Result := EncodeBase64(StrCrypt(AString, AChave));
 end;
 
-function B64CryptToString(ABase64Str: String; AChave: AnsiString = ''): String;
+function B64CryptToString(ABase64Str: String; AChave: AnsiString): AnsiString;
 begin
   if (Length(AChave) = 0) then
     AChave := CLibChaveCrypt;

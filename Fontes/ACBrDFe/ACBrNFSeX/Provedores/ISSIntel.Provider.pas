@@ -38,9 +38,10 @@ interface
 
 uses
   SysUtils, Classes,
+  ACBrXmlDocument,
   ACBrNFSeXClass, ACBrNFSeXConversao,
   ACBrNFSeXGravarXml, ACBrNFSeXLerXml,
-  ACBrNFSeXProviderABRASFv1, ACBrNFSeXWebserviceBase;
+  ACBrNFSeXProviderABRASFv1, ACBrNFSeXWebserviceBase, ACBrNFSeXWebservicesResponse;
 
 type
   TACBrNFSeXWebserviceISSIntel = class(TACBrNFSeXWebserviceSoap11)
@@ -55,6 +56,8 @@ type
     function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
+    function TratarXmlRetornado(const aXML: string): string; override;
+
     property NameSpace: string read GetNameSpace;
     property SoapAction: string read GetSoapAction;
   end;
@@ -67,12 +70,17 @@ type
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
+    procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
+                                     Response: TNFSeWebserviceResponse;
+                                     const AListTag: string = 'ListaMensagemRetorno';
+                                     const AMessageTag: string = 'MensagemRetorno'); override;
   end;
 
 implementation
 
 uses
   ACBrXmlBase, ACBrNFSeX, ACBrDFeException,
+  ACBrUtil.XMLHTML, ACBrUtil.Strings,
   ISSIntel.GravarXml, ISSIntel.LerXml;
 
 { TACBrNFSeProviderISSIntel }
@@ -118,6 +126,38 @@ begin
       raise EACBrDFeException.Create(ERR_SEM_URL_PRO)
     else
       raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
+  end;
+end;
+
+procedure TACBrNFSeProviderISSIntel.ProcessarMensagemErros(
+  RootNode: TACBrXmlNode; Response: TNFSeWebserviceResponse; const AListTag,
+  AMessageTag: string);
+var
+  I: Integer;
+  ANode: TACBrXmlNode;
+  ANodeArray: TACBrXmlNodeArray;
+  AErro: TNFSeEventoCollectionItem;
+  Mensagem: string;
+begin
+  inherited ProcessarMensagemErros(RootNode, Response, AListTag, AMessageTag);
+
+  ANode := RootNode.Childrens.FindAnyNs(AListTag);
+
+  ANodeArray := ANode.Childrens.FindAllAnyNs(AMessageTag);
+
+  if not Assigned(ANodeArray) then Exit;
+
+  for I := Low(ANodeArray) to High(ANodeArray) do
+  begin
+    Mensagem := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('mensagem'), tcStr);
+
+    if Mensagem <> '' then
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('codigo'), tcStr);
+      AErro.Descricao := Mensagem;
+      AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('correcao'), tcStr);
+    end;
   end;
 end;
 
@@ -229,6 +269,18 @@ begin
   Result := Executar(SoapAction + 'CancelarNfse', Request,
                      ['CancelarNfseResposta'],
                      [NameSpace]);
+end;
+
+function TACBrNFSeXWebserviceISSIntel.TratarXmlRetornado(
+  const aXML: string): string;
+begin
+  Result := inherited TratarXmlRetornado(aXML);
+
+  Result := ParseText(Result);
+  Result := RemoverIdentacao(Result);
+  Result := RemoverPrefixosDesnecessarios(Result);
+  Result := RemoverCaracteresDesnecessarios(Result);
+  Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
 end;
 
 end.

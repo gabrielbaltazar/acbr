@@ -69,8 +69,12 @@ function TNFSeR_AssessorPublico.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -118,6 +122,7 @@ begin
   NFSe.Link       := StringReplace(NFSe.Link, '&amp;', '&', [rfReplaceAll]);
   NFSe.NumeroLote := ObterConteudo(AuxNode.Childrens.FindAnyNs('LOTE'), tcStr);
   NFSe.Numero     := ObterConteudo(AuxNode.Childrens.FindAnyNs('COD'), tcStr);
+  NFSe.Situacao   := ObterConteudo(AuxNode.Childrens.FindAnyNs('SITCOD'), tcInt);
 
   NFSe.InfID.ID := NFSe.Numero;
 
@@ -142,6 +147,8 @@ begin
     NFSe.OptanteSimplesNacional := snSim;
 
   NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('OBSSERVICO'), tcStr);
+  NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
   with NFSe.Servico do
   begin
@@ -158,6 +165,8 @@ begin
 
     if aValor = 'N' then
       IssRetido := stNormal;
+    if aValor = 'S' then
+      IssRetido := stRetencao;
 
     BaseCalculo   := ObterConteudo(AuxNode.Childrens.FindAnyNs('BASECALC'), tcDe2);
     ValorServicos := ObterConteudo(AuxNode.Childrens.FindAnyNs('VALORTOTALSERVICOS'), tcDe2);
@@ -169,6 +178,9 @@ begin
     ValorInss     := ObterConteudo(AuxNode.Childrens.FindAnyNs('INSS'), tcDe2);
     ValorIr       := ObterConteudo(AuxNode.Childrens.FindAnyNs('IR'), tcDe2);
     ValorCsll     := ObterConteudo(AuxNode.Childrens.FindAnyNs('CSLL'), tcDe2);
+    ValorIssRetido  := ObterConteudo(AuxNode.Childrens.FindAnyNs('RETENCAO'), tcDe2);
+
+    RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
 
     OutrasRetencoes := OutrasRetencoes +
            ObterConteudo(AuxNode.Childrens.FindAnyNs('ICMS'), tcDe2) +
@@ -245,6 +257,8 @@ begin
       begin
         CodServ       := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CODIGO'), tcStr);
         Descricao     := ObterConteudo(ANodes[i].Childrens.FindAnyNs('DESCRICAO'), tcStr);
+        Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
         Quantidade    := ObterConteudo(ANodes[i].Childrens.FindAnyNs('QUANTIDADE'), tcDe2);
         ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('VALOR'), tcDe2);
 
@@ -261,6 +275,9 @@ begin
     ValorLiquidoNfse := ValorServicos -
         (ValorDeducoes + DescontoCondicionado +
          DescontoIncondicionado + ValorIssRetido);
+
+    ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                            DescontoIncondicionado;
   end;
 end;
 
@@ -297,6 +314,8 @@ begin
       ItemListaServico := ObterConteudo(ANode.Childrens.FindAnyNs('ATIVIDADE'), tcStr);
 
       Discriminacao := ObterConteudo(ANode.Childrens.FindAnyNs('OBSERVACAO'), tcStr);
+      Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
       with Valores do
       begin
@@ -374,10 +393,14 @@ begin
         with NFSe.Servico.ItemServico[i] do
         begin
           Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('DESCRICAO'), tcStr);
+          Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
 
           ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('VALORUNIT'), tcDe2);
 
           Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('QUANTIDADE'), tcDe4);
+
+          ValorTotal := Quantidade * ValorUnitario;
 
           DescontoIncondicionado := ObterConteudo(ANodes[i].Childrens.FindAnyNs('DESCONTO'), tcDe2);
         end;

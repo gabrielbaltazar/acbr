@@ -44,13 +44,13 @@ uses
    System.Contnrs,
   {$IFEND}
   ACBrBase,
-  ACBrUtil.Strings, pcnAuxiliar, pcnConversao, pcnLeitor,
-  pcnCommonReinf, pcnConversaoReinf;
+  ACBrUtil.Strings,
+  pcnConversao, pcnLeitor,
+  pcnCommonReinf, pcnConversaoReinf, pcnReinfR9005;
 
 type
   TRetConsulta_R9015 = class;
   TevtRetCons = class;
-  TInfoRecEv = class;
   TRetornoEventosCollection = class;
   TRetornoEventosCollectionItem = class;
   TinfoCR_CNR = class;
@@ -65,22 +65,6 @@ type
   TtotApurDiaCollection = class;
   TtotApurDiaCollectionItem = class;
   TinfoTotalCR = class;
-
-
-
-(*
-  TRTomCollectionItem = class;
-  TRPrestCollection = class;
-  TRPrestCollectionItem = class;
-  TRRecRepADCollection = class;
-  TRRecRepADCollectionItem = class;
-  TRComlCollection = class;
-  TRComlCollectionItem = class;
-  TRCPRBCollection = class;
-  TRCPRBCollectionItem = class;
-  TinfoCRTomCollection = class;
-  TinfoCRTomCollectionItem = class;
-*)
 
   { TRetConsulta_R9015 }
   TRetConsulta_R9015 = class(TObject)
@@ -126,22 +110,6 @@ type
     property RetornoEventos: TRetornoEventosCollection read FRetornoEventos write FRetornoEventos;
   end;
 
-  { TInfoRecEv }
-  TInfoRecEv = class(TObject)
-  private
-    FnrProtLote: String;
-    FdhProcess: TDateTime;
-    FtpEv: String;
-    FidEv: String;
-    Fhash: String;
-  public
-    property nrProtLote: String read FnrProtLote;
-    property dhProcess: TDateTime read FdhProcess;
-    property tpEv: String read FtpEv;
-    property idEv: String read FidEv;
-    property hash: String read Fhash;
-  end;
-
   { TRetornoEventosCollection }
   TRetornoEventosCollection = class(TACBrObjectList)
   private
@@ -181,6 +149,7 @@ type
   private
     FnrRecArqBase: String;
     FindExistInfo: TindExistInfo;
+    FidentEscritDCTF: String;
 
     FtotApurMen: TtotApurMenCollection;
     FtotApurQui: TtotApurQuiCollection;
@@ -193,6 +162,7 @@ type
 
     property nrRecArqBase: String read FnrRecArqBase;
     property indExistInfo: TindExistInfo read FindExistInfo;
+    property identEscritDCTF: String read FidentEscritDCTF;
 
     property totApurMen: TtotApurMenCollection read FtotApurMen;
     property totApurQui: TtotApurQuiCollection read FtotApurQui;
@@ -250,6 +220,7 @@ type
   { TtotApurQuiCollectionItem }
   TtotApurQuiCollectionItem = class(TObject)
   private
+    FperApurQui: string;
     FCRQui: string;
     FvlrCRQuiInf: double;
     FvlrCRQuiCalc: double;
@@ -259,6 +230,7 @@ type
     FvlrCRQuiSuspDCTF: double;
     FnatRend: string;
   public
+    property perApurQui: string read FperApurQui;
     property CRQui: string read FCRQui;
     property vlrCRQuiInf: double read FvlrCRQuiInf;
     property vlrCRQuiCalc: double read FvlrCRQuiCalc;
@@ -284,6 +256,7 @@ type
   { TtotApurDecCollectionItem }
   TtotApurDecCollectionItem = class(TObject)
   private
+    FperApurDec: string;
     FCRDec: string;
     FvlrCRDecInf: double;
     FvlrCRDecCalc: double;
@@ -293,6 +266,7 @@ type
     FvlrCRDecSuspDCTF: double;
     FnatRend: string;
   public
+    property perApurDec: string read FperApurDec;
     property CRDec: string read FCRDec;
     property vlrCRDecInf: double read FvlrCRDecInf;
     property vlrCRDecCalc: double read FvlrCRDecCalc;
@@ -318,6 +292,7 @@ type
   { TtotApurSemCollectionItem }
   TtotApurSemCollectionItem = class(TObject)
   private
+    FperApurSem: string;
     FCRSem: string;
     FvlrCRSemInf: double;
     FvlrCRSemCalc: double;
@@ -327,6 +302,7 @@ type
     FvlrCRSemSuspDCTF: double;
     FnatRend: string;
   public
+    property perApurSem: string read FperApurSem;
     property CRSem: string read FCRSem;
     property vlrCRSemInf: double read FvlrCRSemInf;
     property vlrCRSemCalc: double read FvlrCRSemCalc;
@@ -352,6 +328,7 @@ type
   { TtotApurDiaCollectionItem }
   TtotApurDiaCollectionItem = class(TObject)
   private
+    FperApurDia: string;
     FCRDia: string;
     FvlrCRDiaInf: double;
     FvlrCRDiaCalc: double;
@@ -361,6 +338,7 @@ type
     FvlrCRDiaSuspDCTF: double;
     FnatRend: string;
   public
+    property perApurDia: string read FperApurDia;
     property CRDia: string read FCRDia;
     property vlrCRDiaInf: double read FvlrCRDiaInf;
     property vlrCRDiaCalc: double read FvlrCRDiaCalc;
@@ -414,7 +392,7 @@ end;
 
 function TRetConsulta_R9015.LerXml: boolean;
 var
-  i, j: Integer;
+  i: Integer;
   Ok: Boolean;
 begin
   Result := True;
@@ -461,11 +439,14 @@ begin
 
         if leitor.rExtrai(2, 'infoRecEv') <> '' then
         begin
-          infoRecEv.FnrProtLote := leitor.rCampo(tcStr, 'nrProtLote');
-          infoRecEv.FdhProcess  := leitor.rCampo(tcDatHor, 'dhProcess');
-          infoRecEv.FtpEv       := leitor.rCampo(tcStr, 'tpEv');
-          infoRecEv.FidEv       := leitor.rCampo(tcStr, 'idEv');
-          infoRecEv.Fhash       := leitor.rCampo(tcStr, 'hash');
+          infoRecEv.nrRecArqBase := leitor.rCampo(tcStr, 'nrRecArqBase');
+          infoRecEv.nrProtLote := leitor.rCampo(tcStr, 'nrProtLote');
+          infoRecEv.dhProcess  := leitor.rCampo(tcDatHor, 'dhProcess');
+          infoRecEv.dhRecepcao := leitor.rCampo(tcDatHor, 'dhRecepcao');
+          infoRecEv.tpEv       := leitor.rCampo(tcStr, 'tpEv');
+          infoRecEv.idEv       := leitor.rCampo(tcStr, 'idEv');
+          infoRecEv.hash       := leitor.rCampo(tcStr, 'hash');
+          infoRecEv.fechRet    := StrTotpFechRet(Ok, leitor.rCampo(tcStr, 'fechRet'));
         end;
 
         if leitor.rExtrai(2, 'infoCR_CNR') <> '' then
@@ -474,6 +455,7 @@ begin
           begin
             FnrRecArqBase := leitor.rCampo(tcStr, 'nrRecArqBase');
             FindExistInfo := StrToindExistInfo(Ok, leitor.rCampo(tcStr, 'indExistInfo'));
+            FidentEscritDCTF := leitor.rCampo(tcStr, 'identEscritDCTF');
 
             i := 0;
             while Leitor.rExtrai(3, 'totApurMen', '', i + 1) <> '' do
@@ -495,6 +477,7 @@ begin
             while Leitor.rExtrai(3, 'totApurQui', '', i + 1) <> '' do
             begin
               totApurQui.New;
+              totApurQui.Items[i].FperApurQui       := leitor.rCampo(tcStr, 'perApurQui');
               totApurQui.Items[i].FCRQui            := leitor.rCampo(tcStr, 'CRQui');
               totApurQui.Items[i].FvlrCRQuiInf      := leitor.rCampo(tcDe2, 'vlrCRQuiInf');
               totApurQui.Items[i].FvlrCRQuiCalc     := leitor.rCampo(tcDe2, 'vlrCRQuiCalc');
@@ -511,6 +494,7 @@ begin
             while Leitor.rExtrai(3, 'totApurDec', '', i + 1) <> '' do
             begin
               totApurDec.New;
+              totApurDec.Items[i].FperApurDec       := leitor.rCampo(tcStr, 'perApurDec');
               totApurDec.Items[i].FCRDec            := leitor.rCampo(tcStr, 'CRDec');
               totApurDec.Items[i].FvlrCRDecInf      := leitor.rCampo(tcDe2, 'vlrCRDecInf');
               totApurDec.Items[i].FvlrCRDecCalc     := leitor.rCampo(tcDe2, 'vlrCRDecCalc');
@@ -527,6 +511,7 @@ begin
             while Leitor.rExtrai(3, 'totApurSem', '', i + 1) <> '' do
             begin
               totApurSem.New;
+              totApurSem.Items[i].FperApurSem       := leitor.rCampo(tcStr, 'perApurSem');
               totApurSem.Items[i].FCRSem            := leitor.rCampo(tcStr, 'CRSem');
               totApurSem.Items[i].FvlrCRSemInf      := leitor.rCampo(tcDe2, 'vlrCRSemInf');
               totApurSem.Items[i].FvlrCRSemCalc     := leitor.rCampo(tcDe2, 'vlrCRSemCalc');
@@ -543,6 +528,7 @@ begin
             while Leitor.rExtrai(3, 'totApurDia', '', i + 1) <> '' do
             begin
               totApurDia.New;
+              totApurDia.Items[i].FperApurDia       := leitor.rCampo(tcStr, 'perApurDia');
               totApurDia.Items[i].FCRDia            := leitor.rCampo(tcStr, 'CRDia');
               totApurDia.Items[i].FvlrCRDiaInf      := leitor.rCampo(tcDe2, 'vlrCRDiaInf');
               totApurDia.Items[i].FvlrCRDiaCalc     := leitor.rCampo(tcDe2, 'vlrCRDiaCalc');
@@ -576,6 +562,7 @@ begin
             while Leitor.rExtrai(3, 'totApurQui', '', i + 1) <> '' do
             begin
               totApurQui.New;
+              totApurQui.Items[i].FperApurQui       := leitor.rCampo(tcStr, 'perApurQui');
               totApurQui.Items[i].FCRQui            := leitor.rCampo(tcStr, 'CRQui');
               totApurQui.Items[i].FvlrCRQuiDCTF     := leitor.rCampo(tcDe2, 'vlrCRQuiDCTF');
               totApurQui.Items[i].FvlrCRQuiSuspDCTF := leitor.rCampo(tcDe2, 'vlrCRQuiSuspDCTF');
@@ -587,6 +574,7 @@ begin
             while Leitor.rExtrai(3, 'totApurDec', '', i + 1) <> '' do
             begin
               totApurDec.New;
+              totApurDec.Items[i].FperApurDec       := leitor.rCampo(tcStr, 'perApurDec');
               totApurDec.Items[i].FCRDec            := leitor.rCampo(tcStr, 'CRDec');
               totApurDec.Items[i].FvlrCRDecDCTF     := leitor.rCampo(tcDe2, 'vlrCRDecDCTF');
               totApurDec.Items[i].FvlrCRDecSuspDCTF := leitor.rCampo(tcDe2, 'vlrCRDecSuspDCTF');
@@ -598,6 +586,7 @@ begin
             while Leitor.rExtrai(3, 'totApurSem', '', i + 1) <> '' do
             begin
               totApurSem.New;
+              totApurSem.Items[i].FperApurSem       := leitor.rCampo(tcStr, 'perApurSem');
               totApurSem.Items[i].FCRSem            := leitor.rCampo(tcStr, 'CRSem');
               totApurSem.Items[i].FvlrCRSemDCTF     := leitor.rCampo(tcDe2, 'vlrCRSemDCTF');
               totApurSem.Items[i].FvlrCRSemSuspDCTF := leitor.rCampo(tcDe2, 'vlrCRSemSuspDCTF');
@@ -609,6 +598,7 @@ begin
             while Leitor.rExtrai(3, 'totApurDia', '', i + 1) <> '' do
             begin
               totApurDia.New;
+              totApurDia.Items[i].FperApurDia       := leitor.rCampo(tcStr, 'perApurDia');
               totApurDia.Items[i].FCRDia            := leitor.rCampo(tcStr, 'CRDia');
               totApurDia.Items[i].FvlrCRDiaDCTF     := leitor.rCampo(tcDe2, 'vlrCRDiaDCTF');
               totApurDia.Items[i].FvlrCRDiaSuspDCTF := leitor.rCampo(tcDe2, 'vlrCRDiaSuspDCTF');
@@ -672,8 +662,6 @@ end;
 function TRetConsulta_R9015.SalvarINI: boolean;
 var
   AIni: TMemIniFile;
-  sSecao: String;
-  i, j: Integer;
 begin
   Result := True;
 
@@ -711,9 +699,11 @@ begin
         sSecao := 'infoRecEv';
         AIni.WriteString(sSecao, 'nrProtEntr', infoRecEv.nrProtEntr);
         AIni.WriteString(sSecao, 'dhProcess',  DateToStr(infoRecEv.dhProcess));
+        AIni.WriteString(sSecao, 'dhRecepcao', DateToStr(infoRecEv.dhRecepcao));
         AIni.WriteString(sSecao, 'tpEv',       infoRecEv.tpEv);
         AIni.WriteString(sSecao, 'idEv',       infoRecEv.idEv);
         AIni.WriteString(sSecao, 'hash',       infoRecEv.hash);
+        AIni.WriteString(sSecao, 'fechRet',    infoRecEv.fechRet);
 
         sSecao := 'infoTotalContrib';
         AIni.WriteString(sSecao, 'nrRecArqBase', infoTotalContrib.nrRecArqBase);

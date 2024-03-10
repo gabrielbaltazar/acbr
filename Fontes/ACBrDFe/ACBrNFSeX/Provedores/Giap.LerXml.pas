@@ -96,6 +96,8 @@ begin
 
       CodigoVerificacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('codigoVerificacao'), tcStr);
 
+      Link := ObterConteudo(AuxNode.Childrens.FindAnyNs('link'), tcStr);
+
       with Prestador.IdentificacaoPrestador do
       begin
         InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('im'), tcStr);
@@ -112,11 +114,8 @@ begin
 
   if AuxNode <> nil then
   begin
-    with NFSe.Prestador do
+    with NFSe.Servico do
     begin
-      RazaoSocial := '';
-      IdentificacaoPrestador.CpfCnpj := '';
-
       with Endereco do
       begin
         Endereco    := ObterConteudo(AuxNode.Childrens.FindAnyNs('logradouro'), tcStr);
@@ -127,9 +126,6 @@ begin
         UF          := ObterConteudo(AuxNode.Childrens.FindAnyNs('uf'), tcStr);
         CEP         := ObterConteudo(AuxNode.Childrens.FindAnyNs('cep'), tcStr);
         xPais       := ObterConteudo(AuxNode.Childrens.FindAnyNs('pais'), tcStr);
-
-        with Contato do
-          Telefone := ObterConteudo(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
       end;
     end;
   end;
@@ -207,9 +203,13 @@ begin
       AliquotaINSS   := 0;
       AliquotaIR     := 0;
       AliquotaCSLL   := 0;
+
+      RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
     end;
 
     NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('obs'), tcStr);
+    NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                                    sLineBreak, [rfReplaceAll]);
 
     LerItem(AuxNode);
 
@@ -220,6 +220,9 @@ begin
         (ValorDeducoes + DescontoCondicionado + DescontoIncondicionado +
                                                                 ValorIssRetido);
       BaseCalculo      := ValorLiquidoNfse;
+
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
     end;
   end;
 end;
@@ -237,6 +240,10 @@ begin
       CodigoCnae       := ObterConteudo(AuxNode.Childrens.FindAnyNs('cnae'), tcStr);
       ItemListaServico := ObterConteudo(AuxNode.Childrens.FindAnyNs('codigo'), tcStr);
       Discriminacao    := ObterConteudo(AuxNode.Childrens.FindAnyNs('descricao'), tcStr);
+      Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
+      VerificarSeConteudoEhLista(Discriminacao);
 
       with Valores do
       begin
@@ -251,8 +258,12 @@ function TNFSeR_Giap.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -281,25 +292,19 @@ begin
 end;
 
 function TNFSeR_Giap.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
-var
-  AuxNode: TACBrXmlNode;
 begin
   Result := True;
   NFSe.SituacaoNfse := snNormal;
 
   if not Assigned(ANode) or (ANode = nil) then Exit;
 
-  AuxNode := ANode.Childrens.FindAnyNs('notaFiscal');
-
-  if AuxNode = nil then Exit;
-
-  LerDadosPrestador(AuxNode);
+  LerDadosPrestador(ANode);
 
   NFSe.InfID.ID := OnlyNumber(NFSe.Numero);
 
-  LerDadosServico(AuxNode);
-  LerDadosTomador(AuxNode);
-  LerDetalheServico(AuxNode);
+  LerDadosServico(ANode);
+  LerDadosTomador(ANode);
+  LerDetalheServico(ANode);
 end;
 
 function TNFSeR_Giap.LerXmlRps(const ANode: TACBrXmlNode): Boolean;

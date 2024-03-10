@@ -79,8 +79,8 @@ type
     procedure PrepararConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
     procedure TratarRetornoConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure PrepararConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse); override;
     procedure TratarRetornoConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse); override;
@@ -92,7 +92,9 @@ type
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = '';
                                      const AMessageTag: string = ''); override;
-
+  public
+    function TipoTributacaoRPSToStr(const t: TTipoTributacaoRPS): string; override;
+    function StrToTipoTributacaoRPS(out ok: boolean; const s: string): TTipoTributacaoRPS; override;
   end;
 
 implementation
@@ -112,8 +114,21 @@ begin
 
   with ConfigGeral do
   begin
+    UseCertificateHTTP := False;
     ModoEnvio := meLoteSincrono;
     DetalharServico := True;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerLogin := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteSincrono := True;
+      ConsultarRps := True;
+      ConsultarNfse := True;
+      ConsultarFaixaNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   ConfigSchemas.Validar := False;
@@ -178,7 +193,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := '';
-      AErro.Descricao := ACBrStr(vDescricao);
+      AErro.Descricao := vDescricao;
       AErro.Correcao := '';
     end;
   end;
@@ -281,7 +296,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
 begin
-  if EstaVazio(Response.NumRPS) then
+  if EstaVazio(Response.NumeroRps) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod102;
@@ -291,7 +306,7 @@ begin
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
-  Response.ArquivoEnvio := '<iRPS>' + Response.NumRPS + '</iRPS>' +
+  Response.ArquivoEnvio := '<iRPS>' + Response.NumeroRps + '</iRPS>' +
                        '<sCPFCNPJ>' + OnlyNumber(Emitente.CNPJ) + '</sCPFCNPJ>' +
                        '<dDataRecibo>' + '</dDataRecibo>';
 end;
@@ -359,7 +374,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderSimple.PrepararConsultaNFSe(
+procedure TACBrNFSeProviderSimple.PrepararConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
@@ -388,7 +403,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderSimple.TratarRetornoConsultaNFSe(
+procedure TACBrNFSeProviderSimple.TratarRetornoConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   Document: TACBrXmlDocument;
@@ -662,6 +677,22 @@ begin
   end;
 end;
 
+function TACBrNFSeProviderSimple.TipoTributacaoRPSToStr(
+  const t: TTipoTributacaoRPS): string;
+begin
+  Result := EnumeradoToStr(t, ['N', 'S', 'I', 'R', 'P', 'T'],
+            [ttTribnoMun, ttSimplesNacional, ttTribnoMunIsento, ttRetidonoMun,
+            ttTribforaMun, ttExpServicos]);
+end;
+
+function TACBrNFSeProviderSimple.StrToTipoTributacaoRPS(out ok: boolean;
+  const s: string): TTipoTributacaoRPS;
+begin
+  Result := StrToEnumerado(Ok, s, ['N', 'S', 'I', 'R', 'P', 'T'],
+            [ttTribnoMun, ttSimplesNacional, ttTribnoMunIsento, ttRetidonoMun,
+            ttTribforaMun, ttExpServicos]);
+end;
+
 { TACBrNFSeXWebserviceSimple }
 
 function TACBrNFSeXWebserviceSimple.GetDadosUsuario: string;
@@ -754,6 +785,7 @@ begin
 
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
+  Result := RemoverPrefixosDesnecessarios(Result);
 end;
 
 end.

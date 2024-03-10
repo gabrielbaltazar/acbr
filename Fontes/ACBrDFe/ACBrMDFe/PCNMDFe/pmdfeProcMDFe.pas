@@ -38,7 +38,7 @@ interface
 
 uses
   SysUtils, Classes,
-  pcnConversao, pcnGerador, pcnLeitor, pcnConsts, pmdfeConsts;
+  pcnConversao, pcnGerador, pcnLeitor, pmdfeConsts;
 
 type
 
@@ -88,7 +88,9 @@ type
 implementation
 
 uses
-  pcnAuxiliar, ACBrUtil.Strings;
+  StrUtils,
+  ACBrDFeConsts,
+  ACBrUtil.Strings;
 
 { TProcMDFe }
 
@@ -202,7 +204,7 @@ begin
                           PreencherTAG('cStat', XMLinfProt.text) +
                           PreencherTAG('xMotivo', XMLinfProt.text) +
                         '</infProt>' +
-                        IIF( (PreencherTAG('cMsg', XMLinfProt.text) <> ''),
+                        IfThen( (PreencherTAG('cMsg', XMLinfProt.text) <> ''),
                         '<infFisco>' +
                           PreencherTAG('cMsg', XMLinfProt.text) +
                           PreencherTAG('xMsg', XMLinfProt.text) +
@@ -225,7 +227,7 @@ begin
                        '<cStat>'+IntToStr(FcStat)+'</cStat>'+
                        '<xMotivo>'+FxMotivo+'</xMotivo>'+
                       '</infProt>'+
-                      IIF( (cMsg > 0) or (xMsg <> ''),
+                      IfThen( (cMsg > 0) or (xMsg <> ''),
                       '<infFisco>' +
                         '<cMsg>' + IntToStr(FcMsg) + '</cMsg>' +
                         '<xMsg>' + FxMsg + '</xMsg>' +

@@ -50,6 +50,7 @@ type
   public
     function Recepcionar(ACabecalho, AMSG: String): string; override;
     function ConsultarLote(ACabecalho, AMSG: String): string; override;
+    function ConsultarLinkNFSe(ACabecalho, AMSG: String): string; override;
     function Cancelar(ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
@@ -73,6 +74,9 @@ type
 
     procedure PrepararConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
     procedure TratarRetornoConsultaLoteRps(Response: TNFSeConsultaLoteRpsResponse); override;
+
+    procedure PrepararConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse); override;
+    procedure TratarRetornoConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
@@ -158,6 +162,16 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
     DetalharServico := True;
+
+    Autenticacao.RequerLogin := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarLote := True;
+      ConsultarLinkNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   with ConfigAssinar do
@@ -194,6 +208,7 @@ begin
     Recepcionar := 'WSEntradaNfd.xsd';
     ConsultarLote := 'WSSaidaNfd.xsd';
     CancelarNFSe := 'WSEntradaCancelar.xsd';
+    ConsultarLinkNFSe := 'WSUtil.xsd';
 
     Validar := False;
   end;
@@ -256,11 +271,11 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := '';
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('return'), tcStr));
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('return'), tcStr);
       AErro.Correcao := '';
 
       if AErro.Descricao = '' then
-        AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+        AErro.Descricao := ANodeArray[I].AsString;
     end
     else
     begin
@@ -271,11 +286,11 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Codigo;
-        AErro.Descricao := ACBrStr(Descricao);
+        AErro.Descricao := Descricao;
         AErro.Correcao := '';
 
         if AErro.Descricao = '' then
-          AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+          AErro.Descricao := ANodeArray[I].AsString;
       end;
     end;
   end;
@@ -371,8 +386,8 @@ begin
   end;
 
   Response.ArquivoEnvio := '<recibo>' +
-                         '<codrecibo>' + Response.Protocolo + '</codrecibo>' +
-                       '</recibo>';
+                             '<codrecibo>' + Response.Protocolo + '</codrecibo>' +
+                           '</recibo>';
 end;
 
 procedure TACBrNFSeProviderSmarAPD.TratarRetornoConsultaLoteRps(
@@ -383,7 +398,7 @@ var
   ANode, AuxNode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   i: Integer;
-  NumNFSe: String;
+  NumNFSe, NumRPS: String;
   ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
@@ -427,10 +442,10 @@ begin
         if AuxNode <> nil then
         begin
           NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroNota'), tcStr);
-
           Response.NumeroNota := NumNFSe;
 
-          ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNFSe);
+          NumRPS := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NumeroRps'), tcStr);
+          ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRPS);
 
           ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
           SalvarXmlNfse(ANota);
@@ -442,6 +457,110 @@ begin
         AErro := Response.Erros.New;
         AErro.Codigo := Cod999;
         AErro.Descricao := ACBrStr(Desc999 + E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(Document);
+  end;
+end;
+
+procedure TACBrNFSeProviderSmarAPD.PrepararConsultaLinkNFSe(
+  Response: TNFSeConsultaLinkNFSeResponse);
+var
+  AErro: TNFSeEventoCollectionItem;
+  Emitente: TEmitenteConfNFSe;
+  CodMun: string;
+begin
+  if EstaVazio(Response.InfConsultaLinkNFSe.NumeroNFSe) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod108;
+    AErro.Descricao := ACBrStr(Desc108);
+    Exit;
+  end;
+
+  if EstaVazio(Response.InfConsultaLinkNFSe.SerieNFSe) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod112;
+    AErro.Descricao := ACBrStr(Desc112);
+    Exit;
+  end;
+
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+  CodMun := IntToStr(TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio);
+
+  Response.ArquivoEnvio := '<codigoMunicipio>' +
+                              CodMun +
+                           '</codigoMunicipio>' +
+                           '<numeroNfd>' +
+//                           '<numeroNfd xmlns="">' +
+                              Response.InfConsultaLinkNFSe.NumeroNFSe +
+                           '</numeroNfd>' +
+                           '<serieNfd>' +
+//                           '<serieNfd xmlns="">' +
+                              Response.InfConsultaLinkNFSe.SerieNFSe +
+                           '</serieNfd>' +
+                           '<inscricaoMunicipal>' +
+                              OnlyNumber(Emitente.InscMun) +
+                           '</inscricaoMunicipal>';
+end;
+
+procedure TACBrNFSeProviderSmarAPD.TratarRetornoConsultaLinkNFSe(
+  Response: TNFSeConsultaLinkNFSeResponse);
+var
+  Document: TACBrXmlDocument;
+  AErro: TNFSeEventoCollectionItem;
+  ANode: TACBrXmlNode;
+  i: Integer;
+begin
+  Document := TACBrXmlDocument.Create;
+
+  try
+    try
+      if Response.ArquivoRetorno = '' then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod201;
+        AErro.Descricao := Desc201;
+        Exit
+      end;
+
+      Document.LoadFromXml(Response.ArquivoRetorno);
+
+      ProcessarMensagemErros(Document.Root, Response, '', 'return');
+
+      Response.Sucesso := (Response.Erros.Count = 0);
+
+      ANode := Document.Root;
+
+      ANode := ANode.Childrens.FindAnyNs('return');
+      ANode := ANode.Childrens.FindAnyNs('util');
+
+      if not Assigned(ANode) then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod203;
+        AErro.Descricao := Desc203;
+        Exit;
+      end;
+
+      if ANode <> nil then
+      begin
+        Response.Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('urlAutenticidade'), tcStr);
+
+        Response.Protocolo := '';
+        i := Pos('&CHAVE=', UpperCase(Response.Link));
+        if (i > 0) then
+          Response.Protocolo := Trim(Copy(Response.Link, i+7, 12));
+      end;
+
+    except
+      on E:Exception do
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod999;
+        AErro.Descricao := Desc999 + E.Message;
       end;
     end;
   finally
@@ -547,7 +666,7 @@ begin
   begin
     Result := '<cpfUsuario>' + Emitente.WSUser + '</cpfUsuario>' +
               '<hashSenha>' +
-                string(EncodeBase64(SHA1(AnsiString(Emitente.WSSenha)))) +
+                string(EncodeBase64(SHA1(AnsiString(UpperCase(Emitente.WSSenha))))) +
               '</hashSenha>';
   end;
 end;
@@ -586,6 +705,20 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
+function TACBrNFSeXWebserviceSmarAPD.ConsultarLinkNFSe(ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<sil:urlNfd xmlns:sil="http://webservices.sil.com/">';
+  Request := Request + AMSG;
+  Request := Request + '</sil:urlNfd>';
+
+  Result := Executar('', Request, [], []);
+end;
+
 function TACBrNFSeXWebserviceSmarAPD.Cancelar(ACabecalho, AMSG: String): string;
 var
   Request: string;
@@ -606,7 +739,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;
@@ -621,11 +754,16 @@ begin
 
   with ConfigAssinar do
   begin
-    Rps := True;
+    {
+      Comentado a linha abaixo para atender a cidade de Cubatão/SP
+      14/03/2023
+    }
+//    Rps := True;
     LoteRps := True;
     CancelarNFSe := True;
     RpsGerarNFSe := True;
     RpsSubstituirNFSe := True;
+    ConsultarNFSeRps := True;
 
     IncluirURI := False;
   end;
@@ -836,7 +974,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;
@@ -1079,7 +1217,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result));
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;

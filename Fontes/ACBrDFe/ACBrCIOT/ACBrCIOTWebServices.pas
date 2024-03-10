@@ -38,9 +38,10 @@ interface
 
 uses
   Classes, SysUtils,
-  ACBrDFe, ACBrDFeWebService, pcnConsts,
+  ACBrDFe, ACBrDFeWebService,
   ACBrCIOTContratos, ACBrCIOTConfiguracoes,
-  pcnAuxiliar, pcnConversao, pcnConversaoCIOT, pcnCIOT, pcnRetEnvCIOT;
+  ACBrConsts,
+  ACBrCIOTConversao, pcnCIOT, pcnRetEnvCIOT;
 
 const
   CURL_WSDL = 'http://schemas.ipc.adm.br/efrete/pef/';
@@ -148,6 +149,7 @@ type
 implementation
 
 uses
+  ACBrDFeConsts,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.DateTime,
@@ -347,7 +349,7 @@ end;
 
 function TCIOTEnvioWebService.GerarMsgErro(E: Exception): String;
 begin
-  Result := ACBrStr('WebService: '+FPServico + LineBreak +
+  Result := ACBrStr('WebService: '+FPServico + CRLF +
                     '- Inativo ou Inoperante tente novamente.');
 end;
 
@@ -641,7 +643,7 @@ end;
 
 function TCIOTEnviar.GerarMsgErro(E: Exception): String;
 begin
-  Result := ACBrStr('WebService Enviar Documento:' + LineBreak +
+  Result := ACBrStr('WebService Enviar Documento:' + CRLF +
                     '- Inativo ou Inoperante tente novamente.');
 end;
 
@@ -653,9 +655,9 @@ begin
 
   if CodRetorno <> 0 then
   begin
-    xMsg := Format(ACBrStr('Controle Negocial:' + LineBreak +
-                           ' Codigo Retorno: %s ' + LineBreak +
-                           ' Mensagem: %s ' + LineBreak),
+    xMsg := Format(ACBrStr('Controle Negocial:' + CRLF +
+                           ' Codigo Retorno: %s ' + CRLF +
+                           ' Mensagem: %s ' + CRLF),
                  [CodRetorno,
                   FPMsg]);
   end;
@@ -688,10 +690,10 @@ begin
   FPMsg := '';
 
   if FRetornoEnvio.RetEnvio.Mensagem <> '' then
-    FPMsg := FRetornoEnvio.RetEnvio.Mensagem + LineBreak +
+    FPMsg := FRetornoEnvio.RetEnvio.Mensagem + CRLF +
              FRetornoEnvio.RetEnvio.Codigo
   else
-    FPMsg := FRetornoEnvio.RetEnvio.Sucesso + LineBreak +
+    FPMsg := FRetornoEnvio.RetEnvio.Sucesso + CRLF +
              FRetornoEnvio.RetEnvio.ProtocoloServico;
 
   Result := (FRetornoEnvio.RetEnvio.Sucesso = 'true');

@@ -39,7 +39,8 @@ interface
 uses
   SysUtils, Classes, StrUtils, variants,
   ACBrUtil.Base, ACBrUtil.XMLHTML, ACBrUtil.Strings,
-  pcnGerador, pcnLeitor, pcnConversao, pcnAuxiliar, pcnConsts,
+  pcnGerador, pcnLeitor, pcnConversao,
+  ACBrDFeConsts,
   pcnCommonReinf, pcnConversaoReinf;
 
 type
@@ -57,6 +58,7 @@ type
 
     FGerador: TGerador;
     FSchema: TReinfSchema;
+    function VersaoReinfToStrHibrido(const t: TVersaoReinf): String;
     procedure SetXML(const Value: AnsiString);
   protected
     {Geradores de Uso Comum}
@@ -82,7 +84,8 @@ type
     function  Assinar(const XMLEvento: String; NomeEvento: String): AnsiString;
     function  GerarChaveReinf(const emissao: TDateTime;
                                 const CNPJF: string;
-                                sequencial: Integer): String;
+                                sequencial: Integer;
+                                TpInsc: TtpInsc): String;
     procedure Validar(Schema: TReinfSchema);
 
     property Alertas: String read FAlertas;
@@ -212,6 +215,19 @@ begin
   end;
 end;
 
+function TReinfEvento.VersaoReinfToStrHibrido(const t: TVersaoReinf): String;
+begin
+  with TACBrReinf(FACBrReinf) do
+  begin
+    Result := VersaoReinfToStr(Configuracoes.Geral.VersaoDF);
+
+    // Versao 1_05_01 migrada para versao 2_01_02
+    // Mantidas urls, mudança apenas na URN
+    if ( Configuracoes.Geral.VersaoDF = v1_05_01 ) then
+      Result := '2_01_02';
+  end;
+end;
+
 procedure TReinfEvento.SetXML(const Value: AnsiString);
 var
   NomeEvento: String;
@@ -224,7 +240,10 @@ begin
   begin
     NomeEvento := TipoEventoToStrEvento(StringXMLToTipoEvento(Ok, FXML));
     FXML := Assinar(FXML, NomeEvento);
+  end;
 
+  if ((not XmlEstaAssinado(FXML)) or (Self.Id = '')) then
+  begin
     Leitor := TLeitor.Create;
     try
       Leitor.Grupo := FXML;
@@ -232,9 +251,10 @@ begin
     finally
       Leitor.Free;
     end;
-
-    Validar(TipoEventiToSchemaReinf(StringXMLToTipoEvento(Ok, FXML)));
   end;
+
+  if not XmlEstaAssinado(FXML) then
+    Validar(TipoEventiToSchemaReinf(StringXMLToTipoEvento(Ok, FXML)));
 end;
 
 procedure TReinfEvento.Validar(Schema: TReinfSchema);
@@ -245,7 +265,7 @@ var
 begin
   AXML := FXMLAssinado;
   Evento := SchemaReinfToStr(Schema) + PrefixVersao +
-          VersaoReinfToStr(TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF);
+          VersaoReinfToStrHibrido(TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF);
 
   if EstaVazio(AXML) then
   begin
@@ -289,7 +309,7 @@ begin
   with TACBrReinf(FACBrReinf) do
   begin
     SSL.NameSpaceURI := ACBRReinf_NAMESPACE_URI + Namespace + '/v' +
-                        VersaoReinfToStr(Configuracoes.Geral.VersaoDF);
+                        VersaoReinfToStrHibrido(Configuracoes.Geral.VersaoDF);
 
     Gerador.wGrupo(ENCODING_UTF8, '', False);
     Gerador.wGrupo('Reinf xmlns="' + SSL.NameSpaceURI+'"');
@@ -297,8 +317,9 @@ begin
 end;
 
 function TReinfEvento.GerarChaveReinf(const emissao: TDateTime;
-                                          const CNPJF: string;
-                                          sequencial: Integer): String;
+                                const CNPJF: string;
+                                sequencial: Integer;
+                                TpInsc: TtpInsc): String;
 var
   nAno, nMes, nDia, nHora, nMin, nSeg, nMSeg: Word;
 begin
@@ -316,10 +337,7 @@ begin
   DecodeTime(emissao, nHora, nMin, nSeg, nMSeg);
   Result := 'ID';
 
-  if (Length(CNPJF) = 14) then
-    Result := Result + IntToStr(1)
-  else
-    Result := Result + IntToStr(2);
+  Result := Result + TpInscricaoToStr(TpInsc);
 
   if TACBrReinf(FACBrReinf).Configuracoes.Geral.TipoContribuinte in [tcOrgaoPublico, tcPessoaFisica] then
     Result := Result + copy(OnlyNumber(CNPJF) + '00000000000000', 1, 14)

@@ -81,6 +81,10 @@ type
     function Value(const AName: string; var AValue: string): TACBrJSONObject; overload;
     function Value(const AName: string; var AValue: TSplitResult): TACBrJSONObject; overload;
 
+    function ValueExists(const AName: string): Boolean;
+    function IsJSONArray(const AName: string): Boolean;
+    function IsJSONObject(const AName: string): Boolean;
+
     property OwnerJSON: Boolean read FOwnerJSON write FOwnerJSON;
     property AsBoolean[const AName: string]: Boolean read GetAsBoolean;
     property AsCurrency[const AName: string]: Currency read GetAsCurrency;
@@ -535,6 +539,59 @@ begin
   if LIndex >= 0 then
     Result := FJSON.Items[LIndex].Value;
 {$EndIf}{$EndIf}
+end;
+
+function TACBrJSONObject.ValueExists(const AName: string): Boolean;
+begin
+  Result := (not IsNull(AName));
+end;
+
+function TACBrJSONObject.IsJSONArray(const AName: string): Boolean;
+var
+  JsonVal: TACBrJSONValue;
+begin
+  Result := False;
+
+  JsonVal := AsValue[AName];
+  if {$IfNDef USE_JSONDATAOBJECTS_UNIT}Assigned(JsonVal) and {$EndIf} (not JsonVal.IsNull) then
+  begin
+    {$IFDEF USE_JSONDATAOBJECTS_UNIT}
+      if JsonVal.Typ = jdtArray then
+        Result := True;
+    {$ELSE}
+      {$IFDEF FPC}
+        if JsonVal.JSONType = jtArray then
+          Result := True;
+      {$ELSE}
+        if JSonVal.ValueType = jvArray then
+          Result := True;
+      {$ENDIF}
+    {$ENDIF}
+  end;
+end;
+
+function TACBrJSONObject.IsJSONObject(const AName: string): Boolean;
+var
+  JsonVal: TACBrJSONValue;
+begin
+  Result := False;
+
+  JsonVal := AsValue[AName];
+  if {$IfNDef USE_JSONDATAOBJECTS_UNIT}Assigned(JsonVal) and {$EndIf} (not JsonVal.IsNull) then
+  begin
+    {$IFDEF USE_JSONDATAOBJECTS_UNIT}
+      if JsonVal.Typ = jdtObject then
+        Result := True;
+    {$ELSE}
+      {$IFDEF FPC}
+        if JsonVal.JSONType = jtObject then
+          Result := True;
+      {$ELSE}
+        if JSonVal.ValueType = jvObject then
+          Result := True;
+      {$ENDIF}
+    {$ENDIF}
+  end;
 end;
 
 function TACBrJSONObject.IsNull(const AValue: TACBrJSONValue): Boolean;

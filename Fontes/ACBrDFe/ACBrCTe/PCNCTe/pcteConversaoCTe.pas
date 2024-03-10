@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -41,65 +41,261 @@ uses
   pcnConversao;
 
 type
-
-  TLayOutCTe = (LayCTeRecepcao, LayCTeRetRecepcao, LayCTeCancelamento,
-                LayCTeInutilizacao, LayCTeConsulta, LayCTeStatusServico,
-                LayCTeCadastro, LayCTeEvento, LayCTeEventoAN,
-                LayCTeDistDFeInt, LayCTeRecepcaoOS, LayCTeRecepcaoSinc,
-                LayCTeRecepcaoGTVe);
-
-  TSchemaCTe = ( schErro, schCTe, schCTeOS, schGTVe, schcancCTe, schInutCTe,
-                 schEventoCTe,
-           //      schresCTe, schresEvento, schprocCTe, schprocEventoCTe,
-                 schconsReciCTe, schconsSitCTe, schconsStatServCTe, schconsCad,
-                 schcteModalAereo, schcteModalAquaviario, schcteModalDutoviario,
-                 schcteModalFerroviario, schcteModalRodoviario, schcteMultiModal,
-                 schevEPECCTe, schevCancCTe, schevRegMultimodal, schevCCeCTe,
-                 schdistDFeInt, schcteModalRodoviarioOS, schevPrestDesacordo,
-                 schevGTV, schevCECTe, schevCancCECTe{, schprocCTeOS} );
-
   TStatusACBrCTe = (stCTeIdle, stCTeStatusServico, stCTeRecepcao, stCTeRetRecepcao,
                     stCTeConsulta, stCTeCancelamento, stCTeInutilizacao,
                     stCTeRecibo, stCTeCadastro, stCTeEmail, stCTeCCe,
                     stCTeEvento, stCTeDistDFeInt, stCTeEnvioWebService);
 
-  TModeloCTe = (moCTe, moCTeOS, moGTVe);
-  TVersaoCTe = (ve200, ve300);
+  TVersaoCTe = (ve200, ve300, ve400);
 
+const
+  TVersaoCTeArrayStrings: array[TVersaoCTe] of string = ('2.00', '3.00', '4.00');
+  TVersaoCTeArrayDouble: array[TVersaoCTe] of Double = (2.00, 3.00, 4.00);
+
+type
+  TSchemaCTe = ( schErro, schCTe, schCTeOS, schGTVe, schcancCTe, schInutCTe,
+                 schEventoCTe,
+                 schconsReciCTe, schconsSitCTe, schconsStatServCTe, schconsCad,
+                 schcteModalAereo, schcteModalAquaviario, schcteModalDutoviario,
+                 schcteModalFerroviario, schcteModalRodoviario, schcteMultiModal,
+                 schevEPECCTe, schevCancCTe, schevRegMultimodal, schevCCeCTe,
+                 schdistDFeInt, schcteModalRodoviarioOS, schevPrestDesacordo,
+                 schevGTV, schevCECTe, schevCancCECTe, schevCancPrestDesacordo,
+                 schevIECTe, schevCancIECTe);
+
+const
+  TSchemaCTeArrayStrings: array[TSchemaCTe] of string = ('', '', '', '', '', '',
+    '', '', '', '', '', '', '', '', '', '', '', 'evEPECCTe', 'evCancCTe',
+    'evRegMultimodal', 'evCCeCTe', 'distDFeInt', 'cteModalRodoviarioOS',
+    'evPrestDesacordo', 'evGTV', 'evCECTe', 'evCancCECTe',
+    'evCancPrestDesacordo', 'evIECTe', 'evCancIECTe');
+
+type
+  TLayOutCTe = (LayCTeRecepcao, LayCTeRetRecepcao, LayCTeCancelamento,
+                LayCTeInutilizacao, LayCTeConsulta, LayCTeStatusServico,
+                LayCTeCadastro, LayCTeEvento, LayCTeEventoAN,
+                LayCTeDistDFeInt, LayCTeRecepcaoOS, LayCTeRecepcaoSinc,
+                LayCTeRecepcaoGTVe, LayCTeURLQRCode, LayURLConsultaCTe);
+const
+  TLayOutCTeArrayStrings: array[TLayOutCTe] of string = ('CTeRecepcao',
+    'CTeRetRecepcao', 'CTeCancelamento', 'CTeInutilizacao',
+    'CTeConsultaProtocolo', 'CTeStatusServico', 'CTeConsultaCadastro',
+    'RecepcaoEvento', 'RecepcaoEventoAN', 'CTeDistribuicaoDFe', 'CTeRecepcaoOS',
+    'CTeRecepcaoSinc', 'CTeRecepcaoGTVe', 'URL-QRCode', 'URL-ConsultaCTe');
+
+type
+  TModeloCTe = (moCTe, moGTVe, moCTeOS);
+
+const
+  TModeloCTeArrayStrings: array[TModeloCTe] of string = ('57', '64', '67');
+
+type
   TpcteFormaPagamento = (fpPago, fpAPagar, fpOutros);
+
+const
+  TFormaPagamentoArrayStrings: array[TpcteFormaPagamento] of string = ('0',
+    '1', '2');
+  TFormaPagamentoDescArrayStrings: array[TpcteFormaPagamento]
+     of string = ('PAGO', 'A PAGAR', 'OUTROS');
+
+type
   TpcteTipoCTe = (tcNormal, tcComplemento, tcAnulacao, tcSubstituto, tcGTVe);
+
+const
+  TTipoCTeArrayStrings: array[TpcteTipoCTe] of string = ('0', '1', '2', '3',
+    '4');
+  TTipoCTeDescArrayStrings: array[TpcteTipoCTe] of string = ('NORMAL',
+    'COMPLEMENTO', 'ANULAÇÃO', 'SUBSTITUTO', 'GTVe');
+
+type
   TpcteTipoServico = (tsNormal, tsSubcontratacao, tsRedespacho, tsIntermediario,
                       tsMultimodal, tsTranspPessoas, tsTranspValores,
                       tsExcessoBagagem, tsGTV);
+
+const
+  TTipoServicoArrayStrings: array[TpcteTipoServico] of string = ('0', '1',
+    '2', '3', '4', '6', '7', '8', '9');
+  TTipoServicoDescArrayStrings: array[TpcteTipoServico]
+    of string = ('NORMAL', 'SUBCONTRATAÇÃO', 'REDESPACHO',
+      'REDESP. INTERMEDIÁRIO', 'VINC. A MULTIMODAL', 'TRANSP. PESSOAS',
+      'TRANSP. VALORES', 'EXCESSO BAGAGEM', 'GTV');
+
+type
   TpcteRetira = (rtSim, rtNao);
-  TpcteTomador = ( tmRemetente, tmExpedidor, tmRecebedor, tmDestinatario, tmOutros);
+
+const
+  TRetiraArrayStrings: array[TpcteRetira] of string = ('0', '1');
+
+type
+  TpcteTomador = (tmRemetente, tmExpedidor, tmRecebedor, tmDestinatario,
+                  tmOutros);
+
+const
+  TTomadorArrayStrings: array[TpcteTomador] of string = ('0', '1', '2', '3',
+    '4');
+  TTomadorDescArrayStrings: array[TpcteTomador] of string = ('REMETENTE',
+    'EXPEDIDOR', 'RECEBEDOR', 'DESTINATARIO', 'OUTROS');
+
+type
   TpcteLotacao = (ltNao, ltSim);
+
+const
+  TLotacaoArrayStrings: array[TpcteLotacao] of string = ('0', '1');
+
+type
   TpcteDirecao = (drNorte, drLeste, drSul, drOeste);
+
+const
+  TDirecaoArrayStrings: array[TpcteDirecao] of string = ('N', 'L', 'S', 'O');
+
+type
   TpcteTipoTrafego = (ttProprio, ttMutuo, ttRodoferroviario, ttRodoviario);
-  TpcteTipoDataPeriodo = (tdSemData, tdNaData, tdAteData, tdApartirData, tdNoPeriodo, tdNaoInformado);
-  TpcteTipoHorarioIntervalo = (thSemHorario, thNoHorario, thAteHorario, thApartirHorario, thNoIntervalo, thNaoInformado);
+
+const
+  TTipoTrafegoArrayStrings: array[TpcteTipoTrafego] of string = ('0', '1',
+    '2', '3');
+
+type
+  TpcteTipoDataPeriodo = (tdSemData, tdNaData, tdAteData, tdApartirData,
+                          tdNoPeriodo, tdNaoInformado);
+
+const
+  TTipoDataPeriodoArrayStrings: array[TpcteTipoDataPeriodo] of string = ('0',
+    '1', '2', '3', '4', 'N');
+
+type
+  TpcteTipoHorarioIntervalo = (thSemHorario, thNoHorario, thAteHorario,
+                               thApartirHorario, thNoIntervalo, thNaoInformado);
+
+const
+  TTipoHorarioIntervaloArrayStrings: array[TpcteTipoHorarioIntervalo]
+     of string = ('0', '1', '2', '3', '4', 'N');
+
+type
   TpcteTipoDocumento = (tdDeclaracao, tdDutoviario, tdCFeSAT, tdNFCe, tdOutros);
+
+const
+  TTipoDocumentoArrayStrings: array[TpcteTipoDocumento] of string = ('00',
+    '10', '59', '65', '99');
+
+type
   TpcteTipoDocumentoAnterior = (daCTRC, daCTAC, daACT, daNF7, daNF27, daCAN,
                                 daCTMC, daATRE, daDTA, daCAI, daCCPI, daCA,
                                 daTIF, daBL, daOutros);
-  TpcteRspPagPedagio = (rpEmitente, rpRemetente, rpExpedidor, rpRecebedor, rpDestinatario, rpTomadorServico);
+
+const
+  TTipoDocumentoAnteriorArrayStrings: array[TpcteTipoDocumentoAnterior]
+     of string = ('00', '01', '02', '03', '04', '05', '06', '07', '08', '09',
+       '10', '11', '12', '13', '99');
+
+type
+  TpcteRspPagPedagio = (rpEmitente, rpRemetente, rpExpedidor, rpRecebedor,
+                        rpDestinatario, rpTomadorServico);
+
+const
+  TRspPagPedagioArrayStrings: array[TpcteRspPagPedagio] of string = ('0',
+    '1', '2', '3', '4', '5');
+
+type
   TpcteTipoDispositivo = (tdCartaoMagnetico, tdTAG, tdTicket);
+
+const
+  TTipoDispositivoArrayStrings: array[TpcteTipoDispositivo]
+     of string = ('1', '2', '3');
+
+type
   TpcteTipoPropriedade = (tpProprio, tpTerceiro);
+
+const
+  TTipoPropriedadeArrayStrings: array[TpcteTipoPropriedade] of string = ('P',
+    'T');
+
+type
   TpcteTrafegoMutuo = (tmOrigem, tmDestino);
+
+const
+  TTrafegoMutuoArrayStrings: array[TpcteTrafegoMutuo] of string = ('1', '2');
+
+type
   TpcnindNegociavel = (inNaoNegociavel, inNegociavel);
+
+const
+  TindNegociavelArrayStrings: array[TpcnindNegociavel] of string = ('0', '1');
+
+type
   TpcteTipoVeiculo = (tvTracao, tvReboque);
-  TpcteRspSeg = (rsRemetente, rsExpedidor, rsRecebedor, rsDestinatario, rsEmitenteCTe, rsTomadorServico);
+
+const
+  TTipoVeiculoArrayStrings: array[TpcteTipoVeiculo] of string = ('0', '1');
+
+type
+  TpcteRspSeg = (rsRemetente, rsExpedidor, rsRecebedor, rsDestinatario,
+                 rsEmitenteCTe, rsTomadorServico);
+
+const
+  TRspSegArrayStrings: array[TpcteRspSeg] of string = ('0', '1', '2', '3',
+    '4', '5');
+  TRspSegDescArrayStrings: array[TpcteRspSeg] of string = ('REMETENTE',
+    'EXPEDIDOR', 'RECEBEDOR', 'DESTINATARIO', 'EMITENTE', 'TOMADOR SERVICO');
+
+type
   TEspecie = (teNumerario, teCheque, teMoeda, teOutros);
+
+const
+  TEspecieArrayStrings: array[TEspecie] of string = ('1', '2', '3', '4');
+
+type
   TpInfManu = (imCEEAV, imAPCDEA, imSAC, imAPDENR, imAPQI, imGSR, imNR, imAPCC,
-               imAAGA, imPI965, imPI966, imPI967, imPI968, imPI969, imPI970, imOUTRO);
+               imAAGA, imPI965, imPI966, imPI967, imPI968, imPI969, imPI970,
+               imOUTRO);
+
+const
+  TpInfManuArrayStrings: array[TpInfManu] of string = ('01', '02', '03', '04',
+    '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '99');
+  TpInfManuV2ArrayStrings: array[TpInfManu] of string = ('1', '2', '3', '4', '5',
+    '6', '7', '8', '9', '', '', '', '', '', '', '99');
+
+type
   TpUniMed = (umKG, umKGG, umLitros, umTI, umUnidades);
+
+const
+  TpUniMedArrayStrings: array[TpUniMed] of string = ('1', '2', '3', '4', '5');
+
+type
   TtpFretamento = (tfNenhum, tfEventual, tpContinuo);
 
-  TtpComp = (tcCustodia, tcEmbarque, tcTempodeespera, tcMalote, tcAdValorem, tcOutros);
+const
+  TtpFretamentoArrayStrings: array[TtpFretamento] of string = ('', '1', '2');
 
+type
+  TtpComp = (tcCustodia, tcEmbarque, tcTempodeespera, tcMalote, tcAdValorem,
+             tcOutros);
+
+const
+  TtpCompArrayStrings: array[TtpComp] of string = ('1', '2', '3', '4', '5', '6');
+
+type
   TtpNumerario = (tnNacional, tnEstrangeiro);
 
-  TCRT = (crtNenhum, crtSimplesNacional, crtSimplesExcessoReceita, crtRegimeNormal);
+const
+  TtpNumerarioArrayStrings: array[TtpNumerario] of string = ('1', '2');
+
+type
+  TCRT = (crtNenhum, crtSimplesNacional, crtSimplesExcessoReceita,
+          crtRegimeNormal, crtSimplesNacionalMEI);
+const
+  TCRTArrayStrings: array[TCRT] of string = ('', '1', '2', '3', '4');
+
+type
+  TtpMotivo = (tmNaoEncontrado, tmRecusa, tmInexistente, tmOutro);
+
+const
+  TtpMotivoArrayStrings: array[TtpMotivo] of string = ('1', '2', '3', '4');
+
+{
+  Declaração das funções de conversão
+}
+function StrToTpEventoCTe(out ok: boolean; const s: string): TpcnTpEvento;
 
 function LayOutToServico(const t: TLayOutCTe): String;
 function ServicoToLayOut(out ok: Boolean; const s: String): TLayOutCTe;
@@ -209,12 +405,25 @@ function StrTotpNumerario(out ok: Boolean; const s: String): TtpNumerario;
 function CRTCTeToStr(const t: TCRT): string;
 function StrToCRTCTe(out ok: boolean; const s: string): TCRT;
 
-function StrToTpEventoCTe(out ok: boolean; const s: string): TpcnTpEvento;
+function tpMotivoToStr(const t: TtpMotivo): string;
+function StrTotpMotivo(out ok: boolean; const s: string): TtpMotivo;
 
 implementation
 
 uses
   typinfo;
+
+function StrToTpEventoCTe(out ok: boolean; const s: string): TpcnTpEvento;
+begin
+  Result := StrToEnumerado(ok, s,
+            ['-99999', '110110', '110111', '110113', '110160', '110170',
+             '110180', '110181', '610110', '310610', '310611', '610111',
+             '110190', '110191'],
+            [teNaoMapeado, teCCe, teCancelamento, teEPEC, teMultiModal,
+             teGTV, teComprEntrega, teCancComprEntrega, tePrestDesacordo,
+             teMDFeAutorizado2, teMDFeCancelado2, teCancPrestDesacordo,
+             teInsucessoEntregaCTe, teCancInsucessoEntregaCTe]);
+end;
 
 function LayOutToServico(const t: TLayOutCTe): String;
 begin
@@ -294,12 +503,13 @@ end;
 
 function StrToVersaoCTe(out ok: Boolean; const s: String): TVersaoCTe;
 begin
-  Result := StrToEnumerado(ok, s, ['2.00', '3.00'], [ve200, ve300]);
+  Result := StrToEnumerado(ok, s, ['2.00', '3.00', '4.00'],
+                                  [ve200, ve300, ve400]);
 end;
 
 function VersaoCTeToStr(const t: TVersaoCTe): String;
 begin
-  Result := EnumeradoToStr(t, ['2.00', '3.00'], [ve200, ve300]);
+  Result := EnumeradoToStr(t, ['2.00', '3.00', '4.00'], [ve200, ve300, ve400]);
 end;
 
 function DblToVersaoCTe(out ok: Boolean; const d: Double): TVersaoCTe;
@@ -312,6 +522,9 @@ begin
   if d = 3.0 then
     Result := ve300
   else
+  if d = 4.0 then
+    Result := ve400
+  else
   begin
     Result := ve200;
     ok := False;
@@ -323,6 +536,7 @@ begin
   case t of
     ve200: Result := 2.0;
     ve300: Result := 3.0;
+    ve400: Result := 4.0;
   else
     Result := 0;
   end;
@@ -616,6 +830,16 @@ begin
                mdMultimodal:  result := '3.00';
              end;
            end;
+    ve400: begin
+             case AModal of
+               mdRodoviario:  result := '4.00';
+               mdAereo:       result := '4.00';
+               mdAquaviario:  result := '4.00';
+               mdFerroviario: result := '4.00';
+               mdDutoviario:  result := '4.00';
+               mdMultimodal:  result := '4.00';
+             end;
+           end;
   end;
 end;
 
@@ -753,25 +977,28 @@ end;
 
 function CRTCTeToStr(const t: TCRT): string;
 begin
-  result := EnumeradoToStr(t, ['', '1', '2', '3'],
-    [crtNenhum, crtSimplesNacional, crtSimplesExcessoReceita, crtRegimeNormal]);
+  result := EnumeradoToStr(t, ['', '1', '2', '3', '4'],
+    [crtNenhum, crtSimplesNacional, crtSimplesExcessoReceita, crtRegimeNormal,
+     crtSimplesNacionalMEI]);
 end;
 
 function StrToCRTCTe(out ok: boolean; const s: string): TCRT;
 begin
-  result := StrToEnumerado(ok, s, ['', '1', '2', '3'],
-    [crtNenhum, crtSimplesNacional, crtSimplesExcessoReceita, crtRegimeNormal]);
+  result := StrToEnumerado(ok, s, ['', '1', '2', '3', '4'],
+    [crtNenhum, crtSimplesNacional, crtSimplesExcessoReceita, crtRegimeNormal,
+     crtSimplesNacionalMEI]);
 end;
 
-
-function StrToTpEventoCTe(out ok: boolean; const s: string): TpcnTpEvento;
+function tpMotivoToStr(const t: TtpMotivo): string;
 begin
-  Result := StrToEnumerado(ok, s,
-            ['-99999', '110110', '110111', '110113', '110160', '110170',
-             '110180', '110181', '610110', '310610', '310611'],
-            [teNaoMapeado, teCCe, teCancelamento, teEPEC, teMultiModal,
-             teGTV, teComprEntrega, teCancComprEntrega, tePrestDesacordo,
-             teMDFeAutorizado2, teMDFeCancelado2]);
+  result := EnumeradoToStr(t, ['1', '2', '3', '4'],
+    [tmNaoEncontrado, tmRecusa, tmInexistente, tmOutro]);
+end;
+
+function StrTotpMotivo(out ok: boolean; const s: string): TtpMotivo;
+begin
+  result := StrToEnumerado(ok, s, ['1', '2', '3', '4'],
+    [tmNaoEncontrado, tmRecusa, tmInexistente, tmOutro]);
 end;
 
 initialization

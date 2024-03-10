@@ -39,7 +39,6 @@ interface
 uses
   SysUtils, Classes,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv1, ACBrNFSeXGravarXml_ABRASFv2,
   ACBrNFSeXConversao, ACBrNFSeXConsts;
 
@@ -52,6 +51,8 @@ type
 
     function GerarCondicaoPagamento: TACBrXmlNode; override;
     function GerarParcelas: TACBrXmlNodeArray; override;
+  public
+    function GerarXml: Boolean; override;
   end;
 
   { TNFSeW_Betha202 }
@@ -100,7 +101,7 @@ begin
      (NFSe.CondicaoPagamento.Condicao = cpAPrazo) then
   begin
     Result.AppendChild(AddNode(tcStr, '#53', 'Condicao', 1, 15, 1,
-                     CondicaoToStr(NFSe.CondicaoPagamento.Condicao), DSC_TPAG));
+         FpAOwner.CondicaoPagToStr(NFSe.CondicaoPagamento.Condicao), DSC_TPAG));
 
     Result.AppendChild(AddNode(tcInt, '#54', 'QtdParcela', 1, 03, 1,
                                  NFSe.CondicaoPagamento.QtdParcela, DSC_QPARC));
@@ -142,6 +143,14 @@ begin
 
   if NFSe.CondicaoPagamento.Parcelas.Count > 10 then
     wAlerta('#54', 'Parcelas', '', ERR_MSG_MAIOR_MAXIMO + '10');
+end;
+
+function TNFSeW_Betha.GerarXml: Boolean;
+begin
+  if NFSe.OptanteSimplesNacional = snSim then
+    NrOcorrAliquota := 1;
+
+  Result := inherited GerarXml;
 end;
 
 { TNFSeW_Betha202 }

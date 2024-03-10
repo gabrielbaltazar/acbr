@@ -39,8 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnAuxiliar, pcnConsts,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml;
 
 type
   { TNFSeW_Governa }
@@ -56,6 +55,10 @@ type
   end;
 
 implementation
+
+uses
+  ACBrNFSeXConversao,
+  ACBrNFSeXConsts;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -91,6 +94,7 @@ end;
 function TNFSeW_Governa.GerarInfRps: TACBrXmlNode;
 var
   xmlNode: TACBrXmlNode;
+  strAux: string;
 begin
   Result := CreateElement('tcInfRps');
 
@@ -150,17 +154,29 @@ begin
     Result.AppendChild(AddNode(tcStr, '#1', 'tsFrmRec', 1, 2, 1,
                                                  FrmRecToStr(NFSe.FrmRec), ''));
 
-    Result.AppendChild(AddNode(tcStr, '#1', 'tsDatEmsRps', 8, 8, 1,
-      StringReplace(FormatDateTime('yyyymmdd',NFSe.DataEmissao),'/', '',[rfReplaceAll]), ''));
-
-    Result.AppendChild(AddNode(tcStr, '#1', 'tsDatEmsNFSe', 8, 8, 1,
-      StringReplace(FormatDateTime('yyyymmdd',NFSe.DataEmissao),'/', '',[rfReplaceAll]), ''));
-
-    Result.AppendChild(AddNode(tcStr, '#1', 'tsMesCmp', 1, 4, 1,
+    if FpAOwner.ConfigGeral.Versao = ve101 then
+    begin
+      Result.AppendChild(AddNode(tcStr, '#1', 'tsMesCmp', 1, 4, 1,
                                    FormatDateTime('MM', NFSe.Competencia), ''));
 
-    Result.AppendChild(AddNode(tcStr, '#1', 'tsAnoCmp', 1, 4, 1,
+      Result.AppendChild(AddNode(tcStr, '#1', 'tsAnoCmp', 1, 4, 1,
                                  FormatDateTime('YYYY', NFSe.Competencia), ''));
+
+      Result.AppendChild(AddNode(tcStr, '#1', 'tsDatEmsRps', 8, 8, 1,
+        StringReplace(FormatDateTime('yyyymmdd', NFSe.DataEmissao), '/', '', [rfReplaceAll]), ''));
+    end;
+
+    if FpAOwner.ConfigGeral.Versao = ve100 then
+    begin
+      Result.AppendChild(AddNode(tcStr, '#1', 'tsDatEmsRps', 8, 8, 1,
+        StringReplace(FormatDateTime('yyyymmdd', NFSe.DataEmissao), '/', '', [rfReplaceAll]), ''));
+
+      Result.AppendChild(AddNode(tcStr, '#1', 'tsAnoCpt', 1, 4, 1,
+                                 FormatDateTime('YYYY', NFSe.Competencia), ''));
+
+      Result.AppendChild(AddNode(tcStr, '#1', 'tsMesCpt', 1, 4, 1,
+                                   FormatDateTime('MM', NFSe.Competencia), ''));
+    end;
   end
   else
   begin
@@ -199,13 +215,19 @@ begin
 
   if RegRecToStr(NFSe.RegRec) <> '' then
   begin
-    Result.AppendChild(AddNode(tcStr, '#1', 'tsEstServ', 2, 2, 1,
-      iif(NFSe.Servico.UFPrestacao = '', NFSe.Tomador.Endereco.UF,
-                                         NFSe.Servico.UFPrestacao), ''));
+    if NFSe.Servico.UFPrestacao = '' then
+      strAux := NFSe.Tomador.Endereco.UF
+    else
+      strAux := NFSe.Servico.UFPrestacao;
 
-    Result.AppendChild(AddNode(tcStr, '#1', 'tsMunSvc', 1, 7, 1,
-      iif(NFSe.Servico.CodigoMunicipio = '', NFSe.Tomador.Endereco.CodigoMunicipio,
-                                            NFSe.Servico.CodigoMunicipio), ''));
+    Result.AppendChild(AddNode(tcStr, '#1', 'tsEstServ', 2, 2, 1, strAux, ''));
+
+    if NFSe.Servico.CodigoMunicipio = '' then
+      strAux := NFSe.Tomador.Endereco.CodigoMunicipio
+    else
+      strAux := NFSe.Servico.CodigoMunicipio;
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'tsMunSvc', 1, 7, 1, strAux, ''));
 
     Result.AppendChild(AddNode(tcStr, '#1', 'tsDesOtrRtn', 1, 1000, 1,
                             NFSe.Servico.Valores.DescricaoOutrasRetencoes, ''));

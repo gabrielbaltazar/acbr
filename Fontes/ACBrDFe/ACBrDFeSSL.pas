@@ -85,6 +85,7 @@ type
     FSubjectName: String;
     FTipo: TSSLTipoCertificado;
     FDER64base: String;
+    FDataInicioValidade: TDateTime;
     procedure SetIssuerName(const AValue: String);
     procedure SetSubjectName(const AValue: String);
   public
@@ -99,6 +100,7 @@ type
     property IssuerName: String read FIssuerName write SetIssuerName;
     property Certificadora: String read FCertificadora write FCertificadora;
     property DataVenc: TDateTime read FDataVenc write FDataVenc;
+    property DataInicioValidade : TDateTime read FDataInicioValidade write FDataInicioValidade;
     property SubjectName: String read FSubjectName write SetSubjectName;
     property RazaoSocial: String read FRazaoSocial write FRazaoSocial;
     property CNPJ: String read FCNPJ write FCNPJ;
@@ -217,7 +219,7 @@ type
 
     function Enviar(const ConteudoXML: String; const AURL: String;
       const ASoapAction: String; const AMimeType: String = '';
-      const AAuthorizationHeader : String = ''): String;
+      const AAuthorizationHeader : String = ''; AValidateReturnCode: Boolean = True): String;
     procedure HTTPMethod(const AMethod, AURL: String);
 
     procedure Execute; virtual;
@@ -248,7 +250,8 @@ type
     FpDFeSSL: TDFeSSL;
 
     function AdicionarSignatureElement( const ConteudoXML: String; AddX509Data: Boolean;
-      const docElement, IdSignature: String; const IdAttr: String = ''): String;
+      const docElement, IdSignature: String; const IdAttr: String = '';
+      const IdSignatureValue: string = ''): String;
     function AjustarXMLAssinado(const ConteudoXML: String; const X509DER: String = ''): String;
     function GetSignDigestAlgorithm(const SignatureNode: String): TSSLDgst;
   public
@@ -256,7 +259,8 @@ type
 
     function Assinar(const ConteudoXML, docElement, infElement: String;
       const SignatureNode: String = ''; const SelectionNamespaces: String = '';
-      const IdSignature: String = ''; const IdAttr: String = ''): String; virtual;
+      const IdSignature: String = ''; const IdAttr: String = '';
+      const IdSignatureValue: string = ''): String; virtual;
     function Validar(const ConteudoXML, ArqSchema: String;
       out MsgErro: String): Boolean; virtual;
     function VerificarAssinatura(const ConteudoXML: String; out MsgErro: String;
@@ -365,11 +369,12 @@ type
     // Nota: ConteudoXML, DEVE estar em UTF8 //
     function Assinar(const ConteudoXML, docElement, infElement: String;
       const SignatureNode: String = ''; const SelectionNamespaces: String = '';
-      const IdSignature: String = ''; const IdAttr: String = ''): String;
+      const IdSignature: String = ''; const IdAttr: String = '';
+      const IdSignatureValue: string = ''): String;
     // Envia por SoapAction o ConteudoXML (em UTF8) para URL. Retorna a resposta do Servico //
     function Enviar(var ConteudoXML: String; const AURL: String;
       const ASoapAction: String; AMimeType: String = ''; 
-      const AAuthorizationHeader : String = '' ): String;
+      const AAuthorizationHeader : String = ''; AValidateReturnCode: Boolean = True): String;
     // Valida um Arquivo contra o seu Schema. Retorna True se OK, preenche MsgErro se False //
     // ConteudoXML, DEVE estar em UTF8
     procedure HTTPMethod(const AMethod, AURL: String);
@@ -1033,7 +1038,7 @@ end;
 
 function TDFeSSLHttpClass.Enviar(const ConteudoXML: String; const AURL: String;
   const ASoapAction: String; const AMimeType: String = '';
-  const AAuthorizationHeader : String = ''): String;
+  const AAuthorizationHeader : String = ''; AValidateReturnCode: Boolean = True): String;
 var
   AMethod: String;
 begin
@@ -1061,11 +1066,9 @@ begin
 
     // Verifica se o ResultCode é: 200 OK; 201 Created; 202 Accepted
     // https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-    if not (FpHTTPResultCode in [200..202]) then
+    if (not (FpHTTPResultCode in [200..202])) and AValidateReturnCode then
       raise EACBrDFeException.Create('');
   except
-//    on E:EACBrDFeException do
-//      raise;
     on E:Exception do
     begin
       raise EACBrDFeException.CreateDef( Format(ACBrStr(cACBrDFeSSLEnviarException),
@@ -1105,7 +1108,7 @@ end;
 
 function TDFeSSLXmlSignClass.AdicionarSignatureElement(const ConteudoXML: String;
   AddX509Data: Boolean; const docElement, IdSignature: String;
-  const IdAttr: String = ''): String;
+  const IdAttr: String = ''; const IdSignatureValue: string = ''): String;
 var
   URI, TagEndDocElement: String;
   I: Integer;
@@ -1118,7 +1121,8 @@ begin
     raise EACBrDFeException.Create('Não encontrei final do elemento: ' + TagEndDocElement);
 
   Result := copy(ConteudoXML, 1, I - 1) +
-            SignatureElement(URI, AddX509Data, IdSignature, FpDFeSSL.SSLDgst) +
+            SignatureElement(URI, AddX509Data, IdSignature, FpDFeSSL.SSLDgst,
+                             IdSignatureValue) +
             copy(ConteudoXML, I, Length(ConteudoXML));
 end;
 
@@ -1239,7 +1243,7 @@ end;
 
 function TDFeSSLXmlSignClass.Assinar(const ConteudoXML, docElement,
   infElement: String; const SignatureNode: String; const SelectionNamespaces: String;
-  const IdSignature: String; const IdAttr: String): String;
+  const IdSignature: String; const IdAttr: String; const IdSignatureValue: string): String;
 begin
   {$IFDEF FPC}
   Result := '';
@@ -1342,7 +1346,7 @@ end;
 
 function TDFeSSL.Assinar(const ConteudoXML, docElement, infElement: String;
   const SignatureNode: String; const SelectionNamespaces: String; const IdSignature: String;
-  const IdAttr: String ): String;
+  const IdAttr: String; const IdSignatureValue: string): String;
 Var
   XmlAss, DeclaracaoXMLAntes, DeclaracaoXMLDepois: String;
   Assinado: Boolean;
@@ -1368,7 +1372,7 @@ begin
   begin
     XmlAss := FSSLXmlSignClass.Assinar( ConteudoXML, docElement, infElement,
                                         SignatureNode, SelectionNamespaces,
-                                        IdSignature, IdAttr);
+                                        IdSignature, IdAttr, IdSignatureValue);
 
     // Verificando se modificou o Header do XML assinado, e voltando para o anterior //
     if (DeclaracaoXMLAntes <> '') then
@@ -1387,7 +1391,7 @@ end;
 
 function TDFeSSL.Enviar(var ConteudoXML: String; const AURL: String;
   const ASoapAction: String; AMimeType: String;
-  const AAuthorizationHeader: String): String;
+  const AAuthorizationHeader: String; AValidateReturnCode: Boolean): String;
 var
   SendThread : TDFeSendThread;
   EndTime : TDateTime ;
@@ -1431,7 +1435,8 @@ begin
   begin
     FHttpSendCriticalSection.Acquire;
     try
-      Result := FSSLHttpClass.Enviar(ConteudoXML, AURL, ASoapAction, AMimeType, AAuthorizationHeader);
+      Result := FSSLHttpClass.Enviar(ConteudoXML, AURL, ASoapAction,
+             AMimeType, AAuthorizationHeader, AValidateReturnCode);
     finally
       FHttpSendCriticalSection.Release;
     end;

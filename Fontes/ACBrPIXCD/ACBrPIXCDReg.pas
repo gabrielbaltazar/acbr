@@ -40,7 +40,9 @@ uses
   Classes, SysUtils, ACBrPIXCD,
   ACBrPIXPSPItau, ACBrPIXPSPBancoDoBrasil, ACBrPIXPSPSantander,
   ACBrPIXPSPShipay, ACBrPIXPSPSicredi, ACBrPIXPSPSicoob, ACBrPIXPSPPagSeguro,
-  ACBrPIXPSPGerenciaNet, ACBrPIXPSPBradesco
+  ACBrPIXPSPGerenciaNet, ACBrPIXPSPBradesco, ACBrPIXPSPPixPDV, ACBrPIXPSPInter,
+  ACBrPIXPSPAilos, ACBrPIXPSPMatera, ACBrPIXPSPCielo, ACBrPIXPSPMercadoPago,
+  ACBrPIXPSPGate2All
   {$IFDEF FPC}, LResources {$ENDIF};
 
 procedure Register;
@@ -56,7 +58,8 @@ begin
   RegisterComponents('ACBrPIXCD', [TACBrPixCD,
     TACBrPSPItau, TACBrPSPBancoDoBrasil, TACBrPSPSantander, TACBrPSPShipay,
     TACBrPSPSicredi, TACBrPSPSicoob, TACBrPSPPagSeguro, TACBrPSPGerenciaNet,
-    TACBrPSPBradesco]);
+    TACBrPSPBradesco, TACBrPSPPixPDV, TACBrPSPInter, TACBrPSPAilos,
+    TACBrPSPMatera, TACBrPSPCielo, TACBrPSPMercadoPago, TACBrPSPGate2All]);
 end;
 
 {$IFDEF FPC}

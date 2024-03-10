@@ -617,7 +617,7 @@ begin
     // Capturar a versão do evento
     s := Copy(FXML, Pos('/evt/evtBasesFGTS/', FXML)+18, 16);
     s := Copy(s, 1, Pos('"', s)-1);
-    Self.VersaoDF := StrToEnumerado(ok, s, ['v02_04_01', 'v02_04_02', 'v02_05_00', 'v_S_01_00_00', 'v_S_01_01_00'], [ve02_04_01, ve02_04_02, ve02_05_00, veS01_00_00, veS01_01_00]);
+    Self.VersaoDF := StrToVersaoeSocialSchemas(s);
 
     if leitor.rExtrai(1, 'evtBasesFGTS') <> '' then
     begin
@@ -728,10 +728,14 @@ begin
               infoFGTS.IdeEstab.Items[i].IdeLotacao.New;
               infoFGTS.IdeEstab.Items[i].IdeLotacao.Items[j].codLotacao := leitor.rCampo(tcStr, 'codLotacao');
               infoFGTS.IdeEstab.Items[i].IdeLotacao.Items[j].tpLotacao  := leitor.rCampo(tcStr, 'tpLotacao');
-              if (StrToInt(InfoFGTS.IdeEstab.Items[i].IdeLotacao.Items[j].tpLotacao) in [2, 3, 4, 5, 6, 7, 8, 9]) then
+
+              if (leitor.rCampo(tcStr, 'tpLotacao') <> EmptyStr) then
               begin
-                infoFGTS.IdeEstab.Items[i].IdeLotacao.Items[j].tpInsc   := eSStrToTpInscricao(ok, leitor.rCampo(tcStr, 'tpInsc'));
-                infoFGTS.IdeEstab.Items[i].IdeLotacao.Items[j].nrInsc   := leitor.rCampo(tcStr, 'nrInsc');
+                 if (StrToInt(InfoFGTS.IdeEstab.Items[i].IdeLotacao.Items[j].tpLotacao) in [2, 3, 4, 5, 6, 7, 8, 9]) then
+                 begin
+                   infoFGTS.IdeEstab.Items[i].IdeLotacao.Items[j].tpInsc   := eSStrToTpInscricao(ok, leitor.rCampo(tcStr, 'tpInsc'));
+                   infoFGTS.IdeEstab.Items[i].IdeLotacao.Items[j].nrInsc   := leitor.rCampo(tcStr, 'nrInsc');
+                 end;
               end;
 
               k := 0;

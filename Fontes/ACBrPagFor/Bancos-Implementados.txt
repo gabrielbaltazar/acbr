@@ -1,12 +1,15 @@
 Bancos            Funcional (Data)
 ------            ----------------
 Banco do Brasil
+BancoCECRED
+Banrisul
 Bradesco
 Caixa
+HSBC
+Inter              23/01/2024
 Itau
-Santander
 Safra
+Santander
 Sicoob
 Sicredi
-BancoCECRED
-HSBC
+UnicredCooperativa

@@ -42,6 +42,29 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+21/02/2024
+-- ACBrLib.hnd, Diversos inis --
+[+] Enviados arquivos ini da versão 1.2 do e-Social com correção do Encoding e configurado help da Lib
+  Por: Renato Rubinho
+
+19/02/2024
+-- ACBrLibConfig, ACBrLibConsts--
+[*] TK-5014 Ajustado para criptografar Usuario e Senha do Provedor ConsultaCNPJ
+  Por: Daniel Morais InfoCotidiano
+-- Diversos --
+[+] Scripts para compilação dos nugets para c# com cake
+  Por: Renato Rubinho
+
+14/02/2024
+-- Diversos --
+[+] Renomeados os imports de todos os projetos MT para diferenciar os pacotes nugets gerados
+  Por: Renato Rubinho
+
+12/02/2024
+-- ACBrLibConsultaCadastro --
+[*] Substitui pcnRetConsCad por ACBrDFeComum.RetConsCad visando compatibilização com o processo de remoção da pcn.
+  Por: Diego Folieni
+
 06/02/2022
 --- ACBrLibComum ---
 [+] Adicionado o método 'ConverterUTF8ParaAnsi', converter a resposta de UTF8

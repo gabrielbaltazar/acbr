@@ -5,7 +5,7 @@
 {                                                                               }
 { Direitos Autorais Reservados (c) 2018 Daniel Simoes de Almeida                }
 {                                                                               }
-{ Colaboradores nesse arquivo: Rafael Teno Dias                                 }
+{ Colaboradores nesse arquivo: Antonio Carlos Junior                            }
 {                                                                               }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr     }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr       }
@@ -66,11 +66,53 @@ exports
   NFSE_CarregarINI,
   NFSE_ObterXml,
   NFSE_GravarXml,
+  NFSE_ObterIni,
+  NFSE_GravarIni,
   NFSE_LimparLista,
   NFSE_ObterCertificados,
 
+  // Servicos
   NFSE_Emitir,
-  NFSE_ConsultarSituacao;
+  NFSE_Cancelar,
+  NFSE_SubstituirNFSe,
+  NFSE_LinkNFSe,
+  NFSE_GerarLote,
+  NFSE_GerarToken,
+  NFSE_ConsultarSituacao,
+  NFSE_ConsultarLoteRps,
+  NFSE_ConsultarNFSePorRps,
+  NFSE_ConsultarNFSePorNumero,
+  NFSE_ConsultarNFSePorPeriodo,
+  NFSE_ConsultarNFSePorFaixa,
+  NFSE_ConsultarNFSeGenerico,
+  NFSE_ConsultarLinkNFSe,
+  NFSE_EnviarEmail,
+  NFSE_Imprimir,
+  NFSE_ImprimirPDF,
+  NFSE_SalvarPDF,
+  NFSE_ObterInformacoesProvedor,
+
+  // Servico Prestado
+  NFSE_ConsultarNFSeServicoPrestadoPorNumero,
+  NFSE_ConsultarNFSeServicoPrestadoPorPeriodo,
+  NFSE_ConsultarNFSeServicoPrestadoPorTomador,
+  NFSE_ConsultarNFSeServicoPrestadoPorIntermediario,
+
+  // Servico Tomado
+  NFSE_ConsultarNFSeServicoTomadoPorNumero,
+  NFSE_ConsultarNFSeServicoTomadoPorPrestador,
+  NFSE_ConsultarNFSeServicoTomadoPorTomador,
+  NFSE_ConsultarNFSeServicoTomadoPorPeriodo,
+  NFSE_ConsultarNFSeServicoTomadoPorIntermediario,
+
+  //Padrao Nacional
+  NFSE_EnviarEvento,
+  NFSE_ConsultarDPSPorChave,
+  NFSE_ConsultarNFSePorChave,
+  NFSE_ConsultarEvento,
+  NFSE_ConsultarDFe,
+  NFSE_ObterDANFSE,
+  NFSE_ConsultarParametros;
 
 begin
   {$IFDEF DEBUG}

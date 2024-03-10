@@ -108,6 +108,13 @@ type
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'ListaMensagemRetorno';
                                      const AMessageTag: string = 'MensagemRetorno'); override;
+  public
+    function SituacaoLoteRpsToStr(const t: TSituacaoLoteRps): string; override;
+    function StrToSituacaoLoteRps(out ok: boolean; const s: string): TSituacaoLoteRps; override;
+    function SituacaoLoteRpsToDescr(const t: TSituacaoLoteRps): string; override;
+
+    function TipoTributacaoRPSToStr(const t: TTipoTributacaoRPS): string; override;
+    function StrToTipoTributacaoRPS(out ok: boolean; const s: string): TTipoTributacaoRPS; override;
   end;
 
 implementation
@@ -352,6 +359,16 @@ begin
     UseCertificateHTTP := True;
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
+    FormatoArqRecibo := tfaTxt;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarSituacao := True;
+      ConsultarLote := True;
+      ConsultarServicoTomado := True;
+      CancelarNfse := True;
+    end;
   end;
 
   with ConfigMsgDados do
@@ -504,6 +521,8 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANode, AuxNode: TACBrXmlNode;
+  Ok: Boolean;
+  Situacao: TSituacaoLoteRps;
 begin
   Document := TACBrXmlDocument.Create;
 
@@ -539,16 +558,8 @@ begin
       Response.Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('NomeArqRetorno'), tcStr);
       Response.Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('SituacaoArq'), tcStr);
 
-      if (Response.Situacao = '-2') then
-        Response.DescSituacao := 'Aguardando Processamento'
-      else if (Response.Situacao = '-1') then
-        Response.DescSituacao := 'Em Processamento'
-      else if (Response.Situacao = '0') then
-        Response.DescSituacao := 'Arquivo Validado'
-      else if (Response.Situacao = '1') then
-        Response.DescSituacao := 'Arquivo Importado'
-      else if (Response.Situacao = '2') then
-        Response.DescSituacao := 'Arquivo com Erros';
+      Situacao := TACBrNFSeX(FAOwner).Provider.StrToSituacaoLoteRps(Ok, Response.Situacao);
+      Response.DescSituacao := TACBrNFSeX(FAOwner).Provider.SituacaoLoteRpsToDescr(Situacao);
     except
       on E:Exception do
       begin
@@ -997,8 +1008,8 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr));
-    AErro.Correcao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr);
+    AErro.Correcao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr);
   end;
   {
     As tag que contem o código, mensagem e correção do erro são diferentes do padrão
@@ -1027,6 +1038,50 @@ function TACBrNFSeProviderISSBarueri.AplicarLineBreak(AXMLRps: String;
   const ABreak: String): String;
 begin
   Result := AXMLRps;
+end;
+
+function TACBrNFSeProviderISSBarueri.SituacaoLoteRpsToStr(const t: TSituacaoLoteRps): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['-2', '-1', '0', '1', '2'],
+                           [sLoteNaoProcessado, sLoteEmProcessamento,
+                            sLoteValidado, sLoteImportado, sLoteProcessadoErro]);
+end;
+
+function TACBrNFSeProviderISSBarueri.StrToSituacaoLoteRps(out ok: boolean; const s: string): TSituacaoLoteRps;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['-2', '-1', '0', '1', '2'],
+                           [sLoteNaoProcessado, sLoteEmProcessamento,
+                            sLoteValidado, sLoteImportado, sLoteProcessadoErro]);
+end;
+
+function TACBrNFSeProviderISSBarueri.SituacaoLoteRpsToDescr(const t: TSituacaoLoteRps): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['Aguardando Processamento', 'Em Processamento',
+                            'Arquivo Validado', 'Arquivo Importado',
+                            'Arquivo com Erros'],
+                           [sLoteNaoProcessado, sLoteEmProcessamento,
+                            sLoteValidado, sLoteImportado, sLoteProcessadoErro]);
+end;
+
+function TACBrNFSeProviderISSBarueri.TipoTributacaoRPSToStr(
+  const t: TTipoTributacaoRPS): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['1', '2', '3', '4'],
+                           [ttTribnoMun, ttTribforaMun, ttTribnoMunIsento,
+                            ttTribnoMunSuspensa]);
+end;
+
+function TACBrNFSeProviderISSBarueri.StrToTipoTributacaoRPS(out ok: boolean;
+  const s: string): TTipoTributacaoRPS;
+begin
+  Result := StrToEnumerado(OK, s,
+                           ['1', '2', '3', '4'],
+                           [ttTribnoMun, ttTribforaMun, ttTribnoMunIsento,
+                            ttTribnoMunSuspensa]);
 end;
 
 { TACBrNFSeXWebserviceISSBarueri }

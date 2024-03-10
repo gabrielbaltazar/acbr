@@ -79,8 +79,8 @@ type
     procedure PrepararConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
     procedure TratarRetornoConsultaNFSeporRps(Response: TNFSeConsultaNFSeporRpsResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
@@ -132,6 +132,24 @@ begin
     UseCertificateHTTP := False;
     ModoEnvio := meLoteAssincrono;
     DetalharServico := True;
+    NumMinRpsEnviar := 2;
+
+    with Autenticacao do
+    begin
+      RequerCertificado := False;
+      RequerChaveAcesso := True;
+    end;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      EnviarUnitario := True;
+      ConsultarLote := True;
+      ConsultarRps := True;
+      ConsultarFaixaNfse := True;
+      CancelarNfse := True;
+      SubstituirNfse := True;
+    end;
   end;
 
   SetXmlNameSpace('http://www.agili.com.br/nfse_v_1.00.xsd');
@@ -193,8 +211,8 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr));
-    AErro.Correcao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
+    AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr);
   end;
 end;
 
@@ -316,7 +334,7 @@ begin
 
         Xml := '<LoteRps>' +
                  '<NumeroLote>' +
-                    Response.Lote +
+                    Response.NumeroLote +
                  '</NumeroLote>' +
                  '<IdentificacaoPrestador>' +
                    '<ChaveDigital>' +
@@ -571,7 +589,7 @@ var
   Emitente: TEmitenteConfNFSe;
   NameSpace: string;
 begin
-  if EstaVazio(Response.NumRPS) then
+  if EstaVazio(Response.NumeroRps) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod102;
@@ -579,7 +597,7 @@ begin
     Exit;
   end;
 
-  if EstaVazio(Response.Serie) then
+  if EstaVazio(Response.SerieRps) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod103;
@@ -587,7 +605,7 @@ begin
     Exit;
   end;
 
-  if EstaVazio(Response.Tipo) then
+  if EstaVazio(Response.TipoRps) then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod104;
@@ -608,13 +626,13 @@ begin
                          '</UnidadeGestora>' +
                          '<IdentificacaoRps>' +
                            '<Numero>' +
-                              Response.NumRPS +
+                              Response.NumeroRps +
                            '</Numero>' +
                            '<Serie>' +
-                              Response.Serie +
+                              Response.SerieRps +
                            '</Serie>' +
                            '<Tipo>' +
-                              Response.Tipo +
+                              Response.TipoRps +
                            '</Tipo>' +
                          '</IdentificacaoRps>' +
                          '<IdentificacaoPrestador>' +
@@ -688,9 +706,9 @@ begin
 
             if AuxNode <> nil then
             begin
-                NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
+              NumeroRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 
-              ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+              ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumeroRps);
 
               ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
               SalvarXmlNfse(ANota);
@@ -711,7 +729,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderAgili.PrepararConsultaNFSe(
+procedure TACBrNFSeProviderAgili.PrepararConsultaNFSeporFaixa(
   Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
@@ -768,7 +786,7 @@ begin
                        '</ConsultarNfseFaixaEnvio>';
 end;
 
-procedure TACBrNFSeProviderAgili.TratarRetornoConsultaNFSe(
+procedure TACBrNFSeProviderAgili.TratarRetornoConsultaNFSeporFaixa(
   Response: TNFSeConsultaNFSeResponse);
 var
   Document: TACBrXmlDocument;

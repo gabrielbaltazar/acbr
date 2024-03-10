@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -44,8 +44,9 @@ uses
    System.Contnrs,
   {$IFEND}
   ACBrBase,
-  pcnConversao, pcnGerador, pcnConsts, 
-  pcnConversaoONE, pcnONEConsts;
+  ACBrDFeConsts,
+  pcnConversao, pcnGerador,
+  ACBrONEConversao, pcnONEConsts;
 
 type
   { TinfLeitura }
@@ -72,6 +73,8 @@ type
     FnroEixos: Integer;
     FNSULeitura: String;
     FtpLeitura: TtpLeitura;
+    FtpEQP: TtpEQP;
+    FxRefCompl: String;
 
   public
     property tpTransm: TtpTransm      read FtpTransm        write FtpTransm;
@@ -94,6 +97,8 @@ type
     property nroEixos: Integer        read FnroEixos        write FnroEixos;
     property NSULeitura: String       read FNSULeitura      write FNSULeitura;
     property tpLeitura: TtpLeitura    read FtpLeitura       write FtpLeitura;
+    property tpEQP: TtpEQP            read FtpEQP           write FtpEQP;
+    property xRefCompl: String        read FxRefCompl       write FxRefCompl;
   end;
 
   { TRecepcaoLeitura }
@@ -132,10 +137,8 @@ implementation
 
 uses
   IniFiles,
-  pcnAuxiliar, pcnRetRecepcaoLeitura,
-  ACBrUtil.Base,
-  ACBrUtil.DateTime,
-  ACBrUtil.FilesIO,
+  pcnRetRecepcaoLeitura,
+  ACBrUtil.Base, ACBrUtil.DateTime, ACBrUtil.FilesIO,
   ACBrDFeUtil;
 
 { TRecepcaoLeitura }
@@ -170,21 +173,28 @@ begin
   Gerador.wCampo(tcStr, 'BP04', 'verAplic ', 01, 20, 1, FverAplic, DSC_verAplic);
   Gerador.wCampo(tcStr, 'BP05', 'tpTransm ', 01, 01, 1, tpTransmToStr(FtpTransm), DSC_tpTransm);
   Gerador.wCampo(tcStr, 'BP06', 'dhTransm ', 01, 50, 1, FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', FdhTransm) +
-                                                           GetUTC(CodigoParaUF(infLeitura.cUF), FdhTransm));
+                                                           GetUTC(CodigoUFparaUF(infLeitura.cUF), FdhTransm));
 
   Gerador.wGrupo('infLeitura');
   Gerador.wCampo(tcInt, 'BP08', 'cUF     ', 01, 02, 1, infLeitura.cUF, DSC_cUF);
   Gerador.wCampo(tcStr, 'BP09', 'dhPass  ', 01, 50, 1, FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', infLeitura.dhPass) +
-                                                              GetUTC(CodigoParaUF(infLeitura.cUF), infLeitura.dhPass));
+                                                              GetUTC(CodigoUFparaUF(infLeitura.cUF), infLeitura.dhPass));
   Gerador.wCampo(tcStr, 'BP10', 'CNPJOper', 01, 14, 1, infLeitura.CNPJOper, DSC_CNPJOper);
 
   if sEQP <> '' then
-    Gerador.wCampo(tcStr, 'BP11', 'cEQP     ', 01, 15, 1, sEQP, DSC_cEQP)
+    Gerador.wCampo(tcStr, 'BP11', 'cEQP', 01, 15, 1, sEQP, DSC_cEQP)
   else
   begin
     Gerador.wCampo(tcDe6, 'BP12', 'latitude ', 01, 10, 1, infLeitura.latitude, DSC_Latitude);
     Gerador.wCampo(tcDe6, 'BP13', 'longitude', 01, 10, 1, infLeitura.longitude, DSC_Longitude);
     Gerador.wCampo(tcStr, 'BP14', 'tpSentido', 01, 01, 1, TpSentidoToStr(infLeitura.tpSentido), DSC_tpSentido);
+
+    if infLeitura.xEQP <> '' then
+    begin
+      Gerador.wCampo(tcStr, 'BP15', 'xEQP     ', 50, 050, 0, infLeitura.xEQP, DSC_xEQP);
+      Gerador.wCampo(tcStr, 'BP16', 'tpEQP    ', 01, 001, 0, TpEQPToStr(infLeitura.tpEQP), DSC_tpEQP);
+      Gerador.wCampo(tcStr, 'BP17', 'xRefCompl', 02, 200, 0, infLeitura.xRefCompl, DSC_xRefCompl);
+    end;
   end;
 
   Gerador.wCampo(tcStr, 'BP15', 'placa          ', 07, 07, 1, infLeitura.placa, DSC_Placa);
@@ -206,7 +216,6 @@ function TRecepcaoLeitura.LerFromIni(const AIniString: String): Boolean;
 var
   INIRec: TMemIniFile;
   sSecao: String;
-  ok: Boolean;
 begin
   Result := True;
 
@@ -218,7 +227,7 @@ begin
     if INIRec.SectionExists(sSecao) then
     begin
       verAplic := INIRec.ReadString(sSecao, 'verAplic', '');
-      tpTransm := StrTotpTransm(ok, INIRec.ReadString(sSecao, 'tpTransm', '1'));
+      tpTransm := StrTotpTransm(INIRec.ReadString(sSecao, 'tpTransm', '1'));
       dhTransm := StringToDateTime(INIRec.ReadString(sSecao, 'dhTransm', ''));
 
       with infLeitura do
@@ -229,14 +238,17 @@ begin
         cEQP            := INIRec.ReadString(sSecao, 'cEQP', '');
         latitude        := INIRec.ReadFloat(sSecao, 'latitude', 0);
         longitude       := INIRec.ReadFloat(sSecao, 'longitude', 0);
-        tpSentido       := StrTotpSentido(ok,INIRec.ReadString(sSecao, 'tpSentido', 'E'));
+        tpSentido       := StrTotpSentido(INIRec.ReadString(sSecao, 'tpSentido', 'E'));
         placa           := INIRec.ReadString(sSecao, 'placa', '');
-        tpVeiculo       := StrTotpVeiculo(ok,INIRec.ReadString(sSecao, 'tpVeiculo', 'E'));
+        tpVeiculo       := StrTotpVeiculo(INIRec.ReadString(sSecao, 'tpVeiculo', 'E'));
         velocidade      := INIRec.ReadInteger(sSecao, 'velocidade', 0);
         foto            := INIRec.ReadString(sSecao, 'foto', '');
         indiceConfianca := INIRec.ReadInteger(sSecao, 'indiceConfianca', 0);
         pesoBrutoTotal  := INIRec.ReadInteger(sSecao, 'pesoBrutoTotal', 0);
         nroEixos        := INIRec.ReadInteger(sSecao, 'nroEixos', 0);
+        xEQP            := INIRec.ReadString(sSecao, 'xEQP', '');
+        tpEQP           := StrTotpEQP(INIRec.ReadString(sSecao, 'tpEQP', '1'));
+        xRefCompl       := INIRec.ReadString(sSecao, 'xRefCompl', '');
       end;
     end;
   finally

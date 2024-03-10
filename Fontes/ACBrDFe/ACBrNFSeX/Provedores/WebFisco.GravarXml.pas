@@ -39,7 +39,6 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnAuxiliar,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
 
 type
@@ -66,8 +65,9 @@ function TNFSeW_WebFisco.GerarXml: Boolean;
 var
   NFSeNode: TACBrXmlNode;
   cSimples: Boolean;
-  xAtrib: string;
+  xAtrib, strAux: string;
   i: Integer;
+  valAux: Double;
 begin
   Configuracao;
 
@@ -84,55 +84,40 @@ begin
 
   FDocument.Root := NFSeNode;
 
+  NFSeNode.AppendChild(AddNode(tcStr, '#', 'usuario', 1, 6, 1,
+                                                    Usuario, '', True, xAtrib));
+
+  NFSeNode.AppendChild(AddNode(tcStr, '#', 'pass', 1, 6, 1,
+                                                      Senha, '', True, xAtrib));
+
   // as Tags abaixo só devem ser geradas em ambinte de produção
   if Ambiente = taProducao then
   begin
-    NFSeNode.AppendChild(AddNode(tcStr, '#', 'usuario', 1, 6, 1,
-                                                    Usuario, '', True, xAtrib));
-    NFSeNode.AppendChild(AddNode(tcStr, '#', 'pass', 1, 6, 1,
-                                                      Senha, '', True, xAtrib));
     NFSeNode.AppendChild(AddNode(tcStr, '#', 'prf', 1, 18, 1,
                                              CNPJPrefeitura, '', True, xAtrib));
+
     NFSeNode.AppendChild(AddNode(tcStr, '#', 'usr', 1, 18, 1,
               NFSe.Prestador.IdentificacaoPrestador.CpfCnpj, '', True, xAtrib));
   end
   else
   begin
+    // No campo prf, usar 00.000.000/0000-00 para a fase de Homologação.
+    NFSeNode.AppendChild(AddNode(tcStr, '#', 'prf', 1, 18, 1,
+                                       '00.000.000/0000-00', '', True, xAtrib));
+
     {
       TESTE PARA PRESTADOR DO SIMPLES NACIONAL
-      No campo usuario, usar 142826 para a fase de Homologação.
-      No campo pass, usar 123456 para a fase de Homologação.
-      No campo prf, usar 00.000.000/0000-00 para a fase de Homologação.
       No campo usr, usar 44.232.272/0001-92 para a fase de Homologação.
 
       TESTE PARA PRESTADOR NÃO OPTANTE DO SIMPLES NACIONAL
-      No campo usuario, usar 901567 para a fase de Homologação.
-      No campo pass, usar 123456 para a fase de Homologação.
-      No campo prf, usar 00.000.000/0000-00 para a fase de Homologação.
       No campo usr, usar 57.657.017/0001-33 para a fase de Homologação.
     }
     if cSimples then
-    begin
-      NFSeNode.AppendChild(AddNode(tcStr, '#', 'usuario', 1, 6, 1,
-                                                   '142826', '', True, xAtrib));
-      NFSeNode.AppendChild(AddNode(tcStr, '#', 'pass', 1, 6, 1,
-                                                   '123456', '', True, xAtrib));
-      NFSeNode.AppendChild(AddNode(tcStr, '#', 'prf', 1, 18, 1,
-                                       '00.000.000/0000-00', '', True, xAtrib));
       NFSeNode.AppendChild(AddNode(tcStr, '#', 'usr', 1, 18, 1,
-                                       '44.232.272/0001-92', '', True, xAtrib));
-    end
+                                       '44.232.272/0001-92', '', True, xAtrib))
     else
-    begin
-      NFSeNode.AppendChild(AddNode(tcInt, '#', 'usuario', 1, 6, 1,
-                                                     901567, '', True, xAtrib));
-      NFSeNode.AppendChild(AddNode(tcInt, '#', 'pass', 1, 6, 1,
-                                                     123456, '', True, xAtrib));
-      NFSeNode.AppendChild(AddNode(tcStr, '#', 'prf', 1, 18, 1,
-                                       '00.000.000/0000-00', '', True, xAtrib));
       NFSeNode.AppendChild(AddNode(tcStr, '#', 'usr', 1, 18, 1,
                                        '57.657.017/0001-33', '', True, xAtrib));
-    end;
   end;
 
   NFSeNode.AppendChild(AddNode(tcStr, '#', 'ctr', 1, 8, 1,
@@ -261,9 +246,9 @@ begin
   NFSeNode.AppendChild(AddNode(tcDe2, '#', 'inss', 1, 12, 1,
                              NFSe.Servico.Valores.ValorInss, '', True, xAtrib));
   NFSeNode.AppendChild(AddNode(tcDe2, '#', 'irrf', 1, 12, 1,
-                                                          0, '', True, xAtrib));
+                               NFSe.Servico.Valores.ValorIr, '', True, xAtrib));
   NFSeNode.AppendChild(AddNode(tcDe2, '#', 'csll', 1, 12, 1,
-                                                          0, '', True, xAtrib));
+                             NFSe.Servico.Valores.ValorCsll, '', True, xAtrib));
   NFSeNode.AppendChild(AddNode(tcDe2, '#', 'pis', 1, 12, 1,
                               NFSe.Servico.Valores.ValorPis, '', True, xAtrib));
   NFSeNode.AppendChild(AddNode(tcDe2, '#', 'cofins', 1, 12, 1,
@@ -314,15 +299,29 @@ begin
   NFSeNode.AppendChild(AddNode(tcStr, '#', 'paisest', 1, 60, 1,
                                                          '', '', True, xAtrib));
 
+  if cSimples then
+    valAux := NFSe.Prestador.ValorReceitaBruta
+  else
+    valAux := 0.00;
+
   NFSeNode.AppendChild(AddNode(tcDe2, '#', 'ssrecbr', 1, 12, 1,
-   IIf(cSimples = True, NFSe.Prestador.ValorReceitaBruta, 0.00), '', True, xAtrib));
+                                                     valAux, '', True, xAtrib));
+
+  if cSimples then
+    strAux := NFSe.Prestador.Anexo
+  else
+    strAux :='';
 
   NFSeNode.AppendChild(AddNode(tcStr, '#', 'ssanexo', 1, 15, 1,
-             IIf(cSimples = True, NFSe.Prestador.Anexo, ''), '', True, xAtrib));
+                                                     strAux, '', True, xAtrib));
+
+  if cSimples then
+    strAux := FormatDateTime('DD/MM/YYYY', NFSe.Prestador.DataInicioAtividade)
+  else
+    strAux :=' ';
 
   NFSeNode.AppendChild(AddNode(tcStr, '#', 'ssdtini', 1, 10, 1,
-   IIf(cSimples = True,
-     FormatDateTime('DD/MM/YYYY', NFSe.Prestador.DataInicioAtividade), ' '), '', True, xAtrib));
+                                                     strAux, '', True, xAtrib));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#', 'percded', 1, 6, 1,
                                                          '', '', True, xAtrib));

@@ -69,8 +69,12 @@ function TNFSeR_WebFisco.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 
@@ -124,6 +128,7 @@ begin
       SituacaoNfse := snCancelado;
 
 //      <xsd:element name="nfecontrole" type="xsd:string"/>
+    InfID.ID := ObterConteudo(ANode.Childrens.FindAnyNs('nfecontrole'), tcStr);
 
     with Prestador do
     begin
@@ -225,6 +230,10 @@ begin
         ValorIr := ObterConteudo(ANode.Childrens.FindAnyNs('nfevalirrf'), tcDe2);
 
 //      <xsd:element name="nfevaltributavel" type="xsd:string"/>
+        RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
+        ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                                DescontoIncondicionado;
       end;
 
       i := 0;
@@ -243,7 +252,11 @@ begin
             ValorUnitario := ObterConteudo(ANode.Childrens.FindAnyNs('nfevalserv' + IntToStr(i)), tcDe2);
 
             if i = 1 then
+            begin
               Descricao := ObterConteudo(ANode.Childrens.FindAnyNs('nfedescricaoservicos'), tcStr);
+              Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+            end;
 
             Quantidade := 1;
             ValorTotal := ValorUnitario;
@@ -344,7 +357,11 @@ begin
               ValorUnitario := ObterConteudo(ANode.Childrens.FindAnyNs('val' + IntToStr(i)), tcDe2);
 
               if i = 1 then
+              begin
                 Descricao := ObterConteudo(ANode.Childrens.FindAnyNs('txt'), tcStr);
+                Descricao := StringReplace(Descricao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+              end;
             end;
           end;
         until aValor = '';

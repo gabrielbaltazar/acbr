@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Isaque Pinheiro								   }
+{ Colaboradores nesse arquivo: Isaque Pinheiro                                 }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -42,15 +42,16 @@
 *******************************************************************************}
 
 unit ACBrSpedContabil;
+{$I ACBr.inc}
 
 interface
 
 uses
-  SysUtils, Classes, DateUtils, ACBrBase,
+  SysUtils, Classes, DateUtils,
   {$IFDEF FPC}
     LResources,
   {$ENDIF}
-  ACBrSped, ACBrTXTClass,
+  ACBrBase, ACBrSped, ACBrTXTClass,
   ACBrECDBloco_0_Class, ACBrECDBloco_C_Class, ACBrECDBloco_I_Class,
   ACBrECDBloco_J_Class, ACBrECDBloco_K_Class, ACBrECDBloco_9_Class;
 
@@ -68,6 +69,7 @@ type
     FArquivo: String;
     FInicializado : boolean;
     FOnError: TErrorEvent;
+    FWriteManual: Boolean;
 
     FDT_INI: TDateTime;           /// Data inicial das informações contidas no arquivo
     FDT_FIN: TDateTime;           /// Data final das informações contidas no arquivo
@@ -84,6 +86,7 @@ type
     FBloco_J: TBloco_J;
     FBloco_K: TBloco_K;
     FReplaceDelimitador: Boolean;
+    FDeveAtualizarTotalLinhasNosRegistros: Boolean;
 
     function GetDelimitador: String;
     function GetReplaceDelimitador: Boolean;
@@ -105,13 +108,32 @@ type
     function GetLinhasBuffer: Integer;
     procedure SetLinhasBuffer(const Value: Integer);
 
-    procedure TotalizarTermos;
-
     procedure InicializaBloco(Bloco: TACBrSPED);
     procedure SetArquivo(const Value: String);
     function GetConteudo: TStringList;
+
+    procedure SubstituiMascaraPorQTDLinhasEmArquivoFinal(const Mascara, Texto:
+        string);
+
   protected
+    procedure WriteRegistro0990;
+    procedure WriteRegistroC990;
+    procedure WriteRegistroI990;
+    procedure WriteRegistroJ990;
+    procedure WriteRegistroK990;
+    procedure WriteRegistro9900;
+    procedure WriteRegistro9990;
+    procedure WriteRegistro9999;
+  public
+    constructor Create(AOwner: TComponent); override; /// Create
+    destructor Destroy; override; /// Destroy
+
+    procedure SaveFileTXT; /// Método que escreve o arquivo texto no caminho passado como parâmetro
+
+    procedure IniciaGeracao(const pWriteManual: Boolean = False);
+
     /// BLOCO 0
+    procedure WriteBloco_0;
     procedure WriteRegistro0000;
     procedure WriteRegistro0001;
     procedure WriteRegistro0007;
@@ -119,13 +141,12 @@ type
     procedure WriteRegistro0035;
     procedure WriteRegistro0150;
     //procedure WriteRegistro0180;
-    procedure WriteRegistro0990;
     /// BLOCO C
+    procedure WriteBloco_C;
     procedure WriteRegistroC001;
     procedure WriteRegistroC040;
-
-    procedure WriteRegistroC990;
-    /// BLOCO I
+    // BLOCO I
+    procedure WriteBloco_I;
     procedure WriteRegistroI001;
     procedure WriteRegistroI010;
     procedure WriteRegistroI012;
@@ -141,42 +162,25 @@ type
     procedure WriteRegistroI500;
     procedure WriteRegistroI510;
     procedure WriteRegistroI550;
-
-    procedure WriteRegistroI990;
-    /// BLOCO J
+    // BLOCO J
+    procedure WriteBloco_J;
     procedure WriteRegistroJ001;
     procedure WriteRegistroJ005;
-//  procedure WriteRegistroJ800;
-//  procedure WriteRegistroJ801;
+    //procedure WriteRegistroJ800;
+    //procedure WriteRegistroJ801;
     procedure WriteRegistroJ900;
     procedure WriteRegistroJ930;
     procedure WriteRegistroJ932;
   	procedure WriteRegistroJ935;
-    procedure WriteRegistroJ990;
-    /// BLOCO K
+    // BLOCO K
+    procedure WriteBloco_K;
     procedure WriteRegistroK001;
     procedure WriteRegistroK030;
-    procedure WriteRegistroK990;
-    /// BLOCO 9
-    procedure WriteRegistro9001;
-    procedure WriteRegistro9900;
-    procedure WriteRegistro9990;
-    procedure WriteRegistro9999;
-  public
-    constructor Create(AOwner: TComponent); override; /// Create
-    destructor Destroy; override; /// Destroy
-
-    procedure SaveFileTXT; /// Método que escreve o arquivo texto no caminho passado como parâmetro
-
-    procedure IniciaGeracao;
-
-    procedure WriteBloco_0;
-    procedure WriteBloco_C;
-    procedure WriteBloco_I;
-    procedure WriteBloco_J;
-    procedure WriteBloco_K;
+    // BLOCO 9
     procedure WriteBloco_9;
-
+    procedure WriteRegistro9001;
+    // TOTAIS
+    procedure AtualizarTotalLinhasEmArquivoFinal;
 
     property Conteudo: TStringList read GetConteudo;
 
@@ -203,13 +207,18 @@ type
 
     property LinhasBuffer : Integer read GetLinhasBuffer write SetLinhasBuffer
       default 1000 ;
+    property DeveAtualizarTotalLinhasNosRegistros: Boolean read FDeveAtualizarTotalLinhasNosRegistros write FDeveAtualizarTotalLinhasNosRegistros default True;
   end;
 
 implementation
 
-Uses ACBrUtil.Strings,
-  ACBrUtil.FilesIO,
+Uses
+  StrUtils, Math, Types, ACBrUtil.Strings, ACBrUtil.FilesIO, StrUtilsEx,
   ACBrECDBloco_9, ACBrECDBloco_I, ACBrECDBloco_K ;
+
+resourcestring
+  StrComponenteNaoConfigurado = 'Componente não inicializado para gravação. ' +
+  'Verifique o metodo IniciaGeracao.';
 
 {$IFNDEF FPC}
  {$R ACBr_SPEDContabil.dcr}
@@ -224,6 +233,7 @@ begin
   FACBrTXT.LinhasBuffer := 1000 ;
 
   FInicializado := False;
+  FDeveAtualizarTotalLinhasNosRegistros := True;
 
   FBloco_0 := TBloco_0.Create;
   FBloco_C := TBloco_C.Create;
@@ -411,824 +421,602 @@ begin
     WriteBloco_K;
     WriteBloco_9;
 
-    TotalizarTermos;
-
+    if DeveAtualizarTotalLinhasNosRegistros then
+      AtualizarTotalLinhasEmArquivoFinal;
   finally
     LimpaRegistros;
     FACBrTXT.Conteudo.Clear;
-    FInicializado := False ;
+    FWriteManual := False;
+    FInicializado := False;
   end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistro0000;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := '0000';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_0.WriteRegistro0000;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_0.WriteRegistro0000;
+  Bloco_9.Registro9900.AddRegistro9900('0000', 1);
 end;
 
 procedure TACBrSPEDContabil.WriteRegistro0001;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := '0001';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_0.WriteRegistro0001;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_0.WriteRegistro0001;
+  Bloco_9.Registro9900.AddRegistro9900('0001', 1);
 end;
 
 procedure TACBrSPEDContabil.WriteRegistro0007;
 begin
-   if Bloco_0.Registro0007.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := '0007';
-         QTD_REG_BLC := Bloco_0.Registro0007.Count;
-      end;
-   end;
-   Bloco_0.WriteRegistro0007;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_0.WriteRegistro0007;
+  Bloco_9.Registro9900.AddRegistro9900('0007', Bloco_0.Registro0007.Count);
+
+  if FWriteManual then
+    Bloco_0.Registro0007.Clear;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistro0020;
 begin
-   if Bloco_0.Registro0020.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := '0020';
-         QTD_REG_BLC := Bloco_0.Registro0020.Count;
-      end;
-   end;
-   Bloco_0.WriteRegistro0020;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_0.WriteRegistro0020;
+  Bloco_9.Registro9900.AddRegistro9900('0020', Bloco_0.Registro0020.Count);
+
+  if FWriteManual then
+    Bloco_0.Registro0020.Clear;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistro0035;
 begin
-   if Bloco_0.Registro0035.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := '0035';
-         QTD_REG_BLC := Bloco_0.Registro0035.Count;
-      end;
-   end;
-   Bloco_0.WriteRegistro0035;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_0.WriteRegistro0035;
+  Bloco_9.Registro9900.AddRegistro9900('0035', Bloco_0.Registro0035.Count);
+
+  if FWriteManual then
+    Bloco_0.Registro0035.Clear;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistro0150;
 begin
 
-   Bloco_0.WriteRegistro0150;
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
 
-   if Bloco_0.Registro0150.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := '0150';
-         QTD_REG_BLC := Bloco_0.Registro0150.Count;
-      end;
-   end;
+  Bloco_0.WriteRegistro0150;
+  Bloco_9.Registro9900.AddRegistro9900('0150', Bloco_0.Registro0150.Count);
+  Bloco_9.Registro9900.AddRegistro9900('0180', Bloco_0.Registro0180Count);
 
-   if Bloco_0.Registro0180Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := '0180';
-         QTD_REG_BLC := Bloco_0.Registro0180Count;
-      end;
-   end;
-
+  if FWriteManual then
+  begin
+    Bloco_0.Registro0150.Clear;
+    Bloco_0.Registro0180Count := 0;
+  end;
 end;
 
-{
-procedure TACBrSPEDContabil.WriteRegistro0180;
+{procedure TACBrSPEDContabil.WriteRegistro0180;
 begin
-   if Bloco_0.Registro0180.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := '0180';
-         QTD_REG_BLC := Bloco_0.Registro0180.Count;
-      end;
-   end;
-   Bloco_0.WriteRegistro0180;
-end;
-}
+  Bloco_0.WriteRegistro0180;
+  Bloco_9.Registro9900.AddRegistro9900('0180', Bloco_0.Registro0180.Count);
+
+  if FWriteManual then
+    Bloco_0.Registro0180.Clear;
+end;}
 
 procedure TACBrSPEDContabil.WriteRegistro0990;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := '0990';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_0.WriteRegistro0990;
+  Bloco_0.WriteRegistro0990;
+  Bloco_9.Registro9900.AddRegistro9900('0990', 1);
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroC001;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := 'C001';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_C.WriteRegistroC001;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_C.WriteRegistroC001;
+  Bloco_9.Registro9900.AddRegistro9900('C001', 1);
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroC040;
 begin
-   if Bloco_C.RegistroC001.IND_DAD = 0 then
-   begin
-      Bloco_C.WriteRegistroC040;
 
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'C040';
-         QTD_REG_BLC := 1;
-      end;
-   end;
-   if Bloco_C.RegistroC050Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'C050';
-         QTD_REG_BLC := Bloco_C.RegistroC050Count;
-      end;
-   end;
-   if Bloco_C.RegistroC051Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'C051';
-         QTD_REG_BLC := Bloco_C.RegistroC051Count;
-      end;
-   end;
-   if Bloco_C.RegistroC052Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'C052';
-         QTD_REG_BLC := Bloco_C.RegistroC052Count;
-      end;
-   end;
-   if Bloco_C.RegistroC150Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'C150';
-         QTD_REG_BLC := Bloco_C.RegistroC150Count;
-      end;
-   end;
-   if Bloco_C.RegistroC155Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'C155';
-         QTD_REG_BLC := Bloco_C.RegistroC155Count;
-      end;
-   end;
-//--
-   if Bloco_C.RegistroC600Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'C600';
-         QTD_REG_BLC := Bloco_C.RegistroC600Count;
-      end;
-   end;
-   if Bloco_C.RegistroC650Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'C650';
-         QTD_REG_BLC := Bloco_C.RegistroC650Count;
-      end;
-   end;
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  if Bloco_C.RegistroC001.IND_DAD = 0 then
+  begin
+    Bloco_C.WriteRegistroC040;
+    Bloco_9.Registro9900.AddRegistro9900('C040', 1);
+  end;
+
+  Bloco_9.Registro9900.AddRegistro9900('C050', Bloco_C.RegistroC050Count);
+  Bloco_9.Registro9900.AddRegistro9900('C051', Bloco_C.RegistroC051Count);
+  Bloco_9.Registro9900.AddRegistro9900('C052', Bloco_C.RegistroC052Count);
+  Bloco_9.Registro9900.AddRegistro9900('C150', Bloco_C.RegistroC150Count);
+  Bloco_9.Registro9900.AddRegistro9900('C155', Bloco_C.RegistroC155Count);
+  Bloco_9.Registro9900.AddRegistro9900('C600', Bloco_C.RegistroC600Count);
+  Bloco_9.Registro9900.AddRegistro9900('C650', Bloco_C.RegistroC650Count);
+
+  if FWriteManual then
+  begin
+    Bloco_C.RegistroC040.RegistroC050.Clear;
+    Bloco_C.RegistroC050Count := 0;
+    Bloco_C.RegistroC051Count := 0;
+    Bloco_C.RegistroC052Count := 0;
+    Bloco_C.RegistroC040.RegistroC150.Clear;
+    Bloco_C.RegistroC150Count := 0;
+    Bloco_C.RegistroC155Count := 0;
+    Bloco_C.RegistroC040.RegistroC600.Clear;
+    Bloco_C.RegistroC600Count := 0;
+    Bloco_C.RegistroC650Count := 0;
+  end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroC990;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := 'C990';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_C.WriteRegistroC990;
+  Bloco_C.WriteRegistroC990;
+  Bloco_9.Registro9900.AddRegistro9900('C990', 1);
 end;
-
 
 procedure TACBrSPEDContabil.WriteRegistroI001;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := 'I001';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_I.WriteRegistroI001;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI001;
+  Bloco_9.Registro9900.AddRegistro9900('I001', 1);
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI010;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := 'I010';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_I.WriteRegistroI010;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI010;
+  Bloco_9.Registro9900.AddRegistro9900('I010', 1);
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI012;
 begin
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
   Bloco_I.WriteRegistroI012;
-  
-  if Bloco_I.RegistroI012.Count > 0 then
+  Bloco_9.Registro9900.AddRegistro9900('I012', Bloco_I.RegistroI012.Count);
+  Bloco_9.Registro9900.AddRegistro9900('I015', Bloco_I.RegistroI015Count);
+
+  if FWriteManual then
   begin
-    with Bloco_9.Registro9900.New do
-    begin
-       REG_BLC := 'I012';
-       QTD_REG_BLC := Bloco_I.RegistroI012.Count;
-    end;
-  end;
-  if Bloco_I.RegistroI015Count > 0 then
-  begin
-    with Bloco_9.Registro9900.New do
-    begin
-       REG_BLC := 'I015';
-       QTD_REG_BLC := Bloco_I.RegistroI015Count;
-    end;
+    Bloco_I.RegistroI012.Clear;
+    Bloco_I.RegistroI015Count := 0;
   end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI020;
 begin
-   if Bloco_I.RegistroI020.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I020';
-         QTD_REG_BLC := Bloco_I.RegistroI020.Count;
-      end;
-   end;
-   Bloco_I.WriteRegistroI020;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI020;
+  Bloco_9.Registro9900.AddRegistro9900('I020', Bloco_I.RegistroI020.Count);
+
+  if FWriteManual then
+    Bloco_I.RegistroI020.Clear;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI030;
 begin
-   // Total de linhas do arquivo
-   Bloco_I.RegistroI030.QTD_LIN := Bloco_0.Registro0990.QTD_LIN_0 +
-                                   Bloco_I.RegistroI990.QTD_LIN_I +
-                                   Bloco_J.RegistroJ990.QTD_LIN_J +
-                                   Bloco_K.RegistroK990.QTD_LIN_K +
-                                   Bloco_9.Registro9990.QTD_LIN_9;
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := 'I030';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_I.WriteRegistroI030;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  // Total de linhas do arquivo
+  Bloco_I.RegistroI030.QTD_LIN := Bloco_0.Registro0990.QTD_LIN_0
+                                + Bloco_I.RegistroI990.QTD_LIN_I
+                                + Bloco_J.RegistroJ990.QTD_LIN_J
+                                + Bloco_K.RegistroK990.QTD_LIN_K
+                                + Bloco_9.Registro9990.QTD_LIN_9;
+  Bloco_I.WriteRegistroI030;
+  Bloco_9.Registro9900.AddRegistro9900('I030', 1);
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI050;
 begin
-   Bloco_I.WriteRegistroI050;
-   if Bloco_I.RegistroI050.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I050';
-         QTD_REG_BLC := Bloco_I.RegistroI050.Count;
-      end;
-   end;
-   if Bloco_I.RegistroI051Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I051';
-         QTD_REG_BLC := Bloco_I.RegistroI051Count;
-      end;
-   end;
-   if Bloco_I.RegistroI052Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I052';
-         QTD_REG_BLC := Bloco_I.RegistroI052Count;
-      end;
-   end;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI050;
+  Bloco_9.Registro9900.AddRegistro9900('I050', Bloco_I.RegistroI050.Count);
+  Bloco_9.Registro9900.AddRegistro9900('I051', Bloco_I.RegistroI051Count);
+  Bloco_9.Registro9900.AddRegistro9900('I052', Bloco_I.RegistroI052Count);
+
+  if FWriteManual then
+  begin
+    Bloco_I.RegistroI050.Clear;
+    Bloco_I.RegistroI051Count := 0;
+    Bloco_I.RegistroI052Count := 0;
+  end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI075;
 begin
-   if Bloco_I.RegistroI075.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I075';
-         QTD_REG_BLC := Bloco_I.RegistroI075.Count;
-      end;
-   end;
-   Bloco_I.WriteRegistroI075;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI075;
+  Bloco_9.Registro9900.AddRegistro9900('I075', Bloco_I.RegistroI075.Count);
+
+  if FWriteManual then
+    Bloco_I.RegistroI075.Clear;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI100;
 begin
-   if Bloco_I.RegistroI100.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I100';
-         QTD_REG_BLC := Bloco_I.RegistroI100.Count;
-      end;
-   end;
-   Bloco_I.WriteRegistroI100;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI100;
+  Bloco_9.Registro9900.AddRegistro9900('I100', Bloco_I.RegistroI100.Count);
+
+  if FWriteManual then
+    Bloco_I.RegistroI100.Clear;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI150;
 begin
-   Bloco_I.WriteRegistroI150;
-   if Bloco_I.RegistroI150.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I150';
-         QTD_REG_BLC := Bloco_I.RegistroI150.Count;
-      end;
-   end;
-   if Bloco_I.RegistroI151Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I151';
-         QTD_REG_BLC := Bloco_I.RegistroI151Count;
-      end;
-   end;
-   if Bloco_I.RegistroI155Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I155';
-         QTD_REG_BLC := Bloco_I.RegistroI155Count;
-      end;
-   end;
-   if Bloco_I.RegistroI157Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I157';
-         QTD_REG_BLC := Bloco_I.RegistroI157Count;
-      end;
-   end;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI150;
+  Bloco_9.Registro9900.AddRegistro9900('I150', Bloco_I.RegistroI150.Count);
+  Bloco_9.Registro9900.AddRegistro9900('I151', Bloco_I.RegistroI151Count);
+  Bloco_9.Registro9900.AddRegistro9900('I155', Bloco_I.RegistroI155Count);
+  Bloco_9.Registro9900.AddRegistro9900('I157', Bloco_I.RegistroI157Count);
+
+  if FWriteManual then
+  begin
+    Bloco_I.RegistroI150.Clear;
+    Bloco_I.RegistroI151Count := 0;
+    Bloco_I.RegistroI155Count := 0;
+    Bloco_I.RegistroI157Count := 0;
+  end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI200;
 begin
-   Bloco_I.WriteRegistroI200;
-   if Bloco_I.RegistroI200.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I200';
-         QTD_REG_BLC := Bloco_I.RegistroI200.Count;
-      end;
-   end;
-   if Bloco_I.RegistroI250Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I250';
-         QTD_REG_BLC := Bloco_I.RegistroI250Count;
-      end;
-   end;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI200;
+  Bloco_9.Registro9900.AddRegistro9900('I200', Bloco_I.RegistroI200.Count);
+  Bloco_9.Registro9900.AddRegistro9900('I250', Bloco_I.RegistroI250Count);
+
+  if FWriteManual then
+  begin
+    Bloco_I.RegistroI200.Clear;
+    Bloco_I.RegistroI250Count := 0;
+  end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI300;
 begin
-   Bloco_I.WriteRegistroI300;
-   if Bloco_I.RegistroI300.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I300';
-         QTD_REG_BLC := Bloco_I.RegistroI300.Count;
-      end;
-   end;
-   if Bloco_I.RegistroI310Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I310';
-         QTD_REG_BLC := Bloco_I.RegistroI310Count;
-      end;
-   end;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI300;
+  Bloco_9.Registro9900.AddRegistro9900('I300', Bloco_I.RegistroI300.Count);
+  Bloco_9.Registro9900.AddRegistro9900('I310', Bloco_I.RegistroI310Count);
+
+  if FWriteManual then
+  begin
+    Bloco_I.RegistroI300.Clear;
+    Bloco_I.RegistroI310Count := 0;
+  end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI350;
 begin
-   Bloco_I.WriteRegistroI350;
-   if Bloco_I.RegistroI350.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I350';
-         QTD_REG_BLC := Bloco_I.RegistroI350.Count;
-      end;
-   end;
-   if Bloco_I.RegistroI355Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I355';
-         QTD_REG_BLC := Bloco_I.RegistroI355Count;
-      end;
-   end;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI350;
+  Bloco_9.Registro9900.AddRegistro9900('I350', Bloco_I.RegistroI350.Count);
+  Bloco_9.Registro9900.AddRegistro9900('I355', Bloco_I.RegistroI355Count);
+
+  if FWriteManual then
+  begin
+    Bloco_I.RegistroI350.Clear;
+    Bloco_I.RegistroI355Count := 0;
+  end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI500;
 begin
-   if Bloco_I.RegistroI500.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I500';
-         QTD_REG_BLC := Bloco_I.RegistroI500.Count;
-      end;
-   end;
-   Bloco_I.WriteRegistroI500;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI500;
+  Bloco_9.Registro9900.AddRegistro9900('I500', Bloco_I.RegistroI500.Count);
+
+  if FWriteManual then
+    Bloco_I.RegistroI500.Clear;
 end;
 
 
 procedure TACBrSPEDContabil.WriteRegistroI510;
 begin
-   if Bloco_I.RegistroI510.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I510';
-         QTD_REG_BLC := Bloco_I.RegistroI510.Count;
-      end;
-   end;
-   Bloco_I.WriteRegistroI510;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_I.WriteRegistroI510;
+  Bloco_9.Registro9900.AddRegistro9900('I510', Bloco_I.RegistroI510.Count);
+
+  if FWriteManual then
+    Bloco_I.RegistroI510.Clear;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI550;
 begin
-   if Bloco_I.RegistroI550.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I550';
-         QTD_REG_BLC := Bloco_I.RegistroI550.Count;
-      end;
-   end;
 
-   if Bloco_I.RegistroI555Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'I555';
-         QTD_REG_BLC := Bloco_I.RegistroI555Count;
-      end;
-   end;
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
 
-   Bloco_I.WriteRegistroI550;
+  Bloco_I.WriteRegistroI550;
+  Bloco_9.Registro9900.AddRegistro9900('I550', Bloco_I.RegistroI550.Count);
+  Bloco_9.Registro9900.AddRegistro9900('I555', Bloco_I.RegistroI555Count);
+
+  if FWriteManual then
+  begin
+    Bloco_I.RegistroI550.Clear;
+    Bloco_I.RegistroI555Count := 0;
+  end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroI990;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := 'I990';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_I.WriteRegistroI990;
+  Bloco_I.WriteRegistroI990;
+  Bloco_9.Registro9900.AddRegistro9900('I990', 1);
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroJ001;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := 'J001';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_J.WriteRegistroJ001;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_J.WriteRegistroJ001;
+  Bloco_9.Registro9900.AddRegistro9900('J001', 1);
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroJ005;
 begin
-   Bloco_J.WriteRegistroJ005;
-   if Bloco_J.RegistroJ005.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J005';
-         QTD_REG_BLC := Bloco_J.RegistroJ005.Count;
-      end;
-   end;
-   if Bloco_J.RegistroJ100Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J100';
-         QTD_REG_BLC := Bloco_J.RegistroJ100Count;
-      end;
-   end;
-   if Bloco_J.RegistroJ150Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J150';
-         QTD_REG_BLC := Bloco_J.RegistroJ150Count;
-      end;
-   end;
-   if Bloco_J.RegistroJ200Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J200';
-         QTD_REG_BLC := Bloco_J.RegistroJ200Count;
-      end;
-   end;
-   if Bloco_J.RegistroJ210Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J210';
-         QTD_REG_BLC := Bloco_J.RegistroJ210Count;
-      end;
-   end;
-   if Bloco_J.RegistroJ215Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J215';
-         QTD_REG_BLC := Bloco_J.RegistroJ215Count;
-      end;
-   end;
-   if Bloco_J.RegistroJ800Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J800';
-         QTD_REG_BLC := Bloco_J.RegistroJ800Count;
-      end;
-   end;
 
-   if Bloco_J.RegistroJ801Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J801';
-         QTD_REG_BLC := Bloco_J.RegistroJ801Count;
-      end;
-   end;
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
 
+  Bloco_J.WriteRegistroJ005;
+  Bloco_9.Registro9900.AddRegistro9900('J005', Bloco_J.RegistroJ005.Count);
+  Bloco_9.Registro9900.AddRegistro9900('J100', Bloco_J.RegistroJ100Count);
+  Bloco_9.Registro9900.AddRegistro9900('J150', Bloco_J.RegistroJ150Count);
+  Bloco_9.Registro9900.AddRegistro9900('J200', Bloco_J.RegistroJ200Count);
+  Bloco_9.Registro9900.AddRegistro9900('J210', Bloco_J.RegistroJ210Count);
+  Bloco_9.Registro9900.AddRegistro9900('J215', Bloco_J.RegistroJ215Count);
+  Bloco_9.Registro9900.AddRegistro9900('J800', Bloco_J.RegistroJ800Count);
+  Bloco_9.Registro9900.AddRegistro9900('J801', Bloco_J.RegistroJ801Count);
 
+  if FWriteManual then
+  begin
+    Bloco_J.RegistroJ005.Clear;
+    Bloco_J.RegistroJ100Count := 0;
+    Bloco_J.RegistroJ150Count := 0;
+    Bloco_J.RegistroJ200Count := 0;
+    Bloco_J.RegistroJ210Count := 0;
+    Bloco_J.RegistroJ215Count := 0;
+    Bloco_J.RegistroJ800.Clear;
+    Bloco_J.RegistroJ800Count := 0;
+    Bloco_J.RegistroJ801.Clear;
+    Bloco_J.RegistroJ801Count := 0;
+    Bloco_J.RegistroJ930.Clear;
+    Bloco_J.RegistroJ932.Clear;
+    Bloco_J.RegistroJ935.Clear;
+  end;
 end;
 
-{
-procedure TACBrSPEDContabil.WriteRegistroJ800;
+{procedure TACBrSPEDContabil.WriteRegistroJ800;
 begin
-   if Bloco_J.RegistroJ800.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J800';
-         QTD_REG_BLC := Bloco_J.RegistroJ800.Count;
-      end;
-   end;
-   Bloco_J.WriteRegistroJ800;
+  Bloco_J.WriteRegistroJ800;
+  AddRegistro9900('J800', Bloco_J.RegistroJ800.Count);
+
+  if FWriteManual then
+    Bloco_J.RegistroJ800.Clear;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroJ801;
 begin
-   if Bloco_J.RegistroJ801.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J801';
-         QTD_REG_BLC := Bloco_J.RegistroJ801.Count;
-      end;
-   end;
-   Bloco_J.WriteRegistroJ801;
-end;
-}
+  Bloco_J.WriteRegistroJ801;
+  AddRegistro9900('J801', Bloco_J.RegistroJ801.Count);
+
+  if FWriteManual then
+    Bloco_J.RegistroJ801.Clear;
+end;}
 
 procedure TACBrSPEDContabil.WriteRegistroJ900;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := 'J900';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_J.WriteRegistroJ900;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_J.WriteRegistroJ900;
+  Bloco_9.Registro9900.AddRegistro9900('J900', 1);
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroJ930;
 begin
-   if Bloco_J.RegistroJ930.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J930';
-         QTD_REG_BLC := Bloco_J.RegistroJ930.Count;
-      end;
-   end;
-   Bloco_J.WriteRegistroJ930;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_J.WriteRegistroJ930;
+  Bloco_9.Registro9900.AddRegistro9900('J930', Bloco_J.RegistroJ930.Count);
+
+  if FWriteManual then
+    Bloco_J.RegistroJ930.Clear;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroJ932;
 begin
-   if Bloco_J.RegistroJ932.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J932';
-         QTD_REG_BLC := Bloco_J.RegistroJ932.Count;
-      end;
-   end;
-   Bloco_J.WriteRegistroJ932;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_J.WriteRegistroJ932;
+  Bloco_9.Registro9900.AddRegistro9900('J932', Bloco_J.RegistroJ932.Count);
+
+  if FWriteManual then
+    Bloco_J.RegistroJ932.Clear;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroJ935;
 begin
-   if Bloco_J.RegistroJ935.Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'J935';
-         QTD_REG_BLC := Bloco_J.RegistroJ935.Count;
-      end;
-   end;
-   Bloco_J.WriteRegistroJ935;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_J.WriteRegistroJ935;
+  Bloco_9.Registro9900.AddRegistro9900('J935', Bloco_J.RegistroJ935.Count);
+
+  if FWriteManual then
+    Bloco_J.RegistroJ935.Clear;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroJ990;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := 'J990';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_J.WriteRegistroJ990;
+  Bloco_J.WriteRegistroJ990;
+  Bloco_9.Registro9900.AddRegistro9900('J990', 1);
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroK001;
 begin
-   if ((DT_INI >= EncodeDate(2016, 1, 1)) and (Bloco_0.Registro0000.IND_ESC_CONS = 'S')) then
-      if ((Bloco_K.RegistroK001.IND_DAD = 0) or (DT_INI >= EncodeDate(2017, 1, 1))) then
-      begin
-         with Bloco_9.Registro9900.New do
-         begin
-            REG_BLC := 'K001';
-            QTD_REG_BLC := 1;
-         end;
-         Bloco_K.WriteRegistroK001;
-      end;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  if ((DT_INI >= EncodeDate(2016, 1, 1)) and (Bloco_0.Registro0000.IND_ESC_CONS = 'S')) then
+    if ((Bloco_K.RegistroK001.IND_DAD = 0) or (DT_INI >= EncodeDate(2017, 1, 1))) then
+    begin
+      Bloco_K.WriteRegistroK001;
+      Bloco_9.Registro9900.AddRegistro9900('K001', 1);
+    end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroK030;
 begin
-   if Bloco_K.RegistroK001.IND_DAD = 0 then
-   begin
-      Bloco_K.WriteRegistroK030;
 
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'K030';
-         QTD_REG_BLC := 1;
-      end;
-   end;
-   if Bloco_K.RegistroK100Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'K100';
-         QTD_REG_BLC := Bloco_K.RegistroK100Count;
-      end;
-   end;
-   if Bloco_K.RegistroK110Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'K110';
-         QTD_REG_BLC := Bloco_K.RegistroK110Count;
-      end;
-   end;
-   if Bloco_K.RegistroK115Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'K115';
-         QTD_REG_BLC := Bloco_K.RegistroK115Count;
-      end;
-   end;
-   if Bloco_K.RegistroK200Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'K200';
-         QTD_REG_BLC := Bloco_K.RegistroK200Count;
-      end;
-   end;
-   if Bloco_K.RegistroK210Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'K210';
-         QTD_REG_BLC := Bloco_K.RegistroK210Count;
-      end;
-   end;
-   if Bloco_K.RegistroK300Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'K300';
-         QTD_REG_BLC := Bloco_K.RegistroK300Count;
-      end;
-   end;
-   if Bloco_K.RegistroK310Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'K310';
-         QTD_REG_BLC := Bloco_K.RegistroK310Count;
-      end;
-   end;
-   if Bloco_K.RegistroK315Count > 0 then
-   begin
-      with Bloco_9.Registro9900.New do
-      begin
-         REG_BLC := 'K315';
-         QTD_REG_BLC := Bloco_K.RegistroK315Count;
-      end;
-   end;
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  if (Bloco_K.RegistroK001.IND_DAD = 0) then
+  begin
+    Bloco_K.WriteRegistroK030;
+    Bloco_9.Registro9900.AddRegistro9900('K030', 1);
+  end;
+
+  Bloco_9.Registro9900.AddRegistro9900('K100', Bloco_K.RegistroK100Count);
+  Bloco_9.Registro9900.AddRegistro9900('K110', Bloco_K.RegistroK110Count);
+  Bloco_9.Registro9900.AddRegistro9900('K115', Bloco_K.RegistroK115Count);
+  Bloco_9.Registro9900.AddRegistro9900('K200', Bloco_K.RegistroK200Count);
+  Bloco_9.Registro9900.AddRegistro9900('K210', Bloco_K.RegistroK210Count);
+  Bloco_9.Registro9900.AddRegistro9900('K300', Bloco_K.RegistroK300Count);
+  Bloco_9.Registro9900.AddRegistro9900('K310', Bloco_K.RegistroK310Count);
+  Bloco_9.Registro9900.AddRegistro9900('K315', Bloco_K.RegistroK315Count);
+
+  if FWriteManual then
+  begin
+    Bloco_K.RegistroK030.RegistroK100.Clear;
+    Bloco_K.RegistroK100Count := 0;
+    Bloco_K.RegistroK110Count := 0;
+    Bloco_K.RegistroK115Count := 0;
+    Bloco_K.RegistroK030.RegistroK200.Clear;
+    Bloco_K.RegistroK200Count := 0;
+    Bloco_K.RegistroK210Count := 0;
+    Bloco_K.RegistroK030.RegistroK300.Clear;
+    Bloco_K.RegistroK300Count := 0;
+    Bloco_K.RegistroK310Count := 0;
+    Bloco_K.RegistroK315Count := 0;
+  end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistroK990;
 begin
-   if ((DT_INI >= EncodeDate(2016, 1, 1)) and (Bloco_0.Registro0000.IND_ESC_CONS = 'S')) then
-      if ((Bloco_K.RegistroK001.IND_DAD = 0) or (DT_INI >= EncodeDate(2017, 1, 1))) then
-      begin
-         with Bloco_9.Registro9900.New do
-         begin
-            REG_BLC := 'K990';
-            QTD_REG_BLC := 1;
-         end;
-         Bloco_K.WriteRegistroK990;
-      end;  
+  if ((DT_INI >= EncodeDate(2016, 1, 1)) and (Bloco_0.Registro0000.IND_ESC_CONS = 'S')) then
+    if ((Bloco_K.RegistroK001.IND_DAD = 0) or (DT_INI >= EncodeDate(2017, 1, 1))) then
+    begin
+      Bloco_K.WriteRegistroK990;
+      Bloco_9.Registro9900.AddRegistro9900('K990', 1);
+    end;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistro9001;
 begin
-   with Bloco_9.Registro9900.New do
-   begin
-      REG_BLC := '9001';
-      QTD_REG_BLC := 1;
-   end;
-   Bloco_9.WriteRegistro9001;
+
+  if not FInicializado then
+    raise EACBrSPEDException.Create( ACBrStr(StrComponenteNaoConfigurado));
+
+  Bloco_9.Registro9900.AddRegistro9900('9001', 1);
+  Bloco_9.WriteRegistro9001;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistro9900;
 begin
-   with Bloco_9.Registro9900 do
-   begin
-      with New do
-      begin
-         REG_BLC := '9900';
-         QTD_REG_BLC := Bloco_9.Registro9900.Count + 2;
-      end;
-      with New do
-      begin
-         REG_BLC := '9990';
-         QTD_REG_BLC := 1;
-      end;
-      with New do
-      begin
-         REG_BLC := '9999';
-         QTD_REG_BLC := 1;
-      end;
-   end;
-   Bloco_9.WriteRegistro9900;
+  Bloco_9.Registro9900.AddRegistro9900('9900', Bloco_9.Registro9900.Count + 3);
+  Bloco_9.Registro9900.AddRegistro9900('9990', 1);
+  Bloco_9.Registro9900.AddRegistro9900('9999', 1);
+  Bloco_9.WriteRegistro9900;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistro9990;
 begin
-   Bloco_9.WriteRegistro9990;
+  Bloco_9.WriteRegistro9990;
 end;
 
 procedure TACBrSPEDContabil.WriteRegistro9999;
 begin
-   Bloco_9.Registro9999.QTD_LIN := Bloco_9.Registro9999.QTD_LIN + Bloco_0.Registro0990.QTD_LIN_0 +
-                                                                  Bloco_C.RegistroC990.QTD_LIN_C +
-                                                                  Bloco_I.RegistroI990.QTD_LIN_I +
-                                                                  Bloco_J.RegistroJ990.QTD_LIN_J +
-                                                                  Bloco_K.RegistroK990.QTD_LIN_K +
-                                                                  Bloco_9.Registro9990.QTD_LIN_9;
-   Bloco_9.WriteRegistro9999;
+  Bloco_9.Registro9999.QTD_LIN := Bloco_9.Registro9999.QTD_LIN
+                                + Bloco_0.Registro0990.QTD_LIN_0
+                                + Bloco_C.RegistroC990.QTD_LIN_C
+                                + Bloco_I.RegistroI990.QTD_LIN_I
+                                + Bloco_J.RegistroJ990.QTD_LIN_J
+                                + Bloco_K.RegistroK990.QTD_LIN_K
+                                + Bloco_9.Registro9990.QTD_LIN_9;
+  Bloco_9.WriteRegistro9999;
 end;
 function TACBrSPEDContabil.GetLinhasBuffer: Integer;
 begin
@@ -1250,12 +1038,12 @@ begin
    Bloco.Conteudo.Clear;
 end;
 
-procedure TACBrSPEDContabil.IniciaGeracao;
+procedure TACBrSPEDContabil.IniciaGeracao(const pWriteManual: Boolean = False);
 var
   intFor: integer;
 begin
   if FInicializado then exit;
-  
+
   if (Trim(Arquivo) = '') or (Trim(fPath) = '') then
      raise Exception.Create( ACBrStr('Caminho ou nome do arquivo não informado!'));
 
@@ -1283,9 +1071,10 @@ begin
      Bloco_9.Registro9900.Items[intFor] := nil;
      Bloco_9.Registro9900.Items[intFor].Free;
   end;
-  
+
   Bloco_9.Registro9900.Clear;
 
+  FWriteManual := pWriteManual;
   FInicializado := True;
 end;
 
@@ -1296,13 +1085,17 @@ begin
   if not FInicializado then
      raise Exception.Create( 'Métodos "IniciaGeracao" não foi executado' );
 
-  WriteRegistro0000;
-  WriteRegistro0001;
-  WriteRegistro0007;
-  WriteRegistro0035;
-  WriteRegistro0020;
-  WriteRegistro0150;
-  //WriteRegistro0180;
+  if not(FWriteManual) then
+  begin
+    WriteRegistro0000;
+    WriteRegistro0001;
+    WriteRegistro0007;
+    WriteRegistro0035;
+    WriteRegistro0020;
+    WriteRegistro0150;
+    //WriteRegistro0180;
+  end;
+
   WriteRegistro0990;
 
   Bloco_0.WriteBuffer;
@@ -1322,21 +1115,25 @@ begin
   if not Bloco_I.Gravado then
     WriteBloco_0;
 
-  WriteRegistroI001;
-  WriteRegistroI010;
-  WriteRegistroI012;
-  WriteRegistroI020;
-  WriteRegistroI030;
-  WriteRegistroI050;
-  WriteRegistroI075;
-  WriteRegistroI100;
-  WriteRegistroI150;
-  WriteRegistroI200;
-  WriteRegistroI300;
-  WriteRegistroI350;
-  WriteRegistroI500;
-  WriteRegistroI510;
-  WriteRegistroI550;
+  if not(FWriteManual) then
+  begin
+    WriteRegistroI001;
+    WriteRegistroI010;
+    WriteRegistroI012;
+    WriteRegistroI020;
+    WriteRegistroI030;
+    WriteRegistroI050;
+    WriteRegistroI075;
+    WriteRegistroI100;
+    WriteRegistroI150;
+    WriteRegistroI200;
+    WriteRegistroI300;
+    WriteRegistroI350;
+    WriteRegistroI500;
+    WriteRegistroI510;
+    WriteRegistroI550;
+  end;
+
   WriteRegistroI990;
 
   Bloco_I.WriteBuffer;
@@ -1351,13 +1148,17 @@ begin
   if not Bloco_J.Gravado then
     WriteBloco_I;
 
-  WriteRegistroJ001;
-  WriteRegistroJ005;
-//  WriteRegistroJ800;
-//  WriteRegistroJ801;
-  WriteRegistroJ900;
-  WriteRegistroJ930;
-  WriteRegistroJ935;
+  if not(FWriteManual) then
+  begin
+    WriteRegistroJ001;
+    WriteRegistroJ005;
+    //WriteRegistroJ800;
+    //WriteRegistroJ801;
+    WriteRegistroJ900;
+    WriteRegistroJ930;
+    WriteRegistroJ935;
+  end;
+
   WriteRegistroJ990;
 
   Bloco_J.WriteBuffer;
@@ -1372,8 +1173,12 @@ begin
   if not Bloco_K.Gravado then
     WriteBloco_J;
 
-  WriteRegistroK001;
-  WriteRegistroK030;
+  if not(FWriteManual) then
+  begin
+    WriteRegistroK001;
+    WriteRegistroK030;
+  end;
+
   WriteRegistroK990;
 
   Bloco_K.WriteBuffer;
@@ -1388,7 +1193,9 @@ begin
   if not Bloco_9.Gravado then
     WriteBloco_K;
 
-  WriteRegistro9001;
+  if not(FWriteManual) then
+    WriteRegistro9001;
+
   WriteRegistro9900;
   WriteRegistro9990;
   WriteRegistro9999;
@@ -1407,13 +1214,18 @@ begin
 
   if Bloco_C.GerarBlocoC then
   begin
-    WriteRegistroC001;
-    WriteRegistroC040;
+    if not(FWriteManual) then
+    begin
+      WriteRegistroC001;
+      WriteRegistroC040;
+    end;
+
     WriteRegistroC990;
 
     Bloco_C.WriteBuffer;
     Bloco_C.Conteudo.Clear;
   end;
+
   Bloco_C.Gravado := true;
 end;
 
@@ -1422,62 +1234,53 @@ begin
   Result := FACBrTXT.Conteudo;
 end;
 
-procedure TACBrSPEDContabil.TotalizarTermos;
+procedure TACBrSPEDContabil.AtualizarTotalLinhasEmArquivoFinal;
 var
-  fs: TFileStream;
-  sByte, sByteNew: Byte;
-  iInc, iEnd, iCont, iIni : Integer;
-  sTotal, sChar : String;
+  sTotal: String;
 begin
-  sTotal := FACBrTXT.LFill(Bloco_9.Registro9999.QTD_LIN, 9, false);
-  sChar := '';
-  iCont:=0;
-  fs := TFileStream.Create(FACBrTXT.NomeArquivo, fmOpenReadWrite or fmShareExclusive );
+  sTotal := FACBrTXT.LFill(Bloco_9.Registro9999.QTD_LIN, 9, False);
 
-//******************************************************************************
-// iEnd : soma a quantidade de vezes que encontra o caracter '[' dentro do
-// arquivo, no momento que enontra 2 vezes encerra a alteração dos totalizadores
-// do arquivo e encerra o laço de repetição.
-//******************************************************************************
+  SubstituiMascaraPorQTDLinhasEmArquivoFinal(sIndicadorQTDLinhasArquivo, sTotal);
+end;
+
+procedure TACBrSPEDContabil.SubstituiMascaraPorQTDLinhasEmArquivoFinal(const Mascara, Texto: string);
+var
+  ArquivoTextoIn, ArquivoTextoOut: TextFile;
+  NomeArquivoTemp: string;
+  sLinhaAtual, idRegistroAtual : String;
+  TamanhoMascara: Integer;
+begin
+  TamanhoMascara := Length(Mascara);
+  NomeArquivoTemp := ChangeFileExt(FACBrTXT.NomeArquivo, '.tmp');
+  AssignFile(ArquivoTextoOut, NomeArquivoTemp);
   try
-    iEnd := 0;
-    while iEnd <> 2 do
-    begin
-      fs.Position := iCont;
-      fs.Read(sByte, 1);
-      if (Chr(sByte) = '[') then
+    Rewrite(ArquivoTextoOut);
+    AssignFile(ArquivoTextoIn, FACBrTXT.NomeArquivo);
+    try
+      Reset(ArquivoTextoIn);
+      while not Eof(ArquivoTextoIn) do
       begin
-        fs.Position := iCont;
-        iIni := iCont;
-        sChar := '';
-
-        for iInc := 1 to 9 do
+        Readln(ArquivoTextoIn, sLinhaAtual);
+        idRegistroAtual := Copy(sLinhaAtual, 1, 6);
+        if (idRegistroAtual = '|I030|' ) or (idRegistroAtual = '|J900|' ) then
         begin
-          fs.Position := iCont;
-          fs.Read(sByte, 1);
-          sChar := sChar + Chr(sByte);
-          Inc(iCont);
+          sLinhaAtual := FastStringReplace(sLinhaAtual, Mascara, Texto, []);
         end;
-
-        if (sChar = '[*******]') then
-        begin
-          for iInc := 1 to 9 do
-          begin
-            fs.Position := iIni;
-            sByteNew := Ord(sTotal[iInc]);
-            fs.Write(sByteNew,1);
-            Inc(iIni);
-          end;
-          Inc(iEnd);
-        end;
+        Writeln(ArquivoTextoOut, sLinhaAtual);
       end;
-      Inc(iCont);
-    end;
     finally
-    begin
-      FreeAndNil(fs);
+      Close(ArquivoTextoIn)
     end;
+  finally
+    Close(ArquivoTextoOut)
   end;
+
+  if RenameFile( FACBrTXT.NomeArquivo , ChangeFileExt(FACBrTXT.NomeArquivo, '.old')) then
+    if RenameFile( NomeArquivoTemp , FACBrTXT.NomeArquivo) then
+    begin
+      SysUtils.DeleteFile( ChangeFileExt(FACBrTXT.NomeArquivo, '.old') );
+    end;
+
 end;
 
 {$ifdef FPC}

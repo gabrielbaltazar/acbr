@@ -2,17 +2,17 @@ object frmACBreSocial: TfrmACBreSocial
   Left = 338
   Height = 651
   Top = 105
-  Width = 1115
+  Width = 1096
   Caption = 'ACBreSocial - Programa Exemplo'
   ClientHeight = 651
-  ClientWidth = 1115
+  ClientWidth = 1096
   Color = clBtnFace
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.2.6.0'
   object pnlMenus: TPanel
     Left = 0
     Height = 651
@@ -99,16 +99,16 @@ object frmACBreSocial: TfrmACBreSocial
           Height = 478
           Top = 0
           Width = 287
-          ActivePage = TabSheet12
+          ActivePage = TabSheet4
           Align = alClient
           MultiLine = True
-          TabIndex = 3
+          TabIndex = 1
           TabOrder = 0
           Options = [nboMultiLine]
           object TabSheet3: TTabSheet
             Caption = 'Certificado'
-            ClientHeight = 0
-            ClientWidth = 0
+            ClientHeight = 434
+            ClientWidth = 279
             object lSSLLib: TLabel
               Left = 39
               Height = 13
@@ -351,7 +351,7 @@ object frmACBreSocial: TfrmACBreSocial
                 Left = 142
                 Height = 19
                 Top = 27
-                Width = 54
+                Width = 55
                 Caption = 'Assinar'
                 Checked = True
                 State = cbChecked
@@ -419,8 +419,8 @@ object frmACBreSocial: TfrmACBreSocial
           end
           object TabSheet4: TTabSheet
             Caption = 'Geral'
-            ClientHeight = 0
-            ClientWidth = 0
+            ClientHeight = 434
+            ClientWidth = 279
             ImageIndex = 1
             object GroupBox3: TGroupBox
               Left = 3
@@ -516,9 +516,9 @@ object frmACBreSocial: TfrmACBreSocial
               end
               object ckSalvar: TCheckBox
                 Left = 6
-                Height = 15
+                Height = 19
                 Top = 209
-                Width = 209
+                Width = 196
                 Caption = 'Salvar Arquivos de Envio e Resposta'
                 Font.Color = clWindowText
                 Font.Height = -11
@@ -536,17 +536,17 @@ object frmACBreSocial: TfrmACBreSocial
               end
               object cbxAtualizarXML: TCheckBox
                 Left = 6
-                Height = 17
+                Height = 19
                 Top = 2
-                Width = 97
+                Width = 84
                 Caption = 'Atualizar XML'
                 TabOrder = 3
               end
               object cbxExibirErroSchema: TCheckBox
                 Left = 6
-                Height = 17
+                Height = 19
                 Top = 18
-                Width = 129
+                Width = 109
                 Caption = 'Exibir Erro Schema'
                 TabOrder = 4
               end
@@ -559,9 +559,9 @@ object frmACBreSocial: TfrmACBreSocial
               end
               object cbxRetirarAcentos: TCheckBox
                 Left = 6
-                Height = 17
+                Height = 19
                 Top = 191
-                Width = 193
+                Width = 188
                 Caption = 'Retirar Acentos dos XMLs enviados'
                 TabOrder = 6
               end
@@ -584,8 +584,8 @@ object frmACBreSocial: TfrmACBreSocial
           end
           object TabSheet7: TTabSheet
             Caption = 'WebService'
-            ClientHeight = 0
-            ClientWidth = 0
+            ClientHeight = 434
+            ClientWidth = 279
             ImageIndex = 2
             object GroupBox4: TGroupBox
               Left = 5
@@ -631,9 +631,9 @@ object frmACBreSocial: TfrmACBreSocial
               end
               object cbxVisualizar: TCheckBox
                 Left = 6
-                Height = 17
+                Height = 19
                 Top = 104
-                Width = 153
+                Width = 119
                 Caption = 'Visualizar Mensagem'
                 Font.Color = clWindowText
                 Font.Height = -11
@@ -711,15 +711,15 @@ object frmACBreSocial: TfrmACBreSocial
               end
               object cbxSalvarSOAP: TCheckBox
                 Left = 6
-                Height = 17
+                Height = 19
                 Top = 122
-                Width = 153
+                Width = 127
                 Caption = 'Salvar envelope SOAP'
                 TabOrder = 3
               end
               object seTimeOut: TSpinEdit
                 Left = 165
-                Height = 22
+                Height = 21
                 Top = 118
                 Width = 66
                 Increment = 10
@@ -848,9 +848,9 @@ object frmACBreSocial: TfrmACBreSocial
               end
               object cbxAjustarAut: TCheckBox
                 Left = 6
-                Height = 17
+                Height = 19
                 Top = 0
-                Width = 234
+                Width = 227
                 Caption = 'Ajustar Automaticamente prop. "Aguardar"'
                 TabOrder = 0
               end
@@ -942,8 +942,8 @@ object frmACBreSocial: TfrmACBreSocial
           end
           object TabSheet13: TTabSheet
             Caption = 'Arquivos'
-            ClientHeight = 0
-            ClientWidth = 0
+            ClientHeight = 434
+            ClientWidth = 279
             ImageIndex = 4
             object sbPatheSocial: TSpeedButton
               Left = 247
@@ -977,49 +977,49 @@ object frmACBreSocial: TfrmACBreSocial
             end
             object cbxSalvarArqs: TCheckBox
               Left = 6
-              Height = 17
+              Height = 19
               Top = 0
-              Width = 210
+              Width = 201
               Caption = 'Salvar Arquivos em Pastas Separadas'
               TabOrder = 0
             end
             object cbxPastaMensal: TCheckBox
               Left = 6
-              Height = 17
+              Height = 19
               Top = 16
-              Width = 210
+              Width = 144
               Caption = 'Criar Pastas Mensalmente'
               TabOrder = 1
             end
             object cbxAdicionaLiteral: TCheckBox
               Left = 6
-              Height = 17
+              Height = 19
               Top = 32
-              Width = 210
+              Width = 195
               Caption = 'Adicionar Literal no nome das pastas'
               TabOrder = 2
             end
             object cbxEmissaoPatheSocial: TCheckBox
               Left = 6
-              Height = 17
+              Height = 19
               Top = 48
-              Width = 251
+              Width = 246
               Caption = 'Salvar Documento pelo campo Data de Emissão'
               TabOrder = 3
             end
             object cbxSalvaPathEvento: TCheckBox
               Left = 6
-              Height = 17
+              Height = 19
               Top = 64
-              Width = 233
+              Width = 152
               Caption = 'Salvar Arquivos de Eventos'
               TabOrder = 4
             end
             object cbxSepararPorCNPJ: TCheckBox
               Left = 6
-              Height = 17
+              Height = 19
               Top = 80
-              Width = 233
+              Width = 204
               Caption = 'Separar Arqs pelo CNPJ do Certificado'
               TabOrder = 5
             end
@@ -1032,9 +1032,9 @@ object frmACBreSocial: TfrmACBreSocial
             end
             object cbxSepararPorModelo: TCheckBox
               Left = 6
-              Height = 17
+              Height = 19
               Top = 96
-              Width = 251
+              Width = 215
               Caption = 'Separar Arqs pelo Modelo do Documento'
               TabOrder = 7
             end
@@ -1071,18 +1071,18 @@ object frmACBreSocial: TfrmACBreSocial
     Left = 297
     Height = 651
     Top = 0
-    Width = 818
+    Width = 799
     Align = alClient
     ClientHeight = 651
-    ClientWidth = 818
+    ClientWidth = 799
     TabOrder = 1
     object pgcBotoes: TPageControl
       Left = 1
       Height = 352
       Top = 1
       Width = 816
-      ActivePage = tbsEventosTabela
-      TabIndex = 0
+      ActivePage = tbsEventosNaoPeriodicos
+      TabIndex = 2
       TabOrder = 0
       object tbsEventosTabela: TTabSheet
         Caption = 'Eventos de Tabela'
@@ -1234,7 +1234,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS1260: TCheckBox
           Left = 12
           Height = 19
-          Top = 127
+          Top = 129
           Width = 290
           Caption = 'S-1260 Comercialização da Produção Rural Pessoa Física'
           TabOrder = 5
@@ -1255,37 +1255,29 @@ object frmACBreSocial: TfrmACBreSocial
           Caption = 'S-1280 Informações Complementares aos Eventos Periódicos'
           TabOrder = 7
         end
-        object cbS1295: TCheckBox
-          Left = 351
-          Height = 19
-          Top = 59
-          Width = 343
-          Caption = 'S-1295 Solicitação de Totalização para Pagamento em Contingência'
-          TabOrder = 8
-        end
         object cbS1298: TCheckBox
           Left = 350
           Height = 19
-          Top = 82
+          Top = 58
           Width = 225
           Caption = 'S-1298 Reabertura dos Eventos Periódicos'
-          TabOrder = 9
+          TabOrder = 8
         end
         object cbS1299: TCheckBox
           Left = 350
           Height = 19
-          Top = 105
+          Top = 81
           Width = 229
           Caption = 'S-1299 Fechamento dos Eventos Periódicos'
-          TabOrder = 10
+          TabOrder = 9
         end
         object cbS1300: TCheckBox
           Left = 350
           Height = 19
-          Top = 128
+          Top = 106
           Width = 198
           Caption = 'S-1300 Contribuição Sindical Patronal'
-          TabOrder = 11
+          TabOrder = 10
         end
       end
       object tbsEventosNaoPeriodicos: TTabSheet
@@ -1304,7 +1296,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2200: TCheckBox
           Left = 12
           Height = 19
-          Top = 34
+          Top = 28
           Width = 139
           Caption = 'S-2200 Evento Admissão'
           TabOrder = 1
@@ -1312,7 +1304,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2205: TCheckBox
           Left = 12
           Height = 19
-          Top = 56
+          Top = 44
           Width = 281
           Caption = 'S-2205 Alteração de Dados Cadastrais do Trabalhador'
           TabOrder = 2
@@ -1320,7 +1312,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2206: TCheckBox
           Left = 12
           Height = 19
-          Top = 78
+          Top = 60
           Width = 224
           Caption = 'S-2206 Alteração do Contrato de Trabalho'
           TabOrder = 3
@@ -1328,7 +1320,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2210: TCheckBox
           Left = 12
           Height = 19
-          Top = 100
+          Top = 76
           Width = 240
           Caption = 'S-2210 Comunicação de Acidente de Trabalho'
           TabOrder = 4
@@ -1336,7 +1328,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2220: TCheckBox
           Left = 12
           Height = 19
-          Top = 122
+          Top = 92
           Width = 253
           Caption = 'S-2220 Monitoramento da Saúde do Trabalhador'
           TabOrder = 5
@@ -1344,7 +1336,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2221: TCheckBox
           Left = 12
           Height = 19
-          Top = 144
+          Top = 108
           Width = 273
           Caption = 'S-2221 Exame Toxicológico do Motorista Profissional '
           TabOrder = 6
@@ -1352,7 +1344,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2230: TCheckBox
           Left = 12
           Height = 19
-          Top = 166
+          Top = 124
           Width = 176
           Caption = 'S-2230 Afastamento Temporário'
           TabOrder = 7
@@ -1360,7 +1352,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2240: TCheckBox
           Left = 12
           Height = 19
-          Top = 210
+          Top = 156
           Width = 311
           Caption = 'S-2240 Condições Ambientais do Trabalho - Fatores de Risco'
           TabOrder = 8
@@ -1368,7 +1360,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2245: TCheckBox
           Left = 12
           Height = 19
-          Top = 232
+          Top = 172
           Width = 396
           Caption = 'S-2245 Treinamentos, Capacitações, Exercícios Simulados '#13#10'e Outras Anotações'
           TabOrder = 9
@@ -1376,7 +1368,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2250: TCheckBox
           Left = 12
           Height = 19
-          Top = 254
+          Top = 188
           Width = 116
           Caption = 'S-2250 Aviso Prévio'
           TabOrder = 10
@@ -1384,7 +1376,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbAviso: TComboBox
           Left = 138
           Height = 21
-          Top = 254
+          Top = 188
           Width = 145
           ItemHeight = 13
           ItemIndex = 0
@@ -1407,7 +1399,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2298: TCheckBox
           Left = 420
           Height = 19
-          Top = 34
+          Top = 28
           Width = 121
           Caption = 'S-2298 Reintegração'
           TabOrder = 13
@@ -1415,7 +1407,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2299: TCheckBox
           Left = 420
           Height = 19
-          Top = 56
+          Top = 44
           Width = 121
           Caption = 'S-2299 Desligamento'
           TabOrder = 14
@@ -1423,7 +1415,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2300: TCheckBox
           Left = 420
           Height = 19
-          Top = 78
+          Top = 60
           Width = 209
           Caption = 'S-2300 Trabalhador Sem Vínculo - Início'
           TabOrder = 15
@@ -1431,7 +1423,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2306: TCheckBox
           Left = 420
           Height = 19
-          Top = 122
+          Top = 92
           Width = 284
           Caption = 'S-2306 Trabalhador Sem Vínculo - Alteração Contratual'
           TabOrder = 16
@@ -1439,7 +1431,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2399: TCheckBox
           Left = 420
           Height = 19
-          Top = 144
+          Top = 108
           Width = 222
           Caption = 'S-2399 Trabalhador Sem Vínculo - Término'
           TabOrder = 17
@@ -1447,7 +1439,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2400: TCheckBox
           Left = 420
           Height = 19
-          Top = 166
+          Top = 124
           Width = 277
           Caption = 'S-2400 Cadastro de Benefícios Previdênciários - RPPS'
           TabOrder = 18
@@ -1455,7 +1447,7 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS3000: TCheckBox
           Left = 420
           Height = 19
-          Top = 100
+          Top = 76
           Width = 156
           Caption = 'S-3000 Exclusão de Eventos'
           TabOrder = 19
@@ -1463,50 +1455,66 @@ object frmACBreSocial: TfrmACBreSocial
         object cbS2231: TCheckBox
           Left = 12
           Height = 19
-          Top = 188
-          Width = 54
-          Caption = 'S-2231'
+          Top = 140
+          Width = 219
+          Caption = 'S-2231 Cessão/Exercício em Outro Órgão'
           TabOrder = 20
         end
         object cbS2416: TCheckBox
           Left = 420
           Height = 19
-          Top = 232
-          Width = 54
-          Caption = 'S-2416'
+          Top = 172
+          Width = 296
+          Caption = 'S-2416 Cadastro de Benefício - Entes Públicos - Alteração'
           TabOrder = 21
         end
         object cbS2418: TCheckBox
           Left = 420
           Height = 19
-          Top = 254
-          Width = 54
-          Caption = 'S-2418'
+          Top = 188
+          Width = 250
+          Caption = 'S-2418 Reativação de Benefício - Entes Públicos'
           TabOrder = 22
         end
         object cbS2405: TCheckBox
           Left = 420
           Height = 19
-          Top = 188
-          Width = 54
-          Caption = 'S-2405'
+          Top = 140
+          Width = 308
+          Caption = 'S-2405 Cadastro de Beneficiário - Entes Públicos - Alteração'
           TabOrder = 23
         end
         object cbS2410: TCheckBox
           Left = 420
           Height = 19
-          Top = 210
-          Width = 54
-          Caption = 'S-2410'
+          Top = 156
+          Width = 275
+          Caption = 'S-2410 Cadastro de Benefício - Entes Públicos - Início'
           TabOrder = 24
         end
         object cbS2420: TCheckBox
           Left = 420
           Height = 19
-          Top = 277
-          Width = 54
-          Caption = 'S-2420'
+          Top = 205
+          Width = 288
+          Caption = 'S-2420 Cadastro de Benefício - Entes Públicos - Término'
           TabOrder = 25
+        end
+        object cbS2500: TCheckBox
+          Left = 420
+          Height = 19
+          Top = 221
+          Width = 156
+          Caption = 'S-2500 Processo Trabalhista'
+          TabOrder = 26
+        end
+        object cbS2501: TCheckBox
+          Left = 420
+          Height = 19
+          Top = 237
+          Width = 297
+          Caption = 'S-2501 Informações de Tributos Decorrentes de Processo'
+          TabOrder = 27
         end
       end
     end
@@ -1515,8 +1523,8 @@ object frmACBreSocial: TfrmACBreSocial
       Height = 298
       Top = 352
       Width = 816
-      ActivePage = tsFormaEnvio
-      TabIndex = 0
+      ActivePage = tsComandos
+      TabIndex = 1
       TabOrder = 1
       object tsFormaEnvio: TTabSheet
         Caption = 'Forma de Envio'
@@ -1596,8 +1604,8 @@ object frmACBreSocial: TfrmACBreSocial
       end
       object tsComandos: TTabSheet
         Caption = 'Comandos'
-        ClientHeight = 0
-        ClientWidth = 0
+        ClientHeight = 272
+        ClientWidth = 808
         ImageIndex = 6
         object btnGerar: TButton
           Left = 10
@@ -1692,11 +1700,11 @@ object frmACBreSocial: TfrmACBreSocial
       end
       object TabSheet5: TTabSheet
         Caption = 'Respostas'
-        ClientHeight = 351
+        ClientHeight = 272
         ClientWidth = 808
         object MemoResp: TMemo
           Left = 0
-          Height = 351
+          Height = 272
           Top = 0
           Width = 808
           Align = alClient
@@ -1706,12 +1714,12 @@ object frmACBreSocial: TfrmACBreSocial
       end
       object TabSheet6: TTabSheet
         Caption = 'XML Resposta'
-        ClientHeight = 351
+        ClientHeight = 272
         ClientWidth = 808
         ImageIndex = 1
         inline WBResposta: TSynEdit
           Left = 0
-          Height = 351
+          Height = 272
           Top = 0
           Width = 808
           Align = alClient
@@ -1789,14 +1797,14 @@ object frmACBreSocial: TfrmACBreSocial
       end
       object TabSheet8: TTabSheet
         Caption = 'Log'
-        ClientHeight = 0
-        ClientWidth = 0
+        ClientHeight = 272
+        ClientWidth = 808
         ImageIndex = 2
         object memoLog: TMemo
           Left = 0
-          Height = 310
+          Height = 272
           Top = 0
-          Width = 792
+          Width = 808
           Align = alClient
           ScrollBars = ssVertical
           TabOrder = 0
@@ -1804,29 +1812,28 @@ object frmACBreSocial: TfrmACBreSocial
       end
       object TabSheet9: TTabSheet
         Caption = 'Documento'
-        ClientHeight = 0
-        ClientWidth = 0
+        ClientHeight = 272
+        ClientWidth = 808
         ImageIndex = 3
         object trvwDocumento: TTreeView
           Left = 0
-          Height = 310
+          Height = 272
           Top = 0
-          Width = 792
+          Width = 808
           Align = alClient
-          Indent = 19
           TabOrder = 0
         end
       end
       object TabSheet10: TTabSheet
         Caption = 'Retorno Completo WS'
-        ClientHeight = 0
-        ClientWidth = 0
+        ClientHeight = 272
+        ClientWidth = 808
         ImageIndex = 4
         object memoRespWS: TMemo
           Left = 0
-          Height = 310
+          Height = 272
           Top = 0
-          Width = 792
+          Width = 808
           Align = alClient
           ScrollBars = ssVertical
           TabOrder = 0
@@ -1834,14 +1841,14 @@ object frmACBreSocial: TfrmACBreSocial
       end
       object Dados: TTabSheet
         Caption = 'Dados'
-        ClientHeight = 0
-        ClientWidth = 0
+        ClientHeight = 272
+        ClientWidth = 808
         ImageIndex = 5
         object MemoDados: TMemo
           Left = 0
-          Height = 310
+          Height = 272
           Top = 0
-          Width = 792
+          Width = 808
           Align = alClient
           Lines.Strings = (
             ''

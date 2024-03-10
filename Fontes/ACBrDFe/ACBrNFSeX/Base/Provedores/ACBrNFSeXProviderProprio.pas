@@ -72,7 +72,19 @@ type
     procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
     procedure GerarMsgDadosConsultaNFSe(Response: TNFSeConsultaNFSeResponse;
       Params: TNFSeParamsResponse); override;
+    procedure AssinarConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
     procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+
+    procedure PrepararConsultaNFSeporChave(Response: TNFSeConsultaNFSeResponse); virtual;
+    procedure GerarMsgDadosConsultaNFSeporChave(Response: TNFSeConsultaNFSeResponse;
+      Params: TNFSeParamsResponse); virtual;
+    procedure AssinarConsultaNFSeporChave(Response: TNFSeConsultaNFSeResponse); virtual;
+    procedure TratarRetornoConsultaNFSeporChave(Response: TNFSeConsultaNFSeResponse); virtual;
+
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); virtual;
+    procedure GerarMsgDadosConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse;
+      Params: TNFSeParamsResponse); virtual;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); virtual;
 
     procedure PrepararConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse); virtual;
     procedure GerarMsgDadosConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse;
@@ -88,6 +100,11 @@ type
     procedure GerarMsgDadosConsultaNFSeServicoTomado(Response: TNFSeConsultaNFSeResponse;
       Params: TNFSeParamsResponse); virtual;
     procedure TratarRetornoConsultaNFSeServicoTomado(Response: TNFSeConsultaNFSeResponse); virtual;
+
+    procedure PrepararConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse); override;
+    procedure GerarMsgDadosConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse;
+      Params: TNFSeParamsResponse); override;
+    procedure TratarRetornoConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure GerarMsgDadosCancelaNFSe(Response: TNFSeCancelaNFSeResponse;
@@ -124,6 +141,10 @@ type
       Params: TNFSeParamsResponse); override;
     procedure TratarRetornoConsultarParam(Response: TNFSeConsultarParamResponse); override;
 
+    procedure PrepararConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
+    procedure GerarMsgDadosConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
+    procedure TratarRetornoConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
+
     function AplicarXMLtoUTF8(AXMLRps: String): String; virtual;
     function AplicarLineBreak(AXMLRps: String; const ABreak: String): String; virtual;
 
@@ -156,7 +177,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   aParams: TNFSeParamsResponse;
   Nota: TNotaFiscal;
-  Versao, IdAttr, NameSpace, NameSpaceLote, ListaRps, xRps,
+  Versao, IdAttr, NameSpace, NameSpaceLote, ListaRps, xRps, IdAttrSig,
   TagEnvio, Prefixo, PrefixoTS: string;
   I: Integer;
 begin
@@ -174,6 +195,17 @@ begin
     AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (máximo de ' +
                        IntToStr(Response.MaxRps) + ' RPS)' +
                        ' excedido. Quantidade atual: ' +
+                       IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
+  end;
+
+  if (TACBrNFSeX(FAOwner).NotasFiscais.Count < Response.MinRps) and
+     (Response.ModoEnvio <> meUnitario) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod005;
+    AErro.Descricao := ACBrStr('Conjunto de RPS transmitidos (mínimo de ' +
+                       IntToStr(Response.MinRps) + ' RPS)' +
+                       '. Quantidade atual: ' +
                        IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count));
   end;
 
@@ -276,12 +308,16 @@ begin
     Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
     Nota.XmlRps := AplicarLineBreak(Nota.XmlRps, '');
 
-    if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono])) or
+    if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono, meTeste])) or
        (ConfigAssinar.RpsGerarNFSe and (Response.ModoEnvio = meUnitario)) then
     begin
+      IdAttrSig := SetIdSignatureValue(Nota.XmlRps,
+                                     ConfigMsgDados.XmlRps.DocElemento, IdAttr);
+
       Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
                                          PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
-                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
+                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '',
+                                         IdAttr, IdAttrSig);
     end;
 
     SalvarXmlRps(Nota);
@@ -303,7 +339,7 @@ begin
   else
     Versao := '';
 
-  IdAttr := DefinirIDLote(Response.Lote);
+  IdAttr := DefinirIDLote(Response.NumeroLote);
 
   ListaRps := AplicarLineBreak(ListaRps, '');
 
@@ -394,24 +430,28 @@ procedure TACBrNFSeProviderProprio.PrepararConsultaNFSe(Response: TNFSeConsultaN
 var
   AErro: TNFSeEventoCollectionItem;
 begin
-  if Response.InfConsultaNFSe.tpConsulta = tcPorNumero then
-  begin
-    TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
-    raise EACBrDFeException.Create(ERR_NAO_IMP);
-  end
+  case Response.InfConsultaNFSe.tpConsulta of
+    tcPorPeriodo,
+    tcPorFaixa: Response.Metodo := tmConsultarNFSePorFaixa;
+    tcServicoTomado: Response.Metodo := tmConsultarNFSeServicoTomado;
+    tcServicoPrestado: Response.Metodo := tmConsultarNFSeServicoPrestado;
+    tcPorChave: Response.Metodo := tmConsultarNFSePorChave;
   else
-  begin
-    case Response.InfConsultaNFSe.tpConsulta of
-      tcPorPeriodo,
-      tcPorFaixa: PrepararConsultaNFSeporFaixa(Response);
-      tcServicoPrestado: PrepararConsultaNFSeServicoPrestado(Response);
-      tcServicoTomado: PrepararConsultaNFSeServicoTomado(Response);
-    else
-      begin
-        AErro := Response.Erros.New;
-        AErro.Codigo := Cod001;
-        AErro.Descricao := ACBrStr(Desc001);
-      end;
+    Response.Metodo := tmConsultarNFSe;
+  end;
+
+  case Response.InfConsultaNFSe.tpConsulta of
+    tcPorNumero: PrepararConsultaNFSeporNumero(Response);
+    tcPorPeriodo,
+    tcPorFaixa: PrepararConsultaNFSeporFaixa(Response);
+    tcServicoPrestado: PrepararConsultaNFSeServicoPrestado(Response);
+    tcServicoTomado: PrepararConsultaNFSeServicoTomado(Response);
+    tcPorChave: PrepararConsultaNFSeporChave(Response);
+  else
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := Cod001;
+      AErro.Descricao := ACBrStr(Desc001);
     end;
   end;
 end;
@@ -422,7 +462,116 @@ begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;
 
+procedure TACBrNFSeProviderProprio.AssinarConsultaNFSe(
+  Response: TNFSeConsultaNFSeResponse);
+var
+  AErro: TNFSeEventoCollectionItem;
+begin
+  case Response.InfConsultaNFSe.tpConsulta of
+    tcPorNumero,
+    tcPorPeriodo,
+    tcPorFaixa,
+    tcServicoPrestado,
+    tcServicoTomado: inherited AssinarConsultaNFSe(Response);
+    tcPorChave: AssinarConsultaNFSeporChave(Response);
+  else
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := Cod001;
+      AErro.Descricao := ACBrStr(Desc001);
+    end;
+  end;
+end;
+
 procedure TACBrNFSeProviderProprio.TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse);
+begin
+  case Response.InfConsultaNFSe.tpConsulta of
+    tcPorNumero:
+      TratarRetornoConsultaNFSeporNumero(Response);
+    tcPorPeriodo,
+    tcPorFaixa:
+      TratarRetornoConsultaNFSeporFaixa(Response);
+    tcServicoPrestado:
+      TratarRetornoConsultaNFSeServicoPrestado(Response);
+    tcServicoTomado:
+      TratarRetornoConsultaNFSeServicoTomado(Response);
+    tcPorChave:
+      TratarRetornoConsultaNFSeporChave(Response);
+  end;
+end;
+
+procedure TACBrNFSeProviderProprio.PrepararConsultaNFSeporChave(
+  Response: TNFSeConsultaNFSeResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaNFSeporChave(
+  Response: TNFSeConsultaNFSeResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+procedure TACBrNFSeProviderProprio.AssinarConsultaNFSeporChave(
+  Response: TNFSeConsultaNFSeResponse);
+var
+  IdAttr, Prefixo, IdAttrSig: string;
+  AErro: TNFSeEventoCollectionItem;
+begin
+  if not ConfigAssinar.ConsultarNFSePorChave then Exit;
+
+  if ConfigAssinar.IncluirURI then
+    IdAttr := ConfigGeral.Identificador
+  else
+    IdAttr := 'ID';
+
+  if ConfigMsgDados.Prefixo = '' then
+    Prefixo := ''
+  else
+    Prefixo := ConfigMsgDados.Prefixo + ':';
+
+  try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                      ConfigMsgDados.ConsultarNFSePorChave.DocElemento, IdAttr);
+
+    Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
+      Prefixo + ConfigMsgDados.ConsultarNFSePorChave.DocElemento,
+      ConfigMsgDados.ConsultarNFSePorChave.InfElemento, '', '', '', IdAttr,
+      IdAttrSig);
+  except
+    on E:Exception do
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := Cod801;
+      AErro.Descricao := ACBrStr(Desc801 + E.Message);
+    end;
+  end;
+end;
+
+procedure TACBrNFSeProviderProprio.TratarRetornoConsultaNFSeporChave(
+  Response: TNFSeConsultaNFSeResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+procedure TACBrNFSeProviderProprio.PrepararConsultaNFSeporNumero(
+  Response: TNFSeConsultaNFSeResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaNFSeporNumero(
+  Response: TNFSeConsultaNFSeResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+procedure TACBrNFSeProviderProprio.TratarRetornoConsultaNFSeporNumero(
+  Response: TNFSeConsultaNFSeResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;
@@ -485,6 +634,14 @@ begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;
 
+procedure TACBrNFSeProviderProprio.PrepararConsultaLinkNFSe(
+  Response: TNFSeConsultaLinkNFSeResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
 procedure TACBrNFSeProviderProprio.PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
@@ -492,8 +649,20 @@ begin
   raise EACBrDFeException.Create(ERR_NAO_IMP);
 end;
 
+procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaLinkNFSe(
+  Response: TNFSeConsultaLinkNFSeResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
 procedure TACBrNFSeProviderProprio.GerarMsgDadosCancelaNFSe(
   Response: TNFSeCancelaNFSeResponse; Params: TNFSeParamsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+procedure TACBrNFSeProviderProprio.TratarRetornoConsultaLinkNFSe(
+  Response: TNFSeConsultaLinkNFSeResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;
@@ -508,7 +677,8 @@ var
   AErro: TNFSeEventoCollectionItem;
   aParams: TNFSeParamsResponse;
   Nota: TNotaFiscal;
-  IdAttr, xRps, NameSpace, NumRps, TagEnvio, Prefixo, PrefixoTS: string;
+  IdAttr, xRps, NameSpace, NumRps, TagEnvio, Prefixo, PrefixoTS,
+  IdAttrSig: string;
 begin
   if EstaVazio(Response.PedCanc) then
   begin
@@ -587,9 +757,13 @@ begin
 
   if ConfigAssinar.RpsSubstituirNFSe then
   begin
+    IdAttrSig := SetIdSignatureValue(Nota.XmlRps,
+                      ConfigMsgDados.XmlRps.DocElemento, IdAttr);
+
     Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
                                        PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
-                                       ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
+                                       ConfigMsgDados.XmlRps.InfElemento, '', '', '',
+                                       IdAttr, IdAttrSig);
   end;
 
   SalvarXmlRps(Nota);
@@ -629,7 +803,7 @@ begin
     aParams.Versao := '';
     aParams.Serie := '';
     aParams.Motivo := '';
-    aParams.CodVerif := '';
+    aParams.CodigoVerificacao := '';
 
     GerarMsgDadosSubstituiNFSe(Response, aParams);
   finally
@@ -766,6 +940,28 @@ end;
 
 procedure TACBrNFSeProviderProprio.TratarRetornoConsultarParam(
   Response: TNFSeConsultarParamResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+procedure TACBrNFSeProviderProprio.PrepararConsultarSeqRps(
+  Response: TNFSeConsultarSeqRpsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultarSeqRps(
+  Response: TNFSeConsultarSeqRpsResponse);
+begin
+  // Deve ser implementado para cada provedor que tem o seu próprio layout
+  TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  raise EACBrDFeException.Create(ERR_NAO_IMP);
+end;
+
+procedure TACBrNFSeProviderProprio.TratarRetornoConsultarSeqRps(
+  Response: TNFSeConsultarSeqRpsResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;

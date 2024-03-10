@@ -478,8 +478,8 @@ function TACBrNFSeXWebserviceVersaTecnologia200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result));
-  Result := string(NativeStringToUTF8(RemoverDeclaracaoXML(Result)));
+  Result := ParseText(Result);
+  Result := RemoverDeclaracaoXML(Result);
 end;
 
 { TACBrNFSeProviderVersaTecnologia201 }
@@ -548,7 +548,7 @@ begin
                                  '<' + Prefixo2 + 'CodigoMunicipio>' +
                                     IntToStr(TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio) +
                                  '</' + Prefixo2 + 'CodigoMunicipio>' +
-                                 CodVerif +
+                                 CodigoVerificacao +
                                '</' + Prefixo2 + 'IdentificacaoNfse>' +
                                '<' + Prefixo2 + 'CodigoCancelamento>' +
                                   InfoCanc.CodCancelamento +

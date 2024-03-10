@@ -110,7 +110,7 @@ begin
   Result.AppendChild(AddNode(tcDatVcto, '#1', 'dataEmissao', 1, 21, 1,
                                                       NFSe.DataEmissaoRps, ''));
 
-  Result.AppendChild(AddNode(tcInt, '#1', 'im', 1, 11, 1,
+  Result.AppendChild(AddNode(tcStr, '#1', 'im', 1, 11, 1,
                  NFSe.Prestador.IdentificacaoPrestador.InscricaoMunicipal, ''));
 
   Result.AppendChild(AddNode(tcInt, '#1', 'numeroRps', 1, 11, 1,
@@ -130,28 +130,28 @@ begin
   Result := CreateElement('dadosServico');
 
   Result.AppendChild(AddNode(tcStr, '#1', 'bairro', 1, 25, 1,
-                                           NFSe.Prestador.Endereco.Bairro, ''));
+                                             NFSe.Servico.Endereco.Bairro, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'cep', 1, 9, 1,
-                                              NFSe.Prestador.Endereco.CEP, ''));
+                                                NFSe.Servico.Endereco.CEP, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'cidade', 1, 30, 1,
-                                       NFSe.Prestador.Endereco.xMunicipio, ''));
+                                         NFSe.Servico.Endereco.xMunicipio, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'complemento', 1, 30, 0,
-                                      NFSe.Prestador.Endereco.Complemento, ''));
+                                        NFSe.Servico.Endereco.Complemento, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'logradouro', 1, 50, 1,
-                                         NFSe.Prestador.Endereco.Endereco, ''));
+                                           NFSe.Servico.Endereco.Endereco, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'numero', 1, 10, 1,
-                                           NFSe.Prestador.Endereco.Numero, ''));
+                                             NFSe.Servico.Endereco.Numero, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'pais', 1, 9, 1,
-                                            NFSe.Prestador.Endereco.xPais, ''));
+                                              NFSe.Servico.Endereco.xPais, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'uf', 1, 2, 1,
-                                               NFSe.Prestador.Endereco.UF, ''));
+                                                 NFSe.Servico.Endereco.UF, ''));
 end;
 
 function TNFSeW_Giap.GerarDadosTomador: TACBrXmlNode;
@@ -170,7 +170,7 @@ begin
   Result.AppendChild(AddNode(tcStr, '#1', 'complemento', 1, 30, 0,
                                         NFSe.Tomador.Endereco.Complemento, ''));
 
-  Result.AppendChild(AddNode(tcInt64, '#1', 'documento', 1, 14, 1,
+  Result.AppendChild(AddNode(tcStr, '#1', 'documento', 1, 14, 1,
                     OnlyNumber(NFSe.Tomador.IdentificacaoTomador.CpfCnpj), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'email', 1, 14, 1,
@@ -231,7 +231,8 @@ begin
   Result.AppendChild(xmlNode);
 
   Result.AppendChild(AddNode(tcStr, '#1', 'obs', 1, 4000, 1,
-                                                   NFSe.OutrasInformacoes, ''));
+    StringReplace(NFSe.OutrasInformacoes, ';', FpAOwner.ConfigGeral.QuebradeLinha,
+                                                          [rfReplaceAll]), ''));
 
   Result.AppendChild(AddNode(tcDe2, '#1', 'pisPasep', 1, 15, 1,
                                             NFSe.Servico.Valores.ValorPis, ''));

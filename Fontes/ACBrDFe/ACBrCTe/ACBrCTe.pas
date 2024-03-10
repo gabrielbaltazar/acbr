@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                              Wemerson Souto                                  }
 {                              Wiliam Zacarias da Silva Rosa                   }
 {                                                                              }
@@ -134,7 +134,7 @@ type
       const ACNPJCPF, AchCTe: String): Boolean;
     procedure EnviarEmail(const sPara, sAssunto: String;
       sMensagem: TStrings = nil; sCC: TStrings = nil; Anexos: TStrings = nil;
-      StreamCTe: TStream = nil; const NomeArq: String = ''; sReplyTo: TStrings = nil); override;
+      StreamCTe: TStream = nil; const NomeArq: String = ''; sReplyTo: TStrings = nil; sBCC: TStrings = nil); override;
 
     procedure EnviarEmailEvento(const sPara, sAssunto: String;
       sMensagem: TStrings = nil; sCC: TStrings = nil; Anexos: TStrings = nil;
@@ -144,6 +144,7 @@ type
 
     procedure ImprimirEvento;
     procedure ImprimirEventoPDF;
+
     procedure ImprimirInutilizacao;
     procedure ImprimirInutilizacaoPDF;
 
@@ -162,7 +163,6 @@ implementation
 
 uses
   dateutils,
-  pcnAuxiliar,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.FilesIO,
@@ -454,6 +454,7 @@ begin
           teEPEC,
           teMultiModal,
           tePrestDesacordo,
+          teCancPrestDesacordo,
           teGTV,
           teComprEntrega,
           teCancComprEntrega: Result := schEventoCTe;
@@ -682,17 +683,10 @@ begin
 
   // Checar esse trecho
 
-{$IFDEF PL_103}
-  if (NaoEstaZerado(FCTe.Imp.ICMS.CST00.vICMS)) then
-    wicms_p := '1';
-  if (NaoEstaZerado(FCTe.Imp.ICMS.CST80.vICMS)) then
-    wicms_s := '1';
-{$ELSE}
   if (NaoEstaZerado(FCTe.Imp.ICMS.ICMS00.vICMS)) then
     wicms_p := '1';
   if (NaoEstaZerado(FCTe.Imp.ICMS.ICMSOutraUF.vICMSOutraUF)) then
     wicms_s := '1';
-{$ENDIF}
 
   wchave := wchave + wicms_p + wicms_s;
 
@@ -963,13 +957,13 @@ end;
 
 procedure TACBrCTe.EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
   sCC: TStrings; Anexos: TStrings; StreamCTe: TStream; const NomeArq: String;
-  sReplyTo: TStrings);
+  sReplyTo: TStrings; sBCC: TStrings);
 begin
   SetStatus( stCTeEmail );
 
   try
     inherited EnviarEmail(sPara, sAssunto, sMensagem, sCC, Anexos, StreamCTe, NomeArq,
-     sReplyTo);
+     sReplyTo, sBCC);
   finally
     SetStatus( stCTeIdle );
   end;
@@ -1017,7 +1011,7 @@ begin
   if not Assigned(DACTE) then
     raise EACBrCTeException.Create('Componente DACTE não associado.')
   else
-    DACTE.ImprimirEVENTOPDF(nil);
+    DACTE.ImprimirEVENTOPDF;
 end;
 
 procedure TACBrCTe.ImprimirInutilizacao;

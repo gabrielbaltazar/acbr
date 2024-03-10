@@ -64,8 +64,10 @@ begin
   inherited Configuracao;
 
   FormatoAliq := tcDe2;
+
   NrOcorrCodigoPaisServico := -1;
   NrOcorrCodigoPaisTomador := -1;
+
   TagTomador := 'TomadorServico';
 end;
 

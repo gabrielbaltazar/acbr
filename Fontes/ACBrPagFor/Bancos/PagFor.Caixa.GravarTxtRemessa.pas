@@ -56,35 +56,7 @@ type
 
     procedure GeraSegmentoJ(I: Integer); override;
 
-    {
-    procedure GeraRegistro5(I: Integer); override;
-
-    procedure GeraRegistro9; override;
-
-    procedure GeraSegmentoC(mSegmentoCList: TSegmentoCList); override;
-
     procedure GeraSegmentoJ52(mSegmentoJ52List: TSegmentoJ52List); override;
-
-    procedure GeraSegmentoN1(I: Integer); override;
-
-    procedure GeraSegmentoN2(I: Integer); override;
-
-    procedure GeraSegmentoN3(I: Integer); override;
-
-    procedure GeraSegmentoN4(I: Integer); override;
-
-    procedure GeraSegmentoN567(I: Integer); override;
-
-    procedure GeraSegmentoN8(I: Integer); override;
-
-    procedure GeraSegmentoN9(I: Integer); override;
-
-    procedure GeraSegmentoO(I: Integer); override;
-
-    procedure GeraSegmentoW(mSegmentoWList: TSegmentoWList); override;
-
-    procedure GeraSegmentoZ(mSegmentoZList: TSegmentoZList); override;
-    }
   end;
 
 implementation
@@ -130,7 +102,9 @@ begin
   GravarCampo(PagFor.Registro0.Arquivo.Densidade, 5, tcInt);
   GravarCampo(PagFor.Registro0.ReservadoBanco, 20, tcStr);
   GravarCampo(PagFor.Registro0.ReservadoEmpresa, 20, tcStr, True);
-  GravarCampo(' ', 29, tcStr);
+  GravarCampo(' ', 14, tcStr);
+  GravarCampo(0, 3, tcInt);
+  GravarCampo(' ', 12, tcStr);
 
   ValidarLinha('0');
   IncluirLinha;
@@ -148,16 +122,18 @@ begin
     Inc(FQtdeContasConc);
 
   FQtdeRegistrosLote := 1;
-  FSequencialDeLote  := 0;
+  FSequencialDoRegistroNoLote := 0;
+
+  FpFormaLancamento := PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento;
 
   GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
   GravarCampo(FQtdeLotes, 4, tcInt);
   GravarCampo(1, 1, tcInt);
   GravarCampo(TpOperacaoToStr(PagFor.Lote.Items[I].Registro1.Servico.Operacao), 1, tcStr);
   GravarCampo(TpServicoToStr(PagFor.Lote.Items[I].Registro1.Servico.TipoServico), 2, tcStr);
-  GravarCampo(FmLancamentoToStr(PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento), 2, tcStr);
+  GravarCampo(FmLancamentoToStr(FpFormaLancamento), 2, tcStr);
   {
-  case PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento of
+  case FpFormaLancamento of
     flCreditoContaCorrente, flChequePagamento, flDocTed, flOPDisposicao,
     flPagamentoAutenticacao:
       Versao := '046';
@@ -224,12 +200,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
-      Inc(FSequencialDeLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('A', 1, tcStr);
       GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
@@ -241,14 +217,14 @@ begin
       GravarCampo(Favorecido.ContaCorrente.Conta.DV, 1, tcStr);
       GravarCampo(Favorecido.ContaCorrente.DV, 1, tcStr);
       GravarCampo(Favorecido.Nome, 30, tcStr, True);
-      GravarCampo(Credito.SeuNumero, 6, tcStr);
+      GravarCampo(Credito.SeuNumero, 6, tcStrZero);
       GravarCampo(' ', 13, tcStr);
       GravarCampo(Favorecido.ContaCorrente.Conta.TipoConta, 1, tcInt);
       GravarCampo(Credito.DataPagamento, 8, tcDat);
       GravarCampo(TpMoedaToStr(Credito.Moeda.Tipo), 3, tcStr);
       GravarCampo(Credito.Moeda.Qtde, 15, tcDe5);
       GravarCampo(Credito.ValorPagamento, 15, tcDe2);
-      GravarCampo(Credito.NossoNumero, 9, tcStr);
+      GravarCampo(Credito.NossoNumero, 9, tcStrZero);
       GravarCampo(' ', 3, tcStr);
       GravarCampo(Credito.QtdeParcelas, 2, tcInt);
       GravarCampo(Credito.IndBloqueio, 1, tcStr);
@@ -285,11 +261,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('B', 1, tcStr);
 
       if (PagFor.Lote.Items[0].SegmentoN1.Count > 0) or
@@ -346,12 +323,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
-      Inc(FSequencialDeLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('J', 1, tcStr);
       GravarCampo(TpMovimentoToStr(TipoMovimento), 1, tcStr);
       GravarCampo(InMovimentoToStr(CodMovimento), 2, tcStr);
@@ -366,7 +343,7 @@ begin
       GravarCampo(QtdeMoeda, 15, tcDe5);
       GravarCampo(SeuNumero, 6, tcStrZero);
       GravarCampo(' ', 14, tcStr);
-      GravarCampo(NossoNumero, 9, tcStrZero);
+      GravarCampo(NossoNumero, 9, tcStr);
       GravarCampo(' ', 11, tcStr);
       GravarCampo(CodigoMoeda, 2, tcInt);
       GravarCampo(' ', 6, tcStr);
@@ -379,6 +356,46 @@ begin
       GeraSegmentoJ52(SegmentoJ52);
 //      GeraSegmentoB(SegmentoB);
 //      GeraSegmentoC(SegmentoC);
+    end;
+  end;
+end;
+
+procedure TArquivoW_Caixa.GeraSegmentoJ52(mSegmentoJ52List: TSegmentoJ52List);
+var
+  J: Integer;
+begin
+  for J := 0 to mSegmentoJ52List.Count - 1 do
+  begin
+    FpLinha := '';
+
+    with mSegmentoJ52List.Items[J] do
+    begin
+      Inc(FQtdeRegistros);
+      Inc(FQtdeRegistrosLote);
+      Inc(FSequencialDoRegistroNoLote);
+
+      GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
+      GravarCampo(FQtdeLotes, 4, tcInt);
+      GravarCampo('3', 1, tcStr);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
+      GravarCampo('J', 1, tcStr);
+      GravarCampo(' ', 1, tcStr);
+      GravarCampo(' ', 2, tcStr);
+      GravarCampo('52', 2, tcStr);
+      GravarCampo(TpInscricaoToStr(Pagador.Inscricao.Tipo), 1, tcStr);
+      GravarCampo(Pagador.Inscricao.Numero, 15, tcStrZero);
+      GravarCampo(Pagador.Nome, 40, tcStr, True);
+      GravarCampo(TpInscricaoToStr(Beneficiario.Inscricao.Tipo), 1, tcStr);
+      GravarCampo(Beneficiario.Inscricao.Numero, 15, tcStrZero);
+      GravarCampo(Beneficiario.Nome, 40, tcStr, True);
+
+      GravarCampo(TpInscricaoToStr(SacadorAvalista.Inscricao.Tipo), 1, tcStr);
+      GravarCampo(SacadorAvalista.Inscricao.Numero, 15, tcStrZero);
+      GravarCampo(SacadorAvalista.Nome, 40, tcStr, True);
+      GravarCampo(' ', 53, tcStr);
+
+      ValidarLinha('J52');
+      IncluirLinha;
     end;
   end;
 end;

@@ -71,14 +71,12 @@ type
     procedure TratarRetornoEmitir(Response: TNFSeEmiteResponse); override;
 
     procedure PrepararConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'ListaMensagemRetorno';
                                      const AMessageTag: string = 'MensagemRetorno'); override;
-
-    function AjustarRetorno(const Retorno: string): string;
   public
     function TipoPessoaToStr(const t: TTipoPessoa): string; override;
     function StrToTipoPessoa(out ok: boolean; const s: string): TTipoPessoa; override;
@@ -142,17 +140,12 @@ function TACBrNFSeXWebserviceISSCambe.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
+  Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
 end;
 
 { TACBrNFSeProviderISSCambe }
-
-function TACBrNFSeProviderISSCambe.AjustarRetorno(
-  const Retorno: string): string;
-begin
-  Result := StringReplace(Retorno, '&', '&amp;', [rfReplaceAll]);
-end;
 
 procedure TACBrNFSeProviderISSCambe.Configuracao;
 begin
@@ -164,6 +157,15 @@ begin
     UseCertificateHTTP := False;
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerLogin := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarUnitario := True;
+      ConsultarFaixaNfse := True;
+    end;
   end;
 
   SetNomeXSD('nfse-cambe-schema-v1_0.xsd');
@@ -232,8 +234,6 @@ begin
         Exit
       end;
 
-      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
-
       Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
@@ -243,10 +243,25 @@ begin
       Response.Sucesso := (Response.Erros.Count = 0);
 
       AuxNode := ANode.Childrens.FindAnyNs('ListaDadosNFSeInfo');
+
+      if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
       AuxNode := AuxNode.Childrens.FindAnyNs('DadosNFSe');
+
+      if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
       AuxNode := AuxNode.Childrens.FindAnyNs('EspelhoXML');
+
+      if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
       AuxNode := AuxNode.Childrens.FindAnyNs('NFSe');
+
+      if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
       AuxNode := AuxNode.Childrens.FindAnyNs('identificacaoNFSe');
+
+      if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
       NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
 
       Response.NumeroNota := NumNFSe;
@@ -365,7 +380,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderISSCambe.TratarRetornoConsultaNFSe(
+procedure TACBrNFSeProviderISSCambe.TratarRetornoConsultaNFSeporFaixa(
   Response: TNFSeConsultaNFSeResponse);
 var
   Document: TACBrXmlDocument;
@@ -386,8 +401,6 @@ begin
         Exit
       end;
 
-      Response.ArquivoRetorno := AjustarRetorno(Response.ArquivoRetorno);
-
       Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root;
@@ -397,10 +410,28 @@ begin
       Response.Sucesso := (Response.Erros.Count = 0);
 
       AuxNode := ANode.Childrens.FindAnyNs('ListaDadosNFSeInfo');
+
+      if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
       AuxNode := AuxNode.Childrens.FindAnyNs('DadosNFSe');
+
+      if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
       AuxNode := AuxNode.Childrens.FindAnyNs('EspelhoXML');
+
+      if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
+
+      if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
       AuxNode := AuxNode.Childrens.FindAnyNs('NFSe');
+
+      if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
       AuxNode := AuxNode.Childrens.FindAnyNs('identificacaoNFSe');
+
+      if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+
       NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
 
       Response.NumeroNota := NumNFSe;

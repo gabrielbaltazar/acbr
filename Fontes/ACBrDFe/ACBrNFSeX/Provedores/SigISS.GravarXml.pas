@@ -39,8 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao, ACBrNFSeXConsts;
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml;
 
 type
   { TNFSeW_SigISS }
@@ -73,7 +72,9 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings;
+  ACBrUtil.Strings,
+  ACBrNFSeXConversao,
+  ACBrNFSeXConsts;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -108,7 +109,7 @@ begin
   Result.AppendChild(AddNode(tcStr, '#2', 'crc_estado', 1, 2, 1,
                                                 NFSe.Prestador.crc_estado, ''));
 
-  Result.AppendChild(AddNode(tcDe2, '#2', 'aliquota_simples', 1, 15, 0,
+  Result.AppendChild(AddNode(tcDe4, '#2', 'aliquota_simples', 1, 15, 0,
                                           NFSE.Servico.Valores.AliquotaSN, ''));
 
   Result.AppendChild(AddNode(tcInt, '#1', 'id_sis_legado', 1, 15, 0,

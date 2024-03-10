@@ -1,0 +1,93 @@
+33|RJ|Rio de Janeiro|SE|Sudeste|0|0
+3300100|Angra dos Reis|33|RJ|0|0
+3300159|Aperibé|33|RJ|0|0
+3300209|Araruama|33|RJ|0|0
+3300225|Areal|33|RJ|0|0
+3300233|Armação dos Búzios|33|RJ|0|0
+3300258|Arraial do Cabo|33|RJ|0|0
+3300308|Barra do Piraí|33|RJ|0|0
+3300407|Barra Mansa|33|RJ|0|0
+3300456|Belford Roxo|33|RJ|0|0
+3300506|Bom Jardim|33|RJ|0|0
+3300605|Bom Jesus do Itabapoana|33|RJ|0|0
+3300704|Cabo Frio|33|RJ|0|0
+3300803|Cachoeiras de Macacu|33|RJ|0|0
+3300902|Cambuci|33|RJ|0|0
+3300936|Carapebus|33|RJ|0|0
+3300951|Comendador Levy Gasparian|33|RJ|0|0
+3301009|Campos dos Goitacazes|33|RJ|0|0
+3301108|Cantagalo|33|RJ|0|0
+3301157|Cardoso Moreira|33|RJ|0|0
+3301207|Carmo|33|RJ|0|0
+3301306|Casimiro de Abreu|33|RJ|0|0
+3301405|Conceição de Macabu|33|RJ|0|0
+3301504|Cordeiro|33|RJ|0|0
+3301603|Duas Barras|33|RJ|0|0
+3301702|Duque de Caxias|33|RJ|0|0
+3301801|Engenheiro Paulo de Frontin|33|RJ|0|0
+3301850|Guapimirim|33|RJ|0|0
+3301876|Iguaba Grande|33|RJ|0|0
+3301900|Itaboraí|33|RJ|0|0
+3302007|Itaguaí|33|RJ|0|0
+3302056|Italva|33|RJ|0|0
+3302106|Itaocara|33|RJ|0|0
+3302205|Itaperuna|33|RJ|0|0
+3302254|Itatiaia|33|RJ|0|0
+3302270|Japeri|33|RJ|0|0
+3302304|Laje do Muriaé|33|RJ|0|0
+3302403|Macaé|33|RJ|0|0
+3302452|Macuco|33|RJ|0|0
+3302502|Magé|33|RJ|0|0
+3302601|Mangaratiba|33|RJ|0|0
+3302700|Maricá|33|RJ|0|0
+3302809|Mendes|33|RJ|0|0
+3302858|Mesquita|33|RJ|0|0
+3302908|Miguel Pereira|33|RJ|0|0
+3303005|Miracema|33|RJ|0|0
+3303104|Natividade|33|RJ|0|0
+3303203|Nilópolis|33|RJ|0|0
+3303302|Niterói|33|RJ|0|0
+3303401|Nova Friburgo|33|RJ|0|0
+3303500|Nova Iguaçu|33|RJ|0|0
+3303609|Paracambi|33|RJ|0|0
+3303708|Paraíba do Sul|33|RJ|0|0
+3303807|Paraty|33|RJ|0|0
+3303856|Paty do Alferes|33|RJ|0|0
+3303906|Petrópolis|33|RJ|0|0
+3303955|Pinheiral|33|RJ|0|0
+3304003|Piraí|33|RJ|0|0
+3304102|Porciúncula|33|RJ|0|0
+3304110|Porto Real|33|RJ|0|0
+3304128|Quatis|33|RJ|0|0
+3304144|Queimados|33|RJ|0|0
+3304151|Quissamã|33|RJ|0|0
+3304201|Resende|33|RJ|0|0
+3304300|Rio Bonito|33|RJ|0|0
+3304409|Rio Claro|33|RJ|0|0
+3304508|Rio das Flores|33|RJ|0|0
+3304524|Rio das Ostras|33|RJ|0|0
+3304557|Rio de Janeiro|33|RJ|0|0
+3304607|Santa Maria Madalena|33|RJ|0|0
+3304706|Santo Antônio de Pádua|33|RJ|0|0
+3304755|São Francisco de Itabapoana|33|RJ|0|0
+3304805|São Fidélis|33|RJ|0|0
+3304904|São Gonçalo|33|RJ|0|0
+3305000|São João da Barra|33|RJ|0|0
+3305109|São João de Meriti|33|RJ|0|0
+3305133|São José de Ubá|33|RJ|0|0
+3305158|São José do Vale do Rio Preto|33|RJ|0|0
+3305208|São Pedro da Aldeia|33|RJ|0|0
+3305307|São Sebastião do Alto|33|RJ|0|0
+3305406|Sapucaia|33|RJ|0|0
+3305505|Saquarema|33|RJ|0|0
+3305554|Seropédica|33|RJ|0|0
+3305604|Silva Jardim|33|RJ|0|0
+3305703|Sumidouro|33|RJ|0|0
+3305752|Tanguá|33|RJ|0|0
+3305802|Teresópolis|33|RJ|0|0
+3305901|Trajano de Moraes|33|RJ|0|0
+3306008|Três Rios|33|RJ|0|0
+3306107|Valença|33|RJ|0|0
+3306156|Varre-Sai|33|RJ|0|0
+3306206|Vassouras|33|RJ|0|0
+3306305|Volta Redonda|33|RJ|0|0

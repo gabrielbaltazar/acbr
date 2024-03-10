@@ -128,9 +128,10 @@ type
       fComputadorNome: string;
       fEstabelecimento: string;
       fLoja: string;
-      fTemPendencias   : Boolean;
+      fTemPendencias: Boolean;
       fCancelandoTransacao: Boolean;
-      fGPExeParams : String ;
+      fFinalizado: Boolean;
+      fGPExeParams: String ;
 
       fTerminador : AnsiString ;
       fEnderecoIP : AnsiString;
@@ -216,6 +217,8 @@ type
         DocumentoVinculado : String = ''); override;
      Function CNC(Rede, NSU : String; DataHoraTransacao : TDateTime;
         Valor : Double; CodigoAutorizacaoTransacao: String = '') : Boolean; overload; override;
+
+     function ObtemDadosPinPad(pTipoDocumento: String = 'CPF'): String;
    published
      property Aplicacao       : String read fAplicacao       write fAplicacao ;
      property AplicacaoVersao : String read fAplicacaoVersao write fAplicacaoVersao ;
@@ -680,6 +683,7 @@ begin
   fTimeOut    := 1000 ;
   fTerminador := CACBrTEFD_VeSPague_Terminador ;
   fTemPendencias := False;
+  fFinalizado := True;
 
   fAplicacao       := '' ;
   fAplicacaoVersao := '' ;
@@ -878,6 +882,37 @@ begin
   ServicoFinalizar;
 end;
 
+function TACBrTEFDVeSPague.ObtemDadosPinPad(pTipoDocumento: String = 'CPF'): String;
+var
+  vDadosPinpad: AnsiString;
+begin
+  Result := '';
+  ServicoIniciar;
+  ReqVS.Servico := 'coletar' ;
+  ReqVS.AddParamString( 'mensagem', pTipoDocumento + 'E' ) ; // CPF segundo manual
+  TransmiteCmd;
+  if RespVS.Retorno = 1 then
+  begin
+    vDadosPinpad := RespVS.GetParamString('transacao_informacao');
+
+    ReqVS.Servico := 'perguntar' ;
+    ReqVS.AddParamString( 'mensagem', pTipoDocumento + 'C+' + vDadosPinpad );
+    TransmiteCmd;
+
+    if RespVS.Retorno = 1 then
+    begin
+      Result := vDadosPinpad;
+    end;
+  end ;
+
+  ReqVS.Params.Clear;
+  RespVS.Params.Clear;
+  ReqVS.Clear;
+  RespVS.Clear;
+
+  ServicoFinalizar;
+end;
+
 function TACBrTEFDVeSPague.ADM: Boolean;
 var
   Retorno : Integer ;
@@ -936,12 +971,13 @@ begin
      Result := ( Retorno in [0,1] ) ;
 
      ProcessarResposta ;         { Faz a Impressão e / ou exibe Mensagem ao Operador }
+     ServicoFinalizar;
   end ;
 
   ReqVS.Params.Clear;
   RespVS.Params.Clear;
   ReqVS.Clear;
-  RespVS.Clear;  
+  RespVS.Clear;
 end;
 
 function TACBrTEFDVeSPague.CRT(Valor: Double; IndiceFPG_ECF: String;
@@ -1011,8 +1047,12 @@ begin
 
     TransmiteCmd;
   end ;
-
-  FinalizarRequisicao;
+  if (TACBrTEFD(Owner).RespostasPendentes.Count = 1) or
+     ((TACBrTEFD(Owner).RespostasPendentes.Count > 0) and
+       (TACBrTEFD(Owner).RespostasPendentes[TACBrTEFD(Owner).RespostasPendentes.Count -1].NSU = NSU)) then
+  begin
+    FinalizarRequisicao;
+  end;
 end;
 
 function TACBrTEFDVeSPague.CNC(Rede, NSU: String; DataHoraTransacao: TDateTime;
@@ -1096,13 +1136,15 @@ end;
 procedure TACBrTEFDVeSPague.ServicoIniciar ;
 begin
   repeat
+     fFinalizado := false;
      ReqVS.Servico := 'iniciar';
-     ReqVS.AddParamString('aplicacao',fAplicacao);
-     ReqVS.AddParamString('versao',fAplicacaoVersao);
-     ReqVS.AddParamString('computador_nome', fComputadorNome);
-     ReqVS.AddParamString('computador_endereco', fComputadorEndereco);
-     ReqVS.AddParamString('estabelecimento', fEstabelecimento);
-     ReqVS.AddParamString('loja', fLoja);
+     ReqVS.AddParamString('aplicacao', fAplicacao);
+     ReqVS.AddParamString('versao', fAplicacaoVersao);
+     ReqVS.AddParamString('aplicacao_tela', fAplicacao);
+     //ReqVS.AddParamString('computador_nome', fComputadorNome);
+     //ReqVS.AddParamString('computador_endereco', fComputadorEndereco);
+     //ReqVS.AddParamString('estabelecimento', fEstabelecimento);
+     //ReqVS.AddParamString('loja', fLoja);
      ReqVS.AddParamString('terminal', fTerminal);
      //ReqVS.AddParamString('estado', '7');
 
@@ -1116,6 +1158,9 @@ end ;
 
 procedure TACBrTEFDVeSPague.ServicoFinalizar ;
 begin
+  if fFinalizado then
+    exit;
+  fFinalizado := true;
   ReqVS.Servico := 'finalizar' ;
 
   TransmiteCmd;

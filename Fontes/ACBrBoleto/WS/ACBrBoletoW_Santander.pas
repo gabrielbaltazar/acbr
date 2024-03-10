@@ -35,13 +35,15 @@ interface
 
 uses
   Classes, SysUtils, DateUtils, Types, strutils,
-  pcnConsts, pcnConversao, pcnGerador, synacode,
+  ACBrDFeConsts,
+  pcnConversao, pcnGerador, synacode,
   ACBrBoletoWS,
   ACBrValidador,
   ACBrBoleto,
   ACBrBoletoConversao,
   ACBrutil.XMLHTML,
-  ACBrBoletoPcnConsts;
+  ACBrBoletoPcnConsts,
+  ACBrBoletoWS.SOAP;
   
 type
   { TBoletoW_Santander }
@@ -135,13 +137,13 @@ begin
 
   case Boleto.Configuracoes.WebService.Operacao of
     tpInclui:   Acao := TipoOperacaoToStr( tpInclui );
-    {tpTicket:
+    tpTicket:
       begin
         Acao  := TipoOperacaoToStr( tpTicket );
         FPURL := C_TICKET_URL;
         FPSoapEnvelopeAtributtes := C_TICKET_SOAP_ATTRIBUTTES;
         FPSoapAction  := 'TICKET';
-      end;}
+      end;
   end;
 
   FPServico := FPURL;

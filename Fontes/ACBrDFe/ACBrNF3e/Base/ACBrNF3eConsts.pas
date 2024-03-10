@@ -145,6 +145,40 @@ const
   DSC_TPFONTEENERGIA = 'Tipo da fonte de energia utilizada';
   DSC_NSITEAUTORIZ = 'Numero do Site de Autorização';
 
+  DSC_ULTNSU = 'Último NSU recebido pela Empresa';
+  DSC_NSU = 'NSU específico';
+
+  DSC_CMUNFG = 'Código do Município FG';
+  DSC_VITEM = 'Valor líquido do Item';
+  DSC_VPROD = 'Valor Total Bruto dos Produtos ou Serviços';
+  DSC_VBC = 'Valor da BC do ICMS';
+  DSC_PICMS = 'Alíquota do imposto';
+  DSC_VICMS = 'Valor do ICMS';
+  DSC_VBCST = 'Valor da BC do ICMS ST';
+  DSC_VPIS = 'Valor do PIS';
+  DSC_VCOFINS = 'Valor do COFINS';
+  DSC_INFADPROD = 'Informações adicionais do Produto';
+  DSC_CPROD = 'Código do produto ou serviço';
+  DSC_XPROD = 'Descrição do Produto ou Serviço';
+  DSC_PREDBC = 'Percentual da Redução de BC';
+  DSC_PPIS = 'Alíquota do PIS (em percentual)';
+  DSC_PCOFINS = 'Alíquota da COFINS (em percentual)';
+  DSC_NPROCESSO = 'Número do Processo';
+  DSC_VST = 'Valor TOTAL Icms substituição Tributária';
+  DSC_DVENC = 'Data de vencimento';
+  DSC_NFAT = 'Número da fatura';
+  DSC_QTDE = 'Quantidade';
+  DSC_VBCSTRET = 'Valor da BC do ICMS ST Retido';
+  DSC_PICMSSTRET = 'Alíquota do ICMS Substituição Tributaria Retido';
+  DSC_VICMSSTRET = 'Valor do ICMS Substituição Tributaria Retido';
+  DSC_VBCFCPST = 'Valor da Base de Cálculo do FCP por Substituição Tributária';
+  DSC_PFCPSTRET = 'Percentual do FCP retido anteriormente por Substituição Tributária';
+  DSC_VFCPSTRET = 'Valor do FCP retido por Substituição Tributária';
+  DSC_PREDBCEFET = 'Percentual de redução da base de cálculo efetiva';
+  DSC_VBCEFET = 'Valor da base de cálculo efetiva';
+  DSC_PICMSEFET = 'Alíquota do ICMS efetiva';
+  DSC_VICMSEFET = 'Valor do ICMS efetivo';
+
 implementation
 
 end.

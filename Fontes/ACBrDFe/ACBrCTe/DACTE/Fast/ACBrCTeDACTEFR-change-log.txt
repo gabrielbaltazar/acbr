@@ -43,6 +43,25 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+03/01/2024
+-- ACBrCTeDACTEFR --
+[*] Ajustes na impressão do DACTE - para mostrar a versão correta do CT-e no
+    rodapé.
+  Por: Italo Giurizzato Junior
+
+14/08/2023
+-- ACBrCTeDACTEFR --
+[*] Ajustes para a impressão correta das chaves dos CT-e complementados que
+    na versão 4.00 é uma lista.
+  Por: Vanderlei Soares/Italo Giurizzato Junior
+
+04/08/2023
+-- ACBrCTeDACTEFR --
+[+] Implementado a impressão dos eventos: Inclusão de Condutor e Cancelamento de Insucesso na Entrega
+  Por: Vanderlei Soares
+[+] Implementado a impressão do evento: Insucesso na Entrega
+  Por: Italo Giurizzato Junior
+  
 11/12/2019
 -- ACBrCTeDACTEFR --
 [*] Correção na impressão do DACTE quando CTe de complemento ou anulação,

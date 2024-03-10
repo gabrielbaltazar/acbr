@@ -49,8 +49,6 @@ type
 
     function LerCompetencia(const ANode: TACBrXmlNode): TDateTime;
 
-    procedure SetxItemListaServico(Codigo: string);
-
     procedure LerDemaisDados(const ANode: TACBrXmlNode);
     procedure LerDadosTomador(const ANode: TACBrXmlNode);
     procedure LerDadosPrestador(const ANode: TACBrXmlNode);
@@ -69,8 +67,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime,
-  ACBrDFeUtil;
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva ler o XML do provedor:
@@ -84,34 +81,13 @@ var
   Competencia: string;
 begin
   Competencia := ObterConteudo(ANode.Childrens.FindAnyNs('anoCompetencia'), tcStr) +
-                 FormatFloat('00', StrToInt(ObterConteudo(ANode.Childrens.FindAnyNs('mesCompetencia'), tcStr)));
+                 FormatFloat('00',
+                 StrToIntDef(ObterConteudo(ANode.Childrens.FindAnyNs('mesCompetencia'), tcStr), 0));
 
   if length(Competencia) > 0 then
     Result := EncodeDataHora(Competencia, 'YYYY/MM/DD')
   else
     Result := 0;
-end;
-
-procedure TNFSeR_ISSCambe.SetxItemListaServico(Codigo: string);
-var
-  Item: Integer;
-  ItemServico: string;
-begin
-  NFSe.Servico.ItemListaServico := Codigo;
-
-  Item := StrToIntDef(OnlyNumber(Nfse.Servico.ItemListaServico), 0);
-  if Item < 100 then
-    Item := Item * 100 + 1;
-
-  ItemServico := FormatFloat('0000', Item);
-
-  NFSe.Servico.ItemListaServico := Copy(ItemServico, 1, 2) + '.' +
-                                     Copy(ItemServico, 3, 2);
-
-  if FpAOwner.ConfigGeral.TabServicosExt then
-    NFSe.Servico.xItemListaServico := ObterDescricaoServico(ItemServico)
-  else
-    NFSe.Servico.xItemListaServico := CodItemServToDesc(ItemServico);
 end;
 
 procedure TNFSeR_ISSCambe.LerDemaisDados(const ANode: TACBrXmlNode);
@@ -145,9 +121,14 @@ begin
 
   aValor := ObterConteudo(AuxNode.Childrens.FindAnyNs('servicoISS'), tcStr);
 
-  SetxItemListaServico(aValor);
+  NFSe.Servico.ItemListaServico := NormatizarItemListaServico(aValor);
+  NFSe.Servico.xItemListaServico := ItemListaServicoDescricao(NFSe.Servico.ItemListaServico);
 
   NFSe.Servico.Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('servicoDiscriminacao'), tcStr);
+  NFSe.Servico.Discriminacao := StringReplace(NFSe.Servico.Discriminacao, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
+  VerificarSeConteudoEhLista(NFSe.Servico.Discriminacao);
 
   with NFSe.ValoresNfse do
   begin
@@ -180,13 +161,21 @@ begin
     else
       IssRetido := stRetencao;
 
+    RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
+
     ValorLiquidoNfse := ObterConteudo(AuxNode.Childrens.FindAnyNs('valorLiquidoNFSe'), tcDe2);
+
+    ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                            DescontoIncondicionado;
   end;
 
   NFSe.Servico.CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('municipioPrestacao'), tcStr);
   //paisPrestacao
   NFSe.Servico.MunicipioIncidencia := ObterConteudo(AuxNode.Childrens.FindAnyNs('municipioIncidencia'), tcStr);
   NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('outrasInformacoes'), tcStr);
+  NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
+                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
   NFSe.SituacaoTrib := FpAOwner.StrToSituacaoTrib(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('ISSDevido'), tcStr));
 
   with NFSe.OrgaoGerador do
@@ -228,7 +217,7 @@ begin
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomadorMunicipio'), tcStr);
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomadorUF'), tcStr);
       CodigoPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('tomadorPais'), tcInt);
-      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+      xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
       if UF = '' then
         UF := xUF;
@@ -267,7 +256,7 @@ begin
       CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('prestadorCEP'), tcStr);
       CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('prestadorMunicipio'), tcStr);
       UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('prestadorUF'), tcStr);
-      xMunicipio := ObterNomeMunicipio(StrToIntDef(CodigoMunicipio, 0), xUF, '', False);
+      xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
 
       if UF = '' then
         UF := xUF;
@@ -384,8 +373,12 @@ function TNFSeR_ISSCambe.LerXml: Boolean;
 var
   XmlNode: TACBrXmlNode;
 begin
+  FpQuebradeLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   if EstaVazio(Arquivo) then
     raise Exception.Create('Arquivo xml não carregado.');
+
+  LerParamsTabIni(True);
 
   Arquivo := NormatizarXml(Arquivo);
 

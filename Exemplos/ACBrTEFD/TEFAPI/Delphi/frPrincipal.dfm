@@ -1,9 +1,9 @@
 object FormPrincipal: TFormPrincipal
   Left = 440
   Top = 146
-  Width = 1126
-  Height = 539
   Caption = 'ACBrTEFAPI - Demo'
+  ClientHeight = 500
+  ClientWidth = 1110
   Color = clBtnFace
   Constraints.MinHeight = 500
   Constraints.MinWidth = 1110
@@ -44,7 +44,7 @@ object FormPrincipal: TFormPrincipal
       Top = 0
       Width = 775
       Height = 375
-      ActivePage = tsOperacao
+      ActivePage = tsConfiguracao
       Align = alTop
       Constraints.MinHeight = 375
       Images = ImageList1
@@ -71,9 +71,9 @@ object FormPrincipal: TFormPrincipal
               316
               346)
             object Label11: TLabel
-              Left = 14
+              Left = 12
               Top = 74
-              Width = 40
+              Width = 42
               Height = 13
               Alignment = taRightJustify
               Caption = 'Arq.Log:'
@@ -97,7 +97,7 @@ object FormPrincipal: TFormPrincipal
             object Label9: TLabel
               Left = 168
               Top = 28
-              Width = 41
+              Width = 40
               Height = 13
               Caption = 'QRCode'
               Color = clBtnFace
@@ -106,7 +106,7 @@ object FormPrincipal: TFormPrincipal
             object Label1: TLabel
               Left = 9
               Top = 28
-              Width = 81
+              Width = 79
               Height = 13
               Caption = 'Gerenciador TEF'
               Color = clBtnFace
@@ -115,7 +115,7 @@ object FormPrincipal: TFormPrincipal
             object Label10: TLabel
               Left = 168
               Top = 74
-              Width = 88
+              Width = 91
               Height = 13
               Caption = 'Imprimir Via Cliente'
               Color = clBtnFace
@@ -124,7 +124,7 @@ object FormPrincipal: TFormPrincipal
             object Label12: TLabel
               Left = 9
               Top = 120
-              Width = 100
+              Width = 99
               Height = 13
               Caption = 'Transa'#231#227'o Pendente'
               Color = clBtnFace
@@ -133,7 +133,7 @@ object FormPrincipal: TFormPrincipal
             object Label18: TLabel
               Left = 168
               Top = 120
-              Width = 127
+              Width = 124
               Height = 13
               Caption = 'Pendencia na Inicializa'#231#227'o'
               Color = clBtnFace
@@ -173,7 +173,7 @@ object FormPrincipal: TFormPrincipal
             end
             object btTestarTEF: TBitBtn
               Left = 110
-              Top = 238
+              Top = 234
               Width = 117
               Height = 36
               Anchors = [akLeft, akBottom]
@@ -187,7 +187,6 @@ object FormPrincipal: TFormPrincipal
               Width = 135
               Height = 21
               Style = csDropDownList
-              ItemHeight = 13
               ItemIndex = 1
               TabOrder = 1
               Text = 'Auto'
@@ -212,7 +211,6 @@ object FormPrincipal: TFormPrincipal
               Width = 141
               Height = 21
               Style = csDropDownList
-              ItemHeight = 13
               TabOrder = 0
             end
             object cbAutoAtendimento: TCheckBox
@@ -225,7 +223,7 @@ object FormPrincipal: TFormPrincipal
             end
             object btSalvarParametros: TBitBtn
               Left = 14
-              Top = 283
+              Top = 279
               Width = 136
               Height = 28
               Anchors = [akLeft, akBottom]
@@ -235,7 +233,7 @@ object FormPrincipal: TFormPrincipal
             end
             object btLerParametros: TBitBtn
               Left = 161
-              Top = 283
+              Top = 279
               Width = 136
               Height = 28
               Anchors = [akLeft, akBottom]
@@ -249,7 +247,6 @@ object FormPrincipal: TFormPrincipal
               Width = 135
               Height = 21
               Style = csDropDownList
-              ItemHeight = 13
               ItemIndex = 0
               TabOrder = 3
               Text = 'Imprimir'
@@ -264,7 +261,6 @@ object FormPrincipal: TFormPrincipal
               Width = 141
               Height = 21
               Style = csDropDownList
-              ItemHeight = 13
               ItemIndex = 0
               TabOrder = 4
               Text = 'Confirmar'
@@ -279,7 +275,6 @@ object FormPrincipal: TFormPrincipal
               Width = 135
               Height = 21
               Style = csDropDownList
-              ItemHeight = 13
               ItemIndex = 1
               TabOrder = 5
               Text = 'Processar Pendentes'
@@ -311,7 +306,7 @@ object FormPrincipal: TFormPrincipal
               object Label25: TLabel
                 Left = 171
                 Top = 70
-                Width = 58
+                Width = 57
                 Height = 13
                 Caption = 'Linhas Pular'
                 Color = clBtnFace
@@ -320,7 +315,7 @@ object FormPrincipal: TFormPrincipal
               object Label26: TLabel
                 Left = 93
                 Top = 70
-                Width = 41
+                Width = 39
                 Height = 13
                 Caption = 'Espa'#231'os'
                 Color = clBtnFace
@@ -338,17 +333,17 @@ object FormPrincipal: TFormPrincipal
               object Label28: TLabel
                 Left = 12
                 Top = 19
-                Width = 35
+                Width = 34
                 Height = 13
                 Caption = 'Modelo'
                 Color = clBtnFace
                 ParentColor = False
-                Transparent = False
+                Transparent = True
               end
               object Label7: TLabel
                 Left = 179
                 Top = 19
-                Width = 25
+                Width = 26
                 Height = 13
                 Caption = 'Porta'
                 Color = clBtnFace
@@ -357,12 +352,12 @@ object FormPrincipal: TFormPrincipal
               object Label29: TLabel
                 Left = 251
                 Top = 70
-                Width = 72
+                Width = 71
                 Height = 13
                 Caption = 'P'#225'g. de c'#243'digo'
                 Color = clBtnFace
                 ParentColor = False
-                Transparent = False
+                Transparent = True
               end
               object btSerial: TSpeedButton
                 Left = 321
@@ -416,7 +411,6 @@ object FormPrincipal: TFormPrincipal
                 Width = 145
                 Height = 21
                 Style = csDropDownList
-                ItemHeight = 13
                 TabOrder = 0
               end
               object cbxPorta: TComboBox
@@ -425,7 +419,6 @@ object FormPrincipal: TFormPrincipal
                 Width = 151
                 Height = 21
                 Anchors = [akLeft, akTop, akRight]
-                ItemHeight = 13
                 TabOrder = 1
               end
               object cbxPagCodigo: TComboBox
@@ -435,7 +428,6 @@ object FormPrincipal: TFormPrincipal
                 Height = 21
                 Hint = 'Pagina de c'#243'digo usada pela Impressora POS'
                 Style = csDropDownList
-                ItemHeight = 13
                 TabOrder = 5
               end
               object btTestarPosPrinter: TBitBtn
@@ -445,9 +437,9 @@ object FormPrincipal: TFormPrincipal
                 Height = 74
                 Anchors = [akTop, akRight]
                 Caption = 'Testar'
+                Layout = blGlyphTop
                 TabOrder = 6
                 OnClick = btTestarPosPrinterClick
-                Layout = blGlyphTop
               end
             end
             object GroupBox1: TGroupBox
@@ -464,7 +456,7 @@ object FormPrincipal: TFormPrincipal
               object Label14: TLabel
                 Left = 24
                 Top = 19
-                Width = 28
+                Width = 27
                 Height = 13
                 Caption = 'Nome'
                 Color = clBtnFace
@@ -473,7 +465,7 @@ object FormPrincipal: TFormPrincipal
               object Label16: TLabel
                 Left = 24
                 Top = 67
-                Width = 78
+                Width = 75
                 Height = 13
                 Caption = 'Nome Aplica'#231#227'o'
                 Color = clBtnFace
@@ -492,7 +484,7 @@ object FormPrincipal: TFormPrincipal
               object Label15: TLabel
                 Left = 294
                 Top = 19
-                Width = 27
+                Width = 25
                 Height = 13
                 Anchors = [akTop, akRight]
                 Caption = 'CNPJ'
@@ -549,7 +541,7 @@ object FormPrincipal: TFormPrincipal
               object Label17: TLabel
                 Left = 24
                 Top = 20
-                Width = 63
+                Width = 60
                 Height = 13
                 Caption = 'Raz'#227'o Social'
                 Color = clBtnFace
@@ -558,7 +550,7 @@ object FormPrincipal: TFormPrincipal
               object Label21: TLabel
                 Left = 294
                 Top = 20
-                Width = 27
+                Width = 25
                 Height = 13
                 Anchors = [akTop, akRight]
                 Caption = 'CNPJ'
@@ -628,7 +620,7 @@ object FormPrincipal: TFormPrincipal
             object Label3: TLabel
               Left = 136
               Top = 24
-              Width = 46
+              Width = 45
               Height = 13
               Caption = 'Desconto'
               Color = clBtnFace
@@ -637,7 +629,7 @@ object FormPrincipal: TFormPrincipal
             object Label4: TLabel
               Left = 248
               Top = 24
-              Width = 49
+              Width = 48
               Height = 13
               Caption = 'Acr'#233'scimo'
               Color = clBtnFace
@@ -920,6 +912,7 @@ object FormPrincipal: TFormPrincipal
               ParentColor = False
               Layout = tlCenter
               Visible = False
+              ExplicitHeight = 29
             end
             object btOperacao: TBitBtn
               Left = 8
@@ -994,6 +987,7 @@ object FormPrincipal: TFormPrincipal
       Font.Style = []
       ParentColor = False
       ParentFont = False
+      ExplicitWidth = 142
     end
     object lURLTEF: TLabel
       Left = 0
@@ -1012,8 +1006,9 @@ object FormPrincipal: TFormPrincipal
       Font.Style = [fsBold]
       ParentColor = False
       ParentFont = False
-      Transparent = False
+      Transparent = True
       OnClick = lURLTEFClick
+      ExplicitWidth = 178
     end
     object mImpressao: TMemo
       Left = 0
@@ -1050,9 +1045,9 @@ object FormPrincipal: TFormPrincipal
         Height = 52
         Anchors = [akTop]
         Caption = 'Opera'#231'oes'
+        Layout = blGlyphTop
         TabOrder = 0
         OnClick = btMudaPaginaClick
-        Layout = blGlyphTop
       end
     end
     object pMensagem: TPanel
@@ -1096,6 +1091,7 @@ object FormPrincipal: TFormPrincipal
           Font.Style = [fsBold]
           ParentColor = False
           ParentFont = False
+          ExplicitWidth = 117
         end
         object lMensagemOperador: TLabel
           Left = 1
@@ -1109,6 +1105,8 @@ object FormPrincipal: TFormPrincipal
           ParentColor = False
           Layout = tlCenter
           WordWrap = True
+          ExplicitWidth = 167
+          ExplicitHeight = 20
         end
       end
       object pMensagemCliente: TPanel
@@ -1134,6 +1132,7 @@ object FormPrincipal: TFormPrincipal
           Font.Style = [fsBold]
           ParentColor = False
           ParentFont = False
+          ExplicitWidth = 104
         end
         object lMensagemCliente: TLabel
           Left = 1
@@ -1147,6 +1146,8 @@ object FormPrincipal: TFormPrincipal
           ParentColor = False
           Layout = tlCenter
           WordWrap = True
+          ExplicitWidth = 148
+          ExplicitHeight = 20
         end
       end
     end
@@ -1224,11 +1225,23 @@ object FormPrincipal: TFormPrincipal
     Top = 248
   end
   object ACBrTEFAPI1: TACBrTEFAPI
+    ArqLOG = 
+      'C:\workspace\Delphi\Frameworks\ACBr\Exemplos\ACBrTEFD\TEFAPI\Del' +
+      'phi\tef\logTef.txt'
+    DiretorioTrabalho = 
+      'C:\workspace\Delphi\Frameworks\ACBr\Exemplos\ACBrTEFD\TEFAPI\Del' +
+      'phi\'
     DadosAutomacao.AutoAtendimento = False
+    DadosTerminal.EnderecoServidor = '192.168.0.170'
+    DadosTerminal.CodEmpresa = '00000000'
+    DadosTerminal.CodFilial = '00000000'
+    DadosTerminal.CodTerminal = 'SW000303'
+    DadosTerminal.PortaPinPad = 'AUTO_USB'
     QuandoGravarLog = ACBrTEFAPI1QuandoGravarLog
     QuandoFinalizarOperacao = ACBrTEFAPI1QuandoFinalizarOperacao
     QuandoFinalizarTransacao = ACBrTEFAPI1QuandoFinalizarTransacao
     QuandoDetectarTransacaoPendente = ACBrTEFAPI1QuandoDetectarTransacaoPendente
+    Modelo = tefApiCliSiTEF
     QuandoEsperarOperacao = ACBrTEFAPI1QuandoEsperarOperacao
     QuandoExibirMensagem = ACBrTEFAPI1QuandoExibirMensagem
     QuandoPerguntarMenu = ACBrTEFAPI1QuandoPerguntarMenu
@@ -1241,7 +1254,7 @@ object FormPrincipal: TFormPrincipal
     Left = 968
     Top = 208
     Bitmap = {
-      494C01010D000E00040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010D000E00140010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000004000000001002000000000000040
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -101,6 +101,7 @@ function CertToDERBase64(cert: pX509): AnsiString;
 function GetCertExt(cert: pX509; const FlagExt: AnsiString): AnsiString;
 function GetIssuerName(cert: pX509): String;
 function GetNotAfter(cert: pX509): TDateTime;
+function GetNotBefore(cert: pX509): TDateTime;
 function GetSerialNumber(cert: pX509): String;
 function GetThumbPrint( cert: pX509 ): String;
 function GetSubjectName(cert: pX509): String;
@@ -113,12 +114,13 @@ implementation
 
 uses
   strutils, dateutils, typinfo, synautil, synacode,
+  ACBrOpenSSLUtils,
   ACBrUtil.FilesIO,
   ACBrUtil.Strings,
   ACBrUtil.Math,
   ACBrUtil.DateTime,
-  ACBrDFeException,
-  pcnAuxiliar;
+  ACBrUtil.Base,
+  ACBrDFeException;
 
 function CertToDERBase64(cert: pX509): AnsiString;
 var
@@ -156,7 +158,29 @@ begin
 
   Result := StoD(Validade);
   Result := IncMinute(Result, TimeZoneBias);
-  
+
+end;
+
+function GetNotBefore( cert: pX509 ): TDateTime;
+var
+  Validade: String;
+  notBefore: PASN1_TIME;
+begin
+  notBefore := X509GetNotBefore(cert);
+  if not Assigned(notBefore) then
+  begin
+    Result := 0;
+    Exit;
+  end;
+
+  Validade := String(PAnsiChar(notBefore^.data));
+  SetLength(Validade, notBefore^.length);
+  Validade := OnlyNumber(Validade);
+  if notBefore^.asn1_type = V_ASN1_UTCTIME then  // anos com 2 dígitos
+    Validade :=  LeftStr(IntToStrZero(YearOf(Now),4),2) + Validade;
+
+  Result := StoD(Validade);
+  Result := IncMinute(Result, TimeZoneBias);
 end;
 
 function GetSerialNumber( cert: pX509 ): String;
@@ -383,6 +407,7 @@ begin
       CNPJ := GetTaxIDFromExtensions( cert );
 
     DataVenc := GetNotAfter( cert );
+    DataInicioValidade := GetNotBefore( cert );
     IssuerName := GetIssuerName( cert );
     DERBase64 := CertToDERBase64( cert );
     Tipo := tpcA1;  // OpenSSL somente suporta A1
@@ -430,7 +455,7 @@ begin
   Result := False;
   DestroyKey;
 
-   b := BioNew(BioSMem);
+  b := BioNew(BioSMem);
   try
     BioWrite(b, PFXData, Length(PFXData));
     p12 := d2iPKCS12bio(b, nil);
@@ -441,7 +466,7 @@ begin
       DestroyCert;
       DestroyKey;
       ca := nil;
-      if PKCS12parse(p12, FpDFeSSL.Senha, FPrivKey, FCert, ca) > 0 then
+      if (PKCS12parse(p12, FpDFeSSL.Senha, FPrivKey, FCert, ca) > 0) then
       begin
         if (FCert <> nil) then
         begin
@@ -463,7 +488,7 @@ begin
     raise EACBrDFeException.Create(sErrCarregarOpenSSL);
 
   if not LerPFXInfo(FpDFeSSL.DadosPFX) then
-    raise EACBrDFeException.Create(sErrCertSenhaErrada);
+    raise EACBrDFeException.Create(sErrCertSenhaErrada + sLineBreak + GetLastOpenSSLError);
 end;
 
 function TDFeOpenSSL.CarregarCertificadoPublico(const DadosX509Base64: Ansistring): Boolean;
@@ -569,7 +594,7 @@ begin
     md_len := 0;
     md := EVP_get_digestbyname( NameDgst );
     if md = Nil then
-      raise EACBrDFeException.Create('Erro ao carregar Digest: '+NameDgst);
+      raise EACBrDFeException.Create('Erro ao carregar Digest: '+NameDgst + sLineBreak + GetLastOpenSSLError);
 
     if OpenSSLOldVersion then
       pmd_ctx := @md_ctx
@@ -646,7 +671,7 @@ begin
     md_len := 0;
     md := EVP_get_digestbyname( NameDgst );
     if md = Nil then
-      raise EACBrDFeException.Create('Erro ao carregar Digest: '+NameDgst);
+      raise EACBrDFeException.Create('Erro ao carregar Digest: '+NameDgst + sLineBreak + GetLastOpenSSLError);
 
     if OpenSSLOldVersion then
       pmd_ctx := @md_ctx

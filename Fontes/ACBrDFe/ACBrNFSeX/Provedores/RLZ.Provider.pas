@@ -64,8 +64,8 @@ type
     procedure PrepararEmitir(Response: TNFSeEmiteResponse); override;
     procedure TratarRetornoEmitir(Response: TNFSeEmiteResponse); override;
 
-    procedure PrepararConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
-    procedure TratarRetornoConsultaNFSe(Response: TNFSeConsultaNFSeResponse); override;
+    procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+    procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
@@ -332,7 +332,7 @@ function TACBrNFSeXWebserviceRLZ203.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 
@@ -348,6 +348,14 @@ begin
     QuebradeLinha := '|';
     ModoEnvio := meUnitario;
     DetalharServico := True;
+
+    Autenticacao.RequerChaveAcesso := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarUnitario := True;
+      ConsultarNfse := True;
+    end;
   end;
 
   ConfigSchemas.Validar := False;
@@ -404,7 +412,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Codigo;
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('mensagem'), tcStr));
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('mensagem'), tcStr);
       AErro.Correcao := '';
     end;
   end;
@@ -510,7 +518,7 @@ begin
         NumeroNota := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
         NumNfse := NumeroNota;
         Protocolo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('guia'), tcStr);
-        CodVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('codigoverificacao'), tcStr);
+        CodigoVerificacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('codigoverificacao'), tcStr);
         Link := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('url'), tcStr);
         Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
         Situacao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('situacao'), tcStr);
@@ -524,7 +532,7 @@ begin
         Exit;
       end;
 
-      ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumNfse);
+      ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(NumNfse);
 
       ANota := CarregarXmlNfse(ANota, AuxNode.OuterXml);
       SalvarXmlNfse(ANota);
@@ -541,7 +549,7 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderRLZ.PrepararConsultaNFSe(
+procedure TACBrNFSeProviderRLZ.PrepararConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   AErro: TNFSeEventoCollectionItem;
@@ -574,7 +582,7 @@ begin
                        '</notas>';
 end;
 
-procedure TACBrNFSeProviderRLZ.TratarRetornoConsultaNFSe(
+procedure TACBrNFSeProviderRLZ.TratarRetornoConsultaNFSeporNumero(
   Response: TNFSeConsultaNFSeResponse);
 var
   Document: TACBrXmlDocument;
@@ -677,7 +685,7 @@ function TACBrNFSeXWebserviceRLZ.TratarXmlRetornado(const aXML: string): string;
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 

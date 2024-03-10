@@ -51,6 +51,7 @@ type
     procedure ConsultaLoteRps;
     procedure ConsultaNFSeporRps;
     procedure ConsultaNFSe;
+    procedure ConsultaLinkNFSe;
     procedure CancelaNFSe;
     procedure SubstituiNFSe;
     procedure GerarToken;
@@ -58,6 +59,7 @@ type
     procedure ConsultarEvento;
     procedure ConsultarDFe;
     procedure ConsultarParam;
+    procedure ConsultarSeqRps;
 
     function GetConfigGeral: TConfigGeral;
     function GetConfigWebServices: TConfigWebServices;
@@ -71,6 +73,10 @@ type
     property ConfigMsgDados: TConfigMsgDados read GetConfigMsgDados;
     property ConfigAssinar: TConfigAssinar read GetConfigAssinar;
     property ConfigSchemas: TConfigSchemas read GetConfigSchemas;
+
+    function SituacaoLoteRpsToStr(const t: TSituacaoLoteRps): string;
+    function StrToSituacaoLoteRps(out ok: boolean; const s: string): TSituacaoLoteRps;
+    function SituacaoLoteRpsToDescr(const t: TSituacaoLoteRps): string;
 
     function SimNaoToStr(const t: TnfseSimNao): string;
     function StrToSimNao(out ok: boolean; const s: string): TnfseSimNao;
@@ -106,6 +112,18 @@ type
     function TributacaoToStr(const t: TTributacao): string;
     function StrToTributacao(out ok: boolean; const s: string): TTributacao;
     function TributacaoDescricao(const t: TTributacao): String;
+
+    function TipoDeducaoToStr(const t: TTipoDeducao): string;
+    function StrToTipoDeducao(out ok: Boolean; const s: string): TTipoDeducao;
+
+    function TipoTributacaoRPSToStr(const t: TTipoTributacaoRPS): string;
+    function StrToTipoTributacaoRPS(out ok: boolean; const s: string): TTipoTributacaoRPS;
+
+    function CondicaoPagToStr(const t: TnfseCondicaoPagamento): string;
+    function StrToCondicaoPag(out ok: boolean; const s: string): TnfseCondicaoPagamento;
+
+    function StatusRPSToStr(const t: TStatusRPS): string;
+    function StrToStatusRPS(out ok: boolean; const s: string): TStatusRPS;
   end;
 
 implementation

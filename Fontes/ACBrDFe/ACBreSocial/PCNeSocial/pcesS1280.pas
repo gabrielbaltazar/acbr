@@ -53,7 +53,8 @@ uses
    System.Contnrs,
   {$IfEnd}
   ACBrBase,
-  pcnConversao, pcnGerador, pcnConsts,
+  ACBrDFeConsts,
+  pcnConversao, pcnGerador,
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
@@ -244,24 +245,28 @@ end;
 
 procedure TEvtInfoComplPer.GerarInfoAtivConcom;
 begin
-  Gerador.wGrupo('infoAtivConcom');
+  if InfoAtivConcom.fatorMes <> 0 then
+  begin
+    Gerador.wGrupo('infoAtivConcom');
 
-  Gerador.wCampo(tcDe2, '', 'fatorMes', 1, 5, 1, InfoAtivConcom.fatorMes);
-  Gerador.wCampo(tcDe2, '', 'fator13',  1, 5, 1, InfoAtivConcom.fator13);
+    Gerador.wCampo(tcDe2, '', 'fatorMes', 1, 5, 1, InfoAtivConcom.fatorMes);
+    Gerador.wCampo(tcDe2, '', 'fator13',  1, 5, 1, InfoAtivConcom.fator13);
 
-  Gerador.wGrupo('/infoAtivConcom');
+    Gerador.wGrupo('/infoAtivConcom');
+  end;
 end;
 
 procedure TEvtInfoComplPer.GerarinfoPercTransf11096;
 begin
   if VersaoDF > ve02_05_00 then
-  begin
-     Gerador.wGrupo('infoPercTransf11096');
+    if infoPercTransf11096.percTransf > 0 then
+    begin
+      Gerador.wGrupo('infoPercTransf11096');
 
-     Gerador.wCampo(tcStr, '', 'percTransf', 1, 1, 1, infoPercTransf11096.percTransf);
+      Gerador.wCampo(tcStr, '', 'percTransf', 1, 1, 1, infoPercTransf11096.percTransf);
 
-     Gerador.wGrupo('/infoPercTransf11096');
-  end;
+      Gerador.wGrupo('/infoPercTransf11096');
+    end;
 
 end;
 
@@ -304,6 +309,7 @@ end;
 function TEvtInfoComplPer.GerarXML: boolean;
 begin
   try
+    inherited GerarXML;
     Self.VersaoDF := TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF;
      
     Self.Id := GerarChaveEsocial(now, self.ideEmpregador.NrInsc, self.Sequencial);
@@ -426,6 +432,7 @@ begin
       ideEvento.NrRecibo    := INIRec.ReadString(sSecao, 'nrRecibo', EmptyStr);
       ideEvento.IndApuracao := eSStrToIndApuracao(Ok, INIRec.ReadString(sSecao, 'indApuracao', '1'));
       ideEvento.perApur     := INIRec.ReadString(sSecao, 'perApur', EmptyStr);
+      ideEvento.indGuia     := INIRec.ReadString(sSecao, 'indGuia', EmptyStr);
       ideEvento.ProcEmi     := eSStrToProcEmi(Ok, INIRec.ReadString(sSecao, 'procEmi', '1'));
       ideEvento.VerProc     := INIRec.ReadString(sSecao, 'verProc', EmptyStr);
 
@@ -446,20 +453,27 @@ begin
       begin
         // de 0000 até 9999
         sSecao := 'infoSubstPatrOpPort' + IntToStrZero(I, 4);
-        sFim   := INIRec.ReadString(sSecao, 'cnpjOpPortuario', 'FIM');
+        sFim   := INIRec.ReadString(sSecao, 'codLotacao', 'FIM');
 
         if (sFim = 'FIM') or (Length(sFim) <= 0) then
           break;
 
         with infoSubstPatrOpPort.New do
         begin
-          cnpjOpPortuario := sFim;
-          InfoAtivConcom.fatorMes := StringToFloatDef(INIRec.ReadString(sSecao, 'fatorMes', ''), 0);
-          InfoAtivConcom.fator13  := StringToFloatDef(INIRec.ReadString(sSecao, 'fator13', ''), 0);
+          codLotacao := sFim;
+          cnpjOpPortuario := INIRec.ReadString(sSecao, 'cnpjOpPortuario', EmptyStr);
         end;
 
         Inc(I);
       end;
+
+      sSecao := 'infoAtivConcom';
+      InfoAtivConcom.fatorMes := StringToFloatDef(INIRec.ReadString(sSecao, 'fatorMes', ''), 0);
+      InfoAtivConcom.fator13  := StringToFloatDef(INIRec.ReadString(sSecao, 'fator13', ''), 0);
+
+      sSecao := 'infoPercTransf11096';
+      if INIRec.ReadString(sSecao, 'percTrans', '') <> '' then
+        infoPercTransf11096.percTransf  := StrToIntDef(INIRec.ReadString(sSecao, 'percTrans', ''), 0);
     end;
 
     GerarXML;

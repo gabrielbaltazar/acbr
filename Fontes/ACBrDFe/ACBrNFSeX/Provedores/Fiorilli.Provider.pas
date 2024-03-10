@@ -89,15 +89,20 @@ begin
 
   ConfigGeral.QuebradeLinha := '\s\n';
   ConfigGeral.ConsultaPorFaixaPreencherNumNfseFinal := true;
-  
-  with ConfigAssinar do
+
+  ConfigGeral.Autenticacao.RequerLogin := True;
+
+  if ConfigAssinar.Assinaturas = taConfigProvedor then
   begin
-    Rps := True;
-    LoteRps := True;
-    CancelarNFSe := True;
-    RpsGerarNFSe := True;
-    RpsSubstituirNFSe := True;
-    SubstituirNFSe := True;
+    with ConfigAssinar do
+    begin
+      Rps := True;
+      LoteRps := True;
+      CancelarNFSe := True;
+      RpsGerarNFSe := True;
+      RpsSubstituirNFSe := True;
+      SubstituirNFSe := True;
+    end;
   end;
 end;
 
@@ -138,7 +143,7 @@ procedure TACBrNFSeProviderFiorilli200.PrepararEmitir(
 begin
   // O provedor Fiorilli exige que o numero do lote seja numerico e que não
   // não tenha zeros a esquerda.
-  Response.Lote := IntToStr(StrToIntDef(Trim(Response.Lote), 0));
+  Response.NumeroLote := IntToStr(StrToIntDef(Trim(Response.NumeroLote), 0));
 
   inherited PrepararEmitir(Response);
 end;
@@ -328,9 +333,9 @@ function TACBrNFSeXWebserviceFiorilli200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := NativeStringToUTF8(Result);
   Result := StringReplace(Result, '&#xd;', '\s\n', [rfReplaceAll]);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := StringReplace(Result, ''#$A'', '\s\n', [rfReplaceAll]);
+  Result := ParseText(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);

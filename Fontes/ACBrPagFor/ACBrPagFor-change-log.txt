@@ -43,6 +43,178 @@ Símbolo : Significado
 [-]     : Correção de Bug (assim esperamos)
 
 
+01/02/2024
+--- ACBrPagForConversao ---
+[*] Inclusão do banco: 403-Banco Cora
+   Por: José Geraldo
+
+25/01/2024
+--- Diversos ---
+[+] Implementação do Banco Inter.
+   Por: Lucas Rampin
+--- Diversos ---
+[*] Alterado o nome da variável protegida de FSequencialDeLote para 
+    FSequencialDoRegistroNoLote, com esse nome deixa claro a sua finalidade.
+   Por: Italo Giurizzato Junior
+
+19/01/2024
+--- CNAB240.GravarTxtRemessa ---
+[-] Incluído o incremento do sequencial de lote nos Segmentos W e Z.
+   Por: Italo Giurizzato Junior
+--- ACBrPagForConversao ---
+[*] TK-2011 Inclusão dos bancos: 380-PicPay e 536-Neon
+   Por: Carlos Solla
+
+18/01/2024
+--- PagFor.BancodoBrasil.GravarTxtRemessa ---
+[-] Corrigido de 4 para 6 digitos ao formatar o campo Receita dos Segmentos N.
+   Por: Italo Giurizzato Junior
+
+12/01/2024
+--- PagFor.Itau.LerTxtRetorno ---
+[*] Alteração visando a leitura do Segmento Z ao ler o Segmento A. TK-4978
+   Por: Wanderson Robert
+
+27/12/2023
+--- Diversos ---
+[-] Correção, a posição correta do campo Desconto1 do Segmento G é 214 e não 114.
+   Por: Luciano Soares Atacado
+--- PagFor.Santander.GravarTxtRemessa ---
+[-] Alterado o tipo de conversão de tcInt para tcStr ao gerar o conteudo do campo
+    Agencia.DV no Registro1.
+   Por: Arthur ZSR
+
+22/11/2023
+--- PagFor.Itau.LerTxtRetorno/ACBrPagForConversao ---
+[*] TK-4751 Reescrito o GetOcorrencia por conter diferenças do padrão CNAB.
+    e incluido novos valores de ocorrencias no tipo: TOcorrencia.
+   Por: Alex Klehm
+--- PagFor.Itau.LerTxtRetorno ---
+[*] TK-4751 Reescrito o LerSegmentoJ por conter diferenças do padrão CNAB.
+   Por: Fabricio Furtado
+--- PagFor.Bradesco.GravarTxtRemessa ---
+[*]TK-4764 Ajuste na posição 172/174 Identificação Remessa Pix 
+    Por: Victor Hugo Gonzales - Pandaaa
+
+19/09/2023
+-- Diversos --
+[*] Ajuste para gerar corretamente o Tipo de Movimento no Segmento J.
+   Por: Italo Giurizzato Junior
+-- ACBrPagForClass/CNAB240.LerTxtRetorno --
+[*] Alteração visando a leitura do Segmento E muito utilizado para a 
+    conciliação bancária.
+   Por: Valter FC
+-- Diversos --
+[*] Alteração visando colocar cada ocorrência em um item da lista: Aviso.
+   Por: Italo Giurizzato Junior
+
+16/09/2023
+-- PagFor.Itau.GravarTxtRemessa/ACBrPagForClass/CNAB240.GravarTxtRemessa --
+[*] Correção para gerar o campo TipoMovimento nos segmentos N e J52
+   Por: SuporteATInfo/Italo Giurizzato Junior
+-- CNAB240.LerTxtRetorno --
+[*] Alterado o caracter usando para separar as descrições ocorrências, antes era o "/"
+    agora é o "|", pois algumas descrições contem o caractere "/".
+   Por: Alex Klehn
+
+29/08/2023
+-- PagFor.Itau.GravarTxtRemessa --
+[*] Ajuste para gerar o campo do numero de inscrição do favorecido com 14 digitos.
+   Por: Fabricio Furtado
+
+23/08/2023
+-- CNAB240.LerTxtRetorno --
+[*] Ajuste para a leitura correta do segmento opcional (Segmento H) ao ler o 
+    Segmento G.
+   Por: Innovae Brasil Engenharia
+
+14/08/2023
+-- PagFor.Bradesco.LerTxtRetorno/ACBrPagForClass --
+[*] Acrescentado no Registro 1 a leitura de ocorrências.
+    O Bradesco inclui nesse registro algumas ocorrências.
+   Por: Italo Giurizzato Junior
+
+21/07/2023
+-- PagFor.Sicoob.GravarTxtRemessa --
+[*] Implementado a sobrecarga da procedure GeraSegmentoJ52 e realizado mais alguns
+    ajustes.
+   Por: jjribas
+
+14/07/2023
+-- PagFor.BancodoBrasil.GravarTxtRemessa/ACBrPagForClass --
+[*] Adicionada a propriedade RemessaTeste para gerar na posição 51-52 o texto:
+    "TS" se a propriedade for True ou brancos se for False.
+   Por: Alex Klehm
+
+07/07/2023
+-- PagFor.Sicoob.GravarTxtRemessa/CNAB240.GravarTxtRemessa --
+[*] Ajustes para gerar com a versão correta para Pagamento de Contas.
+   Por: Augusto Leão / Italo Giurizzato Junior
+
+29/06/2023
+-- ACBrPagForClass/PagFor.Bradesco.LerTxtRetorno --
+[*] Ajustes na leitura do Segmento A para ler o Segmento Z.
+   Por: Wanderson Robert / Italo Giurizzato Junior
+
+23/05/2023
+-- PagFor.Caixa.GravarTxtRemessa --
+[*] Ajustes nos segmentos: A, B e J e incluído o segmento J52.
+   Por: Raphael F. B. Soares
+
+17/05/2023
+-- PagFor.Sicredi.GravarTxtRemessa --
+[*] Correção no Segmento B para gerar correntamente quando se tratar de PIX com
+    Dados.
+   Por: Raphael F. B. Soares
+
+17/05/2023
+-- CNAB240.LerTxtRetorno --
+[*] Removido a condição que verifica a ocorrencia de pagamento para que na lista
+    de avisos conste também os pagamentos efetuados.
+   Por: Rafael Luís Acco/Italo Giurizzato Junior
+
+12/05/2023
+-- PagFor.Santander.GravarTxtRemessa --
+[*] Correção no Segmento B para gerar correntamente quando se tratar de PIX.
+   Por: Raphael F. B. Soares
+
+28/04/2023
+-- Diversos --
+[+] Implementado o campo TipoMovimento no SegmentoO, pois estava gerando o 
+    segmento com um valor fixo.
+   Por: Centrodata Sistemas
+
+14/04/2023
+-- Diversos --
+[+] Implementação do Banco UnicredCooperativa
+   Por: Grupo FS
+
+10/04/2023
+-- Diversos --
+[+] Implementação do Banco Banrisul
+   Por: Grupo FS
+
+06/04/2023
+-- PagFor.Caixa.GravarTxtRemessa --
+[*] Altera o final do registro 0 para que fique condizente com o manual.
+   Por: Grupo FS/ Diego F
+
+21/03/2023
+-- PagFor.Sicredi.GravarTxtRemessa --
+[*] Altera a informação do Layout do Arquivo no Header do Arquivo para coincidir com o manual disponível.
+   Por: Rafael Luis Acco/ Diego F 
+
+14/02/2023
+-- PagFor.Santander.GravarTxtRemessa --
+[*] Correção nos registros 0, 1 e 9, para deixar em conformidade com o manual 
+    do Banco.
+   Por: Keiller Rodrigues
+
+06/02/2023
+-- ACBrPagForLerTxt --
+[*] Ajustes na leitura de datas em branco
+   Por: Adriano Lucas
+
 30/11/2022
 -- ACBrPagForClass/CNAB240.LerTxtRetorno --
 [*] Ajustes na leitura do Registro 1.

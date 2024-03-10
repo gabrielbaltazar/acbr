@@ -9,11 +9,11 @@ namespace ACBrLib.Core.CTe
 {
     public class InfCteSubCTe
     {   
-        public long chCte { get; set; }
+        public string chCte { get; set; }
 
-        public long refCteAnu { get; set; }
+        public string refCteAnu { get; set; }
 
-        public TomaICMSCTe tomaICMS { get; set; }
+        public TomaICMSCTe tomaICMS { get; set; } = new TomaICMSCTe();
 
         public int indAlteraToma { get; set; }
     }

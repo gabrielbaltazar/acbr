@@ -53,7 +53,9 @@ type
   TACBrPIXHorario = class(TACBrPIXSchema)
   private
     fliquidacao: TDateTime;
+    fliquidacao_Bias: Integer;
     fsolicitacao: TDateTime;
+    fsolicitacao_Bias: Integer;
   protected
     procedure DoWriteToJSon(AJSon: TACBrJSONObject); override;
     procedure DoReadFromJSon(AJSon: TACBrJSONObject); override;
@@ -64,7 +66,9 @@ type
     procedure Assign(Source: TACBrPIXHorario);
 
     property solicitacao: TDateTime read fsolicitacao write fsolicitacao;
+    property solicitacao_Bias: Integer read fsolicitacao_Bias write fsolicitacao_Bias;
     property liquidacao: TDateTime read fliquidacao write fliquidacao;
+    property liquidacao_Bias: Integer read fliquidacao_Bias write fliquidacao_Bias;
   end;
 
   { TACBrPIXDevolucaoSolicitada }
@@ -83,6 +87,7 @@ type
     procedure Clear; override;
     function IsEmpty: Boolean; override;
     procedure Assign(Source: TACBrPIXDevolucaoSolicitada);
+    function LoadFromIni(aIniStr: String): Boolean;
 
     property valor: Currency read fvalor write fvalor;
     property natureza: TACBrPIXNaturezaDevolucao read fnatureza write fnatureza;
@@ -137,9 +142,11 @@ type
 implementation
 
 uses
-  ACBrPIXUtil,
+  ACBrPIXUtil, Math, IniFiles,
   ACBrUtil.Base,
-  ACBrUtil.Strings;
+  ACBrUtil.FilesIO,
+  ACBrUtil.Strings,
+  ACBrUtil.DateTime;
 
 { TACBrPIXHorario }
 
@@ -152,33 +159,58 @@ end;
 procedure TACBrPIXHorario.Clear;
 begin
   fsolicitacao := 0;
+  fsolicitacao_Bias := 0;
   fliquidacao := 0;
+  fliquidacao_Bias := 0;
 end;
 
 function TACBrPIXHorario.IsEmpty: Boolean;
 begin
   Result := (fsolicitacao = 0) and
-            (fliquidacao = 0);
+            (fsolicitacao_Bias = 0) and
+            (fliquidacao = 0) and
+            (fliquidacao_Bias = 0);
 end;
 
 procedure TACBrPIXHorario.Assign(Source: TACBrPIXHorario);
 begin
   fsolicitacao := Source.solicitacao;
+  fsolicitacao_Bias := Source.solicitacao_Bias;
   fliquidacao := Source.liquidacao;
+  fliquidacao_Bias := Source.liquidacao_Bias;
 end;
 
 procedure TACBrPIXHorario.DoWriteToJSon(AJSon: TACBrJSONObject);
 begin
   AJSon
-    .AddPairISODateTime('solicitacao', fsolicitacao)
-    .AddPairISODateTime('liquidacao', fliquidacao);
+    .AddPair('solicitacao', DateTimeToIso8601(fsolicitacao, BiasToTimeZone(fsolicitacao_Bias)))
+    .AddPair('liquidacao', DateTimeToIso8601(fliquidacao, BiasToTimeZone(fliquidacao_Bias)));
 end;
 
 procedure TACBrPIXHorario.DoReadFromJSon(AJSon: TACBrJSONObject);
+var
+  wL, wS: String;
 begin
+  {$IfDef FPC}
+  wL := EmptyStr;
+  wS := EmptyStr;
+  {$EndIf}
+
   AJSon
-    .ValueISODateTime('solicitacao', fsolicitacao)
-    .ValueISODateTime('liquidacao', fliquidacao);
+    .Value('solicitacao', wS)
+    .Value('liquidacao', wL);
+
+  if NaoEstaVazio(wS) then
+  begin
+    fsolicitacao := Iso8601ToDateTime(wS);
+    fsolicitacao_Bias := TimeZoneToBias(wS);
+  end;
+
+  if NaoEstaVazio(wL) then
+  begin
+    fliquidacao := Iso8601ToDateTime(wL);
+    fliquidacao_Bias := TimeZoneToBias(wL);
+  end;
 end;
 
 { TACBrPIXDevolucaoSolicitada }
@@ -203,12 +235,32 @@ begin
             (fvalor = 0);
 end;
 
-procedure TACBrPIXDevolucaoSolicitada.Assign(Source: TACBrPIXDevolucaoSolicitada
-  );
+procedure TACBrPIXDevolucaoSolicitada.Assign(Source: TACBrPIXDevolucaoSolicitada);
 begin
   fdescricao := Source.descricao;
   fnatureza := Source.natureza;
   fvalor := Source.valor;
+end;
+
+function TACBrPIXDevolucaoSolicitada.LoadFromIni(aIniStr: String): Boolean;
+var
+  wSecao: String;
+  wIni: TMemIniFile;
+  i: Integer;
+begin
+  Result := False;
+
+  wIni := TMemIniFile.Create('');
+  try
+    LerIniArquivoOuString(aIniStr, wIni);
+
+    wSecao := 'DevolucaoSolicitada';
+    fdescricao := wIni.ReadString(wSecao, 'descricao', EmptyStr);
+    fnatureza := TACBrPIXNaturezaDevolucao(wIni.ReadInteger(wSecao, 'naturezaDevolucao', 0));
+    fvalor := wIni.ReadFloat(wSecao, 'valor', 0);
+  finally
+    wIni.Free;
+  end;
 end;
 
 procedure TACBrPIXDevolucaoSolicitada.SetDescricao(AValue: String);
@@ -325,16 +377,20 @@ end;
 
 procedure TACBrPIXDevolucao.Setid(AValue: String);
 var
-  e: String;
+  e, s: String;
 begin
   if fid = AValue then
     Exit;
 
-  e := ValidarTxId(AValue, 35, 1);
-  if (e <> '') then
-    raise EACBrPixException.Create(ACBrStr(e));
+  s := Trim(AValue);
+  if (s <> '') and fIsBacen then
+  begin
+    e := ValidarTxId(s, 35, 1);
+    if (e <> '') then
+      raise EACBrPixException.Create(ACBrStr(e));
+  end;
 
-  fId := AValue;
+  fId := s;
 end;
 
 procedure TACBrPIXDevolucao.Setmotivo(AValue: String);

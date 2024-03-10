@@ -39,9 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv1, ACBrNFSeXConversao,
-  ACBrNFSeXConsts;
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv1;
 
 type
   { TNFSeW_Publica }
@@ -55,6 +53,10 @@ type
   end;
 
 implementation
+
+uses
+  ACBrNFSeXConversao,
+  ACBrNFSeXConsts;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -106,8 +108,8 @@ begin
   begin
     Result[i] := CreateElement('Parcelas');
 
-    Result[i].AppendChild(AddNode(tcStr, '#53', 'Condicao  ', 1, 15, 1,
-      CondicaoToStrPublica(NFSe.CondicaoPagamento.Parcelas.Items[i].Condicao), DSC_TPAG));
+    Result[i].AppendChild(AddNode(tcStr, '#53', 'Condicao', 1, 15, 1,
+      FpAOwner.CondicaoPagToStr(NFSe.CondicaoPagamento.Parcelas.Items[i].Condicao), DSC_TPAG));
 
     Result[i].AppendChild(AddNode(tcStr, '#54', 'Parcela', 1, 03, 1,
                   NFSe.CondicaoPagamento.Parcelas.Items[i].Parcela, DSC_NPARC));

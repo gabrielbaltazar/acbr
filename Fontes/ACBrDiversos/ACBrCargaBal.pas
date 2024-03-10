@@ -50,7 +50,7 @@ uses
 type
   EACBrCargaBal = class(Exception);
   TACBrCargaBalTipoVenda = (tpvPeso, tpvUnidade, tpvEAN13, tpvEAN13Und);
-  TACBrCargaBalModelo = (modFilizola, modToledo, modUrano, modUranoS, modToledoMGV5, modToledoMGV6, modToledoMGV7, modUranoURF32, modRamuza, modToledoMGV5Ver1);
+  TACBrCargaBalModelo = (modFilizola, modToledo, modUrano, modUranoS, modToledoMGV5, modToledoMGV6, modToledoMGV7, modUranoURF32, modRamuza, modToledoMGV5Ver1, modTriunfoRdc429);
   TACBrCargaBalProgresso = procedure(Mensagem: String; ProgressoAtual, ProgressoTotal: Integer) of object;
   TACBrCargaBalTipoValidade = (tpvDias, tpvMeses);
 
@@ -129,6 +129,11 @@ type
     FGordurasSaturadas429: Double;
     FUndPorcao429: TACBRCargaBalNutriUndPorcao429;
     FPartDecMedidaCaseira429: TACBrCargaBalNutriPartdecimal429;
+    FImprimeLactoseGalactose: Integer;
+    FProteinasEstendido429: Double;
+    FGordurasTotaisEstendido429: Double;
+    FAcucaresAdicionadosEstendido429: Double;
+    FAcucaresTotaisEstendido429: Double;
     procedure SetQtdeAutomaticaPorcao(const Value: Boolean);
     procedure SetQtdePorcEmb(const Value: Integer);
     procedure SetPartIntMedidaCaseira(const Value: Integer);
@@ -151,6 +156,11 @@ type
     procedure SetValorEnergetico429(const Value: Integer);
     procedure SetUndPorcao429(const Value: TACBRCargaBalNutriUndPorcao429);
     procedure SetPartDecMedidaCaseira429(const Value: TACBrCargaBalNutriPartdecimal429);
+    procedure SetImprimeLactoseGalactose(const Value: Integer);
+    procedure SetAcucaresAdicionadosEstendido429(const Value: Double);
+    procedure SetAcucaresTotaisEstendido429(const Value: Double);
+    procedure SetGordurasTotaisEstendido429(const Value: Double);
+    procedure SetProteinasEstendido429(const Value: Double);
   public
     constructor Create;
     procedure Limpar;
@@ -191,6 +201,11 @@ type
     property AltoSodio429:Integer read FAltoSodio429 write SetAltoSodio429;
     property Lactose429:Double read FLactose429 write SetLactose429;
     property Galactose429:Double read FGalactose429 write SetGalactose429;
+    property ImprimeLactoseGalactose:Integer read FImprimeLactoseGalactose write SetImprimeLactoseGalactose;
+    property AcucaresAdicionadosEstendido429:Double read FAcucaresAdicionadosEstendido429 write SetAcucaresAdicionadosEstendido429;
+    property AcucaresTotaisEstendido429:Double read FAcucaresTotaisEstendido429 write SetAcucaresTotaisEstendido429;
+    property GordurasTotaisEstendido429:Double read FGordurasTotaisEstendido429 write SetGordurasTotaisEstendido429;
+    property ProteinasEstendido429:Double read FProteinasEstendido429 write SetProteinasEstendido429;
   end;
 
   TACBrCargaBalInformacaoExtra = class
@@ -211,12 +226,16 @@ type
     fCodigo: Integer;
     FDescricao : String;
     FValor : Currency;
+    fTipoTara: Integer;
+    fValorMaximoTara: Currency;
 
   public
     constructor Create;
     property Codigo: Integer read FCodigo write FCodigo;
     property Descricao: String read FDescricao write FDescricao;
     property Valor: Currency read FValor write FValor;
+    property TipoTara: Integer read fTipoTara write fTipoTara;
+    property ValorMaximoTara: Currency read fValorMaximoTara write fValorMaximoTara;
   end;
 
   TACBrCargaBalFornecedor = class
@@ -453,6 +472,8 @@ type
     procedure PreencherFilizola(stlArquivo, stlSetor, stlNutricional, stlReceita: TStringList);
     procedure PreencherToledo(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2: TStringList; Versao: Integer);
     procedure PreencherToledoMGV7(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2: TStringList; Versao: Integer);
+    procedure PreencherTriunfoRdc429(stlArquivo, stlNutricional, stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor, stlTeclado, stlExtra1, stlExtra2: TStringList; Versao: Integer);
+
     procedure PreencherUrano(Arquivo: TStringList);
     procedure PreencherUranoS(Arquivo: TStringList);
     procedure PreencherUranoURF32(stlArquivo, stlNutricional, stlReceita, stlRelacaoProdutoNutricional, stlRelacaoProdutoReceita: TStringList);
@@ -521,10 +542,22 @@ begin
   FAcucaresAdicionados429 := Value;
 end;
 
+procedure TACBrCargaBalNutricional.SetAcucaresAdicionadosEstendido429(
+  const Value: Double);
+begin
+  FAcucaresAdicionadosEstendido429 := Value;
+end;
+
 procedure TACBrCargaBalNutricional.SetAcucaresTotais429(
   const Value: Double);
 begin
   FAcucaresTotais429 := Value;
+end;
+
+procedure TACBrCargaBalNutricional.SetAcucaresTotaisEstendido429(
+  const Value: Double);
+begin
+  FAcucaresTotaisEstendido429 := Value;
 end;
 
 procedure TACBrCargaBalNutricional.SetAltoAcucar429(const Value: Integer);
@@ -571,10 +604,22 @@ begin
   FGordurasTotais429 := Value;
 end;
 
+procedure TACBrCargaBalNutricional.SetGordurasTotaisEstendido429(
+  const Value: Double);
+begin
+  FGordurasTotaisEstendido429 := Value;
+end;
+
 procedure TACBrCargaBalNutricional.SetGordurasTrans429(
   const Value: Double);
 begin
   FGordurasTrans429 := Value;
+end;
+
+procedure TACBrCargaBalNutricional.SetImprimeLactoseGalactose(
+  const Value: Integer);
+begin
+  FImprimeLactoseGalactose := Value;
 end;
 
 procedure TACBrCargaBalNutricional.SetLactose429(const Value: Double);
@@ -603,6 +648,12 @@ end;
 procedure TACBrCargaBalNutricional.SetProteinas429(const Value: Double);
 begin
   FProteinas429 := Value;
+end;
+
+procedure TACBrCargaBalNutricional.SetProteinasEstendido429(
+  const Value: Double);
+begin
+  FProteinasEstendido429 := Value;
 end;
 
 procedure TACBrCargaBalNutricional.SetQtdeAutomaticaPorcao(
@@ -702,6 +753,7 @@ begin
     modToledoMGV5,
     modToledoMGV6,
     modToledoMGV7,
+    modTriunfoRdc429,
     modFilizola :
     begin
       case Length(FInformacaoExtra.Receita) of
@@ -814,7 +866,7 @@ function TACBrCargaBal.GetNomeArquivoTaras: String;
 begin
   case FModelo of
     modToledo,
-    modToledoMGV5, modToledoMGV6, modToledoMGV7 : Result := 'TARA.TXT';
+    modToledoMGV5, modToledoMGV6, modToledoMGV7, modTriunfoRdc429 : Result := 'TARA.TXT';
   end;
 end;
 
@@ -827,7 +879,8 @@ begin
     modUranoS     : Result := 'PRODUTOS.TXT';
     modToledoMGV5,
     modToledoMGV6,
-    modToledoMGV7 : Result := 'ITENSMGV.TXT';
+    modToledoMGV7,
+    modTriunfoRdc429 : Result := 'ITENSMGV.TXT';
     modUranoURF32 : Result := 'PRODUTOS.TXT';
     modRamuza     : Result := 'RAMUZA_ORIGINAL.TXT';
   end;
@@ -994,7 +1047,8 @@ begin
     modFilizola : Result := 'SETORTXT.TXT';
     modToledoMGV5,
     modToledoMGV6,
-    modToledoMGV7 : Result := 'DEPTO.TXT';
+    modToledoMGV7,
+    modTriunfoRdc429 : Result := 'DEPTO.TXT';
   end;
 end;
 
@@ -1005,7 +1059,8 @@ begin
     modFilizola : Result := 'REC_ASS.TXT';
     modToledoMGV5,
     modToledoMGV6,
-    modToledoMGV7: Result := 'TXINFO.TXT';
+    modToledoMGV7,
+    modTriunfoRdc429: Result := 'TXINFO.TXT';
     modUranoURF32: Result := 'RECEITAS.TXT';
   end;
 end;
@@ -1015,7 +1070,8 @@ begin
   case FModelo of
     modToledoMGV5,
     modToledoMGV6,
-    modToledoMGV7 : Result := 'TXFORN.TXT';
+    modToledoMGV7,
+    modTriunfoRdc429 : Result := 'TXFORN.TXT';
   end;
 end;
 
@@ -1024,7 +1080,8 @@ begin
   case FModelo of
     modToledoMGV5,
     modToledoMGV6,
-    modToledoMGV7 : Result := 'FRACIONA.TXT';
+    modToledoMGV7,
+    modTriunfoRdc429 : Result := 'FRACIONA.TXT';
   end;
 end;
 
@@ -1033,7 +1090,8 @@ begin
   case FModelo of
     modToledoMGV5,
     modToledoMGV6,
-    modToledoMGV7 : Result := 'CONSERVA.TXT';
+    modToledoMGV7,
+    modTriunfoRdc429 : Result := 'CONSERVA.TXT';
   end;
 end;
 
@@ -1042,7 +1100,8 @@ begin
   case FModelo of
     modToledoMGV5,
     modToledoMGV6,
-    modToledoMGV7: Result := 'CAMPEXT1.TXT';
+    modToledoMGV7,
+    modTriunfoRdc429: Result := 'CAMPEXT1.TXT';
   end;
 end;
 
@@ -1060,7 +1119,8 @@ begin
   case FModelo of
     modToledoMGV5,
     modToledoMGV6,
-    modToledoMGV7: Result := 'TXTECLAS.TXT';
+    modToledoMGV7,
+    modTriunfoRdc429: Result := 'TXTECLAS.TXT';
   end;
 end;
 
@@ -1071,7 +1131,8 @@ begin
   case FModelo of
     modToledoMGV5,
     modToledoMGV6,
-    modToledoMGV7 : Result := 'INFNUTRI.TXT';
+    modToledoMGV7,
+    modTriunfoRdc429 : Result := 'INFNUTRI.TXT';
     modFilizola   : Result := 'NUTRI.TXT';
     modUranoURF32 : Result := 'INFORMACOESNUTRICIONAIS.TXT';
   end;
@@ -1107,7 +1168,9 @@ begin
       GetTipoProdutoFilizola(Produtos[i].Tipo) +
       RFIll(Produtos[i].Descricao, 22) +
       LFIll(Produtos[i].ValorVenda, 7, 2) +
-      LFIll(Produtos[i].Validade, 3)
+      LFIll(Produtos[i].Validade, 3)+
+      RFill(' ',126)+
+      LFIll(Produtos[i].Tara.Valor, 4, 3)
     );
 
     if (Produtos[i].Setor.Descricao <> '') or (Produtos[i].Teclado.Tecla > 0) then
@@ -1586,8 +1649,21 @@ begin
 
        if (Produtos[i].Tara.Codigo > 0) then
        begin
-        ATara := LFIll(Produtos[i].Tara.Codigo, 4) + LFIll(Produtos[i].Tara.Valor, 6, 3)+
-                 RFIll(Produtos[i].Tara.Descricao, 20);
+        // Alterado para receber os novos campos do layout mgv6
+//        ATara := LFIll(Produtos[i].Tara.Codigo, 4) + LFIll(Produtos[i].Tara.Valor, 6, 3)+
+//                 RFIll(Produtos[i].Tara.Descricao, 20);
+          ATara := '';
+          ATara := ATara + 'N'; // Caracter indicativo de novo arquivo padrão de Tara
+          ATara := ATara + LFIll(Produtos[i].Tara.Codigo,4); // Codigo da Tara
+          ATara := ATara + LFIll(Produtos[i].Tara.TipoTara,1); // Seleção do Tipo de Tara Predeterminada (0 - Tara Fixa / 1 - Tara Variavel)
+          ATara := ATara + LFIll(Produtos[i].Tara.Valor,6,3); // Valor da Tara
+          case Produtos[i].Tara.TipoTara of
+            1 : ATara := ATara + LFIll(Produtos[i].Tara.ValorMaximoTara,6,3); // Intervalo Superior de Tara quando Tara Predeterminada for 1
+          else
+            ATara := ATara + '000000'; // Caso contrario deve ser preenchido com Zeros
+          end;
+          ATara := ATara + RFill(Produtos[i].Tara.Descricao,20);
+
 
         if (stlTara.IndexOf(ATara) < 0) THEN
            stlTara.Add(ATara);
@@ -1765,6 +1841,200 @@ begin
                   LFIll(Produtos[i].Nutricional.AltoGordura429,1)+
                   LFIll(Produtos[i].Nutricional.AltoSodio429,1)+
                   LFIll(Produtos[i].Nutricional.Lactose429,5,1)+
+                  LFIll(Produtos[i].Nutricional.Galactose429,5,1)+
+                  LFIll(Produtos[i].Nutricional.ImprimeLactoseGalactose,1)+
+                  LFIll(Produtos[i].Nutricional.AcucaresAdicionadosEstendido429,5)+
+                  LFIll(Produtos[i].Nutricional.AcucaresTotaisEstendido429,5)+
+                  LFIll(Produtos[i].Nutricional.GordurasTotaisEstendido429,5)+
+                  LFIll(Produtos[i].Nutricional.ProteinasEstendido429,5);
+         if (stlNutricional.IndexOf(ANutri) < 0) then
+          stlNutricional.Add(ANutri);
+        end;
+        if (Produtos[i].Tara.Codigo > 0) then begin
+//          ATara := LFIll(Produtos[i].Tara.Codigo, 4) +
+//                   LFIll(Produtos[i].Tara.Valor, 6, 3)+
+//                   RFIll(Produtos[i].Tara.Descricao, 20);
+
+          ATara := '';
+          ATara := ATara + 'N'; // Caracter indicativo de novo arquivo padrão de Tara
+          ATara := ATara + LFIll(Produtos[i].Tara.Codigo,4); // Codigo da Tara
+          ATara := ATara + LFIll(Produtos[i].Tara.TipoTara,1); // Seleção do Tipo de Tara Predeterminada (0 - Tara Fixa / 1 - Tara Variavel)
+          ATara := ATara + LFIll(Produtos[i].Tara.Valor,6,3); // Valor da Tara
+          case Produtos[i].Tara.TipoTara of
+            1 : ATara := ATara + LFIll(Produtos[i].Tara.ValorMaximoTara,6,3); // Intervalo Superior de Tara quando Tara Predeterminada for 1
+          else
+            ATara := ATara + '000000'; // Caso contrario deve ser preenchido com Zeros
+          end;
+          ATara := ATara + RFill(Produtos[i].Tara.Descricao,20);
+
+          if (stlTara.IndexOf(ATara) < 0) then
+           stlTara.Add(ATara);
+        end;
+        if (Produtos[i].Fornecedor.Codigo > 0) then begin
+          AFornecedor := LFIll(Produtos[i].Fornecedor.Codigo, 4) +
+                         RFIll(Produtos[i].Fornecedor.Observacao, 100) +
+                         RFill(Produtos[i].Fornecedor.Descricao1, 56) +
+                         RFill(Produtos[i].Fornecedor.Descricao2, 56) +
+                         RFill(Produtos[i].Fornecedor.Descricao3, 56) +
+                         RFill(Produtos[i].Fornecedor.Descricao4, 56) +
+                         RFill(Produtos[i].Fornecedor.Descricao5, 56);
+          if (stlFornecedor.IndexOf(AFornecedor) < 0) then
+            stlFornecedor.Add(AFornecedor);
+        end;
+        if (Produtos[i].Fracionador.Codigo > 0) then begin
+          AFracionador := LFIll(Produtos[i].Fracionador.Codigo, 4) +
+                          RFIll(Produtos[i].Fracionador.Observacao, 100) +
+                          RFill(Produtos[i].Fracionador.Descricao1, 56) +
+                          RFill(Produtos[i].Fracionador.Descricao2, 56) +
+                          RFill(Produtos[i].Fracionador.Descricao3, 56);
+           if (stlFracionador.IndexOf(AFracionador) < 0) then
+            stlFracionador.Add(AFracionador);
+        end;
+        if (Produtos[i].Conservacao.Codigo > 0) then begin
+          AConservacao := LFIll(Produtos[i].Conservacao.Codigo, 4) +
+                          RFIll(Produtos[i].Conservacao.Observacao, 100) +
+                          RFill(Produtos[i].Conservacao.Descricao1, 56) +
+                          RFill(Produtos[i].Conservacao.Descricao2, 56) +
+                          RFill(Produtos[i].Conservacao.Descricao3, 56);
+          if (stlConservacao.IndexOf(AConservacao) < 0) then
+           stlConservacao.Add(AConservacao);
+        end;
+        if (Produtos[i].Extra1.Codigo>0) then begin
+          AExtra1:=LFIll(Produtos[i].Extra1.Codigo,4)+
+                   RFill(Produtos[i].Extra1.Observacao,100)+
+                   RFill(Produtos[i].Extra1.Linha1,56)+
+                   RFill(Produtos[i].Extra1.Linha2,56)+
+                   RFill(Produtos[i].Extra1.Linha3,56)+
+                   RFill(Produtos[i].Extra1.Linha4,56)+
+                   RFill(Produtos[i].Extra1.Linha5,56);
+          if (stlExtra1.IndexOf(AExtra1)<0) then
+           stlExtra1.Add(AExtra1);
+        end;
+        if (Produtos[i].Extra2.Codigo>0) then begin
+          AExtra2:=LFIll(Produtos[i].Extra2.Codigo,4)+
+                   RFill(Produtos[i].Extra2.Observacao,100)+
+                   RFill(Produtos[i].Extra2.Linha1,56)+
+                   RFill(Produtos[i].Extra2.Linha2,56)+
+                   RFill(Produtos[i].Extra2.Linha3,56)+
+                   RFill(Produtos[i].Extra2.Linha4,56)+
+                   RFill(Produtos[i].Extra2.Linha5,56);
+          if (stlExtra2.IndexOf(AExtra2)<0) then
+           stlExtra2.Add(AExtra2);
+        end;
+        if (Produtos[i].Setor.Codigo > 0) then begin
+          ASetor:=LFIll(Produtos[i].Setor.Codigo, 2) + 
+                  RFIll(Produtos[i].Setor.Descricao, 40);
+         if (stlSetor.IndexOf(ASetor) < 0) then
+          stlSetor.Add(ASetor);
+        end;
+      end;
+      Progresso(Format('Gerando produto %6.6d %s', [Produtos[i].Codigo, Produtos[i].Descricao]), i, Total);
+    end;
+    if LTXTeclas.Count > 0 then
+      stlTeclado.Text := LTXTeclas.Text + stlTeclado.Text;
+  finally
+    LTXTeclas.Free;
+  end;
+end;
+
+procedure TACBrCargaBal.PreencherTriunfoRdc429(stlArquivo, stlNutricional,
+  stlReceita, stlTara, stlFornecedor, stlFracionador, stlConservacao, stlSetor,
+  stlTeclado, stlExtra1, stlExtra2: TStringList; Versao: Integer);
+var i, Total : Integer;
+    ANutri, AReceita, ATara, AFornecedor, AFracionador, AConservacao, ASetor, AExtra1, AExtra2: string;
+    LTXTeclas:TStringList;
+begin
+  Total:=Produtos.Count;
+  LTXTeclas:=TStringList.Create;
+  try
+    for i:=0 to Total-1 do begin
+      if Versao=4 then begin
+        // ITENSMGV.TXT - VERSÃO 4
+        stlArquivo.Add(LFIll(Produtos[i].Setor.Codigo, 2) +
+                       GetTipoProdutoToledo(Produtos[i].Tipo) +
+                       LFIll(Produtos[i].Codigo, 6) +
+                       LFIll(Produtos[i].ValorVenda, 6, 2) +
+                       LFIll(Produtos[i].Validade, 3) +
+                       RFIll(Produtos[i].Descricao, 50) +
+                       LFIll(Produtos[i].ObterCodigoInfoExtra(modToledoMGV6), 6)+ // codigo inf extra
+                       LFIll('0', 4)+ // codigo imagem
+                       LFIll(Produtos[i].Nutricional.Codigo,6)+ // codigo inf nutricional
+                       RFill(IntToStr(Produtos[i].ImpValidade), 1)+ // imprime data de validade
+                       RFill(IntToStr(Produtos[i].ImpEmbalagem), 1)+ // imprime data embalagem
+                       LFIll(Produtos[i].CodigoFornecedor, 4)+ // codigo fornecedor
+                       //LFIll('0', 4)+ // codigo fornecedor
+                       lFill(Produtos[i].Lote, 12)+ // lote
+                       lFill('0', 11)+ // codigo especial
+                       LFIll('0', 1)+ // versao do preco
+                       LFIll('0', 4)+ // codigo do som
+                       LFIll(IntToStr(Produtos[i].CodigoTara),4)+ // codigo da tara
+                       //LFIll('0', 4)+ // codigo da tara
+                       LFIll(Produtos[i].CodigoFracionador, 4)+ // codigo da fracionador
+                       LFIll(Produtos[i].CodigoExtra1, 4)+ // Código do Campo Extra 1
+                       LFIll(Produtos[i].CodigoExtra2, 4)+ // Código do Campo Extra 2
+                       LFIll(Produtos[i].CodigoConservacao, 4)+ // Código da Conservação
+                       LFIll(Produtos[i].EAN13Fornecedor, 12) // EAN-13, quando utilizado Tipo de Produto EAN-13
+                       );
+        //TXTECLAS.TXT
+        if Produtos[i].Teclado.Tecla > 0 then begin
+          if LTXTeclas.IndexOf('OBS'+LFill(Produtos[i].Teclado.Codigo_Teclado, 2)+RFIll('TECLADO '+IntToStr(Produtos[i].Teclado.Codigo_Teclado), 100)) < 0 then
+            LTXTeclas.Add('OBS'+LFill(Produtos[i].Teclado.Codigo_Teclado, 2)+RFIll('TECLADO '+IntToStr(Produtos[i].Teclado.Codigo_Teclado), 100));
+          stlTeclado.Add(LFill(Produtos[i].Teclado.Codigo_Teclado, 2) +
+                         LFill(Produtos[i].Teclado.Pagina_Teclado, 1) +
+                         LFIll(Produtos[i].Teclado.Tecla, 2) +
+                         LFIll(Produtos[i].Codigo, 6) +
+                         '0' +
+                         RFIll(Produtos[i].Descricao, 24) +
+                         RFIll('', 255));
+        end;
+        if (Length(Produtos[i].InformacaoExtra.Receita) > 2) then begin
+        // receita
+          AReceita := LFIll(Produtos[i].ObterCodigoInfoExtra(modToledoMGV6), 6) +
+                      RFill(Produtos[i].InformacaoExtra.Observacao, 100) +
+                      RFill(Produtos[i].InformacaoExtra.Receita, 840);
+          if (stlReceita.IndexOf(AReceita) < 0) then
+            stlReceita.Add(AReceita);
+        end;
+        if (Produtos[i].Nutricional.Codigo > 0) then begin
+          ANutri:='N'+
+                  LFIll(Produtos[i].Nutricional.Codigo, 6) +
+                  '0' +
+                  LFIll(Produtos[i].Nutricional.Qtd, 3) +
+                  GetNutriUndPorcaoToledo(Produtos[i].Nutricional.UndPorcao) +
+                  LFIll(Produtos[i].Nutricional.PartInteira, 2) +
+                  GetNutriPartDecimalToledo(Produtos[i].Nutricional.PartDecimal) +
+                  GetNutriMedCaseiraToledo(Produtos[i].Nutricional.MedCaseira) +
+                  LFIll(Produtos[i].Nutricional.ValorEnergetico, 4) +
+                  LFIll(Produtos[i].Nutricional.Carboidrato, 4, 1) +
+                  LFIll(Produtos[i].Nutricional.Proteina, 3, 1) +
+                  LFIll(Produtos[i].Nutricional.GorduraTotal, 3, 1) +
+                  LFIll(Produtos[i].Nutricional.GorduraSaturada, 3, 1) +
+                  LFIll(Produtos[i].Nutricional.GorduraTrans, 3, 1) +
+                  LFIll(Produtos[i].Nutricional.Fibra, 3, 1) +
+                  LFIll(Produtos[i].Nutricional.Sodio, 5, 1)+
+                //  LFIll('0',4)+ isso impede a importação na triunfo
+                  '|'+
+                  LFILL(Produtos[i].Nutricional.QtdeAutomaticaPorcao429)+
+                  LFIll(Produtos[i].Nutricional.QtdePorcEmb429,3)+
+                  LFIll(Produtos[i].Nutricional.QtdePorcao429,3)+
+                  GetNutriUnidPorcaoToledo429(Produtos[i].Nutricional.UndPorcao429)+
+                  LFIll(Produtos[i].Nutricional.PartIntMedidaCaseira429,2)+
+                  GetNutriPartDecimalToledo429(Produtos[i].Nutricional.PartDecMedidaCaseira429)+
+                  GetNutriMedCaseiraToledo429(Produtos[i].Nutricional.MedCaseira429)+
+                  LFIll(Produtos[i].Nutricional.ValorEnergetico429,4)+
+                  LFIll(Produtos[i].Nutricional.Carboidrato429,4,1)+
+                  LFIll(Produtos[i].Nutricional.AcucaresTotais429,3,1)+
+                  LFIll(Produtos[i].Nutricional.AcucaresAdicionados429,3,1)+
+                  LFIll(Produtos[i].Nutricional.Proteinas429,3,1)+
+                  LFIll(Produtos[i].Nutricional.GordurasTotais429,3,1)+
+                  LFIll(Produtos[i].Nutricional.GordurasSaturadas429,3,1)+
+                  LFIll(Produtos[i].Nutricional.GordurasTrans429,3,1)+
+                  LFIll(Produtos[i].Nutricional.FibraAlimentar429,3,1)+
+                  LFIll(Produtos[i].Nutricional.Sodio429,5,1)+
+                  LFIll(Produtos[i].Nutricional.AltoAcucar429,1)+
+                  LFIll(Produtos[i].Nutricional.AltoGordura429,1)+
+                  LFIll(Produtos[i].Nutricional.AltoSodio429,1)+
+                  LFIll(Produtos[i].Nutricional.Lactose429,5,1)+
                   LFIll(Produtos[i].Nutricional.Galactose429,5,1);
          if (stlNutricional.IndexOf(ANutri) < 0) then
           stlNutricional.Add(ANutri);
@@ -1828,7 +2098,7 @@ begin
            stlExtra2.Add(AExtra2);
         end;
         if (Produtos[i].Setor.Codigo > 0) then begin
-          ASetor:=LFIll(Produtos[i].Setor.Codigo, 2) + 
+          ASetor:=LFIll(Produtos[i].Setor.Codigo, 2) +
                   RFIll(Produtos[i].Setor.Descricao, 40);
          if (stlSetor.IndexOf(ASetor) < 0) then
           stlSetor.Add(ASetor);
@@ -2128,6 +2398,7 @@ begin
       modToledoMGV5 : PreencherToledo(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, Teclado, Extra1, Extra2, 2);
       modToledoMGV6 : PreencherToledo(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, Teclado, Extra1, Extra2, 3);
       modToledoMGV7 : PreencherToledoMGV7(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, Teclado, Extra1, Extra2, 4);
+      modTriunfoRdc429: PreencherTriunfoRdc429(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, Teclado, Extra1, Extra2, 4);
       modUranoURF32 : PreencherUranoURF32(Produto, Nutricional, Receita, RelacaoProdutoNutricional, RelacaoProdutoReceita);
       modRamuza     : PreencherRamuza(Produto);
       modToledoMGV5Ver1 : PreencherToledo(Produto, Nutricional, Receita, Tara, Fornecedor, Fracionador, Conservacao, Setor, nil, nil, nil, 1);
@@ -2262,6 +2533,7 @@ begin
    modToledoMGV5 : result := 'Toledo MGV5';
    modToledoMGV6 : result := 'Toledo MGV6';
    modToledoMGV7 : result := 'Toledo MGV7';
+   modTriunfoRdc429: result:= 'Triunfo MGV5 Ver2 RDC429';
    modUranoURF32 : result := 'Urano URF32';
    modRamuza     : result := 'Ramuza';
  end;

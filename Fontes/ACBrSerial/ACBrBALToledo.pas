@@ -37,16 +37,16 @@ interface
 
 uses
   Classes,
-  ACBrBALClass
+  ACBrBALSelfCheckout
   {$IFDEF NEXTGEN}
    ,ACBrBase
   {$ENDIF};
-  
+
 type
 
   { TACBrBALToledo }
 
-  TACBrBALToledo = class(TACBrBALClass)
+  TACBrBALToledo = class(TACBrBALSelfCheckout)
   private
     fpProtocolo: AnsiString;
     fpDecimais: Integer;
@@ -62,9 +62,7 @@ type
     function InterpretarProtocoloP03(const aResposta: AnsiString): AnsiString;
   public
     constructor Create(AOwner: TComponent);
-
     procedure LeSerial( MillisecTimeOut : Integer = 500) ; override;
-
     function InterpretarRepostaPeso(const aResposta: AnsiString): Double; override;
     function EnviarPrecoKg(const aValor: Currency; aMillisecTimeOut: Integer = 3000): Boolean; override;
   end;
@@ -105,6 +103,12 @@ function TACBrBALToledo.ProtocoloP03Detectado(const  wPosIni:Integer; const aRes
 var
   l_posini, l_posfim: Integer;
 begin
+  if (aResposta = EmptyStr) then
+  begin
+    Result := False;
+    Exit;
+  end;
+
   // detecta o padrão p03 na string.
   //                   1     2      3    4    567890   123456    7    8 (8 é opcional)
   // Protocolo P03 = [STX] [SWA] [SWB] [SWC] [IIIIII] [TTTTTT] [CR] [CS]
@@ -338,7 +342,7 @@ begin
 
   try
     fpUltimaResposta := fpDevice.LeString(MillisecTimeOut);
-    GravaLog(' - ' + FormatDateTime('hh:nn:ss:zzz', Now) + ' RX <- ' + fpUltimaResposta);
+    GravarLog(' - ' + FormatDateTime('hh:nn:ss:zzz', Now) + ' RX <- ' + fpUltimaResposta);
 
     fpUltimoPesoLido := InterpretarRepostaPeso(fpUltimaResposta);
   except
@@ -346,8 +350,8 @@ begin
     fpUltimoPesoLido := -9;
   end;
 
-  GravaLog('              UltimoPesoLido: ' + FloatToStr(fpUltimoPesoLido) +
-           ' - Resposta: ' + fpUltimaResposta + ' - Protocolo: ' + fpProtocolo);
+  GravarLog('              UltimoPesoLido: ' + FloatToStr(fpUltimoPesoLido) +
+            ' - Resposta: ' + fpUltimaResposta + ' - Protocolo: ' + fpProtocolo);
 end;
 
 function TACBrBALToledo.InterpretarRepostaPeso(const aResposta: AnsiString): Double;
@@ -356,6 +360,9 @@ var
   wResposta: AnsiString;
 begin
   Result  := 0;
+
+  if (aResposta = EmptyStr) then Exit;
+
   wPosIni := PosLast(STX, aResposta);
 
   if ProtocoloEthDetectado(wPosIni, aResposta) then
@@ -370,7 +377,10 @@ begin
     //protocolo P05
     wResposta := InterpretarProtocoloC(aResposta);
 
-  if  (aResposta = EmptyStr) then Exit;
+  { Convertendo novos formatos de retorno para balanças com pesagem maior que 30 kg}
+  wResposta := CorrigirRespostaPeso(wResposta);
+
+  if  (wResposta = EmptyStr) then Exit;
 
   { Ajustando o separador de Decimal corretamente }
   wResposta := StringReplace(wResposta, '.', DecimalSeparator, [rfReplaceAll]);
@@ -387,6 +397,8 @@ begin
       'I': Result := -1;   { Instavel }
       'N': Result := -2;   { Peso Negativo }
       'S': Result := -10;  { Sobrecarga de Peso }
+      'C': Result := -11;  { Indica peso em captura inicial de zero (dispositivo não está pronta para pesar) }
+      'E': Result := -12;  { indica erro de calibração. }
     else
       Result := 0;
     end;
@@ -401,7 +413,7 @@ begin
   s := PadLeft(FloatToIntStr(aValor), 6, '0');
   cmd := STX + s + ETX;
 
-  GravaLog(' - ' + FormatDateTime('hh:nn:ss:zzz', Now) + ' TX -> ' + cmd);
+  GravarLog(' - ' + FormatDateTime('hh:nn:ss:zzz', Now) + ' TX -> ' + cmd);
 
   fpDevice.Limpar;
   fpDevice.EnviaString(cmd);

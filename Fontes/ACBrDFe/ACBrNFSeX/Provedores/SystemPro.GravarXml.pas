@@ -72,6 +72,10 @@ begin
   NrOcorrValorTTS := 0;
   NrOcorrQuantDiarias := 0;
 
+  GerarTagRps := False;
+
+  if FpAOwner.ConfigGeral.Params.TemParametro('GerarGrupoRps') then
+    GerarTagRps := True;
 end;
 
 end.

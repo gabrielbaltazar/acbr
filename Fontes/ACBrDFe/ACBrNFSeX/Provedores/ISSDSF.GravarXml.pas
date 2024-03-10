@@ -39,8 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils, synacode,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml;
 
 type
   { TNFSeW_ISSDSF }
@@ -63,7 +62,9 @@ implementation
 
 uses
   ACBrUtil.Strings, ACBrUtil.Math,
-  ACBrDFeUtil;
+  ACBrDFeUtil,
+  ACBrNFSeXConsts,
+  ACBrNFSeXConversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -98,13 +99,13 @@ begin
     Result[i].AppendChild(AddNode(tcStr, '#', 'TipoDeducao', 0, 30, 1,
                                                              sTipoDeducao, ''));
 
-    Result[i].AppendChild(AddNode(tcStr, '#', 'CPFCNPJReferencia', 0, 14, 1,
+    Result[i].AppendChild(AddNode(tcStr, '#', 'CPFCNPJReferencia', 0, 14, 0,
               OnlyNumber(NFSe.Servico.Deducao.Items[i].CpfCnpjReferencia), ''));
 
-    Result[i].AppendChild(AddNode(tcStr, '#', 'NumeroNFReferencia', 0, 14, 1,
+    Result[i].AppendChild(AddNode(tcStr, '#', 'NumeroNFReferencia', 0, 10, 0,
                          NFSe.Servico.Deducao.Items[i].NumeroNFReferencia, ''));
 
-    Result[i].AppendChild(AddNode(tcDe2, '#', 'ValorTotalReferencia', 0, 18, 1,
+    Result[i].AppendChild(AddNode(tcDe2, '#', 'ValorTotalReferencia', 0, 18, 0,
                        NFSe.Servico.Deducao.Items[i].ValorTotalReferencia, ''));
 
     Result[i].AppendChild(AddNode(tcDe2, '#', 'PercentualDeduzir', 0, 18, 1,

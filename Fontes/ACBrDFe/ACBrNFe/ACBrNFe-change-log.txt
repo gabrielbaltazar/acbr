@@ -44,6 +44,221 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+06/03/2024
+-- ACBrNFeNotasFiscais --
+[*] Alteração no nome da diretiva DFE_ACBR_LIBXML2 para USE_ACBr_XMLDOCUMENT.
+  Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Ajustes para contemplar a NT 2019/001 versão 1.60/1.61 - novos campos.
+  Por: Italo Giurizzato Junior
+
+02/03/2024
+-- ACBrNFeXmlWriter --
+[*] Corrigido o tipo de conversão para a tag: cNF.
+  Por: Italo Giurizzato Junior
+
+28/02/2024
+-- ACBrNFeWebServices --
+[*] Em algumas funções TratarResposta o ParseText estava com mais de 1 parâmetro,
+    foi alterado deixando somente o primeiro.
+-- ACBrNFeXmlReader --
+[-] Realizado diversas alterações e correções pois não estava compilando.
+-- pcnConversaoNFe --
+[*] Refactoring nas funções de conversão.
+-- pcnNFeR --
+[-] Imposto uma condição para a leitura da tag motRedAdRem, caso contrario vai
+    ocorrer erro na função de conversão quando a tag não esta presente no XML.
+  Por: Italo Giurizzato Junior
+
+23/02/2024
+-- ACBrNotasFiscais --
+[*] Altera a leitura da informação do tBand na LoadFromIni para pegar o valor vazio ao invés de 99.
+  Por: Diego Folieni/ Antonio Carlos Junior
+
+22/02/2024
+-- pcnNFe, ACBrNFeXmlWriter, pcnNFeW --
+[-] Ajuste no valor padrão e geração da tag "indDeduzDeson" no XML para evitar erro de validação. (NT 2023/004)
+  Por: BigWings
+
+21/02/2024
+-- Diversos --
+[*] Alterações em várias units para atender a NT 2023/004 versão 1.10
+  Por: Italo Giurizzato Junior
+
+13/02/2024
+-- ACBrNFeWebServices --
+[*] Refactoring visando a utilizar as units: ACBrDFeComum.ConsStatServ e 
+    ACBrDFeComum.RetConsStatServ.
+  Por: Italo Giurizzato Junior
+
+12/02/2024
+-- ACBrNFeServicos --
+[+] Incluída as URLs de produção e homologação do ConsultaCadastro versão 4
+    de SP.
+-- ACBrNFeWebServices --
+[*] Refactoring visando a utilizar as units: ACBrDFeComum.ConsCad e 
+    ACBrDFeComum.RetConsCad.
+  Por: Italo Giurizzato Junior
+
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+06/02/2024
+-- ACBrNFeWebServices --
+[*] Ajuste visando montar a lista de arquivos baixados pelo DistribuicaoDFe
+    com o path + nome do arquivo.
+  Por: Diogo Loff
+
+05/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnConsts.
+  Por: Italo Giurizzato Junior
+
+15/12/2023
+--- ACBrDANFCeFortesFr,ACBrDANFCeFortesFrA4  ---
+[*]TK-4814 Substituida a função para formatação de DataHora do NFCe, deixado como no modelo NFe
+https://www.projetoacbr.com.br/forum/topic/75361-mascara-de-impress%C3%A3o-da-data-na-nfc-e-na-acbrlib-usando-em-api-com-iis-em-projeto-c/?_rid=127195
+Por: Daniel Morais
+
+11/12/2023
+-- ACBrNFeNotasFiscais --
+[*] Ajustes no método "ValidarRegrasdeNegocios"
+  - Adicionadas validações para as rejeições 629 e 630 que trata da multiplicação do valor unitário pela quantidade de itens
+  - Correção para a validação da rejeição 610, para considerar como válido o valor total da nota abatendo ou não o ICMS desonerado
+  Por: BigWings
+
+08/12/2023
+-- ACBrNFeNotasFiscais --
+[*] Ajuste no ValidarRegrasdeNegocios, para a rejeição 425, incluido o CFOP: 5949.
+    por: Suporte Anexo tecnologia
+
+30/11/2023
+-- ACBrNFeDANFeRLSimplificado --
+[*] Adiciona nova banda visando evitar que a descrição dos produtos sobreponham a linha de baixo.
+   Por: Victor H Gonzales - Pandaaa / Diego Folieni 
+
+16/11/2023
+-- Diversos --
+[*] Altera a lógica da aplicação da propriedade ExibeICMSDesoneradoComoDesconto e adiciona em outros impressos da NFC-e além do Fast.
+    Por: Victor H Gonzales - Pandaaa / Diego Folieni
+
+31/10/2023
+-- ACBrNFeNotasFiscais --
+[*] Ajuste no ValidarRegrasdeNegocios, para as rejeições 383 e 766 para o modelo 65.
+    por: Alan Lucas
+
+18/10/2023
+-- ACBrNFeDANFeRLPaisagem, ACBrNFeDANFeRLRetrao --
+[*] Altera a forma como é formatado o Nº da NFe visando padronização com o Fast e o MOC.
+    Por: Diego Folieni
+
+06/10/2023
+-- ACBrNFeNotasFiscais --
+[*] Ajuste no ValidarRegrasdeNegocios, pois estava gerando indevidadmente um alerta
+    ao checar o valor da nota (vNT).
+    por: Italo Giurizzato Junior
+
+03/10/2023
+-- ACBrNFeNotasFiscais --
+[*] Ajuste para entender o Tipo SAT no grupo NFRef no arquivo INI para poder referenciar SAT.
+   Por: Diego Folieni
+
+12/09/2023
+-- ACBrNFeNotasFiscais --
+[*] Melhorias na função ValidarRegrasdeNegocios, pois estava gerando indevidamente um
+    alerta de erro ao comparar a UF da Retirada ou Entrega com o código do municipio,
+    quando a UF era 'EX'.
+    por: Italo Giurizzato Junior
+-- ACBrNFeWebServices --
+[*] Alterações visando atender a versão 1.00 da NT 2023/002 que elimina o envio
+    em lote de NFC-e a partir de 04/09/2023 em produção.
+    por: Italo Giurizzato Junior
+
+06/09/2023
+[*] Altera a validação para geração do grupo IPI no arquivo INI.
+  Por: Diego Folieni
+
+30/06/2023
+[*] TK-4041 Aumenta o tamanho maximo do campo pDif visando evitar problemas com valores longos.
+  Por: Altamogiana / Rev: Alexandre de Paula
+
+14/06/2023
+[*]TK-4064 Remoção da obrigação do card e cAut e modificação da forma que os meios de pagamento são impressos, utilizando agora o paramento DescricaoPagamento e o conteudo do XML
+  por : Victor H Gonzales - Pandaaa
+
+12/05/2023
+[-]TK-3928 Tratamento de exception quando ler meio de pagamento no danfce
+  por: Victor H Gonzales - Pandaaa
+
+19/04/2023
+-- Diversos --
+[*] Alterações visando atender a versão 1.20 da NT 2023/001 onde foi incluído novos campos.
+    Observação: Essas alterações só vão ser validadas no ambiente de homologação 
+                a partir de 20/04/2023 e no de produção: 01/05/2023.
+    por: Italo Giurizzato Junior
+
+29/03/2023
+-- ACBrNFeXmlReader, ACBrNFeXmlWriter --
+[-] Alterações visando atender a NT 2020/006 versão 1.20.
+  Por: BigWings
+
+28/03/2023
+-- ACBrNFeDANFeReport, ACBrNFeDANFEFRDM, ACBrNFeDANFeRL, ACBrNFeDANFeLazReport --
+[*] Ajustes para impressão do CST no DANFE, no regime Simples Nacional.
+  Por: BigWings
+
+23/03/2023
+-- ACBrNFeXmlWriter, pcnNFeW --
+[*] Ajustes para atender a versão 1.10 da NT 2023/001, permitindo informar CST's monofásicos no regime Simples Nacional e ajustando as casas decimais das tags "pBio" e "pOrig", de acordo com o valor da tag, para atender ao Schema.
+  Por: BigWings
+
+15/03/2023
+-- Diversos --
+[*] Alterações visando atender a versão 1.10 da NT 2023/001 onde foi incluído novos campos.
+    Observação: Essas alterações só vão ser validadas no ambiente de homologação 
+                a partir de 03/03/2023 e no de produção: 30/03/2023.
+    por: Italo Giurizzato Junior
+
+07/03/2023
+-- Diversos --
+[*] Correção na implementação dos novos campos, foram implementados dentro do 
+    grupo <encerrante> sendo que o correto é no mesmo nível do grupo <encerrante>.
+    por: Italo Giurizzato Junior
+
+03/03/2023
+-- ACBrNFeServicos --
+[*] Atualização das URL de Consulta via QR-Code de MG Produção e Homologação.
+   Por: Italo Giurizzato Junior
+
+01/03/2023
+-- Diversos --
+[*] Alterações visando atender a NT 2023/001 onde foi incluído novos campos.
+    Observação: Essas alterações só vão ser validadas no ambiente de homologação 
+                a partir de 03/03/2023 e no de produção: 30/03/2023.
+    por: Italo Giurizzato Junior
+
+27/01/2023
+-- Diversos --
+[*] Alterações visando atender a NT 2022/003 onde foi alterado a quantidade de
+    ocorrências de 500 para 999 do grupo NFref e a inclusão da tag refNFeSig que 
+    poderá conter a chave da nota referenciada, mas com o código numérico zerado.
+    Observação: Essas alterações só vão ser validadas no ambiente de homologação 
+                a partir de 07/02/2023 e no de produção: 03/04/2023.
+    por: Italo Giurizzato Junior
+
+25/01/2023
+-- ACBrDFeDANFeReport --
+[-] Correção para o parâmetro "Separar arqs pelo Modelo(NFe/NFCe)" não depender do 
+    parâmetro "Adicionar Literal no nome das pastas".
+    por: Elias César
+
+24/01/2023
+--Diversos--
+[*] TK-3485 ACBrNFe - Verificar a possibilidade de tirar dos impressos(Fast/Fortes) a mensagem fixa AREÁ DA MENSAGEM FISCAL
+ por : Victor H Gonzales - Pandaaa
+
 23/01/2023
 -- Diversos --
 [+] Incluido a propriedade de configuração: ForcarGerarTagRejeicao906 para definir se

@@ -47,7 +47,7 @@ uses
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
    System.Contnrs,
   {$IfEnd}      
-  pcnConversao, pcnSignature, pcnAuxiliar, ACBrBase;
+  pcnConversao, pcnSignature, ACBrBase;
 
 type
 
@@ -650,10 +650,12 @@ type
     FcMP: TpcnCodigoMP;
     FvMP: currency;
     FcAdmC: integer;
+    FcAut: string;
   public
     property cMP: TpcnCodigoMP read FcMP write FcMP;
     property vMP: currency read FvMP write FvMP;
     property cAdmC: integer read FcAdmC write FcAdmC;
+    property cAut: string read FcAut write FcAut;
   end;
 
   { TInfAdic }
@@ -1378,7 +1380,7 @@ begin
   try
     try
       infCFe.versaoDadosEnt := StringToFloatDef(INIRec.ReadString('infCFe','versao',''), infCFe.versaoDadosEnt);
-      Ide.cUF        := INIRec.ReadInteger( 'Identificacao','cUF' ,UFparaCodigo(INIRec.ReadString(  'Emitente','UF', CodigoParaUF(Ide.cUF))));
+      Ide.cUF        := INIRec.ReadInteger( 'Identificacao','cUF' ,UFparaCodigoUF(INIRec.ReadString(  'Emitente','UF', CodigoUFparaUF(Ide.cUF))));
       Ide.cNF        := INIRec.ReadInteger( 'Identificacao','cNF' ,INIRec.ReadInteger( 'Identificacao','Codigo' ,Ide.cNF));
       Ide.modelo     := INIRec.ReadInteger( 'Identificacao','mod' ,INIRec.ReadInteger( 'Identificacao','Modelo' ,Ide.modelo));
       Ide.nserieSAT  := INIRec.ReadInteger( 'Identificacao','nserieSAT'  ,Ide.nserieSAT);
@@ -1622,6 +1624,8 @@ begin
           cMP   := StrToCodigoMP(OK,INIRec.ReadString(sSecao,'cMP',INIRec.ReadString(sSecao,'tpag','01')));
           vMP   := StringToFloatDef( INIRec.ReadString(sSecao,'vMP',INIRec.ReadString(sSecao,'vPag','')) ,0);
           cAdmC := INIRec.ReadInteger(sSecao,'cAdmC',0);
+          if infCFe.versaoDadosEnt >= 0.09  then 
+          	cAut  := INIRec.ReadString(sSecao,'cAut','');
         end;
         Inc(I);
       end;

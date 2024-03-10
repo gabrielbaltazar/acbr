@@ -279,6 +279,7 @@ type
     edtPathPDF: TEdit;
     btnManifDestCiencia: TButton;
     btnManifDestOperNaoRealizada: TButton;
+    btnEventoEPEC: TButton;
 
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
@@ -343,6 +344,7 @@ type
     procedure btnDistrDFePorNSUClick(Sender: TObject);
     procedure btnDistrDFePorChaveClick(Sender: TObject);
     procedure sbPathPDFClick(Sender: TObject);
+    procedure btnEventoEPECClick(Sender: TObject);
   private
     { Private declarations }
     procedure GravarConfiguracao;
@@ -1303,6 +1305,43 @@ begin
 
       orig := oeNacional;
 
+      //Grupo de Tributação do ICMS Monofásico sobre combustíveis.
+      (*
+      CST       := cst02;
+      qBCMono   := 100;
+      adRemICMS := 10;
+      vICMSMono := 10;
+      *)
+      //Grupo de Tributação do ICMS Monofásico sobre combustíveis.
+      (*
+      CST          := cst15;
+      qBCMono      := 100;
+      adRemICMS    := 10;
+      vICMSMono    := 10;
+      qBCMonoReten := 100;
+      adRemICMSReten := 10;
+      vICMSMonoReten := 10;
+      pRedAdRem      := 10;
+      motRedAdRem    := TmotRedAdRem.motTranspColetivo;
+      *)
+      //Grupo de Tributação do ICMS Monofásico sobre combustíveis.
+      (*
+      CST           := cst53;
+      qBCMono       := 100;
+      adRemICMS     := 10;
+      vICMSMonoOp   := 10;
+      pDif          := 10;
+      vICMSMonoDif  := 1;
+      vICMSMono     := 10;
+      *)
+      //Grupo de Tributação do ICMS Monofásico sobre combustíveis.
+      (*
+      CST           := cst61;
+      qBCMonoRet    := 100;
+      adRemICMSRet  := 10;
+      vICMSMonoRet  := 10;
+      *)
+
       if NotaF.NFe.Emit.CRT in [crtSimplesExcessoReceita, crtRegimeNormal] then
       begin
         CST     := cst00;
@@ -2012,6 +2051,7 @@ end;
 procedure TfrmACBrNFe.btnConsCadClick(Sender: TObject);
 var
   UF, Documento: String;
+  i: Integer;
 begin
   UF := '';
   if not(InputQuery('WebServices Consulta Cadastro ', 'UF do Documento a ser Consultado:', UF)) then
@@ -2045,6 +2085,35 @@ begin
   MemoDados.Lines.Add('cStat: ' + IntToStr(ACBrNFe1.WebServices.ConsultaCadastro.cStat));
   MemoDados.Lines.Add('xMotivo: ' + ACBrNFe1.WebServices.ConsultaCadastro.xMotivo);
   MemoDados.Lines.Add('DhCons: ' + DateTimeToStr(ACBrNFe1.WebServices.ConsultaCadastro.DhCons));
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Dados da Empresa:');
+
+  for i := 0 to ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad.Count -1 do
+  begin
+    MemoDados.Lines.Add('IE: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].IE);
+    MemoDados.Lines.Add('CNPJ: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].CNPJ);
+    MemoDados.Lines.Add('CPF: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].CPF);
+    MemoDados.Lines.Add('cSit: ' + IntToStr(ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].cSit));
+    MemoDados.Lines.Add('indCredNFe: ' + IntToStr(ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].indCredNFe));
+    MemoDados.Lines.Add('indCredCTe: ' + IntToStr(ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].indCredCTe));
+    MemoDados.Lines.Add('Nome: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xNome);
+    MemoDados.Lines.Add('Fantasia: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xFant);
+    MemoDados.Lines.Add('Reg. Apuração: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xRegApur);
+    MemoDados.Lines.Add('CNAE: ' + IntToStr(ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].CNAE));
+    MemoDados.Lines.Add('dIniAtiv: ' + DateToStr(ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].dIniAtiv));
+    MemoDados.Lines.Add('dUltSit: ' + DateToStr(ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].dUltSit));
+    MemoDados.Lines.Add('dBaixa: ' + DateToStr(ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].dBaixa));
+    MemoDados.Lines.Add('IEUnica: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].IEUnica);
+    MemoDados.Lines.Add('IEAtual: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].IEAtual);
+
+    MemoDados.Lines.Add('xLgr: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xLgr);
+    MemoDados.Lines.Add('nro: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].nro);
+    MemoDados.Lines.Add('xCpl: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xCpl);
+    MemoDados.Lines.Add('xBairro: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xBairro);
+    MemoDados.Lines.Add('cMun: ' + IntToStr(ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].cMun));
+    MemoDados.Lines.Add('xMun: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xMun);
+    MemoDados.Lines.Add('CEP: ' + IntToStr(ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].CEP));
+  end;
 end;
 
 procedure TfrmACBrNFe.btnConsultarChaveClick(Sender: TObject);
@@ -2481,6 +2550,62 @@ begin
     Evento.Free;
   end;
 
+end;
+
+procedure TfrmACBrNFe.btnEventoEPECClick(Sender: TObject);
+var
+  Chave, idLote, CNPJ, IE, ValorNF, CNPJDest, UFDest, Titulo: string;
+begin
+  Titulo := 'Evento EPEC';
+  Chave := '';
+  if not(InputQuery(Titulo, 'Chave da NF-e', Chave)) then
+     exit;
+  Chave := Trim(OnlyNumber(Chave));
+  idLote := '1';
+  if not(InputQuery(Titulo, 'Identificador de controle do Lote de envio do Evento', idLote)) then
+     exit;
+  CNPJ := copy(Chave,7,14);
+  if not(InputQuery(Titulo, 'CNPJ ou o CPF do autor do Evento', CNPJ)) then
+     exit;
+  IE:='';
+  if not(InputQuery(Titulo, 'Insc. Estadual', IE)) then
+     exit;
+  ValorNF:='';
+  if not(InputQuery(Titulo, 'Valor da Nota', ValorNF)) then
+     exit;
+  CNPJDest := '';
+  if not(InputQuery(Titulo, 'CNPJ ou o CPF do Destinatario', CNPJDest)) then
+     exit;
+  UFDest:='';
+  if not(InputQuery(Titulo, 'UF do Destinatario', UFDest)) then
+     exit;
+
+  ACBrNFe1.EventoNFe.Evento.Clear;
+
+  with ACBrNFe1.EventoNFe.Evento.New do
+  begin
+    infEvento.chNFe := Chave;
+    infEvento.CNPJ   := CNPJ;
+    infEvento.dhEvento := now;
+    infEvento.tpEvento := teEPECNFe;
+
+    infEvento.detEvento.cOrgaoAutor := ACBrNFe1.Configuracoes.WebServices.UFCodigo;
+    infEvento.detEvento.tpAutor := taEmpresaEmitente;
+    infEvento.detEvento.verAplic := '1.00';
+    infEvento.detEvento.dhEmi := now;
+    infEvento.detEvento.tpNF := tnSaida;
+    infEvento.detEvento.IE := IE;
+    infEvento.detEvento.vNF := StrToFloatDef(ValorNF, 0);
+
+    InfEvento.detEvento.dest.UF := UFDest;
+    InfEvento.detEvento.dest.CNPJCPF := CNPJDest;
+  end;
+
+  ACBrNFe1.EnviarEvento(StrToInt(idLote));
+
+  MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
+  memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
+  LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
 end;
 
 procedure TfrmACBrNFe.btnGerarPDFClick(Sender: TObject);
@@ -3767,7 +3892,7 @@ begin
   cbSSLLib.Items.Clear;
   for T := Low(TSSLLib) to High(TSSLLib) do
     cbSSLLib.Items.Add( GetEnumName(TypeInfo(TSSLLib), integer(T) ) );
-  cbSSLLib.ItemIndex := 0;
+  cbSSLLib.ItemIndex := 4;
 
   cbCryptLib.Items.Clear;
   for U := Low(TSSLCryptLib) to High(TSSLCryptLib) do
@@ -3787,7 +3912,7 @@ begin
   cbSSLType.Items.Clear;
   for Y := Low(TSSLType) to High(TSSLType) do
     cbSSLType.Items.Add( GetEnumName(TypeInfo(TSSLType), integer(Y) ) );
-  cbSSLType.ItemIndex := 0;
+  cbSSLType.ItemIndex := 5;
 
   cbFormaEmissao.Items.Clear;
   for I := Low(TpcnTipoEmissao) to High(TpcnTipoEmissao) do
@@ -3965,10 +4090,11 @@ begin
 
   Ini := TIniFile.Create(IniFile);
   try
-    cbSSLLib.ItemIndex     := Ini.ReadInteger('Certificado', 'SSLLib',     0);
+    cbSSLLib.ItemIndex     := Ini.ReadInteger('Certificado', 'SSLLib',     4);
     cbCryptLib.ItemIndex   := Ini.ReadInteger('Certificado', 'CryptLib',   0);
     cbHttpLib.ItemIndex    := Ini.ReadInteger('Certificado', 'HttpLib',    0);
     cbXmlSignLib.ItemIndex := Ini.ReadInteger('Certificado', 'XmlSignLib', 0);
+    cbSSLLibChange(cbSSLLib);
     edtURLPFX.Text         := Ini.ReadString( 'Certificado', 'URL',        '');
     edtCaminho.Text        := Ini.ReadString( 'Certificado', 'Caminho',    '');
     edtSenha.Text          := Ini.ReadString( 'Certificado', 'Senha',      '');
@@ -3998,7 +4124,7 @@ begin
     edtTentativas.Text    := Ini.ReadString( 'WebService', 'Tentativas', '5');
     edtIntervalo.Text     := Ini.ReadString( 'WebService', 'Intervalo',  '0');
     seTimeOut.Value       := Ini.ReadInteger('WebService', 'TimeOut',    5000);
-    cbSSLType.ItemIndex   := Ini.ReadInteger('WebService', 'SSLType',    0);
+    cbSSLType.ItemIndex   := Ini.ReadInteger('WebService', 'SSLType',    5);
 
     edtProxyHost.Text  := Ini.ReadString('Proxy', 'Host',  '');
     edtProxyPorta.Text := Ini.ReadString('Proxy', 'Porta', '');
@@ -4219,6 +4345,7 @@ begin
   ACBrPosPrinter1.Modelo         := TACBrPosPrinterModelo(cbxModeloPosPrinter.ItemIndex);
   ACBrPosPrinter1.PaginaDeCodigo := TACBrPosPaginaCodigo(cbxPagCodigo.ItemIndex);
   ACBrPosPrinter1.Porta          := cbxPorta.Text;
+  ACBrPosPrinter1.Porta          := 'C:\Boss\CostaoTst.txt';
 
   ACBrPosPrinter1.ColunasFonteNormal := seColunas.Value;
   ACBrPosPrinter1.LinhasEntreCupons  := seLinhasPular.Value;

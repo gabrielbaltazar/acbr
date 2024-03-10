@@ -37,7 +37,14 @@ unit ACBrBoletoW_BancoBrasil;
 interface
 
 uses
-  Classes, SysUtils, ACBrBoletoWS, pcnConversao, pcnGerador, ACBrBoletoConversao, ACBrBoleto;
+  Classes,
+  SysUtils,
+  ACBrBoletoWS,
+  pcnConversao,
+  pcnGerador,
+  ACBrBoletoConversao,
+  ACBrBoleto,
+  ACBrBoletoWS.SOAP;
 
 type
 
@@ -59,6 +66,7 @@ type
     procedure GerarHeader; override;
     procedure GerarDados; override;
 
+    function DefinirSOAPAtributtes:string; override;
     procedure GerarRequisicao;
 
     function PrefixTag(AValue: String): String;
@@ -86,7 +94,9 @@ const
 implementation
 
 uses
-  synacode, ACBrBoletoPcnConsts, strutils, pcnConsts, ACBrUtil.Strings,
+  synacode, ACBrBoletoPcnConsts, strutils,
+  ACBrDFeConsts,
+  ACBrUtil.Strings,
   ACBrUtil.XMLHTML, ACBrUtil.Base;
 
 { TBoletoW_BancoBrasil }
@@ -138,6 +148,11 @@ begin
   FPSoapAction := Servico;
 end;
 
+function TBoletoW_BancoBrasil.DefinirSOAPAtributtes: string;
+begin
+  Result := C_SOAP_ATTRIBUTTES;
+end;
+
 procedure TBoletoW_BancoBrasil.DefinirRootElement;
 begin
   FPRootElement:= '';
@@ -155,6 +170,11 @@ begin
   result:= '';
   if Assigned(OAuth) then
   begin
+    OAuth.GrantType := 'client_credentials';
+    OAuth.ParamsOAuth := C_GRANT_TYPE
+                       + '=' + OAuth.GrantType
+                       + '&' + C_SCOPE
+                       + '=' + OAuth.Scope;
     if OAuth.GerarToken then
       result := OAuth.Token
     else
@@ -195,7 +215,10 @@ begin
     Gerador.wCampo(tcStr, '#01', PrefixTag('numeroConvenio'        ), 1, 9, 1, Boleto.Cedente.Convenio , DSC_CONVENIO);
     Gerador.wCampo(tcStr, '#02', PrefixTag('numeroCarteira'        ), 1, 4, 1, Carteira , DSC_CARTEIRA);
     Gerador.wCampo(tcStr, '#03', PrefixTag('numeroVariacaoCarteira'), 1, 4, 1, Boleto.Cedente.Modalidade , DSC_VARIACAO_CARTEIRA);
-    Gerador.wCampo(tcStr, '#04', PrefixTag('codigoModalidadeTitulo'), 1, 1, 1, '1' , DSC_CODIGO_MODALIDADE);
+    if Boleto.Cedente.CaracTitulo = tcVinculada then
+      Gerador.wCampo(tcStr, '#04', PrefixTag('codigoModalidadeTitulo'), 1, 1, 1, '4' , DSC_CODIGO_MODALIDADE)
+    else
+      Gerador.wCampo(tcStr, '#04', PrefixTag('codigoModalidadeTitulo'), 1, 1, 1, '1' , DSC_CODIGO_MODALIDADE);
     Gerador.wCampo(tcStr, '#05', PrefixTag('dataEmissaoTitulo'     ), 10, 10, 1, FormatDateTime('dd.mm.yyyy', DataDocumento), DSC_DATA_DOCUMENTO);
     Gerador.wCampo(tcStr, '#06', PrefixTag('dataVencimentoTitulo'  ), 10, 10, 1, FormatDateTime('dd.mm.yyyy', Vencimento), DSC_DATA_VENCIMENTO);
     Gerador.wCampo(tcDe2, '#07', PrefixTag('valorOriginalTitulo'   ), 01, 15, 1, ValorDocumento, DSC_VALOR_DOCUMENTO);

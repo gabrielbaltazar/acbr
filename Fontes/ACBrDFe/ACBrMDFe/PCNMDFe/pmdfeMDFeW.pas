@@ -38,11 +38,12 @@ interface
 
 uses
   SysUtils, Classes,
-  pcnAuxiliar, pcnConversao, pcnGerador,
+  pcnConversao, pcnGerador,
   pmdfeConversaoMDFe, pmdfeMDFe,
   ACBrUtil.Strings,
   ACBrUtil.Base,
-  pcnConsts, pmdfeConsts, ACBrDFeUtil;
+  ACBrUtil.DateTime,
+  pmdfeConsts, ACBrDFeUtil;
 
 type
   TGeradorOpcoes = class;
@@ -120,6 +121,11 @@ type
   end;
 
 implementation
+
+uses
+  StrUtils,
+  Math,
+  ACBrDFeConsts;
 
 { TMDFeW }
 
@@ -221,7 +227,7 @@ begin
                '<cStat>'+IntToStr(MDFe.procMDFe.cStat)+'</cStat>'+
                '<xMotivo>'+MDFe.procMDFe.xMotivo+'</xMotivo>'+
              '</infProt>'+
-             IIF( (MDFe.procMDFe.cMsg > 0) or (MDFe.procMDFe.xMsg <> ''),
+             IfThen( (MDFe.procMDFe.cMsg > 0) or (MDFe.procMDFe.xMsg <> ''),
              '<infFisco>' +
                '<cMsg>' + IntToStr(MDFe.procMDFe.cMsg) + '</cMsg>' +
                '<xMsg>' + MDFe.procMDFe.xMsg + '</xMsg>' +
@@ -282,8 +288,7 @@ begin
   if VersaoDF = ve100 then
     Gerador.wCampo(tcDatHor, '#014', 'dhEmi', 19, 19, 1, MDFe.ide.dhEmi, DSC_DEMI)
   else
-    Gerador.wCampo(tcStr, '#014', 'dhEmi', 25, 25, 1, FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', MDFe.ide.dhEmi) +
-                                                      GetUTC(CodigoParaUF(MDFe.ide.cUF), MDFe.ide.dhEmi), DSC_DEMI);
+    Gerador.wCampo(tcStr, '#014', 'dhEmi', 25, 25, 1, DateTimeWithTimeZone(MDFe.ide.dhEmi, MDFe.ide.cUF), DSC_DEMI);
 
   Gerador.wCampo(tcStr, '#015', 'tpEmis  ', 01, 01, 1, tpEmisToStr(MDFe.Ide.tpEmis), DSC_TPEMIS);
   Gerador.wCampo(tcStr, '#016', 'procEmi ', 01, 01, 1, procEmiToStr(MDFe.Ide.procEmi), DSC_PROCEMI);
@@ -303,8 +308,7 @@ begin
     if VersaoDF = ve100 then
       Gerador.wCampo(tcDatHor, '#024a', 'dhIniViagem', 19, 19, 0, MDFe.ide.dhIniViagem, DSC_DHINIVIAGEM)
     else
-      Gerador.wCampo(tcStr, '#024a', 'dhIniViagem', 25, 25, 0, FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', MDFe.ide.dhIniViagem) +
-                                                               GetUTC(CodigoParaUF(MDFe.ide.cUF), MDFe.ide.dhIniViagem), DSC_DHINIVIAGEM);
+      Gerador.wCampo(tcStr, '#024a', 'dhIniViagem', 25, 25, 0, DateTimeWithTimeZone(MDFe.ide.dhIniViagem, MDFe.ide.cUF), DSC_DHINIVIAGEM);
   end;
 
   if (MDFe.infMDFe.versao >= 3) and (MDFe.ide.indCanalVerde = tiSim) then
@@ -803,8 +807,7 @@ begin
   if VersaoDF = ve100 then
     Gerador.wCampo(tcDatHor, '#04', 'dhTrem', 19, 19, 0, MDFe.ferrov.dhTrem, DSC_DHTREM)
   else
-    Gerador.wCampo(tcStr, '#04', 'dhTrem', 25, 25, 0, FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', MDFe.ferrov.dhTrem) +
-                                                      GetUTC(CodigoParaUF(MDFe.ide.cUF), MDFe.ferrov.dhTrem), DSC_DHTREM);
+    Gerador.wCampo(tcStr, '#04', 'dhTrem', 25, 25, 0, DateTimeWithTimeZone(MDFe.ferrov.dhTrem, MDFe.ide.cUF), DSC_DHTREM);
 
   Gerador.wCampo(tcStr, '#05', 'xOri     ', 01, 03, 1, MDFe.ferrov.xOri, DSC_XORI);
   Gerador.wCampo(tcStr, '#06', 'xDest    ', 01, 03, 1, MDFe.ferrov.xDest, DSC_XDEST);
@@ -859,7 +862,7 @@ begin
            Gerador.wCampo(tcEsp, '#049', 'chCTe      ', 44, 44, 1, OnlyNumber(MDFe.infDoc.infMunDescarga[i].infCTe[j].chCTe), DSC_REFCTE);
            if OnlyNumber(MDFe.infDoc.infMunDescarga[i].infCTe[j].chCTe) <> '' then
             if not ValidarChave(MDFe.infDoc.infMunDescarga[i].infCTe[j].chCTe) then
-           Gerador.wAlerta('#049', 'chCTe', DSC_REFNFE, ERR_MSG_INVALIDO);
+           Gerador.wAlerta('#049', 'chCTe', DSC_REFCTE, ERR_MSG_INVALIDO);
            Gerador.wCampo(tcStr, '#050', 'SegCodBarra', 36, 36, 0, MDFe.infDoc.infMunDescarga[i].infCTe[j].SegCodBarra, DSC_SEGCODBARRA);
 
            if VersaoDF >= ve300 then
@@ -1060,7 +1063,7 @@ begin
            Gerador.wGrupo('infNF', '#060');
            Gerador.wCampoCNPJ('#061', MDFe.infDoc.infMunDescarga[i].infNF[j].CNPJ, CODIGO_BRASIL, True);
            Gerador.wCampo(tcStr, '#062', 'UF   ', 02, 02, 1, MDFe.infDoc.infMunDescarga[i].infNF[j].UF, DSC_IE);
-           Gerador.wCampo(tcStr, '#063', 'nNF  ', 01, 20, 1, MDFe.infDoc.infMunDescarga[i].infNF[j].nNF, DSC_NNF);
+           Gerador.wCampo(tcStr, '#063', 'nNF  ', 01, 20, 1, MDFe.infDoc.infMunDescarga[i].infNF[j].nNF, DSC_NDF);
            Gerador.wCampo(tcInt, '#064', 'serie', 01, 03, 1, MDFe.infDoc.infMunDescarga[i].infNF[j].serie, DSC_SERIE);
            Gerador.wCampo(tcDat, '#065', 'dEmi ', 10, 10, 1, MDFe.infDoc.infMunDescarga[i].infNF[j].dEmi, DSC_DEMI);
            Gerador.wCampo(tcDe2, '#066', 'vNF  ', 01, 15, 1, MDFe.infDoc.infMunDescarga[i].infNF[j].vNF, DSC_VDOC);
@@ -1304,9 +1307,9 @@ var
 begin
   PaisBrasil := cPais = CODIGO_BRASIL;
 
-  cMun := IIf(PaisBrasil, vcMun, CMUN_EXTERIOR);
-  xMun := IIf(PaisBrasil, vxMun, XMUN_EXTERIOR);
-  xUF  := IIf(PaisBrasil, vxUF, UF_EXTERIOR);
+  cMun := IfThen(PaisBrasil, vcMun, CMUN_EXTERIOR);
+  xMun := IfThen(PaisBrasil, vxMun, XMUN_EXTERIOR);
+  xUF  := IfThen(PaisBrasil, vxUF, UF_EXTERIOR);
 
   if FOpcoes.NormatizarMunicipios then
     if ( ( EstaZerado(cMun)) and (xMun <> XMUN_EXTERIOR) ) then

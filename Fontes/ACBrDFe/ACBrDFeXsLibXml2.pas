@@ -96,7 +96,8 @@ type
 
     function Assinar(const ConteudoXML, docElement, infElement: String;
       const SignatureNode: String = ''; const SelectionNamespaces: String = '';
-      const IdSignature: String = ''; const IdAttr: String = ''): String; override;
+      const IdSignature: String = ''; const IdAttr: String = '';
+      const IdSignatureValue: string = ''): String; override;
     function Validar(const ConteudoXML, ArqSchema: String; out MsgErro: String)
       : boolean; override;
     function VerificarAssinatura(const ConteudoXML: String; out MsgErro: String;
@@ -140,7 +141,8 @@ end;
 
 function TDFeSSLXmlSignLibXml2.Assinar(const ConteudoXML, docElement,
   infElement: String; const SignatureNode: String; const SelectionNamespaces: String;
-  const IdSignature: String; const IdAttr: String): String;
+  const IdSignature: String; const IdAttr: String;
+  const IdSignatureValue: string): String;
 var
   aDoc: xmlDocPtr;
   SignNode, XmlNode: xmlNodePtr;
@@ -197,7 +199,8 @@ begin
     // DEBUG
     //WriteToTXT('C:\TEMP\CanonDigest.xml', Canon, False, False, True);
 
-    SignNode := AdicionarNode(aDoc, SignatureElement(URI, True, IdSignature, FpDFeSSL.SSLDgst), docElement);
+    SignNode := AdicionarNode(aDoc, SignatureElement(URI, True, IdSignature,
+                               FpDFeSSL.SSLDgst, IdSignatureValue), docElement);
 
     // gerar o hash
     DigestValue := FpDFeSSL.CalcHash(Canon, FpDFeSSL.SSLDgst, outBase64);
