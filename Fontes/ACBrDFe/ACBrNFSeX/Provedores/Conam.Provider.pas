@@ -121,6 +121,19 @@ begin
     UseCertificateHTTP := False;
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerLogin := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarSituacao := True;
+      ConsultarLote := True;
+      ConsultarRps := True;
+      ConsultarLinkNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   SetXmlNameSpace('');
@@ -194,7 +207,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := xId;
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Description'), tcStr));
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Description'), tcStr);
       AErro.Correcao := '';
     end;
 
@@ -202,7 +215,7 @@ begin
     begin
       AAlerta := Response.Alertas.New;
       AAlerta.Codigo := xId;
-      AAlerta.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Description'), tcStr));
+      AAlerta.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Description'), tcStr);
       AAlerta.Correcao := '';
     end;
   end;
@@ -1288,7 +1301,7 @@ function TACBrNFSeXWebserviceConam.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);

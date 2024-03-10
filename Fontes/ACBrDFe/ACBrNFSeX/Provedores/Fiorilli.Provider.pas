@@ -90,6 +90,8 @@ begin
   ConfigGeral.QuebradeLinha := '\s\n';
   ConfigGeral.ConsultaPorFaixaPreencherNumNfseFinal := true;
 
+  ConfigGeral.Autenticacao.RequerLogin := True;
+
   if ConfigAssinar.Assinaturas = taConfigProvedor then
   begin
     with ConfigAssinar do
@@ -331,15 +333,9 @@ function TACBrNFSeXWebserviceFiorilli200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  {$IFDEF FPC}
-    Result := ACBrStr(Result);
-  {$ELSE}
-    Result := NativeStringToUTF8(Result);
-  {$ENDIF}
-
   Result := StringReplace(Result, '&#xd;', '\s\n', [rfReplaceAll]);
   Result := StringReplace(Result, ''#$A'', '\s\n', [rfReplaceAll]);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);

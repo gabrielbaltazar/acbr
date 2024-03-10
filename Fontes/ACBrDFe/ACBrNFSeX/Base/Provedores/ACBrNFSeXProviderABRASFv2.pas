@@ -143,6 +143,9 @@ type
     procedure GerarMsgDadosConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
     procedure TratarRetornoConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
 
+    function VerificarAlerta(const ACodigo, AMensagem: string): Boolean; virtual;
+    function VerificarErro(const ACodigo, AMensagem: string): Boolean; virtual;
+
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'ListaMensagemRetorno';
@@ -181,6 +184,20 @@ begin
     ModoEnvio := meLoteSincrono;
     ConsultaPorFaixa := True;
     ConsultaPorFaixaPreencherNumNfseFinal := False;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      EnviarLoteSincrono := True;
+      EnviarUnitario := True;
+      ConsultarLote := True;
+      ConsultarRps := True;
+      ConsultarFaixaNfse := True;
+      ConsultarServicoPrestado := True;
+      ConsultarServicoTomado := True;
+      CancelarNfse := True;
+      SubstituirNfse := True;
+    end;
   end;
 
   SetXmlNameSpace(NameSpace);
@@ -223,7 +240,7 @@ begin
   begin
     Node := Node.Childrens.FindAnyNs('InfNfse');
 
-    if not Assigned(Node) or (Node = nil) then Exit;
+    if not Assigned(Node) then Exit;
 
     NumNFSe := ObterConteudoTag(Node.Childrens.FindAnyNs('Numero'), tcStr);
     CodVerif := ObterConteudoTag(Node.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
@@ -236,10 +253,10 @@ begin
     if Node2 = nil then
       Node2 := Node.Childrens.FindAnyNs('Rps');
 
-    if not Assigned(Node2) or (Node2 = nil) then Exit;
+    if not Assigned(Node2) then Exit;
 
     Node := Node2.Childrens.FindAnyNs('InfDeclaracaoPrestacaoServico');
-    if not Assigned(Node) or (Node = nil) then Exit;
+    if not Assigned(Node) then Exit;
 
     Node := Node.Childrens.FindAnyNs('Rps');
 
@@ -304,7 +321,7 @@ begin
   begin
     Node := Node.Childrens.FindAnyNs('InfNfse');
 
-    if not Assigned(Node) or (Node = nil) then Exit;
+    if not Assigned(Node) then Exit;
 
     NumNFSe := ObterConteudoTag(Node.Childrens.FindAnyNs('Numero'), tcStr);
     CodVerif := ObterConteudoTag(Node.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
@@ -317,10 +334,10 @@ begin
     if Node2 = nil then
       Node2 := Node.Childrens.FindAnyNs('Rps');
 
-    if not Assigned(Node2) or (Node2 = nil) then Exit;
+    if not Assigned(Node2) then Exit;
 
     Node := Node2.Childrens.FindAnyNs('InfDeclaracaoPrestacaoServico');
-    if not Assigned(Node) or (Node = nil) then Exit;
+    if not Assigned(Node) then Exit;
 
     Node := Node.Childrens.FindAnyNs('Rps');
 
@@ -373,7 +390,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   aParams: TNFSeParamsResponse;
   Nota: TNotaFiscal;
-  Versao, IdAttr, NameSpace, NameSpaceLote, ListaRps, xRps,
+  Versao, IdAttr, NameSpace, NameSpaceLote, ListaRps, xRps, IdAttrSig,
   TagEnvio, Prefixo, PrefixoTS: string;
   I: Integer;
 begin
@@ -504,12 +521,16 @@ begin
     Nota.XmlRps := ConverteXMLtoUTF8(Nota.XmlRps);
     Nota.XmlRps := ChangeLineBreak(Nota.XmlRps, '');
 
-    if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono])) or
+    if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono, meTeste])) or
        (ConfigAssinar.RpsGerarNFSe and (Response.ModoEnvio = meUnitario)) then
     begin
+      IdAttrSig := SetIdSignatureValue(Nota.XmlRps,
+                                     ConfigMsgDados.XmlRps.DocElemento, IdAttr);
+
       Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
                                          PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
-                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
+                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '',
+                                         IdAttr, IdAttrSig);
     end;
 
     SalvarXmlRps(Nota);
@@ -563,7 +584,7 @@ begin
 
   with Params do
   begin
-    if Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono] then
+    if Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono, meTeste] then
     begin
       if ConfigMsgDados.GerarPrestadorLoteRps then
       begin
@@ -668,7 +689,7 @@ begin
         begin
           ANode := ANodeArray[I];
           AuxNode := ANode.Childrens.FindAnyNs('Nfse');
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
 
@@ -689,17 +710,17 @@ begin
           // para <Rps>
           if AuxNode2 = nil then
             AuxNode2 := AuxNode.Childrens.FindAnyNs('Rps');
-          if not Assigned(AuxNode2) or (AuxNode2 = nil) then Exit;
+          if not Assigned(AuxNode2) then Exit;
 
           AuxNode := AuxNode2.Childrens.FindAnyNs('InfDeclaracaoPrestacaoServico');
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           AuxNode := AuxNode.Childrens.FindAnyNs('Rps');
 
           if AuxNode <> nil then
           begin
             AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
-            if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+            if not Assigned(AuxNode) then Exit;
 
             NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
             SerieRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Serie'), tcStr);
@@ -1132,7 +1153,7 @@ begin
       if AuxNode <> nil then
       begin
         AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 
@@ -1153,17 +1174,17 @@ begin
           // para <Rps>
           if AuxNode2 = nil then
             AuxNode2 := AuxNode.Childrens.FindAnyNs('Rps');
-          if not Assigned(AuxNode2) or (AuxNode2 = nil) then Exit;
+          if not Assigned(AuxNode2) then Exit;
 
           AuxNode := AuxNode2.Childrens.FindAnyNs('InfDeclaracaoPrestacaoServico');
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           AuxNode := AuxNode.Childrens.FindAnyNs('Rps');
 
           if AuxNode <> nil then
           begin
             AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
-            if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+            if not Assigned(AuxNode) then Exit;
 
             NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 
@@ -1199,7 +1220,8 @@ var
 begin
   case Response.InfConsultaNFSe.tpConsulta of
     tcPorPeriodo,
-    tcPorFaixa: Response.Metodo := tmConsultarNFSePorFaixa;
+    tcPorFaixa,
+    tcPorNumero: Response.Metodo := tmConsultarNFSePorFaixa;
     tcServicoTomado: Response.Metodo := tmConsultarNFSeServicoTomado;
     tcServicoPrestado: Response.Metodo := tmConsultarNFSeServicoPrestado;
     tcPorChave: Response.Metodo := tmConsultarNFSePorChave;
@@ -1209,7 +1231,8 @@ begin
 
   case Response.InfConsultaNFSe.tpConsulta of
     tcPorPeriodo,
-    tcPorFaixa: PrepararConsultaNFSeporFaixa(Response);
+    tcPorFaixa,
+    tcPorNumero: PrepararConsultaNFSeporFaixa(Response);
     tcServicoPrestado: PrepararConsultaNFSeServicoPrestado(Response);
     tcServicoTomado: PrepararConsultaNFSeServicoTomado(Response);
   else
@@ -1246,7 +1269,8 @@ var
 begin
   case Response.InfConsultaNFSe.tpConsulta of
     tcPorPeriodo,
-    tcPorFaixa: AssinarConsultaNFSeporFaixa(Response);
+    tcPorFaixa,
+    tcPorNumero: AssinarConsultaNFSeporFaixa(Response);
     tcServicoPrestado: AssinarConsultaNFSeServicoPrestado(Response);
     tcServicoTomado: AssinarConsultaNFSeServicoTomado(Response);
   else
@@ -1264,7 +1288,8 @@ var
 begin
   case Response.InfConsultaNFSe.tpConsulta of
     tcPorPeriodo,
-    tcPorFaixa: TratarRetornoConsultaNFSeporFaixa(Response);
+    tcPorFaixa,
+    tcPorNumero: TratarRetornoConsultaNFSeporFaixa(Response);
     tcServicoPrestado: TratarRetornoConsultaNFSeServicoPrestado(Response);
     tcServicoTomado: TratarRetornoConsultaNFSeServicoTomado(Response);
   else
@@ -1382,7 +1407,7 @@ end;
 
 procedure TACBrNFSeProviderABRASFv2.AssinarConsultaNFSeporFaixa(Response: TNFSeConsultaNFSeResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.ConsultarNFSePorFaixa then Exit;
@@ -1398,9 +1423,13 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+                      ConfigMsgDados.ConsultarNFSePorFaixa.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.ConsultarNFSePorFaixa.DocElemento,
-      ConfigMsgDados.ConsultarNFSePorFaixa.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.ConsultarNFSePorFaixa.InfElemento, '', '', '', IdAttr,
+      IdAttrSig);
   except
     on E:Exception do
     begin
@@ -1464,7 +1493,7 @@ begin
       begin
         ANode := ANodeArray[I];
         AuxNode := ANode.Childrens.FindAnyNs('Nfse');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         if not PreencherNotaRespostaConsultaNFSe(AuxNode, ANode, Response) then
         begin
@@ -1475,10 +1504,10 @@ begin
         end;
         {
         AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         AuxNode := AuxNode.Childrens.FindAnyNs('Numero');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         NumNFSe := AuxNode.AsString;
 
@@ -1648,7 +1677,7 @@ end;
 procedure TACBrNFSeProviderABRASFv2.AssinarConsultaNFSeServicoPrestado(
   Response: TNFSeConsultaNFSeResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.ConsultarNFSeServicoPrestado then Exit;
@@ -1664,9 +1693,13 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+               ConfigMsgDados.ConsultarNFSeServicoPrestado.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.ConsultarNFSeServicoPrestado.DocElemento,
-      ConfigMsgDados.ConsultarNFSeServicoPrestado.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.ConsultarNFSeServicoPrestado.InfElemento, '', '', '',
+      IdAttr, IdAttrSig);
   except
     on E:Exception do
     begin
@@ -1732,7 +1765,7 @@ begin
       begin
         ANode := ANodeArray[I];
         AuxNode := ANode.Childrens.FindAnyNs('Nfse');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         if not PreencherNotaRespostaConsultaNFSe(AuxNode, ANode, Response) then
         begin
@@ -1743,10 +1776,10 @@ begin
         end;
         {
         AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         AuxNode := AuxNode.Childrens.FindAnyNs('Numero');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         NumNFSe := AuxNode.AsString;
 
@@ -1913,7 +1946,7 @@ end;
 procedure TACBrNFSeProviderABRASFv2.AssinarConsultaNFSeServicoTomado(
   Response: TNFSeConsultaNFSeResponse);
 var
-  IdAttr, Prefixo: string;
+  IdAttr, Prefixo, IdAttrSig: string;
   AErro: TNFSeEventoCollectionItem;
 begin
   if not ConfigAssinar.ConsultarNFSeServicoTomado then Exit;
@@ -1929,9 +1962,13 @@ begin
     Prefixo := ConfigMsgDados.Prefixo + ':';
 
   try
+    IdAttrSig := SetIdSignatureValue(Response.ArquivoEnvio,
+               ConfigMsgDados.ConsultarNFSeServicoTomado.DocElemento, IdAttr);
+
     Response.ArquivoEnvio := FAOwner.SSL.Assinar(Response.ArquivoEnvio,
       Prefixo + ConfigMsgDados.ConsultarNFSeServicoTomado.DocElemento,
-      ConfigMsgDados.ConsultarNFSeServicoTomado.InfElemento, '', '', '', IdAttr);
+      ConfigMsgDados.ConsultarNFSeServicoTomado.InfElemento, '', '', '', IdAttr,
+      IdAttrSig);
   except
     on E:Exception do
     begin
@@ -1994,7 +2031,7 @@ begin
       begin
         ANode := ANodeArray[I];
         AuxNode := ANode.Childrens.FindAnyNs('Nfse');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         if not PreencherNotaRespostaConsultaNFSe(AuxNode, ANode, Response) then
         begin
@@ -2005,10 +2042,10 @@ begin
         end;
         {
         AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         AuxNode := AuxNode.Childrens.FindAnyNs('Numero');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         NumNFSe := AuxNode.AsString;
 
@@ -2282,6 +2319,17 @@ begin
       Ret := Response.RetCancelamento;
       Ret.DataHora := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHora'), FpFormatoDataHora);
 
+      if Ret.DataHora > 0 then
+      begin
+        Ret.Sucesso := 'Sim';
+        Ret.Situacao := 'Cancelado';
+      end
+      else
+      begin
+        Ret.Sucesso := '';
+        Ret.Situacao := '';
+      end;
+
       if ConfigAssinar.IncluirURI then
         IdAttr := ConfigGeral.Identificador
       else
@@ -2296,13 +2344,13 @@ begin
         ANode := AuxNode;
 
       ANode := ANode.Childrens.FindAnyNs('InfPedidoCancelamento');
-      if not Assigned(ANode) or (ANode = nil) then Exit;
+      if not Assigned(ANode) then Exit;
 
       Ret.Pedido.InfID.ID := ObterConteudoTag(ANode.Attributes.Items[IdAttr]);
       Ret.Pedido.CodigoCancelamento := ObterConteudoTag(ANode.Childrens.FindAnyNs('CodigoCancelamento'), tcStr);
 
       ANode := ANode.Childrens.FindAnyNs('IdentificacaoNfse');
-      if not Assigned(ANode) or (ANode = nil) then Exit;
+      if not Assigned(ANode) then Exit;
 
       with Ret.Pedido.IdentificacaoNfse do
       begin
@@ -2341,7 +2389,8 @@ var
   AErro: TNFSeEventoCollectionItem;
   aParams: TNFSeParamsResponse;
   Nota: TNotaFiscal;
-  IdAttr, xRps, NameSpace, NumRps, TagEnvio, Prefixo, PrefixoTS: string;
+  IdAttr, xRps, NameSpace, NumRps, TagEnvio, Prefixo, PrefixoTS,
+  IdAttrSig: string;
 begin
   if EstaVazio(Response.PedCanc) then
   begin
@@ -2420,9 +2469,13 @@ begin
 
   if ConfigAssinar.RpsSubstituirNFSe then
   begin
+    IdAttrSig := SetIdSignatureValue(Nota.XmlRps,
+               ConfigMsgDados.XmlRps.DocElemento, IdAttr);
+
     Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
                                        PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
-                                       ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
+                                       ConfigMsgDados.XmlRps.InfElemento, '', '', '',
+                                       IdAttr, IdAttrSig);
   end;
 
   SalvarXmlRps(Nota);
@@ -2508,10 +2561,10 @@ var
     end;
 
     AuxNode := ANode.Childrens.FindAnyNs('Nfse');
-    if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+    if not Assigned(AuxNode) then Exit;
 
     AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-    if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+    if not Assigned(AuxNode) then Exit;
 
     AuxNode := AuxNode.Childrens.FindAnyNs('Numero');
 
@@ -2582,7 +2635,7 @@ begin
         end;
 
         ANodeSubstituida := ANodeSubstituida.Childrens.FindAnyNs('Nfse');
-        if not Assigned(ANodeSubstituida) or (ANodeSubstituida = nil) then Exit;
+        if not Assigned(ANodeSubstituida) then Exit;
 
         ANodeSubstituida := ANodeSubstituida.Childrens.FindAnyNs('InfNfse');
 
@@ -2768,15 +2821,45 @@ begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
 end;
 
+function TACBrNFSeProviderABRASFv2.VerificarAlerta(const ACodigo,
+  AMensagem: string): Boolean;
+begin
+  Result := (AMensagem <> '') and (Pos('L000', ACodigo) > 0);
+end;
+
+function TACBrNFSeProviderABRASFv2.VerificarErro(const ACodigo,
+  AMensagem: string): Boolean;
+begin
+  Result := (AMensagem <> '') and (Pos('L000', ACodigo) = 0);
+end;
+
 procedure TACBrNFSeProviderABRASFv2.ProcessarMensagemErros(RootNode: TACBrXmlNode;
   Response: TNFSeWebserviceResponse; const AListTag, AMessageTag: string);
 var
   I: Integer;
   ANode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
-  AErro: TNFSeEventoCollectionItem;
   AAlerta: TNFSeEventoCollectionItem;
   Codigo, Mensagem: string;
+
+procedure ProcessarErro(ErrorNode: TACBrXmlNode; const ACodigo, AMensagem: string);
+var
+  Item: TNFSeEventoCollectionItem;
+begin
+  if AMensagem = '' then
+    Exit;
+
+  if VerificarAlerta(ACodigo, AMensagem) then
+    Item := Response.Alertas.New
+  else if VerificarErro(ACodigo, AMensagem) then
+    Item := Response.Erros.New
+  else
+    Exit;
+
+  Item.Codigo := ACodigo;
+  Item.Descricao := AMensagem;
+  Item.Correcao := ObterConteudoTag(ErrorNode.Childrens.FindAnyNs('Correcao'), tcStr);
+end;
 
 procedure ProcessarErros;
 var
@@ -2793,23 +2876,7 @@ begin
         Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
         Mensagem := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
 
-        if (Mensagem <> '') and (Pos('L000', Codigo) = 0) then
-        begin
-          AErro := Response.Erros.New;
-          AErro.Codigo := Codigo;
-          AErro.Descricao := ACBrStr(Mensagem);
-          AErro.Correcao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr));
-        end
-        else
-        begin
-          if (Mensagem <> '') and (Pos('L000', Codigo) > 0) then
-          begin
-            AAlerta := Response.Alertas.New;
-            AAlerta.Codigo := Codigo;
-            AAlerta.Descricao := ACBrStr(Mensagem);
-            AAlerta.Correcao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr));
-          end;
-        end;
+        ProcessarErro(ANodeArray[I], Codigo, Mensagem);
       end;
     end
     else
@@ -2817,23 +2884,7 @@ begin
       Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Codigo'), tcStr);
       Mensagem := ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr);
 
-      if (Mensagem <> '') and (Pos('L000', Codigo)= 0) then
-      begin
-        AErro := Response.Erros.New;
-        AErro.Codigo := Codigo;
-        AErro.Descricao := ACBrStr(Mensagem);
-        AErro.Correcao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr));
-      end
-      else
-      begin
-        if (Mensagem <> '') and (Pos('L000', Codigo) > 0) then
-        begin
-          AAlerta := Response.Alertas.New;
-          AAlerta.Codigo := Codigo;
-          AAlerta.Descricao := ACBrStr(Mensagem);
-          AAlerta.Correcao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr));
-        end;
-      end;
+      ProcessarErro(ANode, Codigo, Mensagem);
     end;
   end;
 end;
@@ -2866,8 +2917,8 @@ begin
         begin
           AAlerta := Response.Alertas.New;
           AAlerta.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-          AAlerta.Descricao := ACBrStr(Mensagem);
-          AAlerta.Correcao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr));
+          AAlerta.Descricao := Mensagem;
+          AAlerta.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr);
         end;
       end;
     end
@@ -2879,8 +2930,8 @@ begin
       begin
         AAlerta := Response.Alertas.New;
         AAlerta.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Codigo'), tcStr);
-        AAlerta.Descricao := ACBrStr(Mensagem);
-        AAlerta.Correcao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr));
+        AAlerta.Descricao := Mensagem;
+        AAlerta.Correcao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr);
       end;
     end;
   end;

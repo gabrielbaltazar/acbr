@@ -56,7 +56,8 @@ uses
    System.Contnrs,
   {$IfEnd}
   ACBrBase,
-  pcnConversao, pcnGerador, pcnConsts,
+  ACBrDFeConsts,
+  pcnConversao, pcnGerador,
   pcesCommon, pcesConversaoeSocial, pcesGerador, pcnLeitor;
 
 type
@@ -460,7 +461,9 @@ begin
 
     if Leitor.rExtrai(1, 'evtTabRubrica') <> '' then
     begin
-      Id := Leitor.rCampo(tcStr, 'Id');
+      if Self.Id = '' then
+        Self.Id := Leitor.rAtributo('Id=');
+
       Sequencial := 0;
 
       if Leitor.rExtrai(2, 'ideEvento') <> '' then

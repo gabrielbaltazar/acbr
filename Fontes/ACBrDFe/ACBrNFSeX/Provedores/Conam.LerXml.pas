@@ -117,9 +117,6 @@ begin
         end;
 
         RetencoesFederais := ValorPis + ValorCofins + ValorInss + ValorIr + ValorCsll;
-
-        ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
-                                DescontoIncondicionado;
       end;
     end;
   end;
@@ -262,6 +259,9 @@ begin
       Discriminacao    := ObterConteudo(AuxNode.Childrens.FindAnyNs('DiscrSrv'), tcStr);
       Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
                                       sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
+      VerificarSeConteudoEhLista(Discriminacao);
+
       ItemListaServico := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodSrv'), tcStr);
 
       xItemListaServico := ItemListaServicoDescricao(ItemListaServico);
@@ -323,6 +323,12 @@ begin
       end;
     end;
 
+    with NFSe.Servico.Valores do
+    begin
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
+    end;
+
     //valores dos tributos
     LerReg30(AuxNode);
   end;
@@ -375,6 +381,8 @@ begin
       Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('DiscrSrv'), tcStr);
       Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
                                       sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
+      VerificarSeConteudoEhLista(Discriminacao);
 
       with Valores do
       begin
@@ -471,6 +479,12 @@ begin
       email.New;
       email[i].emailCC := aValor;
 //      Inc(i);
+    end;
+
+    with NFSe.Servico.Valores do
+    begin
+      ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
+                              DescontoIncondicionado;
     end;
 
     //valores dos tributos

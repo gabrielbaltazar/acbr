@@ -183,6 +183,18 @@ begin
     ModoEnvio := meLoteSincrono;
     DetalharServico := True;
     CancPreencherMotivo := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      EnviarLoteSincrono := True;
+      ConsultarLote := True;
+      ConsultarRps := True;
+      ConsultarNfse := True;
+      ConsultarSeqRps := True;
+      CancelarNfse := True;
+      TestarEnvio := True;
+    end;
   end;
 
   with ConfigAssinar do
@@ -353,11 +365,11 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Codigo;
-      AErro.Descricao := ACBrStr(Descricao);
+      AErro.Descricao := Descricao;
       AErro.Correcao := RPS;
 
       if AErro.Descricao = '' then
-        AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+        AErro.Descricao := ANodeArray[I].AsString;
     end;
   end;
 
@@ -377,11 +389,11 @@ begin
     begin
       AAlerta := Response.Alertas.New;
       AAlerta.Codigo := Codigo;
-      AAlerta.Descricao := ACBrStr(Descricao);
+      AAlerta.Descricao := Descricao;
       AAlerta.Correcao := '';
 
       if AAlerta.Descricao = '' then
-        AAlerta.Descricao := ACBrStr(ANodeArray[I].AsString);
+        AAlerta.Descricao := ANodeArray[I].AsString;
     end;
   end;
 end;
@@ -1720,11 +1732,12 @@ function TACBrNFSeXWebserviceISSDSF.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
+  Result := Trim(StringReplace(Result, '&', '&amp;', [rfReplaceAll]));
 end;
 
 end.

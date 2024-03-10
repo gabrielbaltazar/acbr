@@ -44,6 +44,106 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+06/03/2024
+-- ACBrNFeNotasFiscais --
+[*] Alteração no nome da diretiva DFE_ACBR_LIBXML2 para USE_ACBr_XMLDOCUMENT.
+  Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Ajustes para contemplar a NT 2019/001 versão 1.60/1.61 - novos campos.
+  Por: Italo Giurizzato Junior
+
+02/03/2024
+-- ACBrNFeXmlWriter --
+[*] Corrigido o tipo de conversão para a tag: cNF.
+  Por: Italo Giurizzato Junior
+
+28/02/2024
+-- ACBrNFeWebServices --
+[*] Em algumas funções TratarResposta o ParseText estava com mais de 1 parâmetro,
+    foi alterado deixando somente o primeiro.
+-- ACBrNFeXmlReader --
+[-] Realizado diversas alterações e correções pois não estava compilando.
+-- pcnConversaoNFe --
+[*] Refactoring nas funções de conversão.
+-- pcnNFeR --
+[-] Imposto uma condição para a leitura da tag motRedAdRem, caso contrario vai
+    ocorrer erro na função de conversão quando a tag não esta presente no XML.
+  Por: Italo Giurizzato Junior
+
+23/02/2024
+-- ACBrNotasFiscais --
+[*] Altera a leitura da informação do tBand na LoadFromIni para pegar o valor vazio ao invés de 99.
+  Por: Diego Folieni/ Antonio Carlos Junior
+
+22/02/2024
+-- pcnNFe, ACBrNFeXmlWriter, pcnNFeW --
+[-] Ajuste no valor padrão e geração da tag "indDeduzDeson" no XML para evitar erro de validação. (NT 2023/004)
+  Por: BigWings
+
+21/02/2024
+-- Diversos --
+[*] Alterações em várias units para atender a NT 2023/004 versão 1.10
+  Por: Italo Giurizzato Junior
+
+13/02/2024
+-- ACBrNFeWebServices --
+[*] Refactoring visando a utilizar as units: ACBrDFeComum.ConsStatServ e 
+    ACBrDFeComum.RetConsStatServ.
+  Por: Italo Giurizzato Junior
+
+12/02/2024
+-- ACBrNFeServicos --
+[+] Incluída as URLs de produção e homologação do ConsultaCadastro versão 4
+    de SP.
+-- ACBrNFeWebServices --
+[*] Refactoring visando a utilizar as units: ACBrDFeComum.ConsCad e 
+    ACBrDFeComum.RetConsCad.
+  Por: Italo Giurizzato Junior
+
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+06/02/2024
+-- ACBrNFeWebServices --
+[*] Ajuste visando montar a lista de arquivos baixados pelo DistribuicaoDFe
+    com o path + nome do arquivo.
+  Por: Diogo Loff
+
+05/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnConsts.
+  Por: Italo Giurizzato Junior
+
+15/12/2023
+--- ACBrDANFCeFortesFr,ACBrDANFCeFortesFrA4  ---
+[*]TK-4814 Substituida a função para formatação de DataHora do NFCe, deixado como no modelo NFe
+https://www.projetoacbr.com.br/forum/topic/75361-mascara-de-impress%C3%A3o-da-data-na-nfc-e-na-acbrlib-usando-em-api-com-iis-em-projeto-c/?_rid=127195
+Por: Daniel Morais
+
+11/12/2023
+-- ACBrNFeNotasFiscais --
+[*] Ajustes no método "ValidarRegrasdeNegocios"
+  - Adicionadas validações para as rejeições 629 e 630 que trata da multiplicação do valor unitário pela quantidade de itens
+  - Correção para a validação da rejeição 610, para considerar como válido o valor total da nota abatendo ou não o ICMS desonerado
+  Por: BigWings
+
+08/12/2023
+-- ACBrNFeNotasFiscais --
+[*] Ajuste no ValidarRegrasdeNegocios, para a rejeição 425, incluido o CFOP: 5949.
+    por: Suporte Anexo tecnologia
+
+30/11/2023
+-- ACBrNFeDANFeRLSimplificado --
+[*] Adiciona nova banda visando evitar que a descrição dos produtos sobreponham a linha de baixo.
+   Por: Victor H Gonzales - Pandaaa / Diego Folieni 
+
+16/11/2023
+-- Diversos --
+[*] Altera a lógica da aplicação da propriedade ExibeICMSDesoneradoComoDesconto e adiciona em outros impressos da NFC-e além do Fast.
+    Por: Victor H Gonzales - Pandaaa / Diego Folieni
+
 31/10/2023
 -- ACBrNFeNotasFiscais --
 [*] Ajuste no ValidarRegrasdeNegocios, para as rejeições 383 e 766 para o modelo 65.

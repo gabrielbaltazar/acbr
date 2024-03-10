@@ -634,6 +634,10 @@ begin
         fpQtdRegsLote := 3
       else
         fpQtdRegsLote := 4;
+
+      if (ACBrTitulo.ACBrBoleto.Cedente.PIX.TipoChavePIX <> tchNenhuma) then
+        fpQtdRegsLote := fpQtdRegsLote + 1;
+
     end;
 
     ISequencia := (ACBrBoleto.ListadeBoletos.IndexOf(ACBrTitulo) * fpQtdRegsLote) + 1;
@@ -688,9 +692,10 @@ begin
       {SEGMENTO P - FIM}
 
       Inc(ISequencia);
+
       if sCodMovimento = '01' then
-       begin
-      {SEGMENTO Q}
+      begin
+        {SEGMENTO Q}
         ListTransacao.Add( IntToStrZero(ACBrBanco.Numero, 3)     + // 001 - 003 / Código do Banco na compensação
                 '0001'                                           + // 004 - 007 / Numero do lote remessa
                 '3'                                              + // 008 - 008 / Tipo de registro
@@ -715,12 +720,13 @@ begin
                 '000'                                            + // 216 – 218 / Quantidade total de parcelas
                 '000'                                            + // 219 – 221 / Número do plano
                 Space(19)                                        ); // 230 – 240 / Reservado (uso Banco)
-      {SEGMENTO Q - FIM}
+        {SEGMENTO Q - FIM}
 
-      if (PercentualMulta > 0) then
-      begin
-        Inc(ISequencia);
-        {SEGMENTO R}
+        if (PercentualMulta > 0) then
+        begin
+          Inc(ISequencia);
+
+          {SEGMENTO R}
           ListTransacao.Add( IntToStrZero(ACBrBanco.Numero, 3)               + // 001 - 003 / Código do Banco na compensação
                   '0001'                                                     + // 004 - 007 / Numero do lote remessa
                   '3'                                                        + // 008 - 008 / Tipo de registro
@@ -744,20 +750,21 @@ begin
                   MontaInstrucoes1CNAB240(ACBrTitulo)                        + // 100 - 139 / Mensagem 3
                                                                                // 140 - 179 / Mensagem 4
                   Space(61)                                                  ); // 180 - 240 / Reservado (uso Banco)
-        {SEGMENTO R - FIM}
-      end;
-
-      if (ACBrTitulo.ACBrBoleto.Cedente.PIX.TipoChavePIX <> tchNenhuma) then
-      begin
-        Inc(ISequencia);
-        {SEGMENTO Y03}
-        case ACBrTitulo.ACBrBoleto.Cedente.PIX.TipoChavePIX of
-          tchCPF       : LTipoChaveDICT := '1';
-          tchCNPJ      : LTipoChaveDICT := '2';
-          tchCelular   : LTipoChaveDICT := '3';
-          tchEmail     : LTipoChaveDICT := '4';
-          tchAleatoria : LTipoChaveDICT := '5';
         end;
+        {SEGMENTO R - FIM}
+
+        if (ACBrTitulo.ACBrBoleto.Cedente.PIX.TipoChavePIX <> tchNenhuma) then
+        begin
+          Inc(ISequencia);
+
+          {SEGMENTO Y03}
+          case ACBrTitulo.ACBrBoleto.Cedente.PIX.TipoChavePIX of
+            tchCPF       : LTipoChaveDICT := '1';
+            tchCNPJ      : LTipoChaveDICT := '2';
+            tchCelular   : LTipoChaveDICT := '3';
+            tchEmail     : LTipoChaveDICT := '4';
+            tchAleatoria : LTipoChaveDICT := '5';
+          end;
 
           ListTransacao.Add( IntToStrZero(ACBrBanco.Numero, 3)               +  // 001 - 003 Código do Banco na compensação
                   '0001'                                                     +  // 004 - 007 Numero do lote remessa
@@ -772,11 +779,13 @@ begin
                   PadRight(ACBrTitulo.ACBrBoleto.Cedente.PIX.Chave,77,' ')   +  // 082 - 158 Chave Pix
                   PadRight(QrCode.txId,35,' ')                               +  // 159 - 193 Código identificação do QR Code
                   Space(47)                                                 );  // 194 - 240 Reservado (uso Banco)
+
+        end;
         {SEGMENTO Y03 - FIM}
-      end;
-      Inc(ISequencia);
-      {SEGMENTO S}
-      // Existe um Formmulário 1 - Especial, que não será implementado, erá implementado do Formulário 2
+
+        Inc(ISequencia);
+        {SEGMENTO S}
+        // Existe um Formulário 1 - Especial, que não será implementado, erá implementado do Formulário 2
         ListTransacao.Add( IntToStrZero(ACBrBanco.Numero, 3)     + // 001 - 003 / Código do Banco na compensação
                 '0001'                                           + // 004 - 007 / Numero do lote remessa
                 '3'                                              + // 008 - 008 / Tipo de registro
@@ -791,11 +800,11 @@ begin
                                                                    // 139 - 178 / Mensagem 8
                                                                    // 179 - 218 / Mensagem 9
                 Space(22)                                        ); // 219 - 240 / Reservado (uso Banco)
-      {SEGMENTO S - FIM}
+
       end;
+      {SEGMENTO S - FIM}
 
-       Result := RemoverQuebraLinhaFinal(ListTransacao.Text);
-
+      Result := RemoverQuebraLinhaFinal(ListTransacao.Text);
     finally
       ListTransacao.Free;
     end;
@@ -807,6 +816,7 @@ var
   DigitoNossoNumero, Ocorrencia,aEspecie :String;
   Protesto, aAgencia, TipoSacado, wLinha :String;
   aCarteira, I: Integer;
+  LMensagem1, LMensagem2, LMensagem3 : String;
 begin
 
    aCarteira := StrToIntDef( DefineCarteira(ACBrTitulo) , 0);
@@ -883,20 +893,35 @@ begin
                   IntToStrZero( aRemessa.Count + 1, 6 );                         // 395 a 400
 
          aRemessa.Add(UpperCase(wLinha));
+            LMensagem1 := '';
+            LMensagem2 := '';
+            LMensagem3 := '';
+            if Mensagem.Count >= 1 then
+              LMensagem1 := TiraAcentos(Mensagem[0]);
 
-         for I := 0 to Mensagem.count-1 do
-         begin
-            wLinha:= '2' + space(16)                             +
-                     PadLeft(Cedente.CodigoTransmissao,20,'0')   +
-                     Space(10) + '01'                            +
-                     PadRight(Mensagem[I],50)                    +
-                     Space(283) + 'I'                            +
-                     Copy( Cedente.Conta, length( Cedente.Conta ),1 )   +
-                     PadLeft( Cedente.ContaDigito, 1 )                  +
-                     Space(9)                                           +
-                     IntToStrZero( aRemessa.Count + 1 , 6 );
+            if Mensagem.Count >= 2 then
+              LMensagem1 := TiraAcentos(Mensagem[1]);
+
+            if Mensagem.Count >= 3 then
+              LMensagem1 := TiraAcentos(Mensagem[2]);
+
+            wLinha:= '2'                                                      + // 001-001 "2" - Recibo Pagador
+                     space(16)                                                + // 002-017 Reservado Banco
+                     PadLeft(Cedente.CodigoTransmissao,20,'0')                + // 018-037 Agencia / Conta Movimento / Conta Cobranca
+                     Space(10)                                                + // 038-047 Reservado Banco
+                     '01'                                                     + // 048-049 SubRegistro "01"
+                     PadRight(LMensagem1, 50)                                 + // 050-099 Mensagem Variavel
+                     '02'                                                     + // 100-101 SubSequencia "02"
+                     PadRight(LMensagem2, 50)                                 + // 102-151 Mensagem Variavel
+                     '02'                                                     + // 152-153 SubSequencia "02"
+                     PadRight(LMensagem3, 50)                                 + // 154-203 Mensagem Variavel
+                     Space(179)                                               + // 204-382 Reservado Banco
+                     'I'                                                      + // 383-383 Identificação do Complemento
+                     PadLeft(Copy( Cedente.Conta, length( Cedente.Conta ),1 ), 1, '0') +
+                     PadLeft( Cedente.ContaDigito, 1, '0' )                   + // 384-385 Complemento
+                     Space(9)                                                 + // 386-394 Reservado Banco
+                     IntToStrZero( aRemessa.Count + 1 , 6 );                    // 395-400 Sequencial de Registro
             aRemessa.Add(UpperCase(wLinha));
-         end;
 
       end;
    end;
@@ -1130,7 +1155,10 @@ begin
                                              Copy(Linha, 148, 2)+'/'+
                                              Copy(Linha, 150,4),0, 'DD/MM/YYYY' );
         end
-        else if((copy(Linha, 14, 1) = 'Y') and (copy(Linha, 18, 2) = '03'))  then
+        else if((copy(Linha, 14, 1) = 'Y')
+                 and (copy(Linha, 18, 2) = '03')
+                 and (Trim(Copy(Linha, 82, 77))<>'')
+                 and (Trim(Copy(Linha, 159, 35))<>''))  then
           QrCode.PIXQRCodeDinamico(Trim(Copy(Linha, 82, 77)), Trim(Copy(Linha, 159, 35)), Titulo);
       end;
     finally

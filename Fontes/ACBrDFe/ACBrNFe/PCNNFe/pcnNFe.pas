@@ -643,6 +643,33 @@ type
     property obsFisco: TobsItem read FobsFisco write FobsFisco;
   end;
 
+  { TCredPresumidoCollectionItem }
+
+  TCredPresumidoCollectionItem = class(TObject)
+  private
+    FcCredPresumido: string;
+    FpCredPresumido: Double;
+    FvCredPresumido: Double;
+  public
+    procedure Assign(Source: TCredPresumidoCollectionItem);
+
+    property cCredPresumido: string read FcCredPresumido write FcCredPresumido;
+    property pCredPresumido: Double read FpCredPresumido write FpCredPresumido;
+    property vCredPresumido: Double read FvCredPresumido write FvCredPresumido;
+  end;
+
+  { TCredPresumidoCollection }
+
+  TCredPresumidoCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TCredPresumidoCollectionItem;
+    procedure SetItem(Index: Integer; Value: TCredPresumidoCollectionItem);
+  public
+    function Add: TCredPresumidoCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TCredPresumidoCollectionItem;
+    property Items[Index: Integer]: TCredPresumidoCollectionItem read GetItem write SetItem; default;
+  end;
+
   { TProd }
 
   TProd = class(TObject)
@@ -686,6 +713,7 @@ type
     FcBenef: String;
     FcBarra: String;
     FcBarraTrib: String;
+    FCredPresumido: TCredPresumidoCollection;
 
     procedure SetDI(Value: TDICollection);
     procedure SetRastro(Value: TRastroCollection);
@@ -694,10 +722,13 @@ type
     procedure SetdetExport(const Value: TdetExportCollection);
     procedure SetNVE(Value : TNVeCollection);
     procedure setCFOP(const Value: String);
+    procedure SetCredPresumido(const Value: TCredPresumidoCollection);
   public
     constructor Create();
     destructor Destroy; override;
+
     procedure Assign(Source: TProd);
+
     property cProd: String read FcProd write FcProd;
     property nItem: Integer read FnItem write FnItem;
     property cEAN: String read FcEAN write FcEAN;
@@ -737,6 +768,7 @@ type
     property indEscala: TpcnIndEscala read FindEscala write FindEscala default ieNenhum;
     property CNPJFab: String read FCNPJFab write FCNPJFab;
     property cBenef: String read FcBenef write FcBenef;
+    property CredPresumido: TCredPresumidoCollection read FCredPresumido write SetCredPresumido;
   end;
 
   TveicProd = class(TObject)
@@ -1215,7 +1247,11 @@ type
     FmotRedAdRem: TmotRedAdRem;
     FvICMSMonoOp: Currency;
     FqBCMonoRet: Currency;
+    FindDeduzDeson: TIndicador;
+    FcBenefRBC: string;
   public
+    constructor Create;
+
     procedure Assign(Source: TICMS);
 
     property orig: TpcnOrigemMercadoria read Forig write Forig default oeNacional;
@@ -1283,6 +1319,9 @@ type
     property adRemICMSRet: Currency read FadRemICMSRet write FadRemICMSRet;
     property vICMSMonoRet: Currency read FvICMSMonoRet write FvICMSMonoRet;
     property qBCMonoRet: Currency read FqBCMonoRet write FqBCMonoRet;
+
+    property indDeduzDeson: TIndicador read FindDeduzDeson write FindDeduzDeson default tiNao;
+    property cBenefRBC: string read FcBenefRBC write FcBenefRBC;
   end;
 
   TIPI = class(TObject)
@@ -1849,6 +1888,11 @@ type
     FtBand: TpcnBandeiraCartao;
     FcAut: String;
     FindPag: TpcnIndicadorPagamento;
+    FdPag: TDateTime;
+    FCNPJPag: String;
+    FUFPag: String;
+    FCNPJReceb: String;
+    FidTermPag: String;
   public
     constructor Create;
     procedure Assign(Source: TpagCollectionItem);
@@ -1861,6 +1905,11 @@ type
     property CNPJ: String read FCNPJ write FCNPJ;
     property tBand: TpcnBandeiraCartao read FtBand write FtBand;
     property cAut: String read FcAut write FcAut;
+    property dPag: TDateTime read FdPag write FdPag;
+    property CNPJPag: String read FCNPJPag write FCNPJPag;
+    property UFPag: String read FUFPag write FUFPag;
+    property CNPJReceb: String read FCNPJReceb write FCNPJReceb;
+    property idTermPag: String read FidTermPag write FidTermPag;
   end;
 
   TinfIntermed = class(TObject)
@@ -2462,6 +2511,7 @@ begin
   FMed       := TMedCollection.Create;
   Farma      := TArmaCollection.Create;
   Fcomb      := TComb.Create;
+  FCredPresumido := TCredPresumidoCollection.Create;
 end;
 
 destructor TProd.Destroy;
@@ -2474,6 +2524,8 @@ begin
   FMed.Free;
   FArma.Free;
   Fcomb.Free;
+  FCredPresumido.Free;
+
   inherited;
 end;
 
@@ -2518,6 +2570,7 @@ begin
   indEscala := Source.indEscala;
   CNPJFab   := Source.CNPJFab;
   cBenef    := Source.cBenef;
+  CredPresumido.Assign(Source.CredPresumido);
 end;
 
 procedure TProd.setCFOP(const Value: String);
@@ -2533,6 +2586,11 @@ end;
 procedure TProd.SetRastro(Value: TRastroCollection);
 begin
   FRastro.Assign(Value);
+end;
+
+procedure TProd.SetCredPresumido(const Value: TCredPresumidoCollection);
+begin
+  FCredPresumido := Value;
 end;
 
 procedure TProd.SetdetExport(const Value: TdetExportCollection);
@@ -3715,6 +3773,14 @@ begin
   motRedAdRem := Source.motRedAdRem;
   FvICMSMonoOp := Source.FvICMSMonoOp;
   qBCMonoRet := Source.qBCMonoRet;
+  indDeduzDeson := Source.indDeduzDeson;
+  cBenefRBC := Source.cBenefRBC;
+end;
+
+constructor TICMS.Create;
+begin
+  inherited Create;
+  FindDeduzDeson := tiNao;
 end;
 
 { TIPI }
@@ -3974,6 +4040,11 @@ begin
   CNPJ      := Source.CNPJ;
   tBand     := Source.tBand;
   cAut      := Source.cAut;
+  dPag      := Source.dPag;
+  CNPJPag   := Source.CNPJPag;
+  UFPag     := Source.UFPag;
+  CNPJReceb := Source.CNPJReceb;
+  idTermPag := Source.idTermPag;
 end;
 
 constructor TpagCollectionItem.Create;
@@ -4138,6 +4209,41 @@ begin
   indImport := Source.indImport;
   cUFOrig := Source.cUFOrig;
   pOrig := Source.pOrig;
+end;
+
+{ TCredPresumidoCollectionItem }
+
+procedure TCredPresumidoCollectionItem.Assign(
+  Source: TCredPresumidoCollectionItem);
+begin
+  cCredPresumido := Source.cCredPresumido;
+  pCredPresumido := Source.pCredPresumido;
+  vCredPresumido := Source.vCredPresumido;
+end;
+
+{ TCredPresumidoCollection }
+
+function TCredPresumidoCollection.Add: TCredPresumidoCollectionItem;
+begin
+  Result := Self.New;
+end;
+
+function TCredPresumidoCollection.GetItem(
+  Index: Integer): TCredPresumidoCollectionItem;
+begin
+  Result := TCredPresumidoCollectionItem(inherited Items[Index]);
+end;
+
+function TCredPresumidoCollection.New: TCredPresumidoCollectionItem;
+begin
+  Result := TCredPresumidoCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+procedure TCredPresumidoCollection.SetItem(Index: Integer;
+  Value: TCredPresumidoCollectionItem);
+begin
+  inherited Items[Index] := Value;
 end;
 
 end.

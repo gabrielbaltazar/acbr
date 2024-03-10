@@ -49,6 +49,8 @@ type
   private
 
   protected
+    function RemoverGrupo_conteudohtml(const aXML: string): string;
+
     procedure LerRps(const ANode: TACBrXmlNode);
     procedure LerNota(const ANode: TACBrXmlNode);
     procedure LerPrestador(const ANode: TACBrXmlNode);
@@ -73,6 +75,7 @@ type
   protected
 
   public
+    function NormatizarXml(const aXml: string): string; override;
     function LerXmlNfse(const ANode: TACBrXmlNode): Boolean; override;
 
   end;
@@ -88,6 +91,18 @@ uses
 //==============================================================================
 
 { TNFSeR_IPM }
+
+function TNFSeR_IPM.RemoverGrupo_conteudohtml(const aXML: string): string;
+var
+  i: Integer;
+begin
+  i := Pos('<codigo_html>', aXML);
+
+  if i > 0 then
+    Result := Copy(aXML, 1, i -1) + '</retorno>'
+  else
+    Result := aXML;
+end;
 
 procedure TNFSeR_IPM.LerFormaPagamento(const ANode: TACBrXmlNode);
 var
@@ -152,7 +167,7 @@ begin
 
           SituacaoTributaria := ObterConteudo(ANodes[i].Childrens.FindAnyNs('situacao_tributaria'), tcInt);
 
-          ValorTotal := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_tributavel'), tcDe2);
+          ValorTributavel := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_tributavel'), tcDe2);
           ValorDeducoes := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_deducao'), tcDe2);
           BaseCalculo := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_tributavel'), tcDe2);
           ValorIssRetido := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor_issrf'), tcDe2);
@@ -195,6 +210,8 @@ begin
       Link := ObterConteudo(AuxNode.Childrens.FindAnyNs('link_nfse'), tcStr);
       Link := StringReplace(Link, '&amp;', '&', [rfReplaceAll]);
 
+      Competencia := ObterConteudo(AuxNode.Childrens.FindAnyNs('data_fato'), tcDatVcto);
+
       // campos presentes ao baixar do site da prefeitura
       if Numero = '' then
       begin
@@ -205,7 +222,7 @@ begin
         aValor := aValor + ' ' +
                   ObterConteudo(AuxNode.Childrens.FindAnyNs('hora_nfse'), tcStr);
 
-        DataEmissao := EncodeDataHora(aValor, 'DD/MM/YYYY');
+        DataEmissao := EncodeDataHora(aValor, 'DD/MM/YYYY hh:nn:ss');
       end;
 
       //XML cancelado não tem a tag "situacao_codigo_nfse" se baixado do site da prefeitura
@@ -286,8 +303,8 @@ begin
     aValor := aValor + ' ' +
               ObterConteudo(AuxNode.Childrens.FindAnyNs('hora_emissao_recibo_provisorio'), tcStr);
 
-    NFSe.DataEmissao := EncodeDataHora(aValor, 'DD/MM/YYYY');
-    NFSe.DataEmissaoRps := EncodeDataHora(aValor, 'DD/MM/YYYY');
+    NFSe.DataEmissao := EncodeDataHora(aValor, 'DD/MM/YYYY hh:nn:ss');
+    NFSe.DataEmissaoRps := NFSe.DataEmissao;
 
     with NFSe.IdentificacaoRps do
     begin
@@ -372,6 +389,8 @@ begin
 
   LerParamsTabIni(True);
 
+  Arquivo := RemoverGrupo_conteudohtml(Arquivo);
+
   Arquivo := NormatizarXml(Arquivo);
 
   if FDocument = nil then
@@ -448,6 +467,13 @@ begin
 
   LerNfseCancelamento(ANode);
   LerNfseSubstituicao(ANode);
+end;
+
+function TNFSeR_IPM204.NormatizarXml(const aXml: string): string;
+begin
+  Result := inherited NormatizarXML(aXml);
+
+  Result := Trim(StringReplace(Result, '&amp;#13;', sLineBreak, [rfReplaceAll]));
 end;
 
 end.

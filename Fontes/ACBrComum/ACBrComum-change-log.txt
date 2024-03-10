@@ -37,6 +37,39 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+01/03/2024
+-- ACBrUtil.XMLHTML --
+[*] Alteração no ParseText pois o mesmo ao receber um XML no formato UTF-8
+    estava devolvendo-o no formato ANSI de forma indevida.
+    por: DSA
+
+16/02/2024
+-- ACBrReg.pas -- 
+[*] Ajuste para leitura correta do resource ACBR se existir ou não
+    por: Régys Silveira
+
+12/02/2024
+-- ACBrUtil.DateTime --
+[*] Ajuste para não ocorrer vazamento de memória.
+   Por: André Moraes
+
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+17/01/2024
+-- ACBrUtil.FilesIO --
+[+] Adicionada a função que permite Definir ou Mudar o valor de Variáveis de Ambiente
+    function SetGlobalEnvironment(const AName, AValue: string; const UserEnvironment: Boolean = True): Boolean;
+    (por: DSA)
+
+27/12/2023
+-- ACBrUtil.FilesIO --
+[-] A função FileToBytes o esta faltando o Out no parâmetro Bytes para que seja
+    retornado corretamente o Logo em bytes.
+   Por: Jéter Rabelo Ferreira
+
 01/11/2023
 -- ACBrUtil.FilesIO --
 [+] Implementado a função StringIsPDF que tem como objetivo identificar se a

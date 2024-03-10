@@ -282,10 +282,6 @@ begin
         55: DescricaoModelo := 'NFe';
         65: DescricaoModelo := 'NFCe';
       end;
-                       
-      wLiteral := '';
-      if TACBrNFe(ACBrNFe).Configuracoes.Arquivos.AdicionarLiteral then
-        wLiteral := DescricaoModelo;
 
       wLiteral := '';
       if TACBrNFe(ACBrNFe).Configuracoes.Arquivos.AdicionarLiteral then

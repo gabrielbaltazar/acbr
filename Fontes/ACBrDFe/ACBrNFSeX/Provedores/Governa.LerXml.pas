@@ -222,6 +222,7 @@ begin
       Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('DesSvc'), tcStr);
       Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
                                       sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
       Descricao := ObterConteudo(AuxNode.Childrens.FindAnyNs('DescricaoServ'), tcStr);
       Descricao := StringReplace(Descricao, FpQuebradeLinha,
                                       sLineBreak, [rfReplaceAll, rfIgnoreCase]);
@@ -248,7 +249,7 @@ begin
           ItemServico.New;
           with ItemServico[i] do
           begin
-            Descricao     := ObterConteudo(ANodes[i].Childrens.FindAnyNs('DesSvc'), tcStr);
+            Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('DesSvc'), tcStr);
             Descricao := StringReplace(Descricao, FpQuebradeLinha,
                                       sLineBreak, [rfReplaceAll, rfIgnoreCase]);
             Quantidade    := ObterConteudo(ANodes[i].Childrens.FindAnyNs('QdeSvc'), tcDe2);

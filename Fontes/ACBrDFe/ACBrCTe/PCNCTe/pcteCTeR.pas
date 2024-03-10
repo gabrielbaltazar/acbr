@@ -60,7 +60,6 @@ type
 implementation
 
 uses
-  pcnAuxiliar,
   ACBrConsts,
   ACBrUtil.Base, ACBrUtil.Strings;
 
@@ -118,7 +117,12 @@ begin
     (*B05*)CTe.Ide.natOp    := Leitor.rCampo(tcStr, 'natOp');
 
     if VersaoDF < ve300 then
-      (*B06*)CTe.Ide.forPag   := StrTotpforPag(ok, Leitor.rCampo(tcStr, 'forPag'));
+    begin
+      sAux := Leitor.rCampo(tcStr, 'forPag');
+
+      if sAux <> '' then
+        (*B06*)CTe.Ide.forPag := StrTotpforPag(ok, sAux);
+    end;
 
     (*B07*)CTe.Ide.modelo   := Leitor.rCampo(tcStr, 'mod');
     (*B08*)CTe.Ide.serie    := Leitor.rCampo(tcInt, 'serie');
@@ -152,7 +156,12 @@ begin
     (*B24*)CTe.Ide.cMunFim  := Leitor.rCampo(tcInt, 'cMunFim');
     (*B25*)CTe.Ide.xMunFim  := Leitor.rCampo(tcStr, 'xMunFim');
     (*B26*)CTe.Ide.UFFim    := Leitor.rCampo(tcStr, 'UFFim');
-    (*B27*)CTe.Ide.retira   := StrToTpRetira(ok, Leitor.rCampo(tcStr, 'retira'));
+
+    sAux := Leitor.rCampo(tcStr, 'retira');
+
+    if sAux <> '' then
+      (*B27*)CTe.Ide.retira := StrToTpRetira(ok, sAux);
+
     (*B27a*)CTe.Ide.xdetretira := Leitor.rCampo(tcStr, 'xDetRetira');
     (*#57*)CTe.Ide.dhCont   := Leitor.rCampo(tcDatHor, 'dhCont');
     (*#58*)CTe.Ide.xJust    := Leitor.rCampo(tcStr, 'xJust');
@@ -288,28 +297,22 @@ begin
     end;
 
     i01 := 0;
-    I := 0;
     CTe.Compl.ObsCont.Clear;
     while Leitor.rExtrai(2, 'ObsCont', '', i01 + 1) <> '' do
     begin
-      I := RetornarPosEx('ObsCont xCampo=', Leitor.Arquivo, I + 1);
-      J := RetornarPosEx(Aspas, Leitor.Arquivo, I + 16);
-      CTe.Compl.ObsCont.New;
-      CTe.Compl.ObsCont[i01].xCampo := copy(Leitor.Arquivo, I + 16, J - (I + 16));
-      CTe.Compl.ObsCont[i01].xTexto := Leitor.rCampo(tcstr,'xTexto');
+      CTe.Compl.obsCont.New;
+      CTe.Compl.obsCont[i01].xCampo := Leitor.rAtributo('xCampo');
+      CTe.Compl.obsCont[i01].xTexto := Leitor.rCampo(tcStr, 'xTexto');
       inc(i01);
     end;
 
     i01 := 0;
-    I := 0;
     CTe.Compl.ObsFisco.Clear;
     while Leitor.rExtrai(2, 'ObsFisco', '', i01 + 1) <> '' do
     begin
-      I := RetornarPosEx('ObsFisco xCampo=', Leitor.Arquivo, I + 1);
-      J := RetornarPosEx(Aspas, Leitor.Arquivo, I + 17);
-      CTe.Compl.ObsFisco.New;
-      CTe.Compl.ObsFisco[i01].xCampo := copy(Leitor.Arquivo, I + 17, J - (I + 17));
-      CTe.Compl.ObsFisco[i01].xTexto := Leitor.rCampo(tcstr,'xTexto');
+      CTe.Compl.obsCont.New;
+      CTe.Compl.obsCont[i01].xCampo := Leitor.rAtributo('xCampo');
+      CTe.Compl.obsCont[i01].xTexto := Leitor.rCampo(tcStr, 'xTexto');
       inc(i01);
     end;
   end;
@@ -322,7 +325,9 @@ begin
     CTe.emit.IEST  := Leitor.rCampo(tcStr, 'IEST');
     CTe.emit.xNome := Leitor.rCampo(tcStr, 'xNome');
     CTe.emit.xFant := Leitor.rCampo(tcStr, 'xFant');
-    CTe.emit.CRT   := StrToCRTCTe(ok, Leitor.rCampo(tcStr, 'CRT'));
+    sAux := Leitor.rCampo(tcStr, 'CRT');
+    if sAux <> '' then
+      CTe.emit.CRT   := StrToCRTCTe(ok, sAux);
 
     if Leitor.rExtrai(2, 'enderEmit') <> '' then
     begin
@@ -638,6 +643,9 @@ begin
           CTe.Imp.ICMS.ICMS20.vBC    := Leitor.rCampo(tcDe2,'vBC');
           CTe.Imp.ICMS.ICMS20.pICMS  := Leitor.rCampo(tcDe2,'pICMS');
           CTe.Imp.ICMS.ICMS20.vICMS  := Leitor.rCampo(tcDe2,'vICMS');
+
+          CTe.Imp.ICMS.ICMS20.vICMSDeson := Leitor.rCampo(tcDe2,'vICMSDeson');
+          CTe.Imp.ICMS.ICMS20.cBenef     := Leitor.rCampo(tcStr,'cBenef');
         end;
       end;
 
@@ -650,6 +658,9 @@ begin
           if sCST='41' then CTe.Imp.ICMS.SituTrib  := cst41;
           if sCST='51' then CTe.Imp.ICMS.SituTrib  := cst51;
           CTe.Imp.ICMS.ICMS45.CST := StrToCSTICMS(ok, Leitor.rCampo(tcStr,'CST'));
+
+          CTe.Imp.ICMS.ICMS45.vICMSDeson := Leitor.rCampo(tcDe2,'vICMSDeson');
+          CTe.Imp.ICMS.ICMS45.cBenef     := Leitor.rCampo(tcStr,'cBenef');
         end;
       end;
 
@@ -663,6 +674,9 @@ begin
           CTe.Imp.ICMS.ICMS60.vICMSSTRet := Leitor.rCampo(tcDe2,'vICMSSTRet');
           CTe.Imp.ICMS.ICMS60.pICMSSTRet := Leitor.rCampo(tcDe2,'pICMSSTRet');
           CTe.Imp.ICMS.ICMS60.vCred      := Leitor.rCampo(tcDe2,'vCred');
+
+          CTe.Imp.ICMS.ICMS60.vICMSDeson := Leitor.rCampo(tcDe2,'vICMSDeson');
+          CTe.Imp.ICMS.ICMS60.cBenef     := Leitor.rCampo(tcStr,'cBenef');
         end;
       end;
 
@@ -677,6 +691,9 @@ begin
           CTe.Imp.ICMS.ICMS90.pICMS  := Leitor.rCampo(tcDe2,'pICMS');
           CTe.Imp.ICMS.ICMS90.vICMS  := Leitor.rCampo(tcDe2,'vICMS');
           CTe.Imp.ICMS.ICMS90.vCred  := Leitor.rCampo(tcDe2,'vCred');
+
+          CTe.Imp.ICMS.ICMS90.vICMSDeson := Leitor.rCampo(tcDe2,'vICMSDeson');
+          CTe.Imp.ICMS.ICMS90.cBenef     := Leitor.rCampo(tcStr,'cBenef');
         end;
       end;
 
@@ -691,6 +708,9 @@ begin
           CTe.Imp.ICMS.ICMSOutraUF.vBCOutraUF    := Leitor.rCampo(tcDe2,'vBCOutraUF');
           CTe.Imp.ICMS.ICMSOutraUF.pICMSOutraUF  := Leitor.rCampo(tcDe2,'pICMSOutraUF');
           CTe.Imp.ICMS.ICMSOutraUF.vICMSOutraUF  := Leitor.rCampo(tcDe2,'vICMSOutraUF');
+
+          CTe.Imp.ICMS.ICMSOutraUF.vICMSDeson := Leitor.rCampo(tcDe2,'vICMSDeson');
+          CTe.Imp.ICMS.ICMSOutraUF.cBenef     := Leitor.rCampo(tcStr,'cBenef');
         end;
       end;
 
@@ -1134,8 +1154,13 @@ begin
     begin
       CTe.infCTeNorm.rodo.RNTRC := Leitor.rCampo(tcStr,'RNTRC');
       CTe.infCTeNorm.rodo.dPrev := Leitor.rCampo(tcDat,'dPrev');
-      CTe.infCTeNorm.rodo.lota  := StrToTpLotacao(ok, Leitor.rCampo(tcStr,'lota'));
-      CTe.infCTeNorm.rodo.CIOT  := Leitor.rCampo(tcStr, 'CIOT');
+
+      sAux := Leitor.rCampo(tcStr, 'lota');
+
+      if sAux <> '' then
+        CTe.infCTeNorm.rodo.lota := StrToTpLotacao(ok, sAux);
+
+      CTe.infCTeNorm.rodo.CIOT := Leitor.rCampo(tcStr, 'CIOT');
 
       if VersaoDF < ve200 then
       begin

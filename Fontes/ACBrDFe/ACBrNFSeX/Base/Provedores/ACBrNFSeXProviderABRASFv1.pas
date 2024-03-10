@@ -161,6 +161,16 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaSitLote := True;
     ConsultaPorFaixa := False;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarSituacao := True;
+      ConsultarLote := True;
+      ConsultarRps := True;
+      ConsultarNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   SetXmlNameSpace(NameSpace);
@@ -188,7 +198,7 @@ begin
   if Node <> nil then
   begin
     Node := Node.Childrens.FindAnyNs('InfNfse');
-    if not Assigned(Node) or (Node = nil) then Exit;
+    if not Assigned(Node) then Exit;
 
     NumNFSe := ObterConteudoTag(Node.Childrens.FindAnyNs('Numero'), tcStr);
     CodVerif := ObterConteudoTag(Node.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
@@ -247,7 +257,7 @@ begin
   if Node <> nil then
   begin
     Node := Node.Childrens.FindAnyNs('InfNfse');
-    if not Assigned(Node) or (Node = nil) then Exit;
+    if not Assigned(Node) then Exit;
 
     NumNFSe := ObterConteudoTag(Node.Childrens.FindAnyNs('Numero'), tcStr);
     CodVerif := ObterConteudoTag(Node.Childrens.FindAnyNs('CodigoVerificacao'), tcStr);
@@ -297,7 +307,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   aParams: TNFSeParamsResponse;
   Nota: TNotaFiscal;
-  Versao, IdAttr, NameSpace, NameSpaceLote, ListaRps, xRps,
+  Versao, IdAttr, NameSpace, NameSpaceLote, ListaRps, xRps, IdAttrSig,
   TagEnvio, Prefixo, PrefixoTS: string;
   I: Integer;
 begin
@@ -417,9 +427,13 @@ begin
 
     if ConfigAssinar.Rps then
     begin
+      IdAttrSig := SetIdSignatureValue(Nota.XmlRps,
+                                     ConfigMsgDados.XmlRps.DocElemento, IdAttr);
+
       Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
                                          PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
-                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
+                                         ConfigMsgDados.XmlRps.InfElemento, '', '', '',
+                                         IdAttr, IdAttrSig);
     end;
 
     SalvarXmlRps(Nota);
@@ -1033,7 +1047,7 @@ begin
         if AuxNode <> nil then
         begin
           AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           InfNfseID := ObterConteudoTag(AuxNode.Attributes.Items['Id']);
           NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
@@ -1520,22 +1534,27 @@ begin
       if Ret.DataHora = 0 then
         Ret.DataHora := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataHora'), FpFormatoDataHora);
 
+      if Ret.DataHora > 0 then
+        Ret.Situacao := 'Cancelado'
+      else
+        Ret.Situacao := '';
+
       if ConfigAssinar.IncluirURI then
         IdAttr := ConfigGeral.Identificador
       else
         IdAttr := 'ID';
 
       ANodePed := ANode.Childrens.FindAnyNs('Pedido');
-      if not Assigned(ANodePed) or (ANodePed = nil) then Exit;
+      if not Assigned(ANodePed) then Exit;
 
       ANodePed := ANodePed.Childrens.FindAnyNs('InfPedidoCancelamento');
-      if not Assigned(ANodePed) or (ANodePed = nil) then Exit;
+      if not Assigned(ANodePed) then Exit;
 
       Ret.Pedido.InfID.ID := ObterConteudoTag(ANodePed.Attributes.Items[IdAttr]);
       Ret.Pedido.CodigoCancelamento := ObterConteudoTag(ANodePed.Childrens.FindAnyNs('CodigoCancelamento'), tcStr);
 
       ANodePed := ANodePed.Childrens.FindAnyNs('IdentificacaoNfse');
-      if not Assigned(ANodePed) or (ANodePed = nil) then Exit;
+      if not Assigned(ANodePed) then Exit;
 
       with Ret.Pedido.IdentificacaoNfse do
       begin
@@ -1551,6 +1570,11 @@ begin
       begin
         Ret.Sucesso := ObterConteudoTag(ANodeInfCon.Childrens.FindAnyNs('Sucesso'), tcStr);
         Ret.DataHora := ObterConteudoTag(ANodeInfCon.Childrens.FindAnyNs('DataHora'), FpFormatoDataHora);
+
+        if Ret.DataHora > 0 then
+          Ret.Situacao := 'Cancelado'
+        else
+          Ret.Situacao := '';
       end;
     except
       on E:Exception do
@@ -1808,8 +1832,8 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-      AErro.Descricao := ACBrStr(Mensagem);
-      AErro.Correcao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr));
+      AErro.Descricao := Mensagem;
+      AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr);
     end;
   end;
 end;

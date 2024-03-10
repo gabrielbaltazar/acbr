@@ -386,18 +386,28 @@ var
   Beneficiario: TACBrCedente;
   Pagador     : TACBrSacado;
   LLinha      : String;
+  LValorMoraJuros : Double;
 begin
 
   LTitulo      := ACBrTitulo;
   Beneficiario := LTitulo.ACBrBoleto.Cedente;
   Pagador      := LTitulo.Sacado;
 
+  if (LTitulo.ValorMoraJuros > 0) then
+    case LTitulo.CodigoMoraJuros of
+      cjValorDia    : LValorMoraJuros := LTitulo.ValorMoraJuros;
+      cjTaxaDiaria  : LValorMoraJuros := RoundABNT((LTitulo.ValorDocumento / 100 ) * LTitulo.ValorMoraJuros, 2);
+      cjValorMensal : LValorMoraJuros := RoundABNT(LTitulo.ValorMoraJuros / 30, 2);
+      cjTaxaMensal  : LValorMoraJuros := RoundABNT((LTitulo.ValorDocumento / 100 ) * (LTitulo.ValorMoraJuros / 30), 2);
+      else
+        LValorMoraJuros := LTitulo.ValorMoraJuros;
+    end;
   LLinha := '1' +                                                               // 001 a 001 - Tipo de Registro
     PadLeft(DefineTipoInscricao, 2, '0') +                                      // 002 a 003 - Tipo de Inscrição Empresa
     PadLeft(OnlyNumber(Beneficiario.CNPJCPF), 14, '0') +                        // 004 a 017 - CNPJ Empresa
     PadRight(Beneficiario.CodigoTransmissao, 12) +                              // 018 a 029 - Código da Empresa
     Space(8) +                                                                  // 030 a 037 - Uso do Banco Brancos
-    PadRight(LTitulo.NumeroDocumento, 25) +                                     // 038 a 062 - Uso da Empresa
+    PadRight(IfThen(LTitulo.SeuNumero = '',LTitulo.NumeroDocumento,LTitulo.SeuNumero), 25) +                                           // 038 a 062 - Uso da Empresa
     PadRight( '0'+
               LTitulo.NossoNumero +
               CalcularDigitoVerificador(LTitulo), 12) +                         // 063 a 074 - Nosso Número
@@ -406,7 +416,7 @@ begin
     Space(21) +                                                                 // 086 a 106 - Uso do Banco Brancos
     PadLeft(LTitulo.Carteira, 2, '0') +                                         // 107 a 108 - Código da Carteira
     TipoOcorrenciaToCodRemessa(LTitulo.OcorrenciaOriginal.Tipo) +               // 109 a 110 - Código Ocorrência Remessa
-    PadRight(LTitulo.SeuNumero, 10) +                                           // 111 a 120 - Seu Número
+    PadRight(IfThen(LTitulo.NumeroDocumento = '',LTitulo.SeuNumero,LTitulo.NumeroDocumento), 10) +                                     // 111 a 120 - Seu Número
     FormatDateTime('ddmmyy', LTitulo.Vencimento) +                              // 121 a 126 - Data Vencimento
     IntToStrZero(Round(LTitulo.ValorDocumento * 100), 13) +                     // 127 a 139 - Valo Titulo
     Space(8) +                                                                  // 140 a 147 - Uso do Banco Brancos
@@ -414,7 +424,7 @@ begin
     DefineAceite(LTitulo) +                                                     // 150 a 150 - Aceite
     FormatDateTime('ddmmyy', LTitulo.DataDocumento) +                           // 151 a 156 - Data Emissão Título
     InstrucoesProtesto(LTitulo) +                                               // 157 a 158 - Instrucao 1 159 a 160 - Instrucao 2
-    IntToStrZero(Round(LTitulo.ValorMoraJuros * 100), 13) +                     // 161 a 173 - Juros ao Dia
+    IntToStrZero(Round(LValorMoraJuros * 100), 13) +                            // 161 a 173 - Juros ao Dia
     IfThen(LTitulo.DataDesconto < EncodeDate(2000, 01, 01),
         '000000', 
         FormatDateTime('ddmmyy', LTitulo.DataDesconto)) +                       // 174 a 179 - Data Desconto
@@ -735,7 +745,7 @@ begin
       Result := Result + PadRight('', 80, ' ');                                 // CONTEÚDO DO RESTANTE DAS LINHAS
 
     Result := Result + Space(44) +                                              // 322 a 365 - Uso do Banco
-      PadRight(SeuNumero, 10) +                                                 // 366 a 375 - Seu Número
+      PadRight(IfThen(ACBrTitulo.NumeroDocumento = '',ACBrTitulo.SeuNumero,ACBrTitulo.NumeroDocumento), 10) +                                                 // 366 a 375 - Seu Número
       FormatDateTime('ddmmyy', Vencimento) +                                    // 376 a 381 - Data Vencimento
       IntToStrZero(Round(ValorDocumento * 100), 13) +                           // 382 a 394 - Valo Titulo
       IntToStrZero(nRegistro + 1, 6);                                           // 395 a 400 - Sequencial

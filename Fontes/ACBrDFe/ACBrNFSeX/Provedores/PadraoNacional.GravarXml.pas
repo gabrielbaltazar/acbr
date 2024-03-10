@@ -39,8 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
+  ACBrNFSeXParametros, ACBrNFSeXGravarXml;
 
 type
   { TNFSeW_PadraoNacional }
@@ -117,9 +116,10 @@ type
 implementation
 
 uses
+  ACBrUtil.DateTime,
   ACBrUtil.Strings,
   ACBrNFSeXConsts,
-  pcnAuxiliar;
+  ACBrNFSeXConversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -236,7 +236,7 @@ begin
                                  NFSe.Prestador.IdentificacaoPrestador.Nif, ''))
     else
       Result.AppendChild(AddNode(tcStr, '#1', 'cNaoNIF', 1, 1, 1,
-                                                                      '0', ''));
+               NaoNIFToStr(NFSe.Prestador.IdentificacaoPrestador.cNaoNIF), ''));
   end;
 
   Result.AppendChild(AddNode(tcStr, '#1', 'CAEPF', 1, 14, 0,
@@ -352,7 +352,7 @@ begin
                                      NFSe.Tomador.IdentificacaoTomador.Nif, ''))
     else
       Result.AppendChild(AddNode(tcStr, '#1', 'cNaoNIF', 1, 1, 1,
-                                                                      '0', ''));
+                   NaoNIFToStr(NFSe.Tomador.IdentificacaoTomador.cNaoNIF), ''));
 
     Result.AppendChild(AddNode(tcStr, '#1', 'CAEPF', 1, 14, 0,
                                   NFSe.Tomador.IdentificacaoTomador.CAEPF, ''));
@@ -446,7 +446,7 @@ begin
                                       NFSe.Intermediario.Identificacao.Nif, ''))
     else
       Result.AppendChild(AddNode(tcStr, '#1', 'cNaoNIF', 1, 1, 1,
-                                                                      '0', ''));
+                    NaoNIFToStr(NFSe.Intermediario.Identificacao.cNaoNIF), ''));
 
     Result.AppendChild(AddNode(tcStr, '#1', 'CAEPF', 1, 14, 0,
                                    NFSe.Intermediario.Identificacao.CAEPF, ''));
@@ -700,12 +700,12 @@ function TNFSeW_PadraoNacional.GerarAtividadeEvento: TACBrXmlNode;
 begin
   Result := nil;
 
-  if NFSe.Servico.Evento.desc <> '' then
+  if NFSe.Servico.Evento.xNome <> '' then
   begin
     Result := CreateElement('atvEvento');
 
-    Result.AppendChild(AddNode(tcStr, '#1', 'desc', 1, 255, 1,
-                                                 NFSe.Servico.Evento.desc, ''));
+    Result.AppendChild(AddNode(tcStr, '#1', 'xNome', 1, 255, 1,
+                                                NFSe.Servico.Evento.xNome, ''));
 
     Result.AppendChild(AddNode(tcDat, '#1', 'dtIni', 10, 10, 1,
                                                 NFSe.Servico.Evento.dtIni, ''));
@@ -713,9 +713,9 @@ begin
     Result.AppendChild(AddNode(tcDat, '#1', 'dtFim', 10, 10, 1,
                                                 NFSe.Servico.Evento.dtFim, ''));
 
-    if NFSe.Servico.Evento.id <> '' then
-      Result.AppendChild(AddNode(tcStr, '#1', 'id', 1, 30, 1,
-                                                    NFSe.Servico.Evento.id, ''))
+    if NFSe.Servico.Evento.idAtvEvt <> '' then
+      Result.AppendChild(AddNode(tcStr, '#1', 'idAtvEvt', 1, 30, 1,
+                                              NFSe.Servico.Evento.idAtvEvt, ''))
     else
       Result.AppendChild(GerarEnderecoEvento);
   end;
@@ -1001,7 +1001,7 @@ begin
                                                          Identificacao.Nif, ''))
       else
         Result.AppendChild(AddNode(tcStr, '#1', 'cNaoNIF', 1, 1, 1,
-                                                                      '0', ''));
+                                       NaoNIFToStr(Identificacao.cNaoNIF), ''));
 
       Result.AppendChild(AddNode(tcStr, '#1', 'CAEPF', 1, 14, 0,
                                                       Identificacao.CAEPF, ''));
@@ -1212,7 +1212,7 @@ begin
     Result.AppendChild(AddNode(tcDe2, '#1', 'vCofins', 1, 15, 0,
                                      NFSe.Servico.Valores.tribFed.vCofins, ''));
 
-    Result.AppendChild(AddNode(tcStr, '#1', 'tpRetPisCofins', 1, 1, 1,
+    Result.AppendChild(AddNode(tcStr, '#1', 'tpRetPisCofins', 1, 1, 0,
          tpRetPisCofinsToStr(NFSe.Servico.Valores.tribFed.tpRetPisCofins), ''));
   end;
 end;

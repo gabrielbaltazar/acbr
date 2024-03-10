@@ -36,6 +36,22 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+27/01/2024
+[*]TK-5021 - ACBrConsultaCNPJ - Adicionando servidor "Publica" ao componente.
+  Por: André Luis - Minf / Rev. Victor Gonzales e Alexandre de Paula
+  
+03/01/2024
+[*]TK-4920 - ACBrNCMs - Possível solução para a leitura das datas.
+  Por: Italo Giurizzato Junior
+
+29/12/2023
+[*]TK-4878 - ACBrConsultaCNPJ.WS.BrasilAPI, ACBrConsultaCNPJ.WS.ReceitaWS - Removido ACBrStr conforme discutido com o time das propriedades recebida pelo webservice. 
+  Por: Daniel Morais InfoCotidiano
+
+19/12/2023
+[*] Altera System.Classes para Classes nas novas units do ConsultaCNPJ para compatibilizar com Lazarus.
+  Por: Diego Folieni
+
 31/10/2023
 [*]TK-4666 - ACBrMail - Removido chamada do Clear na rotina que salva o e-mail.
   Por: Innovae Brasil Engenharia / Rev: Alexandre de Paula

@@ -151,8 +151,8 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr));
-    AErro.Correcao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr);
+    AErro.Correcao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr);
 
    Exit;
   end;
@@ -356,7 +356,7 @@ begin
   // Remoção de lixo
   Result := Trim(StringReplace(Result, '@@RETORNO', '', [rfReplaceAll]));
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverPrefixosDesnecessarios(Result);

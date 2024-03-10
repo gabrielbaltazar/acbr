@@ -137,6 +137,7 @@ type
     FTipo: TTipoPessoa;
     FNif: string;
     FCAEPF: string;
+    FcNaoNIF: TNaoNIF;
 
     function GetCnpj: string;
     procedure SetCnpj(const Value: string);
@@ -149,6 +150,7 @@ type
     property Tipo: TTipoPessoa read FTipo write FTipo;
     property Nif: string read FNif write FNif;
     property CAEPF: string read FCAEPF write FCAEPF;
+    property cNaoNIF: TNaoNIF read FcNaoNIF write FcNaoNIF;
   end;
 
   TContato = class(TObject)
@@ -470,6 +472,20 @@ type
     property ValorADeduzir: Double read FValorADeduzir write FValorADeduzir;
   end;
 
+  TDadosProfissionalParceiro = class(TObject)
+  private
+    FIdentificacaoParceiro: TIdentificacao;
+    FRazaoSocial: string;
+    FPercentualProfissionalParceiro: Double;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property IdentificacaoParceiro: TIdentificacao read FIdentificacaoParceiro write FIdentificacaoParceiro;
+    property RazaoSocial: string read FRazaoSocial write FRazaoSocial;
+    property PercentualProfissionalParceiro: Double read FPercentualProfissionalParceiro write FPercentualProfissionalParceiro;
+  end;
+
   TItemServicoCollectionItem = class(TObject)
   private
     FCodServ: string;
@@ -538,6 +554,9 @@ type
     FCodMunPrestacao: string;
     FSituacaoTributaria: Integer;
     FCodCNO: string;
+    FValorTributavel: Double;
+
+    FDadosProfissionalParceiro: TDadosProfissionalParceiro;
   public
     constructor Create;
     destructor Destroy; override;
@@ -570,7 +589,7 @@ type
     property Aliquota: Double read FAliquota write FAliquota;
     property ValorISS: Double read FValorISS write FValorISS;
     property ValorISSRetido: Double read FValorISSRetido write FValorISSRetido;
-	property ValorPisRetido: Double read FValorPisRetido write FValorPisRetido;
+    property ValorPisRetido: Double read FValorPisRetido write FValorPisRetido;
     property ValorCofinsRetido: Double read FValorCofinsRetido write FValorCofinsRetido;
     property ValorInssRetido: Double read FValorInssRetido write FValorInssRetido;
     property ValorIrRetido: Double read FValorIrRetido write FValorIrRetido;
@@ -610,6 +629,10 @@ type
     property CodMunPrestacao: string read FCodMunPrestacao write FCodMunPrestacao;
     property SituacaoTributaria: Integer read FSituacaoTributaria write FSituacaoTributaria;
     property CodCNO: string read FCodCNO write FCodCNO;
+    property ValorTributavel: Double read FValorTributavel write FValorTributavel;
+
+    // Provedor Agili
+    property DadosProfissionalParceiro: TDadosProfissionalParceiro read FDadosProfissionalParceiro write FDadosProfissionalParceiro;
   end;
 
   TItemServicoCollection = class(TACBrObjectList)
@@ -692,19 +715,19 @@ type
 
   TEvento = class(TObject)
   private
-    Fdesc: string;
+    FxNome: string;
     FdtIni: TDateTime;
     FdtFim: TDateTime;
-    Fid: string;
+    FidAtvEvt: string;
     FEndereco: TEndereco;
   public
     constructor Create;
     destructor Destroy; override;
 
-    property desc: string read Fdesc write Fdesc;
+    property xNome: string read FxNome write FxNome;
     property dtIni: TDateTime read FdtIni write FdtIni;
     property dtFim: TDateTime read FdtFim write FdtFim;
-    property id: string read Fid write Fid;
+    property idAtvEvt: string read FidAtvEvt write FidAtvEvt;
     property Endereco: TEndereco read FEndereco write FEndereco;
   end;
 
@@ -805,6 +828,8 @@ type
     FImposto: TImpostoCollection;
     FIdentifNaoExigibilidade: string;
     FxMunicipioIncidencia: string;
+    FCFPS: string;
+    FEndereco: TEndereco;
 
     procedure SetItemServico(Value: TItemServicoCollection);
     procedure SetDeducao(const Value: TDeducaoCollection);
@@ -857,6 +882,10 @@ type
     property infoCompl: TinfoCompl read FinfoCompl write FinfoCompl;
     // Provedor CTAConsult
     property Imposto: TImpostoCollection read FImposto write SetImposto;
+    // Provedor SoftPlan
+    property CFPS: string read FCFPS write FCFPS;
+    // Provedor Giap
+    property Endereco: TEndereco read FEndereco write FEndereco;
   end;
 
   TDadosPessoa = class(TObject)
@@ -1312,7 +1341,6 @@ type
     FDespesa: TDespesaCollection;
 
     FNumeroLote: string;
-//    FProtocolo: string;
     FdhRecebimento: TDateTime;
 
     FNfseCancelamento: TConfirmacaoCancelamento;
@@ -1321,6 +1349,7 @@ type
     FMotivoCancelamento: string;
     // Provedor ISSBarueri
     FCodigoCancelamento: string;
+    FIdentificacaoRemessa: string;
     // Provedor Infisc
     FcNFSe: Integer;
 
@@ -1424,7 +1453,6 @@ type
     property Link: string read FLink write FLink;
     property NumeroLote: string read FNumeroLote write FNumeroLote;
     property DescricaoCodigoTributacaoMunicipio: string read FDescricaoCodigoTributacaoMunicipio write FDescricaoCodigoTributacaoMunicipio;
-//    property Protocolo: string read FProtocolo write FProtocolo;
     property dhRecebimento: TDateTime read FdhRecebimento write FdhRecebimento;
     property NfseCancelamento: TConfirmacaoCancelamento read FNfseCancelamento write FNfseCancelamento;
     property NfseSubstituidora: string read FNfseSubstituidora write FNfseSubstituidora;
@@ -1432,6 +1460,7 @@ type
     property MotivoCancelamento: string read FMotivoCancelamento write FMotivoCancelamento;
     // Provedor ISSBarueri
     property CodigoCancelamento: string read FCodigoCancelamento write FCodigoCancelamento;
+    property IdentificacaoRemessa: string read FIdentificacaoRemessa write FIdentificacaoRemessa;
     // Provedor Infisc
     property cNFSe: Integer read FcNFSe write FcNFSe;
     property refNF: string read FrefNF write FrefNF;
@@ -1552,6 +1581,8 @@ begin
 
   FDescricao := '';
   FPrestadoEmViasPublicas := False;
+
+  FEndereco := TEndereco.Create;
 end;
 
 destructor TDadosServico.Destroy;
@@ -1565,6 +1596,7 @@ begin
   FExplRod.Free;
   FinfoCompl.Free;
   FImposto.Free;
+  FEndereco.Free;
 
   inherited Destroy;
 end;
@@ -1959,12 +1991,14 @@ begin
   FCodServ := '';
   FUnidade := 'UN';
 
-  FDadosDeducao := TDadosDeducao.Create;;
+  FDadosDeducao := TDadosDeducao.Create;
+  FDadosProfissionalParceiro := TDadosProfissionalParceiro.Create;
 end;
 
 destructor TItemServicoCollectionItem.Destroy;
 begin
   FDadosDeducao.Free;
+  FDadosProfissionalParceiro.Free;
 
   inherited Destroy;
 end;
@@ -2324,6 +2358,22 @@ procedure TImpostoCollection.SetItem(Index: Integer;
   Value: TImpostoCollectionItem);
 begin
   inherited Items[Index] := Value;
+end;
+
+{ TDadosProfissionalParceiro }
+
+constructor TDadosProfissionalParceiro.Create;
+begin
+  inherited Create;
+
+  FIdentificacaoParceiro := TIdentificacao.Create;
+end;
+
+destructor TDadosProfissionalParceiro.Destroy;
+begin
+  FIdentificacaoParceiro.Free;
+
+  inherited Destroy;
 end;
 
 end.

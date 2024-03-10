@@ -115,6 +115,16 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaLote := False;
     ConsultaNFSe := False;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerChaveAutorizacao := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarRps := True;
+      CancelarNfse := True;
+    end;
   end;
 
   SetXmlNameSpace('');
@@ -172,6 +182,25 @@ end;
 procedure TACBrNFSeProviderGiap.ProcessarMensagemErros(
   RootNode: TACBrXmlNode; Response: TNFSeWebserviceResponse;
   const AListTag, AMessageTag: string);
+
+  function ObterValor(ANode: TACBrXmlNode; const ATag: string): string;
+  var
+    Node: TACBrXmlNode;
+    Attr: TACBrXmlAttribute;
+  begin
+    Attr := ANode.Attributes.Items[ATag];
+    if Attr <> nil then
+      Result := ObterConteudoTag(Attr)
+    else
+    begin
+      Node := ANode.Childrens.FindAnyNs(ATag);
+      if Node <> nil then
+        Result := ObterConteudoTag(Node, tcStr)
+      else
+        Result := '';
+    end;
+  end;
+
 var
   I: Integer;
   ANode: TACBrXmlNode;
@@ -188,9 +217,11 @@ begin
 
     for I := Low(ANodeArray) to High(ANodeArray) do
     begin
+      ANode := ANodeArray[I];
+
       AErro := Response.Erros.New;
-      AErro.Codigo := ObterConteudoTag(ANodeArray[I].Attributes.Items['code']);
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Attributes.Items['message']));
+      AErro.Codigo := ObterValor(ANode, 'code');
+      AErro.Descricao := ObterValor(ANode, 'message');
       AErro.Correcao := '';
     end;
   end;
@@ -405,6 +436,7 @@ begin
           Response.DescSituacao := 'Nota não Encontrada';
 
         Response.NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroNota'), tcStr);
+        Response.Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('wsLink'), tcStr);
       end;
     except
       on E:Exception do
@@ -541,8 +573,8 @@ begin
   begin
     Result := inherited TratarXmlRetornado(aXML);
 
-    Result := String(NativeStringToUTF8(Result));
-    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+//    Result := String(NativeStringToUTF8(Result));
+    Result := ParseText(Result);
     Result := RemoverDeclaracaoXML(Result);
     Result := RemoverIdentacao(Result);
     Result := RemoverCaracteresDesnecessarios(Result);
@@ -560,8 +592,8 @@ begin
                 '</notaFiscal>' +
               '</nfeReposta>';
 
-    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
-    Result := String(NativeStringToUTF8(Result));
+    Result := ParseText(Result);
+//    Result := String(NativeStringToUTF8(Result));
   end;
 end;
 

@@ -110,6 +110,7 @@ type
     FNrOcorrTomadorExterior: Integer;
     FNrOcorrCodigoMunic_1: Integer;
     FNrOcorrCodigoMunic_2: Integer;
+    FNrOcorrCodigoMunicInterm: Integer;
     FGerarTagNifTomador: Boolean;
     FGerarEnderecoExterior: Boolean;
     FNrOcorrID: Integer;
@@ -238,6 +239,7 @@ type
     property NrOcorrTomadorExterior: Integer    read FNrOcorrTomadorExterior    write FNrOcorrTomadorExterior;
     property NrOcorrCodigoMunic_1: Integer      read FNrOcorrCodigoMunic_1      write FNrOcorrCodigoMunic_1;
     property NrOcorrCodigoMunic_2: Integer      read FNrOcorrCodigoMunic_2      write FNrOcorrCodigoMunic_2;
+    property NrOcorrCodigoMunicInterm: Integer read FNrOcorrCodigoMunicInterm write FNrOcorrCodigoMunicInterm;
     property NrOcorrInscMunTomador: Integer     read FNrOcorrInscMunTomador      write FNrOcorrInscMunTomador;
 
     property NrOcorrInformacoesComplemetares: Integer read FNrOcorrInformacoesComplemetares write FNrOcorrInformacoesComplemetares;
@@ -290,7 +292,7 @@ type
 implementation
 
 uses
-  pcnConsts,
+  ACBrUtil.DateTime,
   ACBrUtil.Strings,
   ACBrXmlBase,
   ACBrNFSeXConversao, ACBrNFSeXConsts;
@@ -379,6 +381,7 @@ begin
   FNrOcorrAtualizaTomador := -1;
   FNrOcorrTomadorExterior := -1;
   FNrOcorrCodigoMunic_2 := -1;
+  FNrOcorrCodigoMunicInterm := -1;
   FNrOcorrID := -1;
   FNrOcorrToken := -1;
   FNrOcorrSenha := -1;
@@ -426,16 +429,22 @@ begin
   Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   case VersaoNFSe of
-    ve203: FGerarTagNifTomador := True;
+    ve203:
+      begin
+        FGerarTagNifTomador := True;
+        NrOcorrCodigoMunicInterm := 1;
+      end;
     ve204:
       begin
         FGerarTagNifTomador := True;
         FGerarEnderecoExterior := True;
+        NrOcorrCodigoMunicInterm := 1;
       end;
   else
     begin
       FGerarTagNifTomador := False;
       FGerarEnderecoExterior := False;
+      NrOcorrCodigoMunicInterm := -1;
     end;
   end;
 
@@ -447,6 +456,9 @@ begin
     NFSeNode.SetNamespace(FpAOwner.ConfigMsgDados.XmlRps.xmlns, Self.PrefixoPadrao);
 
   FDocument.Root := NFSeNode;
+
+  if FormatoDiscriminacao <> fdNenhum then
+    ConsolidarVariosItensServicosEmUmSo;
 
   xmlNode := GerarInfDeclaracaoPrestacaoServico;
   NFSeNode.AppendChild(xmlNode);
@@ -484,7 +496,7 @@ begin
   Result.AppendChild(GerarListaServicos);
 
   Result.AppendChild(AddNode(FormatoCompetencia, '#4', 'Competencia', 19, 19, NrOcorrCompetencia,
-                                                   NFSe.Competencia, DSC_DEMI));
+                                                  NFSe.Competencia, DSC_DHEMI));
 
   Result.AppendChild(GerarServico);
   Result.AppendChild(GerarPrestador);
@@ -579,7 +591,7 @@ begin
     NFSe.DataEmissaoRps := NFSe.DataEmissao;
 
   Result.AppendChild(AddNode(FormatoEmissao, '#4', 'DataEmissao', 19, 19, 1,
-                                                NFSe.DataEmissaoRps, DSC_DEMI));
+    AjustarDataHoraParaUf(NFse.DataEmissaoRps, CodMunEmit div 100000), DSC_DHEMI));
 
   Result.AppendChild(GerarStatus);
   Result.AppendChild(GerarRPSSubstituido);
@@ -666,9 +678,7 @@ begin
     Result.AppendChild(AddNode(tcStr, '#34', 'CodigoMunicipio', 1, 7, NrOcorrCodigoMunic_2,
                            OnlyNumber(NFSe.Servico.CodigoMunicipio), DSC_CMUN));
 
-    if (OnlyNumber(NFSe.Servico.CodigoMunicipio) = '9999999') or
-       (NrOcorrCodigoPaisServico = 1)  then
-      Result.AppendChild(AddNode(tcInt, '#35', 'CodigoPais', 4, 4, NrOcorrCodigoPaisServico,
+    Result.AppendChild(AddNode(tcInt, '#35', 'CodigoPais', 4, 4, NrOcorrCodigoPaisServico,
                                            NFSe.Servico.CodigoPais, DSC_CPAIS));
 
     Result.AppendChild(AddNode(tcInt, '#36', 'ExigibilidadeISS',
@@ -694,7 +704,7 @@ end;
 function TNFSeW_ABRASFv2.GerarStatus: TACBrXmlNode;
 begin
   Result := AddNode(tcStr, '#9', 'Status', 1, 1, 1,
-                                 StatusRPSToStr(NFSe.StatusRps), DSC_INDSTATUS);
+                        FpAOwner.StatusRPSToStr(NFSe.StatusRps), DSC_INDSTATUS);
 end;
 
 function TNFSeW_ABRASFv2.GerarValores: TACBrXmlNode;
@@ -993,6 +1003,9 @@ begin
 
     Result.AppendChild(AddNode(tcStr, '#48', 'RazaoSocial', 1, 115, NrOcorrRazaoSocialInterm,
                                     NFSe.Intermediario.RazaoSocial, DSC_XNOME));
+
+    Result.AppendChild(AddNode(tcStr, '#49', 'CodigoMunicipio', 7, 7,
+       NrOcorrCodigoMunicInterm, NFSe.Intermediario.CodigoMunicipio, DSC_CMUN));
   end;
 end;
 

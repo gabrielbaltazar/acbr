@@ -121,6 +121,16 @@ begin
     ModoEnvio := meLoteAssincrono;
     FpCodigoCidade := Params.ValorParametro('CodigoCidade');
     DetalharServico := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarSituacao := True;
+      ConsultarLote := True;
+      ConsultarRps := True;
+      ConsultarNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   with ConfigAssinar do
@@ -246,7 +256,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('cdMensagem'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('dsMensagem'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('dsMensagem'), tcStr);
     AErro.Correcao := '';
   end;
 end;
@@ -646,19 +656,19 @@ begin
 
             if AuxNode <> nil then
             begin
+              ANumRps:= ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrRps'), tcStr);
+              ACodVer := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cdAutenticacao'), tcStr);
+              ANumNfse := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrNfse'), tcStr);
+              ADataHora := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dtEmissaoNfs'), tcDat);
+
+              AResumo := Response.Resumos.New;
+              AResumo.NumeroNota := ANumNfse;
+              AResumo.CodigoVerificacao := ACodVer;
+              AResumo.NumeroRps := ANumRps;
+              AResumo.Data := ADataHora;
+
               if j > 0 then
               begin
-                ANumRps:= ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrRps'), tcStr);
-                ACodVer := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cdAutenticacao'), tcStr);
-                ANumNfse := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nrNfse'), tcStr);
-                ADataHora := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dtEmissaoNfs'), tcDat);
-
-                AResumo := Response.Resumos.New;
-                AResumo.NumeroNota := ANumNfse;
-                AResumo.CodigoVerificacao := ACodVer;
-                AResumo.NumeroRps := ANumRps;
-                AResumo.Data := ADataHora;
-
                 aXmlRetorno := AuxNode.OuterXml;
 
                 for k := 0 to j-1 do
@@ -1143,7 +1153,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
