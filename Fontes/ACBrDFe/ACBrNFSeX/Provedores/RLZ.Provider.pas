@@ -332,7 +332,7 @@ function TACBrNFSeXWebserviceRLZ203.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 
@@ -348,6 +348,14 @@ begin
     QuebradeLinha := '|';
     ModoEnvio := meUnitario;
     DetalharServico := True;
+
+    Autenticacao.RequerChaveAcesso := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarUnitario := True;
+      ConsultarNfse := True;
+    end;
   end;
 
   ConfigSchemas.Validar := False;
@@ -404,7 +412,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := Codigo;
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('mensagem'), tcStr));
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('mensagem'), tcStr);
       AErro.Correcao := '';
     end;
   end;
@@ -677,7 +685,7 @@ function TACBrNFSeXWebserviceRLZ.TratarXmlRetornado(const aXML: string): string;
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 

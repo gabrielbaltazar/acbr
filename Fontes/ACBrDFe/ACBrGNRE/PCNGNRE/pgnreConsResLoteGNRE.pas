@@ -39,7 +39,8 @@ interface
 
 uses
   SysUtils, Classes,
-  pcnAuxiliar, pcnConversao, pcnGerador, pcnConsts;
+  ACBrDFeConsts,
+  pcnConversao, pcnGerador;
 
 type
   TConsResLoteGNRE = class(TObject)
@@ -47,6 +48,7 @@ type
     FGerador: TGerador;
     Fambiente: TpcnTipoAmbiente;
     FnumeroRecibo: string;
+    FIncluirPDFGuias: Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -55,7 +57,11 @@ type
     property Gerador: TGerador read FGerador write FGerador;
     property ambiente: TpcnTipoAmbiente read Fambiente write Fambiente;
     property numeroRecibo: string read FnumeroRecibo write FnumeroRecibo;
+    property IncluirPDFGuias: Boolean read FIncluirPDFGuias write FIncluirPDFGuias;
   end;
+
+const
+  DSC_NREC = 'Numero do recibo';
 
 implementation
 
@@ -80,6 +86,9 @@ begin
 
   Gerador.wCampo(tcStr, '', 'ambiente    ', 01, 01, 1, tpAmbToStr(FAmbiente), DSC_TPAMB);
   Gerador.wCampo(tcStr, '', 'numeroRecibo', 10, 10, 1, FnumeroRecibo, DSC_NREC);
+
+  if IncluirPDFGuias then
+    Gerador.wCampo(tcStr, '', 'incluirPDFGuias', 1, 1, 1, 'S', '');
 
   Gerador.wGrupo('/TConsLote_GNRE');
 

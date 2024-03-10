@@ -118,6 +118,14 @@ begin
   begin
     Identificador := '';
     ModoEnvio := meLoteSincrono;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarLote := True;
+      ConsultarNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   ConfigAssinar.Rps := True;
@@ -187,10 +195,7 @@ var
   ANodeArray: TACBrXmlNodeArray;
   AErro: TNFSeEventoCollectionItem;
 begin
-//  ANode := RootNode.Childrens.FindAnyNs(AListTag);
-
-//  if (ANode = nil) then
-    ANode := RootNode;
+  ANode := RootNode;
 
   ANodeArray := ANode.Childrens.FindAllAnyNs(AMessageTag);
 
@@ -200,7 +205,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Erro'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Status'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Status'), tcStr);
     AErro.Correcao := '';
   end;
 end;
@@ -269,7 +274,7 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANodeArray: TACBrXmlNodeArray;
-  ANode, AuxNode, AuxNode2: TACBrXmlNode;
+  ANode, AuxNode: TACBrXmlNode;
   i: Integer;
   NumRps: String;
   ANota: TNotaFiscal;
@@ -294,7 +299,7 @@ begin
 
       Response.Sucesso := (Response.Erros.Count = 0);
 
-      ANodeArray := ANode.Childrens.FindAllAnyNs('EnviaLoteRPSResposta');
+      ANodeArray := ANode.Childrens.FindAllAnyNs('Nfse');
 
       if not Assigned(ANodeArray) then
       begin
@@ -307,9 +312,9 @@ begin
 
       for I := Low(ANodeArray) to High(ANodeArray) do
       begin
-        AuxNode2 := ANodeArray[I].Childrens.FindAnyNs('Nfse');
+        ANode := ANodeArray[I];
 
-        if AuxNode2 =  nil then
+        if ANode =  nil then
         begin
           Response.Sucesso := False;
           AErro := Response.Erros.New;
@@ -317,8 +322,6 @@ begin
           AErro.Descricao := ACBrStr(Desc203);
           Exit;
         end;
-
-        ANode := AuxNode2;
 
         with Response do
         begin
@@ -832,10 +835,10 @@ function TACBrNFSeXWebserviceGeisWeb.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := StrToXml(Result);
+  Result := ParseText(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := string(NativeStringToUTF8(Result));
+  Result := Trim(StringReplace(Result, '&', '&amp;', [rfReplaceAll]));
 end;
 
 end.

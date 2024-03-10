@@ -61,6 +61,10 @@ type
     FEMail: String;
     FFone: String;
     FLogo: String;
+    FNumero: String;
+    FCEP: String;
+    FBairro: String;
+    FCodigoMunicipio: String;
 
   public
     constructor Create(AOwner: TComponent); override;
@@ -78,6 +82,10 @@ type
     property Fone: String read FFone write FFone;
     property EMail: String read FEMail write FEMail;
     property Logo: String read FLogo write FLogo;
+    property Numero: String read FNumero write FNumero;
+    property CEP: String read FCEP write FCEP;
+    property Bairro: String read FBairro write FBairro;
+    property CodigoMunicipio: String read FCodigoMunicipio write FCodigoMunicipio;
   end;
 
   { TTomadorConfig }
@@ -133,6 +141,7 @@ type
 
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     function GetSeparadorPathPDF(const aInitialPath: String): String; override;
+    procedure SetDadosPrestador;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -161,6 +170,7 @@ type
 implementation
 
 uses
+  StrUtils,
   ACBrUtil.Strings,
   ACBrNFSeX;
 
@@ -171,15 +181,21 @@ begin
   inherited Create(AOwner);
 
   RazaoSocial := '';
-  Endereco := '';
-  Complemento := '';
-  Fone := '';
-  Municipio := '';
+  NomeFantasia := '';
   InscricaoMunicipal := '';
   InscricaoEstadual := '';
+  CNPJ := '';
+  Endereco := '';
+  Complemento := '';
+  Municipio := '';
+  UF := '';
+  Fone := '';
   EMail := '';
   Logo := '';
-  UF := '';
+  Numero := '';
+  CEP := '';
+  Bairro := '';
+  CodigoMunicipio := '';
 end;
 
 { TTomadorConfig }
@@ -271,6 +287,74 @@ begin
       Value.FreeNotification(self);
       TACBrNFSeX(Value).DANFSe := self;
     end;
+  end;
+end;
+
+procedure TACBrNFSeXDANFSeClass.SetDadosPrestador;
+begin
+  // Usar a configuração do ACBrNFSeX se no XML não conter os dados do prestador
+
+  with TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[0].NFSe do
+  begin
+    FPrestador.RazaoSocial := IfThen(Prestador.RazaoSocial <> '',
+                              Prestador.RazaoSocial,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.RazSocial);
+
+    FPrestador.CNPJ := IfThen(Prestador.IdentificacaoPrestador.CpfCnpj <> '',
+                              Prestador.IdentificacaoPrestador.CpfCnpj,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.CNPJ);
+
+    FPrestador.InscricaoMunicipal := IfThen(Prestador.IdentificacaoPrestador.InscricaoMunicipal <> '',
+                              Prestador.IdentificacaoPrestador.InscricaoMunicipal,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.InscMun);
+
+    FPrestador.InscricaoEstadual := IfThen(Prestador.IdentificacaoPrestador.InscricaoEstadual <> '',
+                              Prestador.IdentificacaoPrestador.InscricaoEstadual,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.InscricaoEstadual);
+
+    FPrestador.NomeFantasia := IfThen(Prestador.NomeFantasia <> '',
+                              Prestador.NomeFantasia,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.NomeFantasia);
+
+    FPrestador.Endereco := IfThen(Prestador.Endereco.Endereco <> '',
+                              Prestador.Endereco.Endereco,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.Endereco);
+
+    FPrestador.Numero := IfThen(Prestador.Endereco.Numero <> '',
+                              Prestador.Endereco.Numero,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.Numero);
+
+    FPrestador.Complemento := IfThen(Prestador.Endereco.Complemento <> '',
+                              Prestador.Endereco.Complemento,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.Complemento);
+
+    FPrestador.Bairro := IfThen(Prestador.Endereco.Bairro <> '',
+                              Prestador.Endereco.Bairro,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.Bairro);
+
+    FPrestador.CEP := IfThen(Prestador.Endereco.CEP <> '',
+                              Prestador.Endereco.CEP,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.CEP);
+
+    FPrestador.UF := IfThen(Prestador.Endereco.UF <> '',
+                              Prestador.Endereco.UF,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.UF);
+
+    FPrestador.Municipio := IfThen(Prestador.Endereco.xMunicipio <> '',
+                              Prestador.Endereco.xMunicipio,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.Municipio);
+
+    FPrestador.CodigoMunicipio := IfThen(Prestador.Endereco.CodigoMunicipio <> '',
+                              Prestador.Endereco.CodigoMunicipio,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.CodigoMunicipio);
+
+    FPrestador.Fone := IfThen(Prestador.Contato.Telefone <> '',
+                              Prestador.Contato.Telefone,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.Telefone);
+
+    FPrestador.EMail := IfThen(Prestador.Contato.EMail <> '',
+                              Prestador.Contato.EMail,
+                              TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Emitente.DadosEmitente.EMail);
   end;
 end;
 

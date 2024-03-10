@@ -42,6 +42,91 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+02/03/2024
+-- ACBrNF3eWebServices --
+[-] Corrigido a procedure DefinirMsgDados no que se refere a eventos.
+-- ACBrNF3eConversao --
+[-] Corrigido a nomenclatura de alguns enumerados usados no envio de eventos.
+-- ACBrNF3eXmlWriter --
+[*] Corrigido o tipo de conversão para a tag: cNF.
+-- ACBrNF3eEnvEvento --
+[-] Corrigido a geração do XML de evento.
+-- ACBrNF3eRetEnvEvento --
+[-] Corrigido o erro de AV.
+  Por: Italo Giurizzato Junior
+
+01/03/2024
+-- ACBrNF3eXmlReader --
+[*] Melhorias na leitura do XML.
+  Por: Italo Giurizzato Junior
+-- ACBrNF3eConversao --
+[-] Inclusão de enumerados para atender tags opcionais.
+-- ACBrNF3eXmlReader --
+[*] Alteração na forma de ler a assinatura do XML.
+-- ACBrNF3eXmlWriter --
+[-] Correções diversas pois estava gerando o XML da forma errada.
+  Por: Italo Giurizzato Junior
+-- ACBrNF3eXmlReader --
+[-] Correção na leitura de tags opcionais que contem AAAA-MM.
+  Por: Italo Giurizzato Junior
+
+28/02/2024
+-- Diversos --
+[*] Realizado diversos ajustes por conta de remoção do parâmentro de saída Ok
+    das funções de conversão.
+  Por: Italo Giurizzato Junior
+
+27/02/2024
+-- ACBrNF3eRetEnvEvento --
+[*] Removido o uso da função ACBrStr ao ler uma mensagem.
+  Por: Italo Giurizzato Junior
+
+23/02/2024
+-- ACBrNF3eConversao --
+[*] Ajustes nas funções: DblToVersaoNF3e, VersaoNF3eToDbl e VersaoQrCodeToDbl.
+  Por: Italo Giurizzato Junior
+
+20/02/2024
+-- Diversos --
+[*] Realizado diversos ajustes para atender NT 2024/001.
+    Atenção: o ambiente de homologação só vai estar disponível em 26/02/2024
+    e o de produção em 13/03/2024
+  Por: Italo Giurizzato Junior
+
+14/02/2024
+-- Diversos --
+[*] Realizado diversos ajustes para poder usar a nova unit: ACBrDFeComum.RetEnvio
+    e outras diversas correções.
+    Remoção da unit ACBrNF3eRetEnv e renomeado a unit ACBrNF3eEvento para
+    ACBrNF3eEventoClass.
+  Por: Italo Giurizzato Junior
+
+13/02/2024
+-- ACBrNF3eWebServices/ACBrNFe3Class/ACBrNF3eXmlReader/
+   ACBrNF3eXmlWriter/ACBrNF3eRetConsSit --
+[*] Refactoring visando a utilizar as units: ACBrDFeComum.Proc.
+-- ACBrNF3eEnvEvento --
+[-] Correção pois a variável de indice não estava sendo inicializada corretamente.
+-- ACBrNF3eProc/ACBrDFeConsStatServ/ACBrDFeDistDFeInt/
+   ACBrDFeRetConsStatServ/ACBrDFeRetDistDFeInt --
+[*] As units acima foram removidas, pois agora vai usar as units 
+    ACBrDFeComum.Proc, ACBrDFeComum.ConsStatServ, ACBrDFeComum.DistDFeInt,
+    ACBrDFeComum.RetConsStatServ, ACBrDFeComum.RetDistDFeInt.
+  Por: Italo Giurizzato Junior
+
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+02/02/2024
+-- ACBrNF3e/ACBrNF3eWebServices --
+[*] Compatibilização com o D7 e outros ajustes.
+  Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnConsts.
+  Por: Italo Giurizzato Junior
+
 20/10/2022
 -- ACBrNF3eNotasFiscais/ACBrNF3eXmlReader --
 [*] Ajustes para a leitura correta do XML.

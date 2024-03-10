@@ -80,6 +80,16 @@ begin
 
   ConfigGeral.ModoEnvio := meLoteAssincrono;
 
+  ConfigGeral.Autenticacao.RequerLogin := True;
+
+  with ConfigGeral.ServicosDisponibilizados do
+  begin
+    EnviarLoteSincrono := False;
+    EnviarUnitario := False;
+    ConsultarServicoPrestado := False;
+    ConsultarServicoTomado := False;
+  end;
+
   with ConfigAssinar do
   begin
     Rps := True;
@@ -241,7 +251,7 @@ function TACBrNFSeXWebserviceSafeWeb200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 

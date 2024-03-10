@@ -13,9 +13,11 @@ object frmPrincipal: TfrmPrincipal
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  OldCreateOrder = True
   Position = poScreenCenter
   OnClose = FormClose
   OnCreate = FormCreate
+  PixelsPerInch = 96
   TextHeight = 13
   object wizPrincipal: TJvWizard
     Left = 0
@@ -23,7 +25,7 @@ object frmPrincipal: TfrmPrincipal
     Width = 720
     Height = 612
     ActivePage = wizPgInicio
-    ButtonBarHeight = 52
+    ButtonBarHeight = 42
     ButtonStart.Caption = 'Para o in'#237'cio'
     ButtonStart.NumGlyphs = 1
     ButtonStart.Width = 100
@@ -1363,13 +1365,13 @@ object frmPrincipal: TfrmPrincipal
         Left = 0
         Top = 0
         Width = 554
-        Height = 489
+        Height = 499
         HorzScrollBar.Visible = False
         VertScrollBar.Visible = False
         Align = alClient
         TabOrder = 0
         inherited pnlBotoesMarcar: TPanel
-          Top = 448
+          Top = 458
           Width = 554
           inherited btnPacotesDesmarcarTodos: TSpeedButton
             Left = 504
@@ -1380,7 +1382,7 @@ object frmPrincipal: TfrmPrincipal
         end
         inherited ScrollBox1: TScrollBox
           Width = 548
-          Height = 442
+          Height = 452
         end
       end
     end
@@ -1619,7 +1621,7 @@ object frmPrincipal: TfrmPrincipal
       Left = 0
       Top = 71
       Width = 166
-      Height = 489
+      Height = 499
       ItemHeight = 30
       AllowClickableNodes = False
       Color = 5875712
@@ -1668,7 +1670,7 @@ object frmPrincipal: TfrmPrincipal
         Cursor = crHandPoint
         Animate = True
         Center = True
-        FrameIndex = 2
+        FrameIndex = 4
         Image.Data = {
           688B00004749463839613F012800F70000FFFFFFFFFFE5FFFFCCF7FAFDFFFF99
           FFF7B9FFF9A9FFFA84EAFA9EFFF573FFF74AFFFF00FFF268F2F478FFF456E9F5

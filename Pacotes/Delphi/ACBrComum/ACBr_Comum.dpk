@@ -13,9 +13,9 @@ package ACBr_Comum;
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION OFF}
-{$OVERFLOWCHECKS OFF}
-{$RANGECHECKS OFF}
-{$REFERENCEINFO ON}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$DEFINITIONINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES ON}
 {$TYPEDADDRESS OFF}
@@ -28,6 +28,9 @@ package ACBr_Comum;
 {$DESCRIPTION 'ACBr - Biblioteca Comum, EAD, AAC  - (http://www.projetoacbr.com.br/)'}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
+
+
+{$I ACBr.inc}
 
 requires
   rtl,
@@ -46,22 +49,30 @@ contains
   ACBrUtil.Strings in '..\..\..\Fontes\ACBrComum\ACBrUtil.Strings.pas',
   ACBrUtil.XMLHTML in '..\..\..\Fontes\ACBrComum\ACBrUtil.XMLHTML.pas',
   ACBrAAC in '..\..\..\Fontes\ACBrComum\ACBrAAC.pas',
+  {$IfNDef USE_ZLibExGZ}
+  GZIPUtils in '..\..\..\Fontes\Terceiros\GZIPUtils\GZIPUtils.pas',
+  {$Else}
+  ACBrZLibExGZ in '..\..\..\Fontes\Terceiros\ZLibExGZ\ACBrZLibExGZ.pas',
+  {$EndIf}
   ACBrCompress in '..\..\..\Fontes\ACBrComum\ACBrCompress.pas',
   ACBrImage in '..\..\..\Fontes\ACBrComum\ACBrImage.pas',
   ACBrPAFClass in '..\..\..\Fontes\ACBrComum\ACBrPAFClass.pas',
   StrUtilsEx in '..\..\..\Fontes\Terceiros\FastStringReplace\StrUtilsEx.pas',
   ACBrDelphiZXingQRCode in '..\..\..\Fontes\Terceiros\DelphiZXingQRCode\ACBrDelphiZXingQRCode.pas',
-  {$IfDef USE_JSONDATAOBJECTS_UNIT}
-  JsonDataObjects_ACBr in '..\..\..\Fontes\Terceiros\JsonDataObjects\Source\JsonDataObjects_ACBr.pas',
-  {$EndIf}
+  ACBr_fpdf in '..\..\..\Fontes\Terceiros\FPDF-Pascal\ACBr_fpdf.pas',
+  ACBr_fpdf_ext in '..\..\..\Fontes\Terceiros\FPDF-Pascal\ACBr_fpdf_ext.pas',
+  ACBr_fpdf_report in '..\..\..\Fontes\Terceiros\FPDF-Pascal\ACBr_fpdf_report.pas',
   Jsons in '..\..\..\Fontes\Terceiros\json4delphi\src\Jsons.pas',
-  ACBrJSON in '..\..\..\Fontes\ACBrComum\ACBrJSON.pas';
+  ACBrJSON in '..\..\..\Fontes\ACBrComum\ACBrJSON.pas',
+  ACBrUtil.FPDF in '..\..\..\Fontes\ACBrComum\ACBrUtil.FPDF.pas';
 
+// Código repetido aqui porque o Delphi costuma remover IFDEFs de Uses em pacotes (dpk).
 //  {$IfNDef USE_ZLibExGZ}
-//   ACBrZLibExGZ,
+//  GZIPUtils in '..\..\..\Fontes\Terceiros\GZIPUtils\GZIPUtils.pas',
 //  {$Else}
-//   GZIPUtils,
+//  ACBrZLibExGZ in '..\..\..\Fontes\Terceiros\ZLibExGZ\ACBrZLibExGZ.pas',
 //  {$EndIf}
+
 
 end.
 

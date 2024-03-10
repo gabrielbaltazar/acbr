@@ -156,7 +156,7 @@ function TACBrNFSeXWebserviceISSSalvador.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
 end;
 
 { TACBrNFSeProviderISSSalvador }
@@ -166,6 +166,8 @@ begin
   inherited Configuracao;
 
   ConfigGeral.Identificador := 'id';
+
+  ConfigGeral.ServicosDisponibilizados.CancelarNfse := False;
 
   with ConfigAssinar do
   begin

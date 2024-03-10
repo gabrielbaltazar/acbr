@@ -38,7 +38,7 @@ interface
 
 uses
   Classes, SysUtils, ACBrUtil.FilesIO, ACBrUtil.Strings,
-  ACBrLibComum, ACBrLibConsultaCNPJDataModule, ACBrTCP;
+  ACBrLibComum, ACBrLibConsultaCNPJDataModule, ACBrTCP, ACBrConsultaCNPJ, ACBrUtil.Base;
 
 Const
   CCAPTCHA_CNPJ = 'CaptchaCNPJ';
@@ -46,7 +46,6 @@ Const
 type
 
   { TACBrLibConsultaCNPJ }
-
   TACBrLibConsultaCNPJ = class (TACBrLib)
     private
       FConsultaCNPJDM: TLibConsultaCNPJDM;
@@ -62,7 +61,8 @@ type
       property ConsultaCNPJDM: TLibConsultaCNPJDM read FConsultaCNPJDM;
 
       function ConsultarCaptcha (ePathDownload: PChar; const sResposta: PChar; var esTamanho: longint): longint;
-      function Consultar (eCNPJ: PChar; eCaptcha: PChar; const sResposta: PChar; var esTamanho: longint):longint;
+      function Consultar (eCNPJ: PChar; const sResposta: PChar; var esTamanho: longint):longint;
+
 
   end;
 
@@ -151,26 +151,26 @@ begin
   end;
 end;
 
-function TACBrLibConsultaCNPJ.Consultar(eCNPJ: PChar; eCaptcha: PChar; const sResposta: PChar; var esTamanho: longint):longint;
+function TACBrLibConsultaCNPJ.Consultar(eCNPJ: PChar; const sResposta: PChar; var esTamanho: longint): longint;
 var
   AResposta: String;
   CNPJ: AnsiString;
-  Captcha: AnsiString;
   Resp: TLibConsultaCNPJConsulta;
 begin
   try
-    Captcha:= ConverterAnsiParaUTF8(eCaptcha);
+    //Captcha:= ConverterAnsiParaUTF8(eCaptcha);
     CNPJ:= ConverterAnsiParaUTF8(eCNPJ);
 
     if Config.Log.Nivel > logNormal then
-       GravarLog('CNPJ_Consultar ( ' + CNPJ + ',' + Captcha + ' )', logCompleto, True)
+       GravarLog('CNPJ_Consultar (' + CNPJ + ' - Provedor:' + IntToStr(integer(ConsultaCNPJDM.ACBrConsultaCNPJ1.Provedor)) + ' )', logCompleto, True)
     else
        GravarLog('CNPJ_Consultar', logNormal);
 
     ConsultaCNPJDM.Travar;
     try
+  
 
-      ConsultaCNPJDM.ACBrConsultaCNPJ1.Consulta(CNPJ, Captcha);
+      ConsultaCNPJDM.ACBrConsultaCNPJ1.Consulta(CNPJ);
       AResposta:= '';
 
       Resp := TLibConsultaCNPJConsulta.Create(Config.TipoResposta, Config.CodResposta);

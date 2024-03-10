@@ -6,9 +6,19 @@
 
         [EnumValue("00")] cst00,
 
+        [EnumValue("01")] cst01,
+
         [EnumValue("10")] cst10,
 
+        [EnumValue("12")] cst12,
+
+        [EnumValue("13")] cst13,
+
+        [EnumValue("14")] cst14,
+
         [EnumValue("20")] cst20,
+
+        [EnumValue("21")] cst21,
 
         [EnumValue("30")] cst30,
 
@@ -26,6 +36,12 @@
 
         [EnumValue("70")] cst70,
 
+        [EnumValue("72")] cst72,
+
+        [EnumValue("73")] cst73,
+
+        [EnumValue("74")] cst74,
+
         [EnumValue("80")] cst80,
 
         [EnumValue("81")] cst81,
@@ -42,6 +58,14 @@
 
         [EnumValue("41rep")] cstRep41,
 
-        [EnumValue("60rep")] cstRep60
+        [EnumValue("60rep")] cstRep60,
+
+        [EnumValue("02")] cst02,
+
+        [EnumValue("15")] cst15,
+
+        [EnumValue("53")] cst53,
+
+        [EnumValue("61")] cst61
     }
 }

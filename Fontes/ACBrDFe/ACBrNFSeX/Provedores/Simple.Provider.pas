@@ -114,8 +114,21 @@ begin
 
   with ConfigGeral do
   begin
+    UseCertificateHTTP := False;
     ModoEnvio := meLoteSincrono;
     DetalharServico := True;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerLogin := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteSincrono := True;
+      ConsultarRps := True;
+      ConsultarNfse := True;
+      ConsultarFaixaNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   ConfigSchemas.Validar := False;
@@ -180,7 +193,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := '';
-      AErro.Descricao := ACBrStr(vDescricao);
+      AErro.Descricao := vDescricao;
       AErro.Correcao := '';
     end;
   end;

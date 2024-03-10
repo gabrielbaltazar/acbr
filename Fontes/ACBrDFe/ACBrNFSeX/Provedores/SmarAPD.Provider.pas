@@ -162,6 +162,16 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
     DetalharServico := True;
+
+    Autenticacao.RequerLogin := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarLote := True;
+      ConsultarLinkNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   with ConfigAssinar do
@@ -261,11 +271,11 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := '';
-      AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('return'), tcStr));
+      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('return'), tcStr);
       AErro.Correcao := '';
 
       if AErro.Descricao = '' then
-        AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+        AErro.Descricao := ANodeArray[I].AsString;
     end
     else
     begin
@@ -276,11 +286,11 @@ begin
       begin
         AErro := Response.Erros.New;
         AErro.Codigo := Codigo;
-        AErro.Descricao := ACBrStr(Descricao);
+        AErro.Descricao := Descricao;
         AErro.Correcao := '';
 
         if AErro.Descricao = '' then
-          AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+          AErro.Descricao := ANodeArray[I].AsString;
       end;
     end;
   end;
@@ -729,7 +739,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;
@@ -964,7 +974,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;
@@ -1207,7 +1217,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result));
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;

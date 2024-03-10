@@ -3,18 +3,12 @@ program ConsultaCNPJ;
 {$mode objfpc}{$H+}
 
 uses
-  {$IFDEF UNIX}{$IFDEF UseCThreads}
-  cthreads,
-  {$ENDIF}{$ENDIF}
-  Interfaces, // this includes the LCL widgetset
-  Forms, u_principal;
+  Forms, Interfaces,
+  U_Principal in 'U_Principal.pas' {F_Principal};
 
-{$R *.res}
 
 begin
-  RequireDerivedFormResource := True;
   Application.Initialize;
-  Application.CreateForm(TFprincipal, Fprincipal);
+  Application.CreateForm(TF_Principal, F_Principal);
   Application.Run;
 end.
-

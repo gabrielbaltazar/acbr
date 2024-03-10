@@ -75,6 +75,12 @@ public
   procedure Executar; override;
 end;
 
+{ TMetodoSetProvedor  }
+TMetodoSetProvedor  = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
 implementation
 
 uses
@@ -82,15 +88,12 @@ uses
 
 { TMetodoConsultar }
 
-{ Params: 0 - String: CNPJ para Consulta
-          1 - String: Captcha para Consulta}
+{ Params: 0 - String: CNPJ para Consulta }
 procedure TMetodoConsultar.Executar;
 var
   ACNPJ: String;
-  ACaptcha: String;
 begin
   ACNPJ := trim(fpCmd.Params(0));
-  ACaptcha := trim(fpCmd.Params(1));
 
   if (ACNPJ = '') then
     raise Exception.Create('CNPJ não informado.')
@@ -100,12 +103,9 @@ begin
       raise Exception.Create('CNPJ ' + ACNPJ + ' inválido.');
   end;
 
-  if (ACaptcha = '') then
-    raise Exception.Create('Captcha não informado.');
-
   with TACBrObjetoConsultaCNPJ(fpObjetoDono) do
   begin
-    ACBrConsultaCNPJ.Consulta(ACNPJ, ACaptcha);
+    ACBrConsultaCNPJ.Consulta(ACNPJ);
     RespostaConsulta;
   end;
 
@@ -166,6 +166,7 @@ begin
 
   ListaDeMetodos.Add(CMetodoConsultarCaptcha);
   ListaDeMetodos.Add(CMetodoConsultar);
+  ListaDeMetodos.Add(CMetodoSetProvedor);
 
 end;
 
@@ -183,6 +184,7 @@ begin
   case CmdNum of
     0  : AMetodoClass := TMetodoConsultarCaptcha;
     1  : AMetodoClass := TMetodoConsultar;
+    2  : AMetodoClass := TMetodoSetProvedor;
 
   end;
 
@@ -259,6 +261,38 @@ begin
   end;
 
 end;
+
+{ TMetodoSetProvedor }
+
+{ Params: 0 - AProvedor : Integer com Indice Provedor
+          1 - AUsuario: String com Nome Usuario
+          2 - ASenha: String com a Senha usuario
+}
+procedure TMetodoSetProvedor.Executar;
+var
+  AProvedor: Integer;
+  AUsuario, Asenha: String;
+begin
+  AProvedor := StrToIntDef(fpCmd.Params(0),0);
+  AUsuario  := fpCmd.Params(1);
+  ASenha    := fpCmd.Params(2);
+
+  with TACBrObjetoConsultaCNPJ(fpObjetoDono) do
+  begin
+    with MonitorConfig.ConsultaCNPJ do
+    begin
+      Provedor:= AProvedor;
+      Usuario := AUsuario;
+      Senha   := Asenha;
+      MonitorConfig.SalvarArquivo;
+    end;
+
+  end;
+
+end;
+
+
+
 
 end.
 

@@ -80,6 +80,18 @@ begin
   begin
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := False;
+      EnviarLoteSincrono := False;
+      ConsultarLote := False;
+      ConsultarFaixaNfse := False;
+      ConsultarServicoPrestado := False;
+      ConsultarServicoTomado := False;
+      CancelarNfse := False;
+      SubstituirNfse := False;
+    end;
   end;
 
   ConfigAssinar.RpsGerarNFSe := True;
@@ -201,7 +213,7 @@ function TACBrNFSeXWebserviceMegaSoft200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := RemoverIdentacao(Result);

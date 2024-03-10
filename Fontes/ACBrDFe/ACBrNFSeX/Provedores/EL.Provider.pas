@@ -409,7 +409,7 @@ function TACBrNFSeXWebserviceEL204.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 
@@ -579,10 +579,10 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := '';
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('mensagens'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('mensagens'), tcStr);
 
     if AErro.Descricao = '' then
-      AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+      AErro.Descricao := ANodeArray[I].AsString;
 
     AErro.Correcao := '';
   end;
@@ -676,6 +676,22 @@ begin
   end;
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  if EstaVazio(Emitente.CNPJ) then
+  begin
+    AErro := EmiteResponse.Erros.New;
+    AErro.Codigo := Cod130;
+    AErro.Descricao := ACBrStr(Desc130);
+    Exit;
+  end;
+
+  if EstaVazio(Emitente.WSSenha) then
+  begin
+    AErro := EmiteResponse.Erros.New;
+    AErro.Codigo := Cod120;
+    AErro.Descricao := ACBrStr(Desc120);
+    Exit;
+  end;
 
   Response.ArquivoEnvio := '<el:autenticarContribuinte>' +
                              '<identificacaoPrestador>' +
@@ -1386,6 +1402,19 @@ begin
     ModoEnvio := meLoteAssincrono;
     NumMaxRpsEnviar := 5;
     DetalharServico := True;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerLogin := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarSituacao := True;
+      ConsultarLote := True;
+      ConsultarRps := True;
+      ConsultarNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   SetXmlNameSpace('http://www.el.com.br/nfse/xsd/el-nfse.xsd');
@@ -1472,7 +1501,7 @@ function TACBrNFSeXWebserviceEL.TratarXmlRetornado(const aXML: string): string;
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 

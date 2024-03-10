@@ -37,7 +37,11 @@ interface
 
 uses
   SysUtils, Classes,
-  pcnConversao, pcnGerador, pcnConsts, pcnCFe;
+  ACBrDFeConsts,
+  ACBrCFeConsts,
+  pcnConversao,
+  pcnGerador,
+  pcnCFe;
 
 type
 
@@ -113,8 +117,10 @@ type
 
 implementation
 
-Uses
-  pcnAuxiliar, ACBrUtil.Base, ACBrUtil.Strings;
+uses
+  ACBrDFeUtil,
+  ACBrUtil.Base,
+  ACBrUtil.Strings;
 
 { TCFeW }
 
@@ -167,7 +173,7 @@ begin
     if not ValidarCodigoUF(CFe.ide.cUF) then
       Gerador.wAlerta('B02', 'cUF', DSC_CUF, ERR_MSG_INVALIDO);
 
-    Gerador.wCampo(tcInt, 'B03', 'cNF      ', 06, 06, 0, CFe.ide.cNF, DSC_CNF);
+    Gerador.wCampo(tcInt, 'B03', 'cNF      ', 06, 06, 0, CFe.ide.cNF, DSC_CDF);
     Gerador.wCampo(tcInt, 'B04', 'mod      ', 02, 02, 0, CFe.ide.modelo, DSC_MOD);
     Gerador.wCampo(tcInt, 'B05', 'nserieSAT', 09, 09, 0, CFe.ide.nserieSAT, DSC_SERIE);
     Gerador.wCampo(tcInt, 'B06', 'nCFe     ', 06, 06, 0, IntToStrZero(CFe.ide.nCFe,6), DSC_NCFE);
@@ -369,7 +375,7 @@ begin
   if CFe.Emit.cRegTrib = RTRegimeNormal then
   begin
     case CFe.Det[i].Imposto.ICMS.CST of
-      cst00, cst20, cst90 :
+      cst00, cst01, cst12, cst13, cst14, cst20, cst21, cst72, cst73, cst74, cst90 :
         begin
           Gerador.wGrupo('ICMS00');
           Gerador.wCampo(tcStr, 'N06', 'Orig ', 01, 01, 1, OrigTOStr(CFe.Det[i].Imposto.ICMS.orig), DSC_ORIG);
@@ -381,7 +387,7 @@ begin
 
           Gerador.wGrupo('/ICMS00');
         end;
-      cst40, cst41, cst50, cst60 :
+      cst30, cst40, cst41, cst50, cst60, cst61 :
         begin
           Gerador.wGrupo('ICMS40');
           Gerador.wCampo(tcStr, 'N06', 'Orig', 01, 01, 1, OrigTOStr(CFe.Det[i].Imposto.ICMS.orig), DSC_ORIG);

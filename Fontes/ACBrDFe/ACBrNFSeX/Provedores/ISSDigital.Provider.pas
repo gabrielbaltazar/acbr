@@ -87,6 +87,9 @@ begin
   inherited Configuracao;
 
   ConfigGeral.UseCertificateHTTP := False;
+
+  ConfigGeral.Autenticacao.RequerLogin := True;
+  ConfigGeral.Autenticacao.RequerFraseSecreta := True;
 end;
 
 function TACBrNFSeProviderISSDigital200.CriarGeradorXml(
@@ -320,7 +323,7 @@ function TACBrNFSeXWebserviceISSDigital200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result));
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);

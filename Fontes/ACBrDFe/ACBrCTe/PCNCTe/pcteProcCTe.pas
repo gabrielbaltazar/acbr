@@ -93,9 +93,12 @@ type
 implementation
 
 uses
-  pcnAuxiliar,
+  StrUtils,
+  ACBrDFeConsts,
+  ACBrDFeUtil,
+  ACBrUtil.Base,
   ACBrUtil.Strings,
-  pcnConsts, pcteConsts;
+  pcteConsts;
 
 { TProcCTe }
 
@@ -223,7 +226,7 @@ begin
 
           xProtCTe :=
                 '<protCTe versao="' + Versao + '">' +
-                  '<infProt' + IIf( (xId <> ''), ' Id="' + xId + '">', '>') +
+                  '<infProt' + IfThen( (xId <> ''), ' Id="' + xId + '">', '>') +
                     PreencherTAG('tpAmb',    XMLinfProt2.text) +
                     PreencherTAG('verAplic', XMLinfProt2.text) +
                     PreencherTAG('chCTe',    XMLinfProt2.text) +
@@ -233,7 +236,7 @@ begin
                     PreencherTAG('cStat',    XMLinfProt2.text) +
                     PreencherTAG('xMotivo',  XMLinfProt2.text) +
                   '</infProt>' +
-                  IIF( (PreencherTAG('cMsg', XMLinfProt2.text) <> ''),
+                  IfThen( (PreencherTAG('cMsg', XMLinfProt2.text) <> ''),
                   '<infFisco>' +
                     PreencherTAG('cMsg', XMLinfProt2.text) +
                     PreencherTAG('xMsg', XMLinfProt2.text) +
@@ -247,7 +250,7 @@ begin
       begin
         xProtCTe :=
               '<protCTe versao="' + Versao + '">' +
-                '<infProt' + IIf( (FId <> ''), ' Id="' + FId + '">', '>') +
+                '<infProt' + IfThen( (FId <> ''), ' Id="' + FId + '">', '>') +
                   '<tpAmb>' + TpAmbToStr(FtpAmb) + '</tpAmb>' +
                   '<verAplic>' + FverAplic + '</verAplic>' +
                   '<chCTe>' + FchCTe + '</chCTe>' +
@@ -257,7 +260,7 @@ begin
                   '<cStat>' + IntToStr(FcStat) + '</cStat>' +
                   '<xMotivo>' + FxMotivo + '</xMotivo>' +
                 '</infProt>' +
-                IIF( (cMsg > 0) or (xMsg <> ''),
+                IfThen( (cMsg > 0) or (xMsg <> ''),
                 '<infFisco>' +
                   '<cMsg>' + IntToStr(FcMsg) + '</cMsg>' +
                   '<xMsg>' + FxMsg + '</xMsg>' +

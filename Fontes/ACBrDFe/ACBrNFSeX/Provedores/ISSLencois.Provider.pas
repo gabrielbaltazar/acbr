@@ -98,6 +98,15 @@ begin
     UseCertificateHTTP := False;
     ModoEnvio := meUnitario;
     ConsultaNFSe := False;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerLogin := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarUnitario := True;
+      CancelarNfse := True;
+    end;
   end;
 
   SetXmlNameSpace('NotaFiscal-Geracao.xsd');
@@ -176,11 +185,11 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr));
-    AErro.Correcao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('AvisoTecnico'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Descricao'), tcStr);
+    AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('AvisoTecnico'), tcStr);
 
     if AErro.Descricao = '' then
-      AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+      AErro.Descricao := ANodeArray[I].AsString;
   end;
 end;
 
@@ -505,7 +514,7 @@ function TACBrNFSeXWebserviceISSLencois.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);

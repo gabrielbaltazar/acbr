@@ -36,7 +36,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Buttons, ComCtrls, IniFiles, ExtCtrls, ACBrPagFor;
+  Dialogs, StdCtrls, Buttons, ComCtrls, IniFiles, ExtCtrls, ACBrPagFor, ACBrBase;
 
 type
   TfrmACBrPagFor_Exemplo = class(TForm)
@@ -481,6 +481,9 @@ begin
       Registro0.ReservadoBanco := '';
       Registro0.ReservadoEmpresa := '';
 
+      // Usado pelo Banco do Brasil (True = Teste, False = Produção)
+      Registro0.RemessaTeste := True;
+
       with Lote.New do
       begin
         ////////////////////////////////////////////////////////////////////////
@@ -893,6 +896,7 @@ begin
 
           with SegmentoJ52.New do
           begin
+            TipoMovimento := tmInclusao;
             CodMovimento := imInclusaoRegistroDetalheLiberado;
 
             with Pagador do
@@ -976,6 +980,7 @@ begin
         ////////////////////////////////////////////////////////////////////////
         with SegmentoO.New do
         begin
+          TipoMovimento      := tmInclusao;
           CodMovimento       := imInclusaoRegistroDetalheLiberado;
           CodigoBarras       := '83650000001353501620000010102016216594218917';
           NomeConcessionaria := 'CELESC AD CEN';

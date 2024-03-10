@@ -139,6 +139,8 @@ begin
 end;
 
 function TNFSeR_SoftPlan.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
+var
+  ValorLiq: Double;
 begin
   Result := True;
 
@@ -153,7 +155,7 @@ begin
  	  // <dataProcessamento>2017-01-15</dataProcessamento>
     NfseCancelamento.DataHora := ObterConteudo(ANode.Childrens.FindAnyNs('dataCancelamento'), tcDat);
     MotivoCancelamento := ObterConteudo(ANode.Childrens.FindAnyNs('motivoCancelamento'), tcStr);
-    Servico.CodigoCnae := ObterConteudo(ANode.Childrens.FindAnyNs('cfps'), tcStr);
+    Servico.CFPS := ObterConteudo(ANode.Childrens.FindAnyNs('cfps'), tcStr);
     Situacao := ObterConteudo(ANode.Childrens.FindAnyNs('statusNFPSe'), tcInt);
     Servico.Valores.BaseCalculo := ObterConteudo(ANode.Childrens.FindAnyNs('baseCalculo'), tcDe2);
     Servico.Valores.ValorIss := ObterConteudo(ANode.Childrens.FindAnyNs('valorISSQN'), tcDe2);
@@ -199,6 +201,20 @@ begin
     OutrasInformacoes := StringReplace(OutrasInformacoes, FpQuebradeLinha,
                                       sLineBreak, [rfReplaceAll, rfIgnoreCase]);
   	// <valorISSQNSubstituicao>0</valorISSQNSubstituicao>
+
+    with NFSe.Servico.Valores do
+    begin
+      if ValorIss <> 0 then
+        ValorIssRetido := ValorIss
+      else
+        ValorIssRetido := 0;
+
+      ValorLiq := ValorServicos - ValorIssRetido;
+
+      ValorLiquidoNfse := ValorLiq;
+
+      ValorTotalNotaFiscal := ValorServicos;
+    end;
   end;
 
   LerCampoLink;

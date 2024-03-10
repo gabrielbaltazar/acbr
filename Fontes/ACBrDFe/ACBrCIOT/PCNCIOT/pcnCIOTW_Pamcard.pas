@@ -50,13 +50,11 @@ uses
   ACBrConsts,
   pcnCIOTW, 
   pcnCIOTR,
-  pcnAuxiliar, 
-  pcnConversao, 
+  pcnConversao,
   pcnGerador, 
   pcnLeitor,
   pcnCIOT, 
-  pcnConversaoCIOT, 
-  pcnConsts;
+  ACBrCIOTConversao;
 
 type
   { TCIOTW_Pamcard }

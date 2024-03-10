@@ -4,7 +4,7 @@
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
-{																			   }
+{                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
 {                                                                              }
@@ -36,8 +36,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, Spin, Buttons, ComCtrls, OleCtrls, SHDocVw,
   ShellAPI, XMLIntf, XMLDoc, zlib,
-  ACBrBase, ACBrUtil, ACBrDFe,
-  ACBrMail, ACBrONE;
+  ACBrBase, ACBrDFe, ACBrMail, ACBrONE;
 
 type
   TfrmACBrONE = class(TForm)
@@ -204,6 +203,7 @@ type
     btnRecepcaoLeitura: TButton;
     btnDistLeituras: TButton;
     btnConsultaFoto: TButton;
+    btnConsPorPlaca: TButton;
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
     procedure sbPathONEClick(Sender: TObject);
@@ -238,6 +238,7 @@ type
     procedure btnRecepcaoLeituraClick(Sender: TObject);
     procedure btnDistLeiturasClick(Sender: TObject);
     procedure btnConsultaFotoClick(Sender: TObject);
+    procedure btnConsPorPlacaClick(Sender: TObject);
   private
     { Private declarations }
     procedure GravarConfiguracao;
@@ -257,7 +258,9 @@ implementation
 uses
   strutils, math, TypInfo, DateUtils, synacode, blcksock, FileCtrl, Grids,
   IniFiles, Printers,
-  pcnConversao, pcnConversaoONE,
+  pcnConversao,
+  ACBrONEConversao,
+  ACBrUtil.DateTime, ACBrUtil.FilesIO, ACBrUtil.XMLHTML, ACBrUtil.Base,
   ACBrDFeSSL, ACBrDFeOpenSSL, ACBrDFeUtil,
   Frm_Status, Frm_SelecionarCertificado;
 
@@ -278,7 +281,7 @@ end;
 procedure TfrmACBrONE.ACBrONE1StatusChange(Sender: TObject);
 begin
   case ACBrONE1.Status of
-    stIdleONE:
+    stONEIdle:
       begin
         if ( frmStatus <> nil ) then
           frmStatus.Hide;
@@ -325,6 +328,30 @@ end;
 procedure TfrmACBrONE.btnCNPJClick(Sender: TObject);
 begin
   ShowMessage(ACBrONE1.SSL.CertCNPJ);
+end;
+
+procedure TfrmACBrONE.btnConsPorPlacaClick(Sender: TObject);
+var
+  VerAplic, Placa, xDataRef: string;
+begin
+  VerAplic := '';
+  if not(InputQuery('Consultar Por Placa', 'Versão do Aplicativo', VerAplic)) then
+     exit;
+
+  Placa := '';
+  if not(InputQuery('Consultar Por Placa', 'Placa', Placa)) then
+     exit;
+
+  xDataRef := '';
+  if not(InputQuery('Consultar Por Placa', 'Data de Referencia', xDataRef)) then
+     exit;
+
+  ACBrONE1.ConsultarPlaca(VerAplic, Placa, StrToDateTimeDef(xDataRef, 0));
+
+  MemoResp.Lines.Text := ACBrONE1.WebServices.ConsultarPlaca.RetWS;
+  memoRespWS.Lines.Text := ACBrONE1.WebServices.ConsultarPlaca.RetornoWS;
+
+  LoadXML(ACBrONE1.WebServices.ConsultarPLaca.RetWS, WBResposta);
 end;
 
 procedure TfrmACBrONE.btnConsultaFotoClick(Sender: TObject);
@@ -922,8 +949,8 @@ end;
 
 procedure TfrmACBrONE.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser);
 begin
-  ACBrUtil.WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
-                      ACBrUtil.ConverteXMLtoUTF8(RetWS), False, False);
+  WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
+                      ConverteXMLtoUTF8(RetWS), False, False);
 
   MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml');
 end;

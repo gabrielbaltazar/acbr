@@ -74,10 +74,16 @@
 						4 - Cooperativa; 
 						5 - Microempresario Individual (MEI); 
 						6 - Microempresario e Empresa de Pequeno Porte (ME EPP))
+						7 - Tributação por Faturamento (Variável)
+						8 - Fixo
+						9 - Isenção
+						10 - Imune
+						11 - Exigibilidade Suspensa por Decisão Judicial
+						12 - Exigibilidade Suspensa por Procedimento Administrativo
                         </xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="xsd:byte">
-			<xsd:pattern value="1|2|3|4|5|6" />
+			<xsd:pattern value="1|2|3|4|5|6|7|8|9|10|11|12" />
 		</xsd:restriction>
 	</xsd:simpleType>
 	<xsd:simpleType name="tsSimNao">
@@ -802,9 +808,10 @@
 				minOccurs="1" maxOccurs="1" />
 			<xsd:element name="MunicipioIncidencia" type="tsCodigoMunicipioIbge"
 				minOccurs="0" maxOccurs="1" />
+            <xsd:element name="OutrasInformacoes" type="tsOutrasInformacoes"
+				minOccurs="0" maxOccurs="1" />
 			<xsd:element name="NumeroProcesso" type="tsNumeroProcesso"
 				minOccurs="0" maxOccurs="1" />
-
 		</xsd:sequence>
 	</xsd:complexType>
 
@@ -1460,4 +1467,3 @@
 	</xsd:element>
 
 </xsd:schema>
-

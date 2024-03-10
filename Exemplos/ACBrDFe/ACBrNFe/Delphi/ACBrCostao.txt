@@ -1,0 +1,37 @@
+</zera></ce></logo>
+</ce><c>CNPJ: 04.908.757/0001-39 <n>COSTAO DO SANTINHO TURISMO E LAZER 
+LTDA IRON</n>
+<c>Estrada Vereador Onildo Lemos, 2505  Ingleses do Rio Verm 
+Florianopolis-SC 88058-700
+</ce></fn><c>Fone:<n>3261-0000</n> I.E.:254.894.135
+</ce><c><n>Documento Auxiliar da Nota Fiscal de Consumidor Eletrônica</n>
+</ce><c><n>EMITIDA EM AMBIENTE DE HOMOLOGAÇÃO - SEM VALOR FISCAL</n>
+
+</ae><c>#   Código   Descrição   Qtde   Un    Valor unit.    Valor total
+</ae><c>001 00029 NOTA FISCAL EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL
+</ae><c>0,2119          KG     X 84,0000                           17,80
+</ae><c>002 S11100 Taxa de Servico
+</ae><c>1               UN     X 1,7800                             1,78
+<c>Qtde. total de itens                                         002
+</ae><c><e>Valor total R$             19,58</e>
+<c>FORMA DE PAGAMENTO                                 VALOR PAGO R$
+<c>Dinheiro                                                   19,58
+</ce><c><n>Consulte pela Chave de Acesso em</n>
+</ce><c>https://hom.sat.sef.sc.gov.br/nfce/consulta
+</ce><c>4223 0904 9087 5700 0139 6500 9000 0006 8110 0000 3573
+</ce><c><n>CONSUMIDOR - CPF 083.198.347-75</n> 
+NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL
+<c>Estrada da Fortuna 777 1 Santa Isabel Sao Goncalo RJ
+
+</ce><c><n>NFC-e nº 000000681 Série 009 28/09/2023 12:34:51</n>
+<c><n>Protocolo de Autorização:</n> 342230000317510
+<c><n>Data de Autorização</n> 28/09/2023 12:34:52
+</fn>
+</ce><c><n>EMITIDA EM AMBIENTE DE HOMOLOGAÇÃO - SEM VALOR FISCAL</n>
+
+<qrcode_tipo>2</qrcode_tipo><qrcode_error>0</qrcode_error><qrcode_largura>4</qrcode_largura><qrcode>https://hom.sat.sef.sc.gov.br/nfce/consulta?p=42230904908757000139650090000006811000003573|2|2|1|019CADAFBD3DB22EAFDBF05DADEFBCE7C1184B7E</qrcode>
+
+<c>RPS:357 /UH:1415 /Tipo UH:STANDARD TWIN /Reserva:11384158 /Qtde:1 /EDUARDO PORTO /Checkin:28/09/2023 /CheckOut:28/09/2023 /Frigobar39 R$19,58/ Trib aprox R$:2,53 Fed, 3,15 Est e 0,00 Mun Fonte: IBPT/empresometro.com.br SC 87CDAB
+<c>Tributos Totais Incidentes(Lei Federal 12.741/12): R$ 5,68
+</ce><c>Projeto ACBr - www.projetoacbr.com.br
+</corte>

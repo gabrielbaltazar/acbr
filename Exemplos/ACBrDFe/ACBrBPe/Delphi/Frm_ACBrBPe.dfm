@@ -10,10 +10,8 @@ object frmACBrBPe: TfrmACBrBPe
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMenus: TPanel
     Left = 0
@@ -1869,6 +1867,8 @@ object frmACBrBPe: TfrmACBrBPe
     CasasDecimais.vUnCom = 4
     CasasDecimais.MaskqCom = '###,###,###,##0.00'
     CasasDecimais.MaskvUnCom = '###,###,###,##0.00'
+    CasasDecimais.Aliquota = 2
+    CasasDecimais.MaskAliquota = ',0.00'
     ACBrBPe = ACBrBPe1
     TipoDABPE = tiSemGeracao
     Cancelada = False
@@ -1890,8 +1890,8 @@ object frmACBrBPe: TfrmACBrBPe
     ConfigQRCode.LarguraModulo = 4
     ConfigQRCode.ErrorLevel = 0
     LinhasEntreCupons = 5
-    Left = 409
-    Top = 287
+    Left = 417
+    Top = 295
   end
   object ACBrMail1: TACBrMail
     Host = '127.0.0.1'
@@ -1902,7 +1902,7 @@ object frmACBrBPe: TfrmACBrBPe
     DefaultCharset = UTF_8
     IDECharset = CP1252
     Left = 330
-    Top = 287
+    Top = 295
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '*-bpe.XML'
@@ -1910,7 +1910,7 @@ object frmACBrBPe: TfrmACBrBPe
       'Arquivos BPe (*-bpe.XML)|*-bpe.XML|Arquivos XML (*.XML)|*.XML|To' +
       'dos os Arquivos (*.*)|*.*'
     Title = 'Selecione a BPe'
-    Left = 507
-    Top = 287
+    Left = 515
+    Top = 295
   end
 end

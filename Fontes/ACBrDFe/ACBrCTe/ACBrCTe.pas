@@ -144,6 +144,7 @@ type
 
     procedure ImprimirEvento;
     procedure ImprimirEventoPDF;
+
     procedure ImprimirInutilizacao;
     procedure ImprimirInutilizacaoPDF;
 
@@ -162,7 +163,6 @@ implementation
 
 uses
   dateutils,
-  pcnAuxiliar,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.FilesIO,
@@ -1011,7 +1011,7 @@ begin
   if not Assigned(DACTE) then
     raise EACBrCTeException.Create('Componente DACTE não associado.')
   else
-    DACTE.ImprimirEVENTOPDF(nil);
+    DACTE.ImprimirEVENTOPDF;
 end;
 
 procedure TACBrCTe.ImprimirInutilizacao;

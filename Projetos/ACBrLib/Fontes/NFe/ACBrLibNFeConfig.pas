@@ -41,7 +41,7 @@ uses
   pcnConversao, pcnConversaoNFe, ACBrLibComum,
   ACBrNFeConfiguracoes, ACBrDFeReport, ACBrDFeDANFeReport,
   ACBrNFeDANFEClass, ACBrNFeDANFeRLClass, ACBrLibConfig,
-  ACBrIntegradorConfig, DFeReportConfig;
+  DFeReportConfig;
 
 type
   TTipoRelatorioBobina = (tpFortes, tpEscPos, tpFortesA4);
@@ -86,6 +86,7 @@ type
     FExibeCampoDePagamento: TpcnInformacoesDePagamento;
     FImprimeInscSuframa: Boolean;
     FImprimeXPedNitemPed: Boolean;
+    FImprimeDescAcrescItemNFe: TpcnImprimeDescAcrescItem;
 
   public
     constructor Create;
@@ -133,6 +134,7 @@ type
     property ExibeCampoDePagamento: TpcnInformacoesDePagamento read FExibeCampoDePagamento write FExibeCampoDePagamento;
     property ImprimeInscSuframa: Boolean read FImprimeInscSuframa write FImprimeInscSuframa;
     property ImprimeXPedNitemPed: Boolean read FImprimeXPedNitemPed write FImprimeXPedNitemPed;
+    property ImprimeDescAcrescItemNFe: TpcnImprimeDescAcrescItem read FImprimeDescAcrescItemNFe write FImprimeDescAcrescItemNFe;
 
   end;
 
@@ -250,7 +252,6 @@ type
   private
     FDANFeConfig: TDANFeReportConfig;
     FNFeConfig: TConfiguracoesNFe;
-    FIntegradorConfig: TIntegradorConfig;
 
   protected
     procedure Travar; override;
@@ -266,7 +267,6 @@ type
 
     property NFe: TConfiguracoesNFe read FNFeConfig;
     property DANFe: TDANFeReportConfig read FDANFeConfig;
-    property Integrador: TIntegradorConfig read FIntegradorConfig;
 
   end;
 
@@ -328,6 +328,7 @@ begin
   FExibeCampoDePagamento := eipNunca;
   FImprimeInscSuframa:= True;
   FImprimeXPedNitemPed:= False;
+  FImprimeDescAcrescItemNFe:= idaiSempre;
 
   if Assigned(FFonte) then FFonte.Free;
   FFonte := TFonte.Create(nil);
@@ -374,6 +375,7 @@ begin
   ExibeCampoDePagamento := TpcnInformacoesDePagamento(AIni.ReadInteger(CSessaoDANFENFE, CChaveExibeCampoDePagamento, Integer(ExibeCampoDePagamento)));
   ImprimeInscSuframa:= AIni.ReadBool(CSessaoDANFENFE, CChaveImprimeInscSuframa, ImprimeInscSuframa);
   ImprimeXPedNitemPed:= AIni.ReadBool(CSessaoDANFENFE, CChaveImprimeXPedNitemPed, ImprimeXPedNitemPed);
+  ImprimeDescAcrescItemNFe:= TpcnImprimeDescAcrescItem(AIni.ReadInteger(CSessaoDANFENFE, CChaveImprimeDescAcrescItemNFe, Integer(ImprimeDescAcrescItemNFe)));
 
   with Fonte do
   begin
@@ -426,6 +428,7 @@ begin
   AIni.WriteInteger(CSessaoDANFENFE, CChaveExibeCampoDePagamento, Integer(ExibeCampoDePagamento));
   AIni.WriteBool(CSessaoDANFENFE, CChaveImprimeInscSuframa, ImprimeInscSuframa);
   AIni.WriteBool(CSessaoDANFENFE, CChaveImprimeXPedNitemPed, ImprimeXPedNitemPed);
+  AIni.WriteInteger(CSessaoDANFENFE, CChaveImprimeDescAcrescItemNFe, Integer(ImprimeDescAcrescItemNFe));
 
   with Fonte do
   begin
@@ -479,6 +482,8 @@ begin
     ImprimeContinuacaoDadosAdicionaisPrimeiraPagina := FImprimeContDadosAdPrimeiraPagina;
     ExibeCampoDePagamento := FExibeCampoDePagamento;
     ImprimeInscSuframa:= FImprimeInscSuframa;
+    ImprimeXPedNItemPed:= FImprimeXPedNitemPed;
+    ImprimeDescAcrescItemNFe:= FImprimeDescAcrescItemNFe;
 
     with Fonte do
     begin
@@ -777,14 +782,12 @@ begin
   FNFeConfig.ChaveCryptINI := AChaveCrypt;
 
   FDANFeConfig := TDANFeReportConfig.Create;
-  FIntegradorConfig := TIntegradorConfig.Create;
 end;
 
 destructor TLibNFeConfig.Destroy;
 begin
   FNFeConfig.Free;
   FDANFeConfig.Free;
-  FIntegradorConfig.Free;
 
   inherited Destroy;
 end;
@@ -796,7 +799,6 @@ begin
   FNFeConfig.ChaveCryptINI := ChaveCrypt;
   FNFeConfig.LerIni(Ini);
   FDANFeConfig.LerIni(Ini);
-  FIntegradorConfig.LerIni(Ini);
 end;
 
 procedure TLibNFeConfig.ClasseParaINI;
@@ -806,7 +808,6 @@ begin
   FNFeConfig.ChaveCryptINI := ChaveCrypt;
   FNFeConfig.GravarIni(Ini);
   FDANFeConfig.GravarIni(Ini);
-  FIntegradorConfig.GravarIni(Ini);
 end;
 
 procedure TLibNFeConfig.ClasseParaComponentes;

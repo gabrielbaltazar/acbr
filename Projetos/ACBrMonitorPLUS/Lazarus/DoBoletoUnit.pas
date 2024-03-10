@@ -40,7 +40,7 @@ interface
 
 uses
   Classes, TypInfo, SysUtils, strutils, CmdUnit, ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.Strings, ACBrUtil.Math,
-  ACBrBoleto, ACBrMonitorConfig, ACBrMonitorConsts, ACBrBoletoConversao, ACBrPIXBase;
+  ACBrBoleto, ACBrMonitorConfig, ACBrMonitorConsts, ACBrBoletoConversao, ACBrPIXBase, ACBrBoletoFCFortesFr, ACBrBoletoFPDF;
 
 type
 
@@ -48,6 +48,7 @@ type
 TACBrObjetoBoleto = class(TACBrObjetoDFe)
 private
   fACBrBoleto: TACBrBoleto;
+  fBoletoPersonalizandoArquivo : Boolean;
 public
   constructor Create(AConfig: TMonitorConfig; ACBrBoleto: TACBrBoleto); reintroduce;
   procedure Executar(ACmd: TACBrCmd); override;
@@ -224,6 +225,14 @@ public
   procedure Executar; override;
 end;
 
+{ TMetodoGerarPDFBoletoComSenha  }
+
+TMetodoGerarPDFBoletoComSenha  = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
+
 { TMetodoEnviarEmailBoleto  }
 
 TMetodoEnviarEmailBoleto  = class(TACBrMetodo)
@@ -245,11 +254,34 @@ public
   procedure Executar; override;
 end;
 
+{ TMetodoSetMotorBoletoRelatorio  }
+
+TMetodoSetMotorBoletoRelatorio = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
+{ TMetodoSetMargem  }
+TMetodoSetMargem = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
+
+
 { TMetodoConsultarTitulosPorPeriodo }
 TMetodoConsultarTitulosPorPeriodo  = class(TACBrMetodo)
 public
   procedure Executar; override;
 end;
+
+{ TMetodoGerarPDFComSenha }
+
+TMetodoGerarPDFComSenha = class(TACBrMetodo)
+public
+  procedure Executar; override;
+end;
+
 
 implementation
 
@@ -292,7 +324,11 @@ begin
   ListaDeMetodos.Add(CMetodoEnviarBoleto);
   ListaDeMetodos.Add(CMetodoSetOperacaoWS);
   ListaDeMetodos.Add(CMetodoConsultarTitulosPorPeriodo);
-
+  ListaDeMetodos.Add(CMetodoGerarPDFComSenha);
+  ListaDeMetodos.Add(CMetodoGerarPDFBoletoComSenha);
+  ListaDeMetodos.Add(CMetodoSetMotorBoletoRelatorio);
+  ListaDeMetodos.Add(CMetodoSetMargem);
+  fBoletoPersonalizandoArquivo := True;
 end;
 
 procedure TACBrObjetoBoleto.Executar(ACmd: TACBrCmd);
@@ -335,7 +371,10 @@ begin
     24 : AMetodoClass := TMetodoEnviarBoleto;
     25 : AMetodoClass := TMetodoSetOperacaoWS;
     26 : AMetodoClass := TMetodoConsultarTitulosPorPeriodo;
-
+    27 : AMetodoClass := TMetodoGerarPDFComSenha;
+    28 : AMetodoClass := TMetodoGerarPDFBoletoComSenha;
+    29 : AMetodoClass := TMetodoSetMotorBoletoRelatorio;
+    30 : AMetodoClass := TMetodoSetMargem;
     else
       begin
         AACBrUnit := TACBrObjetoACBr.Create(Nil); //Instancia DoACBrUnit para validar métodos padrão para todos os objetos
@@ -440,6 +479,74 @@ begin
 
 end;
 
+{ TMetodoSetMotorBoletoRelatorio }
+
+{ Params: 0 - CodMotor Integer - (0- Fortes, 1- fPDF)
+}
+procedure TMetodoSetMotorBoletoRelatorio.Executar;
+var
+   ACodMotor: Integer;
+   FACBrBoletoFCRL   : TACBrBoletoFCFortes;
+   FACBrBoletoFPDF   : TACBrBoletoFPDF;
+begin
+  ACodMotor := StrToIntDef(fpCmd.Params(0), 1);
+
+  try
+    with TACBrObjetoBoleto(fpObjetoDono) do
+    begin
+
+      FACBrBoletoFCRL   := TACBrBoletoFCFortes.Create(ACBrBoleto);
+      FACBrBoletoFPDF   := TACBrBoletoFPDF.Create(ACBrBoleto);
+      case ACodMotor of
+        0: ACBrBoleto.ACBrBoletoFC := FACBrBoletoFCRL;
+        1: ACBrBoleto.ACBrBoletoFC := FACBrBoletoFPDF;
+      else
+          raise Exception.Create('Motor relatório inválido !');
+      end;
+      with MonitorConfig.BOLETO.Layout do
+      TipoMotorRelatorio := ACodMotor;
+      MonitorConfig.SalvarArquivo;
+    end;
+
+  except
+    raise Exception.Create('Código ou Operação Inválido.');
+  end;
+
+end;
+
+{ TMetodoSetMargem }
+
+{ Params: 0 - MargemInferior,
+          1 - MargemSuperior,
+          2 - MargemEsquerda,
+          3 - MargemDireita,
+}
+procedure TMetodoSetMargem.Executar;
+var
+   AMargemInferior, AMargemSuperior, AMargemEsquerda, AMargemDireita : double;
+begin
+  AMargemInferior := StrToFloatDef(fpCmd.Params(0), 5);
+  AMargemSuperior := StrToFloatDef(fpCmd.Params(1), 5);
+  AMargemEsquerda := StrToFloatDef(fpCmd.Params(2), 4);
+  AMargemDireita  := StrToFloatDef(fpCmd.Params(3), 3);
+  try
+    with TACBrObjetoBoleto(fpObjetoDono) do
+    begin
+      ACBrBoleto.ACBrBoletoFC.MargemInferior:=AMargemInferior;
+      ACBrBoleto.ACBrBoletoFC.MargemSuperior:=AMargemSuperior;
+      ACBrBoleto.ACBrBoletoFC.MargemEsquerda:=AMargemEsquerda;
+      ACBrBoleto.ACBrBoletoFC.MargemDireita :=AMargemDireita;
+
+    end;
+
+  except
+    raise Exception.Create('Código ou Operação Inválido.');
+  end;
+
+end;
+
+
+
 { TMetodoConfigurarDados }
 
 { Params: 0 - Ini - Uma String com um Path completo arquivo .ini
@@ -509,6 +616,7 @@ begin
 
     try
       DoAntesDeImprimir(ACBrBoleto.ACBrBoletoFC.MostrarPreview);
+      ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual := False;
       ACBrBoleto.Imprimir;
     finally
       DoDepoisDeImprimir;
@@ -527,8 +635,48 @@ begin
   begin
     ACBrBoleto.GerarPDF;
   end;
+end;
+
+{ TMetodoGerarPDFComSenha }
+
+{ Params: 0 - ASenha = Senha
+          1 - ANomeArquivoPDF = Nome do Arquivo
+}
+procedure TMetodoGerarPDFComSenha.Executar;
+var
+  ASenha, ANomeArquivoPDF: String;
+  FACBrBoletoFPDF   : TACBrBoletoFPDF;
+  LState : boolean;
+begin
+  ASenha          := fpCmd.Params(0);
+  ANomeArquivoPDF := fpCmd.Params(1);
+  with TACBrObjetoBoleto(fpObjetoDono) do
+  begin
+    FACBrBoletoFPDF   := TACBrBoletoFPDF.Create(ACBrBoleto);
+    if ACBrBoleto.ACBrBoletoFC.ClassName <> FACBrBoletoFPDF.ClassName then
+       raise Exception.Create('A Função GerarPDFComSenha() não funciona com o motor selecionado !');
+
+    if ASenha <> '' then
+       ACBrBoleto.ACBrBoletoFC.PdfSenha := ASenha
+    else
+       raise Exception.Create('Não foi informado o parametro Senha !');
+
+    if not Assigned(ACBrBoleto.ACBrBoletoFC) then
+       raise Exception.Create('MOTOR DE RELATÓRIO NÃO FOI SELECIONADO');
+
+    LState:= ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual;
+    if ANomeArquivoPDF <> '' then
+       begin
+          ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual:=False;
+          ACBrBoleto.ACBrBoletoFC.NomeArquivo:=ANomeArquivoPDF;
+       end;
+    ACBrBoleto.GerarPDF;
+    fpCmd.Resposta := sLineBreak + 'Arquivo Gerado = ' + ACBrBoleto.ACBrBoletoFC.NomeArquivo;
+    ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual := LState;
+  end;
 
 end;
+
 
 { TMetodoGerarHTML }
 
@@ -564,7 +712,7 @@ begin
       ACBrBoleto.DirArqRemessa := ADir;
     if NaoEstaVazio( ANomeArq ) then
       ACBrBoleto.NomeArqRemessa:= ANomeArq;
-    ACBrBoleto.GerarRemessa( ANumArq );
+    fpCmd.Resposta := sLineBreak + 'Arquivo Gerado =' + ACBrBoleto.GerarRemessa( ANumArq );
 
   end;
 
@@ -746,7 +894,9 @@ begin
            ACBrBoleto.ACBrBoletoFC.NomeArquivo := PathWithDelim( ADir) +
              IfThen(NaoEstaVazio(AArq), AArq , 'boleto.pdf' );
 
-        fpCmd.Resposta := ACBrBoleto.ACBrBoletoFC.NomeArquivo;
+        fBoletoPersonalizandoArquivo := (AArq = '');
+
+        //fpCmd.Resposta := ACBrBoleto.ACBrBoletoFC.NomeArquivo;
 
       end;
 
@@ -955,53 +1105,113 @@ end;
 procedure TMetodoGerarPDFBoleto.Executar;
 var
   AIndice: Integer;
+  LState : Boolean;
 begin
   AIndice := StrToIntDef(fpCmd.Params(0),0);
 
   with TACBrObjetoBoleto(fpObjetoDono) do
   begin
+    LState:=ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual;
     try
-      ACBrBoleto.ListadeBoletos[AIndice].GerarPDF();
+      ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual := fBoletoPersonalizandoArquivo;
+      fpCmd.Resposta := sLineBreak + 'Arquivo Gerado = ' + ACBrBoleto.ListadeBoletos[AIndice].GerarPDF();
     Except
       raise Exception.Create('Título de Indice '+IntToStr(AIndice)+' não identificado na Lista!');
     end;
+    ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual := LState;
 
   end;
 
 end;
 
+{ TMetodoGerarPDFBoletoComSenha }
+
+{ Params: 0 - Indice do Título a ser gerado
+  Params: 1 - Senha
+}
+procedure TMetodoGerarPDFBoletoComSenha.Executar;
+var
+  AIndice: Integer;
+  ASenha : string;
+  FACBrBoletoFPDF   : TACBrBoletoFPDF;
+  LState : Boolean;
+begin
+  AIndice := StrToIntDef(fpCmd.Params(0),0);
+  ASenha  := fpCmd.Params(1);
+
+  with TACBrObjetoBoleto(fpObjetoDono) do
+  begin
+    FACBrBoletoFPDF     := TACBrBoletoFPDF.Create(ACBrBoleto);
+    LState := ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual;
+
+    if ACBrBoleto.ACBrBoletoFC.ClassName <> FACBrBoletoFPDF.ClassName then
+       raise Exception.Create('A Função GerarPDFBoletoComSenha() não funciona com o motor selecionado !');
+
+    ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual := fBoletoPersonalizandoArquivo;
+    if ASenha <> '' then
+       ACBrBoleto.ACBrBoletoFC.PdfSenha := ASenha
+    else
+       raise Exception.Create('Não foi informado o parametro Senha !');
+
+    if not Assigned(ACBrBoleto.ACBrBoletoFC) then
+       raise Exception.Create('MOTOR DE RELATÓRIO NÃO FOI SELECIONADO');
+
+    try
+      ACBrBoleto.ListadeBoletos[AIndice].GerarPDF();
+      fpCmd.Resposta := sLineBreak + 'Arquivo Gerado = ' + ACBrBoleto.ACBrBoletoFC.NomeArquivo;
+    Except
+      raise Exception.Create('Título de Indice '+IntToStr(AIndice)+' não identificado na Lista!');
+    end;
+
+    ACBrBoleto.ACBrBoletoFC.CalcularNomeArquivoPDFIndividual := LState;
+
+  end;
+
+end;
+
+
 { TMetodoEnviarEmailBoleto }
 
 { Params: 0 - Indice do Título a ser enviado
           1 - Dest : email do destinatário
+          2 - Assunto : Assunto do email
+          3 - Mensagem: Mensagem ao Destinatario
 }
 procedure TMetodoEnviarEmailBoleto.Executar;
 var
-  AIndice: Integer;
-  ADest: String;
-  Mensagem: TStringList;
+  AParamIndice: Integer;
+  AParamDest, AParamAssunto ,AParamMensagem : String;
+  LMensagem: TStringList;
 begin
-  AIndice := StrToIntDef(fpCmd.Params(0),0);
-  ADest := Trim(fpCmd.Params(1));
+  AParamIndice  := StrToIntDef(fpCmd.Params(0),0);
+  AParamDest    := Trim(fpCmd.Params(1));
+  AParamAssunto := Trim(fpCmd.Params(2));
+  AParamMensagem := Trim(fpCmd.Params(3));
 
   with TACBrObjetoBoleto(fpObjetoDono) do
   begin
-    if AIndice > (ACBrBoleto.ListadeBoletos.Count -1) then
-      raise Exception.Create('Título de Indice '+IntToStr(AIndice)+' não identificado na Lista!');
+    if AParamIndice > Pred(ACBrBoleto.ListadeBoletos.Count) then
+      raise Exception.Create('Título de Indice '+IntToStr(AParamIndice)+' não identificado na Lista!');
 
-    if (ADest = '') and (ACBrBoleto.ListadeBoletos.Count > 0) then
-      ADest := ACBrBoleto.ListadeBoletos[AIndice].Sacado.Email;
+    if EstaVazio(AParamDest) and (ACBrBoleto.ListadeBoletos.Count > 0) then
+      AParamDest := ACBrBoleto.ListadeBoletos[AParamIndice].Sacado.Email
+    else
+      AParamDest := AParamDest;
 
     with MonitorConfig.BOLETO.Email do
     begin
-        Mensagem := TStringList.Create;
+      LMensagem := TStringList.Create;
+      AParamAssunto := IfThen(NaoEstaVazio(AParamAssunto), AParamAssunto, EmailAssuntoBoleto);
+
       try
-        Mensagem.Text:= StringToBinaryString(EmailMensagemBoleto);
+        LMensagem.Text:= StringToBinaryString(IfThen(NaoEstaVazio(AParamMensagem), AParamMensagem, EmailMensagemBoleto));
+
         try
           ACBrBoleto.MAIL.IsHTML := EmailFormatoHTML;
-          ACBrBoleto.ListadeBoletos[AIndice].EnviarEmail( ADest,
-                 EmailAssuntoBoleto,
-                 Mensagem,
+          ACBrBoleto.ListadeBoletos[AParamIndice].EnviarEmail(
+                 AParamDest,
+                 AParamAssunto,
+                 LMensagem,
                  True);
           if not(MonitorConfig.Email.SegundoPlano) then
             fpCmd.Resposta := 'E-mail enviado com sucesso!'
@@ -1014,7 +1224,7 @@ begin
         end;
 
       finally
-        Mensagem.Free;
+        LMensagem.Free;
       end;
     end;
 
@@ -1118,6 +1328,22 @@ begin
         ChavePix       := fACBrBoleto.Cedente.PIX.Chave;
         TipoChavePix   := integer(fACBrBoleto.Cedente.PIX.TipoChavePIX);
       end;
+
+    with WS.CedenteWS do
+      begin
+        ClientID     := fACBrBoleto.Cedente.CedenteWS.ClientID;
+        ClientSecret := fACBrBoleto.Cedente.CedenteWS.ClientSecret;
+        KeyUser      := fACBrBoleto.Cedente.CedenteWS.KeyUser;
+        Scope        := fACBrBoleto.Cedente.CedenteWS.Scope;
+        IndicadorPix := fACBrBoleto.Cedente.CedenteWS.IndicadorPix;
+      end;
+
+    with WS.Config.SSL do
+      begin
+        ArquivoKEY := fACBrBoleto.Configuracoes.WebService.ArquivoKEY;
+        ArquivoCRT := fACBrBoleto.Configuracoes.WebService.ArquivoCRT;
+      end;
+
     with RemessaRetorno do
       CodTransmissao    := fACBrBoleto.Cedente.CodigoTransmissao;
     if ( Integer(fACBrBoleto.ACBrBoletoFC.LayOut) > 0 ) then

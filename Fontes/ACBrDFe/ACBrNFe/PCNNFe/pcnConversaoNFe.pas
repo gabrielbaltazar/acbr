@@ -55,18 +55,23 @@ uses
 
 type
 
-  TpcnFinalidadeNFe = (fnNormal, fnComplementar, fnAjuste, fnDevolucao);
+  TStatusACBrNFe = (stIdle, stNFeStatusServico, stNFeRecepcao, stNFeRetRecepcao,
+    stNFeConsulta, stNFeCancelamento, stNFeInutilizacao, stNFeRecibo,
+    stNFeCadastro, stNFeEmail, stNFeCCe, stNFeEvento, stConsNFeDest,
+    stDownloadNFe, stAdmCSCNFCe, stDistDFeInt, stEnvioWebService);
 
-  (* IMPORTANTE - Sempre que alterar um Tipo efetuar a atualização das funções de conversão correspondentes *)
-  TLayOut = (LayNfeRecepcao, LayNfeRetRecepcao, LayNfeCancelamento,
-    LayNfeInutilizacao, LayNfeConsulta, LayNfeStatusServico,
-    LayNfeCadastro, LayNFeCCe, LayNFeEvento, LayNFeEventoAN, LayNFeConsNFeDest,
-    LayNFeDownloadNFe, LayNfeAutorizacao, LayNfeRetAutorizacao,
-    LayAdministrarCSCNFCe, LayDistDFeInt, LayNFCeEPEC);
+  TpcnInformacoesDePagamento = (eipNunca, eipAdicionais, eipQuadro);
 
+  TpcnVersaoDF = (ve200, ve300, ve310, ve400);
+
+const
+  TVersaoDFArrayStrings: array[TpcnVersaoDF] of string = ('2.00', '3.00', '3.10',
+    '4.00');
+  TVersaoDFArrayDouble: array[TpcnVersaoDF] of Double = (2.00, 3.00, 3.10, 4.00);
+
+type
   TSchemaNFe = (schErro, schNfe, schcancNFe, schInutNFe, schEnvCCe,
                 schEnvEventoCancNFe, schEnvConfRecebto, schEnvEPEC,
-//                schresNFe, schresEvento, schprocNFe, schprocEventoNFe,
                 schconsReciNFe, schconsSitNFe, schconsStatServ, schconsCad,
                 schenvEvento, schconsNFeDest, schdownloadNFe, schretEnviNFe,
                 schadmCscNFCe, schdistDFeInt, scheventoEPEC, schCancSubst,
@@ -76,28 +81,144 @@ type
                 schManifDestOperNaoRealizada, schCompEntrega, schCancCompEntrega,
                 schAtorInteressadoNFe);
 
-  TStatusACBrNFe = (stIdle, stNFeStatusServico, stNFeRecepcao, stNFeRetRecepcao,
-    stNFeConsulta, stNFeCancelamento, stNFeInutilizacao, stNFeRecibo,
-    stNFeCadastro, stNFeEmail, stNFeCCe, stNFeEvento, stConsNFeDest,
-    stDownloadNFe, stAdmCSCNFCe, stDistDFeInt, stEnvioWebService);
+const
+  TSchemaNFeArrayStrings: array[TSchemaNFe] of string = ('Erro', 'Nfe',
+    'cancNFe', 'InutNFe', 'EnvCCe', 'EnvEventoCancNFe', 'EnvConfRecebto',
+    'EnvEPEC', 'consReciNFe', 'consSitNFe', 'consStatServ', 'consCad',
+    'envEvento', 'consNFeDest', 'downloadNFe', 'retEnviNFe', 'admCscNFCe',
+    'distDFeInt', 'eventoEPEC', 'CancSubst', 'PedProrrog1', 'PedProrrog2',
+    'CanPedProrrog1', 'CanPedProrrog2', 'ManifDestConfirmacao',
+    'ManifDestCiencia', 'ManifDestDesconhecimento', 'ManifDestOperNaoRealizada',
+    'CompEntrega', 'CancCompEntrega', 'AtorInteressadoNFe');
 
+  TEventoArrayStrings: array[TSchemaNFe] of string = ('', '', 'e110111', '',
+    'e110110', '', '', 'e110140', '', '', '', '', '', '', '', '', '', '', '',
+    'e110112', 'e111500', 'e111501', 'e111502', 'e111503', 'e210200', 'e210210',
+    'e210220', 'e210240', 'e110130', 'e110131', 'e110150');
+
+type
+  TLayOut = (LayNfeRecepcao, LayNfeRetRecepcao, LayNfeCancelamento,
+    LayNfeInutilizacao, LayNfeConsulta, LayNfeStatusServico,
+    LayNfeCadastro, LayNFeCCe, LayNFeEvento, LayNFeEventoAN, LayNFeConsNFeDest,
+    LayNFeDownloadNFe, LayNfeAutorizacao, LayNfeRetAutorizacao,
+    LayAdministrarCSCNFCe, LayDistDFeInt, LayNFCeEPEC, LayNFeURLQRCode,
+    LayURLConsultaNFe, LayURLConsultaNFCe);
+
+const
+  TLayOutArrayStrings: array[TLayOut] of string = ('NfeRecepcao',
+    'NfeRetRecepcao', 'NfeCancelamento', 'NfeInutilizacao',
+    'NfeConsultaProtocolo', 'NfeStatusServico', 'NfeConsultaCadastro',
+    'RecepcaoEvento', 'RecepcaoEvento', 'RecepcaoEvento', 'NfeConsultaDest',
+    'NfeDownloadNF', 'NfeAutorizacao', 'NfeRetAutorizacao', 'AdministrarCSCNFCe',
+    'NFeDistribuicaoDFe', 'EventoEPEC', 'URL-QRCode', 'URL-ConsultaNFe',
+    'URL-ConsultaNFCe');
+
+type
+  TpcnFinalidadeNFe = (fnNormal, fnComplementar, fnAjuste, fnDevolucao);
+
+const
+  TFinalidadeNFeArrayStrings: array[TpcnFinalidadeNFe] of string = ('1', '2', '3',
+    '4');
+
+type
   TpcnModeloDF = (moNFe, moNFCe);
-  TpcnVersaoDF = (ve200, ve300, ve310, ve400);
-  TpcnIndicadorNFe = (inTodas, inSemManifestacaoComCiencia, inSemManifestacaoSemCiencia);
+
+const
+  TModeloDFArrayStrings: array[TpcnModeloDF] of string = ('55', '65');
+
+type
+  TpcnIndicadorNFe = (inTodas, inSemManifestacaoComCiencia,
+                      inSemManifestacaoSemCiencia);
+
+const
+  TIndicadorNFeArrayStrings: array[TpcnIndicadorNFe] of string = ('0', '1', '2');
+
+type
   TpcnVersaoQrCode = (veqr000, veqr100, veqr200);
 
-  TpcnTipoOperacao = (toVendaConcessionaria, toFaturamentoDireto, toVendaDireta, toOutros);
-  TpcnCondicaoVeiculo = (cvAcabado, cvInacabado, cvSemiAcabado);
-  TpcnTipoArma = (taUsoPermitido, taUsoRestrito);
-  TpcnIndEscala = (ieRelevante, ieNaoRelevante, ieNenhum);
-  TpcnModalidadeFrete = (mfContaEmitente, mfContaDestinatario, mfContaTerceiros, mfProprioRemetente, mfProprioDestinatario, mfSemFrete);
-  TpcnInformacoesDePagamento = (eipNunca, eipAdicionais, eipQuadro);
+const
+  TVersaoQrCodeArrayStrings: array[TpcnVersaoQrCode] of string = ('0', '1', '2');
+  TVersaoQrCodeArrayDouble: array[TpcnVersaoQrCode] of Double = (0, 1.00, 2.00);
 
+type
+  TpcnTipoOperacao = (toVendaConcessionaria, toFaturamentoDireto, toVendaDireta,
+                      toOutros);
+
+const
+  TTipoOperacaoArrayStrings: array[TpcnTipoOperacao] of string = ('1', '2', '3',
+    '0');
+  TTipoOperacaoDescArrayStrings: array[TpcnTipoOperacao]
+    of string = ('1-VENDA CONCESSIONÁRIA', '2-FAT. DIRETO CONS. FINAL',
+      '3-VENDA DIRETA', '0-OUTROS');
+
+type
+  TpcnCondicaoVeiculo = (cvAcabado, cvInacabado, cvSemiAcabado);
+
+const
+  TCondicaoVeiculoArrayStrings: array[TpcnCondicaoVeiculo] of string = ('1', '2',
+    '3');
+  TCondicaoVeiculoDescArrayStrings: array[TpcnCondicaoVeiculo]
+     of string = ('1-ACABADO', '2-INACABADO', '3-SEMI-ACABADO');
+
+type
+  TpcnTipoArma = (taUsoPermitido, taUsoRestrito);
+
+const
+  TTipoArmaArrayStrings: array[TpcnTipoArma] of string = ('0', '1');
+  TTipoArmaDescArrayStrings: array[TpcnTipoArma] of string = ('0-USO PERMITIDO',
+    '1-USO RESTRITO');
+
+type
+  TpcnIndEscala = (ieRelevante, ieNaoRelevante, ieNenhum);
+
+const
+  TIndEscalaArrayStrings: array[TpcnIndEscala] of string = ('S', 'N', '');
+
+type
+  TpcnModalidadeFrete = (mfContaEmitente, mfContaDestinatario, mfContaTerceiros,
+                         mfProprioRemetente, mfProprioDestinatario, mfSemFrete);
+
+const
+  TModalidadeFreteArrayStrings: array[TpcnModalidadeFrete] of string = ('0', '1',
+    '2', '3', '4', '9');
+
+type
   TAutorizacao = (taNaoPermite, taPermite);
 
-  TindIntermed = (iiSemOperacao, iiOperacaoSemIntermediador, iiOperacaoComIntermediador);
+const
+  TAutorizacaoArrayStrings: array[TAutorizacao] of string = ('0', '1');
 
-  TtpAto = (taNenhum, taTermoAcordo, taRegimeEspecial, taAutorizacaoEspecifica);
+type
+  TindIntermed = (iiSemOperacao, iiOperacaoSemIntermediador,
+                  iiOperacaoComIntermediador);
+
+const
+  TindIntermedArrayStrings: array[TindIntermed] of string = ('', '0', '1');
+
+type
+  TtpAto = (taNenhum, taTermoAcordo, taRegimeEspecial, taAutorizacaoEspecifica,
+            taAjusteSNIEF, taConvenioICMS);
+
+const
+  TtpAtoArrayStrings: array[TtpAto] of string = ('', '08', '10', '12', '14',
+    '15');
+
+type
+  TindImport = (iiNacional, iiImportado);
+
+const
+  TindImportArrayStrings: array[TindImport] of string = ('0', '1');
+
+type
+  TmotRedAdRem = (motTranspColetivo, motOutros);
+
+const
+  TmotRedAdRemArrayStrings: array[TmotRedAdRem] of string = ('1', '9');
+
+{
+  Declaração das funções de conversão
+}
+function StrToTpEventoNFe(out ok: boolean; const s: string): TpcnTpEvento;
 
   TindImport = (iiNacional, iiImportado);
 
@@ -164,8 +285,6 @@ function StrToAutorizacao(out ok: boolean; const s: string): TAutorizacao;
 function IndIntermedToStr(const t: TindIntermed): string;
 function StrToIndIntermed(out ok: boolean; const s: string): TindIntermed;
 
-function StrToTpEventoNFe(out ok: boolean; const s: string): TpcnTpEvento;
-
 function tpAtoToStr(const t: TtpAto): string;
 function StrTotpAto(out ok: boolean; const s: string): TtpAto;
 
@@ -179,6 +298,26 @@ implementation
 
 uses
   typinfo;
+
+function StrToTpEventoNFe(out ok: boolean; const s: string): TpcnTpEvento;
+begin
+  Result := StrToEnumerado(ok, s,
+            ['-99999', '110110', '110111', '110112', '110140', '111500',
+             '111501', '111502', '111503', '210200', '210210', '210220',
+             '210240', '610600', '610614', '790700', '990900', '990910',
+             '110180', '610554', '610510', '610615', '610610', '110130',
+             '110131', '110150', '610130', '610131', '610601'],
+            [teNaoMapeado, teCCe, teCancelamento, teCancSubst, teEPECNFe,
+             tePedProrrog1, tePedProrrog2, teCanPedProrrog1, teCanPedProrrog2,
+             teManifDestConfirmacao, teManifDestCiencia,
+             teManifDestDesconhecimento, teManifDestOperNaoRealizada,
+             teRegistroCTe, teMDFeAutorizadoComCTe, teAverbacaoExportacao,
+             teVistoriaSuframa, teConfInternalizacao, teComprEntrega,
+             teRegPasAutMDFeComCte, teRegPasNfeProMDFe,
+             teCancelamentoMDFeAutComCTe, teMDFeAutorizado,
+             teComprEntregaNFe, teCancComprEntregaNFe, teAtorInteressadoNFe,
+             teComprEntregaCTe, teCancComprEntregaCTe, teCTeCancelado]);
+end;
 
 function LayOutToServico(const t: TLayOut): String;
 begin
@@ -646,36 +785,42 @@ begin
        [iiSemOperacao, iiOperacaoSemIntermediador, iiOperacaoComIntermediador]);
 end;
 
-function StrToTpEventoNFe(out ok: boolean; const s: string): TpcnTpEvento;
-begin
-  Result := StrToEnumerado(ok, s,
-            ['-99999', '110110', '110111', '110112', '110140', '111500',
-             '111501', '111502', '111503', '210200', '210210', '210220',
-             '210240', '610600', '610614', '790700', '990900', '990910',
-             '110180', '610554', '610510', '610615', '610610', '110130',
-             '110131', '110150', '610130', '610131', '610601'],
-            [teNaoMapeado, teCCe, teCancelamento, teCancSubst, teEPECNFe,
-             tePedProrrog1, tePedProrrog2, teCanPedProrrog1, teCanPedProrrog2,
-             teManifDestConfirmacao, teManifDestCiencia,
-             teManifDestDesconhecimento, teManifDestOperNaoRealizada,
-             teRegistroCTe, teMDFeAutorizadoComCTe, teAverbacaoExportacao,
-             teVistoriaSuframa, teConfInternalizacao, teComprEntrega,
-             teRegPasAutMDFeComCte, teRegPasNfeProMDFe,
-             teCancelamentoMDFeAutComCTe, teMDFeAutorizado,
-             teComprEntregaNFe, teCancComprEntregaNFe, teAtorInteressadoNFe,
-             teComprEntregaCTe, teCancComprEntregaCTe, teCTeCancelado]);
-end;
-
 function tpAtoToStr(const t: TtpAto): string;
 begin
-  Result := EnumeradoToStr(t, ['', '08', '10', '12'],
-       [taNenhum, taTermoAcordo, taRegimeEspecial, taAutorizacaoEspecifica]);
+  Result := EnumeradoToStr(t, ['', '08', '10', '12', '14', '15'],
+       [taNenhum, taTermoAcordo, taRegimeEspecial, taAutorizacaoEspecifica,
+            taAjusteSNIEF, taConvenioICMS]);
 end;
 
 function StrTotpAto(out ok: boolean; const s: string): TtpAto;
 begin
-  Result := StrToEnumerado(ok, s, ['', '08', '10', '12'],
-       [taNenhum, taTermoAcordo, taRegimeEspecial, taAutorizacaoEspecifica]);
+  Result := StrToEnumerado(ok, s, ['', '08', '10', '12', '14', '15'],
+       [taNenhum, taTermoAcordo, taRegimeEspecial, taAutorizacaoEspecifica,
+            taAjusteSNIEF, taConvenioICMS]);
+end;
+
+function indImportToStr(const t: TindImport): string;
+begin
+  Result := EnumeradoToStr(t, ['0', '1'],
+       [iiNacional, iiImportado]);
+end;
+
+function StrToindImport(out ok: boolean; const s: string): TindImport;
+begin
+  Result := StrToEnumerado(ok, s, ['0', '1'],
+       [iiNacional, iiImportado]);
+end;
+
+function motRedAdRemToStr(const t: TmotRedAdRem): string;
+begin
+  Result := EnumeradoToStr(t, ['1', '9'],
+       [motTranspColetivo, motOutros]);
+end;
+
+function StrTomotRedAdRem(out ok: boolean; const s: string): TmotRedAdRem;
+begin
+  Result := StrToEnumerado(ok, s, ['1', '9'],
+       [motTranspColetivo, motOutros]);
 end;
 
 function indImportToStr(const t: TindImport): string;

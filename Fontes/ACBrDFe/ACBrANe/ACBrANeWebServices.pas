@@ -38,9 +38,9 @@ interface
 
 uses
   Classes, SysUtils, synacode,
-  ACBrDFe, ACBrDFeWebService, pcnConsts,
+  ACBrDFe, ACBrDFeWebService, ACBrDFeUtil,
   ACBrANeDocumentos, ACBrANeConfiguracoes,
-  pcnAuxiliar, pcnConversao, pcaConversao, pcaANe, pcaRetEnvANe;
+  pcnConversao, pcaConversao, pcaANe, pcaRetEnvANe;
 
 const
   CURL_WSDL = '';
@@ -180,6 +180,7 @@ uses
   ACBrUtil.XMLHTML,
   ACBrUtil.DateTime,
   ACBrANe,
+  ACBrDFeConsts,
   pcnGerador, pcnLeitor;
 
 { TANeWebService }

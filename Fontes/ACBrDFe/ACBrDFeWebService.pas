@@ -50,7 +50,8 @@ uses
      {$ENDIF}
    {$ENDIF}
   {$ENDIF}
-  ACBrDFeConfiguracoes, ACBrIntegrador, ACBrDFe, pcnConsts, pcnGerador;
+  ACBrDFeConfiguracoes, ACBrIntegrador, ACBrDFe,
+  pcnGerador;
 
 const
   CErroSemResposta = 'Erro ao obter resposta do webservice.';
@@ -148,12 +149,13 @@ implementation
 
 uses
   strutils,
+  ACBrDFeConsts,
   ACBrDFeUtil, ACBrDFeException,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.DateTime,
   ACBrUtil.XMLHTML,
-  pcnAuxiliar, synacode;
+  synacode;
 
 { TDFeWebService }
 
@@ -544,7 +546,7 @@ begin
   AOpcoes.RetirarAcentos := FPDFeOwner.Configuracoes.Geral.RetirarAcentos;
   AOpcoes.RetirarEspacos := FPDFeOwner.Configuracoes.Geral.RetirarEspacos;
   AOpcoes.IdentarXML := FPDFeOwner.Configuracoes.Geral.IdentarXML;
-  pcnAuxiliar.TimeZoneConf.Assign( FPDFeOwner.Configuracoes.WebServices.TimeZoneConf );
+  TimeZoneConf.Assign( FPDFeOwner.Configuracoes.WebServices.TimeZoneConf );
   AOpcoes.QuebraLinha := FPDFeOwner.Configuracoes.WebServices.QuebradeLinha;
 end;
 

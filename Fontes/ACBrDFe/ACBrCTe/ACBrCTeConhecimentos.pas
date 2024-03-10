@@ -40,7 +40,7 @@ interface
 uses
   Classes, Sysutils, StrUtils,
   ACBrCTeConfiguracoes,
-  pcteCTe, pcteCTeR, pcteCTeW, pcnConversao, pcnAuxiliar, pcnLeitor;
+  pcteCTe, pcteCTeR, pcteCTeW, pcnConversao, pcnLeitor;
 
 type
 
@@ -81,7 +81,9 @@ type
     destructor Destroy; override;
 
     procedure Imprimir;
-    procedure ImprimirPDF;
+    procedure ImprimirPDF; overload;
+    procedure ImprimirPDF(AStream: TStream); overload;
+
     procedure Assinar;
     procedure Validar;
     function VerificarAssinatura: Boolean;
@@ -238,6 +240,20 @@ begin
       raise EACBrCTeException.Create('Componente DACTE não associado.')
     else
       DACTE.ImprimirDACTEPDF(CTe);
+  end;
+end;
+
+procedure Conhecimento.ImprimirPDF(AStream: TStream);
+begin
+  with TACBrCTe(TConhecimentos(Collection).ACBrCTe) do
+  begin
+    if not Assigned(DACTE) then
+      raise EACBrCTeException.Create('Componente DACTE não associado.')
+    else
+    begin
+      AStream.Size := 0;
+      DACTE.ImprimirDACTEPDF(AStream, CTe);
+    end;
   end;
 end;
 
@@ -896,10 +912,16 @@ begin
           INIRec.WriteString('ICMS20', 'vBC', CurrToStr(Imp.ICMS.ICMS20.vBC));
           INIRec.WriteString('ICMS20', 'pICMS', CurrToStr(Imp.ICMS.ICMS20.pICMS));
           INIRec.WriteString('ICMS20', 'vICMS', CurrToStr(Imp.ICMS.ICMS20.vICMS));
+          INIRec.WriteString('ICMS20', 'vICMSDeson', CurrToStr(Imp.ICMS.ICMS20.vICMSDeson));
+          INIRec.WriteString('ICMS20', 'cBenef', Imp.ICMS.ICMS20.cBenef);
         end;
 
         if Imp.ICMS.ICMS45.CST = cst45 then
+        begin
           INIRec.WriteString('ICMS45', 'CST', CSTICMSToStr(Imp.ICMS.ICMS45.CST));
+          INIRec.WriteString('ICMS45', 'vICMSDeson', CurrToStr(Imp.ICMS.ICMS45.vICMSDeson));
+          INIRec.WriteString('ICMS45', 'cBenef', Imp.ICMS.ICMS45.cBenef);
+        end;
 
         if Imp.ICMS.ICMS60.CST = cst60 then
         begin
@@ -908,6 +930,8 @@ begin
           INIRec.WriteString('ICMS60', 'vICMSSTRet', CurrToStr(Imp.ICMS.ICMS60.vICMSSTRet));
           INIRec.WriteString('ICMS60', 'pICMSSTRet', CurrToStr(Imp.ICMS.ICMS60.pICMSSTRet));
           INIRec.WriteString('ICMS60', 'vCred', CurrToStr(Imp.ICMS.ICMS60.vCred));
+          INIRec.WriteString('ICMS60', 'vICMSDeson', CurrToStr(Imp.ICMS.ICMS60.vICMSDeson));
+          INIRec.WriteString('ICMS60', 'cBenef', Imp.ICMS.ICMS60.cBenef);
         end;
 
         if Imp.ICMS.ICMS90.CST = cst90 then
@@ -918,6 +942,8 @@ begin
           INIRec.WriteString('ICMS90', 'pICMS', CurrToStr(Imp.ICMS.ICMS90.pICMS));
           INIRec.WriteString('ICMS90', 'vICMS', CurrToStr(Imp.ICMS.ICMS90.vICMS));
           INIRec.WriteString('ICMS90', 'vCred', CurrToStr(Imp.ICMS.ICMS90.vCred));
+          INIRec.WriteString('ICMS90', 'vICMSDeson', CurrToStr(Imp.ICMS.ICMS90.vICMSDeson));
+          INIRec.WriteString('ICMS90', 'cBenef', Imp.ICMS.ICMS90.cBenef);
         end;
 
         if Imp.ICMS.ICMSOutraUF.CST = cstICMSOutraUF then
@@ -927,6 +953,8 @@ begin
           INIRec.WriteString('ICMSOutraUF', 'vBCOutraUF', CurrToStr(Imp.ICMS.ICMSOutraUF.vBCOutraUF));
           INIRec.WriteString('ICMSOutraUF', 'pICMSOutraUF', CurrToStr(Imp.ICMS.ICMSOutraUF.pICMSOutraUF));
           INIRec.WriteString('ICMSOutraUF', 'vICMSOutraUF', CurrToStr(Imp.ICMS.ICMSOutraUF.vICMSOutraUF));
+          INIRec.WriteString('ICMSOutraUF', 'vICMSDeson', CurrToStr(Imp.ICMS.ICMSOutraUF.vICMSDeson));
+          INIRec.WriteString('ICMSOutraUF', 'cBenef', Imp.ICMS.ICMSOutraUF.cBenef);
         end;
 
         {indica se é simples}
@@ -1534,7 +1562,7 @@ begin
     FCTeW.Opcoes.NormatizarMunicipios   := Configuracoes.Arquivos.NormatizarMunicipios;
     FCTeW.Opcoes.PathArquivoMunicipios  := Configuracoes.Arquivos.PathArquivoMunicipios;
 
-    pcnAuxiliar.TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
+    TimeZoneConf.Assign( Configuracoes.WebServices.TimeZoneConf );
 
     FCTeW.idCSRT := Configuracoes.RespTec.IdCSRT;
     FCTeW.CSRT   := Configuracoes.RespTec.CSRT;
@@ -1900,7 +1928,7 @@ begin
       Emit.enderEmit.UF      := INIRec.ReadString('emit','UF','');
       Emit.enderEmit.fone    := INIRec.ReadString('emit','fone','');
 
-      ide.cUF := INIRec.ReadInteger('ide','cUF', UFparaCodigo(Emit.enderEmit.UF));
+      ide.cUF := INIRec.ReadInteger('ide','cUF', UFparaCodigoUF(Emit.enderEmit.UF));
 
       Rem.CNPJCPF := INIRec.ReadString('rem','CNPJCPF','');
       Rem.IE      := INIRec.ReadString('rem','IE','');
@@ -2371,6 +2399,7 @@ begin
 
       Dest.enderDest.xLgr    := INIRec.ReadString('Dest','xLgr','');
       Dest.enderDest.nro     := INIRec.ReadString('Dest','nro','');
+      Dest.enderDest.xCpl    := INIRec.ReadString('Dest', 'xCpl', '');
       Dest.enderDest.xBairro := INIRec.ReadString('Dest','xBairro','');
       Dest.enderDest.cMun    := INIRec.ReadInteger('Dest','cMun',0);
       Dest.enderDest.xMun    := INIRec.ReadString('Dest','xMun','');
@@ -2428,12 +2457,18 @@ begin
         Imp.ICMS.ICMS20.vBC    := StringToFloatDef( INIRec.ReadString('ICMS20','vBC','') ,0);
         Imp.ICMS.ICMS20.pICMS  := StringToFloatDef( INIRec.ReadString('ICMS20','pICMS','') ,0);
         Imp.ICMS.ICMS20.vICMS  := StringToFloatDef( INIRec.ReadString('ICMS20','vICMS','') ,0);
+
+        Imp.ICMS.ICMS20.vICMSDeson := StringToFloatDef(INIRec.ReadString('ICMS20','vICMSDeson','') ,0);
+        Imp.ICMS.ICMS20.cBenef     := INIRec.ReadString('ICMS20','cBenef','');
       end;
 
       if INIRec.ReadString('ICMS45','CST','') <> '' then
       begin
         Imp.ICMS.ICMS45.CST := StrToCSTICMS(OK,INIRec.ReadString('ICMS45','CST','40'));
         imp.ICMS.SituTrib   := Imp.ICMS.ICMS45.CST;
+
+        Imp.ICMS.ICMS45.vICMSDeson := StringToFloatDef(INIRec.ReadString('ICMS45','vICMSDeson','') ,0);
+        Imp.ICMS.ICMS45.cBenef     := INIRec.ReadString('ICMS45','cBenef','');
        end;
 
       if INIRec.ReadString('ICMS60', 'CST','') <> '' then
@@ -2444,6 +2479,9 @@ begin
         Imp.ICMS.ICMS60.vICMSSTRet := StringToFloatDef( INIRec.ReadString('ICMS60','vICMSSTRet','') ,0);
         Imp.ICMS.ICMS60.pICMSSTRet := StringToFloatDef( INIRec.ReadString('ICMS60','pICMSSTRet','') ,0);
         Imp.ICMS.ICMS60.vCred      := StringToFloatDef( INIRec.ReadString('ICMS60','vCred','') ,0);
+
+        Imp.ICMS.ICMS60.vICMSDeson := StringToFloatDef(INIRec.ReadString('ICMS60','vICMSDeson','') ,0);
+        Imp.ICMS.ICMS60.cBenef     := INIRec.ReadString('ICMS60','cBenef','');
       end;
 
       if INIRec.ReadString('ICMS90', 'CST','') <> '' then
@@ -2455,6 +2493,9 @@ begin
         Imp.ICMS.ICMS90.pICMS  := StringToFloatDef( INIRec.ReadString('ICMS90','pICMS','') ,0);
         Imp.ICMS.ICMS90.vICMS  := StringToFloatDef( INIRec.ReadString('ICMS90','vICMS','') ,0);
         Imp.ICMS.ICMS90.vCred  := StringToFloatDef( INIRec.ReadString('ICMS90','vCred','') ,0);
+
+        Imp.ICMS.ICMS90.vICMSDeson := StringToFloatDef(INIRec.ReadString('ICMS90','vICMSDeson','') ,0);
+        Imp.ICMS.ICMS90.cBenef     := INIRec.ReadString('ICMS90','cBenef','');
       end;
 
       if INIRec.ReadString('ICMSOutraUF', 'CST','') <> '' then
@@ -2465,6 +2506,9 @@ begin
         Imp.ICMS.ICMSOutraUF.vBCOutraUF    := StringToFloatDef( INIRec.ReadString('ICMSOutraUF','vBCOutraUF','') ,0);
         Imp.ICMS.ICMSOutraUF.pICMSOutraUF  := StringToFloatDef( INIRec.ReadString('ICMSOutraUF','pICMSOutraUF','') ,0);
         Imp.ICMS.ICMSOutraUF.vICMSOutraUF  := StringToFloatDef( INIRec.ReadString('ICMSOutraUF','vICMSOutraUF','') ,0);
+
+        Imp.ICMS.ICMSOutraUF.vICMSDeson := StringToFloatDef(INIRec.ReadString('ICMSOutraUF','vICMSDeson','') ,0);
+        Imp.ICMS.ICMSOutraUF.cBenef     := INIRec.ReadString('ICMSOutraUF','cBenef','');
       end;
 
       if INIRec.ReadInteger('ICMSSN', 'indSN',0) = 1 then
@@ -2663,7 +2707,9 @@ begin
       begin
         infCTeNorm.Rodo.RNTRC := INIRec.ReadString('Rodo','RNTRC','');
         infCTeNorm.Rodo.dPrev := StringToDateTime(INIRec.ReadString( 'Rodo','dPrev','0'));
-        infCTeNorm.Rodo.Lota  := StrToTpLotacao(OK,INIRec.ReadString('Rodo','lota',''));
+        sFim := INIRec.ReadString('Rodo','lota','0');
+        if sFim <> '' then
+          infCTeNorm.Rodo.Lota  := StrToTpLotacao(OK, sFim);
         infCTeNorm.Rodo.CIOT  := INIRec.ReadString('Rodo','CIOT','');
 
         I := 1;
@@ -2722,10 +2768,18 @@ begin
             tara    := INIRec.ReadInteger(sSecao,'tara',0);
             capKG   := INIRec.ReadInteger(sSecao,'capKG',0);
             capM3   := INIRec.ReadInteger(sSecao,'capM3',0);
-            tpProp  := StrToTpPropriedade(OK,INIRec.ReadString(sSecao,'tpProp',''));
-            tpVeic  := StrToTpVeiculo(OK,INIRec.ReadString(sSecao,'tpVeic',''));
-            tpRod   := StrToTpRodado(OK,INIRec.ReadString(sSecao,'tpRod',''));
-            tpCar   := StrToTpCarroceria(OK,INIRec.ReadString(sSecao,'tpCar',''));
+            sFim := INIRec.ReadString(sSecao,'tpProp','');
+            if sFim <> '' then
+              tpProp  := StrToTpPropriedade(OK, sFim);
+            sFim := INIRec.ReadString(sSecao,'tpVeic','');
+            if sFim <> '' then
+              tpVeic  := StrToTpVeiculo(OK, sFim);
+            sFim := INIRec.ReadString(sSecao,'tpRod','');
+            if sFim <> '' then
+              tpRod   := StrToTpRodado(OK, sFim);
+            sFim := INIRec.ReadString(sSecao,'tpCar','');
+            if sFim <> '' then
+              tpCar   := StrToTpCarroceria(OK, sFim);
             UF      := INIRec.ReadString(sSecao,'UF','');
 
             if INIRec.SectionExists('prop' + IntToStrZero(I,3))then

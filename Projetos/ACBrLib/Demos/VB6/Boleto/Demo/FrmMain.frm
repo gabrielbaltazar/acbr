@@ -5,7 +5,7 @@ Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form FrmMain 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "ACBrLibBoleto Demo"
-   ClientHeight    =   9435
+   ClientHeight    =   9825
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   10440
@@ -21,7 +21,7 @@ Begin VB.Form FrmMain
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   9435
+   ScaleHeight     =   9825
    ScaleWidth      =   10440
    StartUpPosition =   2  'CenterScreen
    Begin VB.CommandButton btnCarregarConfiguracoes 
@@ -29,7 +29,7 @@ Begin VB.Form FrmMain
       Height          =   480
       Left            =   5760
       TabIndex        =   142
-      Top             =   3120
+      Top             =   3480
       Width           =   1935
    End
    Begin VB.CommandButton btnEnviarBoletoWebService 
@@ -37,7 +37,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   141
-      Top             =   8880
+      Top             =   9360
       Width           =   2175
    End
    Begin VB.CommandButton btnMontarNossoNumero 
@@ -45,7 +45,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   2040
       TabIndex        =   113
-      Top             =   8400
+      Top             =   8880
       Width           =   1710
    End
    Begin VB.CommandButton btnTamNossoNumero 
@@ -53,7 +53,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   2040
       TabIndex        =   112
-      Top             =   7920
+      Top             =   8400
       Width           =   1710
    End
    Begin VB.CommandButton btnSetDiretorioArquivos 
@@ -61,7 +61,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   111
-      Top             =   8400
+      Top             =   8880
       Width           =   1710
    End
    Begin VB.CommandButton btnCodigoMoraAceitos 
@@ -69,7 +69,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   2040
       TabIndex        =   110
-      Top             =   7440
+      Top             =   7920
       Width           =   1710
    End
    Begin VB.CommandButton btnListaOcorrenciaEx 
@@ -77,7 +77,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   109
-      Top             =   7920
+      Top             =   8400
       Width           =   1710
    End
    Begin VB.CommandButton btnListaOcorrencias 
@@ -85,7 +85,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   2040
       TabIndex        =   108
-      Top             =   6960
+      Top             =   7440
       Width           =   1710
    End
    Begin VB.CommandButton btnListaCaracTitulos 
@@ -93,7 +93,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   107
-      Top             =   7440
+      Top             =   7920
       Width           =   1710
    End
    Begin VB.CommandButton btnGerarHTML 
@@ -101,7 +101,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   2040
       TabIndex        =   106
-      Top             =   6480
+      Top             =   6960
       Width           =   1710
    End
    Begin VB.CommandButton btnSelecionaBanco 
@@ -109,7 +109,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   105
-      Top             =   6960
+      Top             =   7440
       Width           =   1710
    End
    Begin VB.CommandButton btnImprimirBoleto 
@@ -117,7 +117,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   104
-      Top             =   4560
+      Top             =   5040
       Width           =   1710
    End
    Begin VB.CommandButton btnEnviarEmailBoleto 
@@ -125,7 +125,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   2040
       TabIndex        =   103
-      Top             =   4560
+      Top             =   5040
       Width           =   1710
    End
    Begin VB.CommandButton btnCodigoBarras 
@@ -133,7 +133,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   2040
       TabIndex        =   102
-      Top             =   6000
+      Top             =   6480
       Width           =   1710
    End
    Begin VB.CommandButton btnLinhaDigitavel 
@@ -141,7 +141,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   2040
       TabIndex        =   101
-      Top             =   5520
+      Top             =   6000
       Width           =   1710
    End
    Begin VB.CommandButton btnListaBancos 
@@ -149,7 +149,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   2040
       TabIndex        =   100
-      Top             =   5040
+      Top             =   5520
       Width           =   1710
    End
    Begin VB.CommandButton btnEnviarEmail 
@@ -157,7 +157,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   2040
       TabIndex        =   99
-      Top             =   4080
+      Top             =   4560
       Width           =   1710
    End
    Begin VB.CommandButton btnLerRetorno 
@@ -165,7 +165,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   98
-      Top             =   6000
+      Top             =   6480
       Width           =   1710
    End
    Begin VB.CommandButton btnConfigDadosCedente 
@@ -173,7 +173,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   97
-      Top             =   3120
+      Top             =   3600
       Width           =   3495
    End
    Begin VB.CommandButton btnGerarPDF 
@@ -181,12 +181,12 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   2040
       TabIndex        =   96
-      Top             =   3600
+      Top             =   4080
       Width           =   1710
    End
    Begin MSComDlg.CommonDialog CommonDialog1 
       Left            =   3960
-      Top             =   3120
+      Top             =   3480
       _ExtentX        =   847
       _ExtentY        =   847
       _Version        =   393216
@@ -196,7 +196,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   49
-      Top             =   6480
+      Top             =   6960
       Width           =   1710
    End
    Begin VB.CommandButton cmdTotalTítulos 
@@ -204,7 +204,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   48
-      Top             =   5520
+      Top             =   6000
       Width           =   1710
    End
    Begin VB.CommandButton btnGerarRemessa 
@@ -212,7 +212,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   47
-      Top             =   5040
+      Top             =   5520
       Width           =   1710
    End
    Begin VB.CommandButton btnImprimir 
@@ -220,7 +220,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   46
-      Top             =   4080
+      Top             =   4560
       Width           =   1710
    End
    Begin VB.CommandButton btnIncluirTitulo 
@@ -228,7 +228,7 @@ Begin VB.Form FrmMain
       Height          =   360
       Left            =   240
       TabIndex        =   45
-      Top             =   3600
+      Top             =   4080
       Width           =   1710
    End
    Begin VB.CommandButton btnGravarConfig 
@@ -236,7 +236,7 @@ Begin VB.Form FrmMain
       Height          =   480
       Left            =   8400
       TabIndex        =   43
-      Top             =   3120
+      Top             =   3480
       Width           =   1935
    End
    Begin VB.Frame FraRespostas 
@@ -244,7 +244,7 @@ Begin VB.Form FrmMain
       Height          =   5175
       Left            =   3840
       TabIndex        =   42
-      Top             =   3600
+      Top             =   4080
       Width           =   6495
       Begin VB.TextBox rtbRespostas 
          Height          =   4815
@@ -256,82 +256,92 @@ Begin VB.Form FrmMain
       End
    End
    Begin TabDlg.SSTab SSTTab0 
-      Height          =   3015
+      Height          =   3375
       Left            =   0
       TabIndex        =   0
       Top             =   0
       Width           =   10335
       _ExtentX        =   18230
-      _ExtentY        =   5318
+      _ExtentY        =   5953
       _Version        =   393216
       Style           =   1
       Tabs            =   6
-      Tab             =   1
       TabsPerRow      =   6
       TabHeight       =   520
       TabCaption(0)   =   "Cedente"
       TabPicture(0)   =   "FrmMain.frx":0000
-      Tab(0).ControlEnabled=   0   'False
+      Tab(0).ControlEnabled=   -1  'True
       Tab(0).Control(0)=   "lblPessoa"
+      Tab(0).Control(0).Enabled=   0   'False
       Tab(0).Control(1)=   "lblNomeRz"
+      Tab(0).Control(1).Enabled=   0   'False
       Tab(0).Control(2)=   "lblCNPJCPF"
+      Tab(0).Control(2).Enabled=   0   'False
       Tab(0).Control(3)=   "lblLogradouro"
+      Tab(0).Control(3).Enabled=   0   'False
       Tab(0).Control(4)=   "lblBairro"
+      Tab(0).Control(4).Enabled=   0   'False
       Tab(0).Control(5)=   "lblNumero"
+      Tab(0).Control(5).Enabled=   0   'False
       Tab(0).Control(6)=   "lblComplemento"
+      Tab(0).Control(6).Enabled=   0   'False
       Tab(0).Control(7)=   "lblCEP"
+      Tab(0).Control(7).Enabled=   0   'False
       Tab(0).Control(8)=   "lblUF"
+      Tab(0).Control(8).Enabled=   0   'False
       Tab(0).Control(9)=   "lblCidade"
+      Tab(0).Control(9).Enabled=   0   'False
       Tab(0).Control(10)=   "lblDocumento"
+      Tab(0).Control(10).Enabled=   0   'False
       Tab(0).Control(11)=   "lblTelefone"
+      Tab(0).Control(11).Enabled=   0   'False
       Tab(0).Control(12)=   "lblCarteira"
+      Tab(0).Control(12).Enabled=   0   'False
       Tab(0).Control(13)=   "cmbTipoInscricao"
+      Tab(0).Control(13).Enabled=   0   'False
       Tab(0).Control(14)=   "txtNomeRes"
+      Tab(0).Control(14).Enabled=   0   'False
       Tab(0).Control(15)=   "txtCNPJCPF"
+      Tab(0).Control(15).Enabled=   0   'False
       Tab(0).Control(16)=   "txtLogradouro"
+      Tab(0).Control(16).Enabled=   0   'False
       Tab(0).Control(17)=   "txtBairro"
+      Tab(0).Control(17).Enabled=   0   'False
       Tab(0).Control(18)=   "txtNumeroRes"
+      Tab(0).Control(18).Enabled=   0   'False
       Tab(0).Control(19)=   "txtComplemento"
+      Tab(0).Control(19).Enabled=   0   'False
       Tab(0).Control(20)=   "txtCEP"
+      Tab(0).Control(20).Enabled=   0   'False
       Tab(0).Control(21)=   "cmbUF"
+      Tab(0).Control(21).Enabled=   0   'False
       Tab(0).Control(22)=   "txtCidade"
+      Tab(0).Control(22).Enabled=   0   'False
       Tab(0).Control(23)=   "cmbTipoDocumento"
+      Tab(0).Control(23).Enabled=   0   'False
       Tab(0).Control(24)=   "txtTelefone"
+      Tab(0).Control(24).Enabled=   0   'False
       Tab(0).Control(25)=   "cmbTipoCarteira"
+      Tab(0).Control(25).Enabled=   0   'False
       Tab(0).ControlCount=   26
       TabCaption(1)   =   "Layout"
       TabPicture(1)   =   "FrmMain.frx":001C
-      Tab(1).ControlEnabled=   -1  'True
-      Tab(1).Control(0)=   "lblImpressora"
-      Tab(1).Control(0).Enabled=   0   'False
-      Tab(1).Control(1)=   "lblModelo"
-      Tab(1).Control(1).Enabled=   0   'False
-      Tab(1).Control(2)=   "lblDiretórioLogotipo"
-      Tab(1).Control(2).Enabled=   0   'False
-      Tab(1).Control(3)=   "lblCopias"
-      Tab(1).Control(3).Enabled=   0   'False
-      Tab(1).Control(4)=   "lblNomeArquivo"
-      Tab(1).Control(4).Enabled=   0   'False
-      Tab(1).Control(5)=   "cmbImpressora"
-      Tab(1).Control(5).Enabled=   0   'False
-      Tab(1).Control(6)=   "cmbModeloImpressao"
-      Tab(1).Control(6).Enabled=   0   'False
+      Tab(1).ControlEnabled=   0   'False
+      Tab(1).Control(0)=   "chkProgresso"
+      Tab(1).Control(1)=   "chkSetup"
+      Tab(1).Control(2)=   "chkPreview"
+      Tab(1).Control(3)=   "txtNomeArquivo"
+      Tab(1).Control(4)=   "nudCopias"
+      Tab(1).Control(5)=   "txtCopias"
+      Tab(1).Control(6)=   "btnDirLogo"
       Tab(1).Control(7)=   "txtDirLogo"
-      Tab(1).Control(7).Enabled=   0   'False
-      Tab(1).Control(8)=   "btnDirLogo"
-      Tab(1).Control(8).Enabled=   0   'False
-      Tab(1).Control(9)=   "txtCopias"
-      Tab(1).Control(9).Enabled=   0   'False
-      Tab(1).Control(10)=   "nudCopias"
-      Tab(1).Control(10).Enabled=   0   'False
-      Tab(1).Control(11)=   "txtNomeArquivo"
-      Tab(1).Control(11).Enabled=   0   'False
-      Tab(1).Control(12)=   "chkPreview"
-      Tab(1).Control(12).Enabled=   0   'False
-      Tab(1).Control(13)=   "chkSetup"
-      Tab(1).Control(13).Enabled=   0   'False
-      Tab(1).Control(14)=   "chkProgresso"
-      Tab(1).Control(14).Enabled=   0   'False
+      Tab(1).Control(8)=   "cmbModeloImpressao"
+      Tab(1).Control(9)=   "cmbImpressora"
+      Tab(1).Control(10)=   "lblNomeArquivo"
+      Tab(1).Control(11)=   "lblCopias"
+      Tab(1).Control(12)=   "lblDiretórioLogotipo"
+      Tab(1).Control(13)=   "lblModelo"
+      Tab(1).Control(14)=   "lblImpressora"
       Tab(1).ControlCount=   15
       TabCaption(2)   =   "Conta Bancária"
       TabPicture(2)   =   "FrmMain.frx":0038
@@ -394,32 +404,68 @@ Begin VB.Form FrmMain
       TabCaption(5)   =   "WebService"
       TabPicture(5)   =   "FrmMain.frx":008C
       Tab(5).ControlEnabled=   0   'False
-      Tab(5).Control(0)=   "txtVersao"
-      Tab(5).Control(1)=   "txtTimeOut"
-      Tab(5).Control(2)=   "cmbOperacao"
-      Tab(5).Control(3)=   "cmbSSlType"
-      Tab(5).Control(4)=   "cmbHttp"
-      Tab(5).Control(5)=   "frmAmbiente"
-      Tab(5).Control(6)=   "btnPathLog"
-      Tab(5).Control(7)=   "txtPathLog"
-      Tab(5).Control(8)=   "chkGravarLog"
-      Tab(5).Control(9)=   "chkIndicadorPix"
-      Tab(5).Control(10)=   "txtScope"
-      Tab(5).Control(11)=   "txtKeyUser"
-      Tab(5).Control(12)=   "txtClientSecret"
-      Tab(5).Control(13)=   "txtClientID"
-      Tab(5).Control(14)=   "nudTimeOut"
-      Tab(5).Control(15)=   "Label7"
-      Tab(5).Control(16)=   "lblTimeOut(1)"
-      Tab(5).Control(17)=   "Label6"
-      Tab(5).Control(18)=   "lblSSLType"
-      Tab(5).Control(19)=   "lblHttpLib"
-      Tab(5).Control(20)=   "Label5"
-      Tab(5).Control(21)=   "Label4"
-      Tab(5).Control(22)=   "Label3"
-      Tab(5).Control(23)=   "Label2"
-      Tab(5).Control(24)=   "Label1"
-      Tab(5).ControlCount=   25
+      Tab(5).Control(0)=   "btnArquivoKEY"
+      Tab(5).Control(1)=   "btnArquivoCRT"
+      Tab(5).Control(2)=   "txtArquivoCRT"
+      Tab(5).Control(3)=   "txtArquivoKEY"
+      Tab(5).Control(4)=   "txtVersao"
+      Tab(5).Control(5)=   "txtTimeOut"
+      Tab(5).Control(6)=   "cmbOperacao"
+      Tab(5).Control(7)=   "cmbSSlType"
+      Tab(5).Control(8)=   "cmbHttp"
+      Tab(5).Control(9)=   "frmAmbiente"
+      Tab(5).Control(10)=   "btnPathLog"
+      Tab(5).Control(11)=   "txtPathLog"
+      Tab(5).Control(12)=   "chkGravarLog"
+      Tab(5).Control(13)=   "chkIndicadorPix"
+      Tab(5).Control(14)=   "txtScope"
+      Tab(5).Control(15)=   "txtKeyUser"
+      Tab(5).Control(16)=   "txtClientSecret"
+      Tab(5).Control(17)=   "txtClientID"
+      Tab(5).Control(18)=   "nudTimeOut"
+      Tab(5).Control(19)=   "Label9"
+      Tab(5).Control(20)=   "Label8"
+      Tab(5).Control(21)=   "Label7"
+      Tab(5).Control(22)=   "lblTimeOut(1)"
+      Tab(5).Control(23)=   "Label6"
+      Tab(5).Control(24)=   "lblSSLType"
+      Tab(5).Control(25)=   "lblHttpLib"
+      Tab(5).Control(26)=   "Label5"
+      Tab(5).Control(27)=   "Label4"
+      Tab(5).Control(28)=   "Label3"
+      Tab(5).Control(29)=   "Label2"
+      Tab(5).Control(30)=   "Label1"
+      Tab(5).ControlCount=   31
+      Begin VB.CommandButton btnArquivoKEY 
+         Caption         =   "..."
+         Height          =   285
+         Left            =   -71160
+         TabIndex        =   148
+         Top             =   1920
+         Width           =   390
+      End
+      Begin VB.CommandButton btnArquivoCRT 
+         Caption         =   "..."
+         Height          =   285
+         Left            =   -73320
+         TabIndex        =   147
+         Top             =   1920
+         Width           =   390
+      End
+      Begin VB.TextBox txtArquivoCRT 
+         Height          =   285
+         Left            =   -74880
+         TabIndex        =   144
+         Top             =   1920
+         Width           =   1575
+      End
+      Begin VB.TextBox txtArquivoKEY 
+         Height          =   285
+         Left            =   -72720
+         TabIndex        =   143
+         Top             =   1920
+         Width           =   1575
+      End
       Begin VB.TextBox txtVersao 
          Height          =   285
          Left            =   -69600
@@ -523,14 +569,14 @@ Begin VB.Form FrmMain
          Height          =   285
          Left            =   -70920
          TabIndex        =   125
-         Top             =   2505
+         Top             =   2865
          Width           =   390
       End
       Begin VB.TextBox txtPathLog 
          Height          =   285
          Left            =   -74880
          TabIndex        =   124
-         Top             =   2520
+         Top             =   2880
          Width           =   3855
       End
       Begin VB.CheckBox chkGravarLog 
@@ -547,7 +593,7 @@ Begin VB.Form FrmMain
          Height          =   255
          Left            =   -72360
          TabIndex        =   123
-         Top             =   2160
+         Top             =   2520
          Width           =   1335
       End
       Begin VB.CheckBox chkIndicadorPix 
@@ -564,12 +610,12 @@ Begin VB.Form FrmMain
          Height          =   255
          Left            =   -74880
          TabIndex        =   122
-         Top             =   1680
+         Top             =   2280
          Width           =   1455
       End
       Begin VB.TextBox txtScope 
          Height          =   285
-         Left            =   -73200
+         Left            =   -72720
          TabIndex        =   120
          Top             =   1320
          Width           =   1575
@@ -583,7 +629,7 @@ Begin VB.Form FrmMain
       End
       Begin VB.TextBox txtClientSecret 
          Height          =   285
-         Left            =   -73200
+         Left            =   -72720
          TabIndex        =   116
          Top             =   720
          Width           =   1575
@@ -816,7 +862,7 @@ Begin VB.Form FrmMain
          Height          =   315
          ItemData        =   "FrmMain.frx":024A
          Left            =   -74760
-         List            =   "FrmMain.frx":02A5
+         List            =   "FrmMain.frx":02E1
          Style           =   2  'Dropdown List
          TabIndex        =   50
          Top             =   1020
@@ -834,7 +880,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   315
-         Left            =   5040
+         Left            =   -69960
          TabIndex        =   41
          Top             =   1980
          Width           =   2055
@@ -851,7 +897,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   255
-         Left            =   5040
+         Left            =   -69960
          TabIndex        =   40
          Top             =   1740
          Width           =   2295
@@ -868,14 +914,14 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   255
-         Left            =   5040
+         Left            =   -69960
          TabIndex        =   39
          Top             =   1500
          Width           =   1695
       End
       Begin VB.TextBox txtNomeArquivo 
          Height          =   285
-         Left            =   2880
+         Left            =   -72120
          TabIndex        =   37
          Text            =   "BOLETO"
          Top             =   1620
@@ -883,7 +929,7 @@ Begin VB.Form FrmMain
       End
       Begin MSComCtl2.UpDown nudCopias 
          Height          =   285
-         Left            =   961
+         Left            =   -74039
          TabIndex        =   36
          Top             =   1620
          Width           =   255
@@ -893,7 +939,7 @@ Begin VB.Form FrmMain
          Value           =   1
          AutoBuddy       =   -1  'True
          BuddyControl    =   "txtCopias"
-         BuddyDispid     =   196683
+         BuddyDispid     =   196687
          OrigLeft        =   1440
          OrigTop         =   1440
          OrigRight       =   1695
@@ -906,7 +952,7 @@ Begin VB.Form FrmMain
       End
       Begin VB.TextBox txtCopias 
          Height          =   285
-         Left            =   120
+         Left            =   -74880
          TabIndex        =   35
          Text            =   "1"
          Top             =   1620
@@ -915,23 +961,23 @@ Begin VB.Form FrmMain
       Begin VB.CommandButton btnDirLogo 
          Caption         =   "..."
          Height          =   285
-         Left            =   9600
+         Left            =   -65400
          TabIndex        =   33
          Top             =   1010
          Width           =   390
       End
       Begin VB.TextBox txtDirLogo 
          Height          =   285
-         Left            =   4920
+         Left            =   -70080
          TabIndex        =   31
          Top             =   1020
          Width           =   4695
       End
       Begin VB.ComboBox cmbModeloImpressao 
          Height          =   315
-         ItemData        =   "FrmMain.frx":0454
-         Left            =   2880
-         List            =   "FrmMain.frx":0479
+         ItemData        =   "FrmMain.frx":05E1
+         Left            =   -72120
+         List            =   "FrmMain.frx":0606
          Style           =   2  'Dropdown List
          TabIndex        =   29
          Top             =   1020
@@ -939,9 +985,9 @@ Begin VB.Form FrmMain
       End
       Begin VB.ComboBox cmbImpressora 
          Height          =   315
-         ItemData        =   "FrmMain.frx":0508
-         Left            =   120
-         List            =   "FrmMain.frx":050A
+         ItemData        =   "FrmMain.frx":0695
+         Left            =   -74880
+         List            =   "FrmMain.frx":0697
          TabIndex        =   27
          Text            =   "cmbImpressora"
          Top             =   1020
@@ -949,9 +995,9 @@ Begin VB.Form FrmMain
       End
       Begin VB.ComboBox cmbTipoCarteira 
          Height          =   315
-         ItemData        =   "FrmMain.frx":050C
-         Left            =   -70320
-         List            =   "FrmMain.frx":0519
+         ItemData        =   "FrmMain.frx":0699
+         Left            =   4680
+         List            =   "FrmMain.frx":06A6
          Style           =   2  'Dropdown List
          TabIndex        =   25
          Top             =   2460
@@ -959,16 +1005,16 @@ Begin VB.Form FrmMain
       End
       Begin VB.TextBox txtTelefone 
          Height          =   285
-         Left            =   -74880
+         Left            =   120
          TabIndex        =   23
          Top             =   2460
          Width           =   2415
       End
       Begin VB.ComboBox cmbTipoDocumento 
          Height          =   315
-         ItemData        =   "FrmMain.frx":0547
-         Left            =   -72360
-         List            =   "FrmMain.frx":0551
+         ItemData        =   "FrmMain.frx":06D4
+         Left            =   2640
+         List            =   "FrmMain.frx":06DE
          Style           =   2  'Dropdown List
          TabIndex        =   21
          Top             =   2460
@@ -976,16 +1022,16 @@ Begin VB.Form FrmMain
       End
       Begin VB.TextBox txtCidade 
          Height          =   285
-         Left            =   -70560
+         Left            =   4440
          TabIndex        =   19
          Top             =   1860
          Width           =   3255
       End
       Begin VB.ComboBox cmbUF 
          Height          =   315
-         ItemData        =   "FrmMain.frx":056E
-         Left            =   -67200
-         List            =   "FrmMain.frx":05C3
+         ItemData        =   "FrmMain.frx":06FB
+         Left            =   7800
+         List            =   "FrmMain.frx":0750
          TabIndex        =   18
          Text            =   "cmbUF"
          Top             =   1860
@@ -993,58 +1039,58 @@ Begin VB.Form FrmMain
       End
       Begin VB.TextBox txtCEP 
          Height          =   285
-         Left            =   -66240
+         Left            =   8760
          TabIndex        =   15
          Top             =   1860
          Width           =   1455
       End
       Begin VB.TextBox txtComplemento 
          Height          =   285
-         Left            =   -74880
+         Left            =   120
          TabIndex        =   13
          Top             =   1860
          Width           =   4215
       End
       Begin VB.TextBox txtNumeroRes 
          Height          =   285
-         Left            =   -68400
+         Left            =   6600
          TabIndex        =   11
          Top             =   1260
          Width           =   1095
       End
       Begin VB.TextBox txtBairro 
          Height          =   285
-         Left            =   -67200
+         Left            =   7800
          TabIndex        =   9
          Top             =   1260
          Width           =   2415
       End
       Begin VB.TextBox txtLogradouro 
          Height          =   285
-         Left            =   -74880
+         Left            =   120
          TabIndex        =   8
          Top             =   1260
          Width           =   6375
       End
       Begin VB.TextBox txtCNPJCPF 
          Height          =   285
-         Left            =   -67200
+         Left            =   7800
          TabIndex        =   5
          Top             =   660
          Width           =   2415
       End
       Begin VB.TextBox txtNomeRes 
          Height          =   285
-         Left            =   -73080
+         Left            =   1920
          TabIndex        =   4
          Top             =   660
          Width           =   5775
       End
       Begin VB.ComboBox cmbTipoInscricao 
          Height          =   315
-         ItemData        =   "FrmMain.frx":0633
-         Left            =   -74880
-         List            =   "FrmMain.frx":063D
+         ItemData        =   "FrmMain.frx":07C0
+         Left            =   120
+         List            =   "FrmMain.frx":07CA
          Style           =   2  'Dropdown List
          TabIndex        =   2
          Top             =   660
@@ -1060,7 +1106,7 @@ Begin VB.Form FrmMain
          _ExtentY        =   556
          _Version        =   393216
          BuddyControl    =   "chkSetup"
-         BuddyDispid     =   196680
+         BuddyDispid     =   196684
          OrigLeft        =   6240
          OrigTop         =   1320
          OrigRight       =   6495
@@ -1081,7 +1127,7 @@ Begin VB.Form FrmMain
          _Version        =   393216
          Value           =   5000
          BuddyControl    =   "txtTimeOut"
-         BuddyDispid     =   196638
+         BuddyDispid     =   196642
          OrigLeft        =   3960
          OrigTop         =   720
          OrigRight       =   4215
@@ -1090,6 +1136,44 @@ Begin VB.Form FrmMain
          SyncBuddy       =   -1  'True
          BuddyProperty   =   0
          Enabled         =   -1  'True
+      End
+      Begin VB.Label Label9 
+         AutoSize        =   -1  'True
+         BackStyle       =   0  'Transparent
+         Caption         =   "Arquivo CRT"
+         BeginProperty Font 
+            Name            =   "Tahoma"
+            Size            =   8.25
+            Charset         =   0
+            Weight          =   700
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   195
+         Left            =   -74880
+         TabIndex        =   146
+         Top             =   1680
+         Width           =   1035
+      End
+      Begin VB.Label Label8 
+         AutoSize        =   -1  'True
+         BackStyle       =   0  'Transparent
+         Caption         =   "Arquivo KEY"
+         BeginProperty Font 
+            Name            =   "Tahoma"
+            Size            =   8.25
+            Charset         =   0
+            Weight          =   700
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   195
+         Left            =   -72720
+         TabIndex        =   145
+         Top             =   1680
+         Width           =   1005
       End
       Begin VB.Label Label7 
          AutoSize        =   -1  'True
@@ -1203,7 +1287,7 @@ Begin VB.Form FrmMain
          Height          =   195
          Left            =   -74880
          TabIndex        =   126
-         Top             =   2280
+         Top             =   2640
          Width           =   735
       End
       Begin VB.Label Label4 
@@ -1220,7 +1304,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -73200
+         Left            =   -72720
          TabIndex        =   121
          Top             =   1080
          Width           =   510
@@ -1258,7 +1342,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -73200
+         Left            =   -72720
          TabIndex        =   117
          Top             =   480
          Width           =   1080
@@ -1657,7 +1741,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   2880
+         Left            =   -72120
          TabIndex        =   38
          Top             =   1380
          Width           =   1545
@@ -1676,7 +1760,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   120
+         Left            =   -74880
          TabIndex        =   34
          Top             =   1380
          Width           =   1050
@@ -1695,7 +1779,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   4920
+         Left            =   -70080
          TabIndex        =   32
          Top             =   780
          Width           =   1530
@@ -1714,7 +1798,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   2880
+         Left            =   -72120
          TabIndex        =   30
          Top             =   780
          Width           =   720
@@ -1733,7 +1817,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   120
+         Left            =   -74880
          TabIndex        =   28
          Top             =   780
          Width           =   1200
@@ -1752,7 +1836,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -70320
+         Left            =   4680
          TabIndex        =   26
          Top             =   2220
          Width           =   1080
@@ -1771,7 +1855,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -74880
+         Left            =   120
          TabIndex        =   24
          Top             =   2220
          Width           =   750
@@ -1790,7 +1874,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -72360
+         Left            =   2640
          TabIndex        =   22
          Top             =   2220
          Width           =   1080
@@ -1809,7 +1893,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -70560
+         Left            =   4440
          TabIndex        =   20
          Top             =   1620
          Width           =   1365
@@ -1828,7 +1912,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -67200
+         Left            =   7800
          TabIndex        =   17
          Top             =   1620
          Width           =   600
@@ -1847,7 +1931,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -66240
+         Left            =   8760
          TabIndex        =   16
          Top             =   1620
          Width           =   510
@@ -1866,7 +1950,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -74880
+         Left            =   120
          TabIndex        =   14
          Top             =   1620
          Width           =   1365
@@ -1885,7 +1969,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -68400
+         Left            =   6600
          TabIndex        =   12
          Top             =   1020
          Width           =   660
@@ -1904,7 +1988,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -67200
+         Left            =   7800
          TabIndex        =   10
          Top             =   1020
          Width           =   510
@@ -1923,7 +2007,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -74880
+         Left            =   120
          TabIndex        =   7
          Top             =   1020
          Width           =   1365
@@ -1942,7 +2026,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -67200
+         Left            =   7800
          TabIndex        =   6
          Top             =   420
          Width           =   795
@@ -1961,7 +2045,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -73080
+         Left            =   1920
          TabIndex        =   3
          Top             =   420
          Width           =   1365
@@ -1980,7 +2064,7 @@ Begin VB.Form FrmMain
             Strikethrough   =   0   'False
          EndProperty
          Height          =   195
-         Left            =   -74880
+         Left            =   120
          TabIndex        =   1
          Top             =   420
          Width           =   600
@@ -1993,6 +2077,30 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Dim boleto As ACBrBoleto
+
+Private Sub btnArquivoCRT_Click()
+    On Error Resume Next
+    CommonDialog1.DialogTitle = "Selecione Arquivo CRT"
+    CommonDialog1.InitDir = App.Path
+    CommonDialog1.Filter = "Arquivos CRT (*.crt)|*.crt|Todos os Arquivos (*.*)|*.*"
+    CommonDialog1.ShowOpen
+            
+    If Err Then Exit Sub
+    
+    txtArquivoCRT.Text = CommonDialog1.FileName
+End Sub
+
+Private Sub btnArquivoKEY_Click()
+    On Error Resume Next
+    CommonDialog1.DialogTitle = "Selecione Arquivo KEY"
+    CommonDialog1.InitDir = App.Path
+    CommonDialog1.Filter = "Arquivos KEY (*.key)|*.key|Todos os Arquivos (*.*)|*.*"
+    CommonDialog1.ShowOpen
+            
+    If Err Then Exit Sub
+    
+    txtArquivoKEY.Text = CommonDialog1.FileName
+End Sub
 
 Private Sub btnCodigoBarras_Click()
     SetResposta (boleto.RetornaCodigoBarras(0))
@@ -2033,7 +2141,7 @@ End Sub
 Private Sub btnEnviarBoletoWebService_Click()
     On Error GoTo Erro:
     
-    SetResposta (boleto.EnviarBoleto(cmbOperacao.Text))
+    SetResposta (boleto.EnviarBoleto(cmbOperacao.ListIndex))
     
 Erro:
     MsgBox Err.Description
@@ -2206,6 +2314,7 @@ Private Sub Form_Load()
     boleto.ConfigGravar
     
     LoadConfig
+    
 End Sub
 
 Private Sub SetResposta(ByRef resposta As String)
@@ -2282,6 +2391,9 @@ Private Sub LoadConfig()
     cmbHttp.ListIndex = CLng(boleto.ConfigLerValor(SESSAO_DFE, "SSLHttpLib"))
     txtVersao.Text = boleto.ConfigLerValor(SESSAO_BOLETOWEBSERVICE, "VersaoDF")
     nudTimeOut.Value = CLng(boleto.ConfigLerValor(SESSAO_BOLETOWEBSERVICE, "Timeout"))
+    txtArquivoCRT.Text = boleto.ConfigLerValor(SESSAO_BOLETOWEBSERVICE, "ArquivoCRT")
+    txtArquivoKEY.Text = boleto.ConfigLerValor(SESSAO_BOLETOWEBSERVICE, "ArquivoKEY")
+    
         
 End Sub
 
@@ -2345,6 +2457,8 @@ Private Sub SaveConfig()
     boleto.ConfigGravarValor SESSAO_DFE, "SSLHttpLib", CStr(cmbHttp.ListIndex)
     boleto.ConfigGravarValor SESSAO_BOLETOWEBSERVICE, "VersaoDF", txtVersao.Text
     boleto.ConfigGravarValor SESSAO_BOLETOWEBSERVICE, "Timeout", CStr(nudTimeOut.Value)
+    boleto.ConfigGravarValor SESSAO_BOLETOWEBSERVICE, "ArquivoCRT", txtArquivoCRT.Text
+    boleto.ConfigGravarValor SESSAO_BOLETOWEBSERVICE, "ArquivoKEY", txtArquivoKEY.Text
     
     boleto.ConfigGravar
     

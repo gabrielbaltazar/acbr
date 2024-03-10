@@ -786,7 +786,6 @@ begin
   try
     GravarLog('NFE_StatusServico', logNormal);
 
-    NFeDM.ValidarIntegradorNFCe;
     NFeDM.Travar;
     Resp := TStatusServicoResposta.Create(Config.TipoResposta, Config.CodResposta);
     try
@@ -961,8 +960,6 @@ begin
         if NotasFiscais.Count > 50 then
            raise EACBrLibException.Create(ErrEnvio, 'ERRO: Conjunto de NF-e transmitidas (máximo de 50 NF-e)' +
                                                     ' excedido. Quantidade atual: ' + IntToStr(NotasFiscais.Count));
-
-        NFeDM.ValidarIntegradorNFCe;
 
         GravarLog('NFe_Enviar, Limpando Resp', logParanoico);
         Resposta := '';
@@ -1863,19 +1860,22 @@ var
 begin
   try
     GravarLog('NFe_ImprimirPDF', logNormal);
-
     NFeDM.Travar;
-    Resposta := TLibImpressaoResposta.Create(NFeDM.ACBrNFe1.NotasFiscais.Count, Config.TipoResposta, Config.CodResposta);
-
     try
-      NFeDM.ConfigurarImpressao('', True);
-      NFeDM.ACBrNFe1.NotasFiscais.ImprimirPDF;
-
-      Resposta.Msg := NFeDM.ACBrNFe1.DANFE.ArquivoPDF;
-      Result := SetRetorno(ErrOK, Resposta.Gerar);
+      Resposta := TLibImpressaoResposta.Create(NFeDM.ACBrNFe1.NotasFiscais.Count, Config.TipoResposta, Config.CodResposta);
+      try
+        NFeDM.ConfigurarImpressao('', True);
+        try
+          NFeDM.ACBrNFe1.NotasFiscais.ImprimirPDF;
+          Resposta.Msg := NFeDM.ACBrNFe1.DANFE.ArquivoPDF;
+          Result := SetRetorno(ErrOK, Resposta.Gerar);
+        finally
+          NFeDM.FinalizarImpressao;
+        end;
+      finally
+        Resposta.Free;
+      end;
     finally
-      NFeDM.FinalizarImpressao;
-      Resposta.Free;
       NFeDM.Destravar;
     end;
   except

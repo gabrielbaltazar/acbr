@@ -63,6 +63,8 @@ uses
 { TArquivoW_Bradesco }
 
 procedure TArquivoW_Bradesco.GeraRegistro0;
+var
+  LIdentificacaoRemessa: string;
 begin
   FpLinha := '';
   FQtdeRegistros := 1;
@@ -90,7 +92,15 @@ begin
   GravarCampo(PagFor.Registro0.Arquivo.Sequencia, 6, tcInt);
   GravarCampo('089', 3, tcStr);
   GravarCampo(PagFor.Registro0.Arquivo.Densidade, 5, tcInt);
-  GravarCampo(PagFor.Registro0.ReservadoBanco, 20, tcStr);
+
+  LIdentificacaoRemessa := '';
+
+  if (PagFor.Lote.Count > 0) and
+     (PagFor.Lote[0].Registro1.Servico.FormaLancamento in [flPIXTransferencia, flPIXQRCode]) then
+    LIdentificacaoRemessa := 'Pix';
+
+  GravarCampo(LIdentificacaoRemessa, 3, tcStr);
+  GravarCampo(PagFor.Registro0.ReservadoBanco, 17, tcStr);
   GravarCampo(PagFor.Registro0.ReservadoEmpresa, 20, tcStr, True);
   GravarCampo(' ', 29, tcStr);
 
@@ -108,14 +118,16 @@ begin
     Inc(FQtdeContasConc);
 
   FQtdeRegistrosLote := 1;
-  FSequencialDeLote  := 0;
+  FSequencialDoRegistroNoLote := 0;
+
+  FpFormaLancamento := PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento;
 
   GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
   GravarCampo(FQtdeLotes, 4, tcInt);
   GravarCampo(1, 1, tcInt);
   GravarCampo(TpOperacaoToStr(PagFor.Lote.Items[I].Registro1.Servico.Operacao), 1, tcStr);
   GravarCampo(TpServicoToStr(PagFor.Lote.Items[I].Registro1.Servico.TipoServico), 2, tcStr);
-  GravarCampo(FmLancamentoToStr(PagFor.Lote.Items[I].Registro1.Servico.FormaLancamento), 2, tcStr);
+  GravarCampo(FmLancamentoToStr(FpFormaLancamento), 2, tcStr);
 
   if PagFor.Lote.Items[I].SegmentoA.Count > 0 then
     // Se for parte do Header (Pagamentos através de cheque, OP, DOC, TED e crédito em conta corrente)
@@ -171,12 +183,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
-      Inc(FSequencialDeLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('B', 1, tcStr);
 
       if PixTipoChave <> tcpNenhum then
@@ -234,12 +246,12 @@ begin
     begin
       Inc(FQtdeRegistros);
       Inc(FQtdeRegistrosLote);
-      Inc(FSequencialDeLote);
+      Inc(FSequencialDoRegistroNoLote);
 
       GravarCampo(BancoToStr(PagFor.Geral.Banco), 3, tcStr);
       GravarCampo(FQtdeLotes, 4, tcInt);
       GravarCampo('3', 1, tcStr);
-      GravarCampo(FSequencialDeLote, 5, tcInt);
+      GravarCampo(FSequencialDoRegistroNoLote, 5, tcInt);
       GravarCampo('J', 1, tcStr);
       GravarCampo(' ', 1, tcStr);
       GravarCampo('00', 2, tcStr);

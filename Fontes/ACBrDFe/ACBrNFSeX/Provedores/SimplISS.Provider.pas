@@ -123,6 +123,8 @@ begin
     identificador := 'id';
     UseCertificateHTTP := False;
     DetalharServico := True;
+
+    Autenticacao.RequerLogin := True;
   end;
 
   SetXmlNameSpace('http://www.sistema.com.br/Nfse/arquivos/nfse_3.xsd');
@@ -389,6 +391,8 @@ begin
 
   ConfigGeral.ModoEnvio := meLoteAssincrono;
 
+  ConfigGeral.ServicosDisponibilizados.EnviarLoteSincrono := False;
+
   with ConfigAssinar do
   begin
     Rps := True;
@@ -652,7 +656,7 @@ function TACBrNFSeXWebserviceSimplISS203.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);

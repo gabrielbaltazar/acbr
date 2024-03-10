@@ -50,11 +50,10 @@ uses
   ACBrConsts,
   pcnCIOTW, 
   pcnCIOTR,
-  pcnAuxiliar, 
-  pcnConversao, 
   pcnGerador, 
   pcnLeitor,
-  pcnCIOT, pcnConversaoCIOT, pcnConsts;
+  pcnCIOT,
+  ACBrCIOTConversao;
 
 type
   { TCIOTW_REPOM }

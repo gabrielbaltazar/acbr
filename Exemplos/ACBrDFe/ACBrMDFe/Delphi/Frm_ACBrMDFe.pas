@@ -4,7 +4,7 @@
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
-{																			   }
+{																			                                         }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
 {                                                                              }
@@ -36,7 +36,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, Spin, Buttons, ComCtrls, OleCtrls, SHDocVw,
   ShellAPI, XMLIntf, XMLDoc, zlib,
-  ACBrBase, ACBrUtil, ACBrDFe, ACBrDFeReport,
+  ACBrBase, ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.XMLHTML, ACBrUtil.DateTime,
+  ACBrUtil.Strings,
+  ACBrDFe, ACBrDFeReport,
   ACBrMDFe, ACBrMail, ACBrMDFeDAMDFeClass, ACBrMDFeDAMDFeRLClass;
 
 type
@@ -1836,6 +1838,7 @@ begin
     ACBrMDFe1.Manifestos.LoadFromFile(OpenDialog1.FileName, True);
 
     try
+      ACBrMDFe1.Manifestos.Assinar;
       ACBrMDFe1.Manifestos.Validar;
 
       if ACBrMDFe1.Manifestos.Items[0].Alertas <> '' then
@@ -1913,7 +1916,7 @@ begin
   cbSSLLib.Items.Clear;
   for T := Low(TSSLLib) to High(TSSLLib) do
     cbSSLLib.Items.Add( GetEnumName(TypeInfo(TSSLLib), integer(T) ) );
-  cbSSLLib.ItemIndex := 0;
+  cbSSLLib.ItemIndex := 4;
 
   cbCryptLib.Items.Clear;
   for U := Low(TSSLCryptLib) to High(TSSLCryptLib) do
@@ -1933,7 +1936,7 @@ begin
   cbSSLType.Items.Clear;
   for Y := Low(TSSLType) to High(TSSLType) do
     cbSSLType.Items.Add( GetEnumName(TypeInfo(TSSLType), integer(Y) ) );
-  cbSSLType.ItemIndex := 0;
+  cbSSLType.ItemIndex := 5;
 
   cbFormaEmissao.Items.Clear;
   for I := Low(TpcnTipoEmissao) to High(TpcnTipoEmissao) do
@@ -2082,10 +2085,11 @@ begin
 
   Ini := TIniFile.Create(IniFile);
   try
-    cbSSLLib.ItemIndex     := Ini.ReadInteger('Certificado', 'SSLLib',     0);
+    cbSSLLib.ItemIndex     := Ini.ReadInteger('Certificado', 'SSLLib',     4);
     cbCryptLib.ItemIndex   := Ini.ReadInteger('Certificado', 'CryptLib',   0);
     cbHttpLib.ItemIndex    := Ini.ReadInteger('Certificado', 'HttpLib',    0);
     cbXmlSignLib.ItemIndex := Ini.ReadInteger('Certificado', 'XmlSignLib', 0);
+    cbSSLLibChange(cbSSLLib);
     edtCaminho.Text        := Ini.ReadString( 'Certificado', 'Caminho',    '');
     edtSenha.Text          := Ini.ReadString( 'Certificado', 'Senha',      '');
     edtNumSerie.Text       := Ini.ReadString( 'Certificado', 'NumSerie',   '');
@@ -2111,7 +2115,7 @@ begin
     edtTentativas.Text    := Ini.ReadString( 'WebService', 'Tentativas', '5');
     edtIntervalo.Text     := Ini.ReadString( 'WebService', 'Intervalo',  '0');
     seTimeOut.Value       := Ini.ReadInteger('WebService', 'TimeOut',    5000);
-    cbSSLType.ItemIndex   := Ini.ReadInteger('WebService', 'SSLType',    0);
+    cbSSLType.ItemIndex   := Ini.ReadInteger('WebService', 'SSLType',    5);
 
     edtProxyHost.Text  := Ini.ReadString('Proxy', 'Host',  '');
     edtProxyPorta.Text := Ini.ReadString('Proxy', 'Porta', '');
@@ -2201,7 +2205,7 @@ begin
 
     AjustaAguardaConsultaRet := cbxAjustarAut.Checked;
 
-    if NaoEstaVazio(edtAguardar.Text)then
+    if NaoEstaVazio(edtAguardar.Text) then
       AguardarConsultaRet := ifThen(StrToInt(edtAguardar.Text) < 1000, StrToInt(edtAguardar.Text) * 1000, StrToInt(edtAguardar.Text))
     else
       edtAguardar.Text := IntToStr(AguardarConsultaRet);
@@ -2256,6 +2260,7 @@ begin
 //    ACBrMDFe1.DAMDFE.ImprimeDadosExtras := [];
 //    ACBrMDFe1.DAMDFE.ImprimeDadosExtras := [deRelacaoDFe];
     ACBrMDFe1.DAMDFE.ImprimeDadosExtras := [deRelacaoDFe, deValorTotal];
+    ACBrMDFe1.DAMDFE.ExibirMunicipioDescarregamento := True;
   end;
 end;
 
@@ -2275,8 +2280,8 @@ end;
 
 procedure TfrmACBrMDFe.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser);
 begin
-  ACBrUtil.WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
-                      ACBrUtil.ConverteXMLtoUTF8(RetWS), False, False);
+  WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
+                      ConverteXMLtoUTF8(RetWS), False, False);
 
   MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml');
 

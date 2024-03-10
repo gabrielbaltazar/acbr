@@ -61,10 +61,21 @@ contains
   ACBrPIXSchemasLoteCobV in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXSchemasLoteCobV.pas',
   ACBrPIXSchemasParametrosConsultaLote in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXSchemasParametrosConsultaLote.pas',
   ACBrPIXSchemasLotesCobVConsultadas in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXSchemasLotesCobVConsultadas.pas',
+  ACBrPIXSchemasPixPDV in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXSchemasPixPDV.pas',
   ACBrShipaySchemas in '..\..\..\Fontes\ACBrPIXCD\ACBrShipaySchemas.pas',
   ACBrPIXPSPSicredi in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPSicredi.pas',
   ACBrPIXPSPPagSeguro in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPPagSeguro.pas',
   ACBrPIXPSPGerenciaNet in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPGerenciaNet.pas',
-  ACBrPIXPSPBradesco in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPBradesco.pas';
+  ACBrPIXPSPBradesco in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPBradesco.pas',
+  ACBrPIXPSPPixPDV in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPPixPDV.pas',
+  ACBrPIXPSPInter in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPInter.pas',
+  ACBrPIXPSPAilos in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPAilos.pas',
+  ACBrPIXPSPMatera in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPMatera.pas',
+  ACBrSchemasMatera in '..\..\..\Fontes\ACBrPIXCD\ACBrSchemasMatera.pas',
+  ACBrPIXPSPCielo in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPCielo.pas',
+  ACBrPIXPSPMercadoPago in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPMercadoPago.pas',
+  ACBrPIXSchemasMercadoPago in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXSchemasMercadoPago.pas',
+  ACBrPIXPSPGate2All in '..\..\..\Fontes\ACBrPIXCD\ACBrPIXPSPGate2All.pas',
+  ACBrSchemasGate2All in '..\..\..\Fontes\ACBrPIXCD\ACBrSchemasGate2All.pas';
 
 end.

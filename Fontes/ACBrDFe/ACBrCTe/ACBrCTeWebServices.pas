@@ -39,10 +39,15 @@ interface
 uses
   Classes, SysUtils, synacode,
   ACBrDFe, ACBrDFeWebService,
-  pcteCTe, pcnRetConsReciDFe, pcnRetConsCad, pcnAuxiliar, pcnConversao,
+  ACBrDFeConsts,
+  ACBrDFeUtil,
+  pcteCTe,
+  pcnRetConsReciDFe,
+  ACBrDFeComum.RetConsCad,
+  pcnConversao,
   pcteConversaoCTe, pcteProcCte, pcteEnvEventoCTe, pcteRetEnvEventoCTe,
   pcteRetConsSitCTe, pcteRetEnvCTe, pcnDistDFeInt, pcnRetDistDFeInt,
-  ACBrCteConhecimentos, ACBrCTeConfiguracoes, pcnConsts, pcteConsts;
+  ACBrCteConhecimentos, ACBrCTeConfiguracoes, pcteConsts;
 
 type
 
@@ -583,7 +588,10 @@ uses
   ACBrUtil.XMLHTML,
   ACBrUtil.FilesIO,
   ACBrCompress, ACBrCTe,
-  pcnGerador, pcnLeitor, pcnConsCad, pcnConsStatServ, pcnRetConsStatServ,
+  pcnGerador, pcnLeitor,
+  ACBrDFeComum.ConsCad,
+  ACBrDFeComum.ConsStatServ,
+  ACBrDFeComum.RetConsStatServ,
   pcteConsSitCTe, pcteInutCTe, pcteRetInutCTe, pcnConsReciDFe;
 
 { TCTeWebService }
@@ -716,12 +724,7 @@ begin
     ConsStatServ.TpAmb := FPConfiguracoesCTe.WebServices.Ambiente;
     ConsStatServ.CUF := FPConfiguracoesCTe.WebServices.UFCodigo;
 
-    AjustarOpcoes( ConsStatServ.Gerador.Opcoes );
-
-    ConsStatServ.GerarXML;
-
-    // Atribuindo o XML para propriedade interna //
-    FPDadosMsg := ConsStatServ.Gerador.ArquivoFormatoXML;
+    FPDadosMsg := ConsStatServ.GerarXML;
   finally
     ConsStatServ.Free;
   end;
@@ -737,11 +740,11 @@ begin
   CTeRetorno := TRetConsStatServ.Create('CTe');
 
   try
-    CTeRetorno.Leitor.Arquivo := ParseText(FPRetWS);
+    CTeRetorno.XmlRetorno := ParseText(FPRetWS);
     CTeRetorno.LerXml;
 
     Fversao := CTeRetorno.versao;
-    FtpAmb := CTeRetorno.tpAmb;
+    FtpAmb := TpcnTipoAmbiente(CTeRetorno.tpAmb);
     FverAplic := CTeRetorno.verAplic;
     FcStat := CTeRetorno.cStat;
     FxMotivo := CTeRetorno.xMotivo;
@@ -775,7 +778,7 @@ begin
                            'Retorno: %s' + LineBreak +
                            'Observação: %s' + LineBreak),
                    [Fversao, TpAmbToStr(FtpAmb), FverAplic, IntToStr(FcStat),
-                    FxMotivo, CodigoParaUF(FcUF),
+                    FxMotivo, CodigoUFparaUF(FcUF),
                     IfThen(FdhRecbto = 0, '', FormatDateTimeBr(FdhRecbto)),
                     IntToStr(FTMed),
                     IfThen(FdhRetorno = 0, '', FormatDateTimeBr(FdhRetorno)),
@@ -1371,7 +1374,7 @@ begin
                                         FCTeRetornoSincrono.cStat,
                                         FCTeRetornoSincrono.protCTe.cStat)),
                         FCTeRetornoSincrono.protCTe.xMotivo,
-                        CodigoParaUF(FCTeRetornoSincrono.cUF),
+                        CodigoUFparaUF(FCTeRetornoSincrono.cUF),
                         FormatDateTimeBr(FCTeRetornoSincrono.protCTe.dhRecbto),
                         FCTeRetornoSincrono.chCTe])
     else
@@ -1389,7 +1392,7 @@ begin
                         FCTeRetorno.verAplic,
                         IntToStr(FCTeRetorno.cStat),
                         FCTeRetorno.xMotivo,
-                        CodigoParaUF(FCTeRetorno.cUF),
+                        CodigoUFparaUF(FCTeRetorno.cUF),
                         FCTeRetorno.infRec.nRec,
                         IfThen(FCTeRetorno.InfRec.dhRecbto = 0, '',
                                FormatDateTimeBr(FCTeRetorno.InfRec.dhRecbto)),
@@ -1409,7 +1412,7 @@ begin
                       FCTeRetornoSincrono.verAplic,
                       IntToStr(FCTeRetornoSincrono.cStat),
                       FCTeRetornoSincrono.xMotivo,
-                      CodigoParaUF(FCTeRetornoSincrono.cUF),
+                      CodigoUFparaUF(FCTeRetornoSincrono.cUF),
                       IfThen(FCTeRetornoSincrono.protCTe.dhRecbto = 0, '',
                              FormatDateTimeBr(FCTeRetornoSincrono.protCTe.dhRecbto)),
                       FCTeRetornoSincrono.chCTe]);
@@ -1792,7 +1795,7 @@ begin
                    [FCTeRetorno.versao, TpAmbToStr(FCTeRetorno.tpAmb),
                     FCTeRetorno.verAplic, FCTeRetorno.nRec,
                     IntToStr(FCTeRetorno.cStat), FCTeRetorno.xMotivo,
-                    CodigoParaUF(FCTeRetorno.cUF), IntToStr(FCTeRetorno.cMsg),
+                    CodigoUFparaUF(FCTeRetorno.cUF), IntToStr(FCTeRetorno.cMsg),
                     FCTeRetorno.xMsg]);
 end;
 
@@ -1968,7 +1971,7 @@ begin
                    FCTeRetorno.verAplic, FCTeRetorno.nRec,
                    IntToStr(FCTeRetorno.cStat),
                    FCTeRetorno.xMotivo,
-                   CodigoParaUF(FCTeRetorno.cUF)]);
+                   CodigoUFparaUF(FCTeRetorno.cUF)]);
 end;
 
 { TCTeConsulta }
@@ -2471,7 +2474,7 @@ begin
                            'Protocolo: %s ' + LineBreak +
                            'Digest Value: %s ' + LineBreak),
                    [Fversao, FCTeChave, TpAmbToStr(FTpAmb), FverAplic,
-                    IntToStr(FcStat), FXMotivo, CodigoParaUF(FcUF), FCTeChave,
+                    IntToStr(FcStat), FXMotivo, CodigoUFparaUF(FcUF), FCTeChave,
                     FormatDateTimeBr(FDhRecbto), FProtocolo, FprotCTe.digVal]);
 end;
 
@@ -2658,7 +2661,7 @@ begin
                            'UF: %s ' + LineBreak +
                            'Recebimento: %s ' + LineBreak),
                    [Fversao, TpAmbToStr(FTpAmb), FverAplic, IntToStr(FcStat),
-                    FxMotivo, CodigoParaUF(FcUF),
+                    FxMotivo, CodigoUFparaUF(FcUF),
                     IfThen(FdhRecbto = 0, '', FormatDateTimeBr(FdhRecbto))]);
 end;
 
@@ -2812,13 +2815,11 @@ begin
     ConCadCTe.CNPJ := FCNPJ;
     ConCadCTe.CPF := FCPF;
     ConCadCTe.Versao := FPVersaoServico;
-    AjustarOpcoes( ConCadCTe.Gerador.Opcoes );
-    ConCadCTe.GerarXML;
 
-    FPDadosMsg := ConCadCTe.Gerador.ArquivoFormatoXML;
+    FPDadosMsg := ConCadCTe.GerarXML;
 
     if (FPConfiguracoesCTe.Geral.VersaoDF >= ve300) and
-      (UpperCase(FUF) = 'MT') then
+       (UpperCase(FUF) = 'MT') then
     begin
       FPDadosMsg := '<nfeDadosMsg>' + FPDadosMsg + '</nfeDadosMsg>';
     end;
@@ -2853,7 +2854,7 @@ begin
 
   VerificarSemResposta;
 
-  FRetConsCad.Leitor.Arquivo := ParseText(FPRetWS);
+  FRetConsCad.XmlRetorno := ParseText(FPRetWS);
   FRetConsCad.LerXml;
 
   Fversao := FRetConsCad.versao;
@@ -2877,13 +2878,13 @@ begin
                            'Consulta: %s ' + sLineBreak),
                    [FRetConsCad.versao, FRetConsCad.verAplic,
                    IntToStr(FRetConsCad.cStat), FRetConsCad.xMotivo,
-                   CodigoParaUF(FRetConsCad.cUF),
+                   CodigoUFparaUF(FRetConsCad.cUF),
                    FormatDateTimeBr(FRetConsCad.dhCons)]);
 end;
 
 function TCTeConsultaCadastro.GerarUFSoap: String;
 begin
-  Result := '<cUF>' + IntToStr(UFparaCodigo(FUF)) + '</cUF>';
+  Result := '<cUF>' + IntToStr(UFparaCodigoUF(FUF)) + '</cUF>';
 end;
 
 procedure TCTeConsultaCadastro.InicializarServico;
@@ -3595,7 +3596,7 @@ begin
   FPRetWS := SeparaDados(FPRetornoWS, 'cteDistDFeInteresseResult');
 
   // Processando em UTF8, para poder gravar arquivo corretamente //
-  FretDistDFeInt.Leitor.Arquivo := FPRetWS;
+  FretDistDFeInt.Leitor.Arquivo := ParseText(FPRetWS);
   FretDistDFeInt.LerXml;
 
   for I := 0 to FretDistDFeInt.docZip.Count - 1 do
@@ -3647,12 +3648,13 @@ begin
 
   { Processsa novamente, chamando ParseTXT, para converter de UTF8 para a String
     nativa e Decodificar caracteres HTML Entity }
+  {
   FretDistDFeInt.Free;   // Limpando a lista
   FretDistDFeInt := TRetDistDFeInt.Create('CTe');
 
   FretDistDFeInt.Leitor.Arquivo := ParseText(FPRetWS);
   FretDistDFeInt.LerXml;
-
+  }
   FPMsg := FretDistDFeInt.xMotivo;
   Result := (FretDistDFeInt.CStat = 137) or (FretDistDFeInt.CStat = 138);
 end;

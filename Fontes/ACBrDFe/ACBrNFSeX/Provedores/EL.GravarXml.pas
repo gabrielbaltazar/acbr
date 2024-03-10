@@ -39,7 +39,6 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  pcnConsts,
   ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXGravarXml_ABRASFv2,
   ACBrNFSeXConversao, ACBrNFSeXConsts;
 
@@ -129,7 +128,7 @@ begin
          FpAOwner.SituacaoTributariaToStr(NFSe.Servico.Valores.IssRetido), ''));
 
   NFSeNode.AppendChild(AddNode(tcDatHor, '#1', 'DataEmissao', 19, 19, 1,
-                                                   NFSe.DataEmissao, DSC_DEMI));
+                                                  NFSe.DataEmissao, DSC_DHEMI));
 
   xmlNode := GerarIdentificacaoRPS;
   NFSeNode.AppendChild(xmlNode);
@@ -163,7 +162,7 @@ begin
                                                    NFSe.OutrasInformacoes, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'Status', 1, 1, 1,
-                                           StatusRPSToStr(NFSe.StatusRps), ''));
+                                  FpAOwner.StatusRPSToStr(NFSe.StatusRps), ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'CodigoMunicipioPrestacao', 7, 7, 0,
                                  OnlyNumber(NFSe.Servico.CodigoMunicipio), ''));
@@ -450,7 +449,7 @@ begin
                                                                 xAliquota, ''));
 
     Result[i].AppendChild(AddNode(tcDe4, '#', 'ValorServico', 1, 15, 1,
-                                   NFSe.Servico.ItemServico[i].ValorTotal, ''));
+                                NFSe.Servico.ItemServico[i].ValorUnitario, ''));
 
     Result[i].AppendChild(AddNode(tcDe4, '#', 'ValorIssqn', 1, 15, 1,
                                      NFSe.Servico.ItemServico[i].ValorISS, ''));

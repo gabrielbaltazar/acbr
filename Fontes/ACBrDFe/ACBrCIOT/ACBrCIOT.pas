@@ -40,7 +40,7 @@ uses
   Classes, SysUtils,
   ACBrDFe, ACBrDFeConfiguracoes, ACBrDFeException, ACBrBase,
   ACBrCIOTConfiguracoes, ACBrCIOTWebServices, ACBrCIOTContratos,
-  pcnConversao, pcnConversaoCIOT;
+  ACBrCIOTConversao;
 
 const
   ACBRCIOT_VERSAO = '1.0.0';
@@ -109,8 +109,7 @@ implementation
 uses
   dateutils,
   ACBrUtil.Base,
-  ACBrUtil.Strings,
-  pcnAuxiliar;
+  ACBrUtil.Strings;
 
 {$IFDEF FPC}
  {$R ACBrCIOTServicos.rc}

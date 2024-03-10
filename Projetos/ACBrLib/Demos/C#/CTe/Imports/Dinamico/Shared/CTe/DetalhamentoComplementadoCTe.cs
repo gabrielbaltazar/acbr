@@ -7,6 +7,6 @@ namespace ACBrLib.CTe
 {
     public class DetalhamentoComplementadoCTe
     {
-        public long chCTe { get; set; }
+        public string chCTe { get; set; }
     }
 }

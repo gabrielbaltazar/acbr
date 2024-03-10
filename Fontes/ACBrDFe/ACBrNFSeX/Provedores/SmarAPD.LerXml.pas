@@ -141,6 +141,7 @@ begin
     begin
       Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Quantidade'), tcDe2);
       ItemListaServico := ObterConteudo(ANodes[i].Childrens.FindAnyNs('CodigoAtividade'), tcStr);
+      xItemListaServico := ItemListaServicoDescricao(ItemListaServico);
       Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('Servico'), tcStr);
       Descricao := StringReplace(Descricao, FpQuebradeLinha,
                                       sLineBreak, [rfReplaceAll, rfIgnoreCase]);

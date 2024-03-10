@@ -199,7 +199,7 @@ begin
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := RemoverCaracteresDesnecessarios(Result);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 
@@ -212,6 +212,8 @@ begin
   with ConfigGeral do
   begin
     NumMaxRpsGerar := 3;
+
+    ServicosDisponibilizados.EnviarUnitario := True;
   end;
 
   with ConfigAssinar do

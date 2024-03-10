@@ -150,7 +150,7 @@ namespace ACBrLib.Boleto
             var iniFile = new ACBrIniFile();
             for (var i = 0; i < titulos.Length; i++)
             {
-                titulos[i].Index = i++;
+                titulos[i].Index = i+1;
                 titulos[i].WriteToIni(iniFile);
             }
 
@@ -162,7 +162,7 @@ namespace ACBrLib.Boleto
             var iniFile = new ACBrIniFile();
             for (var i = 0; i < titulos.Length; i++)
             {
-                titulos[i].Index = i++;
+                titulos[i].Index = i+1;
                 titulos[i].WriteToIni(iniFile);
             }
 

@@ -91,21 +91,12 @@ type
      pagBS2DistribuidoraTitulos, pagOleBonsucessoConsignado, pagLastroRDV,
      pagFrenteCC, pagBTCC, pagNovoBancoContinental, pagCreditAgricoleBrasil,
      pagBancoSistema, pagCredialianca, pagVR, pagBancoOurinvest, pagCredicoamo,
-     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais);
+     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais,
+     pagPicPay, PagNeon, PagCora);
      {
-  pagABCBrasil, pagAgibank, pagAlfa, pagAndbank, pagB3, pagBancodaAmazonia, pagBancodaChinaBrasil,
-    pagBancodoBrasil, pagBancodoEstadodeSergipe, pagBancodoEstadodoPara, pagBanrisul, pagBancoDoNordeste, pagBANDEPE,
-    pagBANESTES, pagBankofAmericaMerrillLynch, pagBCV, pagBEXSBancodeCambio, pagBMG, pagBNPParibasBrasil, pagBNYMellonBanco,
-    pagBOCOMBBM, pagBradescard, pagBradesco, pagBRB, pagBS2, pagBTGPactual, pagC6Consignado, pagCaixaEconomica,
-    pagCaixaGeralBrasil, pagCargill, pagCetelem, pagChinaConstructionBank, pagCifra, pagCitibankNA, pagCitibank,
-    pagCreditAgricoleBrasil, pagCreditSuisse, pagDaycoval, pagDeutscheBank, pagDigimais, pagFibra, pagFinaxis, pagGenial,
-    pagGuanabara, pagHipercardBancoMultiplo, pagHSBC, pagInbursa, pagIndustrialdoBrasil, pagINGBankNV, pagInter,
-    pagInvestcredUni, pagItau, pagJPMorgan, pagJSafra, pagJohnDeere, pagJPMorganChaseBank, pagNationalAssociation,
-    pagKirtonBank, pagLetsbank, pagLusoBrasileiro, pagMaster, pagMercantil, pagMizuhodoBrasil, pagModal, pagMSBank,
-    pagMUFGBrasil, pagOleBonsucessoConsignado, pagOriginal, pagPAN, pagParanaBanco, pagPaulista, pagPine, pagRabobank,
-    pagRendimento, pagRodobens, pagSafra, pagSantander, pagScotiabankBrasil, pagSemear, pagSenff, pagSicoob, pagSicredi,
-    pagSocieteGeneraleBrasil, pagSorocred, pagStateStreetBrasil, pagSumitomoMitsui, pagTopazio, pagTravelex, pagTriangulo,
-    pagUBSBrasil, pagVoiter, pagVotorantim, pagVR, pagWesternUniondoBrasil, pagXP, pagBancoCECRED);
+      pagC6Consignado, pagChinaConstructionBank, pagNationalAssociation,
+      pagLetsbank, pagMaster, pagSicoob, pagSorocred, pagStateStreetBrasil,
+      pagTravelex, pagVoiter
     }
   TTipoInscricao = (tiIsento, tiCPF, tiCNPJ, tiPISPASEP, tiOutros);
 
@@ -214,16 +205,26 @@ type
                  toBA, toBB, toBC, toBD, toBE, toBF, toBG, toBH, toBI, toBJ,
                  toBK, toBL, toBM, toBN, toBO, toBP, toBQ, toBR, toBS,
                  toCA, toCB, toCC, toCD, toCE, toCF, toCG, toCH, toCI, toCJ,
-                 toCK, toCL, toCM, toCN, toCO, toCP,
+                 toCK, toCL, toCM, toCN, toCO, toCP, toCQ, toCR, toCS,
+                 toDA, toDB, toDC, toDD, toDE, toDF, toDG, toDH, toDI, toDJ,
+                 toDK, toDL, toDM, toDV,
+                 toD0, toD1, toD2, toD3, toD4, toD5, toD6, toD7, toD8, toD9,
+                 toEM, toEX, toE0, toE1, toE2, toE3, toE4,
+                 toFC, toFD,
                  toHA, toHB, toHC, toHD, toHE, toHF, toHG, toHH, toHI, toHJ,
                  toHK, toHL, toHM, toHN, toHO, toHP, toHQ, toHR, toHS, toHT,
                  toHU, toHV, toHW, toHX, toHY, toHZ, toH1, toH2, toH3, toH4,
                  toH5, toH6, toH7, toH8, toH9,
                  toIA, toIB, toIC, toID, toIE, toIF, toIG, toIH, toII, toIJ,
                  toIK, toIL, toIM, toIN, toIO, toIP, toIQ, toIR,
+                 toIS, toIT, toIU, toIV, toIX,
+                 toLA, toLC,
+                 toNA, toNB, toNC, toND, toNE, toNF, toNG, toNH, toNI, toNR,
                  toPA, toPB, toPC, toPD, toPE, toPF, toPG, toPH, toPI, toPJ,
                  toPK, toPL, toPM, toPN,
-                 toTA,
+                 toRJ, toRS, toSS,
+                 toTA, toTI,
+                 toX1, toX2, toX3, toX4,
                  toYA, toYB, toYC, toYD, toYE, toYF,
                  toZA, toZB, toZC, toZD, toZE, toZF, toZG, toZH, toZI, toZJ,
                  toZK);
@@ -344,7 +345,7 @@ begin
      '131', '011', '611', '755', '089', '643', '140', '707', '288', '101',
      '487', '233', '117', '633', '218', '292', '169', '293', '285', '080',
      '753', '222', '754', '098', '610', '712', '010', '283', '217', '117',
-     '336', '654'],
+     '336', '654', '380', '536','403'],
     [pagNenhum,
      pagBancodoBrasil, pagBancoDigito, pagNuBank,
      pagPagSeguro, pagMercadoPago, pagBradesco, pagSofisaDireto, pagInter, pagItau,
@@ -392,7 +393,8 @@ begin
      pagBS2DistribuidoraTitulos, pagOleBonsucessoConsignado, pagLastroRDV,
      pagFrenteCC, pagBTCC, pagNovoBancoContinental, pagCreditAgricoleBrasil,
      pagBancoSistema, pagCredialianca, pagVR, pagBancoOurinvest, pagCredicoamo,
-     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais]);
+     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais,
+     pagPicPay, PagNeon, PagCora]);
 end;
 
 function BancoToDesc(const t: TBanco): String;
@@ -473,7 +475,8 @@ begin
      'BANCO CREDIT AGRICOLE BR S.A', 'BANCO SISTEMA', 'CREDIALIANCA CCR',
      'BANCO VR S.A', 'BANCO OURINVEST S.A', 'CREDICOAMO',
      'RB CAPITAL INVESTIMENTOS DTVM LTDA', 'BANCO JOHN DEERE S.A',
-     'ADVANCED CC LTDA', 'BANCO C6 S.A', 'BANCO DIGIMAIS S.A'],
+     'ADVANCED CC LTDA', 'BANCO C6 S.A', 'BANCO DIGIMAIS S.A', 'PICPAY', 'NEON',
+     'BANCO CORA'],
     [pagNenhum,
      pagBancodoBrasil, pagBancoDigito, pagNuBank, pagPagSeguro, pagMercadoPago,
      pagSofisaDireto, pagInter, pagItau, pagCaixaEconomica, pagSantander,
@@ -521,7 +524,8 @@ begin
      pagBS2DistribuidoraTitulos, pagOleBonsucessoConsignado, pagLastroRDV,
      pagFrenteCC, pagBTCC, pagNovoBancoContinental, pagCreditAgricoleBrasil,
      pagBancoSistema, pagCredialianca, pagVR, pagBancoOurinvest, pagCredicoamo,
-     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais]);
+     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais,
+     pagPicPay, PagNeon, PagCora]);
 end;
 
 function StrToBanco(var ok: boolean; const s: String): TBanco;
@@ -549,7 +553,7 @@ begin
      '131', '011', '611', '755', '089', '643', '140', '707', '288', '101',
      '487', '233', '117', '633', '218', '292', '169', '293', '285', '080',
      '753', '222', '754', '098', '610', '712', '010', '283', '217', '117',
-     '336', '654'],
+     '336', '654', '380', '536','403'],
     [pagNenhum,
      pagBancodoBrasil, pagBancoDigito, pagNuBank,
      pagPagSeguro, pagMercadoPago, pagBradesco, pagSofisaDireto, pagInter, pagItau,
@@ -597,7 +601,8 @@ begin
      pagBS2DistribuidoraTitulos, pagOleBonsucessoConsignado, pagLastroRDV,
      pagFrenteCC, pagBTCC, pagNovoBancoContinental, pagCreditAgricoleBrasil,
      pagBancoSistema, pagCredialianca, pagVR, pagBancoOurinvest, pagCredicoamo,
-     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais]);
+     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais,
+     pagPicPay, PagNeon, PagCora]);
 end;
 
 function BancoToIspb(const t: TBanco): String;
@@ -639,7 +644,7 @@ begin
        '92856905', '68900810', '71027866', '28650236', '        ', '71590442',
        '71677850', '73622748', '74828799', '75647891', '76543115', '78157146',
        '78626983', '78632767', '81723108', '89960090', '91884981', '92856905',
-       '31872495', '92874270'],
+       '31872495', '92874270', '22896431', '59588111', '37880206'],
     [pagNenhum,
      pagBancodoBrasil, pagBancoDigito, pagNuBank,
      pagPagSeguro, pagMercadoPago, pagBradesco, pagSofisaDireto, pagInter, pagItau,
@@ -687,7 +692,8 @@ begin
      pagBS2DistribuidoraTitulos, pagOleBonsucessoConsignado, pagLastroRDV,
      pagFrenteCC, pagBTCC, pagNovoBancoContinental, pagCreditAgricoleBrasil,
      pagBancoSistema, pagCredialianca, pagVR, pagBancoOurinvest, pagCredicoamo,
-     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais]);
+     pagRBCapitalInvestimentos, pagJohnDeere, pagAdvanced, pagC6, pagDigimais,
+     pagPicPay, PagNeon, PagCora]);
 end;
 
 function TpInscricaoToStr(const t: TTipoInscricao): String;
@@ -1036,16 +1042,26 @@ begin
                  'BA', 'BB', 'BC', 'BD', 'BE', 'BF', 'BG', 'BH', 'BI', 'BJ',
                  'BK', 'BL', 'BM', 'BN', 'BO', 'BP', 'BQ', 'BR', 'BS',
                  'CA', 'CB', 'CC', 'CD', 'CE', 'CF', 'CG', 'CH', 'CI', 'CJ',
-                 'CK', 'CL', 'CM', 'CN', 'CO', 'CP',
+                 'CK', 'CL', 'CM', 'CN', 'CO', 'CP', 'CQ', 'CR', 'CS',
+                 'DA', 'DB', 'DC', 'DD', 'DE', 'DF', 'DG', 'DH', 'DI', 'DJ',
+                 'DK', 'DL', 'DM', 'DV',
+                 'D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9',
+                 'EM', 'EX', 'E0', 'E1', 'E2', 'E3', 'E4',
+                 'FC', 'FD',
                  'HA', 'HB', 'HC', 'HD', 'HE', 'HF', 'HG', 'HH', 'HI', 'HJ',
                  'HK', 'HL', 'HM', 'HN', 'HO', 'HP', 'HQ', 'HR', 'HS', 'HT',
                  'HU', 'HV', 'HW', 'HX', 'HY', 'HZ', 'H1', 'H2', 'H3', 'H4',
                  'H5', 'H6', 'H7', 'H8', 'H9',
                  'IA', 'IB', 'IC', 'ID', 'IE', 'IF', 'IG', 'IH', 'II', 'IJ',
                  'IK', 'IL', 'IM', 'IN', 'IO', 'IP', 'IQ', 'IR',
+                 'IS', 'IT', 'IU', 'IV', 'IX',
+                 'LA', 'LC',
+                 'NA', 'NB', 'NC', 'ND', 'NE', 'NF', 'NG', 'NH', 'NI', 'NR',
                  'PA', 'PB', 'PC', 'PD', 'PE', 'PF', 'PG', 'PH', 'PI', 'PJ',
                  'PK', 'PL', 'PM', 'PN',
-                 'TA',
+                 'RJ', 'RS', 'SS',
+                 'TA', 'TI',
+                 'X1', 'X2', 'X3', 'X4',
                  'YA', 'YB', 'YC', 'YD', 'YE', 'YF',
                  'ZA', 'ZB', 'ZC', 'ZD', 'ZE', 'ZF', 'ZG', 'ZH', 'ZI', 'ZJ',
                  'ZK'],
@@ -1057,16 +1073,26 @@ begin
                  toBA, toBB, toBC, toBD, toBE, toBF, toBG, toBH, toBI, toBJ,
                  toBK, toBL, toBM, toBN, toBO, toBP, toBQ, toBR, toBS,
                  toCA, toCB, toCC, toCD, toCE, toCF, toCG, toCH, toCI, toCJ,
-                 toCK, toCL, toCM, toCN, toCO, toCP,
+                 toCK, toCL, toCM, toCN, toCO, toCP, toCQ, toCR, toCS,
+                 toDA, toDB, toDC, toDD, toDE, toDF, toDG, toDH, toDI, toDJ,
+                 toDK, toDL, toDM, toDV,
+                 toD0, toD1, toD2, toD3, toD4, toD5, toD6, toD7, toD8, toD9,
+                 toEM, toEX, toE0, toE1, toE2, toE3, toE4,
+                 toFC, toFD,
                  toHA, toHB, toHC, toHD, toHE, toHF, toHG, toHH, toHI, toHJ,
                  toHK, toHL, toHM, toHN, toHO, toHP, toHQ, toHR, toHS, toHT,
                  toHU, toHV, toHW, toHX, toHY, toHZ, toH1, toH2, toH3, toH4,
                  toH5, toH6, toH7, toH8, toH9,
                  toIA, toIB, toIC, toID, toIE, toIF, toIG, toIH, toII, toIJ,
                  toIK, toIL, toIM, toIN, toIO, toIP, toIQ, toIR,
+                 toIS, toIT, toIU, toIV, toIX,
+                 toLA, toLC,
+                 toNA, toNB, toNC, toND, toNE, toNF, toNG, toNH, toNI, toNR,
                  toPA, toPB, toPC, toPD, toPE, toPF, toPG, toPH, toPI, toPJ,
                  toPK, toPL, toPM, toPN,
-                 toTA,
+                 toRJ, toRS, toSS,
+                 toTA, toTI,
+                 toX1, toX2, toX3, toX4,
                  toYA, toYB, toYC, toYD, toYE, toYF,
                  toZA, toZB, toZC, toZD, toZE, toZF, toZG, toZH, toZI, toZJ,
                  toZK]);

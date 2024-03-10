@@ -125,6 +125,15 @@ begin
 
     ConsultaLote := False;
     ConsultaNFSe := False;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerChaveAcesso := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      CancelarNfse := True;
+    end;
   end;
 
   with ConfigWebServices do
@@ -202,7 +211,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := '';
-      AErro.Descricao := ACBrStr(Mensagem);
+      AErro.Descricao := Mensagem;
       AErro.Correcao := '';
     end;
   end;
@@ -671,13 +680,13 @@ begin
                 '</mensagem>' +
               '</a>';
 
-    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+    Result := ParseText(Result);
   end
   else
   begin
     Result := inherited TratarXmlRetornado(aXML);
 
-    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+    Result := ParseText(Result);
     Result := RemoverDeclaracaoXML(Result);
     Result := RemoverIdentacao(Result);
     Result := RemoverCaracteresDesnecessarios(Result);

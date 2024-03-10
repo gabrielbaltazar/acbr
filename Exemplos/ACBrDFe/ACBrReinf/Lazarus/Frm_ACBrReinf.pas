@@ -37,7 +37,8 @@ interface
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, Spin, Buttons, ComCtrls,
-  ACBrUtil, ACBrDFe,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime, ACBrUtil.FilesIO,
+  ACBrDFe,
   ACBrReinf, pcnConversaoReinf;
 
 type
@@ -167,6 +168,7 @@ type
     chk2030: TCheckBox;
     chk2040: TCheckBox;
     chk2050: TCheckBox;
+    chk2055: TCheckBox;
     chk2060: TCheckBox;
     chk2070: TCheckBox;
     chk2098: TCheckBox;
@@ -274,6 +276,7 @@ type
     procedure GerarReinf2030;
     procedure GerarReinf2040;
     procedure GerarReinf2050;
+    procedure GerarReinf2055;
     procedure GerarReinf2060;
     procedure GerarReinf2070;
     procedure GerarReinf2098;
@@ -481,7 +484,7 @@ begin
   cbSSLLib.Items.Clear;
   for T := Low(TSSLLib) to High(TSSLLib) do
     cbSSLLib.Items.Add( GetEnumName(TypeInfo(TSSLLib), integer(T) ) );
-  cbSSLLib.ItemIndex := 0;
+  cbSSLLib.ItemIndex := 4;
 
   cbCryptLib.Items.Clear;
   for U := Low(TSSLCryptLib) to High(TSSLCryptLib) do
@@ -501,7 +504,7 @@ begin
   cbSSLType.Items.Clear;
   for Y := Low(TSSLType) to High(TSSLType) do
     cbSSLType.Items.Add( GetEnumName(TypeInfo(TSSLType), integer(Y) ) );
-  cbSSLType.ItemIndex := 0;
+  cbSSLType.ItemIndex := 5;
 
   cbFormaEmissao.Items.Clear;
   for I := Low(TpcnTipoEmissao) to High(TpcnTipoEmissao) do
@@ -627,10 +630,11 @@ begin
 
   Ini := TIniFile.Create(IniFile);
   try
-    cbSSLLib.ItemIndex     := Ini.ReadInteger('Certificado', 'SSLLib',     0);
+    cbSSLLib.ItemIndex     := Ini.ReadInteger('Certificado', 'SSLLib',     4);
     cbCryptLib.ItemIndex   := Ini.ReadInteger('Certificado', 'CryptLib',   0);
     cbHttpLib.ItemIndex    := Ini.ReadInteger('Certificado', 'HttpLib',    0);
     cbXmlSignLib.ItemIndex := Ini.ReadInteger('Certificado', 'XmlSignLib', 0);
+    cbSSLLibChange(cbSSLLib);
     edtCaminho.Text        := Ini.ReadString( 'Certificado', 'Caminho',    '');
     edtSenha.Text          := Ini.ReadString( 'Certificado', 'Senha',      '');
     edtNumSerie.Text       := Ini.ReadString( 'Certificado', 'NumSerie',   '');
@@ -656,7 +660,7 @@ begin
     edtTentativas.Text    := Ini.ReadString( 'WebService', 'Tentativas', '5');
     edtIntervalo.Text     := Ini.ReadString( 'WebService', 'Intervalo',  '0');
     seTimeOut.Value       := Ini.ReadInteger('WebService', 'TimeOut',    5000);
-    cbSSLType.ItemIndex   := Ini.ReadInteger('WebService', 'SSLType',    0);
+    cbSSLType.ItemIndex   := Ini.ReadInteger('WebService', 'SSLType',    5);
 
     edtProxyHost.Text  := Ini.ReadString('Proxy', 'Host',  '');
     edtProxyPorta.Text := Ini.ReadString('Proxy', 'Porta', '');
@@ -1022,6 +1026,11 @@ begin
         end;
 
         Add('');
+        Add(' **dadosRecepcaoLote');
+        Add('   dhRecepcao....: ' + FormatDateBr(dadosRecepcaoLote.dhRecepcao, 'dd-mm-yyyy'));
+        Add('   protocoloEnvio: ' + dadosRecepcaoLote.protocoloEnvio);
+
+        Add('');
         Add('retornoEventos');
 
         for i:=0 to evento.Count - 1 do
@@ -1057,8 +1066,10 @@ begin
 
               with InfoRecEv do
               begin
+                Add('   Num. Recibo de Entrega do Evento....: ' + nrRecArqBase);
                 Add('   Num. Protocolo de Entrega do Evento.: ' + nrProtEntr);
                 Add('   Data/Hora do Processamento do Evento: ' + DateTimeToStr(dhProcess));
+                Add('   Data/Hora da Recepção do Evento.....: ' + DateTimeToStr(dhRecepcao));
                 Add('   Tipo do Evento......................: ' + tpEv);
                 Add('   ID do Evento........................: ' + idEv);
                 Add('   Hash do arquivo processado..........: ' + hash);
@@ -1134,7 +1145,7 @@ end;
 procedure TfrmACBrReinf.btnConsultarClick(Sender: TObject);
 var
   Protocolo: string;
-  i: Integer;
+  i, j: Integer;
 begin
   Protocolo := '';
   if not(InputQuery('WebServices: Consulta Protocolo', 'Protocolo', Protocolo))
@@ -1150,89 +1161,222 @@ begin
     begin
       if ACBrReinf1.Configuracoes.Geral.VersaoDF >= v2_01_01 then
       begin
-        with ACBrReinf1.WebServices.Consultar.RetConsulta_R9011 do
+        with ACBrReinf1.WebServices.Consultar.RetEnvioLote do
         begin
+          Add('ideTransmissor: ' + IdeTransmissor.IdTransmissor);
+          Add('cdStatus      : ' + IntToStr(Status.cdStatus));
+          Add('descRetorno   : ' + Status.descRetorno);
+
           Add('');
-          Add(' Evento: 9011');
+          Add(' **Ocorrencias');
 
-          with evtTotalContrib do
+          for i := 0 to Status.Ocorrencias.Count - 1 do
           begin
-            Add('   Id...........: ' + Id);
-            Add('   Cód Retorno..: ' + IdeStatus.cdRetorno);
-            Add('   Descrição....: ' + IdeStatus.descRetorno);
-
-            if IdeStatus.regOcorrs.Count > 0 then
+            with Status.Ocorrencias.Items[i] do
             begin
-              Add('');
-              Add(' **Ocorrencias');
+              Add('   tipo: ' + Inttostr(tipo));
+              Add('   localizacaoErroAviso: ' + localizacao);
+              Add('   codigo: ' + inttostr(codigo));
+              Add('   descricao: ' + descricao);
+            end;
+          end;
 
-              for i := 0 to IdeStatus.regOcorrs.Count - 1 do
+          Add('');
+          Add(' **dadosRecepcaoLote');
+          Add('   dhRecepcao....: ' + FormatDateBr(dadosRecepcaoLote.dhRecepcao, 'dd-mm-yyyy'));
+          Add('   protocoloEnvio: ' + dadosRecepcaoLote.protocoloEnvio);
+
+          Add('');
+          Add('retornoEventos');
+
+          for i:=0 to evento.Count - 1 do
+          begin
+            with evento.Items[i] do
+            begin
+              if evtTotal.id <> '' then
               begin
-                with IdeStatus.regOcorrs.Items[i] do
+                Add('');
+                Add(' Evento: 9001');
+                Add(' Evento Id: ' + Id);
+
+                with evtTotal do
                 begin
-                  Add('   Tipo............: ' + IntToStr(tpOcorr));
-                  Add('   Local Erro Aviso: ' + localErroAviso);
-                  Add('   Código Resp.... : ' + codResp);
-                  Add('   Descricao Resp..: ' + dscResp);
+                  Add('   Id...........: ' + Id);
+                  Add('   Cód Retorno..: ' + IdeStatus.cdRetorno);
+                  Add('   Descrição....: ' + IdeStatus.descRetorno);
+                  Add('   Nro Recibo...: ' + InfoTotal.nrRecArqBase);
+
+                  Add('');
+                  Add(' **Ocorrencias');
+
+                  for j := 0 to IdeStatus.regOcorrs.Count - 1 do
+                  begin
+                    with IdeStatus.regOcorrs.Items[j] do
+                    begin
+                      Add('   Tipo............: ' + Inttostr(tpOcorr));
+                      Add('   Local Erro Aviso: ' + localErroAviso);
+                      Add('   Código Resp.... : ' + codResp);
+                      Add('   Descricao Resp..: ' + dscResp);
+                    end;
+                  end;
+
+                  Add('');
+                  Add(' **Informações de processamento dos eventos ');
+
+                  with InfoRecEv do
+                  begin
+                    Add('   Num. Recibo de Entrega do Evento....: ' + nrRecArqBase);
+                    Add('   Num. Protocolo de Entrega do Evento.: ' + nrProtEntr);
+                    Add('   Data/Hora do Processamento do Evento: ' + DateTimeToStr(dhProcess));
+                    Add('   Data/Hora da Recepção do Evento.....: ' + DateTimeToStr(dhRecepcao));
+                    Add('   Tipo do Evento......................: ' + tpEv);
+                    Add('   ID do Evento........................: ' + idEv);
+                    Add('   Hash do arquivo processado..........: ' + hash);
+                  end;
+                end;
+              end;
+
+              if evtRet.Id <> '' then
+              begin
+                Add('');
+                Add(' Evento: 9005');
+                Add(' Evento Id: ' + Id);
+
+                with evtRet do
+                begin
+                  Add('   Id...........: ' + Id);
+                  Add('   Cód Retorno..: ' + IdeStatus.cdRetorno);
+                  Add('   Descrição....: ' + IdeStatus.descRetorno);
+                  Add('   Nro Recibo...: ' + InfoTotal.nrRecArqBase);
+
+                  Add('');
+                  Add(' **Ocorrencias');
+
+                  for j := 0 to IdeStatus.regOcorrs.Count - 1 do
+                  begin
+                    with IdeStatus.regOcorrs.Items[j] do
+                    begin
+                      Add('   Tipo............: ' + Inttostr(tpOcorr));
+                      Add('   Local Erro Aviso: ' + localErroAviso);
+                      Add('   Código Resp.... : ' + codResp);
+                      Add('   Descricao Resp..: ' + dscResp);
+                    end;
+                  end;
+
+                  Add('');
+                  Add(' **Informações de processamento dos eventos ');
+
+                  with InfoRecEv do
+                  begin
+                    Add('   Num. Recibo de Entrega do Evento....: ' + nrRecArqBase);
+                    Add('   Num. Protocolo de Entrega do Evento.: ' + nrProtLote);
+                    Add('   Data/Hora do Processamento do Evento: ' + DateTimeToStr(dhProcess));
+                    Add('   Data/Hora da Recepção do Evento.....: ' + DateTimeToStr(dhRecepcao));
+                    Add('   Tipo do Evento......................: ' + tpEv);
+                    Add('   ID do Evento........................: ' + idEv);
+                    Add('   Hash do arquivo processado..........: ' + hash);
+                  end;
                 end;
               end;
             end;
+          end;
 
+        end;
+
+        with ACBrReinf1.WebServices.Consultar.RetConsulta_R9011 do
+        begin
+          if evtTotalContrib.Id <> '' then
+          begin
             Add('');
-            Add(' **Informações de processamento dos eventos ');
+            Add(' Evento: 9011');
 
-            with InfoRecEv do
+            with evtTotalContrib do
             begin
-              Add('   Num. Protocolo de Entrega do Evento.: ' + nrProtEntr);
-              Add('   Data/Hora do Processamento do Evento: ' + DateTimeToStr(dhProcess));
-              Add('   Tipo do Evento......................: ' + tpEv);
-              Add('   ID do Evento........................: ' + idEv);
-              Add('   Hash do arquivo processado..........: ' + hash);
-            end;
+              Add('   Id...........: ' + Id);
+              Add('   Cód Retorno..: ' + IdeStatus.cdRetorno);
+              Add('   Descrição....: ' + IdeStatus.descRetorno);
 
+              if IdeStatus.regOcorrs.Count > 0 then
+              begin
+                Add('');
+                Add(' **Ocorrencias');
+
+                for i := 0 to IdeStatus.regOcorrs.Count - 1 do
+                begin
+                  with IdeStatus.regOcorrs.Items[i] do
+                  begin
+                    Add('   Tipo............: ' + IntToStr(tpOcorr));
+                    Add('   Local Erro Aviso: ' + localErroAviso);
+                    Add('   Código Resp.... : ' + codResp);
+                    Add('   Descricao Resp..: ' + dscResp);
+                  end;
+                end;
+              end;
+
+              Add('');
+              Add(' **Informações de processamento dos eventos ');
+
+              with InfoRecEv do
+              begin
+                Add('   Num. Recibo de Entrega do Evento....: ' + nrRecArqBase);
+                Add('   Num. Protocolo de Entrega do Evento.: ' + nrProtEntr);
+                Add('   Data/Hora do Processamento do Evento: ' + DateTimeToStr(dhProcess));
+                Add('   Data/Hora da Recepção do Evento.....: ' + DateTimeToStr(dhRecepcao));
+                Add('   Tipo do Evento......................: ' + tpEv);
+                Add('   ID do Evento........................: ' + idEv);
+                Add('   Hash do arquivo processado..........: ' + hash);
+              end;
+
+            end;
           end;
         end;
 
         with ACBrReinf1.WebServices.Consultar.RetConsulta_R9015 do
         begin
-          Add('');
-          Add(' Evento: 9015');
-
-          with evtRetCons do
+          if evtRetCons.Id <> '' then
           begin
-            Add('   Id...........: ' + Id);
-            Add('   Cód Retorno..: ' + IdeStatus.cdRetorno);
-            Add('   Descrição....: ' + IdeStatus.descRetorno);
+            Add('');
+            Add(' Evento: 9015');
 
-            if IdeStatus.regOcorrs.Count > 0 then
+            with evtRetCons do
             begin
-              Add('');
-              Add(' **Ocorrencias');
+              Add('   Id...........: ' + Id);
+              Add('   Cód Retorno..: ' + IdeStatus.cdRetorno);
+              Add('   Descrição....: ' + IdeStatus.descRetorno);
 
-              for i := 0 to IdeStatus.regOcorrs.Count - 1 do
+              if IdeStatus.regOcorrs.Count > 0 then
               begin
-                with IdeStatus.regOcorrs.Items[i] do
+                Add('');
+                Add(' **Ocorrencias');
+
+                for i := 0 to IdeStatus.regOcorrs.Count - 1 do
                 begin
-                  Add('   Tipo............: ' + IntToStr(tpOcorr));
-                  Add('   Local Erro Aviso: ' + localErroAviso);
-                  Add('   Código Resp.... : ' + codResp);
-                  Add('   Descricao Resp..: ' + dscResp);
+                  with IdeStatus.regOcorrs.Items[i] do
+                  begin
+                    Add('   Tipo............: ' + IntToStr(tpOcorr));
+                    Add('   Local Erro Aviso: ' + localErroAviso);
+                    Add('   Código Resp.... : ' + codResp);
+                    Add('   Descricao Resp..: ' + dscResp);
+                  end;
                 end;
               end;
+
+              Add('');
+              Add(' **Informações de processamento dos eventos ');
+
+              with InfoRecEv do
+              begin
+                Add('   Num. Recibo de Entrega do Evento....: ' + nrRecArqBase);
+                Add('   Num. Protocolo de Entrega do Lote...: ' + nrProtLote);
+                Add('   Data/Hora do Processamento do Evento: ' + DateTimeToStr(dhProcess));
+                Add('   Data/Hora da Recepção do Evento.....: ' + DateTimeToStr(dhRecepcao));
+                Add('   Tipo do Evento......................: ' + tpEv);
+                Add('   ID do Evento........................: ' + idEv);
+                Add('   Hash do arquivo processado..........: ' + hash);
+                Add('   Indicativo da Finalidade do Evento..: ' + tpFechRetToStr(fechRet));
+              end;
+
             end;
-
-            Add('');
-            Add(' **Informações de processamento dos eventos ');
-
-            with InfoRecEv do
-            begin
-              Add('   Num. Protocolo de Entrega do Lote...: ' + nrProtLote);
-              Add('   Data/Hora do Processamento do Evento: ' + DateTimeToStr(dhProcess));
-              Add('   Tipo do Evento......................: ' + tpEv);
-              Add('   ID do Evento........................: ' + idEv);
-              Add('   Hash do arquivo processado..........: ' + hash);
-            end;
-
           end;
         end;
       end
@@ -1271,8 +1415,10 @@ begin
 
             with InfoRecEv do
             begin
+              Add('   Num. Recibo de Entrega do Evento....: ' + nrRecArqBase);
               Add('   Num. Protocolo de Entrega do Evento.: ' + nrProtEntr);
               Add('   Data/Hora do Processamento do Evento: ' + DateTimeToStr(dhProcess));
+              Add('   Data/Hora da Recepção do Evento.....: ' + DateTimeToStr(dhRecepcao));
               Add('   Tipo do Evento......................: ' + tpEv);
               Add('   ID do Evento........................: ' + idEv);
               Add('   Hash do arquivo processado..........: ' + hash);
@@ -1294,7 +1440,7 @@ var
   i: Integer;
   dtApur: TDateTime;
 begin
-  PerApur := '';
+  PerApur := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
   if not (InputQuery('WebServices: Consulta Recibo', 'Período de Apuração (AAAA-MM):', PerApur)) then
     Exit;
 
@@ -1302,7 +1448,7 @@ begin
   if not (InputQuery('WebServices: Consulta Recibo', 'Tipo do Evento (R-xxxx):', TipoEvento)) then
     Exit;
 
-  nrInscEstab := '';
+  nrInscEstab := edtEmitCNPJ.Text;
   if not (InputQuery('WebServices: Consulta Recibo', 'Nr. Inscrição do Estabelecimento:', nrInscEstab)) then
     Exit;
 
@@ -1314,7 +1460,7 @@ begin
   if not (InputQuery('WebServices: Consulta Recibo', 'Nr. Inscrição do Tomador:', nrInscTomador)) then
     Exit;
 
-  DataApur := '';
+  DataApur := FormatDateBr(IncMonth(Date,-1),'dd/mm/yyyy');
   if not (InputQuery('WebServices: Consulta Recibo', 'Data de Apuração (DD/MM/AAAA):', DataApur)) then
     Exit;
 
@@ -1368,13 +1514,20 @@ begin
                 begin
                   Add('   ID................: ' + Id);
                   Add('   Inicio da Validade: ' + iniValid);
+                  Add('   Fim da Validade...: ' + fimValid);
                   Add('   Data/Hora Receb...: ' + dtHoraRecebimento);
                   Add('   Numero do Recibo..: ' + nrRecibo);
+                  Add('   Numero Protocolo..: ' + nrProtocolo);
                   Add('   Situação do Evento: ' + situacaoEvento);
                   Add('   Aplicacao Recepção: ' + aplicacaoRecepcao);
+                  Add('   Clas. Ent. ligada.: ' + tpEntLig);
+                  Add('   CNPJ Ent. ligada..: ' + cnpjLig);
+                  Add('   Clas. Ent. ligada.: ' + tpEntLig);
+                  Add('   CNPJ Ent. ligada..: ' + cnpjLig);
+                  Add('   Tipo de Processo..: ' + tpProc);
+                  Add('   Numero do Processo: ' + nrProc);
                 end;
               end;
-
             end;
           end;
         end;
@@ -1551,6 +1704,9 @@ begin
   if chk2050.Checked then
     GerarReinf2050;
 
+  if chk2055.Checked then
+    GerarReinf2055;
+
   if chk2060.Checked then
     GerarReinf2060;
 
@@ -1601,8 +1757,8 @@ begin
       ideContri.TpInsc := tiCNPJ;
       ideContri.NrInsc := edtEmitCNPJ.Text;
 
-      infoContribuinte.IdePeriodo.IniValid := '2017-01';
-      infoContribuinte.IdePeriodo.FimValid := '2099-12';
+      infoContribuinte.IdePeriodo.IniValid := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
+      infoContribuinte.IdePeriodo.FimValid := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
 
       with infoContribuinte.InfoCadastro do
       begin
@@ -1637,8 +1793,8 @@ begin
         end;
       end;
 
-      infoContribuinte.NovaValidade.IniValid := '2017-01';
-      infoContribuinte.NovaValidade.FimValid := '2099-12';
+      infoContribuinte.NovaValidade.IniValid := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
+      infoContribuinte.NovaValidade.FimValid := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
     end;
   end;
 end;
@@ -1665,13 +1821,13 @@ begin
           ideEntLig.tpEntLig := telFundoInvestimento;
 
         ideEntLig.cnpjLig  := '12345678000123';
-        ideEntLig.IniValid := FormatDateTime('yyyy-mm', Date-30);
-        ideEntLig.FimValid := FormatDateTime('yyyy-mm', Date+365);
+        ideEntLig.IniValid := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
+        ideEntLig.FimValid := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
 
         if rdgOperacao.ItemIndex = 1 then
         begin
-          novaValidade.IniValid := FormatDateTime('yyyy-mm', Date-30);
-          novaValidade.FimValid := FormatDateTime('yyyy-mm', Date+30);
+          novaValidade.IniValid := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
+          novaValidade.FimValid := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
         end;
       end;
     end;
@@ -1698,8 +1854,8 @@ begin
       begin
         ideProcesso.tpProc     := tpAdministrativo;
         ideProcesso.nrProc     := '123';
-        ideProcesso.IniValid   := '2017-01';
-        ideProcesso.FimValid   := '2099-12';
+        ideProcesso.IniValid   := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
+        ideProcesso.FimValid   := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
         ideProcesso.indAutoria := taContribuinte;
 
         with ideProcesso do
@@ -1709,7 +1865,7 @@ begin
           begin
             codSusp     := '12345678';
             indSusp     := siLiminarMandadoSeguranca;
-            dtDecisao   := Date;
+            dtDecisao   := IncMonth(Date,-1);
             indDeposito := tpSim;
           end;
 
@@ -1718,8 +1874,8 @@ begin
           DadosProcJud.idVara   := '12';
         end;
 
-        NovaValidade.IniValid := '2017-01';
-        NovaValidade.FimValid := '2099-12';
+        NovaValidade.IniValid := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
+        NovaValidade.FimValid := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       end;
     end;
   end;
@@ -1736,7 +1892,7 @@ begin
 
       ideEvento.indRetif := trOriginal;
       ideEvento.NrRecibo := '123';
-      ideEvento.perApur  := '2018-04';
+      ideEvento.perApur  := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi  := peAplicEmpregador;
       IdeEvento.VerProc  := '1.0';
 
@@ -1748,18 +1904,18 @@ begin
         with ideEstabObra do
         begin
           tpInscEstab := tiCNPJ;
-          nrInscEstab := '123';
+          nrInscEstab := edtEmitCNPJ.Text;
           indObra     := ioNaoeObraDeConstrucaoCivil;
 
           with idePrestServ do
           begin
-            cnpjPrestador     := '12345678000123';
-            vlrTotalBruto     := 10.00;
-            vlrTotalBaseRet   := 10.00;
-            vlrTotalRetPrinc  := 10.00;
-            vlrTotalRetAdic   := 10.00;
-            vlrTotalNRetPrinc := 10.00;
-            vlrTotalNRetAdic  := 10.00;
+            cnpjPrestador     := '123456780001123';
+            vlrTotalBruto     := 1000.00;
+            vlrTotalBaseRet   := 1000.00;
+            vlrTotalRetPrinc  := 110.00;
+            vlrTotalRetAdic   := 0.00;
+            vlrTotalNRetPrinc := 0.00;
+            vlrTotalNRetAdic  := 0.00;
             indCPRB           := icNaoContribuintePrevidenciariaReceitaBruta;
 
             nfs.Clear;
@@ -1767,7 +1923,7 @@ begin
             begin
               serie       := '1';
               numDocto    := '123';
-              dtEmissaoNF := Date;
+              dtEmissaoNF := IncMonth(Date,-1);
               vlrBruto    := 1000.00;
               obs         := '';
 
@@ -1775,8 +1931,8 @@ begin
               with infoTpServ.New do
               begin
                 tpServico     := '100000003'; {Tabela 06}
-                vlrBaseRet    := 100.00;
-                vlrRetencao   := 11.00;
+                vlrBaseRet    := 1000.00;
+                vlrRetencao   := 110.00;
                 vlrRetSub     := 0.00;
                 vlrNRetPrinc  := 0.00;
                 vlrServicos15 := 0.00;
@@ -1788,6 +1944,7 @@ begin
             end;
 
             infoProcRetPr.Clear;
+            {
             with infoProcRetPr.New do
             begin
               tpProcRetPrinc := tpAdministrativo;
@@ -1795,8 +1952,9 @@ begin
               codSuspPrinc   := 001;
               valorPrinc     := 100.00;
             end;
-
+            }
             infoProcRetAd.Clear;
+            {
             with infoProcRetAd.New do
             begin
               tpProcRetAdic := tpAdministrativo;
@@ -1804,6 +1962,7 @@ begin
               codSuspAdic   := 001;
               valorAdic     := 1000.00;
             end;
+            }
           end;
         end;
       end;
@@ -1822,7 +1981,7 @@ begin
 
       ideEvento.indRetif := trOriginal;
       ideEvento.NrRecibo := '123';
-      ideEvento.perApur  := '2018-04';
+      ideEvento.perApur  := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi  := peAplicEmpregador;
       IdeEvento.VerProc  := '1.0';
 
@@ -1834,26 +1993,26 @@ begin
         with ideEstabPrest do
         begin
           tpInscEstabPrest := tiCNPJ;
-          nrInscEstabPrest := '12345678000123';
+          nrInscEstabPrest := edtEmitCNPJ.Text;
 
           with ideTomador do
           begin
             tpInscTomador     := tiCNPJ;
             nrInscTomador     := '12345678000123';
             indObra           := ioNaoeObraDeConstrucaoCivil;
-            vlrTotalBruto     := 10.00;
-            vlrTotalBaseRet   := 10.00;
-            vlrTotalRetPrinc  := 10.00;
-            vlrTotalRetAdic   := 10.00;
-            vlrTotalNRetPrinc := 10.00;
-            vlrTotalNRetAdic  := 10.00;
+            vlrTotalBruto     := 1000.00;
+            vlrTotalBaseRet   := 1000.00;
+            vlrTotalRetPrinc  := 110.00;
+            vlrTotalRetAdic   := 0.00;
+            vlrTotalNRetPrinc := 0.00;
+            vlrTotalNRetAdic  := 0.00;
 
             nfs.Clear;
             with nfs.New do
             begin
               serie       := '1';
               numDocto    := '123';
-              dtEmissaoNF := Date;
+              dtEmissaoNF := IncMonth(Date,-1);
               vlrBruto    := 1000.00;
               obs         := '';
 
@@ -1861,8 +2020,8 @@ begin
               with infoTpServ.New do
               begin
                 tpServico     := '100000003'; {Tabela 06}
-                vlrBaseRet    := 100.00;
-                vlrRetencao   := 11.00;
+                vlrBaseRet    := 1000.00;
+                vlrRetencao   := 110.00;
                 vlrRetSub     := 0.00;
                 vlrNRetPrinc  := 0.00;
                 vlrServicos15 := 0.00;
@@ -1874,6 +2033,7 @@ begin
             end;
 
             infoProcRetPr.Clear;
+            {
             with infoProcRetPr.New do
             begin
               tpProcRetPrinc := tpAdministrativo;
@@ -1881,8 +2041,9 @@ begin
               codSuspPrinc   := 001;
               valorPrinc     := 100.00;
             end;
-
+            }
             infoProcRetAd.Clear;
+            {
             with infoProcRetAd.New do
             begin
               tpProcRetAdic := tpAdministrativo;
@@ -1890,6 +2051,7 @@ begin
               codSuspAdic   := 001;
               valorAdic     := 1000.00;
             end;
+            }
           end;
         end;
       end;
@@ -1908,7 +2070,7 @@ begin
 
       ideEvento.indRetif := trOriginal;
       ideEvento.NrRecibo := '123';
-      ideEvento.perApur  := '2018-04';
+      ideEvento.perApur  := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi  := peAplicEmpregador;
       IdeEvento.VerProc  := '1.0';
 
@@ -1918,12 +2080,19 @@ begin
       with ideEstab do
       begin
         tpInscEstab := tiCNPJ;
-        nrInscEstab := '12345678000123';
+        nrInscEstab := edtEmitCNPJ.Text;
 
         recursosRec.Clear;
         with recursosRec.New do
         begin
           cnpjOrigRecurso := '12345678000123';
+
+          if ACBrReinf1.Configuracoes.Geral.VersaoDF >= v2_01_02 then
+          begin
+            recEmprExt := ''; // Preencher "S" para empresa do exterior
+            nmEmprExt := ''; // Preencher nome da empresa quando recEmprExt = S
+          end;
+
           vlrTotalRec     := 100.00;
           vlrTotalRet     := 0;
           vlrTotalNRet    := 0;
@@ -1933,11 +2102,12 @@ begin
           begin
             tpRepasse   := trPatrocinio;
             descRecurso := 'descricao resumida';
-            vlrBruto    := 11.00;
+            vlrBruto    := 100.00;
             vlrRetApur  := 0.00;
           end;
 
           infoProc.Clear;
+          {
           with infoProc.New do
           begin
             tpProc  := tpAdministrativo;
@@ -1945,6 +2115,7 @@ begin
             codSusp := '456';
             vlrNRet := 0.00;
           end;
+          }
         end;
       end;
     end;
@@ -1962,7 +2133,7 @@ begin
 
       ideEvento.indRetif := trOriginal;
       ideEvento.NrRecibo := '123';
-      ideEvento.perApur  := '2018-04';
+      ideEvento.perApur  := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi  := peAplicEmpregador;
       IdeEvento.VerProc  := '1.0';
 
@@ -1972,7 +2143,7 @@ begin
       with ideEstab do
       begin
         tpInscEstab := tiCNPJ;
-        nrInscEstab := '12345678000123';
+        nrInscEstab := edtEmitCNPJ.Text;
 
         recursosRep.Clear;
         with recursosRep.New do
@@ -1987,11 +2158,12 @@ begin
           begin
             tpRepasse   := trPatrocinio;
             descRecurso := 'descricao resumida';
-            vlrBruto    := 11.00;
+            vlrBruto    := 100.00;
             vlrRetApur  := 0.00;
           end;
 
           infoProc.Clear;
+          {
           with infoProc.New do
           begin
             tpProc  := tpAdministrativo;
@@ -1999,6 +2171,7 @@ begin
             codSusp := '456';
             vlrNRet := 0.00;
           end;
+          }
         end;
       end;
     end;
@@ -2016,7 +2189,7 @@ begin
 
       ideEvento.indRetif := trOriginal;
       ideEvento.NrRecibo := '123';
-      ideEvento.perApur  := '2018-04';
+      ideEvento.perApur  := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi  := peAplicEmpregador;
       IdeEvento.VerProc  := '1.0';
 
@@ -2027,21 +2200,22 @@ begin
       begin
         tpInscEstab       := tiCNPJ;
         nrInscEstab       := '12345678000123';
-        vlrRecBrutaTotal  := 100.00;
-        vlrCPApur         := 100.00;
-        vlrRatApur        := 100.00;
-        vlrSenarApur      := 100.00;
-        vlrCPSuspTotal    := 100.00;
-        vlrRatSuspTotal   := 100.00;
-        vlrSenarSuspTotal := 100.00;
+        vlrRecBrutaTotal  := 1000.00;
+        vlrCPApur         := 0.00;
+        vlrRatApur        := 0.00;
+        vlrSenarApur      := 0.00;
+        vlrCPSuspTotal    := 0.00;
+        vlrRatSuspTotal   := 0.00;
+        vlrSenarSuspTotal := 0.00;
 
         tipoCom.Clear;
         with tipoCom.New do
         begin
           indCom      := icProdRural;
-          vlrRecBruta := 100.50;
+          vlrRecBruta := 1000.00;
 
           infoProc.Clear;
+          {
           with infoProc.New do
           begin
             tpProc       := tpAdministrativo;
@@ -2051,6 +2225,60 @@ begin
             vlrRatSusp   := 0.00;
             vlrSenarSusp := 0.00;
           end;
+          }
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmACBrReinf.GerarReinf2055;
+begin
+  ACBrReinf1.Eventos.ReinfEventos.R2055.Clear;
+  with ACBrReinf1.Eventos.ReinfEventos.R2055.New do
+  begin
+    with evtAqProd do
+    begin
+      Sequencial := 0;
+
+      ideEvento.indRetif := trOriginal;
+      ideEvento.NrRecibo := '123';
+      ideEvento.perApur  := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
+      IdeEvento.ProcEmi  := peAplicEmpregador;
+      IdeEvento.VerProc  := '1.0';
+
+      ideContri.TpInsc := tiCNPJ;
+      ideContri.NrInsc := edtEmitCNPJ.Text;
+
+      with infoAquisProd.ideEstabAdquir do
+      begin
+        tpInscAdq := tiCNPJ;
+        nrInscAdq := '12345678000123'; // Diferente do nrInscProd
+
+        tpInscProd := tiCNPJ;
+        nrInscProd := '12345678000234'; // Diferente do nrInscAdq
+        indOpcCP   := 'S';
+
+        detAquis.Clear;
+        with detAquis.New do
+        begin
+          indAquis     := iaPF;
+          vlrBruto     := 1000.00;
+          vlrCPDescPR  := 0.00;
+          vlrRatDescPR := 0.00;
+          vlrRatDescPR := 0.00;
+
+          infoProc.Clear;
+          {
+          with infoProc.New do
+          begin
+            nrProc       := '123';
+            codSusp      := '456';
+            vlrCPNRet    := 0.00;
+            vlrRatNRet   := 0.00;
+            vlrSenarNRet := 0.00;
+          end;
+          }
         end;
       end;
     end;
@@ -2068,7 +2296,7 @@ begin
 
       ideEvento.indRetif := trOriginal;
       ideEvento.NrRecibo := '123';
-      ideEvento.perApur  := '2018-04';
+      ideEvento.perApur  := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi  := peAplicEmpregador;
       IdeEvento.VerProc  := '1.0';
 
@@ -2078,20 +2306,20 @@ begin
       with infoCPRB.ideEstab do
       begin
         tpInscEstab      := tiCNPJ;
-        nrInscEstab      := '12345678000123';
-        vlrRecBrutaTotal := 100.00;
-        vlrCPApurTotal   := 100.00;
-        vlrCPRBSuspTotal := 100.00;
+        nrInscEstab      := edtEmitCNPJ.Text;
+        vlrRecBrutaTotal := 1000.00;
+        vlrCPApurTotal   := 0.00;
+        vlrCPRBSuspTotal := 0.00;
 
         tipoCod.Clear;
         with tipoCod.New do
         begin
-          codAtivEcon     := '12345678';
-          vlrRecBrutaAtiv := 100.50;
-          vlrExcRecBruta  := 100.50;
-          vlrAdicRecBruta := 100.50;
-          vlrBcCPRB       := 100.50;
-          vlrCPRBapur     := 100.50;
+          codAtivEcon     := '00000091';
+          vlrRecBrutaAtiv := 1000.00;
+          vlrExcRecBruta  := 0.00;
+          vlrAdicRecBruta := 0.00;
+          vlrBcCPRB       := 1000.00;
+          vlrCPRBapur     := 0.00;
 
           tipoAjuste.Clear;
           with tipoAjuste.New do
@@ -2100,10 +2328,11 @@ begin
             codAjuste  := caRegimeCaixa;
             vlrAjuste  := 0.00;
             descAjuste := 'descricao';
-            dtAjuste   := '2018-04';
+            dtAjuste   := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
           end;
 
           infoProc.Clear;
+          {
           with infoProc.New do
           begin
             tpProc      := tpAdministrativo;
@@ -2111,6 +2340,7 @@ begin
             codSusp     := '456';
             vlrCPRBSusp := 0.00;
           end;
+          }
         end;
       end;
     end;
@@ -2132,7 +2362,7 @@ begin
 
       ideEvento.indRetif := trOriginal;
       ideEvento.NrRecibo := '123';
-      ideEvento.perApur  := '2018-04';
+      ideEvento.perApur  := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi  := peAplicEmpregador;
       IdeEvento.VerProc  := '1.0';
 
@@ -2169,7 +2399,7 @@ begin
 
         with infoMolestia do
         begin
-          dtLaudo := Date;
+          dtLaudo := IncMonth(Date,-1);
         end;
 
         ideEstab.Clear;
@@ -2181,7 +2411,7 @@ begin
           pgtoPF.Clear;
           with pgtoPF.New do
           begin
-            dtPgto            := Date;
+            dtPgto            := IncMonth(Date,-1);
             indSuspExig       := tpSim;
             indDecTerceiro    := tpSim;
             vlrRendTributavel := 0.0;
@@ -2275,7 +2505,7 @@ begin
           pgtoPJ.Clear;
           with pgtoPJ.New do
           begin
-            dtPagto           := Date;
+            dtPagto           := IncMonth(Date,-1);
             vlrRendTributavel := 0.0;
             vlrRet            := 0.0;
 
@@ -2309,7 +2539,7 @@ begin
 
           with pgtoResidExt do
           begin
-            dtPagto         := Date;
+            dtPagto         := IncMonth(Date,-1);
             tpRendimento    := '123';
             formaTributacao := '123';
             vlrPgto         := 0.0;
@@ -2330,7 +2560,7 @@ begin
     begin
       Sequencial := 0;
 
-      ideEvento.perApur := '2018-04';
+      ideEvento.perApur := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi := peAplicEmpregador;
       IdeEvento.VerProc := '1.0';
 
@@ -2349,7 +2579,7 @@ begin
     begin
       Sequencial := 0;
 
-      ideEvento.perApur := '2018-04';
+      ideEvento.perApur := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi := peAplicEmpregador;
       IdeEvento.VerProc := '1.0';
 
@@ -2397,7 +2627,7 @@ begin
       if ideEvento.indRetif = trRetificacao then
         ideEvento.nrRecibo := edRecibo.Text;
 
-      ideEvento.dtApuracao := Date;
+      ideEvento.dtApuracao := StartOfTheMonth(IncMonth(Date,-1));
       IdeEvento.ProcEmi    := peAplicEmpregador;
       IdeEvento.VerProc    := '1.0';
 
@@ -2419,7 +2649,7 @@ begin
           modDesportiva   := 'TESTE';
           nomeCompeticao  := 'TESTE';
           cnpjMandante    := edtEmitCNPJ.Text;
-          cnpjVisitante   := '99999999999999';
+          cnpjVisitante   := '12345678000123';
           nomeVisitante   := 'TESTE';
           pracaDesportiva := 'TESTE';
           codMunic        := 3550308;
@@ -2433,30 +2663,31 @@ begin
             tpIngresso       := ttiArquibancada;
             descIngr         := 'TESTE';
             qtdeIngrVenda    := 999;
-            qtdeIngrVendidos := 999;
+            qtdeIngrVendidos := 600;
             qtdeIngrDev      := 0;
             precoIndiv       := 1;
-            vlrTotal         := 999;
+            vlrTotal         := 600;
           end;
 
           outrasReceitas.Clear;
           with outrasReceitas.New do
           begin
             tpReceita   := ttrTransmissao;
-            vlrReceita  := 1234;
+            vlrReceita  := 400;
             descReceita := 'TESTE'
           end;
         end;
 
         with receitaTotal do
         begin
-          vlrReceitaTotal  := 999;
+          vlrReceitaTotal  := 1000;
           vlrCP            := 0;
           vlrCPSuspTotal   := 0;
           vlrReceitaClubes := 0;
           vlrRetParc       := 0;
 
           infoProc.Clear;
+          {
           with infoProc.New do
           begin
             tpProc    := tpAdministrativo;
@@ -2464,6 +2695,7 @@ begin
             codSusp   := '1234';
             vlrCPSusp := 1234;
           end;
+          }
         end;
       end;
     end;
@@ -2487,7 +2719,7 @@ begin
       if ideEvento.indRetif = trRetificacao then
         ideEvento.nrRecibo := edRecibo.Text;
 
-      ideEvento.perApur    := FormatDateTime('yyyy-mm', Date-30);
+      ideEvento.perApur    := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi    := peAplicEmpregador;
       IdeEvento.VerProc    := '1.0';
 
@@ -2502,22 +2734,25 @@ begin
       with ideEstab do
       begin
         tpInscEstab := tiCNPJ;
-        nrInscEstab := '12345678000123';
+        nrInscEstab := edtEmitCNPJ.Text;
 
         with ideBenef do
         begin
-          cpfBenef := '12345678909';
-          nmBenef  := 'Beneficiario';
+          cpfBenef := '98765432100';
+          nmBenef  := '';
+          //if ACBrReinf1.Configuracoes.Geral.VersaoDF >= v2_01_02 then
+          //  ideEvtAdic := '12345678';
 
           ideDep.Clear;
+          {
           with ideDep.New do
           begin
-            cpfDep := '98765432100';
-            relDep := ttdConjuge;
+            cpfDep := '12345678909';
+            relDep := ttdAgregadoOutros;
             // Preencher apenas quando relDep = ttdAgregadoOutros
-            // descrDep := 'Outros';
+            descrDep := 'Outros';
           end;
-
+          }
           idePgto.Clear;
           with idePgto.New do
           begin
@@ -2527,18 +2762,25 @@ begin
             infoPgto.Clear;
             with infoPgto.New do
             begin
-              dtFG         := Date;
-              compFP       := Date;
+              dtFG         := IncMonth(Date,-1);
+              compFP       := IncMonth(Date,-1);
               indDecTerc   := 'S';
               vlrRendBruto := 100;
-              vlrRendTrib  := 100;
-              vlrIR        := 10;
+              vlrRendTrib  := 0;
+              vlrIR        := 0;
+              {
               indRRA       := 'S';
               indFciScp    := '1';
               nrInscFciScp := '12345678000123';
               percSCP      := 12.3;
               indJud       := 'N';
               paisResidExt := '063';
+
+              if ACBrReinf1.Configuracoes.Geral.VersaoDF >= v2_01_02 then
+              begin
+                //dtEscrCont := IncMonth(Date,-1); // preencher quando natRend = 12052
+                observ     := 'Observações';
+              end;
 
               with detDed.New do
               begin
@@ -2562,7 +2804,8 @@ begin
                 descRendimento := 'Descrição';
                 dtLaudo := Date - 31;
               end;
-
+              }
+              {
               with infoProcRet.New do
               begin
                 tpProcRet    := tpAdministrativo;
@@ -2586,7 +2829,8 @@ begin
                   end;
                 end;
               end;
-
+              }
+              {
               with infoRRA do
               begin
                 tpProcRRA       := tpAdministrativo;
@@ -2649,9 +2893,10 @@ begin
                   telef     := '1234567890';
                 end;
               end;
+              }
             end;
           end;
-
+          {
           with ideBenef.ideOpSaude.New do
           begin
             nrInsc   := '12345678000123';
@@ -2680,6 +2925,7 @@ begin
               end;
             end;
           end;
+          }
         end;
       end;
     end;
@@ -2703,7 +2949,7 @@ begin
       if ideEvento.indRetif = trRetificacao then
         ideEvento.nrRecibo := edRecibo.Text;
 
-      ideEvento.perApur    := FormatDateTime('yyyy-mm', Date-30);
+      ideEvento.perApur    := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi    := peAplicEmpregador;
       IdeEvento.VerProc    := '1.0';
 
@@ -2718,30 +2964,39 @@ begin
       with ideEstab do
       begin
         tpInscEstab := tiCNPJ;
-        nrInscEstab := '12345678000123';
+        nrInscEstab := edtEmitCNPJ.Text;
 
         with ideBenef do
         begin
           cnpjBenef := '12345678000123';
-          nmBenef   := 'Beneficiario';
-          isenImun  := tiiTributacaoNormal;
+          //nmBenef   := 'Beneficiario';
+          isenImun  := tiiNenhum;
+          //if ACBrReinf1.Configuracoes.Geral.VersaoDF >= v2_01_02 then
+          //  ideEvtAdic:= '12345678';
 
           idePgto.Clear;
           with idePgto.New do
           begin
-            natRend := '10001'; // Tabela 01
+            natRend := '15001'; // Tabela 01
             observ := 'Observações';
 
             infoPgto.Clear;
             with infoPgto.New do
             begin
-              dtFG         := Date;
+              dtFG         := IncMonth(Date,-1);
               vlrBruto     := 100;
+              {
               indFciScp    := '1';
               nrInscFciScp := '12345678000123';
               percSCP      := 12.3;
               indJud       := 'N';
               paisResidExt := '063';
+
+              if ACBrReinf1.Configuracoes.Geral.VersaoDF >= v2_01_02 then
+              begin
+                //dtEscrCont := IncMonth(Date,-1); // preencher quando natRend = 12052
+                observ     := 'Observações';
+              end;
 
               with retencoes do
               begin
@@ -2816,6 +3071,7 @@ begin
                   telef     := '1234567890';
                 end;
               end;
+              }
             end;
           end;
         end;
@@ -2841,7 +3097,7 @@ begin
       if ideEvento.indRetif = trRetificacao then
         ideEvento.nrRecibo := edRecibo.Text;
 
-      ideEvento.perApur    := FormatDateTime('yyyy-mm', Date-30);
+      ideEvento.perApur    := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi    := peAplicEmpregador;
       IdeEvento.VerProc    := '1.0';
 
@@ -2851,7 +3107,9 @@ begin
       with ideEstab do
       begin
         tpInscEstab := tiCNPJ;
-        nrInscEstab := '12345678000123';
+        nrInscEstab := edtEmitCNPJ.Text;
+        //if ACBrReinf1.Configuracoes.Geral.VersaoDF >= v2_01_02 then
+        //  ideEvtAdic := '12345678';
 
         ideNat.Clear;
         with ideNat.New do
@@ -2861,12 +3119,16 @@ begin
           infoPgto.Clear;
           with infoPgto.New do
           begin
-            dtFG      := Date;
-            vlrLiq    := 10;
-            vlrBaseIR := 100;
-            vlrIR     := 10;
-            descr     := 'Descrição';
+            dtFG      := IncMonth(Date,-1);
+            vlrLiq    := 1000;
+            vlrBaseIR := 1538.46;
+            vlrIR     := 0.00;
 
+            //if ACBrReinf1.Configuracoes.Geral.VersaoDF >= v2_01_02 then
+            //  dtEscrCont := IncMonth(Date,-1); // preencher quando natRend = 12052
+
+            descr     := 'Descrição';
+            {
             with infoProcRet.New do
             begin
               tpProcRet     := tpAdministrativo;
@@ -2876,6 +3138,7 @@ begin
               vlrNIR        := 10;
               vlrDepIR      := 20;
             end;
+            }
           end;
         end;
       end;
@@ -2900,7 +3163,7 @@ begin
       if ideEvento.indRetif = trRetificacao then
         ideEvento.nrRecibo := edRecibo.Text;
 
-      ideEvento.perApur    := FormatDateTime('yyyy-mm', Date-30);
+      ideEvento.perApur    := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi    := peAplicEmpregador;
       IdeEvento.VerProc    := '1.0';
 
@@ -2915,7 +3178,7 @@ begin
       with ideEstab do
       begin
         tpInscEstab := tiCNPJ;
-        nrInscEstab := '12345678000123';
+        nrInscEstab := edtEmitCNPJ.Text;
 
         with ideFont do
         begin
@@ -2930,11 +3193,13 @@ begin
             infoRec.Clear;
             with infoRec.New do
             begin
-              dtFG      := Date;
-              vlrBruto  := 100;
-              vlrBaseIR := 100;
-              vlrIR     := 10;
-
+              dtFG      := IncMonth(Date,-1);
+              vlrBruto  := 1000;
+              vlrBaseIR := 1000;
+              vlrIR     := 100;
+              if ACBrReinf1.Configuracoes.Geral.VersaoDF >= v2_01_02 then
+                observ := 'Observações';
+              {
               with infoProcRet.New do
               begin
                 tpProcRet     := tpAdministrativo;
@@ -2944,6 +3209,7 @@ begin
                 vlrNIR        := 10;
                 vlrDepIR      := 20;
               end;
+              }
             end;
           end;
         end;
@@ -2961,7 +3227,7 @@ begin
     begin
       Sequencial := 0;
 
-      ideEvento.perApur := FormatDateBr(Date-30, 'yyyy-mm');
+      ideEvento.perApur := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       IdeEvento.ProcEmi := peAplicEmpregador;
       IdeEvento.VerProc := '1.0';
 
@@ -3003,9 +3269,9 @@ begin
         nrRecEvt := Trim(edRecibo.Text);
 
         if ( cbEvento.Text = 'R-3010' ) then
-          perApur := FormatDateTime( 'yyyy-mm-dd', Now )
+          perApur := FormatDateBr(StartOfTheMonth(IncMonth(Date,-1)),'yyyy-mm-dd')
         else
-          perApur := FormatDateTime( 'yyyy-mm', Now );
+          perApur := FormatDateBr(IncMonth(Date,-1),'yyyy-mm');
       end;
     end;
   end;
@@ -3027,17 +3293,16 @@ begin
 
   ChkRetificadora.Visible := ( chk2010.Checked or chk2020.Checked or
                                chk2030.Checked or chk2040.Checked or
-                               chk2050.Checked or chk2060.Checked or
-                               chk2070.Checked or
+                               chk2050.Checked or chk2055.Checked or
+                               chk2060.Checked or chk2070.Checked or
                                chk3010.Checked or chk4010.Checked or
-                               chk4020.Checked or chk4080.Checked or
-                               chk4040.Checked );
+                               chk4020.Checked or chk4040.Checked );
 
   edRecibo.Visible := ( chk2010.Checked or chk2020.Checked or chk2030.Checked or
-                        chk2040.Checked or chk2050.Checked or chk2060.Checked or
-                        chk2070.Checked or chk3010.Checked or
+                        chk2040.Checked or chk2050.Checked or chk2055.Checked or
+                        chk2060.Checked or chk2070.Checked or chk3010.Checked or
                         chk4010.Checked or chk4020.Checked or chk4040.Checked or
-                        chk4080.Checked or chk9000.Checked );
+                        chk9000.Checked );
 
   lblRecibo.Visible := edRecibo.Visible;
 

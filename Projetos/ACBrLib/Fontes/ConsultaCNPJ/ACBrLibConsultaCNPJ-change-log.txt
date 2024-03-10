@@ -42,6 +42,34 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+06/03/2024
+---ACBrLibConsultaCNPJConfig, ACBrLibConsultaCNPJDataModule 	---
+[*] TK-5131-1 Ajustes para o uso de Proxy 
+  Por: Daniel Morais InfoCotidiano.
+
+19/02/2024
+--- ACBrLibConsultaCNPJBase, ACBrLibConsultaCNPJConfig, ACBrLibConsultaCNPJConsts,
+    ACBrLibConsultaCNPJDataModule, ACBrLibConsultaCNPJMT, ACBrLibConsultaCNPJST,
+    ACBrLibConsultaCNPJStaticImportMT, ACBrLibConsultaCNPJStaticImportST	---
+[*] TK-5014 Ajustes de compatibilidade para nova consulta CNPJ
+  Por: Daniel Morais InfoCotidiano.
+
+
+28/01/2024
+--- Diversos ---
+[+] Programa de exemplo em Visual Object
+  Por: Delfos Sistemas, Renato Rubinho
+
+08/01/2024
+--- ACBrLibConsultaCNPJMT ---
+[-] Ajustes nas diretivas funcao CNPJ_Consultar
+	Por: Daniel de Morais InfoCotidiano 
+
+29/12/2023
+--- ACBrLibConsultaCNPJBase, ACBrLibConsultaCNPJMT, ACBrLibConsultaCNPJST  ---
+[*] Adequado as units para trabalhar com os novos provedores de servico para consulta CNPJ
+	Por: Daniel de Morais InfoCotidiano #TK-4878
+
 11/01/2023
 --- ACBrLibConsultaCNPJBase ---
 [-] Correção para conversão das respostas com Erros, em ANSI, se assim estiver configurado

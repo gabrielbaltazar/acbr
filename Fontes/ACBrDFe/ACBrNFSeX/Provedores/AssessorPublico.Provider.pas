@@ -111,6 +111,17 @@ begin
     UseCertificateHTTP := False;
     ModoEnvio := meLoteAssincrono;
     DetalharServico := True;
+
+    Autenticacao.RequerCertificado := False;
+    Autenticacao.RequerLogin := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarLote := True;
+      ConsultarNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   ConfigMsgDados.UsarNumLoteConsLote := True;
@@ -174,7 +185,7 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := '';
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('ERRO'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('ERRO'), tcStr);
     AErro.Correcao := '';
   end;
 end;
@@ -664,7 +675,7 @@ function TACBrNFSeXWebserviceAssessorPublico.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
 end;
