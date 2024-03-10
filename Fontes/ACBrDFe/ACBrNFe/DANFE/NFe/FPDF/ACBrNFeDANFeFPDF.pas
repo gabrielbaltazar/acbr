@@ -56,15 +56,15 @@ uses
   ACBrDFeUtil,
   ACBrUtil.Compatibilidade,
   ACBrNFeUtilsFPDF, ACBrNFeDANFEClass, ACBrNFe, ACBrBase, ACBrDFeDANFeReport;
-type TBytes = array of Byte;
 
 type
   TNFeDANFeFPDF = class(TFPDFReport)
   private
     FNFeUtils: TNFeUtilsFPDF;
+    FDANFEClassOwner : TACBrNFeDANFEClass;
     FCancelada: boolean;
     FCanhoto: TPosRecibo;
-    FLogoBytes: TBytes;
+    FLogo: TBytes;
     FLogoStretched: boolean;
     FLogoAlign: TLogoAlign;
     FMensagemRodape: string;
@@ -72,22 +72,26 @@ type
   protected
     procedure OnStartReport(Args: TFPDFReportEventArgs); override;
   public
-    constructor Create(ANFe: TNFe); reintroduce;
+    constructor Create(ANFe: TNFe; AACBrNFeDANFEClass : TACBrNFeDANFEClass); reintroduce;
     destructor Destroy; override;
   public
     property Cancelada: boolean read FCancelada write FCancelada;
     property PosCanhoto: TPosRecibo read FCanhoto write FCanhoto;
-    property LogoBytes: TBytes read FLogoBytes write FLogoBytes;
+    property LogoBytes: TBytes read FLogo write FLogo;
     property LogoStretched: boolean read FLogoStretched write FLogoStretched;
     property LogoAlign: TLogoAlign read FLogoAlign write FLogoAlign;
     property MensagemRodape: string read FMensagemRodape write FMensagemRodape;
+
   end;
 
 type
-  TACBrNFeDANFeFPDF = class(TACBrDFeDANFeReport)
+  {$IFDEF RTL230_UP}
+  [ComponentPlatformsAttribute(piacbrAllPlatforms)]
+  {$ENDIF RTL230_UP}
+  TACBrNFeDANFeFPDF = class(TACBrNFeDANFEClass)
   private
     FFPDFReport: TNFeDANFeFPDF;
-    FDANFEClassOwner: TACBrDFeDANFeReport;
+    FDANFEClassOwner: TACBrNFeDANFEClass;
 
   public
     constructor Create(AOwner: TComponent); override;
@@ -530,6 +534,7 @@ var
   cStat: string;
   HasLogo: boolean;
   Stream: TMemoryStream;
+  LLogoStringStream : TStringStream;
 begin
   PDF := Args.PDF;
   NFe := FNFeUtils.NFe;
@@ -561,7 +566,7 @@ begin
   y1 := y;
   tw := w;
   th := h;
-
+  
   //estabelecer o alinhamento
   //pode ser left L, center C, right R, full logo L
   //se for left separar 1/3 da largura para o tamanho da imagem
@@ -652,11 +657,15 @@ begin
       tw := w;
     end;
 
-    Stream := TMemoryStream.Create;
-    try
-      PDF.Image(xImg, yImg, nImgW, nImgH, Stream);
-    finally
-      Stream.Free;
+    if (Length(FLogo) > 0) then
+    begin
+      Stream := TMemoryStream.Create;
+      try
+        Stream.Write(FLogo[0], Length(FLogo));
+        PDF.Image(xImg, yImg, nImgW, nImgH, Stream);
+      finally
+        Stream.Free;
+      end;
     end;
   end;
 
@@ -1351,7 +1360,7 @@ begin
   y := y + 3;
   //$dups = "";
   DupCont := 0;
-  if (textoFatura <> '') {and $this->exibirTextoFatura)} then
+  if (textoFatura <> '') and (TACBrNFeDANFEClass(FNFeUtils.DANFEClassOwner).ExibeCampoFatura) then
   begin
     myH := 4;
     myW := Width;
@@ -2529,12 +2538,13 @@ end;
 
 { TNFeDANFeFPDF }
 
-constructor TNFeDANFeFPDF.Create(ANFe: TNFe);
+constructor TNFeDANFeFPDF.Create(ANFe: TNFe; AACBrNFeDANFEClass : TACBrNFeDANFEClass);
 var
   LFormatSettings: TFormatSettings;
 begin
   inherited Create;
-  FNFeUtils := TNFeUtilsFPDF.Create(ANFe);
+  FNFeUtils := TNFeUtilsFPDF.Create(ANFe, AACBrNFeDANFEClass);
+  Self.FDANFEClassOwner := AACBrNFeDANFEClass;
   {$IFDEF HAS_FORMATSETTINGS}
     LFormatSettings := CreateFormatSettings;
   {$ENDIF}
@@ -2543,7 +2553,6 @@ begin
   FNFeUtils.FormatSettings := LFormatSettings;
 
   SetFont('Times');
-  SetMargins(2, 2, 2, 2);
 
   EngineOptions.DoublePass := True;
 end;
@@ -2557,6 +2566,12 @@ end;
 procedure TNFeDANFeFPDF.OnStartReport(Args: TFPDFReportEventArgs);
 var
   LOrientation: TFPDFOrientation;
+  LStream : TMemoryStream;
+  LLogoStringStream : TStringStream;
+  LMargemInferior : Double;
+  LMargemSuperior : Double;
+  LMargemEsquerda : Double;
+  LMargemDireita  : Double;
 begin
   if not FInitialized then
   begin
@@ -2567,14 +2582,64 @@ begin
     else
       LOrientation := poPortrait;
 
+    if FDANFEClassOwner.MargemEsquerda  <> 6 then
+      LMargemEsquerda := FDANFEClassOwner.MargemEsquerda
+    else
+      LMargemEsquerda := 2;
+
+    if FDANFEClassOwner.MargemSuperior <> 8 then
+      LMargemSuperior := FDANFEClassOwner.MargemSuperior
+    else
+      LMargemSuperior := 2;
+
+    if FDANFEClassOwner.MargemDireita  <> 5.1 then
+     LMargemDireita := FDANFEClassOwner.MargemDireita
+    else
+      LMargemDireita  := 2;
+
+    if FDANFEClassOwner.MargemInferior <> 8 then
+      LMargemInferior := FDANFEClassOwner.MargemInferior
+    else
+      LMargemInferior := 2;
+
+    SetMargins(LMargemEsquerda,
+               LMargemSuperior,
+               LMargemDireita,
+               LMargemInferior);
+
+    if FDANFEClassOwner.Logo <> '' then
+    begin
+      LStream := TMemoryStream.Create;
+      try
+        if FileExists(FDANFEClassOwner.Logo) then
+          LStream.LoadFromFile(FDANFEClassOwner.Logo)
+        else
+        begin
+          LLogoStringStream:= TStringStream.Create(FDANFEClassOwner.Logo);
+          try
+            LStream.LoadFromStream(LLogoStringStream);
+            LStream.Position := 0;
+          finally
+            LLogoStringStream.Free;
+          end;
+        end;
+        SetLength(FLogo, LStream.Size);
+        LStream.Position := 0;
+        LStream.Read(FLogo[0], LStream.Size);
+      finally
+        LStream.Free;
+      end;
+    end;
+
     AddPage(LOrientation);
     AddBand(TBlocoCanhoto.Create(PosCanhoto, FNFeUtils));
-    AddBand(TBlocoDadosNFe.Create(FNFeUtils, FLogoBytes, FLogoStretched, FLogoAlign));
+    AddBand(TBlocoDadosNFe.Create(FNFeUtils, FLogo, FLogoStretched, FLogoAlign));
     AddBand(TBlocoDestinatarioRemetente.Create(FNFeUtils));
     AddBand(TBlocoLocalRetirada.Create(FNFeUtils));
     AddBand(TBlocoLocalEntrega.Create(FNFeUtils));
     AddBand(TBlocoFaturaDuplicatas.Create(FNFeUtils));
-    AddBand(TBlocoPagamentos.Create(FNFeUtils));
+    if (FDANFEClassOwner.ExibeCampoDePagamento = eipQuadro) then
+      AddBand(TBlocoPagamentos.Create(FNFeUtils));
     AddBand(TBlocoCalculoImposto.Create(FNFeUtils));
     AddBand(TBlocoTransporte.Create(FNFeUtils));
     AddBand(TBlocoProdutosServicos.Create(FNFeUtils));
@@ -2630,9 +2695,10 @@ begin
   for I := 0 to TACBrNFe(ACBrNFe).NotasFiscais.Count -1 do
   begin
     LNFe := TACBrNFe(ACBrNFe).NotasFiscais[I].NFe;
-    Report := TNFeDANFeFPDF.Create(LNFe);
+    Report := TNFeDANFeFPDF.Create(LNFe,TACBrNFeDANFEClass(TACBrNFe(ACBrNFe).DANFE));
 
-    TNFeDANFeFPDF(Report).PosCanhoto := TNFeDANFeFPDF(TACBrNFe(ACBrNFe).DANFE).PosCanhoto;
+
+    //TNFeDANFeFPDF(Report).PosCanhoto := TNFeDANFeFPDF(TACBrNFe(ACBrNFe).DANFE).PosCanhoto;
 
     TNFeDANFeFPDF(Report).MensagemRodape := Self.Sistema;
 
@@ -2641,7 +2707,8 @@ begin
       try
         Engine.Compressed := True;
 
-        LPath := IncludeTrailingPathDelimiter(ExtractFilePath(TACBrNFe(ACBrNFe).DANFE.NomeDocumento));
+        LPAth := IncludeTrailingPathDelimiter(TACBrNFe(ACBrNFe).DANFE.PathPDF) +
+          ExtractFilePath(TACBrNFe(ACBrNFe).DANFE.NomeDocumento);
 
         Engine.SaveToFile(LPath + LNFe.infNFe.ID+'.pdf');
       finally

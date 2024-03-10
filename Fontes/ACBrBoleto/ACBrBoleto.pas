@@ -36,7 +36,7 @@
 unit ACBrBoleto;
 
 interface
-uses Classes, Graphics, Contnrs, IniFiles,
+uses Classes, {$IFNDEF NOGUI}Graphics,{$ENDIF} Contnrs, IniFiles,
      {$IFDEF FPC}
        LResources,
      {$ENDIF}
@@ -58,6 +58,7 @@ const
   CConta      = 'CONTA';
   CTitulo     = 'TITULO';
   CWebService = 'WEBSERVICE';
+  CArquivos   = 'ARQUIVOS';
 
 type
   TACBrTipoCobranca =
@@ -1293,11 +1294,13 @@ type
    public
      constructor Create(ACBrBoleto:TACBrBoleto);
      destructor Destroy; override;
+     {$IFNDEF NOGUI}
      procedure CarregaLogoEmp( const PictureLogo : TPicture );
+     {$ENDIF}
 
      procedure Imprimir; overload;
      procedure Imprimir(AStream: TStream); overload;
-     procedure GerarPDF; overload;
+     function GerarPDF : string; overload;
      procedure GerarPDF(AStream: TStream); overload;
      procedure EnviarEmail(const sPara, sAssunto: String; sMensagem: TStrings;
       EnviaPDF: Boolean; sCC: TStrings = Nil; Anexos: TStrings = Nil);
@@ -1486,8 +1489,8 @@ type
     procedure Imprimir(AIndice: Integer); overload;
     procedure Imprimir(AStream: TStream); overload;
     procedure Imprimir(AIndice: Integer; AStream: TStream); overload;
-    procedure GerarPDF; overload;
-    procedure GerarPDF(AIndex: Integer); overload;
+    function GerarPDF : string; overload;
+    function GerarPDF(AIndex: Integer) : string; overload;
     procedure GerarPDF(AStream: TStream); overload;
     procedure GerarPDF(AIndex: Integer; AStream: TStream); overload;
     procedure GerarHTML;
@@ -1548,7 +1551,10 @@ type
   {TACBrBoletoFCClass}
   TACBrBoletoFCFiltro = (fiNenhum, fiPDF, fiHTML, fiJPG) ;
 
+  {$IFNDEF NOGUI}
   TACBrBoletoFCOnObterLogo = procedure( const PictureLogo : TPicture; const NumeroBanco: Integer ) of object ;
+  {$ENDIF}
+
 
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
@@ -1565,7 +1571,11 @@ type
     fPathNomeArquivo : String;
     fNumCopias       : Integer;
     fPrinterName     : String;
+
+    {$IFNDEF NOGUI}
     fOnObterLogo     : TACBrBoletoFCOnObterLogo ;
+    {$ENDIF}
+
     fSoftwareHouse   : String;
     FPdfSenha        : string;
     FTituloPreview   : string;
@@ -1605,20 +1615,26 @@ type
 
     procedure Imprimir; overload; virtual;
     procedure Imprimir(AStream: TStream); overload; virtual;
-    procedure GerarPDF; overload; virtual;
-    procedure GerarPDF(AIndex: Integer); overload; virtual;
+    function GerarPDF : string; overload; virtual;
+    function GerarPDF(AIndex: Integer) : string; overload; virtual;
     procedure GerarPDF(AStream: TStream); overload; virtual;
     procedure GerarPDF(AIndex: Integer; AStream: TStream); overload; virtual;
     procedure GerarHTML; virtual;
     procedure GerarJPG; virtual;
 
-    procedure CarregaLogo( const PictureLogo : TPicture; const NumeroBanco: Integer ) ;
+   {$IFNDEF NOGUI}
+   procedure CarregaLogo( const PictureLogo : TPicture; const NumeroBanco: Integer ) ;
+   {$ENDIF}
+
 
     property ArquivoLogo : String read GetArquivoLogo;
     property IndiceImprimirIndividual: Integer read GetIndiceImprimirIndividual  write SetIndiceImprimirIndividual   default -1;
 
   published
+
+    {$IFNDEF NOGUI}
     property OnObterLogo     : TACBrBoletoFCOnObterLogo read fOnObterLogo write fOnObterLogo ;
+    {$ENDIF}
     property ACBrBoleto      : TACBrBoleto     read fACBrBoleto       write SetACBrBoleto stored False;
     property LayOut          : TACBrBolLayOut  read fLayOut           write fLayOut           default lPadrao;
     property MostrarPreview  : Boolean         read fMostrarPreview   write fMostrarPreview   default True ;
@@ -2852,11 +2868,14 @@ begin
    fTotalParcelas := AValue;
 end;
 
+  {$IFNDEF NOGUI}
 procedure TACBrTitulo.CarregaLogoEmp(const PictureLogo: TPicture);
 begin
   if FileExists( ArquivoLogoEmp ) then
     PictureLogo.LoadFromFile( ArquivoLogoEmp );
 end;
+  {$ENDIF}
+
 
 procedure TACBrTitulo.Imprimir;
 begin
@@ -2880,7 +2899,7 @@ begin
   ACBrBoleto.Imprimir(fACBrBoleto.ListadeBoletos.IndexOf(Self), AStream);
 end;
 
-procedure TACBrTitulo.GerarPDF;
+function TACBrTitulo.GerarPDF : string;
 begin
   if not Assigned(ACBrBoleto.ACBrBoletoFC) then
     raise Exception.Create( ACBrStr('Nenhum componente "ACBrBoletoFC" associado' ) ) ;
@@ -2888,7 +2907,7 @@ begin
   if (fACBrBoleto.ListadeBoletos.Count <= 0)  then
     raise Exception.Create( ACBrStr('Nenhum Título encontrado na Lista de Boletos' ) ) ;
 
-  ACBrBoleto.GerarPDF(fACBrBoleto.ListadeBoletos.IndexOf(Self));
+  Result := ACBrBoleto.GerarPDF(fACBrBoleto.ListadeBoletos.IndexOf(Self));
 end;
 
 procedure TACBrTitulo.GerarPDF(AStream: TStream);
@@ -3124,24 +3143,24 @@ begin
    end;
 end;
 
-procedure TACBrBoleto.GerarPDF;
+function TACBrBoleto.GerarPDF : string;
 begin
    if not Assigned(ACBrBoletoFC) then
       raise Exception.Create( ACBrStr('Nenhum componente "ACBrBoletoFC" associado' ) ) ;
 
    ChecarDadosObrigatorios;
 
-   ACBrBoletoFC.GerarPDF;
+   Result := ACBrBoletoFC.GerarPDF;
 end;
 
-procedure TACBrBoleto.GerarPDF(AIndex: Integer);
+function TACBrBoleto.GerarPDF(AIndex: Integer) : string;
 begin
   if not Assigned(ACBrBoletoFC) then
       raise Exception.Create( ACBrStr('Nenhum componente "ACBrBoletoFC" associado' ) ) ;
 
    ChecarDadosObrigatorios;
 
-   ACBrBoletoFC.GerarPDF(AIndex);
+   Result := ACBrBoletoFC.GerarPDF(AIndex);
 end;
 
 procedure TACBrBoleto.GerarPDF(AStream: TStream);
@@ -3295,7 +3314,7 @@ begin
   if ATitulo.MultaValorFixo then
     AValorMulta := ATitulo.PercentualMulta
   else
-    AValorMulta := CalcularPercentualValor(ATitulo.PercentualMulta,ATitulo.ValorDocumento) / 100;
+    AValorMulta := RoundABNT((ATitulo.PercentualMulta / 100) * ATitulo.ValorDocumento,2);
 
   if (ATitulo.DataMulta <> 0) and (ATitulo.DataMulta > ATitulo.Vencimento) then
     ATipoMulta := 'a partir de ' + FormatDateTime('dd/mm/yyyy',ATitulo.DataMulta)
@@ -3542,7 +3561,6 @@ begin
        AStream.Position := 0;
        SlRetorno.LoadFromStream(AStream);
      end;
-
      if SlRetorno.Count < 1 then
         raise exception.Create(ACBrStr('O Arquivo de Retorno:'+sLineBreak+
                                        NomeArq + sLineBreak+
@@ -3690,14 +3708,21 @@ end;
 
 function TACBrBoleto.GetOcorrenciasRemessa(): TACBrOcorrenciasRemessa;
 var I: Integer;
+  LACBrOcorrenciasRemessa : TACBrOcorrenciasRemessa;
+  LOcorrencia : String;
 begin
-  SetLength(Result, 77);
-
-  for I := 1 to 48 do
+  SetLength(LACBrOcorrenciasRemessa, 0);
+  for I := Ord(Low(TACBrTipoOcorrencia)) to Ord(High(TACBrTipoOcorrencia)) do
   begin
-    Result[I-1].Tipo := TACBrTipoOcorrencia(I-1);
-    Result[I-1].descricao := cACBrTipoOcorrenciaDecricao[TACBrTipoOcorrencia(I-1)];
+    LOcorrencia := GetEnumName(TypeInfo(TACBrTipoOcorrencia), I);
+    if Copy(LOcorrencia, 1, Length('toRemessa')) = 'toRemessa' then
+    begin
+      SetLength(LACBrOcorrenciasRemessa, Length(LACBrOcorrenciasRemessa) + 1);
+      LACBrOcorrenciasRemessa[High(LACBrOcorrenciasRemessa)].Tipo := TACBrTipoOcorrencia(I);
+      LACBrOcorrenciasRemessa[High(LACBrOcorrenciasRemessa)].descricao := cACBrTipoOcorrenciaDecricao[TACBrTipoOcorrencia(I)];
+    end;
   end;
+  Result := LACBrOcorrenciasRemessa;
 end;
 
 function TACBrBoleto.GetTipoCobranca(NumeroBanco: Integer; Carteira: String = ''): TACBrTipoCobranca;
@@ -3842,6 +3867,7 @@ begin
       end;
 
 
+
       //Banco
       if IniBoletos.SectionExists('Banco') then
       begin
@@ -3919,6 +3945,11 @@ begin
         Result := True;
       end;
 
+      if IniBoletos.SectionExists('ARQUIVOS') then
+      begin
+        Configuracoes.Arquivos.LogRegistro        := IniBoletos.ReadBool(CArquivos,'LogRegistro', Configuracoes.Arquivos.LogRegistro);
+        Configuracoes.Arquivos.PathGravarRegistro := IniBoletos.ReadString(CArquivos,'PathGravarRegistro', Configuracoes.Arquivos.PathGravarRegistro);
+      end;
       if IniBoletos.SectionExists('WEBSERVICE') then
       begin
         CedenteWS.ClientID                  := IniBoletos.ReadString(CWebService,'ClientID', CedenteWS.ClientID);
@@ -4115,6 +4146,9 @@ begin
       end;
     end;
 
+
+
+
     //Filtro para Consulta por API
     if (IniBoletos.SectionExists('ConsultaAPI')) then
     begin
@@ -4174,8 +4208,7 @@ var
   J: Integer;
 begin
   Result:= '';
-  if Pos(PathDelim,DirIniRetorno) <> Length(DirIniRetorno) then
-     DirIniRetorno:= DirIniRetorno + PathDelim;
+  DirIniRetorno:= PathWithDelim(DirIniRetorno);
 
   IniRetorno:= TMemIniFile.Create(DirIniRetorno + IfThen( EstaVazio(NomeArquivo), 'Retorno.ini', NomeArquivo ) );
   try
@@ -4244,6 +4277,10 @@ begin
        IniRetorno.WriteBool(CBanco,'LerNossoNumeroCompleto',LerNossoNumeroCompleto);
        IniRetorno.WriteBool(CBanco,'RemoveAcentosArqRemessa',RemoveAcentosArqRemessa);
 
+       { ARQUIVOS }
+       IniRetorno.WriteBool(CArquivos,'LogRegistro',Configuracoes.Arquivos.LogRegistro);
+       IniRetorno.WriteString(CArquivos,'PathGravarRegistro',Configuracoes.Arquivos.PathGravarRegistro);
+
        { WEBSERVICES }
        IniRetorno.WriteString(CWebService,'ClientID',Cedente.CedenteWS.ClientID);
        IniRetorno.WriteString(CWebService,'ClientSecret',Cedente.CedenteWS.ClientSecret);
@@ -4296,7 +4333,7 @@ begin
     SL:= TStringList.Create;
     try
       IniRetorno.GetStrings(SL);
-      Result:= SL.Text;
+      Result:= ACBrStr(SL.Text);
     finally
       SL.Free;
     end;
@@ -4810,7 +4847,7 @@ begin
            '01'                                               +  { Código do Tipo de Serviço }
            PadRight('COBRANCA', 15)                           +  { Descrição do tipo de serviço }
            PadLeft(ACBrBanco.ACBrBoleto.Cedente.CodigoCedente, 20, '0') + { Codigo da Empresa no Banco }
-           PadRight(Nome, 30)                                 +  { Nome da Empresa }
+           PadRight(ACBrBanco.ACBrBoleto.Cedente.Nome, 30)              +  { Nome da Empresa }
            IntToStrZero(fpNumero, 3)                          +  { Código do Banco 091 }
            PadRight(fpNome, 15)                               +  { Nome do Banco }
            FormatDateTime('ddmmyy', LDataArquivo)             +  { Data de geração do arquivo }
@@ -5106,7 +5143,7 @@ begin
                 if (i = 0) then
                  begin
                    {Somente estas ocorrencias possuem motivos 00}
-                   if(CodOcorrencia in [02, 06, 09, 10, 15, 17])then
+                   if(CodOcorrencia in [02, 06, 09, 10, 12 ,13, 14, 15 ,17])then
                     begin
                       MotivoRejeicaoComando.Add(IfThen(copy(Linha,MotivoLinha,2) = '  ','00',copy(Linha,MotivoLinha,2)));
                       if VarIsNumeric(CodMotivo) then
@@ -5465,19 +5502,16 @@ begin
   if (ATitulo.CodigoMoraJuros in [cjTaxaMensal, cjValorMensal]) or (ATitulo.CodigoMora = '2') or (ATitulo.CodigoMora = 'B') then
     Result := ATitulo.ValorMoraJuros
   else
-    Result := ATitulo.fACBrBoleto.CalcularPercentualValor(ATitulo.ValorMoraJuros, ATitulo.ValorDocumento) * 100;
+    Result := RoundABNT((ATitulo.ValorMoraJuros / 100 ) * ATitulo.ValorDocumento, 2);
 end;
 
 function TACBrBancoClass.CalcularPadraoMulta(ATitulo: TACBrTitulo): Double;
 begin
   if (ATitulo.MultaValorFixo) then
   begin
-    if (ATitulo.ValorDocumento > 0) then
-      Result := Self.ACBrBanco.ACBrBoleto.CalcularPercentualValor(ATitulo.PercentualMulta, ATitulo.ValorDocumento)
-    else
-      Result := 0;
+    Result := (ATitulo.PercentualMulta * 100);
   end else
-      Result := ATitulo.PercentualMulta;
+    Result := ATitulo.PercentualMulta;
 end;
 
 function TACBrBancoClass.ValidarDadosRetorno(const AAgencia, AContaCedente: String; const ACNPJCPF: String= '';
@@ -6230,6 +6264,7 @@ begin
             ' Conta:'+ACBrBoleto.Cedente.Conta+'-'+ACBrBoleto.Cedente.ContaDigito;
 end;
 
+  {$IFNDEF NOGUI}
 procedure TACBrBoletoFCClass.CarregaLogo(const PictureLogo : TPicture; const NumeroBanco: Integer ) ;
 begin
   if Assigned( fOnObterLogo ) then
@@ -6240,6 +6275,8 @@ begin
         PictureLogo.LoadFromFile( ArquivoLogo );
    end ;
 end ;
+  {$ENDIF}
+
 
 procedure TACBrBoletoFCClass.SetACBrBoleto ( const Value: TACBrBoleto ) ;
   Var OldValue : TACBrBoleto ;
@@ -6420,7 +6457,7 @@ begin
       raise Exception.Create(ACBrStr('Lista de Boletos está vazia'));
 end;
 
-procedure TACBrBoletoFCClass.GerarPDF;
+function TACBrBoletoFCClass.GerarPDF : string;
 var
    FiltroAntigo         : TACBrBoletoFCFiltro;
    MostrarPreviewAntigo : Boolean;
@@ -6466,19 +6503,20 @@ begin
      MostrarPreview := MostrarPreviewAntigo;
      MostrarSetup   := MostrarSetupAntigo;
      PrinterName    := PrinterNameAntigo;
+     Result         := NomeArquivo;
      if CalcularIndividual then
        NomeArquivo := NomeArquivoAntigo;
    end;
 end;
 
-procedure TACBrBoletoFCClass.GerarPDF(AIndex: Integer);
+function TACBrBoletoFCClass.GerarPDF(AIndex: Integer) : string;
 var
    AOldIndex: Integer;
 begin
   AOldIndex := FIndiceImprimirIndividual;
   try
     FIndiceImprimirIndividual := AIndex;
-    GerarPDF;
+    Result := GerarPDF;
   finally
     FIndiceImprimirIndividual := AOldIndex;
   end;

@@ -96,6 +96,11 @@ procedure TACBrNFSeProviderPublicSoft203.Configuracao;
 begin
   inherited Configuracao;
 
+  ConfigGeral.Autenticacao.RequerLogin := True;
+  ConfigGeral.Autenticacao.RequerChaveAcesso := True;
+
+  ConfigGeral.ServicosDisponibilizados.GerarToken := True;
+
   with ConfigAssinar do
   begin
     Rps               := True;
@@ -451,7 +456,7 @@ begin
   begin
     Result := inherited TratarXmlRetornado(aXML);
 
-    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+    Result := ParseText(Result);
     Result := RemoverDeclaracaoXML(Result);
     Result := RemoverIdentacao(Result);
     Result := RemoverCaracteresDesnecessarios(Result);
@@ -469,8 +474,7 @@ begin
                 '</ListaMensagemRetorno>' +
               '</a>';
 
-    Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
-    Result := String(NativeStringToUTF8(Result));
+    Result := ParseText(Result);
   end;
 end;
 

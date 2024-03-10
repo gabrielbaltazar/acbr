@@ -54,7 +54,7 @@ uses
   {$ELSE}
    Contnrs,
   {$IFEND}
-  ACBrBase, pcnConversao, pcnConsts,
+  ACBrBase, pcnConversao,
   pcesCommon, pcesConversaoeSocial, pcesGerador, pcnLeitor;
 
 type
@@ -723,7 +723,8 @@ begin
 
     if Leitor.rExtrai(1, 'evtAdmissao') <> '' then
     begin
-      Id := Leitor.rCampo(tcStr, 'Id');
+      if Self.Id = '' then
+        Self.Id := Leitor.rAtributo('Id=');
 
       if Leitor.rExtrai(2, 'ideEvento') <> '' then
       begin

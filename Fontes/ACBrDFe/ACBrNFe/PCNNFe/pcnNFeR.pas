@@ -99,7 +99,7 @@ end;
 function TNFeR.LerXml: Boolean;
 var
   ok: Boolean;
-  i, j, k, nItem: Integer;
+  i, j, k, nItem, idx: Integer;
   Arquivo, Itens, ItensTemp, VersaoInfNFe, NumItem: String;
   Aspas, tagPag: String;
 begin
@@ -417,7 +417,25 @@ begin
       (*I05d*)NFe.Det[i].Prod.indEscala := StrToindEscala(ok, Leitor.rCampo(tcStr, 'indEscala'));
       (*I05e*)NFe.Det[i].Prod.CNPJFab   := Leitor.rCampo(tcStr, 'CNPJFab');
       (*I05f*)NFe.Det[i].Prod.cBenef    := Leitor.rCampo(tcStr, 'cBenef');
+
+      idx := 0;
+      NFe.Det[i].Prod.CredPresumido.Clear;
+      while Leitor.rExtrai(2, 'cCredPresumido', '', idx + 1) <> '' do
+      begin
+        NFe.Det[i].Prod.CredPresumido.New;
+        NFe.Det[i].Prod.CredPresumido[idx].cCredPresumido := Leitor.rCampo(tcStr, 'cCredPresumido');
+
+        Leitor.rExtrai(2, 'pCredPresumido', '', idx + 1);
+        NFe.Det[i].Prod.CredPresumido[idx].pCredPresumido := Leitor.rCampo(tcDe2, 'pCredPresumido');
+
+        Leitor.rExtrai(2, 'vCredPresumido', '', idx + 1);
+        NFe.Det[i].Prod.CredPresumido[idx].vCredPresumido := Leitor.rCampo(tcDe2, 'vCredPresumido');
+
+        inc(idx);
+      end;
     end;
+
+    Leitor.rExtrai(2, 'prod');
     (*I06*)NFe.Det[i].Prod.EXTIPI   := Leitor.rCampo(tcStr, 'EXTIPI');
     //(*I07*)NFe.Det[i].Prod.genero := Leitor.rCampo(tcInt, 'genero');
     (*I08*)NFe.Det[i].Prod.CFOP     := Leitor.rCampo(tcEsp, 'CFOP');
@@ -708,11 +726,18 @@ begin
              NFe.Det[i].Imposto.ICMS.qBCMono := Leitor.rCampo(tcDe4, 'qBCMono');
              NFe.Det[i].Imposto.ICMS.qBCMonoReten := Leitor.rCampo(tcDe4, 'qBCMonoReten');
              NFe.Det[i].Imposto.ICMS.pRedAdRem := Leitor.rCampo(tcDe4, 'pRedAdRem');
-             NFe.Det[i].Imposto.ICMS.motRedAdRem := StrTomotRedAdRem(ok, Leitor.rCampo(tcStr, 'motRedAdRem'));
+
+             if NFe.Det[i].Imposto.ICMS.pRedAdRem <> 0 then
+               NFe.Det[i].Imposto.ICMS.motRedAdRem := StrTomotRedAdRem(ok, Leitor.rCampo(tcStr, 'motRedAdRem'));
+
              NFe.Det[i].Imposto.ICMS.qBCMonoRet := Leitor.rCampo(tcDe4, 'qBCMonoRet');
              NFe.Det[i].Imposto.ICMS.vICMSMonoOp := Leitor.rCampo(tcDe2, 'vICMSMonoOp');
 
       (*N26b*)NFe.Det[i].Imposto.ICMS.vICMSSubstituto := Leitor.rCampo(tcDe2, 'vICMSSubstituto');
+
+             NFe.Det[i].Imposto.ICMS.indDeduzDeson := StrToTIndicador(ok, Leitor.rCampo(tcStr, 'indDeduzDeson'));
+
+             NFe.Det[i].Imposto.ICMS.cBenefRBC := Leitor.rCampo(tcStr, 'cBenefRBC');
 
       if Leitor.rExtrai(4, 'ICMSPart') <> '' then
       begin
@@ -1047,12 +1072,20 @@ begin
       (*YA02*)NFe.pag[i].tPag := StrToFormaPagamento(ok, Leitor.rCampo(tcStr, 'tPag'));
               NFe.pag[i].xPag := Leitor.rCampo(tcStr, 'xPag');
       (*YA03*)NFe.pag[i].vPag := Leitor.rCampo(tcDe2, 'vPag');
+              NFe.pag[i].dPag := Leitor.rCampo(tcDat, 'dPag');
+
+              NFe.pag[i].CNPJPag := Leitor.rCampo(tcStr, 'CNPJPag');
+              NFe.pag[i].UFPag := Leitor.rCampo(tcStr, 'UFPag');
+
       if Leitor.rExtrai(2, 'card') <> '' then
        begin
         (*YA04a*)NFe.pag[i].tpIntegra := StrTotpIntegra(ok, Leitor.rCampo(tcStr, 'tpIntegra'));
         (*YA05*)NFe.pag[i].CNPJ  := Leitor.rCampo(tcStr, 'CNPJ');
         (*YA06*)NFe.pag[i].tBand := StrToBandeiraCartao(ok, Leitor.rCampo(tcStr, 'tBand'));
         (*YA07*)NFe.pag[i].cAut  := Leitor.rCampo(tcStr, 'cAut');
+
+                NFe.pag[i].CNPJReceb := Leitor.rCampo(tcStr, 'CNPJReceb');
+                NFe.pag[i].idTermPag := Leitor.rCampo(tcStr, 'idTermPag');
        end;
       inc(i);
     end;

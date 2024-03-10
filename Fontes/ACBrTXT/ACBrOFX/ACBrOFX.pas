@@ -37,6 +37,7 @@ unit ACBrOFX;
 interface
 
 uses
+  ACBrBase,
   SysUtils,
   Classes, 
   StrUtils;
@@ -53,7 +54,10 @@ type
   end;
 
 type
-  TACBrOFX = class(TComponent)
+  {$IFDEF RTL230_UP}
+  [ComponentPlatformsAttribute(piacbrAllPlatforms)]
+  {$ENDIF RTL230_UP}
+  TACBrOFX = class(TACBrComponent)
   private
     FOFXFile: string;
     FListItems: TList;
@@ -169,6 +173,7 @@ var
     function IsUTC(const LLine: string; var LFuso: Extended): Boolean;
     var
       LInicio, LFim: Integer;
+      LTime: String;
     begin
       Result := Pos('GMT',LLine) > 0;
       if Result then
@@ -176,6 +181,10 @@ var
         LInicio := Pos('[',LLine);
         LFim    := Pos(':',LLine);
         LFuso   := StrToFloat(Copy(LLine, LInicio + 1, LFim - LInicio - 1));
+        LTime   := Copy(LLine, 7, LInicio-7);
+        // Quando for mais que 6 dígitos, indica ser um horário e não um fator.
+        // Assim, os dígitos 7 e 8 são o dia como em um datetime padrão.
+        Result  := (Length(LTime) <= 6);
       end else
        LFuso := 0;
     end;
@@ -194,6 +203,7 @@ begin
   Clear;
   DateStart := '';
   DateEnd   := '';
+  BankName  := '';
   bOFX      := false;
 
   if not FileExists(FOFXFile) then

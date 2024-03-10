@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Isaque Pinheiro								   }
+{ Colaboradores nesse arquivo: Isaque Pinheiro                                 }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -42,6 +42,7 @@
 *******************************************************************************}
 
 unit ACBrSpedContabil;
+{$I ACBr.inc}
 
 interface
 
@@ -85,6 +86,7 @@ type
     FBloco_J: TBloco_J;
     FBloco_K: TBloco_K;
     FReplaceDelimitador: Boolean;
+    FDeveAtualizarTotalLinhasNosRegistros: Boolean;
 
     function GetDelimitador: String;
     function GetReplaceDelimitador: Boolean;
@@ -109,6 +111,9 @@ type
     procedure InicializaBloco(Bloco: TACBrSPED);
     procedure SetArquivo(const Value: String);
     function GetConteudo: TStringList;
+
+    procedure SubstituiMascaraPorQTDLinhasEmArquivoFinal(const Mascara, Texto:
+        string);
 
   protected
     procedure WriteRegistro0990;
@@ -175,7 +180,7 @@ type
     procedure WriteBloco_9;
     procedure WriteRegistro9001;
     // TOTAIS
-    procedure TotalizarTermos;
+    procedure AtualizarTotalLinhasEmArquivoFinal;
 
     property Conteudo: TStringList read GetConteudo;
 
@@ -202,12 +207,13 @@ type
 
     property LinhasBuffer : Integer read GetLinhasBuffer write SetLinhasBuffer
       default 1000 ;
+    property DeveAtualizarTotalLinhasNosRegistros: Boolean read FDeveAtualizarTotalLinhasNosRegistros write FDeveAtualizarTotalLinhasNosRegistros default True;
   end;
 
 implementation
 
 Uses
-  StrUtils, Math, Types, ACBrUtil.Strings, ACBrUtil.FilesIO,
+  StrUtils, Math, Types, ACBrUtil.Strings, ACBrUtil.FilesIO, StrUtilsEx,
   ACBrECDBloco_9, ACBrECDBloco_I, ACBrECDBloco_K ;
 
 resourcestring
@@ -227,6 +233,7 @@ begin
   FACBrTXT.LinhasBuffer := 1000 ;
 
   FInicializado := False;
+  FDeveAtualizarTotalLinhasNosRegistros := True;
 
   FBloco_0 := TBloco_0.Create;
   FBloco_C := TBloco_C.Create;
@@ -414,7 +421,8 @@ begin
     WriteBloco_K;
     WriteBloco_9;
 
-    TotalizarTermos;
+    if DeveAtualizarTotalLinhasNosRegistros then
+      AtualizarTotalLinhasEmArquivoFinal;
   finally
     LimpaRegistros;
     FACBrTXT.Conteudo.Clear;
@@ -1226,62 +1234,53 @@ begin
   Result := FACBrTXT.Conteudo;
 end;
 
-procedure TACBrSPEDContabil.TotalizarTermos;
+procedure TACBrSPEDContabil.AtualizarTotalLinhasEmArquivoFinal;
 var
-  fs: TFileStream;
-  sByte, sByteNew: Byte;
-  iInc, iEnd, iCont, iIni : Integer;
-  sTotal, sChar : String;
+  sTotal: String;
 begin
-  sTotal := FACBrTXT.LFill(Bloco_9.Registro9999.QTD_LIN, 9, false);
-  sChar := '';
-  iCont:=0;
-  fs := TFileStream.Create(FACBrTXT.NomeArquivo, fmOpenReadWrite or fmShareExclusive );
+  sTotal := FACBrTXT.LFill(Bloco_9.Registro9999.QTD_LIN, 9, False);
 
-//******************************************************************************
-// iEnd : soma a quantidade de vezes que encontra o caracter '[' dentro do
-// arquivo, no momento que enontra 2 vezes encerra a alteração dos totalizadores
-// do arquivo e encerra o laço de repetição.
-//******************************************************************************
+  SubstituiMascaraPorQTDLinhasEmArquivoFinal(sIndicadorQTDLinhasArquivo, sTotal);
+end;
+
+procedure TACBrSPEDContabil.SubstituiMascaraPorQTDLinhasEmArquivoFinal(const Mascara, Texto: string);
+var
+  ArquivoTextoIn, ArquivoTextoOut: TextFile;
+  NomeArquivoTemp: string;
+  sLinhaAtual, idRegistroAtual : String;
+  TamanhoMascara: Integer;
+begin
+  TamanhoMascara := Length(Mascara);
+  NomeArquivoTemp := ChangeFileExt(FACBrTXT.NomeArquivo, '.tmp');
+  AssignFile(ArquivoTextoOut, NomeArquivoTemp);
   try
-    iEnd := 0;
-    while iEnd <> 2 do
-    begin
-      fs.Position := iCont;
-      fs.Read(sByte, 1);
-      if (Chr(sByte) = '[') then
+    Rewrite(ArquivoTextoOut);
+    AssignFile(ArquivoTextoIn, FACBrTXT.NomeArquivo);
+    try
+      Reset(ArquivoTextoIn);
+      while not Eof(ArquivoTextoIn) do
       begin
-        fs.Position := iCont;
-        iIni := iCont;
-        sChar := '';
-
-        for iInc := 1 to 9 do
+        Readln(ArquivoTextoIn, sLinhaAtual);
+        idRegistroAtual := Copy(sLinhaAtual, 1, 6);
+        if (idRegistroAtual = '|I030|' ) or (idRegistroAtual = '|J900|' ) then
         begin
-          fs.Position := iCont;
-          fs.Read(sByte, 1);
-          sChar := sChar + Chr(sByte);
-          Inc(iCont);
+          sLinhaAtual := FastStringReplace(sLinhaAtual, Mascara, Texto, []);
         end;
-
-        if (sChar = '[*******]') then
-        begin
-          for iInc := 1 to 9 do
-          begin
-            fs.Position := iIni;
-            sByteNew := Ord(sTotal[iInc]);
-            fs.Write(sByteNew,1);
-            Inc(iIni);
-          end;
-          Inc(iEnd);
-        end;
+        Writeln(ArquivoTextoOut, sLinhaAtual);
       end;
-      Inc(iCont);
-    end;
     finally
-    begin
-      FreeAndNil(fs);
+      Close(ArquivoTextoIn)
     end;
+  finally
+    Close(ArquivoTextoOut)
   end;
+
+  if RenameFile( FACBrTXT.NomeArquivo , ChangeFileExt(FACBrTXT.NomeArquivo, '.old')) then
+    if RenameFile( NomeArquivoTemp , FACBrTXT.NomeArquivo) then
+    begin
+      SysUtils.DeleteFile( ChangeFileExt(FACBrTXT.NomeArquivo, '.old') );
+    end;
+
 end;
 
 {$ifdef FPC}

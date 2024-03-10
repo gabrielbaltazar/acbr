@@ -45,7 +45,7 @@ uses
   {$ELSE}
   Graphics, Controls, Forms,
   {$ENDIF}
-  RLReport, RLBarcode, ACBrNFeDANFeRL, RLFilters, RLPDFFilter, math;
+  RLReport, RLBarcode, ACBrNFeDANFeRL, RLFilters, RLPDFFilter, math, ACBrDFeDANFeReport;
 
 type
 
@@ -164,6 +164,7 @@ type
     C: TRLLabel;
     RLLabelLIQ: TRLLabel;
     rlmProdutoDescricao: TRLMemo;
+    rlb05b_Desc_Itens_Cont: TRLBand;
     procedure RLb02_EmitenteBeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure RLb03_DadosGeraisBeforePrint(Sender: TObject; var PrintIt: Boolean);
     procedure RLb04_DestinatarioBeforePrint(Sender: TObject; var PrintIt: Boolean);
@@ -539,8 +540,9 @@ procedure TfrlDANFeRLSimplificado.rlb05b_Desc_ItensBeforePrint(Sender: TObject; 
   function ManterinfAdProd(sXProd: String; sinfAdProd: String): String;
   begin
     Result := sXProd;
-    if NaoEstaVazio(sinfAdProd) then
-      Result := Result + sLineBreak  + sLineBreak + ' InfAd: ' + sinfAdProd;
+
+    if (NaoEstaVazio(sinfAdProd) and (fpDANFe.ExibeInforAdicProduto <> infNenhum)) then
+       Result := Result + sLineBreak  + sLineBreak + ' InfAd: ' + sinfAdProd;
   end;
 
 begin

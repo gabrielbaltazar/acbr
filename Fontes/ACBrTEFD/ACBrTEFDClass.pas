@@ -92,7 +92,8 @@ type
   TACBrTEFDTipo = ( gpNenhum, gpTefDial, gpTefDisc, gpHiperTef, gpCliSiTef,
                     gpTefGpu, gpVeSPague, gpBanese, gpTefAuttar, gpGoodCard,
                     gpFoxWin, gpCliDTEF, gpPetrocard, gpCrediShop, gpTicketCar,
-                    gpConvCard, gpCappta, gpPayGo, gpPayGoWeb, gpCliSiTefModular, gpTefDirecao) ;
+                    gpConvCard, gpCappta, gpPayGo, gpPayGoWeb, gpCliSiTefModular, gpTefDirecao,
+                    gpTefDialScopeGetcard) ;
 
   TACBrTEFDReqEstado = ( reqNenhum,             // Nennhuma Requisição em andamento
                          reqIniciando,          // Iniciando uma nova Requisicao
@@ -491,7 +492,7 @@ implementation
 Uses
   dateutils, StrUtils, Math, {$IFDEF FMX} System.Types {$ELSE} types{$ENDIF},
   ACBrTEFD, ACBrTEFDCliSiTef, ACBrTEFCliSiTefComum, ACBrTEFDVeSPague,
-  ACBrTEFDPayGo, ACBrTEFDPayGoWeb,
+  ACBrTEFDPayGo, ACBrTEFDPayGoWeb, ACBrTEFDDialScopeGetcard,
   ACBrUtil.Strings,
   ACBrUtil.Base,
   ACBrUtil.FilesIO;
@@ -2284,6 +2285,7 @@ begin
     gpVeSPague: Result := TACBrTEFDRespVeSPague.Create;
     gpPayGo: Result := TACBrTEFDRespPayGo.Create;
     gpPayGoWeb: Result := TACBrTEFDRespPayGoWeb.Create;
+    gpTefDialScopeGetcard: Result := TACBrTEFDRespScopeGetcard.Create;
   else
     Result := TACBrTEFDRespTXT.Create;
   end;

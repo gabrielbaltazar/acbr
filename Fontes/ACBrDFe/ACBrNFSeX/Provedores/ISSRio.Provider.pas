@@ -192,7 +192,7 @@ function TACBrNFSeXWebserviceISSRio.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
 end;
 
 { TACBrNFSeProviderISSRio }
@@ -202,6 +202,8 @@ begin
   inherited Configuracao;
 
   ConfigGeral.QuebradeLinha := '&#xA;';
+
+  ConfigGeral.ServicosDisponibilizados.EnviarUnitario := True;
 
   with ConfigAssinar do
   begin

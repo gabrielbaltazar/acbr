@@ -397,7 +397,7 @@ function TACBrNFSeXWebserviceISSNet.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
@@ -622,7 +622,7 @@ function TACBrNFSeXWebserviceISSNet204.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
   Result := RemoverIdentacao(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
@@ -637,6 +637,8 @@ begin
   with ConfigGeral do
   begin
     ConsultaPorFaixaPreencherNumNfseFinal := True;
+
+    ServicosDisponibilizados.ConsultarLinkNfse := True;
   end;
 
   with ConfigAssinar do
@@ -1022,11 +1024,9 @@ begin
                                '<Pedido>' +
                                  '<Prestador>' +
                                    '<CpfCnpj>' +
-                                       IfThen(Length(OnlyNumber(Emitente.CNPJ)) >= 11,
-                                             '<Cnpj>' + OnlyNumber(Emitente.CNPJ) + '</Cnpj>',
-                                             '<Cpf>' + OnlyNumber(Emitente.CNPJ) + '</Cpf>') +
+                                     GetCpfCnpj(Emitente.CNPJ) +
                                    '</CpfCnpj>' +
-                                   '<InscricaoMunicipal>' + OnlyNumber(Emitente.InscMun) + '</InscricaoMunicipal>' +
+                                   GetInscMunic(Emitente.InscMun) +
                                  '</Prestador>' +
                                IfThen(not EstaVazio(Response.InfConsultaLinkNFSe.NumeroNFSe),
                                     '<NumeroNfse>' + Response.InfConsultaLinkNFSe.NumeroNFSe + '</NumeroNfse>',

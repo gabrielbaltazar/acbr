@@ -52,7 +52,7 @@ uses
 
 const
   cMateraURLSandbox       = 'https://mtls-mp.hml.flagship.maas.link';
-  cMateraURLProducao      = '';
+  cMateraURLProducao      = 'https://mtls-mp.prd.flagship.maas.link';
   cMateraPathAuthToken    = '/auth/realms/Matera/protocol/openid-connect/token';
   cMateraURLAuthTeste     = cMateraURLSandbox+cMateraPathAuthToken;
   cMateraURLAuthProducao  = cMateraURLProducao+cMateraPathAuthToken;
@@ -100,11 +100,11 @@ type
     fDevolucaoResposta: TMateraDevolucaoResponse;
     fMotivosDevolucoes: TMateraReturnCodesQueryResponse;
     fTransacoesResposta: TMateraTransactionResponseArray;
-    fAliasResposta: TMateraAliasResponse;
+    fAliasResposta: TMateraAliasResponseV2;
     fExtratoECResposta: TMaterastatementResponse;
     fSaldoECResposta: TMateraBalanceResponse;
     fSecretKey: String;
-    function GetAliasResposta: TMateraAliasResponse;
+    function GetAliasResposta: TMateraAliasResponseV2;
     function GetChavePIXResposta: TMateraRegisterAliasResponse;
     function GetChavePIXSolicitacao: TMateraAliasRequest;
     function GetChavesPIXResposta: TMateraAliasArray;
@@ -189,13 +189,13 @@ type
       aEnding: TDateTime = 0);
     procedure ConsultarSaldoEC(aAccountId: String);
 
-    property AliasRetiradaResposta: TMateraAliasResponse read GetAliasResposta;
+    property AliasRetiradaResposta: TMateraAliasResponseV2 read GetAliasResposta;
     procedure ConsultarAliasRetirada(aAccountId, aAlias: String);
 
     property DevolucaoMotivos: TMateraReturnCodesQueryResponse read GetReturnCodesQueryResponse;
     property DevolucaoSolicitacao: TMateraDevolucaoRequest read GetDevolucaoSolicitacao;
     property DevolucaoResposta: TMateraDevolucaoResponse read GetDevolucaoResposta;
-    procedure DevolucaoSolicitar(aAccountId, aTransactionID: String);
+    function DevolucaoSolicitar(aAccountId, aTransactionID: String): Boolean;
     procedure DevolucaoConsultarMotivos;
 
     property RetiradaSolicitacao: TMateraRetiradaRequest read GetRetiradaSolicitacao;
@@ -282,6 +282,12 @@ var
 begin
   if (not Assigned(fContaSolicitacao)) or fContaSolicitacao.IsEmpty then
     DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroObjetoNaoPrenchido), ['ContaSolicitada']));
+                             
+  if (ContaSolicitacao.clientType = mctNone) then
+    ContaSolicitacao.clientType := mctCorporate;
+
+  if (ContaSolicitacao.accountType = matNone) then
+    ContaSolicitacao.accountType := matUnlimitedOrdinary;
 
   wBody := Trim(ContaSolicitacao.AsJSON);
   ContaResposta.Clear;
@@ -508,6 +514,7 @@ begin
   if EstaVazio(aAccountId) or EstaVazio(aTransactionID) then
     DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['aAccountId/aTransactionID']));
 
+  fAccountId := aAccountId;
   TransacoesResposta.Clear;
   PrepararHTTP;
   URLPathParams.Add(aTransactionID);
@@ -685,7 +692,7 @@ begin
   AliasRetiradaResposta.Clear;
   PrepararHTTP;
 
-  wOk := AcessarEndPoint(ChttpMethodGET, cMateraEndPointAccounts + '/' +
+  wOk := AcessarEndPoint(ChttpMethodGET, cMateraEndPointAccountsv2 + '/' +
               aAccountId +
               cMateraEndPointAliases + '/' +
               cMateraEndPointCountry + '/' +
@@ -702,13 +709,12 @@ begin
   end;
 end;
 
-procedure TACBrPSPMatera.DevolucaoSolicitar(aAccountId, aTransactionID: String);
+function TACBrPSPMatera.DevolucaoSolicitar(aAccountId, aTransactionID: String): Boolean;
 var
   wOpenSSL: TACBrOpenSSLUtils;
   wURL, wHash, wBody: String;
   wRespHttp: AnsiString;
   wResultCode: Integer;
-  wOk: Boolean;
 begin
   if EstaVazio(aAccountId) or EstaVazio(aTransactionID) then
     DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['aAccountId/aTransactionID']));
@@ -732,12 +738,12 @@ begin
     wOpenSSL.Free;
   end;
 
-  wOk := AcessarEndPoint(ChttpMethodPOST, cMateraEndPointAccounts + '/' +
+  Result := AcessarEndPoint(ChttpMethodPOST, cMateraEndPointAccounts + '/' +
            aAccountId + cMateraEndPointInstant_Payments + '/' + aTransactionID +
            cMateraEndPointReturns, wResultCode, wRespHttp);
-  wOk := wOk and (wResultCode in [HTTP_OK, HTTP_ACCEPTED]);
+  Result := Result and (wResultCode in [HTTP_OK, HTTP_ACCEPTED]);
 
-  if wOk then
+  if Result then
     DevolucaoResposta.AsJSON := String(wRespHttp)
   else
   begin
@@ -778,9 +784,6 @@ var
   wRespHttp: AnsiString;
   wResultCode: Integer;
 begin
-//  if (not Assigned(fChavePIXSolicitacao)) or fChavePIXSolicitacao.IsEmpty then
-//    DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroObjetoNaoPrenchido), ['ChavePIXSolicitacao']));
-
   if EstaVazio(aAccountID) then
     DispararExcecao(EACBrPixException.CreateFmt(ACBrStr(sErroParametroInvalido), ['accountId']));
 
@@ -882,10 +885,10 @@ begin
   Result := fChavePIXResposta;
 end;
 
-function TACBrPSPMatera.GetAliasResposta: TMateraAliasResponse;
+function TACBrPSPMatera.GetAliasResposta: TMateraAliasResponseV2;
 begin
   if (not Assigned(fAliasResposta)) then
-    fAliasResposta := TMateraAliasResponse.Create('data');
+    fAliasResposta := TMateraAliasResponseV2.Create('data');
   Result := fAliasResposta;
 end;
 
@@ -1067,6 +1070,7 @@ begin
       amount := wCob.valor.original;
       currency := 'BRL';
       recipientComment := wCob.solicitacaoPagador;
+      mediatorfee := fMediatorFee;
     end;
 
     Result := QRCodeSolicitacao.AsJSON;

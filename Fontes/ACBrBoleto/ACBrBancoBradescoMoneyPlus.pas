@@ -54,7 +54,7 @@ type
   public
     Constructor create(AOwner: TACBrBanco);
     function MontarCampoNossoNumero(const ACBrTitulo :TACBrTitulo): String; override;
-
+    function MontarCampoCodigoCedente(const ACBrTitulo: TACBrTitulo): String; override;
     procedure GerarRegistroTransacao400(ACBrTitulo : TACBrTitulo; aRemessa: TStringList); override;
     function  GerarRegistroTransacao240(ACBrTitulo: TACBrTitulo): String; override;
 
@@ -127,6 +127,13 @@ begin
    fpModuloMultiplicadorInicial:= 2;
    fpModuloMultiplicadorFinal  := 7;
    fpCodParametroMovimento     := 'MX';
+end;
+
+function TACBrBancoBradescoMoneyPlus.MontarCampoCodigoCedente( const ACBrTitulo: TACBrTitulo): String;
+begin
+  Result := RightStr(ACBrTitulo.ACBrBoleto.Cedente.Agencia,4)+' / '+
+            IntToStr(StrToInt64Def(ACBrTitulo.ACBrBoleto.Cedente.Conta,0))+'-'+
+            ACBrTitulo.ACBrBoleto.Cedente.ContaDigito;
 end;
 
 function TACBrBancoBradescoMoneyPlus.MontarCampoNossoNumero (
@@ -211,7 +218,7 @@ begin
         ATipoOcorrencia                                      + //Código de Movimento Remessa 16 17 2 - Num *C004
         PadLeft(OnlyNumber(ACBrTitulo.ACBrBoleto.Cedente.Agencia), 5, '0') + //18 a 22 - Agência mantenedora da conta
         PadRight(ACBrBoleto.Cedente.AgenciaDigito, 1 , '0')  + //23 -Dígito verificador da agência
-        PadLeft(ACBrBoleto.Cedente.conta, 12, '0')           + //24 a 35 - Número da Conta Corrente
+        PadLeft(ACBrBoleto.Cedente.Conta, 12, '0')           + //24 a 35 - Número da Conta Corrente
         Padleft(ACBrBoleto.Cedente.ContaDigito, 1 , '0')     + //36 a 36 Dígito Verificador da Conta Alfa *G011
         ' '                                                  + //Retornaram que deve gravar vazio .. contrario ao layout
         //PadLeft(Copy(Fconta,Length(Fconta) ,1 ),1, ' ')    + //37-37Dígito Verificador da Ag/Conta 37 37 1 - Alfa *G012
@@ -331,7 +338,7 @@ var
   aCarteira, wLinha, sNossoNumero, sDigitoNossoNumero, sTipoBoleto: String;
   aPercMulta: Double;
   LBanco, LTipoEmissaoBoleto, LAvisoDebitoAuto, LQtdePagamento, LInstrucoesProtesto,
-  LMensagemCedente : String;
+  LMensagemCedente, LDebitoAutomatico, LTipoAvalista : String;
 
 begin
    with ACBrTitulo do
@@ -361,17 +368,25 @@ begin
      { Converte valor em moeda para percentual, pois o arquivo só permite % }
      aPercMulta := ConverterMultaPercentual(ACBrTitulo);
 
+     {Tipo de Avalista}
+     LTipoAvalista := DefineTipoSacadoAvalista(ACBrTitulo);
+
       if LayoutVersaoArquivo = 002 then // Grafeno
       begin
         LBanco              := '274';
         LQtdePagamento      := '01';
+        LDebitoAutomatico   := ' ';
+        LMensagemCedente    := PadRight( MensagemCedente, 60 );
       end
       else
       begin
         LTipoEmissaoBoleto  := sTipoBoleto;
         LAvisoDebitoAuto    := '2';
+        LDebitoAutomatico   := 'N';
         LInstrucoesProtesto := sProtesto;
-        LMensagemCedente    := PadRight( MensagemCedente, 60 );
+        LMensagemCedente    := LTipoAvalista                                             + // 335 a 335 - Tipo de Inscrição 0 isento 1 cpf 2 cnpj 3 pis/pasep 9 outros
+                               PadLeft(OnlyNumber(Sacado.SacadoAvalista.CNPJCPF),14,'0') + // 336 a 350 - Número de Inscrição do Avalista
+                               PadRight(Sacado.SacadoAvalista.NomeAvalista, 40, ' ');      // 351 a 394 - Nome do Avalista
       end;
 
 
@@ -400,7 +415,7 @@ begin
        sDigitoNossoNumero                                      +  // 082 a 082 - Digito Identificação do Titulo
        IntToStrZero( round( ValorDescontoAntDia * 100), 10)    +  // 083 a 092 - Desconto Bonificação por dia
        PadRight(LTipoEmissaoBoleto,1)                          +  // 093 a 093 - Condicao para emissao da papeleta cobranca  Tipo Boleto(Quem emite)
-       ' '                                                     +  // 094 a 094 - Identificação se emite boleto para débito automático
+       LDebitoAutomatico                                       +  // 094 a 094 - Identificação se emite boleto para débito automático
        Space(10)                                               +  // 095 a 104 - Identificação Operação do Banco
        ' '                                                     +  // 105 a 105 - Ind. Rateio de Credito
        PadRight(LAvisoDebitoAuto,1)                            +  // 106 a 106 - Aviso de Debito Aut.: 2=Não emite aviso
@@ -422,7 +437,7 @@ begin
        IntToStrZero( round( ValorIOF * 100 ), 13)              +  // 193 a 205 - Valor IOF
        IntToStrZero( round( ValorAbatimento * 100 ), 13)       +  // 206 a 218 - Valor Abatimento
        sTipoSacado                                             +  // 219 a 220 - Tipo de Inscrição 01 cpf 02 cnpj
-       PadLeft(OnlyNumber(Sacado.CNPJCPF),14,'0')              +  // 221 a 234 - Tipo de Inscrição + Número de Inscrição do Pagador
+       PadLeft(OnlyNumber(Sacado.CNPJCPF),14,'0')              +  // 221 a 234 - Número de Inscrição do Pagador
        PadRight( Sacado.NomeSacado, 40, ' ')                   +  // 235 a 274 - Nome do Pagador
        PadRight(Sacado.Logradouro + ' ' + Sacado.Numero + ' '  +
          Sacado.Complemento, 40)                               +  // 275 a 314
@@ -447,7 +462,7 @@ begin
           PadRight('', 290, ' ')                                            + // 077 a 366 - Reserva
           PadLeft(ACBrTitulo.Carteira, 3, '0')                              + // 367 a 369 - Carteira
           PadLeft(OnlyNumber(ACBrTitulo.ACBrBoleto.Cedente.Agencia), 5, '0')+ // 370 a 374 - Agência mantenedora da conta
-          PadLeft(ACBrBoleto.Cedente.conta, 7, '0')                         + // 375 a 381 - Número da Conta Corrente
+          PadLeft(ACBrBoleto.Cedente.Conta, 7, '0')                         + // 375 a 381 - Número da Conta Corrente
           Padleft(ACBrBoleto.Cedente.ContaDigito, 1 , '0')                  + // 382 a 382 - Dígito Verificador da Conta Alfa
           PadLeft(NossoNumero, 11, '0')                                     + // 383 a 393 - Nosso Número
           PadLeft(sDigitoNossoNumero ,1,'0')                                + // 394 a 394 - Digito Nosso Número

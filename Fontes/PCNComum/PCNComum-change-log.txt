@@ -38,6 +38,16 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+22/02/2024
+-- pcnConversao --
+[*] Novo enumerado (ipCONFAZ) para o tipo: TpcnIndicadorProcesso.
+  Por: Italo Giurizzato Junior
+
+09/02/2024
+-- pcnAxiliar --
+[*] Marcada as funções como deprecated. 
+  Por: Italo Giurizzato Junior
+
 24/04/2023
 -- pcnConversao --
 [*] Novos enumerados para os novos eventos a serem utilizados pela versão 4.00 do CT-e

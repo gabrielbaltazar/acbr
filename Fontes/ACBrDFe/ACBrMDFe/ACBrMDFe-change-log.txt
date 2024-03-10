@@ -42,10 +42,87 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+06/03/2024
+-- Diversos --
+[*] Diversas alterações visando atender o novo campo no evento de encerramento,
+    NT 2024/001 versão 1.01 que vai ser ativado em ambiente de homologação em 
+    11/03/2024 e em produção em 08/04/2024
+  Por: Italo Giurizzato Junior
+
+05/03/2024
+-- pmdfeConversaoMDFe --
+[*] Diversas alterações visando eliminar erros de conversão de string para enumerado.
+  Por: Italo Giurizzato Junior
+
+02/03/2024
+-- ACBrMDFeWebServices --
+[*] Alterado a chamada do ParseText, removendo o segundo e terceiro parâmetros.
+  Por: Italo Giurizzato Junior
+
+28/02/2024
+-- pmdfeConversaoMDFe --
+[*] Como ainda não foi removido o parâmetro de saída (Ok) das funções de
+    conversão foi incluído nas funções a linha para atribuir um valor para
+    o parâmetro Ok.
+  Por: Italo Giurizzato Junior
+
+27/02/2024
+-- ACBrMDFe --
+[*] Ajuste visando sanar problema de identificação de Schema
+  Por: Diego Folieni
+-- pmdfeConversaoMDFe --
+[-] Correção: na lista de valores do: TTransportadorMDFeArrayStrings.
+  Por: Italo Giurizzato Junior
+
+26/02/2024
+-- pmdfeConversaoMDFe --
+[-] Correção: estava faltando os valores: URL-QRCode e URL-ConsultaMDFe do
+    Layout.
+  Por: Italo Giurizzato Junior
+
+23/02/2024
+-- pmdfeConversaoMDFe --
+[*] Ajustes na função: DblToVersaoMDFe
+  Por: Italo Giurizzato Junior
+
+22/02/2024
+-- pmdfeConversaoMDFe --
+[*] Refactoring na unit pmdfeConversaoMDFe.
+  Por: Italo Giurizzato Junior
+
+13/02/2024
+-- ACBrMDFeWebServices --
+[*] Refactoring visando a utilizar as units: ACBrDFeComum.ConsStatServ e 
+    ACBrDFeComum.RetConsStatServ.
+  Por: Italo Giurizzato Junior
+
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+01/02/2024
+-- pmdfeMDFeR --
+[*] Ajustes para a leitura correta da tag <qtdRat>
+  Por: Jeanny Paiva Lopes
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnConsts.
+  Por: Italo Giurizzato Junior
+
+28/12/2023
+-- ACBrMDFeDAEventoRL --
+[*] Alterado para considerar a propriedade AlterarEscalaPadrao.
+  Por: Eduardo Kimura 1981 
+
 25/10/2023
 -- Diversos --
 [+] Implementado o método ImprimirPDF por Stream.
    Por: Luis Claudio Jr
+
+06/12/2023
+-- ACBrMDFeWebServices --
+[*] Adiciona preenchimento da propriedade dhRecbto na classe de webservice.
+  Por: Diego Folieni
 
 06/09/2023
 -- Diversos --

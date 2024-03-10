@@ -42,6 +42,36 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+03/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnConsts.
+  Por: Italo Giurizzato Junior
+
+31/01/2024
+-- pcnReinfConsulta.pas --
+[-] Corrigida consulta de recibo dos eventos R-2055 e R-4020
+  Por: Renato Rubinho
+
+23/11/2023
+-- ACBrReinfWebServices --
+[*] Levantada exceção, no tratamento de retornos, quando for utilizada versão de leiaute descontinuada ou ainda não implementada
+  Por: Renato Rubinho
+
+20/11/2023
+-- Frm_ACBrReinf --
+[*] Melhorias no programa de exemplo visualizando os xmls de envio e retorno
+  Por: Renato Rubinho
+
+06/11/2023
+-- Frm_ACBrReinf --
+[*] Melhorias no programa de exemplo para geração das retificadoras dos eventos sem mexer no fonte e removido o Registro R2070
+  Por: Renato Rubinho
+
 01/11/2023
 -- pcnGeradorReinf --
 [*] Correção para leitura do id do evento ao importar xml assinado

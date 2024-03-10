@@ -73,7 +73,8 @@ type
     destructor Destroy; override;
 
     procedure Imprimir;
-    procedure ImprimirPDF;
+    procedure ImprimirPDF; overload;
+    procedure ImprimirPDF(AStream: TStream); overload;
 
     function LerXML(const AXML: String): Boolean;
     function LerArqIni(const AIniString: String): Boolean;
@@ -127,7 +128,8 @@ type
 
     procedure GerarNFSe;
     procedure Imprimir;
-    procedure ImprimirPDF;
+    procedure ImprimirPDF; overload;
+    procedure ImprimirPDF(AStream: TStream); overload;
 
     function New: TNotaFiscal; reintroduce;
     function Add(ANota: TNotaFiscal): Integer; reintroduce;
@@ -171,7 +173,7 @@ implementation
 
 uses
   synautil, IniFiles, StrUtilsEx,
-  pcnAuxiliar,
+  ACBrUtil.DateTime,
   ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.FilesIO, ACBrUtil.XMLHTML,
   ACBrDFeUtil,
   ACBrNFSeX, ACBrNFSeXInterface;
@@ -284,6 +286,22 @@ begin
   end;
 end;
 
+procedure TNotaFiscal.ImprimirPDF(AStream: TStream);
+begin
+  with TACBrNFSeX(FACBrNFSe) do
+  begin
+    DANFSE.Provedor := Configuracoes.Geral.Provedor;
+
+    if not Assigned(DANFSE) then
+      raise EACBrNFSeException.Create('Componente DANFSE não associado.')
+    else
+    begin
+      AStream.Size := 0;
+      DANFSE.ImprimirDANFSEPDF(AStream, NFSe);
+    end;
+  end;
+end;
+
 function TNotaFiscal.LerArqIni(const AIniString: String): Boolean;
 var
   INIRec: TMemIniFile;
@@ -325,7 +343,7 @@ begin
         Situacao := INIRec.ReadInteger(sSecao, 'Situacao', 0);
 
         Producao := FProvider.StrToSimNao(Ok, INIRec.ReadString(sSecao, 'Producao', '1'));
-        StatusRps := StrToStatusRPS(Ok, INIRec.ReadString(sSecao, 'Status', '1'));
+        StatusRps := FProvider.StrToStatusRPS(Ok, INIRec.ReadString(sSecao, 'Status', '1'));
         OutrasInformacoes := INIRec.ReadString(sSecao, 'OutrasInformacoes', '');
 
         // Provedor ISSDSF e Siat
@@ -352,6 +370,11 @@ begin
         // Provedor PadraoNacional
         verAplic := INIRec.ReadString(sSecao, 'verAplic', 'ACBrNFSeX-1.00');
         tpEmit := StrTotpEmit(Ok, INIRec.ReadString(sSecao, 'tpEmit', '1'));
+
+        //Provedor Governa
+        RegRec := StrToRegRec(Ok, INIRec.ReadString(sSecao, 'RegRec', ''));
+
+        InformacoesComplementares := INIRec.ReadString(sSecao, 'InformacoesComplementares', '');
       end;
 
       sSecao := 'RpsSubstituido';
@@ -380,10 +403,11 @@ begin
           IdentificacaoPrestador.InscricaoMunicipal := INIRec.ReadString(sSecao, 'InscricaoMunicipal', '');
 
           IdentificacaoPrestador.Nif := INIRec.ReadString(sSecao, 'NIF', '');
+          IdentificacaoPrestador.cNaoNIF := StrToNaoNIF(Ok, INIRec.ReadString(sSecao, 'cNaoNIF', '0'));
           IdentificacaoPrestador.CAEPF := INIRec.ReadString(sSecao, 'CAEPF', '');
 
           // Para o provedor ISSDigital deve-se informar também:
-          cUF := UFparaCodigo(INIRec.ReadString(sSecao, 'UF', 'SP'));
+          cUF := UFparaCodigoUF(INIRec.ReadString(sSecao, 'UF', 'SP'));
 
           RazaoSocial := INIRec.ReadString(sSecao, 'RazaoSocial', '');
           NomeFantasia := INIRec.ReadString(sSecao, 'NomeFantasia', '');
@@ -423,6 +447,7 @@ begin
             InscricaoEstadual := INIRec.ReadString(sSecao, 'InscricaoEstadual', '');
 
             Nif := INIRec.ReadString(sSecao, 'NIF', '');
+            cNaoNIF := StrToNaoNIF(Ok, INIRec.ReadString(sSecao, 'cNaoNIF', '0'));
             CAEPF := INIRec.ReadString(sSecao, 'CAEPF', '');
           end;
 
@@ -465,6 +490,7 @@ begin
             CpfCnpj := INIRec.ReadString(sSecao, 'CNPJCPF', '');
             InscricaoMunicipal := INIRec.ReadString(sSecao, 'InscricaoMunicipal', '');
             Nif := INIRec.ReadString(sSecao, 'NIF', '');
+            cNaoNIF := StrToNaoNIF(Ok, INIRec.ReadString(sSecao, 'cNaoNIF', '0'));
             CAEPF := INIRec.ReadString(sSecao, 'CAEPF', '');
           end;
 
@@ -537,10 +563,25 @@ begin
           // Provedor ISSSaoPaulo
           ValorTotalRecebido := StringToFloatDef(INIRec.ReadString(sSecao, 'ValorTotalRecebido', ''), 0);
 
-          //Padrão Nacional e IssNet
+          // Provedor IssNet e Padrão Nacional
           CodigoNBS := INIRec.ReadString(sSecao, 'CodigoNBS', '');
           CodigoInterContr := INIRec.ReadString(sSecao, 'CodigoInterContr', '');
 
+          // Provedor SoftPlan
+          CFPS := INIRec.ReadString(sSecao, 'CFPS', '');
+
+          // Provedor Giap Informações sobre o Endereço da Prestação de Serviço
+          with Endereco do
+          begin
+            Bairro := INIRec.ReadString(sSecao, 'Bairro', '');
+            CEP := INIRec.ReadString(sSecao, 'CEP', '');
+            xMunicipio := INIRec.ReadString(sSecao, 'xMunicipio', '');
+            Complemento := INIRec.ReadString(sSecao, 'Complemento', '');
+            Endereco := INIRec.ReadString(sSecao, 'Logradouro', '');
+            Numero := INIRec.ReadString(sSecao, 'Numero', '');
+            xPais := INIRec.ReadString(sSecao, 'xPais', '');
+            UF := INIRec.ReadString(sSecao, 'UF', '');
+          end;
         end;
 
         i := 1;
@@ -612,6 +653,7 @@ begin
             CodMunPrestacao := INIRec.ReadString(sSecao, 'CodMunPrestacao', '');
             SituacaoTributaria := INIRec.ReadInteger(sSecao, 'SituacaoTributaria', 0);
             ValorISSRetido := StringToFloatDef(INIRec.ReadString(sSecao, 'ValorISSRetido', ''), 0);
+            ValorTributavel := StringToFloatDef(INIRec.ReadString(sSecao, 'ValorTributavel', ''), 0);
           end;
 
           Inc(i);
@@ -655,10 +697,10 @@ begin
         begin
           with Evento do
           begin
-            desc := INIRec.ReadString(sSecao, 'desc', '');
+            xNome := INIRec.ReadString(sSecao, 'xNome', '');
             dtIni := INIRec.ReadDate(sSecao, 'dtIni', Now);
             dtFim := INIRec.ReadDate(sSecao, 'dtFim', Now);
-            id := INIRec.ReadString(sSecao, 'id', '');
+            idAtvEvt := INIRec.ReadString(sSecao, 'idAtvEvt', '');
 
             with Endereco do
             begin
@@ -780,6 +822,7 @@ begin
                   CpfCnpj := INIRec.ReadString(sSecao, 'CNPJCPF', '');
                   InscricaoMunicipal := INIRec.ReadString(sSecao, 'InscricaoMunicipal', '');
                   Nif := INIRec.ReadString(sSecao, 'NIF', '');
+                  cNaoNIF := StrToNaoNIF(Ok, INIRec.ReadString(sSecao, 'cNaoNIF', '0'));
                   CAEPF := INIRec.ReadString(sSecao, 'CAEPF', '');
                 end;
 
@@ -926,7 +969,7 @@ begin
       sSecao:= 'IdentificacaoRps';
       INIRec.WriteString(sSecao, 'SituacaoTrib', FProvider.SituacaoTribToStr(SituacaoTrib));
       INIRec.WriteString(sSecao, 'Producao', FProvider.SimNaoToStr(Producao));
-      INIRec.WriteString(sSecao, 'Status', StatusRPSToStr(StatusRps));
+      INIRec.WriteString(sSecao, 'Status', FProvider.StatusRPSToStr(StatusRps));
       INIRec.WriteString(sSecao, 'OutrasInformacoes', OutrasInformacoes);
 
       //Provedores CTA, ISSBarueri, ISSSDSF, ISSSaoPaulo, Simple e SmarAPD.
@@ -953,6 +996,11 @@ begin
       INIRec.WriteString(sSecao, 'verAplic', verAplic);
       INIRec.WriteString(sSecao, 'tpEmit', tpEmitToStr(tpEmit));
 
+      //Provedor Governa
+      INIRec.WriteString(sSecao, 'RegRec', RegRecToStr(RegRec));
+
+      INIRec.WriteString(sSecao, 'InformacoesComplementares', InformacoesComplementares);
+
       if RpsSubstituido.Numero <> '' then
       begin
         sSecao:= 'RpsSubstituido';
@@ -969,6 +1017,7 @@ begin
       INIRec.WriteString(sSecao, 'CNPJ', Prestador.IdentificacaoPrestador.CpfCnpj);
       INIRec.WriteString(sSecao, 'InscricaoMunicipal', Prestador.IdentificacaoPrestador.InscricaoMunicipal);
       INIRec.WriteString(sSecao, 'NIF', Prestador.IdentificacaoPrestador.NIF);
+      INIRec.WriteString(sSecao, 'cNaoNIF', NaoNIFToStr(Prestador.IdentificacaoPrestador.cNaoNIF));
       INIRec.WriteString(sSecao, 'CAEPF', Prestador.IdentificacaoPrestador.CAEPF);
 
       // Para o provedor ISSDigital deve-se informar tambem:
@@ -991,6 +1040,7 @@ begin
       INIRec.WriteString(sSecao, 'CNPJCPF', Tomador.IdentificacaoTomador.CpfCnpj);
       INIRec.WriteString(sSecao, 'InscricaoMunicipal', Tomador.IdentificacaoTomador.InscricaoMunicipal);
       INIRec.WriteString(sSecao, 'NIF', Tomador.IdentificacaoTomador.NIF);
+      INIRec.WriteString(sSecao, 'cNaoNIF', NaoNIFToStr(Tomador.IdentificacaoTomador.cNaoNIF));
       INIRec.WriteString(sSecao, 'CAEPF', Tomador.IdentificacaoTomador.CAEPF);
       //Exigido pelo provedor Equiplano
       INIRec.WriteString(sSecao, 'InscricaoEstadual', Tomador.IdentificacaoTomador.InscricaoEstadual);
@@ -1018,6 +1068,7 @@ begin
         INIRec.WriteString(sSecao, 'CNPJCPF', Intermediario.Identificacao.CpfCnpj);
         INIRec.WriteString(sSecao, 'InscricaoMunicipal', Intermediario.Identificacao.InscricaoMunicipal);
         INIRec.WriteString(sSecao, 'NIF', Intermediario.Identificacao.NIF);
+        INIRec.WriteString(sSecao, 'cNaoNIF', NaoNIFToStr(Intermediario.Identificacao.cNaoNIF));
         INIRec.WriteString(sSecao, 'CAEPF', Intermediario.Identificacao.CAEPF);
         INIRec.WriteString(sSecao, 'RazaoSocial', Intermediario.RazaoSocial);
 
@@ -1129,13 +1180,13 @@ begin
       end;
 
       //Padrão Nacional
-      if (Servico.Evento.desc <> '') or (Servico.Evento.dtIni > 0) or (Servico.Evento.dtFim > 0)then
+      if (Servico.Evento.xNome <> '') or (Servico.Evento.dtIni > 0) or (Servico.Evento.dtFim > 0)then
       begin
         sSecao := 'Evento';
-        INIRec.WriteString(sSecao, 'Evento', Servico.Evento.desc);
+        INIRec.WriteString(sSecao, 'xNome', Servico.Evento.xNome);
         INIRec.WriteDate(sSecao, 'dtIni', Servico.Evento.dtIni);
         INIRec.WriteDate(sSecao, 'dtFim', Servico.Evento.dtFim);
-        INIRec.WriteString(sSecao, 'id', Servico.Evento.id);
+        INIRec.WriteString(sSecao, 'idAtvEvt', Servico.Evento.idAtvEvt);
         INIRec.WriteString(sSecao, 'CEP', Servico.Evento.Endereco.CEP);
         INIRec.WriteString(sSecao, 'xMunicipio', Servico.Evento.Endereco.xMunicipio);
         INIRec.WriteString(sSecao, 'UF', Servico.Evento.Endereco.UF);
@@ -1215,6 +1266,7 @@ begin
           INIRec.WriteString(sSecao, 'CNPJCPF', fornec.Identificacao.CpfCnpj);
           INIRec.WriteString(sSecao, 'InscricaoMunicipal', fornec.Identificacao.InscricaoMunicipal);
           INIRec.WriteString(sSecao, 'NIF', fornec.Identificacao.NIF);
+          INIRec.WriteString(sSecao, 'cNaoNIF', NaoNIFToStr(fornec.Identificacao.cNaoNIF));
           INIRec.WriteString(sSecao, 'CAEEPF', fornec.Identificacao.CAEPF);
 
           INIRec.WriteString(sSecao, 'Logradouro', fornec.Endereco.Endereco);
@@ -1445,10 +1497,12 @@ end;
 
 function TNotaFiscal.GetXmlNfse: String;
 begin
-  if XmlEhUTF8(FXmlNfse) then
-    Result := FXmlNfse
-  else
-    Result := '<?xml version="1.0" encoding="UTF-8"?>' + FXmlNfse;
+  Result := FXmlNfse;
+  if Result = '' then
+    Exit;
+
+  if not XmlEhUTF8(Result) then
+    Result := '<?xml version="1.0" encoding="UTF-8"?>' + Result;
 end;
 
 function TNotaFiscal.CalcularNomeArquivo: String;
@@ -1561,6 +1615,13 @@ begin
   VerificarDANFSE;
 
   TACBrNFSeX(FACBrNFSe).DANFSE.ImprimirDANFSEPDF;
+end;
+
+procedure TNotasFiscais.ImprimirPDF(AStream: TStream);
+begin
+  VerificarDANFSE;
+
+  TACBrNFSeX(FACBrNFSe).DANFSE.ImprimirDANFSEPDF(AStream);
 end;
 
 procedure TNotasFiscais.Insert(Index: Integer; ANota: TNotaFiscal);
@@ -1731,7 +1792,7 @@ var
   MS: TMemoryStream;
   P, N, TamTag, j: Integer;
   aXml, aXmlLote: string;
-  TagF: Array[1..14] of String;
+  TagF: Array[1..15] of String;
   SL: TStringStream;
   IsFile: Boolean;
 
@@ -1751,6 +1812,7 @@ var
     TagF[12] := '<notaFiscal>';       // Provedor GIAP
     TagF[13] := '<NOTA>';             // Provedor AssessorPublico
     TagF[14] := '<NOTA_FISCAL>';      // Provedor ISSDSF
+    TagF[15] := '<tcCompNfse>';       // Provedor ISSCuritiba
 
     j := 0;
 
@@ -1777,6 +1839,7 @@ var
     TagF[12] := '</notaFiscal>';       // Provedor GIAP
     TagF[13] := '</NOTA>';             // Provedor AssessorPublico
     TagF[14] := '</NOTA_FISCAL>';      // Provedor ISSDSF
+    TagF[15] := '</tcCompNfse>';       // Provedor ISSCuritiba
 
     j := 0;
 

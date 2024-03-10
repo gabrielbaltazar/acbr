@@ -360,6 +360,15 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
     FormatoArqRecibo := tfaTxt;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarSituacao := True;
+      ConsultarLote := True;
+      ConsultarServicoTomado := True;
+      CancelarNfse := True;
+    end;
   end;
 
   with ConfigMsgDados do
@@ -999,8 +1008,8 @@ begin
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr));
-    AErro.Correcao := ACBrStr(ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr));
+    AErro.Descricao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr);
+    AErro.Correcao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr);
   end;
   {
     As tag que contem o código, mensagem e correção do erro são diferentes do padrão

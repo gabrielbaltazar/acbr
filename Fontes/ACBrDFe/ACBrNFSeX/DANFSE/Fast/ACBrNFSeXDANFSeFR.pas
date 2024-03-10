@@ -135,6 +135,7 @@ implementation
 
 uses
   StrUtils,
+  DateUtils,
   Math,
   ACBrUtil.Strings,
   ACBrDFeUtil,
@@ -487,7 +488,7 @@ begin
   cdsServicos.FieldDefs.Add('CodigoCnae', ftString, 15);
   cdsServicos.FieldDefs.Add('CodigoNbs', ftString, 9);
   cdsServicos.FieldDefs.Add('CodigoTributacaoMunicipio', ftString, 20);
-  cdsServicos.FieldDefs.Add('Discriminacao', ftString, 2000);
+  cdsServicos.FieldDefs.Add('Discriminacao', ftString, 4000);
   cdsServicos.FieldDefs.Add('CodigoPais', ftString, 4);
   cdsServicos.FieldDefs.Add('NumeroProcesso', ftString, 10);
   cdsServicos.FieldDefs.Add('xItemListaServico', ftString, 300);
@@ -633,7 +634,7 @@ begin
   cdsItensServico := TACBrFRDataSet.Create(nil);
   cdsItensServico.Close;
   cdsItensServico.FieldDefs.Clear;
-  cdsItensServico.FieldDefs.Add('DiscriminacaoServico', ftString, 2000);
+  cdsItensServico.FieldDefs.Add('DiscriminacaoServico', ftString, 4000);
   cdsItensServico.FieldDefs.Add('Quantidade', ftString, 10);
   cdsItensServico.FieldDefs.Add('ValorUnitario', ftString, 30);
   cdsItensServico.FieldDefs.Add('ValorTotal', ftString, 30);
@@ -1018,26 +1019,23 @@ begin
   else
     LCDS.FieldByName('NumeroNFSe').AsString := ANFSe.Numero;
 
-  if (Provedor in [ proGINFES, proBetha, proDSF, proISSNet ]) then
+  if HourOf(ANFSe.DataEmissao) <> 0 then
     LCDS.FieldByName('DataEmissao').AsString := FormatDateTimeBr(ANFSe.DataEmissao)
   else
-  begin
-    if ANFSe.Numero <> '' then
-      LCDS.FieldByName('DataEmissao').AsString := FormatDateBr(ANFSe.DataEmissao)
-    else
-    begin
-      if frxReport.findcomponent('Memo12') <> nil then
-        TfrxMemoView(frxReport.findcomponent('Memo12')).Text := 'Data do RPS';
+    LCDS.FieldByName('DataEmissao').AsString := FormatDateBr(ANFSe.DataEmissao);
 
-      LCDS.FieldByName('DataEmissao').AsString := FormatDateBr(ANFSe.DataEmissaoRps);
-    end;
+  if ANFSe.Numero = '' then
+  begin
+    if frxReport.findcomponent('Memo12') <> nil then
+      TfrxMemoView(frxReport.findcomponent('Memo12')).Text := 'Data do RPS';
+
+    LCDS.FieldByName('DataEmissao').AsString := FormatDateBr(ANFSe.DataEmissaoRps);
   end;
 
   LCDS.FieldByName('CodigoVerificacao').AsString := ANFSe.CodigoVerificacao;
   LCDS.FieldByName('LinkNFSe').AsString          := ANFSe.Link;
 
   LCDS.Post;
-
 end;
 
 procedure TACBrNFSeXDANFSeFR.CarregaItensServico(ANFSe: TNFSe);
@@ -1124,11 +1122,22 @@ begin
     LCDS.FieldByName('CodigoMunicipio').AsString  := ANFSe.Prestador.Endereco.xMunicipio; //xMunicipio;
     LCDS.FieldByName('ExigibilidadeISS').AsString := FProvider.ExigibilidadeISSDescricao(LDadosServico.ExigibilidadeISS);
 
+    {
+      Incluido por: Italo em 12/01/2024
+    }
+    if LDadosServico.MunicipioIncidencia <> 0 then
+      LCDS.FieldByName('MunicipioIncidencia').AsString :=
+        IntToStr(LDadosServico.MunicipioIncidencia) + ' / ' +
+        LDadosServico.xMunicipioIncidencia
+    else
+      LCDS.FieldByName('MunicipioIncidencia').AsString := '';
+
+    {  Comentado por: Italo em 12/01/2024
     if ANFSe.NaturezaOperacao = no2 then
       LCDS.FieldByName('MunicipioIncidencia').AsString := 'Fora do Município'
     else
       LCDS.FieldByName('MunicipioIncidencia').AsString := 'No Município';
-
+    }
     if LDadosServico.Valores.IssRetido = stRetencao then
       LCDS.FieldByName('TipoRecolhimento').AsString := 'Retido na Fonte'
     else

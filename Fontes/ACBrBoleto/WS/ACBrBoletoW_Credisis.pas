@@ -103,7 +103,8 @@ Const
 implementation
 
 uses
- pcnConsts, ACBrBoletoPcnConsts, ACBrUtil.Base, ACBrUtil.XMLHTML, ACBrUtil.Strings;
+ ACBrDFeConsts,
+ ACBrBoletoPcnConsts, ACBrUtil.Base, ACBrUtil.XMLHTML, ACBrUtil.Strings;
 
 
 { TBoletoW_Credisis }
@@ -390,13 +391,16 @@ begin
         Gerador.wCampo(tcStr, '#E06', 'numero'  , 02, 10, 1, ATitulo.Sacado.Numero, DSC_NUMERO_SACADO);
         Gerador.wGrupo('/endereco');
 
-        Gerador.wGrupo('contatos');
-        Gerador.wGrupo('item');
-        Gerador.wCampo(tcStr, '#C01', 'contato'    , 02, 10, 1, ATitulo.Sacado.Fone, DSC_FONE );
-        Gerador.wCampo(tcInt, '#C02', 'tipoContato', 01, 10, 1, 1, DSC_FONE );
-
-        Gerador.wGrupo('/item');
-        Gerador.wGrupo('/contatos');
+        if NaoEstaVazio(ATitulo.Sacado.Fone) then
+        begin
+          Gerador.wGrupo('contatos');
+          Gerador.wGrupo('item');
+          Gerador.wCampo(tcStr, '#C01', 'contato'    , 02, 10, 1, ATitulo.Sacado.Fone, DSC_FONE );
+          Gerador.wCampo(tcInt, '#C02', 'tipoContato', 01, 10, 1, 1, DSC_FONE );
+          Gerador.wGrupo('/item');
+          Gerador.wGrupo('/contatos');
+        end;
+        
         Gerador.wGrupo('/pagador');
     end;
 end;

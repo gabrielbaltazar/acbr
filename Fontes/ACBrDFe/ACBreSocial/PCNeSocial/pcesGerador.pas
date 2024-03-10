@@ -51,7 +51,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils, variants,
-  pcnGerador, pcnLeitor, pcnConversao, pcnAuxiliar, pcnConsts,
+  pcnGerador, pcnLeitor, pcnConversao,
+  ACBrDFeConsts,
   pcesCommon, pcesConversaoeSocial;
 
 type
@@ -435,13 +436,13 @@ begin
       Result := Result + copy(OnlyNumber(Copy(CNPJF, 1, 8)) + '00000000000000', 1, 14);
   end;
 
-  Result := Result + pcnAuxiliar.IntToStrZero(nAno, 4);
-  Result := Result + pcnAuxiliar.IntToStrZero(nMes, 2);
-  Result := Result + pcnAuxiliar.IntToStrZero(nDia, 2);
-  Result := Result + pcnAuxiliar.IntToStrZero(nHora, 2);
-  Result := Result + pcnAuxiliar.IntToStrZero(nMin, 2);
-  Result := Result + pcnAuxiliar.IntToStrZero(nSeg, 2);
-  Result := Result + pcnAuxiliar.IntToStrZero(sequencial, 5);
+  Result := Result + IntToStrZero(nAno, 4);
+  Result := Result + IntToStrZero(nMes, 2);
+  Result := Result + IntToStrZero(nDia, 2);
+  Result := Result + IntToStrZero(nHora, 2);
+  Result := Result + IntToStrZero(nMin, 2);
+  Result := Result + IntToStrZero(nSeg, 2);
+  Result := Result + IntToStrZero(sequencial, 5);
 end;
 
 procedure TeSocialEvento.GerarCNH(pCnh: TCNH);
@@ -1424,7 +1425,7 @@ end;
 
 procedure TeSocialEvento.GerarInfoAprend(pAprend: TAprend);
 begin
-  if (pAprend.NrInsc <> EmptyStr) then
+  if (pAprend.NrInsc <> EmptyStr) or (pAprend.cnpjEntQual <> EmptyStr) then
   begin
     Gerador.wGrupo('aprend');
 
@@ -1433,9 +1434,12 @@ begin
       Gerador.wCampo(tcStr, '', 'indAprend',   1,  1, 1, eStpIndAprendToStr(pAprend.indAprend));
       Gerador.wCampo(tcStr, '', 'cnpjEntQual', 0, 15, 0, pAprend.cnpjEntQual);
     end;
-    
-    Gerador.wCampo(tcStr, '', 'tpInsc', 1,  1, 1, eSTpInscricaoToStr(pAprend.TpInsc));
-    Gerador.wCampo(tcStr, '', 'nrInsc', 1, 15, 1, pAprend.NrInsc);
+
+    if pAprend.NrInsc <> EmptyStr then
+    begin
+      Gerador.wCampo(tcStr, '', 'tpInsc', 1,  1, 1, eSTpInscricaoToStr(pAprend.TpInsc));
+      Gerador.wCampo(tcStr, '', 'nrInsc', 1, 15, 1, pAprend.NrInsc);
+    end;
 
     if VersaoDF >= veS01_02_00 then
       Gerador.wCampo(tcStr, '', 'cnpjPrat', 0, 15, 0, pAprend.cnpjPrat);

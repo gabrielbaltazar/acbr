@@ -54,7 +54,9 @@ uses
   {$ELSE}
    Contnrs,
   {$IFEND}
-  ACBrBase, pcnConversao, pcnConsts,
+  ACBrBase,
+  ACBrDFeConsts,
+  pcnConversao,
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
@@ -511,8 +513,8 @@ type
     FvrBaseIndenFGTS: double;
     FpagDiretoResc: tpSimNaoFacultativo;
     FindReperc: tpIndReperc;
-    FindenSD: tpSimNao;
-    FindenAbono: tpSimNao;
+    FindenSD: tpSimFacultativo;
+    FindenAbono: tpSimFacultativo;
     Fabono: TAbonoCollection;
     FidePeriodo: TIdePeriodoCollection;
 
@@ -536,8 +538,8 @@ type
     property pagDiretoResc: tpSimNaoFacultativo read FpagDiretoResc write FpagDiretoResc;
     property indReperc: tpIndReperc read FindReperc write FindReperc;
     property abono: TAbonoCollection read getAbono write Fabono;
-    property indenSD: tpSimNao read FindenSD write FindenSD;
-    property indenAbono: tpSimNao read FindenAbono write FindenAbono;
+    property indenSD: tpSimFacultativo read FindenSD write FindenSD;
+    property indenAbono: tpSimFacultativo read FindenAbono write FindenAbono;
     property idePeriodo: TIdePeriodoCollection read getIdePeriodo write FIdePeriodo;
   end;
 
@@ -1465,26 +1467,37 @@ end;
 
 procedure TEvtProcTrab.GerarInfoVinc(obj: TinfoVinc);
 begin
-  Gerador.wGrupo('infoVinc');
+  if (obj.tpRegTrab <> trNenhum) or
+     (obj.instDuracao()) or
+     (obj.instObservacoes()) or
+     (obj.instSucessaoVinc()) or
+     (obj.instInfoDeslig())
+  then
+  begin
+    Gerador.wGrupo('infoVinc');
+    if obj.tpRegTrab <> trNenhum then
+      Gerador.wCampo(tcStr, '', 'tpRegTrab',  1,  1, 1, eSTpRegTrabToStr(obj.tpRegTrab));
+    if obj.tpRegPrev <> rpNenhum then
+      Gerador.wCampo(tcStr, '', 'tpRegPrev',  1,  1, 1, eSTpRegPrevToStr(obj.tpRegPrev));
+    if obj.dtAdm > 0 then
+      Gerador.wCampo(tcDat, '', 'dtAdm',     10, 10, 0, obj.dtAdm);
+    if obj.tmpParc <> tpNenhum then
+      Gerador.wCampo(tcStr, '', 'tmpParc',    1,  1, 1, tpTmpParcToStr(obj.tmpParc));
 
-  Gerador.wCampo(tcStr, '', 'tpRegTrab',  1,  1, 1, eSTpRegTrabToStr(obj.tpRegTrab));
-  Gerador.wCampo(tcStr, '', 'tpRegPrev',  1,  1, 1, eSTpRegPrevToStr(obj.tpRegPrev));
-  Gerador.wCampo(tcDat, '', 'dtAdm',     10, 10, 0, obj.dtAdm);
-  Gerador.wCampo(tcStr, '', 'tmpParc',    1,  1, 1, tpTmpParcToStr(obj.tmpParc));
+    if obj.instDuracao() then
+      GerarDuracao(obj.duracao, StrToInt(eSTpRegTrabToStr(obj.tpRegTrab)));
 
-  if obj.instDuracao() then
-    GerarDuracao(obj.duracao, StrToInt(eSTpRegTrabToStr(obj.tpRegTrab)));
+    if obj.instObservacoes() then
+      GerarObservacoes(obj.observacoes);
 
-  if obj.instObservacoes() then
-    GerarObservacoes(obj.observacoes);
+    if obj.instSucessaoVinc() then
+      GerarSucessaoVinc(obj.sucessaoVinc);
 
-  if obj.instSucessaoVinc() then
-    GerarSucessaoVinc(obj.sucessaoVinc);
+    if obj.instInfoDeslig() then
+      GerarInfoDeslig(obj.infoDeslig);
 
-  if obj.instInfoDeslig() then
-    GerarInfoDeslig(obj.infoDeslig);
-
-  Gerador.wGrupo('/infoVinc');
+    Gerador.wGrupo('/infoVinc');
+  end;
 end;
 
 procedure TEvtProcTrab.GerarInfoTerm(obj: TinfoTerm);
@@ -1501,23 +1514,39 @@ end;
 
 procedure TEvtProcTrab.GerarInfoCompl(obj: TinfoCompl);
 begin
-  Gerador.wGrupo('infoCompl');
+  if (obj.codCBO <> '') or
+     (obj.natAtividade <> navNaoInformar) or
+     (obj.instRemuneracao()) or
+     (obj.InfoVinc.tpRegTrab <> trNenhum) or
+     (obj.InfoVinc.FtpRegPrev <> rpNenhum) or
+     (obj.InfoVinc.FdtAdm > 0) or
+     (obj.InfoVinc.FtmpParc <> tpNenhum) or
+     (obj.infoVinc.instDuracao()) or
+     (obj.infoVinc.instObservacoes()) or
+     (obj.infoVinc.instSucessaoVinc()) or
+     (obj.infoVinc.instInfoDeslig()) or
+     (obj.instInfoTerm())
+  then
+  begin
+    Gerador.wGrupo('infoCompl');
 
-  Gerador.wCampo(tcStr, '', 'codCBO',    1,  6, 1, obj.codCBO);
+    if obj.codCBO <> '' then
+      Gerador.wCampo(tcStr, '', 'codCBO',    1,  6, 1, obj.codCBO);
 
-  if obj.natAtividade <> navNaoInformar then
-    Gerador.wCampo(tcStr, '', 'natAtividade',  1,  1, 1, eSNatAtividadeToStr(obj.natAtividade));
+    if obj.natAtividade <> navNaoInformar then
+      Gerador.wCampo(tcStr, '', 'natAtividade',  1,  1, 1, eSNatAtividadeToStr(obj.natAtividade));
 
-  if obj.instRemuneracao() then
-    GerarRemuneracao(obj.remuneracao);
+    if obj.instRemuneracao() then
+      GerarRemuneracao(obj.remuneracao);
 
-  if obj.instInfoVinc() then
-    GerarInfoVinc(obj.infoVinc);
+    if obj.instInfoVinc() then
+      GerarInfoVinc(obj.infoVinc);
 
-  if obj.instInfoTerm() then
-    GerarInfoTerm(obj.infoTerm);
+    if obj.instInfoTerm() then
+      GerarInfoTerm(obj.infoTerm);
 
-  Gerador.wGrupo('/infoCompl');
+    Gerador.wGrupo('/infoCompl');
+  end;
 end;
 
 procedure TEvtProcTrab.GerarMudCategAtiv(obj: TMudCategAtivCollection);
@@ -1633,8 +1662,8 @@ begin
   if VersaoDF > veS01_01_00 then
   begin
     Gerador.wCampo(tcStr, '', 'indReperc',       1,  1, 1, eSTpTpIndRepercToStr(obj.indReperc));
-    Gerador.wCampo(tcStr, '', 'indenSD',         1,  1, 0, eSSimNaoToStr(obj.indenSD));
-    Gerador.wCampo(tcStr, '', 'indenAbono',      1,  1, 0, eSSimNaoToStr(obj.indenAbono));
+    Gerador.wCampo(tcStr, '', 'indenSD',         0,  1, 0, eSSimFacultativoToStr(obj.indenSD));
+    Gerador.wCampo(tcStr, '', 'indenAbono',      0,  1, 0, eSSimFacultativoToStr(obj.indenAbono));
   end
   else
   begin

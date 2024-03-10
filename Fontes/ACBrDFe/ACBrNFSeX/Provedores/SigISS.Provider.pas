@@ -127,6 +127,15 @@ begin
   begin
     ModoEnvio := meUnitario;
     NumMaxRpsEnviar := 1;
+
+    Autenticacao.RequerLogin := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarUnitario := True;
+      ConsultarNfse := True;
+      CancelarNfse := True;
+    end;
   end;
 
   SetXmlNameSpace('urn:sigiss_ws');
@@ -191,8 +200,8 @@ begin
   for I := Low(ANodeArray) to High(ANodeArray) do
   begin
     aID := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('id'), tcStr);
-    aCorrecao := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoErro'), tcStr));
-    aMensagem := ACBrStr(ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoProcesso'), tcStr));
+    aCorrecao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoErro'), tcStr);
+    aMensagem := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoProcesso'), tcStr);
 
     if (aCorrecao = '') or (aCorrecao = 'Sem erros') then
     begin
@@ -204,7 +213,7 @@ begin
         AAlerta.Correcao := aCorrecao;
 
         if AAlerta.Descricao = '' then
-          AAlerta.Descricao := ACBrStr(ANodeArray[I].AsString);
+          AAlerta.Descricao := ANodeArray[I].AsString;
       end;
     end
     else
@@ -215,7 +224,7 @@ begin
       AErro.Correcao := aCorrecao;
 
       if AErro.Descricao = '' then
-        AErro.Descricao := ACBrStr(ANodeArray[I].AsString);
+        AErro.Descricao := ANodeArray[I].AsString;
     end;
   end;
 end;
@@ -544,8 +553,7 @@ function TACBrNFSeXWebserviceSigISS.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
-  Result := string(NativeStringToUTF8(Result));
+  Result := ParseText(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);

@@ -85,6 +85,8 @@ type
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = 'erros';
                                      const AMessageTag: string = 'erro'); override;
+
+    function MontarMensagemErros(ARetorno: string): string;
   end;
 
 implementation
@@ -227,11 +229,8 @@ function TACBrNFSeXWebserviceNFSeBrasil.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  if Pos('ISO-8859-1', Result) > 0 then
-    Result := AnsiToNativeString(Result);
-
   Result := StringReplace(Result, '&amp;amp;', 'e',[rfReplaceAll]);
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result, True);
   Result := RemoverCDATA(Result);
   Result := RemoverIdentacao(Result);
@@ -240,7 +239,6 @@ begin
   Result := StringReplace(Result, 'R$', '', [rfReplaceAll]);
   Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
   Result := StringReplace(Result, ']]', '', [rfReplaceAll]);
-  Result := NativeStringToUTF8(Result);
 end;
 
 { TACBrNFSeProviderNFSeBrasil }
@@ -250,6 +248,16 @@ begin
   inherited Configuracao;
 
   ConfigGeral.UseCertificateHTTP := False;
+  ConfigGeral.ConsultaSitLote := False;
+  ConfigGeral.Autenticacao.RequerCertificado := False;
+  ConfigGeral.Autenticacao.RequerChaveAcesso := True;
+
+  with ConfigGeral.ServicosDisponibilizados do
+  begin
+    ConsultarSituacao := False;
+    TestarEnvio := True;
+  end;
+
   ConfigMsgDados.Prefixo := 'xs';
 
   if FAOwner.Configuracoes.WebServices.AmbienteCodigo = 1 then
@@ -558,6 +566,8 @@ begin
 
       Response.Situacao := '3'; // Processado com Falhas
 
+      Response.ArquivoRetorno := MontarMensagemErros(Response.ArquivoRetorno);
+
       Document.LoadFromXml(Response.ArquivoRetorno);
 
       ANode := Document.Root.Childrens.FindAnyNs('RespostaLoteRps');
@@ -662,6 +672,8 @@ begin
       end;
 
       Response.Situacao := '3'; // Processado com Falhas
+
+      Response.ArquivoRetorno := MontarMensagemErros(Response.ArquivoRetorno);
 
       Document.LoadFromXml(Response.ArquivoRetorno);
 
@@ -783,7 +795,7 @@ begin
 
     AErro := Response.Erros.New;
     AErro.Codigo := '';
-    AErro.Descricao := ACBrStr(Mensagem);
+    AErro.Descricao := Mensagem;
     AErro.Correcao := '';
   end;
 
@@ -797,9 +809,26 @@ begin
 
     AAlerta := Response.Alertas.New;
     AAlerta.Codigo := '';
-    AAlerta.Descricao := ACBrStr(Mensagem);
+    AAlerta.Descricao := Mensagem;
     AAlerta.Correcao := '';
   end;
+end;
+
+function TACBrNFSeProviderNFSeBrasil.MontarMensagemErros(
+  ARetorno: string): string;
+begin
+  if Pos('RespostaLoteRps', ARetorno) = 0 then
+  begin
+    Result := '<a>' +'<RespostaLoteRps>' +
+                '<erros>' +
+                  '<erro>' + SeparaDados(ARetorno, 'return') + '</erro>' +
+                '</erros>' +
+              '</RespostaLoteRps>' + '</a>';
+
+    Result := ParseText(Result);
+  end
+  else
+    Result := ARetorno;
 end;
 
 end.

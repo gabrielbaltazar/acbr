@@ -64,6 +64,8 @@ const
   cShipayHeaderOrderType = 'x-shipay-order-type';
   cShipayEOrder = 'e-order';
   cItemTitleNotInformed = 'Item Vendido';
+  cShipayEndPointPix = '/reconciliation/v2/pix-any-bank';
+  
 
 resourcestring
   sErrOrderIdDifferent = 'order_id diferente do informado';
@@ -112,8 +114,13 @@ type
     function ConverterJSONOrderCreatedParaCobGerada(const OrderCreatedJSON: String): String;
     function ConverterJSONOrderInfoParaCobCompleta(const OrderInfoJSON: String): String;
     function ConverterJSONOrdersListParaCobsConsultadas(const OrdersList: String): String;
+    function ConverterJSONPixDevolucaoSolicitadaParaOrderRefund(const RefundSolicitadaJSON: String): String;
+    function ConverterJSONRefundCreatedParaDevolucao(const RefundCreatedJSON: String): String;
+    function ConverterJSONOrderInfoParaPix(const OrderInfoJSON: String): String;
+    function ConverterJSONOrderlistParaPixConsultados(const OrderInfoJSON: String): String;
 
     function ShiPayStatusToCobStatus(AShipayStatus: TShipayOrderStatus): TACBrPIXStatusCobranca;
+    function ShiPayStatusToDevStatus(AShipayStatus: TShipayOrderStatus): TACBrPIXStatusDevolucao;
   protected
     function CalcularEndPointPath(const aMethod, aEndPoint: String): String; override;
     function ObterURLAmbiente(const Ambiente: TACBrPixCDAmbiente): String; override;
@@ -130,6 +137,7 @@ type
 
     procedure Autenticar; override;
     procedure RenovarToken; override;
+    procedure VerificarValidadeToken; override;
 
     procedure PostOrder(IsEOrder: Boolean = False);
     procedure PostOrderV(IsEOrder: Boolean = False);
@@ -168,9 +176,10 @@ type
 implementation
 
 uses
-  StrUtils, synautil, DateUtils, ACBrJSON,
+  StrUtils, synautil, DateUtils, ACBrJSON, ACBrPIXSchemasDevolucao,
   ACBrUtil.DateTime, ACBrUtil.Strings, ACBrUtil.Base, ACBrUtil.FilesIO,
-  ACBrPIXUtil, ACBrPIXSchemasCob, ACBrPIXBRCode, ACBrPIXSchemasCobsConsultadas;
+  ACBrPIXUtil, ACBrPIXSchemasCob, ACBrPIXBRCode, ACBrPIXSchemasCobsConsultadas,
+  ACBrPIXSchemasPix, ACBrPIXSchemasPixConsultados;
 
 { TACBrPSPShipay }
 
@@ -190,6 +199,7 @@ begin
   fQuandoEnviarOrder := Nil;
   fpQuandoAcessarEndPoint := QuandoAcessarEndPoint;
   fpQuandoReceberRespostaEndPoint := QuandoReceberRespostaEndPoint;
+  fpIsBacen := False;
 end;
 
 destructor TACBrPSPShipay.Destroy;
@@ -340,6 +350,29 @@ begin
   Http.Headers.Insert(0, ChttpHeaderAuthorization + ChttpAuthorizationBearer+' '+fpRefreshToken);
   TransmitirHttp(ChttpMethodPOST, AURL, ResultCode, RespostaHttp);
   ProcessarAutenticacao(AURL, ResultCode, RespostaHttp);
+end;
+
+procedure TACBrPSPShipay.VerificarValidadeToken;
+begin
+  if (ValidadeToken <> 0) and (ValidadeToken < Now) then
+  begin
+    if EstaVazio(fpRefreshToken) then
+    begin
+      if (NivelLog > 2) then
+        RegistrarLog('Autenticar');
+
+      Autenticar;
+
+      if Assigned(fpOnDepoisAutenticar) then
+        fpOnDepoisAutenticar(fpToken, fpValidadeToken);
+    end
+    else
+    begin
+      if (NivelLog > 2) then
+        RegistrarLog('RenovarToken');
+      RenovarToken;
+    end;
+  end;
 end;
 
 procedure TACBrPSPShipay.PostOrder(IsEOrder: Boolean);
@@ -623,7 +656,7 @@ begin
     if (Trim(fpToken) = '') then
       DispararExcecao(EACBrPixHttpException.Create(ACBrStr(sErroAutenticacao)));
 
-    fpValidadeToken := IncHour(Now, 24);
+    fpValidadeToken := IncHour(Now, 4);
     fpAutenticado := True;
   end
   else
@@ -641,7 +674,9 @@ begin
 
     if (AMethod = ChttpMethodPATCH) then
       AMethod := ChttpMethodDELETE;
-  end;
+  end
+  else if (AEndPoint = cEndPointPix) and (AMethod = ChttpMethodPUT) then
+    AMethod := ChttpMethodDELETE;
 end;
 
 procedure TACBrPSPShipay.QuandoReceberRespostaEndPoint(const AEndPoint, AURL,
@@ -656,11 +691,12 @@ begin
     begin
       if (AResultCode = HTTP_OK) or (AResultCode = HTTP_CREATED) then
       begin
-        RespostaHttp := ConverterJSONOrderCreatedParaCobGerada( RespostaHttp );
+        RespostaHttp := ConverterJSONOrderCreatedParaCobGerada(RespostaHttp);
         AResultCode := HTTP_CREATED;
       end;
     end
-
+    else if (uMethod = ChttpMethodDELETE) and (AResultCode = HTTP_OK) then
+      RespostaHttp := ConverterJSONOrderCreatedParaCobGerada(RespostaHttp)
     else if (uMethod = ChttpMethodGET) then
     begin
       if (pos(cShipayEndPointOrdersList, AURL) = 0) then
@@ -680,6 +716,27 @@ begin
         RespostaHttp := ConverterJSONOrdersListParaCobsConsultadas(RespostaHttp);
     end;
   end
+  else if (AEndPoint = cEndPointPix) then
+  begin
+    if (uMethod = ChttpMethodDELETE) then
+    begin
+      if (AResultCode = HTTP_OK) then
+      begin
+        RespostaHttp := ConverterJSONRefundCreatedParaDevolucao( RespostaHttp );
+        AResultCode := HTTP_CREATED;
+      end;
+    end
+    else if (uMethod = ChttpMethodGET) then
+    begin
+      if (AResultCode = HTTP_OK) then
+      begin
+        if (Pos(cShipayEndPointOrdersList,AURL) > 0) then
+          RespostaHttp := ConverterJSONOrderlistParaPixConsultados(RespostaHttp)
+        else
+          RespostaHttp := ConverterJSONOrderInfoParaPix(RespostaHttp);
+      end;
+    end;
+  end;
 end;
 
 function TACBrPSPShipay.ConverterJSONCobSolicitadaParaShipayOrder(const CobSolicitadaJSON: String): String;
@@ -688,8 +745,8 @@ const
 var
   Cob: TACBrPIXCobSolicitada;
   ia: TACBrPIXInfoAdicional;
+  sl: TStringList;
   i: Integer;
-  item: TShipayItem;
   s: String;
 begin
   fOrder.Clear;
@@ -701,7 +758,6 @@ begin
     fOrder.buyer.cpf_cnpj := IfEmptyThen(Cob.devedor.cnpj, Cob.devedor.cpf);
     fOrder.total := Cob.valor.original;
     fOrder.pix_dict_key := Cob.chave;
-    fOrder.expiration := Cob.calendario.expiracao;
 
     ia := Cob.infoAdicionais.Find('order_ref');
     if (ia <> Nil) then
@@ -717,20 +773,23 @@ begin
       ia := Cob.infoAdicionais.Find(s);
       if (ia <> Nil) then
       begin
-        item := fOrder.items.New;
+        sl := TStringList.Create;
         try
-          item.AsJSON := ia.valor;
-        except
-          On E: Exception do
+          sl.Text := ia.valor;
+          with fOrder.items.New do
           begin
-            ACBrPixCD.RegistrarLog(Format('Erro na sintaxe de %s',[s]));
-            ACBrPixCD.RegistrarLog(E.ClassName + ': ' + E.Message);
-            fOrder.items.Remove(item);
+            ean := sl.Values['ean'];
+            item_title := sl.Values['item_title'];
+            quantity := StrToIntDef(sl.Values['quantity'], 1);
+            sku := sl.Values['sku'];
+            unit_price := StrToFloatDef(sl.Values['unit_price'], 0);
           end;
+        finally
+          sl.Free;
         end;
         Inc(i);
       end;
-    until (ia = Nil) ;
+    until (ia = Nil);
 
     // Chama Evento, para permitir ao usuário informar OrderRef, Wallet e Items
     if Assigned(fQuandoEnviarOrder) then
@@ -780,14 +839,6 @@ begin
         quantity := 1;
         unit_price := fOrder.total;
       end;
-    end;
-
-    if (fOrder.wallet <> cShipayWalletPix) then
-      fOrder.expiration := 0
-    else
-    begin
-      if (fOrder.expiration <= 0) then
-        fOrder.expiration := 3600
     end;
 
     Result := fOrder.AsJSON;
@@ -872,6 +923,7 @@ function TACBrPSPShipay.ConverterJSONOrderInfoParaCobCompleta(
   const OrderInfoJSON: String): String;
 var
   Cob: TACBrPIXCobCompleta;
+  pix: TACBrPIX;
 begin
   fOrderInfo.AsJSON := OrderInfoJSON;
   Cob := TACBrPIXCobCompleta.Create('');
@@ -908,6 +960,17 @@ begin
         nome := 'pix_psp';
         valor := fOrderInfo.pix_psp;
       end;
+    end;
+
+    // Cria objeto pix com as informação de pagamento, caso existam
+    if NaoEstaVazio(fOrderInfo.wallet_payment_id) then
+    with cob.pix.New do
+    begin
+      endToEndId := fOrderInfo.wallet_payment_id;
+      txid := fOrderInfo.order_id;
+      componentesValor.original.valor := fOrderInfo.total_order;
+      valor := fOrderInfo.paid_amount;
+      horario := fOrderInfo.payment_date;
     end;
 
     Result := Cob.AsJSON;
@@ -956,6 +1019,123 @@ begin
   end;
 end;
 
+function TACBrPSPShipay.ConverterJSONPixDevolucaoSolicitadaParaOrderRefund(
+  const RefundSolicitadaJSON: String): String;
+var
+  wBody: TACBrJSONObject;
+  wRefund: TACBrPIXDevolucaoSolicitada;
+begin
+  wBody := TACBrJSONObject.Create;
+  wRefund := TACBrPIXDevolucaoSolicitada.Create('');
+  try
+    wRefund.AsJSON := RefundSolicitadaJSON;
+    wBody.AddPair('amount', wRefund.valor);
+    Result := wBody.ToJSON;
+  finally
+    wRefund.Free;
+    wBody.Free;
+  end;
+end;
+
+function TACBrPSPShipay.ConverterJSONRefundCreatedParaDevolucao(
+  const RefundCreatedJSON: String): String;
+var
+  wDevolucao: TACBrPIXDevolucao;
+begin
+  fOrderInfo.AsJSON := RefundCreatedJSON;
+  if (URLPathParams.Count > 0) and
+     (fOrderInfo.order_id <> Trim(URLPathParams[0])) then
+    DispararExcecao(EACBrPixException.Create(sErrOrderIdDifferent));
+
+  wDevolucao := TACBrPIXDevolucao.Create('');
+  try
+    with wDevolucao do
+    begin
+      id := StringReplace(fOrderInfo.order_id, '-', '', [rfReplaceAll]);
+      //rtrId: ;
+      //horario: ;
+      status := ShiPayStatusToDevStatus(fOrderInfo.status);
+      motivo := fOrderInfo.message;
+      Result := AsJSON;
+    end;
+  finally
+    wDevolucao.Free;
+  end;
+end;
+
+function TACBrPSPShipay.ConverterJSONOrderInfoParaPix(
+  const OrderInfoJSON: String): String;
+var
+  wPix: TACBrPIX;
+begin
+  fOrderInfo.AsJSON := OrderInfoJSON;
+  wPix := TACBrPIX.Create('');
+  try
+    with wPix do
+    begin
+      endToEndId := fOrderInfo.wallet_payment_id;
+      txid := StringReplace(fOrderInfo.order_id, '-', '', [rfReplaceAll]);
+      valor := fOrderInfo.paid_amount;
+      //componentesValor := ;
+      //chave := ;
+      //horario := fOrderInfo.payment_date;
+      //horario_Bias := ;
+      //infoPagador := fOrderInfo.buyer_info.document;
+
+      if (fOrderInfo.status in [spsRefunded, spsPartial_Refunded]) then
+      begin
+        devolucoes.New;
+        with devolucoes[0] do
+        begin
+          id := StringReplace(fOrderInfo.order_id, '-', '', [rfReplaceAll]);
+          //rtrId: ;
+          //horario: ;
+          status := ShiPayStatusToDevStatus(fOrderInfo.status);
+          motivo := fOrderInfo.message;
+        end;
+      end;
+
+      IsBacen := False;
+    end;
+    Result := wPix.AsJSON;
+  finally
+    wPix.Free;
+  end;
+end;
+
+function TACBrPSPShipay.ConverterJSONOrderlistParaPixConsultados(
+  const OrderInfoJSON: String): String;
+var
+  wPix: TACBrPIXConsultados;
+  I: Integer;
+begin
+  fOrderList.AsJSON := OrderInfoJSON;
+  wPix := TACBrPIXConsultados.Create('');
+  try
+    for I := 0 to Pred(fOrderList.Count) do
+    begin
+      //wPix.pix.New.AsJSON := ConverterJSONOrderInfoParaPix(fOrderList.data[I].AsJSON);
+      with wPix.pix.New do
+      begin
+        endToEndId := fOrderList.data[I].wallet_payment_id;
+        txid := StringReplace(fOrderList.data[I].order_id, '-', '', [rfReplaceAll]);
+        valor := fOrderList.data[I].total_order;
+        //componentesValor := ;
+        //chave := ;
+        horario := fOrderList.data[I].order_payment_date;
+        //horario_Bias := ;
+        infoPagador := fOrderList.data[I].customer_name;
+
+        IsBacen := False;
+      end;
+    end;
+
+    Result := wPix.AsJSON;
+  finally
+    wPix.Free;
+  end;
+end;
+
 function TACBrPSPShipay.ShiPayStatusToCobStatus(
   AShipayStatus: TShipayOrderStatus): TACBrPIXStatusCobranca;
 begin
@@ -971,6 +1151,19 @@ begin
   end;
 end;
 
+function TACBrPSPShipay.ShiPayStatusToDevStatus(
+  AShipayStatus: TShipayOrderStatus): TACBrPIXStatusDevolucao;
+begin
+  case AShipayStatus of
+    spsApproved         : Result := stdNAO_REALIZADO;
+    spsRefunded,
+    spsRefundPending    : Result := stdDEVOLVIDO;
+    spsPartial_Refunded : Result := stdEM_PROCESSAMENTO;
+  else
+    Result := stdNENHUM;
+  end;
+end;
+
 function TACBrPSPShipay.CalcularEndPointPath(const aMethod, aEndPoint: String): String;
 begin
   Result := Trim(aEndPoint);
@@ -980,11 +1173,20 @@ begin
     // Possui mais de um parâmetro de query?  ...Então é consulta por período
     if (URLQueryParams.Count > 1) then
       Result := cShipayEndPointOrdersList
-    else if ((aMethod = ChttpMethodPATCH) or (aMethod = ChttpMethodDELETE)) or
-            (fOrder.wallet = cShipayWalletPagador) then
-      Result := cShipayEndPointOrder
     else
-      Result := cShipayEndPointOrderV;
+      Result := cShipayEndPointOrder;
+  end
+  else if (aEndPoint = cEndPointPix) then
+  begin
+    if (aMethod = ChttpMethodPUT) or (aMethod = ChttpMethodGET) then
+    begin
+      if (URLQueryParams.Count > 1) then
+        Result := cShipayEndPointOrdersList
+      else
+        Result := cShipayEndPointOrder;
+    end
+    else
+      Result := cShipayEndPointPix;
   end;
 end;
 
@@ -1008,18 +1210,45 @@ begin
     if ((aMethod = ChttpMethodDELETE) or (aMethod = ChttpMethodPATCH)) and
        (Pos(PIXStatusCobrancaToString(stcREMOVIDA_PELO_USUARIO_RECEBEDOR), aBody) > 0) then
       aBody := EmptyStr;
+  end
+  else if (aEndPoint = cEndPointPix) then
+  begin
+    if ((aMethod = ChttpMethodPUT) or (aMethod = ChttpMethodDELETE)) then
+      aBody := ConverterJSONPixDevolucaoSolicitadaParaOrderRefund(aBody);
   end;
 end;
 
 procedure TACBrPSPShipay.ConfigurarPathParameters(const aMethod,
   aEndPoint: String);
 var
-  wP, wName: String;
+  wP, wName, wOrderID: String;
   wSL: TStringList;
   I: Integer;
 begin
+  wOrderID := EmptyStr;
   if (URLPathParams.Count <= 0) then
     Exit;
+
+  // Tratando parâmetros de Path do estorno
+  if (aEndPoint = cEndPointPix) and (aMethod = ChttpMethodPUT) then
+  begin
+    if (URLPathParams.Count > 0) then
+      wOrderID := URLPathParams[0];
+    URLPathParams.Clear;
+    URLPathParams.Add(wOrderID);
+    URLPathParams.Add('refund');
+    Exit;
+  end;
+
+  // Tratando parâmetros de Path da consulta de estorno
+  if (aEndPoint = cEndPointPix) and (aMethod = ChttpMethodGET) then
+  begin
+    if (URLPathParams.Count > 0) then
+      wOrderID := URLPathParams[0];
+    URLPathParams.Clear;
+    URLPathParams.Add(wOrderID);
+    Exit;
+  end;
 
   // Shipay não utiliza parâmetros de Path para métodos POST/PUT
   if (aMethod = ChttpMethodPOST) or (aMethod = ChttpMethodPUT) then

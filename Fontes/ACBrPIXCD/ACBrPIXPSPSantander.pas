@@ -232,19 +232,6 @@ begin
   end;
 end;
 
-procedure TACBrPSPSantander.ConfigurarQueryParameters(const Method,
-  EndPoint: String);
-const
-  cDtFormat: string = 'yyyy''-''mm''-''dd''T''hh'':''nn'':''ss''Z''';
-begin
-  // Santander só aceita parâmetros de data SEM milissegundos
-  if (EndPoint = cEndPointPix) and (Method = ChttpMethodGET) and (URLQueryParams.Count > 0) then
-  begin
-    URLQueryParams.Values['inicio'] := FormatDateTime(cDtFormat, Iso8601ToDateTime(URLQueryParams.Values['inicio']));
-    URLQueryParams.Values['fim'] := FormatDateTime(cDtFormat, Iso8601ToDateTime(URLQueryParams.Values['fim']));
-  end;
-end;
-
 function TACBrPSPSantander.ObterURLAmbiente(const aAmbiente: TACBrPixCDAmbiente): String;
 begin
   case aAmbiente of

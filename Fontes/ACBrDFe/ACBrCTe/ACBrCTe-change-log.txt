@@ -44,6 +44,138 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+06/03/2024
+-- ACBrCTeServicos --
+[+] Incluído as URL de homologação e produção de Recepção de eventos Ambiente
+    Nacional.
+  Por: Italo Giurizzato Junior
+
+06/03/2024
+-- Diversos --
+[*] Diversas alterações visando atender os novos campos de ICMS,
+    NT 2024/001 versão 1.01 que vão ser ativados em ambiente de homologação em 
+    11/03/2024 e em produção em 08/04/2024
+  Por: Italo Giurizzato Junior
+
+05/03/2024
+-- pcteConversaoCTe --
+[*] Diversas alterações visando eliminar erros de conversão de string para enumerado.
+  Por: Italo Giurizzato Junior
+
+04/03/2024
+-- pcteCTeR --
+[*] Adiciona validação do conteúdo lido de CRT antes de tentar converter para evitar exception em valor inválido.
+  Por: Diego Folieni
+
+02/03/2024
+-- ACBrCTeWebServices --
+[*] Alterado a chamada do ParseText, removendo o segundo e terceiro parâmetros.
+  Por: Italo Giurizzato Junior
+
+29/02/2024
+-- ACBrCTeConhecimentos --
+[*] Valida alguns valores opcionais antes de converter para que não levante exception quando em branco.
+  Por: Diego Folieni
+
+28/02/2024
+-- pcteCTeR --
+[*] Alteração visando ler tag tipadas opcionais.
+  Por: Italo Giurizzato Junior
+-- pcteCTeR --
+[*] Alteração visando evitar exceção quando ler e tentar converter campo retira quando não tiver no XML.
+  Por: Diego Folieni
+
+27/02/2024
+-- pcteConversaoCTe --
+[*] Valores da constante: TModeloCTeArrayStrings estavam invertidos.
+  Por: Italo Giurizzato Junior
+-- pcteConversaoCTe --
+[*] Ajustes visando retornar um valor para o parâmetro Ok que exite em algumas
+    funções de conversão.
+  Por: Italo Giurizzato Junior
+-- pcteConversaoCTe, pcteCTeR --
+[*] Ajustes visando evitar exceção de conversão com valor inválido.
+  Por: Diego Folieni 
+
+26/02/2024
+-- pcteConversaoCTe --
+[-] Correção: na função de conversão: StrToTpRspSeguro.
+  Por: Italo Giurizzato Junior
+-- pcteConversaoCTe --
+[-] Correção: estava faltando os valores: URL-QRCode e URL-ConsultaCTe do
+    Layout.
+  Por: Italo Giurizzato Junior
+
+23/02/2024
+-- pcteConversaoCTe --
+[*] Refactoring na unit.
+  Por: Italo Giurizzato Junior
+
+16/02/2024
+-- pcteCTeR --
+[-] Correção na leitura da lista de Observações do Contribuinte.
+  Por: Italo Giurizzato Junior
+
+13/02/2024
+-- ACBrCTeWebServices --
+[*] Refactoring visando a utilizar as units: ACBrDFeComum.ConsStatServ e 
+    ACBrDFeComum.RetConsStatServ.
+  Por: Italo Giurizzato Junior
+
+12/02/2024
+-- ACBrCTeServicos --
+[+] Incluída as URLs de homologação do CTeOS e GTVe de MS e a URL de
+    homologação de Inutilização de SP.
+-- ACBrCTeWebServices --
+[*] Refactoring visando a utilizar as units: ACBrDFeComum.ConsCad e 
+    ACBrDFeComum.RetConsCad.
+  Por: Italo Giurizzato Junior
+
+09/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnAuxiliar.
+  Por: Italo Giurizzato Junior
+
+01/02/2024
+-- Diversos --
+[*] Refactoring visando deixar de usar a unit pcnConsts.
+[*] Corrigido o problema de gerar a tag CRT quando se trata do GTV-e.
+  Por: Italo Giurizzato Junior
+
+29/01/2024
+-- ACBrCTeDACTeRLRetrato, ACBrCTeDACTeRLRetratoA5 --
+[*] Remoção da coluna Valor Complementado da seção CTe-Complementado, 
+    pois não há tag correspondente para preencher a informação.
+  Por: Diego Folieni
+
+08/01/2023
+-- ACBrCTeConhecimentos --
+[*] Adiciona na rotina de leitura do INI o campo xCpl do grupo Dest
+  Por: Diego Folieni
+
+17/11/2023
+-- Diversos --
+[+] Implementado o método ImprimirEventoPDF usando o Stream.
+  Por: Italo Giurizzato Junior
+
+14/11/2023
+-- ACBrCTeConhecimentos --
+[+] Implementado o método ImprimirPDF usando o Stream na classe Conhecimento.
+  Por: Italo Giurizzato Junior
+-- pcteRetEnvEventoCTe --
+[*] Reversão das alterações do commit anterior
+  Por: Diego Folieni
+
+13/11/2023
+-- pcteRetEnvEventoCTe --
+[*] Ajuste para resolver problema na leitura do retorno da carta de correção
+  Por: Diego Folieni
+
+03/11/2023
+-- ACBrCTeDACTeRLRetrato --
+[*] Ajuste para corrigir acentuação na seção Documentos Originarios
+  Por: Diego Folieni
+
 21/09/2023
 -- ACBrCTeWebServices --
 [-] Correção para não fazer a consulta do recibo após o envio, quando o envio foi no modo síncrono.

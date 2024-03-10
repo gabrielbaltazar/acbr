@@ -161,6 +161,15 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaPorFaixa := True;
     DetalharServico := True;
+
+    with ServicosDisponibilizados do
+    begin
+      EnviarLoteAssincrono := True;
+      ConsultarLote := True;
+      ConsultarFaixaNfse := True;
+      ConsultarNfseChave := True;
+      CancelarNfse := True;
+    end;
   end;
 
   with ConfigWebServices do
@@ -767,7 +776,7 @@ begin
     begin
       AErro := Response.Erros.New;
       AErro.Codigo := '';
-      AErro.Descricao := ACBrStr(Descricao);
+      AErro.Descricao := Descricao;
       AErro.Correcao := '';
     end;
 
@@ -775,7 +784,7 @@ begin
     begin
       AAlerta := Response.Alertas.New;
       AAlerta.Codigo := '';
-      AAlerta.Descricao := ACBrStr(Descricao);
+      AAlerta.Descricao := Descricao;
       AAlerta.Correcao := '';
     end;
   end;
@@ -1011,7 +1020,7 @@ function TACBrNFSeXWebserviceInfisc.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
 end;
@@ -1191,7 +1200,7 @@ function TACBrNFSeXWebserviceInfisc201.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := StringReplace(Result, '<Signature>)', '[Signature])', [rfReplaceAll]);

@@ -114,11 +114,8 @@ begin
 
   if AuxNode <> nil then
   begin
-    with NFSe.Prestador do
+    with NFSe.Servico do
     begin
-      RazaoSocial := '';
-      IdentificacaoPrestador.CpfCnpj := '';
-
       with Endereco do
       begin
         Endereco    := ObterConteudo(AuxNode.Childrens.FindAnyNs('logradouro'), tcStr);
@@ -129,9 +126,6 @@ begin
         UF          := ObterConteudo(AuxNode.Childrens.FindAnyNs('uf'), tcStr);
         CEP         := ObterConteudo(AuxNode.Childrens.FindAnyNs('cep'), tcStr);
         xPais       := ObterConteudo(AuxNode.Childrens.FindAnyNs('pais'), tcStr);
-
-        with Contato do
-          Telefone := ObterConteudo(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
       end;
     end;
   end;
@@ -248,6 +242,8 @@ begin
       Discriminacao    := ObterConteudo(AuxNode.Childrens.FindAnyNs('descricao'), tcStr);
       Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
                                       sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+
+      VerificarSeConteudoEhLista(Discriminacao);
 
       with Valores do
       begin

@@ -216,7 +216,7 @@ function TACBrNFSeXWebserviceDSF.TratarXmlRetornado(const aXML: string): string;
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 end;
 
@@ -436,9 +436,8 @@ function TACBrNFSeXWebserviceDSF200.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
-  Result := string(NativeStringToUTF8(Result));
 end;
 
 { TACBrNFSeProviderDSF200 }
@@ -505,7 +504,6 @@ begin
 
   with ConfigAssinar do
   begin
-    Rps := False;
     ConsultarLote := True;
     ConsultarNFSeRps := True;
     ConsultarNFSePorFaixa := True;

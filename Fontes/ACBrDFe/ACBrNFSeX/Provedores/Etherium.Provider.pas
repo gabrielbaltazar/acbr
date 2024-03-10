@@ -120,14 +120,16 @@ begin
   FpFormatoDataEmissao := tcDatUSA;
   FpFormatoDataHora := tcDatUSA;
 
+  with ConfigGeral.ServicosDisponibilizados do
+  begin
+    ConsultarServicoPrestado := False;
+    ConsultarServicoTomado := False;
+  end;
+
   with ConfigAssinar do
   begin
     Rps               := True;
     LoteRps           := True;
-    ConsultarSituacao := False;
-    ConsultarLote     := False;
-    ConsultarNFSeRps  := False;
-    ConsultarNFSe     := False;
     CancelarNFSe      := True;
     RpsGerarNFSe      := True;
     RpsSubstituirNFSe := True;
@@ -316,7 +318,7 @@ function TACBrNFSeXWebserviceEtherium203.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
 
   // O provedor gera o tag diferente quando o Rps é processado com sucesso
@@ -511,7 +513,7 @@ function TACBrNFSeXWebserviceEtherium204.TratarXmlRetornado(
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  Result := ParseText(AnsiString(Result), True, {$IfDef FPC}True{$Else}False{$EndIf});
+  Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
 end;
