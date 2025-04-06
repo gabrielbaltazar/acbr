@@ -48,12 +48,12 @@ type
   private
     function GetNameSpace: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -111,12 +111,9 @@ begin
 
     ConsultarNFSe.xmlns := 'http://www.ginfes.com.br/servico_consultar_nfse_envio_v03.xsd';
 
-    with CancelarNFSe do
-    begin
-      xmlns := 'http://www.ginfes.com.br/servico_cancelar_nfse_envio';
-      InfElemento := 'Prestador';
-      DocElemento := 'CancelarNfseEnvio';
-    end;
+    CancelarNFSe.xmlns := 'http://www.ginfes.com.br/servico_cancelar_nfse_envio';
+    CancelarNFSe.InfElemento := 'Prestador';
+    CancelarNFSe.DocElemento := 'CancelarNfseEnvio';
   end;
 
   with ConfigAssinar do
@@ -304,7 +301,7 @@ begin
   Result := ' xmlns:ns1="' + Result + '"';
 end;
 
-function TACBrNFSeXWebserviceISSFortaleza.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSFortaleza.Recepcionar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -320,7 +317,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceISSFortaleza.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSFortaleza.ConsultarLote(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -336,7 +333,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceISSFortaleza.ConsultarSituacao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSFortaleza.ConsultarSituacao(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -352,7 +349,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceISSFortaleza.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSFortaleza.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -368,7 +365,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceISSFortaleza.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSFortaleza.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -384,7 +381,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceISSFortaleza.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSFortaleza.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -402,7 +399,9 @@ end;
 function TACBrNFSeXWebserviceISSFortaleza.TratarXmlRetornado(
   const aXML: string): string;
 begin
-  Result := inherited TratarXmlRetornado(aXML);
+  Result := ConverteANSIparaUTF8(aXML);
+
+  Result := inherited TratarXmlRetornado(Result);
 
   Result := ParseText(Result);
   Result := RemoverDeclaracaoXML(Result);

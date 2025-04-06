@@ -47,6 +47,24 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+
+30/09/2024
+[*] #TK-6037 - AcbrLibSat - falha função ObterCFe em devolver hora emissão Sat
+   Ajuste na função GerarCFeIni para obter data e hora do CFe.
+   Por: Antonio Carlos Junior
+
+24/06/2024
+[+]TK-4935 Adiciona método gera um arquivo INI com as informações da classe do CFe
+  Por: Antônio Carlos / Diego Folieni
+
+29/05/2024
+[*]TK-5509-1 Ajustes no extrato SAT que estava sobrescrevendo itens, removido ACBrStr conf. instrucao DSA
+  Por Daniel Morais InfoCotidiano
+
+06/05/2024
+[+]TK-5354 ACBrSATExtratoFR (SAT.Extrato.Filtro: fiSVG, fiPNG) (funcionamento restrito a versões atuais do RAD)
+  Por Rafael S Amaral / Victor H Gonzales - Pandaaa
+
 09/02/2024
 -- Diversos --
 [*] Refactoring visando deixar de usar a unit pcnAuxiliar.

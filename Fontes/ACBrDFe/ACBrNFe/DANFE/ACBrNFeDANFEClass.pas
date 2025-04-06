@@ -38,9 +38,15 @@ unit ACBrNFeDANFEClass;
 interface
 
 uses
-  SysUtils, Classes,
-  ACBrBase, ACBrDFeDANFeReport,
-  pcnNFe, pcnConversao, pcnConversaoNFe, StrUtilsEx, TypInfo;
+  SysUtils, 
+  Classes,
+  ACBrBase, 
+  ACBrDFeDANFeReport,
+  ACBrNFe.Classes,
+  pcnConversao, 
+  pcnConversaoNFe, 
+  StrUtilsEx, 
+  TypInfo;
 
 type
   TDetVeiculo = (dv_tpOp, dv_chassi, dv_cCor, dv_xCor, dv_pot, dv_cilin,
@@ -89,9 +95,12 @@ type
     FTributosPercentualPersonalizado: Double;
     FExpandirDadosAdicionaisAuto: boolean;
     FExibeCampoDePagamento: TpcnInformacoesDePagamento;
+    FEtiqueta: Boolean;
+    FFormatarNumeroDocumento : Boolean;
+    FExibeCampoDuplicata: Boolean;
+
     procedure SetTributosPercentual(const AValue: TpcnPercentualTributos);
     procedure SetTributosPercentualPersonalizado(const AValue: Double);
-
   public
     constructor Create(AOwner: TComponent); override;
 
@@ -135,6 +144,9 @@ type
     property ExpandirDadosAdicionaisAuto: boolean read FExpandirDadosAdicionaisAuto write FExpandirDadosAdicionaisAuto default False;
     property ExibeCampoDePagamento: TpcnInformacoesDePagamento read FExibeCampoDePagamento write FExibeCampoDePagamento default eipNunca;
     property FormularioContinuo;
+    property Etiqueta: Boolean read FEtiqueta write FEtiqueta default False;
+    property FormatarNumeroDocumento: Boolean read FFormatarNumeroDocumento write FFormatarNumeroDocumento default True;
+    property ExibeCampoDuplicata: Boolean read FExibeCampoDuplicata write FExibeCampoDuplicata default True;
   end;
 
 
@@ -156,7 +168,7 @@ type
     FDescricaoPagamentos: TDescricaoPagamentos;
     FImprimeEmUmaLinha: Boolean;
     FImprimeEmDuasLinhas: Boolean;
-
+    FFormatarNumeroDocumento : Boolean;
     procedure setImprimeEmUmaLinha(const Value: Boolean);
     procedure setImprimeEmDuasLinhas(const Value: Boolean);
   public
@@ -177,13 +189,17 @@ type
     property ImprimeEmUmaLinha: Boolean read FImprimeEmUmaLinha write setImprimeEmUmaLinha default False;
     property ImprimeEmDuasLinhas: Boolean read FImprimeEmDuasLinhas write setImprimeEmDuasLinhas default False;
     property FormularioContinuo;
+    property FormatarNumeroDocumento: Boolean read FFormatarNumeroDocumento write FFormatarNumeroDocumento default True;
   end;
 
 implementation
 
 uses
-  ACBrDFeUtil, ACBrValidador,
-  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime,
+  ACBrDFeUtil, 
+  ACBrValidador,
+  ACBrUtil.Base, 
+  ACBrUtil.Strings, 
+  ACBrUtil.DateTime,
   StrUtils;
 
 { TACBrNFeDANFEClass }
@@ -213,7 +229,9 @@ begin
   FTributosPercentualPersonalizado := 0;
   FExpandirDadosAdicionaisAuto     := False;
   FExibeCampoDePagamento           := eipNunca;   	
-
+  FEtiqueta                        := False;
+  FFormatarNumeroDocumento         := True;
+  FExibeCampoDuplicata             := True;
 end;
 
 procedure TACBrNFeDANFEClass.SetTributosPercentual(const AValue: TpcnPercentualTributos);
@@ -259,20 +277,19 @@ begin
   begin
     if ExibeTotalTributosItem and NaoEstaZerado(Imposto.vTotTrib) then
     begin
-      with Imposto do
-      begin
-        Result := SeparadorDetalhamentos +'Val Aprox Tributos: ' + FormatFloatBr(Imposto.vTotTrib);
+      Result := SeparadorDetalhamentos +'Val Aprox Tributos: ' + FormatFloatBr(Imposto.vTotTrib);
 
-        if (FTributosPercentual = ptValorNF) then
-        begin
-          TotalProduto := Prod.VProd + Prod.vFrete + Prod.vOutro + Prod.vSeg + IPI.vIPI + ICMS.vICMSST;
-          if NaoEstaZerado(TotalProduto) then
-            Result := Result + ' (' + FormatFloatBr((Imposto.vTotTrib * 100) / TotalProduto) + '%)';
-        end
-        else
-          if NaoEstaZerado(Prod.VProd) then
-            Result := Result + ' (' + FormatFloatBr((Imposto.vTotTrib * 100) / Prod.VProd) + '%)';
-      end;
+      if (FTributosPercentual = ptValorNF) then
+      begin
+        TotalProduto := Prod.VProd + Prod.vFrete + Prod.vOutro + Prod.vSeg +
+                        Imposto.IPI.vIPI + Imposto.ICMS.vICMSST;
+
+        if NaoEstaZerado(TotalProduto) then
+          Result := Result + ' (' + FormatFloatBr((Imposto.vTotTrib * 100) / TotalProduto) + '%)';
+      end
+      else
+        if NaoEstaZerado(Prod.VProd) then
+          Result := Result + ' (' + FormatFloatBr((Imposto.vTotTrib * 100) / Prod.VProd) + '%)';
     end;
   end;
 end;
@@ -363,7 +380,7 @@ begin
       for i := 0 to med.Count - 1 do
       begin
         if (aNFE.infNFe.Versao >= 4) then
-          Result := Result + 'C.P. ANVISA ' + med.Items[i].cProdANVISA + sQuebraLinha
+          Result := Result + 'Registro ANVISA ' + med.Items[i].cProdANVISA + sQuebraLinha
         else
         begin
           if (dm_nLote in FDetMedicamentos) then
@@ -494,7 +511,7 @@ begin
           Result := Result + 'LOTE: ' + rastro.Items[i].nLote + sQuebraLinha;
 
         if (dr_qLote in FDetRastros) then
-          Result := Result + 'QTD: ' + FormatFloatBr(rastro.Items[i].qLote) + sQuebraLinha;
+          Result := Result + 'QTD: ' + FormatFloatBr(rastro.Items[i].qLote, FloatMask(3)) + sQuebraLinha;
 
         if (dr_dFab in FDetRastros) then
           Result := Result + 'FAB: ' + FormatDateBr(rastro.Items[i].dFab) + sQuebraLinha;
@@ -529,8 +546,8 @@ function TACBrNFeDANFEClass.ManterDocreferenciados(aNFE: TNFe): String;
     case StrToIntDef(Copy(chave, 21, 2), 0) of
       59: Result := 'CFe-SAT Ref.:';
       65: Result := 'NFCe Ref.:';
-      else
-        Result := 'NFe Ref.:';
+    else
+      Result := 'NFe Ref.:';
     end;
   end;
 
@@ -612,13 +629,13 @@ begin
 
   case aNFE.Ide.tpEmis of
     teOffLine, teContingencia, teFSDA, teSCAN, teSVCAN, teSVCRS, teSVCSP:
-      Result := ACBrStr('DANFE EM CONTINGÊNCIA, IMPRESSO EM DECORRÊNCIA DE PROBLEMAS TÉCNICOS;');
+      Result := ACBrStr('DANFE EM CONTINGÊNCIA, IMPRESSO EM DECORRÊNCIA DE PROBLEMAS TÉCNICOS' + CaractereQuebraDeLinha);
 
     teDPEC:
       Result :=
-        ACBrStr('DANFE IMPRESSO EM CONTINGÊNCIA - DPEC REGULARMENTE RECEBIDA PELA RECEITA FEDERAL DO BRASIL;') +
-        ACBrStr('DATA/HORA INÍCIO: ') + IfThen(aNFE.ide.dhCont = 0, ' ', DateTimeToStr(aNFE.ide.dhCont)) + ';' +
-        ACBrStr('MOTIVO CONTINGÊNCIA: ') + IfThen(EstaVazio(aNFE.ide.xJust), ' ', aNFE.ide.xJust) + ';';
+        ACBrStr('DANFE IMPRESSO EM CONTINGÊNCIA - DPEC REGULARMENTE RECEBIDA PELA RECEITA FEDERAL DO BRASIL' + CaractereQuebraDeLinha) +
+        ACBrStr('DATA/HORA INÍCIO: ') + IfThen(aNFE.ide.dhCont = 0, ' ', DateTimeToStr(aNFE.ide.dhCont)) + CaractereQuebraDeLinha +
+        ACBrStr('MOTIVO CONTINGÊNCIA: ') + IfThen(EstaVazio(aNFE.ide.xJust), ' ', aNFE.ide.xJust) + CaractereQuebraDeLinha;
   end;
 end;
 
@@ -661,6 +678,7 @@ begin
   FDescricaoPagamentos   := [icaTipo, icaBandeira];
   FImprimeEmUmaLinha     := False;
   FImprimeEmDuasLinhas   := False;
+  FFormatarNumeroDocumento := True;
 end;
 
 function TACBrNFeDANFCEClass.ManterDescricaoPagamentos(aPagto: TpagCollectionItem
@@ -687,7 +705,6 @@ begin
   except
     Result:= ACBrStr(FormaPagamentoToDescricao(aPagto.tPag, aPagto.xPag)) + Space(1);
   end;
-
 end;
 
 procedure TACBrNFeDANFCEClass.setImprimeEmDuasLinhas(const Value: Boolean);
@@ -710,7 +727,6 @@ begin
   begin
     FImprimeEmDuasLinhas := False;
   end;
-
 end;
 
 
@@ -734,7 +750,7 @@ begin
   if (aNFe.Ide.tpEmis in [teContingencia, teFSDA]) and (aNFe.procNFe.cStat = 100) then
   begin
     Result := ACBrStr('PROTOCOLO DE AUTORIZAÇÃO DE USO: ') +
-      aNFe.procNFe.nProt + ' ' + FormatDateTimeBr(aNFe.procNFe.dhRecbto) + ';';
+      aNFe.procNFe.nProt + ' ' + FormatDateTimeBr(aNFe.procNFe.dhRecbto) + CaractereQuebraDeLinha;
   end
   else
     Result := '';
@@ -745,7 +761,7 @@ begin
   // Inscrição Suframa
   if NaoEstaVazio(aNFe.Dest.ISUF) and (FExibeDadosInscricaoSuframa) then
   begin
-    Result := ACBrStr('INSCRIÇÃO SUFRAMA: ') + aNFe.Dest.ISUF + ';';
+    Result := ACBrStr('INSCRIÇÃO SUFRAMA: ') + aNFe.Dest.ISUF + CaractereQuebraDeLinha;
   end
   else
     Result := '';
@@ -764,7 +780,7 @@ begin
             ManterInfCompl(aNFE) +
             ManterContingencia(aNFE);
 
-  Result := FastStringReplace(Result, ';', sLineBreak, [rfReplaceAll]);
+  Result := FastStringReplace(Result, CaractereQuebraDeLinha, sLineBreak, [rfReplaceAll]);
 end;
 
 function TACBrNFeDANFEClass.ManterPagamentos(aNFE: TNFe): String;

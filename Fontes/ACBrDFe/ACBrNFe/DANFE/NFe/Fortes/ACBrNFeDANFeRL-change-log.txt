@@ -46,6 +46,55 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+
+05/02/2025
+-- Diversos --
+[*] Nos quadros: Peso Bruto e Peso Linquido foi acrescentado "(Kg)" para deixar
+    claro que o numero informado nos quadros estão na unidade Kg.
+    Essa alteração foi aplicada nos modelos feitos em Fortes e FPDF.
+   Por: Italo Giurizzato Junior
+
+20/01/2025
+-- ACBrNFeDANFeEventoRLRetrato --
+[*] #TK-6502: Ajuste visando a impressão dos nomes do eventos: ECONF e Cancelamento do ECONF.
+   por: Diogo Weitz
+
+19/12/2024
+-- ACBrNFeDANFeRLRetrato --
+[*] TK-6359 Ajustes para que os dados do Emitente obedeçam uma nova margem.
+  Por: Rodrigo Ogioni
+
+02/09/2024
+-- ACBrNFeDANFeEventoRLRetrato, ACBrNFeDANFeRLPaisagem, ACBrNFeDANFeRLRetrato, 
+[*] #TK-5866: Ajuste visando padronização do caractere de quebra de linha.
+   por: Diego Folieni
+
+13/08/2024
+-- ACBrNFeDANFeRLSimplificado --
+[*] TK-5742 Não estava respeitando a propriedade ExibeInforAdicProduto
+  Por: Italo Giurizzato Junior
+
+22/04/2024
+-- ACBrNFeDANFeRLPaisagem DFM e ACBrNFeDANFeRLRetrato DFM --
+[*] TK-2944 ACBrNFCe/ACBrNFE - Removido StyleElements, ExplicitWidth e ExplicitHeight 
+  Por: Daniel de Morais InfoCotidiano
+
+22/04/2024
+-- ACBrDANFCeFortesFrA4,ACBrNFeDANFeEventoRL,ACBrNFeDANFeRLPaisagem,ACBrNFeDANFeRLRetrato --
+[*] TK-2944 ACBrNFCe/ACBrNFE - Convertido relatórios Delphi para Lazarus.
+  Por: Daniel de Morais InfoCotidiano
+
+04/04/2024
+-- ACBrNFeDANFeRLPaisagem --
+[*] Conversao ACBrNFeDANFeRLSimplificado.dfm para lfm - foi necessario remover a linha 10 (StyleElements) q estava dando conflito no lazarus. 
+  por : Daniel de Morais InfoCotidiano
+
+18/03/2024
+-- ACBrNFeDANFeRLPaisagem --
+[*] TK-5143 - Ajuste para quebra de linha quando ExibeEAN calcular o tamanho LinhaProdEAN e ajustar a quebra de linha quando Paisagem
+https://www.projetoacbr.com.br/forum/topic/76834-erro-no-layout-da-nfe-paisagem-qdo-exibido-ean-a-descri%C3%A7%C3%A3o-esta-sobrepondo-o-ncm/
+  por : Daniel de Morais InfoCotidiano
+
 26/02/2024
 -- ACBrNFeDANFeRLSimplificado --
 [*] TK-5143 - Ajuste para ExibeInforAdicProduto na DANF Simplificada

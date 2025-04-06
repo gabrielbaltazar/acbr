@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -38,12 +38,15 @@ interface
 
 uses
   Forms, SysUtils, Classes,
-  ACBrBase, ACBrMDFeDAMDFeClass, pmdfeMDFe;
+  ACBrBase, ACBrMDFeDAMDFeClass, ACBrMDFe.Classes;
 
 type
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
   {$ENDIF RTL230_UP}
+
+  { TACBrMDFeDAMDFeRL }
+
   TACBrMDFeDAMDFeRL = class(TACBrMDFeDAMDFeClass)
   private
   protected
@@ -58,7 +61,9 @@ type
     procedure ImprimirDAMDFePDF(AStream: TStream; AMDFe: TMDFe = nil); override;
 
     procedure ImprimirEVENTO(AMDFe: TMDFe = nil); override;
+
     procedure ImprimirEVENTOPDF(AMDFe: TMDFe = nil); override;
+    procedure ImprimirEVENTOPDF(AStream: TStream; AMDFe: TMDFe = nil); override;
   published
     property PrintDialog: Boolean read FPrintDialog write FPrintDialog;
 end;
@@ -68,8 +73,8 @@ implementation
 uses
   ACBrUtil.FilesIO,
   ACBrUtil.Strings,
-  ACBrMDFe, 
-  pmdfeEnvEventoMDFe,
+  ACBrMDFe,
+  ACBrMDFe.EnvEvento,
   ACBrMDFeDAMDFeRLRetrato, 
   ACBrMDFeDAEventoRL, 
   ACBrMDFeDAEventoRLRetrato;
@@ -85,7 +90,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TACBrMDFeDAMDFeRL.ImprimirDAMDFE(AMDFe: TMDFe = nil);
+procedure TACBrMDFeDAMDFeRL.ImprimirDAMDFe(AMDFe: TMDFe);
 var
   i: Integer;
   Manifestos: array of TMDFe;
@@ -106,7 +111,7 @@ begin
   TfrlDAMDFeRLRetrato.Imprimir(Self, Manifestos);
 end;
 
-procedure TACBrMDFeDAMDFeRL.ImprimirDAMDFEPDF(AMDFe: TMDFe = nil);
+procedure TACBrMDFeDAMDFeRL.ImprimirDAMDFePDF(AMDFe: TMDFe);
 var
   i: integer;
   ArqPDF: String;
@@ -185,7 +190,7 @@ begin
         end;
       end;
 
-      if Impresso = False then
+      if not Impresso then
       begin
         TfrmMDFeDAEventoRLRetrato.Imprimir(Self, TACBrMDFe(ACBrMDFe).EventoMDFe.Evento.Items[i]);
       end;
@@ -255,6 +260,60 @@ begin
         if (i < (EventoMDFe.Evento.Count - 1)) then
           FPArquivoPDF := FPArquivoPDF + sLinebreak;
       end;
+    end;
+  end;
+end;
+
+procedure TACBrMDFeDAMDFeRL.ImprimirEVENTOPDF(AStream: TStream; AMDFe: TMDFe);
+var
+  Impresso: Boolean;
+  I, J: Integer;
+  NumID: String;
+begin
+  if not Assigned(AStream) then
+    raise EACBrMDFeException.Create('AStream precisa estar definido');
+
+  with TACBrMDFe(ACBrMDFe) do
+  begin
+    if (AMDFe = nil) and (Manifestos.Count > 0) then
+    begin
+      for i := 0 to (EventoMDFe.Evento.Count - 1) do
+      begin
+        Impresso := False;
+        for j := 0 to (Manifestos.Count - 1) do
+        begin
+          NumID := OnlyNumber(Manifestos.Items[j].MDFe.infMDFe.ID);
+          if (NumID = OnlyNumber(EventoMDFe.Evento.Items[i].InfEvento.chMDFe)) then
+          begin
+            TfrmMDFeDAEventoRLRetrato.SalvarPDF(Self, EventoMDFe.Evento.Items[i],
+              AStream, Manifestos.Items[j].MDFe);
+
+            Impresso := True;
+            Break;
+          end;
+        end;
+
+        if not Impresso and (EventoMDFe.Evento.Count >0 ) then
+          TfrmMDFeDAEventoRLRetrato.SalvarPDF(Self, EventoMDFe.Evento.Items[0], AStream, nil);
+      end;
+    end
+    else
+    begin
+      NumID := OnlyNumber(AMDFe.infMDFe.Id);
+      Impresso := False;
+
+      for i := 0 to (EventoMDFe.Evento.Count - 1) do
+      begin
+        if (NumID = OnlyNumber(EventoMDFe.Evento.Items[i].InfEvento.chMDFe)) then
+        begin
+          TfrmMDFeDAEventoRLRetrato.SalvarPDF(Self, EventoMDFe.Evento.Items[i], AStream, AMDFe);
+          Impresso := True;
+          Break;
+        end;
+      end;
+
+      if not Impresso and (EventoMDFe.Evento.Count > 0) then
+        TfrmMDFeDAEventoRLRetrato.SalvarPDF(Self, EventoMDFe.Evento.Items[0], AStream, nil);
     end;
   end;
 end;

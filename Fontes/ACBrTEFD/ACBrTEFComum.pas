@@ -37,9 +37,11 @@ unit ACBrTEFComum;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes,
+  SysUtils,
   {$IF DEFINED(HAS_SYSTEM_GENERICS)}
-   System.Generics.Collections, System.Generics.Defaults,
+   System.Generics.Collections,
+   System.Generics.Defaults,
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
    System.Contnrs,
   {$Else}
@@ -165,10 +167,13 @@ type
     procedure GravaInformacao(const Chave: AnsiString; const Informacao: TACBrInformacao); overload; virtual;
     procedure GravaInformacao(const Identificacao: Integer; const Sequencia: Integer; const Informacao: AnsiString); overload; virtual;
     procedure GravaInformacao(const Identificacao: Integer; const Sequencia: Integer; const Informacao: TACBrInformacao); overload; virtual;
-    function LeInformacao(const Identificacao: Integer; const Sequencia: Integer = 0): TACBrInformacao; virtual;
+    function LeInformacao(const Identificacao: Integer; const Sequencia: Integer = 0): TACBrInformacao; overload; virtual;
+    function LeInformacao(const Chave: AnsiString): TACBrInformacao; overload; virtual;
 
-    function AchaLinha(const Identificacao: Integer; const Sequencia: Integer = 0): Integer;
-    function LeLinha(const Identificacao: Integer; const Sequencia: Integer = 0): TACBrTEFLinha; virtual;
+    function AchaLinha(const Identificacao: Integer; const Sequencia: Integer = 0): Integer; overload;
+    function AchaLinha(const Chave: AnsiString): Integer; overload;
+    function LeLinha(const Identificacao: Integer; const Sequencia: Integer = 0): TACBrTEFLinha; overload; virtual;
+    function LeLinha(const Chave: AnsiString): TACBrTEFLinha; overload; virtual;
   end;
 
   TACBrTEFRespParceladoPor = (parcNenhum, parcADM, parcLoja);
@@ -372,7 +377,7 @@ type
     fpNomeCarteiraDigital : String; // Nome da carteira digital
     fpCodigoPSP : String; // Código do PSP - PIX
     fpNSU_TEF : String; // NSU interno, do Gerenciador TEF
-
+    fpEndToEndID : string; //Campo 4249 - Codigo EndToEndID da transação PIX SITEF
     fpSucesso: Boolean;       // Se True a Transação ocorreu com sucesso
 
     procedure SetCNFEnviado(const AValue: Boolean);
@@ -477,6 +482,7 @@ type
     property NomeCarteiraDigital: String read fpNomeCarteiraDigital write fpNomeCarteiraDigital;
     property CodigoPSP: String read fpCodigoPSP write fpCodigoPSP;
     property NSU_TEF: String read fpNSU_TEF write fpNSU_TEF;
+    property EndToEndID: string read fpEndToEndID write fpEndToEndID;  
 
     property NFCeSAT: TACBrTEFRespNFCeSAT read fpNFCeSAT;
 
@@ -518,7 +524,8 @@ function NomeCampo(const Identificacao: Integer; const Sequencia: Integer): Stri
 implementation
 
 uses
-  Math, strutils,
+  Math,
+  StrUtils,
   ACBrUtil.Base,
   ACBrUtil.FilesIO,
   ACBrConsts;
@@ -530,6 +537,7 @@ begin
   Casas := max(Length(IntToStr(Identificacao)), 3);
   Result := IntToStrZero(Identificacao, Casas) + '-' + IntToStrZero(Sequencia, 3);
 end;
+
 
 { TACBrTEFParametros }
 
@@ -608,10 +616,19 @@ begin
     Chave := copy(FLinha, 1, P - 1);
     Valor := copy(FLinha, P + 3, Length(FLinha));
 
-    P := max(pos('-', Chave), 4);
     Informacao.AsString := Valor;
-    FIdentificacao := StrToIntDef(copy(Chave, 1, P - 1), 0);
-    FSequencia := StrToIntDef(copy(Chave, P + 1, 3), 0);
+
+    P := max(pos('-', Chave), 4);
+    if (P > 0) then
+    begin
+      FIdentificacao := StrToIntDef(copy(Chave, 1, P - 1), 0);
+      FSequencia := StrToIntDef(copy(Chave, P + 1, 3), 0);
+    end
+    else
+    begin
+      FIdentificacao := 0;
+      FSequencia := 0;
+    end;
   end;
 end;
 
@@ -655,7 +672,7 @@ begin
   if not FilesExists(NomeArquivo) then
     raise EACBrTEFArquivo.CreateFmt( cACBrArquivoNaoEncontrado, [NomeArquivo] );
 
-  FStringList.LoadFromFile(NomeArquivo);
+  FStringList.LoadFromFile(NomeArquivo {$IfDef POSIX}, TEncoding.Unicode{$EndIf});
 end;
 
 procedure TACBrTEFArquivo.GravaInformacao(const Chave, Informacao: AnsiString);
@@ -666,7 +683,7 @@ begin
   I := 0;
   while (IndChave < 0) and (I < FStringList.Count) do
   begin
-    if copy(FStringList[I], 1, Length(Chave) + 3) = Chave + ' = ' then
+    if (copy(FStringList[I], 1, Length(Chave) + 3) = Chave + ' = ') then
       IndChave := I
     else
       Inc(I);
@@ -704,15 +721,20 @@ end;
 function TACBrTEFArquivo.AchaLinha(const Identificacao: Integer; const Sequencia: Integer = 0): Integer;
 var
   Campo: String;
-  I: Integer;
 begin
   Campo := NomeCampo(Identificacao, Sequencia);
+  Result := AchaLinha(Campo);
+end;
 
+function TACBrTEFArquivo.AchaLinha(const Chave: AnsiString): Integer;
+var
+  I: Integer;
+begin
   Result := -1;
   I := 0;
   while (Result < 0) and (I < FStringList.Count) do
   begin
-    if copy(FStringList[I], 1, Length(Campo) + 3) = Campo + ' = ' then
+    if (copy(FStringList[I], 1, Length(Chave) + 3) = Chave + ' = ') then
       Result := I;
     Inc(I);
   end;
@@ -731,14 +753,21 @@ end;
 
 function TACBrTEFArquivo.LeLinha(const Identificacao: Integer; const Sequencia: Integer = 0): TACBrTEFLinha;
 var
+  Campo: String;
+begin
+  Campo := NomeCampo(Identificacao, Sequencia);
+  Result := LeLinha(Campo);
+end;
+
+function TACBrTEFArquivo.LeLinha(const Chave: AnsiString): TACBrTEFLinha;
+var
   I: Integer;
 begin
-  I := AchaLinha(Identificacao, Sequencia);
-
+  I := AchaLinha(Chave);
   if I > -1 then
     FACBrTEFDLinha.Linha := FStringList[I]
   else
-    FACBrTEFDLinha.Linha := NomeCampo(Identificacao, Sequencia) + ' =  ';
+    FACBrTEFDLinha.Linha := Chave + ' =  ';
 
   Result := FACBrTEFDLinha;
 end;
@@ -746,6 +775,11 @@ end;
 function TACBrTEFArquivo.LeInformacao(const Identificacao: Integer; const Sequencia: Integer = 0): TACBrInformacao;
 begin
   Result := LeLinha(Identificacao, Sequencia).Informacao;
+end;
+
+function TACBrTEFArquivo.LeInformacao(const Chave: AnsiString): TACBrInformacao;
+begin
+  Result := LeLinha(Chave).Informacao;
 end;
 
 { TACBrTEFRespCB }
@@ -1172,6 +1206,7 @@ begin
       102 : fpDocumentoVinculado := ALinha.Informacao.AsString;
       104 : fpRede               := ALinha.Informacao.AsString ;
       103 : fpValorTotal         := fpValorTotal + ALinha.Informacao.AsFloat;
+      105 : fpConfirmar          := (ALinha.Informacao.AsString = 'True');
       500 : fpIdPagamento        := ALinha.Informacao.AsInteger ;
       501 : fpIdRespostaFiscal   := ALinha.Informacao.AsInteger ;
       502 : fpSerialPOS          := ALinha.Informacao.AsString ;

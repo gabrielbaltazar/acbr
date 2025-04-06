@@ -40,7 +40,7 @@ uses SysUtils, Classes, DateUtils, ACBrSped, ACBrEFDBloco_C,
 type
   /// TBLOCO_C -
   TBloco_C = class(TACBrSPED)
-  private
+  protected
     FOwner: TComponent;
 
 //    FOnBeforeWriteRegistroC111: TWriteRegistroEvent;
@@ -162,7 +162,7 @@ type
     procedure WriteRegistroC141(RegC140: TRegistroC140);
     procedure WriteRegistroC160(RegC100: TRegistroC100);
     procedure WriteRegistroC165(RegC100: TRegistroC100);
-    procedure WriteRegistroC170(RegC100: TRegistroC100);
+    procedure WriteRegistroC170(RegC100: TRegistroC100); virtual;
     procedure WriteRegistroC171(RegC170: TRegistroC170);
     procedure WriteRegistroC172(RegC170: TRegistroC170);
     procedure WriteRegistroC173(RegC170: TRegistroC170);
@@ -3646,12 +3646,12 @@ begin
                LFill( SER,4 ) +
                LFill( SUB,3 ) +
                LFill( COD_CONS,2 ) +
-               LFill( QTD_CONS,0,2 ) +
-               LFill( QTD_CANC,0,2 ) +
+               LFill( QTD_CONS,0 ) +
+               LFill( QTD_CANC,0 ) +
                LFill( DT_DOC ) +
                LFill( VL_DOC,0,2 ) +
                LFill( VL_DESC,0,2 ) +
-               LFill( CONS,0,2 ) +
+               LFill( CONS,0 ) +
                LFill( VL_FORN,0,2 ) +
                LFill( VL_SERV_NT,0,2 ) +
                LFill( VL_TERC,0,2 ) +

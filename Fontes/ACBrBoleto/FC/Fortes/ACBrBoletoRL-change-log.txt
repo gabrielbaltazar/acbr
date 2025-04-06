@@ -45,6 +45,19 @@ Símbolo : Significado
 [+]     : Novo recurso
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
+29/07/2024
+ACBrBoletoFCFortesFr .pas .lfm e dfm
+[*] TK-5788 ACBrBoletoFCFortesFr - Copia e cola nao estava cabendo no label, alterado para memolines para suportar quebra de linha
+  Por : Daniel Morais InfoCotidiano
+
+15/05/2024
+[*] TK-5381 ACBrBoleto - verificar possibilidade de ajustar impresso para que o valor  de NomeArquivo preencha automático no preview ao Salvar
+  Por : Victor H Gonzales - Pandaaa
+
+19/04/2024
+[*]TK-5366 ACBrBoletoFCFortesFr (dfm/lfm) - Ajustado Boleto Carne 
+https://www.projetoacbr.com.br/forum/topic/76988-boletofortes-n%C3%A3o-imprime-linha-separadora-no-layout-lcarne/
+Por: Daniel Morais InfoCotidiano
 
 01/02/2024
 [*]TK-5034 ACBrBoletoFCFortesFr (dfm/lfm) - Correção Ancoragem

@@ -90,8 +90,9 @@ begin
   Result.AppendChild(AddNode(tcStr, '#2', 'sUfTomador', 1, 2, 0,
                                                  NFSe.Tomador.Endereco.UF, ''));
 
-  Result.AppendChild(AddNode(tcStr, '#2', 'sTipoTomador ', 1, 1, 1,
-                                                                       '', ''));
+  if NFSe.Tomador.TomadorExterior = snSim then
+    Result.AppendChild(AddNode(tcStr, '#2', 'sTipoTomador ', 1, 1, 0,
+                                                                       'E', ''));
 end;
 
 function TNFSeW_Simple.GerarTItens: TACBrXmlNode;
@@ -158,10 +159,6 @@ var
   i: Integer;
 begin
   Configuracao;
-
-//  Opcoes.SuprimirDecimais := True;
-//  Opcoes.DecimalChar := '.';
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 

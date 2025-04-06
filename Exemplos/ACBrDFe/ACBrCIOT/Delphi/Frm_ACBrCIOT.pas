@@ -1054,6 +1054,39 @@ begin
              Motivo := 'Acordo entre as partes';
            end;
          end;
+
+     16: begin
+           Integradora.Operacao := opRegistrarQtdeMercadoriaDesembarque;
+
+           with RegistrarQuantidadeDaMercadoriaNoDesembarque do
+           begin
+             CodigoIdentificacaoOperacao := '123';
+
+             with NotasFiscais.New do
+             begin
+               Numero := '12345';
+               Serie := '1';
+               QuantidadeDaMercadoriaNoDesembarque := 1;
+             end;
+           end;
+         end;
+
+     17: begin
+           Integradora.Operacao := opRegistrarPagamentoQuitacao;
+
+           with RegistrarPagamentoQuitacao do
+           begin
+             CodigoIdentificacaoOperacao := '123';
+             TokenCompra := '123';
+
+             with NotasFiscais.New do
+             begin
+               Numero := '12345';
+               Serie := '1';
+               QuantidadeDaMercadoriaNoEmbarque := 1;
+             end;
+           end;
+         end;
     end;
   end;
 end;
@@ -1110,8 +1143,11 @@ begin
       MemoDados.Lines.Add('Protocolo....................: '+ Protocolo);
       MemoDados.Lines.Add('Data Retificação.............: '+ DateTimeToStr(DataRetificacao));
       MemoDados.Lines.Add('Quantidade Viagens...........: '+ IntToStr(QuantidadeViagens));
-      MemoDados.Lines.Add('Quantidade Pagamentos,.......: '+ IntToStr(QuantidadePagamentos));
+      MemoDados.Lines.Add('Quantidade Pagamentos........: '+ IntToStr(QuantidadePagamentos));
       MemoDados.Lines.Add('Id Pagamento Cliente.........: '+ IdPagamentoCliente);
+      MemoDados.Lines.Add('Valor Liquido................: '+ FloatToStr(ValorLiquido));
+      MemoDados.Lines.Add('Valor Quebra.................: '+ FloatToStr(ValorQuebra));
+      MemoDados.Lines.Add('Valor Diferenca De Frete.....: '+ FloatToStr(ValorDiferencaDeFrete));
 
       // A propriedade Token só é retornado caso o componente não esteja
       // configurado com o certificado digital e o serviço Login foi executado.

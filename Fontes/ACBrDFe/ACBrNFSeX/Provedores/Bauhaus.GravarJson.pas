@@ -38,9 +38,9 @@ interface
 
 uses
   SysUtils, Classes, Variants, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument, ACBrJSON,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml,
-  ACBrNFSeXConversao, ACBrNFSeXConsts;
+  ACBrJSON,
+  ACBrNFSeXGravarXml,
+  ACBrNFSeXConversao;
 
 type
   { TNFSeW_Bauhaus }
@@ -66,8 +66,7 @@ type
 implementation
 
 uses
-  ACBrNFSeX,
-  ACBrUtil.Base, ACBrUtil.Strings,
+  ACBrUtil.Strings,
   ACBrConsts;
 
 //==============================================================================
@@ -86,8 +85,6 @@ end;
 function TNFSeW_Bauhaus.GerarXml: Boolean;
 begin
   Configuracao;
-
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 

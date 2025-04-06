@@ -36,12 +36,14 @@ unit pcnCFeW;
 interface
 
 uses
-  SysUtils, Classes,
+  SysUtils,
+  Classes,
   ACBrDFeConsts,
   ACBrCFeConsts,
   pcnConversao,
   pcnGerador,
-  pcnCFe;
+  pcnCFe,
+  Math;
 
 type
 
@@ -294,6 +296,7 @@ end;
 procedure TCFeW.GerarDetProd(const i: integer);
 var
   DecQtd: TpcnTipoCampo;
+  LcEAN : string;
 begin
   if CFe.Det[i].Prod.EhCombustivel then
   begin
@@ -308,9 +311,16 @@ begin
 
   Gerador.wGrupo('prod', 'I01');
   Gerador.wCampo(tcStr, 'I02 ', 'cProd', 01, 60, 1, CFe.Det[i].Prod.cProd, DSC_CPROD);
-  Gerador.wCampo(tcStr, 'I03 ', 'cEAN ', 08, 14, 0, CFe.Det[i].Prod.cEAN, DSC_CEAN);
+
+  LcEAN := CFe.Det[i].Prod.cEAN;
+
+  if (CFe.infCFe.versaoDadosEnt >= 0.10) and (LcEAN = '') then
+    LcEAN := 'SEM GTIN';
+
+  Gerador.wCampo(tcStr, 'I03 ', 'cEAN ', 08, 14, IfThen(CFe.infCFe.versaoDadosEnt >= 0.10,1,0), LcEAN, DSC_CEAN);
+
   Gerador.wCampo(tcStr, 'I04 ', 'xProd', 1, 120, 1, CFe.Det[i].Prod.xProd, DSC_XPROD);
-  Gerador.wCampo(tcStr, 'I05 ', 'NCM  ', 02, 08, 0, CFe.Det[i].Prod.NCM, DSC_NCM);
+  Gerador.wCampo(tcStr, 'I05 ', 'NCM  ', 02, 08, IfThen(CFe.infCFe.versaoDadosEnt >= 0.10,1,0), CFe.Det[i].Prod.NCM, DSC_NCM);
 
   // Segundo o Manual o tamanho é fixo em 7
   if CFe.infCFe.versaoDadosEnt >= 0.08 then
@@ -336,6 +346,8 @@ begin
   end;
 
   (**)GerarDetobsFiscoDet(i);
+  if CFe.infCFe.versaoDadosEnt >= 0.10 then
+    Gerador.wCampo(tcInt64, 'I20 ', 'cANP  ', 09, 09, 0, CFe.Det[i].Prod.cANP, DSC_CANP);
   Gerador.wGrupo('/prod');
 end;
 

@@ -77,18 +77,15 @@ begin
     IdentificacaoTomador.CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_CPF_CNPJ'), tcStr);
     RazaoSocial := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_NOME_RSO'), tcStr);
 
-    with Endereco do
-    begin
-      TipoLogradouro := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_TLG'), tcStr);
-      Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_LOG'), tcStr);
-      Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_NRO'), tcStr);
-      Complemento := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_COM'), tcStr);
-      Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_BAI'), tcStr);
-      CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_CEP'), tcStr);
-      xMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_CID'), tcStr);
-      UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_UF'), tcStr);
-      xPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_UF'), tcStr);
-    end;
+    Endereco.TipoLogradouro := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_TLG'), tcStr);
+    Endereco.Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_LOG'), tcStr);
+    Endereco.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_NRO'), tcStr);
+    Endereco.Complemento := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_COM'), tcStr);
+    Endereco.Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_BAI'), tcStr);
+    Endereco.CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_CEP'), tcStr);
+    Endereco.xMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_CID'), tcStr);
+    Endereco.UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_UF'), tcStr);
+    Endereco.xPais := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_END_UF'), tcStr);
 
     Contato.Email := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_TOM_PAIS_NOM'), tcStr);
   end;
@@ -123,6 +120,8 @@ begin
   if XmlNode = nil then
     raise Exception.Create('Arquivo xml vazio.');
 
+  NFSe.tpXML := tpXml;
+
   if tpXML = txmlNFSe then
     Result := LerXmlNfse(XmlNode)
   else
@@ -137,7 +136,7 @@ var
 begin
   Result := True;
 
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('cabecalho');
 
@@ -151,7 +150,7 @@ begin
       AuxNode := AuxNode.Childrens.FindAnyNs('Reg_NFS_E');
   end;
 
-  if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+  if not Assigned(AuxNode) then Exit;
 
   with NFSe do
   begin
@@ -173,7 +172,7 @@ begin
   begin
     Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_DES_DET'), tcStr);
     Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
 
     VerificarSeConteudoEhLista(Discriminacao);
 
@@ -189,7 +188,7 @@ begin
 
   NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('NFS_E_DES_RES'), tcStr);
   NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
 
   LerCampoLink;
 end;
@@ -197,6 +196,8 @@ end;
 function TNFSeR_Siappa.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
 begin
   Result := False;
+
+  if not Assigned(ANode) then Exit;
 end;
 
 end.

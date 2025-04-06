@@ -433,6 +433,11 @@ begin
         fDataProtestoNegativacao := DataNegativacao;
         fDiasProtestoNegativacao := IntToStr(DiasDeNegativacao);
       end
+      else if ((ACodProtesto= '0') and (DataLimitePagto > 0)) then
+      begin
+          fDataProtestoNegativacao := DataLimitePagto;
+          fDiasProtestoNegativacao := inttostr( DaysBetween(Vencimento,DataLimitePagto));
+      end
       else
       begin
         if ((ACodProtesto <> '3') and (ACodProtesto <> '8')) then
@@ -693,9 +698,8 @@ var
    ATipoCedente, ATipoSacado, ATipoSacadoAvalista, ATipoOcorrencia    :String;
    ADataMoraJuros, ADataDesconto, ATipoAceite    :String;
    ATipoEspecieDoc, ANossoNumero,wLinha,wCarteira :String;
-   wLinhaMulta,LCPFCNPJBeneciciario :String;
-   iSequencia : integer;
-
+   wLinhaMulta,LCPFCNPJBeneciciario, LTextoMensagem :String;
+   iSequencia, I : integer;
 begin
    with ACBrTitulo do
    begin
@@ -731,6 +735,27 @@ begin
      {Pegando campo Intruções conforme código protesto}
      InstrucoesProtesto(ACBrTitulo);
      DefineDataProtestoNegativacao(ACBrTitulo);
+
+     {Mensagem Pagina 35 , "B" e "C" Quando Instrução 93 ou 94}
+     if (Mensagem.Count > 0) then
+     begin
+       LTextoMensagem := '';
+       for I := 0 to Mensagem.Count - 1 do
+         LTextoMensagem := LTextoMensagem + Trim(Mensagem[I])+' ';
+
+       LTextoMensagem := Trim(LTextoMensagem);
+     end;
+     if ((Instrucao1 = '94') or (Instrucao2 = '94')) then
+        LTextoMensagem := PadRight(copy(LTextoMensagem,0,30),40,' ')              // 352-391 MENSAGEM Pg 35 do manual "C"
+     else if ((Instrucao1 = '93') or (Instrucao2 = '93')) then
+        LTextoMensagem := PadRight(copy(LTextoMensagem,0,30),30,' ')            + // 352-381 MENSAGEM Pg 35 do manual "B"
+                          space(4)                                              + // 382-385 COMPLEMENTO DO REGISTRO
+                          ADataMoraJuros                                          // 386-391 DATA DE MORA
+     else
+        LTextoMensagem := PadRight(Sacado.SacadoAvalista.NomeAvalista, 30, ' ') + // 352-381 NOME DO SACADOR/AVALISTA
+                          space(4)                                              + // 382-385 COMPLEMENTO DO REGISTRO
+                          ADataMoraJuros;                                         // 386-391 DATA DE MORA
+
 
     with ACBrBoleto do
     begin
@@ -816,7 +841,7 @@ begin
                    FormatDateTime('ddmmyy', DataDocumento)                                        + // DATA DA EMISSÃO DO TÍTULO
                    PadLeft(trim(ACBrStr(Instrucao1)), 2, '0')                                     + // 1ª INSTRUÇÃO
                    PadLeft(trim(ACBrStr(Instrucao2)), 2, '0')                                     + // 2ª INSTRUÇÃO
-                   IntToStrZero( round(ValorMoraJuros * 100 ), 13)                                + // VALOR DE MORA POR DIA DE ATRASO
+                   IntToStrZero( round(ValorMoraJuros * 100 ), 13)                                + //161-173 VALOR DE MORA POR DIA DE ATRASO
                    ADataDesconto                                                                  + // DATA LIMITE PARA CONCESSÃO DE DESCONTO
                    IfThen(ValorDesconto > 0, IntToStrZero( round(ValorDesconto * 100), 13),
                    PadLeft('', 13, '0'))                                                          + // VALOR DO DESCONTO A SER CONCEDIDO
@@ -833,16 +858,14 @@ begin
                    PadRight(Sacado.Bairro, 12, ' ')                                               + // BAIRRO DO SACADO
                    PadLeft(OnlyNumber(Sacado.CEP), 8, '0')                                        + // CEP DO SACADO
                    PadRight(Sacado.Cidade, 15, ' ')                                               + // CIDADE DO SACADO
-                   PadRight(Sacado.UF, 2, ' ')                                                    + // UF DO SACADO
+                   PadRight(Sacado.UF, 2, ' ')                                                    + // 350-351 UF DO SACADO
 
                    {Dados do sacador/avalista}
-                   PadRight(Sacado.SacadoAvalista.NomeAvalista, 30, ' ')                          + // NOME DO SACADOR/AVALISTA
-                   space(4)                                                                       + // COMPLEMENTO DO REGISTRO
-                   ADataMoraJuros                                                                 + // DATA DE MORA
+                   LTextoMensagem                                                                 + // 352-381 / 382-385 / 386-391 Mensagem Pagina 35 , "B" e "C"
                    IfThen((DataProtestoNegativacao <> 0) and (DataProtestoNegativacao > Vencimento),
-                        PadLeft(DiasProtestoNegativacao , 2, '0'), '00')+ // PRAZO
-                   space(1)                                                                       + // BRANCOS
-                   IntToStrZero(aRemessa.Count + 1, 6);                                             // Nº SEQÜENCIAL DO REGISTRO NO ARQUIVO
+                        PadLeft(DiasProtestoNegativacao , 2, '0'), '00')                          + // 392-393 PRAZO
+                   space(1)                                                                       + // 394-394 BRANCOS
+                   IntToStrZero(aRemessa.Count + 1, 6);                                             // 395-400 Nº SEQÜENCIAL DO REGISTRO NO ARQUIVO
 
                    iSequencia := aRemessa.Count + 1;
                    aRemessa.Add(UpperCase(wLinha));
@@ -861,6 +884,18 @@ begin
 
                      aRemessa.Add(UpperCase(wLinhaMulta));
                    end;
+
+                  {Registro Híbrido - Bolecode}
+                  if (NaoEstaVazio(ACBrBoleto.Cedente.PIX.Chave)) then
+                  begin
+                    wLinha := '3'                                              + // 001 a 001 - Identificação do registro bolecode (3)
+                              PadRight(IfThen(QrCode.txId = '', ACBrBoleto.Cedente.PIX.Chave, ''), 77, ' ') + // 002 a 078 - Chave Pix (opicional)
+                              PadRight(QrCode.txId,  64, ' ')                  + // 079 a 142 - ID DA URL DO QR CODE PIX (opcional)
+                              PadRight('', 252, ' ')                                                          + // 143 a 394 - Brancos
+                              IntToStrZero(ARemessa.Count + 1, 6);
+                    iSequencia := aRemessa.Count + 1;                                                                        // 395 a 400 - Número sequencial do registro
+                    ARemessa.Text:= ARemessa.Text + UpperCase(wLinha);
+                  end;
 
                    //OPCIONAL – COBRANÇA E-MAIL E/OU DADOS DO SACADOR AVALISTA
                    if (Sacado.Email <> '') or (Sacado.SacadoAvalista.CNPJCPF <> '') then
@@ -898,21 +933,30 @@ begin
 
                      aRemessa.Add(UpperCase(wLinhaMulta));
                    end;
-
+                  (*
+                  if (Mensagem.Count > 0) then
+                  begin
+                    LTextoMensagem := '';
+                    for I := 0 to Mensagem.Count - 1 do
+                    begin
+                      LTextoMensagem := LTextoMensagem + Trim(Mensagem[I])+' ';
+                    end;
+                    LTextoMensagem := Trim(LTextoMensagem);
+                    wLinha := '7'                                                 + // 001 - 001 - IDENTIFICAÇÃO DO REGISTRO MENSAGEM (FRENTE)
+                              PadRight(copy(Cedente.CodigoFlash,1,3),3)           + // 002 - 004 - CÓDIGO DO FLASH
+                              PadRight('01',2)                                    + // 005 - 006 - NÚMERO DA 1ª LINHA A SER IMPRESSA
+                              PadRight(Copy(LTextoMensagem, 1, 128),128)          + // 007 - 134 - CONTEÚDO DA LINHA 1
+                              PadRight('02',2)                                    + // 135 - 136 - NÚMERO DA 2ª LINHA A SER IMPRESSA
+                              PadRight(Copy(LTextoMensagem, 129, 128),128)        + // 137 - 264 - CONTEÚDO DA LINHA 2
+                              PadRight('03',2)                                    + // 265 - 266 - NÚMERO DA 2ª LINHA A SER IMPRESSA
+                              PadRight(Copy(LTextoMensagem, 257, 127),127)        + // 267 - 393 - NÚMERO DA 3ª LINHA A SER IMPRESSA
+                              IfThen(Cedente.ResponEmissao=tbBancoEmite,'1','0')  + // 394 - 394 - IDENTIFICA O DESTINO DO BOLETO
+                              IntToStrZero(ARemessa.Count + 1, 6);               // 395 a 400 - Número sequencial do registro
+                    iSequencia := aRemessa.Count + 1;
+                    ARemessa.Add(UpperCase(wLinha));
+                  end;
+                  *)
         end;
-
-        {Registro Híbrido - Bolecode}
-        if (NaoEstaVazio(ACBrBoleto.Cedente.PIX.Chave)) then
-        begin
-          wLinha := '3'                                              + // 001 a 001 - Identificação do registro bolecode (3)
-                    PadRight(ACBrBoleto.Cedente.PIX.Chave, 77, ' ')  + // 002 a 078 - Chave Pix (opicional)
-                    PadRight(QrCode.txId,  64, ' ')                  + // 079 a 142 - ID DA URL DO QR CODE PIX (opcional)
-                    PadRight('', 252, ' ')                           + // 143 a 394 - Brancos
-                    IntToStrZero( ARemessa.Count + 1, 6);              // 395 a 400 - Número sequencial do registro
-          ARemessa.Text:= ARemessa.Text + UpperCase(wLinha);
-        end;
-
-
     end;
   end;
 end;
@@ -1202,6 +1246,8 @@ begin
       71: Result := toRetornoEntradaRegistradaAguardandoAvaliacao;
       72: Result := toRetornoBaixaCreditoCCAtravesSispagSemTituloCorresp;
       73: Result := toRetornoConfirmacaoEntradaCobrancaSimples;
+      74: Result := toRetornoConfRecPedidoNegativacao;
+      75: result := toRetornoConfEntradaNegativacao;
       76: Result := toRetornoChequeCompensado;
     end;
   end;

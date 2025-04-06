@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                              Jean Carlo Cantu                                }
 {                              Tiago Ravache                                   }
 {                              Guilherme Costa                                 }
@@ -60,70 +60,6 @@ uses
   pcesCommon, pcesConversaoeSocial;
 
 type
-  TInfoCpCalcCollection = class;
-  TInfoCpCalcCollectionItem = class;
-  TIdeEstabLotCollection = class;
-  TIdeEstabLotCollectionItem = class;
-  TInfoCategIncidCollection = class;
-  TInfoCategIncidCollectionItem = class;
-  TInfoBaseCSCollection = class;
-  TInfoBaseCSCollectionItem = class;
-  TCalcTercCollection = class;
-  TCalcTercCollectionItem = class;
-  TInfoPerRefCollection = class;
-  TInfoPerRefCollectionItem = class;
-  TDetInfoPerRefCollection = class;
-  TDetInfoPerRefCollectionItem = class;
-  TInfoIntermCollection = class;
-  TInfoIntermCollectionItem = class;
-  TEvtBasesTrab = class;
-  TInfoCompl = class;
-  TSucessaoVinc = class;
-  TInfoComplContCollection = class;
-  TInfoComplContCollectionItem = class;
-  TIdeTrabalhador4 = class;
-  TIdeADCCollection = class;
-  TIdeADCCollectionItem = class;
-  
-  TS5001 = class(TInterfacedObject, IEventoeSocial)
-  private
-    FTipoEvento: TTipoEvento;
-    FEvtBasesTrab: TEvtBasesTrab;
-
-    function GetXml : string;
-    procedure SetXml(const Value: string);
-    function GetTipoEvento : TTipoEvento;
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    function GetEvento() : TObject;
-    
-    property Xml: String read GetXml write SetXml;
-    property TipoEvento: TTipoEvento read GetTipoEvento;
-    property EvtBasesTrab: TEvtBasesTrab read FEvtBasesTrab write FEvtBasesTrab;
-  end;
-
-  TIdeTrabalhador4 = class(TIdeTrabalhador3)
-  private
-    FInfoCompl: TInfoCompl;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    
-    property InfoCompl: TInfoCompl read FInfoCompl write FInfoCompl;
-  end;
-  
-  TInfoCpCalcCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TInfoCpCalcCollectionItem;
-    procedure SetItem(Index: Integer; Value: TInfoCpCalcCollectionItem);
-  public
-    function Add: TInfoCpCalcCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TInfoCpCalcCollectionItem;
-    property Items[Index: Integer]: TInfoCpCalcCollectionItem read GetItem write SetItem;
-  end;
-
   TInfoCpCalcCollectionItem = class(TObject)
   private
     FtpCR: string;
@@ -135,56 +71,198 @@ type
     property vrDescSeg: Double read FvrDescSeg;
   end;
 
-  TInfoCp = class(TObject)
+  TInfoCpCalcCollection = class(TACBrObjectList)
   private
-    FClassTrib: tpClassTrib;
-    FIdeEstabLot: TIdeEstabLotCollection;
+    function GetItem(Index: Integer): TInfoCpCalcCollectionItem;
+    procedure SetItem(Index: Integer; Value: TInfoCpCalcCollectionItem);
+  public
+    function Add: TInfoCpCalcCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TInfoCpCalcCollectionItem;
+    property Items[Index: Integer]: TInfoCpCalcCollectionItem read GetItem write SetItem;
+  end;
 
-    procedure SetIdeEstabLot(const Value: TIdeEstabLotCollection);
+  TInfoComplContCollectionItem = class(TObject)
+  private
+    FCodCBO      : String;
+    FNatAtividade: tpNatAtividade;
+    FQtdDiasTrab : Integer;
+  public
+    property codCBO      : String read FCodCBO write FCodCBO;
+    property natAtividade: tpNatAtividade read FNatAtividade write FNatAtividade;
+    property qtdDiasTrab : Integer read FQtdDiasTrab write FQtdDiasTrab;
+  end;
+
+  TInfoComplContCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TInfoComplContCollectionItem;
+    procedure SetItem(Index: Integer; Value: TInfoComplContCollectionItem);
+  public
+    function Add: TInfoComplContCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TInfoComplContCollectionItem;
+    property Items[Index: Integer]: TInfoComplContCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TSucessaoVinc = class
+  private
+    FtpInsc   : tpTpInsc;
+    FnrInsc   : string;
+    FmatricAnt: string;
+    FdtAdm    : TDateTime;
+  public
+    property tpInsc   : tpTpInsc read FtpInsc write FtpInsc;
+    property nrInsc   : string read FnrInsc write FnrInsc;
+    property matricAnt: string read FmatricAnt write FmatricAnt;
+    property dtAdm    : TDateTime read FdtAdm write FdtAdm;
+  end;
+
+  TInfoCompl = class(TObject)
+  private
+    FSucessaoVinc : TSucessaoVinc;
+    FInfoInterm   : TInfoIntermCollection;
+    FInfoComplCont: TInfoComplContCollection;
+
+    function getInfoInterm(): TInfoIntermCollection;
+    function getInfoComplCont(): TInfoComplContCollection;
+    function getSucessaoVinc(): TSucessaoVinc;
   public
     constructor Create;
     destructor Destroy; override;
 
-    property classTrib: tpClassTrib read FClassTrib write FClassTrib;
-    property IdeEstabLot: TIdeEstabLotCollection read FIdeEstabLot write SetIdeEstabLot;
+    function InfoIntermInst(): Boolean;
+    function InfoComplContInst(): Boolean;
+    function SucessaoVincInst(): Boolean;
+
+    property sucessaoVinc : TSucessaoVinc read getSucessaoVinc write FSucessaoVinc;
+    property infoInterm   : TInfoIntermCollection read getInfoInterm write FInfoInterm;
+    property infoComplCont: TInfoComplContCollection read getInfoComplCont write FInfoComplCont;
   end;
 
-  TIdeEstabLotCollection = class(TACBrObjectList)
+  TIdeTrabalhador4 = class(TIdeTrabalhador3)
   private
-    function GetItem(Index: Integer): TIdeEstabLotCollectionItem;
-    procedure SetItem(Index: Integer; Value: TIdeEstabLotCollectionItem);
-  public
-    function Add: TIdeEstabLotCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TIdeEstabLotCollectionItem;
-    property Items[Index: Integer]: TIdeEstabLotCollectionItem read GetItem write SetItem;
-  end;
-
-  TIdeEstabLotCollectionItem = class(TObject)
-  private
-    FTpInsc: TpTpInsc;
-    FNrInsc: string;
-    FCodLotacao: string;
-    FInfoCategIncid: TInfoCategIncidCollection;
-
-    procedure SetInfoCategIncid(const Value: TInfoCategIncidCollection);
+    FInfoCompl: TInfoCompl;
   public
     constructor Create;
     destructor Destroy; override;
 
-    property tpInsc: TpTpInsc read FTpInsc;
-    property nrInsc: string read FNrInsc;
-    property codLotacao: string read FCodLotacao;
-    property InfoCategIncid: TInfoCategIncidCollection read FInfoCategIncid write SetInfoCategIncid;
+    property InfoCompl: TInfoCompl read FInfoCompl write FInfoCompl;
   end;
 
-  TInfoCategIncidCollection = class(TACBrObjectList)
+
+  TInfoBaseCSCollectionItem = class(TObject)
   private
-    function GetItem(Index: Integer): TInfoCategIncidCollectionItem;
-    procedure SetItem(Index: Integer; Value: TInfoCategIncidCollectionItem);
+    Find13: Integer;
+    FtpValor: Integer;
+    Fvalor: Double;
   public
-    function Add: TInfoCategIncidCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TInfoCategIncidCollectionItem;
-    property Items[Index: Integer]: TInfoCategIncidCollectionItem read GetItem write SetItem;
+    property ind13: Integer read Find13;
+    property tpValor: Integer read FtpValor;
+    property valor: Double read Fvalor;
+  end;
+
+  TInfoBaseCSCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TInfoBaseCSCollectionItem;
+    procedure SetItem(Index: Integer; Value: TInfoBaseCSCollectionItem);
+  public
+    function Add: TInfoBaseCSCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TInfoBaseCSCollectionItem;
+    property Items[Index: Integer]: TInfoBaseCSCollectionItem read GetItem write SetItem;
+  end;
+
+  TCalcTercCollectionItem = class(TObject)
+  private
+    FtpCR: Integer;
+    FvrCsSegTerc: Double;
+    FvrDescTerc: Double;
+  public
+    property tpCR: Integer read FtpCR;
+    property vrCsSegTerc: Double read FvrCsSegTerc;
+    property vrDescTerc: Double read FvrDescTerc;
+  end;
+
+  TCalcTercCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TCalcTercCollectionItem;
+    procedure SetItem(Index: Integer; Value: TCalcTercCollectionItem);
+  public
+    function Add: TCalcTercCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TCalcTercCollectionItem;
+    property Items[Index: Integer]: TCalcTercCollectionItem read GetItem write SetItem;
+  end;
+
+  TDetInfoPerRefCollectionItem = class(TObject)
+  private
+    Find13: Integer;
+    FvrPerRef: Double;
+    FtpVrPerRef: Integer;
+  public
+    property ind13: Integer read Find13;
+    property tpValor: Integer read FtpVrPerRef;
+    property tpVrPerRef: Integer read FtpVrPerRef;
+    property vrPerRef: Double read FvrPerRef;
+  end;
+
+  TDetInfoPerRefCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TDetInfoPerRefCollectionItem;
+    procedure SetItem(Index: Integer; Value: TDetInfoPerRefCollectionItem);
+  public
+    function Add: TDetInfoPerRefCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TDetInfoPerRefCollectionItem;
+    property Items[Index: Integer]: TDetInfoPerRefCollectionItem read GetItem write SetItem;
+  end;
+
+  TIdeADCCollectionItem = class(TObject)
+  private
+   FDtAcConv: TDateTime;
+   FTpAcConv: tpTpAcConv;
+   FDsc     : String;
+   FremunSuc: tpSimNaoFacultativo;
+  public
+    property dtAcConv: TDateTime read FDtAcConv write FDtAcConv;
+    property tpAcConv: tpTpAcConv read FTpAcConv write FTpAcConv;
+    property dsc     : String read FDsc write FDsc;
+    property remunSuc: tpSimNaoFacultativo read FremunSuc write FremunSuc;
+  end;
+
+  TIdeADCCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TIdeADCCollectionItem;
+    procedure SetItem(Index: Integer; Value: TIdeADCCollectionItem);
+  public
+    function Add: TIdeADCCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TIdeADCCollectionItem;
+    property Items[Index: Integer]: TIdeADCCollectionItem read GetItem write SetItem;
+  end;
+
+  TInfoPerRefCollectionItem = class(TObject)
+  private
+    FperRef: string;
+    FDetInfoPerRef: TDetInfoPerRefCollection;
+    FIdeADC: TIdeADCCollection;
+
+    function getDetInfoPerRef(): TDetInfoPerRefCollection;
+    function getIdeADC(): TIdeADCCollection;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function DetInfoPerRefInst(): Boolean;
+    function IdeADCInst(): Boolean;
+
+    property perRef: string read FperRef;
+    property detInfoPerRef: TDetInfoPerRefCollection read getDetInfoPerRef write FDetInfoPerRef;
+    property ideADC: TIdeADCCollection read getIdeADC write FIdeADC;
+  end;
+
+  TInfoPerRefCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TInfoPerRefCollectionItem;
+    procedure SetItem(Index: Integer; Value: TInfoPerRefCollectionItem);
+  public
+    function Add: TInfoPerRefCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TInfoPerRefCollectionItem;
+    property Items[Index: Integer]: TInfoPerRefCollectionItem read GetItem write SetItem;
   end;
 
   TInfoCategIncidCollectionItem = class(TObject)
@@ -211,236 +289,201 @@ type
     property InfoPerRef: TInfoPerRefCollection read FInfoPerRef write SetInfoPerRef;
   end;
 
-  TInfoBaseCSCollection = class(TACBrObjectList)
+  TInfoCategIncidCollection = class(TACBrObjectList)
   private
-    function GetItem(Index: Integer): TInfoBaseCSCollectionItem;
-    procedure SetItem(Index: Integer; Value: TInfoBaseCSCollectionItem);
+    function GetItem(Index: Integer): TInfoCategIncidCollectionItem;
+    procedure SetItem(Index: Integer; Value: TInfoCategIncidCollectionItem);
   public
-    function Add: TInfoBaseCSCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TInfoBaseCSCollectionItem;
-    property Items[Index: Integer]: TInfoBaseCSCollectionItem read GetItem write SetItem;
+    function Add: TInfoCategIncidCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TInfoCategIncidCollectionItem;
+    property Items[Index: Integer]: TInfoCategIncidCollectionItem read GetItem write SetItem;
   end;
 
-  TInfoBaseCSCollectionItem = class(TObject)
+  TIdeEstabLotCollectionItem = class(TObject)
   private
-    Find13: Integer;
-    FtpValor: Integer;
-    Fvalor: Double;
-  public
-    property ind13: Integer read Find13;
-    property tpValor: Integer read FtpValor;
-    property valor: Double read Fvalor;
-  end;
-
-  TCalcTercCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TCalcTercCollectionItem;
-    procedure SetItem(Index: Integer; Value: TCalcTercCollectionItem);
-  public
-    function Add: TCalcTercCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TCalcTercCollectionItem;
-    property Items[Index: Integer]: TCalcTercCollectionItem read GetItem write SetItem;
-  end;
-
-  TCalcTercCollectionItem = class(TObject)
-  private
-    FtpCR: Integer;
-    FvrCsSegTerc: Double;
-    FvrDescTerc: Double;
-  public
-    property tpCR: Integer read FtpCR;
-    property vrCsSegTerc: Double read FvrCsSegTerc;
-    property vrDescTerc: Double read FvrDescTerc;
-  end;
-
-  TInfoPerRefCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TInfoPerRefCollectionItem;
-    procedure SetItem(Index: Integer; Value: TInfoPerRefCollectionItem);
-  public
-    function Add: TInfoPerRefCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TInfoPerRefCollectionItem;
-    property Items[Index: Integer]: TInfoPerRefCollectionItem read GetItem write SetItem;
-  end;
-
-  TInfoPerRefCollectionItem = class(TObject)
-  private
-    FperRef: string;
-    FDetInfoPerRef: TDetInfoPerRefCollection;
-    FIdeADC: TIdeADCCollection;
-    
-    function getDetInfoPerRef(): TDetInfoPerRefCollection;
-    function getIdeADC(): TIdeADCCollection;
+    FTpInsc: TpTpInsc;
+    FNrInsc: string;
+    FCodLotacao: string;
+    FInfoCategIncid: TInfoCategIncidCollection;
   public
     constructor Create;
     destructor Destroy; override;
 
-    function DetInfoPerRefInst(): Boolean;
-    function IdeADCInst(): Boolean;
-             
-    property perRef: string read FperRef;
-    property detInfoPerRef: TDetInfoPerRefCollection read getDetInfoPerRef write FDetInfoPerRef;
-    property ideADC: TIdeADCCollection read getIdeADC write FIdeADC;
+    property tpInsc: TpTpInsc read FTpInsc;
+    property nrInsc: string read FNrInsc;
+    property codLotacao: string read FCodLotacao;
+    property InfoCategIncid: TInfoCategIncidCollection read FInfoCategIncid;
   end;
 
-  TDetInfoPerRefCollection = class(TACBrObjectList)
+  TIdeEstabLotCollection = class(TACBrObjectList)
   private
-    function GetItem(Index: Integer): TDetInfoPerRefCollectionItem;
-    procedure SetItem(Index: Integer; Value: TDetInfoPerRefCollectionItem);
+    function GetItem(Index: Integer): TIdeEstabLotCollectionItem;
+    procedure SetItem(Index: Integer; Value: TIdeEstabLotCollectionItem);
   public
-    function Add: TDetInfoPerRefCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TDetInfoPerRefCollectionItem;
-    property Items[Index: Integer]: TDetInfoPerRefCollectionItem read GetItem write SetItem;
+    function Add: TIdeEstabLotCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TIdeEstabLotCollectionItem;
+    property Items[Index: Integer]: TIdeEstabLotCollectionItem read GetItem write SetItem;
   end;
 
-  TDetInfoPerRefCollectionItem = class(TObject)
+  TInfoCp = class(TObject)
   private
-    Find13: Integer;
-    FvrPerRef: Double;
-    FtpVrPerRef: Integer;
+    FClassTrib: tpClassTrib;
+    FIdeEstabLot: TIdeEstabLotCollection;
+
+    procedure SetIdeEstabLot(const Value: TIdeEstabLotCollection);
   public
-    property ind13: Integer read Find13;
-    property tpValor: Integer read FtpVrPerRef;
-    property tpVrPerRef: Integer read FtpVrPerRef;
-    property vrPerRef: Double read FvrPerRef;
+    constructor Create;
+    destructor Destroy; override;
+
+    property classTrib: tpClassTrib read FClassTrib write FClassTrib;
+    property IdeEstabLot: TIdeEstabLotCollection read FIdeEstabLot write SetIdeEstabLot;
   end;
 
-  TInfoIntermCollection = class(TACBrObjectList)
+  TinfoBasePisPasepCollectionItem = class(TObject)
   private
-    function GetItem(Index: Integer): TInfoIntermCollectionItem;
-    procedure SetItem(Index: Integer; Value: TInfoIntermCollectionItem);
+    Find13: integer;
+    FtpValorPisPasep: TtpValorPisPasep;
+    FvalorPisPasep: Double;
   public
-    function Add: TInfoIntermCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TInfoIntermCollectionItem;
-    property Items[Index: Integer]: TInfoIntermCollectionItem read GetItem write SetItem; default;
+    property ind13: integer read Find13;
+    property tpValorPisPasep: TtpValorPisPasep read FtpValorPisPasep;
+    property valorPisPasep: Double read FvalorPisPasep;
   end;
-  
-  TInfoIntermCollectionItem = class(TObject)
+
+  TinfoBasePisPasepCollection = class(TACBrObjectList)
   private
-    FDia: Integer;
+    function GetItem(Index: Integer): TinfoBasePisPasepCollectionItem;
+    procedure SetItem(Index: Integer; Value: TinfoBasePisPasepCollectionItem);
   public
-    property dia: Integer read FDia write FDia;
+    function New: TinfoBasePisPasepCollectionItem;
+    property Items[Index: Integer]: TinfoBasePisPasepCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TinfoCategPisPasepCollectionItem = class(TObject)
+  private
+    Fmatricula: string;
+    FcodCateg: integer;
+    FinfoBasePisPasep: TinfoBasePisPasepCollection;
+
+    function getinfoBasePisPasep(): TinfoBasePisPasepCollection;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function infoBasePisPasepInst(): Boolean;
+
+    property matricula: string read Fmatricula write Fmatricula;
+    property codCateg: integer read FcodCateg write FcodCateg;
+    property infoBasePisPasep: TinfoBasePisPasepCollection read getInfoBasePisPasep write FinfoBasePisPasep;
+  end;
+
+  TinfoCategPisPasepCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TinfoCategPisPasepCollectionItem;
+    procedure SetItem(Index: Integer; Value: TinfoCategPisPasepCollectionItem);
+  public
+    function New: TinfoCategPisPasepCollectionItem;
+    property Items[Index: Integer]: TinfoCategPisPasepCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TideEstabCollectionItem = class(TObject)
+  private
+    FtpInsc: tpTpInsc;
+    FnrInsc: string;
+    FinfoCategPisPasep: TinfoCategPisPasepCollection;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property tpInsc: tpTpInsc read FtpInsc write FtpInsc;
+    property nrInsc: string read FnrInsc write FnrInsc;
+    property infoCategPisPasep: TinfoCategPisPasepCollection read FinfoCategPisPasep;
+  end;
+
+  TideEstabCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TideEstabCollectionItem;
+    procedure SetItem(Index: Integer; Value: TideEstabCollectionItem);
+  public
+    function New: TideEstabCollectionItem;
+    property Items[Index: Integer]: TideEstabCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TinfoPisPasep = class(TObject)
+  private
+    FideEstab: TideEstabCollection;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property ideEstab: TideEstabCollection read FideEstab;
   end;
 
   TEvtBasesTrab = class(TObject)
   private
-    FLeitor: TLeitor;
-    FId: String;
-    FXML: String;
+    FLeitor         : TLeitor;
+    FId             : String;
+    FXML            : String;
+    FIdeEvento      : TIdeEvento5;
+    FIdeEmpregador  : TIdeEmpregador;
+    FIdeTrabalhador : TIdeTrabalhador4;
+    FInfoCpCalc     : TInfoCpCalcCollection;
+    FInfoCp         : TInfoCp;
+    FVersaoDF       : TVersaoeSocial;
+    FinfoPisPasep   : TinfoPisPasep;
 
-    FIdeEvento: TIdeEvento5;
-    FIdeEmpregador: TIdeEmpregador;
-    FIdeTrabalhador: TIdeTrabalhador4;
-    FInfoCpCalc: TInfoCpCalcCollection;
-    FInfoCp: TInfoCp;
+    function getInfoPisPasep: TinfoPisPasep;
   public
     constructor Create;
     destructor  Destroy; override;
 
-    function LerXML        : boolean;
-    function SalvarINI     : boolean;
-    
-    property IdeEvento     : TIdeEvento5 read FIdeEvento write FIdeEvento;
-    property IdeEmpregador : TIdeEmpregador read FIdeEmpregador write FIdeEmpregador;
-    property IdeTrabalhador: TIdeTrabalhador4 read FIdeTrabalhador write FIdeTrabalhador;
-    property InfoCpCalc    : TInfoCpCalcCollection read FInfoCpCalc write FInfoCpCalc;
-    property InfoCp        : TInfoCp read FInfoCp write FInfoCp;
-    property Leitor        : TLeitor read FLeitor write FLeitor;
-    property Id            : String read FId;
-    property XML           : String read FXML;
+    function infoPisPasepInst: boolean;
+    function LerXML          : boolean;
+    function SalvarINI       : boolean;
+
+    property IdeEvento       : TIdeEvento5 read FIdeEvento write FIdeEvento;
+    property IdeEmpregador   : TIdeEmpregador read FIdeEmpregador write FIdeEmpregador;
+    property IdeTrabalhador  : TIdeTrabalhador4 read FIdeTrabalhador write FIdeTrabalhador;
+    property InfoCpCalc      : TInfoCpCalcCollection read FInfoCpCalc write FInfoCpCalc;
+    property InfoCp          : TInfoCp read FInfoCp write FInfoCp;
+    property Leitor          : TLeitor read FLeitor write FLeitor;
+    property Id              : String read FId;
+    property XML             : String read FXML;
+    property VersaoDF        : TVersaoeSocial read FVersaoDF write FVersaoDF;
+    property infoPisPasep    : TinfoPisPasep read getInfoPisPasep write FinfoPisPasep;
   end;
 
-  TSucessaoVinc = class
+  TS5001 = class(TInterfacedObject, IEventoeSocial)
   private
-    FtpInsc   : tpTpInsc;
-    FnrInsc   : string;
-    FmatricAnt: string;
-    FdtAdm    : TDateTime;
-  public
-    property tpInsc   : tpTpInsc read FtpInsc write FtpInsc;
-    property nrInsc   : string read FnrInsc write FnrInsc;
-    property matricAnt: string read FmatricAnt write FmatricAnt;
-    property dtAdm    : TDateTime read FdtAdm write FdtAdm;
-  end;
+    FTipoEvento: TTipoEvento;
+    FEvtBasesTrab: TEvtBasesTrab;
 
-  TInfoCompl = class(TObject)
-  private
-    FSucessaoVinc : TSucessaoVinc;
-    FInfoInterm   : TInfoIntermCollection;
-    FInfoComplCont: TInfoComplContCollection;
-    
-    function getInfoInterm(): TInfoIntermCollection;
-    function getInfoComplCont(): TInfoComplContCollection;
-    function getSucessaoVinc(): TSucessaoVinc;
+    function GetXml : string;
+    procedure SetXml(const Value: string);
+    function GetTipoEvento : TTipoEvento;
   public
     constructor Create;
     destructor Destroy; override;
-             
-    function InfoIntermInst(): Boolean;
-    function InfoComplContInst(): Boolean;
-    function SucessaoVincInst(): Boolean;
+
+    function GetEvento() : TObject;
     
-    property sucessaoVinc : TSucessaoVinc read getSucessaoVinc write FSucessaoVinc;
-    property infoInterm   : TInfoIntermCollection read getInfoInterm write FInfoInterm;
-    property infoComplCont: TInfoComplContCollection read getInfoComplCont write FInfoComplCont;
+    property Xml: String read GetXml write SetXml;
+    property TipoEvento: TTipoEvento read GetTipoEvento;
+    property EvtBasesTrab: TEvtBasesTrab read FEvtBasesTrab write FEvtBasesTrab;
   end;
 
-  TInfoComplContCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TInfoComplContCollectionItem;
-    procedure SetItem(Index: Integer; Value: TInfoComplContCollectionItem);
-  public
-    function Add: TInfoComplContCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TInfoComplContCollectionItem;
-    property Items[Index: Integer]: TInfoComplContCollectionItem read GetItem write SetItem;
-  end;
-  
-  TInfoComplContCollectionItem = class(TObject)
-  private
-    FCodCBO      : String;
-    FNatAtividade: tpNatAtividade;
-    FQtdDiasTrab : Integer;
-  public
-    property codCBO      : String read FCodCBO write FCodCBO;
-    property natAtividade: tpNatAtividade read FNatAtividade write FNatAtividade;
-    property qtdDiasTrab : Integer read FQtdDiasTrab write FQtdDiasTrab;
-  end;
-    
-  TIdeADCCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TIdeADCCollectionItem;
-    procedure SetItem(Index: Integer; Value: TIdeADCCollectionItem);
-  public
-    function Add: TIdeADCCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TIdeADCCollectionItem;
-    property Items[Index: Integer]: TIdeADCCollectionItem read GetItem write SetItem;
-  end;  
-    
-  TIdeADCCollectionItem = class(TObject)
-  private
-   FDtAcConv: TDateTime;
-   FTpAcConv: tpTpAcConv;
-   FDsc     : String;
-   FremunSuc: tpSimNaoFacultativo;
-  public
-    property dtAcConv: TDateTime read FDtAcConv write FDtAcConv;
-    property tpAcConv: tpTpAcConv read FTpAcConv write FTpAcConv;
-    property dsc     : String read FDsc write FDsc;
-    property remunSuc: tpSimNaoFacultativo read FremunSuc write FremunSuc;
-  end;
-  
 implementation
 
 uses
   IniFiles,
-  ACBrUtil.Base;
+  ACBrUtil.Base,
+  ACBrUtil.DateTime;
 
 { TS5001 }
 
 constructor TS5001.Create;
 begin
   inherited;
-  
+
   FTipoEvento := teS5001;
   FEvtBasesTrab := TEvtBasesTrab.Create;
 end;
@@ -505,6 +548,7 @@ begin
   FIdeTrabalhador := TIdeTrabalhador4.Create;
   FInfoCpCalc     := TInfoCpCalcCollection.Create;
   FInfoCp         := TInfoCp.Create;
+  FinfoPisPasep   := nil;
 end;
 
 destructor TEvtBasesTrab.Destroy;
@@ -517,9 +561,123 @@ begin
   FInfoCpCalc.Free;
   FInfoCp.Free;
 
+  if infoPisPasepInst() then
+    FreeAndNil(FinfoPisPasep);
+
   inherited;
 end;
 
+function TEvtBasesTrab.getInfoPisPasep(): TinfoPisPasep;
+begin
+  if not(infoPisPasepInst()) then
+    FinfoPisPasep := TinfoPisPasep.Create;
+  Result := FinfoPisPasep;
+end;
+
+function TEvtBasesTrab.infoPisPasepInst(): boolean;
+begin
+  Result := Assigned(FinfoPisPaseP);
+end;
+
+{ TideEstabCollection }
+
+function TideEstabCollection.GetItem(
+  Index: Integer): TideEstabCollectionItem;
+begin
+  Result := TideEstabCollectionItem(inherited Items[Index]);
+end;
+
+procedure TideEstabCollection.SetItem(Index: Integer;
+  Value: TideEstabCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
+function TideEstabCollection.New: TideEstabCollectionItem;
+begin
+  Result := TideEstabCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+{ TideEstabCollectionItem }
+
+constructor TideEstabCollectionItem.Create;
+begin
+  inherited Create;
+  FinfoCategPisPasep := TinfoCategPisPasepCollection.Create;
+end;
+
+destructor TideEstabCollectionItem.Destroy;
+begin
+  FinfoCategPisPasep.Free;
+  inherited;
+end;
+
+{ TinfoCategPisPasepCollection }
+
+function TinfoCategPisPasepCollection.GetItem(Index: Integer): TinfoCategPisPasepCollectionItem;
+begin
+  Result := TinfoCategPisPasepCollectionItem(inherited Items[Index]);
+end;
+
+procedure TinfoCategPisPasepCollection.SetItem(Index: Integer;
+  Value: TinfoCategPisPasepCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
+function TinfoCategPisPasepCollection.New: TinfoCategPisPasepCollectionItem;
+begin
+  Result := TinfoCategPisPasepCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+{ TinfoCategPisPasepCollectionItem }
+
+constructor TinfoCategPisPasepCollectionItem.Create;
+begin
+  inherited Create;
+
+  FinfoBasePisPasep := nil;
+end;
+
+destructor TinfoCategPisPasepCollectionItem.Destroy;
+begin
+  if infoBasePisPasepInst() then
+    FreeAndNil(FinfoBasePisPasep);
+
+  inherited;
+end;
+
+function TinfoCategPisPasepCollectionItem.GetinfoBasePisPasep: TinfoBasePisPasepCollection;
+begin
+  if not Assigned(FinfoBasePisPasep) then
+    FinfoBasePisPasep := TinfoBasePisPasepCollection.Create;
+   Result := FinfoBasePisPasep;
+end;
+
+function TinfoCategPisPasepCollectionItem.infoBasePisPasepInst(): Boolean;
+begin
+  Result := Assigned(FinfoBasePisPasep);
+end;
+
+{ TinfoBasePisPasepCollection }
+
+function TinfoBasePisPasepCollection.GetItem(Index: Integer): TinfoBasePisPasepCollectionItem;
+begin
+  Result := TinfoBasePisPasepCollectionItem(inherited Items[Index]);
+end;
+
+procedure TinfoBasePisPasepCollection.SetItem(Index: Integer; Value: TinfoBasePisPasepCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
+function TinfoBasePisPasepCollection.New: TinfoBasePisPasepCollectionItem;
+begin
+  Result := TinfoBasePisPasepCollectionItem.Create;
+  Self.Add(Result);
+end;
 
 { TInfoCpCalcCollection }
 
@@ -604,12 +762,6 @@ begin
   FInfoCategIncid.Free;
 
   inherited;
-end;
-
-procedure TIdeEstabLotCollectionItem.SetInfoCategIncid(
-  const Value: TInfoCategIncidCollection);
-begin
-  FInfoCategIncid := Value;
 end;
 
 { TInfoCategIncidCollection }
@@ -817,29 +969,6 @@ begin
   Self.Add(Result);
 end;
 
-{ TInfoIntermCollection }
-
-function TInfoIntermCollection.Add: TInfoIntermCollectionItem;
-begin
-  Result := Self.New;
-end;
-
-function TInfoIntermCollection.GetItem(Index: Integer): TInfoIntermCollectionItem;
-begin
-  Result := TInfoIntermCollectionItem(inherited Items[Index]);
-end;
-
-procedure TInfoIntermCollection.SetItem(Index: Integer; Value: TInfoIntermCollectionItem);
-begin
-  inherited Items[Index] := Value;
-end;
-
-function TInfoIntermCollection.New: TInfoIntermCollectionItem;
-begin
-  Result := TInfoIntermCollectionItem.Create;
-  Self.Add(Result);
-end;
-
 { TInfoCompl }
 constructor TInfoCompl.Create;
 begin
@@ -944,16 +1073,37 @@ begin
   Self.Add(Result);
 end;
 
+{ TinfoPisPasep }
+
+constructor TinfoPisPasep.Create;
+begin
+  inherited Create;
+
+  FideEstab := TIdeEstabCollection.Create;
+end;
+
+destructor TinfoPisPasep.Destroy;
+begin
+  FideEstab.Free;
+  inherited;
+end;
+
 { TEvtBasesTrab }
 
 function TEvtBasesTrab.LerXML: boolean;
 var
   ok: Boolean;
   i, j, k, l: Integer;
+  s: String;
 begin
   Result := False;
   try
     FXML := Leitor.Arquivo;
+
+    // Capturar a versão do evento
+    s := Copy(FXML, Pos('/evt/evtBasesTrab/', FXML)+18, 16);
+    s := Copy(s, 1, Pos('"', s)-1);
+    Self.VersaoDF := StrToVersaoeSocialSchemas(s);
 
     if leitor.rExtrai(1, 'evtBasesTrab') <> '' then
     begin
@@ -964,17 +1114,56 @@ begin
         IdeEvento.nrRecArqBase := leitor.rCampo(tcStr, 'nrRecArqBase');
         IdeEvento.IndApuracao  := eSStrToIndApuracao(ok, leitor.rCampo(tcStr, 'IndApuracao'));
         IdeEvento.perApur      := leitor.rCampo(tcStr, 'perApur');
-      end;
+      end; { ideEvento }
 
       if leitor.rExtrai(2, 'ideEmpregador') <> '' then
       begin
         IdeEmpregador.TpInsc := eSStrToTpInscricao(ok, leitor.rCampo(tcStr, 'tpInsc'));
         IdeEmpregador.NrInsc := leitor.rCampo(tcStr, 'nrInsc');
-      end;
+      end; { ideEmpregador }
 
       if leitor.rExtrai(2, 'ideTrabalhador') <> '' then
       begin
         IdeTrabalhador.cpfTrab := leitor.rCampo(tcStr, 'cpfTrab');
+
+        if VersaoDF >= veS01_00_00 then
+        begin
+          if leitor.rExtrai(3, 'infoCompl') <> '' then
+          begin
+
+            if leitor.rExtrai(4, 'sucessaoVinc') <> '' then
+            begin
+              IdeTrabalhador.infoCompl.sucessaoVinc.tpInsc    := eSStrToTpInscricao(ok, leitor.rCampo(tcStr, 'tpInsc'));
+              IdeTrabalhador.infoCompl.sucessaoVinc.nrInsc    := leitor.rCampo(tcStr, 'nrInsc');
+              IdeTrabalhador.infoCompl.sucessaoVinc.matricAnt := leitor.rCampo(tcStr, 'matricAnt');
+              IdeTrabalhador.infoCompl.sucessaoVinc.dtAdm     := StringToDateTime(Leitor.rCampo(tcDat, 'dtAdm'));
+            end; { sucessaoVinc }
+
+            i := 0;
+            while Leitor.rExtrai(4, 'infoInterm', '', i + 1) <> '' do
+            begin
+              IdeTrabalhador.infoCompl.infoInterm.New;
+              IdeTrabalhador.infoCompl.infoInterm.Items[i].dia := leitor.rCampo(tcInt, 'dia');
+
+              if VersaoDF > veS01_02_00 then
+                IdeTrabalhador.infoCompl.infoInterm.Items[i].hrsTrab := leitor.rCampo(tcStr, 'hrsTrab');
+              inc(i);
+            end; { infoInterm }
+
+            if VersaoDF >= veS01_00_00 then
+            begin
+              i := 0;
+              while Leitor.rExtrai(4, 'infoComplCont', '', i + 1) <> '' do
+              begin
+                IdeTrabalhador.infoCompl.infoComplCont.New;
+                IdeTrabalhador.infoCompl.infoComplCont.Items[i].codCBO       := leitor.rCampo(tcStr, 'codCBO');
+                IdeTrabalhador.infoCompl.infoComplCont.Items[i].natAtividade := eSStrToNatAtividade(ok, leitor.rCampo(tcStr, 'natAtividade'));
+                IdeTrabalhador.infoCompl.infoComplCont.Items[i].qtdDiasTrab  := leitor.rCampo(tcInt, 'qtdDiasTrab');
+                inc(i);
+              end; { infoComplCont }
+            end;
+          end; { infoCompl }
+        end;
 
         i := 0;
         while Leitor.rExtrai(3, 'procJudTrab', '', i + 1) <> '' do
@@ -983,8 +1172,8 @@ begin
           IdeTrabalhador.procJudTrab.Items[i].nrProcJud := leitor.rCampo(tcStr, 'nrProcJud');
           IdeTrabalhador.procJudTrab.Items[i].codSusp   := leitor.rCampo(tcStr, 'codSusp');
           inc(i);
-        end;
-      end;
+        end; { procJudTrab }
+      end; { ideTrabalhador }
 
       i := 0;
       while Leitor.rExtrai(2, 'infoCpCalc', '', i + 1) <> '' do
@@ -994,7 +1183,7 @@ begin
         infoCpCalc.Items[i].FvrCpSeg   := leitor.rCampo(tcDe2, 'vrCpSeg');
         infoCpCalc.Items[i].FvrDescSeg := leitor.rCampo(tcDe2, 'vrDescSeg');
         inc(i);
-      end;
+      end; { infoCpCalc }
 
       if leitor.rExtrai(2, 'infoCp') <> '' then
       begin
@@ -1024,7 +1213,7 @@ begin
               infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].InfoBaseCS.Items[k].FtpValor := leitor.rCampo(tcInt, 'tpValor');
               infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].InfoBaseCS.Items[k].Fvalor   := leitor.rCampo(tcDe2, 'valor');
               inc(k);
-            end;
+            end; { infoBaseCS }
 
             k := 0;
             while Leitor.rExtrai(5, 'calcTerc', '', k + 1) <> '' do
@@ -1034,13 +1223,24 @@ begin
               infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].CalcTerc.Items[k].FvrCsSegTerc := leitor.rCampo(tcDe2, 'vrCsSegTerc');
               infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].CalcTerc.Items[k].FvrDescTerc  := leitor.rCampo(tcDe2, 'vrDescTerc');
               inc(k);
-            end;
+            end; { calcTerc }
 
             k := 0;
             while Leitor.rExtrai(5, 'infoPerRef', '', k + 1) <> '' do
             begin
               infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].InfoPerRef.New;
               infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].InfoPerRef.Items[k].FperRef := leitor.rCampo(tcStr, 'perRef');
+
+              l := 0;
+              while Leitor.rExtrai(6, 'ideADC', '', l + 1) <> '' do
+              begin
+                infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].InfoPerRef.Items[k].ideADC.New;
+                infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].InfoPerRef.Items[k].ideADC.Items[l].FdtAcConv := leitor.rCampo(tcDat, 'dtAcConv');
+                infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].InfoPerRef.Items[k].ideADC.Items[l].FtpAcConv := eSStrToTpAcConv(ok, leitor.rCampo(tcStr, 'tpAcConv'));
+                infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].InfoPerRef.Items[k].ideADC.Items[l].Fdsc      := leitor.rCampo(tcStr, 'dsc');
+                infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].InfoPerRef.Items[k].ideADC.Items[l].FremunSuc := eSStrToSimNaoFacultativo(ok, leitor.rCampo(tcStr, 'remunSuc'));
+                inc(l);
+              end; { ideADC }
 
               l := 0;
               while Leitor.rExtrai(6, 'detInfoPerRef', '', l + 1) <> '' do
@@ -1050,21 +1250,59 @@ begin
                 infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].InfoPerRef.Items[k].DetInfoPerRef.Items[l].FtpVrPerRef := leitor.rCampo(tcInt, 'tpVrPerRef');
                 infoCp.IdeEstabLot.Items[i].InfoCategIncid.Items[j].InfoPerRef.Items[k].DetInfoPerRef.Items[l].FvrPerRef   := leitor.rCampo(tcDe2, 'vrPerRef');
                 inc(l);
-              end;
+              end; { detInfoPerRef }
 
               inc(k);
-            end;
+            end; { infoPerRef }
 
             inc(j);
-          end;
+          end; { infoCategIncid }
 
           inc(i);
-        end;
+        end; { ideEstabLot }
 
+      end; { infoCp }
+
+      if VersaoDF > veS01_02_00 then
+      begin
+        if leitor.rExtrai(2, 'infoPisPasep') <> '' then
+        begin
+          i := 0;
+
+          while Leitor.rExtrai(3, 'ideEstab', '', i + 1) <> '' do
+          begin
+            infoPisPasep.ideEstab.New;
+            infoPisPasep.ideEstab.Items[i].tpInsc := eSStrToTpInscricao(ok, leitor.rCampo(tcStr, 'tpInsc'));
+            infoPisPasep.ideEstab.Items[i].nrInsc := leitor.rCampo(tcStr, 'nrInsc');
+
+            j := 0;
+            while Leitor.rExtrai(4, 'infoCategPisPasep', '', j + 1) <> '' do
+            begin
+              infoPisPasep.ideEstab.Items[i].infoCategPisPasep.New;
+              infoPisPasep.ideEstab.Items[i].infoCategPisPasep.Items[j].matricula := leitor.rCampo(tcStr, 'matricula');
+              infoPisPasep.ideEstab.Items[i].infoCategPisPasep.Items[j].codCateg  := leitor.rCampo(tcInt, 'codCateg');
+
+              k := 0;
+              while Leitor.rExtrai(5, 'infoBasePisPasep', '', k + 1) <> '' do
+              begin
+                infoPisPasep.ideEstab.Items[i].infoCategPisPasep.Items[j].infoBasePisPasep.New;
+                infoPisPasep.ideEstab.Items[i].infoCategPisPasep.Items[j].infoBasePisPasep.Items[k].Find13           := leitor.rCampo(tcInt, 'ind13');
+                infoPisPasep.ideEstab.Items[i].infoCategPisPasep.Items[j].infoBasePisPasep.Items[k].FtpValorPisPasep := eSStrToTtpValorPisPasep(leitor.rCampo(tcStr, 'tpValorPisPasep'));
+                infoPisPasep.ideEstab.Items[i].infoCategPisPasep.Items[j].infoBasePisPasep.Items[k].FvalorPisPasep   := leitor.rCampo(tcDe2, 'valorPisPasep');
+
+                inc(k);
+              end; { infoBasePisPasep }
+
+              inc(j);
+            end; { infoCategPisPasep }
+
+            inc(i);
+          end; { ideEstab }
+        end; { infoPisPasep }
       end;
 
       Result := True;
-    end;
+    end; { evtBasesTrab }
   except
     Result := False;
   end;

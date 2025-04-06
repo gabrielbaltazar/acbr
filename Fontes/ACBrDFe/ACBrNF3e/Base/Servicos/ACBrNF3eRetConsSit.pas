@@ -152,7 +152,7 @@ constructor TRetConsSitNF3e.Create;
 begin
   inherited Create;
 
-  FprotNF3e := TProcDFe.Create(Versao, NAME_SPACE_NF3e, 'NF3e');
+  FprotNF3e := TProcDFe.Create(Versao, NAME_SPACE_NF3e, 'nf3eProc', 'NF3e');
 end;
 
 destructor TRetConsSitNF3e.Destroy;
@@ -177,6 +177,8 @@ begin
 
   try
     try
+      Result := True;
+
       Document.LoadFromXml(XmlRetorno);
 
       ANode := Document.Root;
@@ -194,7 +196,7 @@ begin
         chNF3e := ObterConteudoTag(ANode.Childrens.FindAnyNs('chNF3e'), tcStr);
 
         case cStat of
-          100,101,104,110,150,151,155,301,302,303:
+          100, 101, 104, 150, 151, 155:
             begin
               ANodeAux := ANode.Childrens.FindAnyNs('protNF3e');
 
@@ -244,11 +246,9 @@ begin
             end;
           end;
         except
-          // Continua
+          Result := False;
         end;
       end;
-
-      Result := True;
     except
       Result := False;
     end;

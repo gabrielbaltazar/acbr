@@ -64,7 +64,8 @@ uses
   PagFor.Santander.Provider,
   PagFor.Sicoob.Provider,
   PagFor.Sicredi.Provider,
-  PagFor.UnicredCooperativa.Provider;
+  PagFor.UnicredCooperativa.Provider,
+  PagFor.Cresol.Provider;
 
   { TACBrPagForProviderManager }
 
@@ -111,6 +112,9 @@ begin
 
       pagUnicredCooperativa:
         Result := TACBrPagForProviderUnicredCooperativa.Create(ACBrPagFor);
+
+      pagCresol:
+        Result := TACBrPagForProviderCresol.Create(ACBrPagFor);
     else
       Result := nil;
     end;

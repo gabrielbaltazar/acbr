@@ -45,12 +45,12 @@ uses
 type
   TACBrNFSeXWebserviceDesenvolve203 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -83,13 +83,10 @@ begin
     UseCertificateHTTP := False;
     ConsultaNFSe := False;
 
-    with ServicosDisponibilizados do
-    begin
-      ConsultarFaixaNfse := False;
-      ConsultarServicoPrestado := False;
-      ConsultarServicoTomado := False;
-      SubstituirNfse := False;
-    end;
+    ServicosDisponibilizados.ConsultarFaixaNfse := False;
+    ServicosDisponibilizados.ConsultarServicoPrestado := False;
+    ServicosDisponibilizados.ConsultarServicoTomado := False;
+    ServicosDisponibilizados.SubstituirNfse := False;
   end;
 
   with ConfigAssinar do
@@ -143,7 +140,7 @@ end;
 
 { TACBrNFSeXWebserviceDesenvolve203 }
 
-function TACBrNFSeXWebserviceDesenvolve203.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceDesenvolve203.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -159,7 +156,7 @@ begin
                      ['xmlns:tns="http://ws.integracao.nfsd.desenvolve/"']);
 end;
 
-function TACBrNFSeXWebserviceDesenvolve203.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceDesenvolve203.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -175,7 +172,7 @@ begin
                      ['xmlns:tns="http://ws.integracao.nfsd.desenvolve/"']);
 end;
 
-function TACBrNFSeXWebserviceDesenvolve203.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceDesenvolve203.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -191,7 +188,7 @@ begin
                      ['xmlns:tns="http://ws.integracao.nfsd.desenvolve/"']);
 end;
 
-function TACBrNFSeXWebserviceDesenvolve203.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceDesenvolve203.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -207,7 +204,7 @@ begin
                      ['xmlns:tns="http://ws.integracao.nfsd.desenvolve/"']);
 end;
 
-function TACBrNFSeXWebserviceDesenvolve203.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceDesenvolve203.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -223,7 +220,7 @@ begin
                      ['xmlns:tns="http://ws.integracao.nfsd.desenvolve/"']);
 end;
 
-function TACBrNFSeXWebserviceDesenvolve203.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceDesenvolve203.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin

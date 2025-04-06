@@ -62,11 +62,11 @@ type
 
   TACBrNFSeXWebserviceISSBarueri = class(TACBrNFSeXWebserviceSoap12)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
   end;
 
   { TACBrNFSeProviderISSBarueri }
@@ -101,8 +101,7 @@ type
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
-    function AplicarXMLtoUTF8(AXMLRps: String): String; override;
-    function AplicarLineBreak(AXMLRps: String; const ABreak: String): String; override;
+    function AplicarLineBreak(const AXMLRps: string; const ABreak: string): string; override;
 
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
@@ -349,26 +348,33 @@ begin
     (ALinha[1] = '9'));
 end;
 
+function TACBrNFSeProviderISSBarueri.AplicarLineBreak(const AXMLRps,
+  ABreak: string): string;
+begin
+  Result := AXMLRps;
+end;
+
 procedure TACBrNFSeProviderISSBarueri.Configuracao;
 begin
   inherited Configuracao;
 
   with ConfigGeral do
   begin
+    QuebradeLinha := '|';
     Identificador := '';
     UseCertificateHTTP := True;
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
     FormatoArqRecibo := tfaTxt;
+    NumMaxRpsEnviar := 1000;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := True;
-      ConsultarSituacao := True;
-      ConsultarLote := True;
-      ConsultarServicoTomado := True;
-      CancelarNfse := True;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarSituacao := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarServicoTomado := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+
+    Particularidades.PermiteMaisDeUmServico := True;
   end;
 
   with ConfigMsgDados do
@@ -463,19 +469,60 @@ end;
 procedure TACBrNFSeProviderISSBarueri.GerarMsgDadosEmitir(
   Response: TNFSeEmiteResponse; Params: TNFSeParamsResponse);
 var
-  XML, NumeroRps: String;
+  XML: String;
   Emitente: TEmitenteConfNFSe;
+  Registro1, Registro9, AIdentificacaoRemessa: string;
+  Nota: TNotaFiscal;
+  ValorServicos, ValorTotalRetencoes: Double;
+  I: Integer;
 begin
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
-  NumeroRps := TACBrNFSeX(FAOwner).NotasFiscais.Items[0].NFSe.IdentificacaoRps.Numero;
+  ValorServicos := 0;
+  ValorTotalRetencoes := 0;
 
-  if (EstaVazio(NumeroRps)) then
-    NumeroRps := FormatDateTime('yyyymmddzzz', Now);
+  for I := 0 to TACBrNFSeX(FAOwner).NotasFiscais.Count - 1 do
+  begin
+    Nota := TACBrNFSeX(FAOwner).NotasFiscais.Items[I];
+
+    if I = 0 then
+    begin
+      AIdentificacaoRemessa := Nota.NFSe.IdentificacaoRemessa;
+
+      if AIdentificacaoRemessa = '' then
+        AIdentificacaoRemessa := Nota.NFSe.IdentificacaoRps.Numero;
+
+      if Nota.NFSe.StatusRps = srCancelado then
+        AIdentificacaoRemessa := FormatDateTime('yyyymmddzzz', Now);
+
+      Registro1 := '1' +
+                   PadRight(Emitente.InscMun, 7, ' ') +
+                   'PMB002'+
+                   PadLeft(AIdentificacaoRemessa, 11, '0') + CRLF;
+
+    end;
+
+    ValorServicos := ValorServicos +
+                     Nota.NFSe.Servico.Valores.ValorServicos;
+
+    ValorTotalRetencoes := ValorTotalRetencoes +
+                           Nota.NFSe.Servico.Valores.ValorIr +
+                           Nota.NFSe.Servico.Valores.ValorPis +
+                           Nota.NFSe.Servico.Valores.ValorCofins +
+                           Nota.NFSe.Servico.Valores.ValorCsll;
+
+  end;
+
+  Registro9 := '9' +
+        PadRight(IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count + 2), 7, ' ') +
+        PadLeft(FloatToStr(ValorServicos * 100), 15, '0') +
+        PadLeft(FloatToStr(ValorTotalRetencoes * 100), 15, '0') + CRLF;
+
+  Params.Xml := Registro1 + Params.Xml + Registro9;
 
   XML := '<NFeLoteEnviarArquivo xmlns="http://www.barueri.sp.gov.br/nfe">';
   XML := XML + '<InscricaoMunicipal>' + Emitente.InscMun + '</InscricaoMunicipal>';
   XML := XML + '<CPFCNPJContrib>' + Emitente.CNPJ + '</CPFCNPJContrib>';
-  XML := XML + '<NomeArquivoRPS>' + Format('Rps-0%s.txt', [NumeroRps]) + '</NomeArquivoRPS>';
+  XML := XML + '<NomeArquivoRPS>' + Format('Rps-0%s.txt', [AIdentificacaoRemessa]) + '</NomeArquivoRPS>';
   XML := XML + '<ApenasValidaArq>false</ApenasValidaArq>';
   XML := XML + '<ArquivoRPSBase64>' + string(EncodeBase64(AnsiString(Params.Xml))) + '</ArquivoRPSBase64>';
   XML := XML + '</NFeLoteEnviarArquivo>';
@@ -638,8 +685,7 @@ begin
   Nota.NFSe.CodigoCancelamento := Response.InfCancelamento.CodCancelamento;
   Nota.GerarXML;
 
-  Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
-  Nota.XmlRps := AplicarLineBreak(Nota.XmlRps, '');
+  Nota.XmlRps := string(NativeStringToUTF8(Nota.XmlRps));
 
   SalvarXmlRps(Nota);
 
@@ -739,7 +785,7 @@ var
   Erros: TStringList;
   ANota: TNotaFiscal;
   I, X: Integer;
-  XML: string;
+  XML, wDataString: string;
   Ok: Boolean;
 begin
   Document := TACBrXmlDocument.Create;
@@ -823,18 +869,26 @@ begin
         Response.SerieRps := Trim(Copy(Dados[1], 51, 4));
         Response.SerieNota := Trim(Copy(Dados[1], 2, 5));
 
+        wDataString := Trim(Copy(Dados[1], 19, 2) + '/' + Copy(Dados[1], 17, 2) +
+                       '/' + Copy(Dados[1], 13, 4));
+
         if NaoEstaVazio(Trim(Copy(Dados[1], 22, 6))) then
         begin
-          Response.Data := EncodeDataHora(Trim(Copy(Dados[1], 13, 8)), 'YYYYMMDD');
-          Response.Data := Response.Data + StrToTime(Format('%S:%S:%S', [Trim(Copy(Dados[1], 21, 2)), Trim(Copy(Dados[1], 23, 2)), Trim(Copy(Dados[1], 25, 2))]));
+          Response.Data := StrToDateTime(wDataString);
+          Response.Data := Response.Data +
+                      StrToTime(Format('%S:%S:%S', [Trim(Copy(Dados[1], 21, 2)),
+                      Trim(Copy(Dados[1], 23, 2)), Trim(Copy(Dados[1], 25, 2))]));
         end
         else
-          Response.Data := EncodeDataHora(Trim(Copy(Dados[1], 13, 8)), 'YYYYMMDD');
+          Response.Data := StrToDateTime(wDataString);
 
         if (FAOwner.Configuracoes.WebServices.AmbienteCodigo = 1) then
-        begin
-          Response.Link := 'https://www.barueri.sp.gov.br/nfe/xmlNFe.ashx?codigoautenticidade=' + Response.Protocolo + '&numdoc=' + Trim(Copy(Dados[1], 94, 14));
-        end;
+          Response.Link := 'https://www.barueri.sp.gov.br/nfe/xmlNFe.ashx'
+        else
+          Response.Link := 'https://testeeiss.barueri.sp.gov.br/nfe/xmlNFe.ashx';
+
+        Response.Link := Response.Link + '?codigoautenticidade=' +
+                 Response.Protocolo + '&numdoc=' + Trim(Copy(Dados[1], 94, 14));
 
         if NaoEstaVazio(Response.Link) then
         begin
@@ -1029,17 +1083,6 @@ begin
   }
 end;
 
-function TACBrNFSeProviderISSBarueri.AplicarXMLtoUTF8(AXMLRps: String): String;
-begin
-  Result := string(NativeStringToUTF8(AXMLRps));
-end;
-
-function TACBrNFSeProviderISSBarueri.AplicarLineBreak(AXMLRps: String;
-  const ABreak: String): String;
-begin
-  Result := AXMLRps;
-end;
-
 function TACBrNFSeProviderISSBarueri.SituacaoLoteRpsToStr(const t: TSituacaoLoteRps): string;
 begin
   Result := EnumeradoToStr(t,
@@ -1086,7 +1129,7 @@ end;
 
 { TACBrNFSeXWebserviceISSBarueri }
 
-function TACBrNFSeXWebserviceISSBarueri.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceISSBarueri.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1106,7 +1149,7 @@ begin
                      ['xmlns:nfe="http://www.barueri.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSBarueri.ConsultarSituacao(ACabecalho,
+function TACBrNFSeXWebserviceISSBarueri.ConsultarSituacao(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1126,7 +1169,7 @@ begin
                      ['xmlns:nfe="http://www.barueri.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSBarueri.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceISSBarueri.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1146,14 +1189,14 @@ begin
                      ['xmlns:nfe="http://www.barueri.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSBarueri.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceISSBarueri.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
   FPMsgOrig := AMSG;
 
-  Request := '<nfe:ConsultaNFeRecebidaPeriodo  xmlns="http://www.barueri.sp.gov.br/nfe">';
+  Request := '<nfe:ConsultaNFeRecebidaPeriodo>';
   Request := Request + '<nfe:VersaoSchema>1</nfe:VersaoSchema>';
   Request := Request + '<nfe:MensagemXML>';
   Request := Request + IncluirCDATA(AMSG);
@@ -1167,7 +1210,7 @@ begin
                      ['xmlns:nfe="http://www.barueri.sp.gov.br/nfe"']);
 end;
 
-function TACBrNFSeXWebserviceISSBarueri.Cancelar(ACabecalho,
+function TACBrNFSeXWebserviceISSBarueri.Cancelar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;

@@ -38,9 +38,9 @@ interface
 
 uses
   SysUtils, Classes, Variants, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument, ACBrJSON,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml,
-  ACBrNFSeXConversao, ACBrNFSeXConsts;
+  ACBrJSON,
+  ACBrNFSeXGravarXml,
+  ACBrNFSeXConversao;
 
 type
   { TNFSeW_eISS }
@@ -63,8 +63,7 @@ implementation
 
 uses
   DateUtils,
-  ACBrNFSeX,
-  ACBrUtil.Base, ACBrUtil.Strings,
+  ACBrUtil.Strings,
   ACBrConsts;
 
 //==============================================================================
@@ -83,8 +82,6 @@ end;
 function TNFSeW_eISS.GerarXml: Boolean;
 begin
   Configuracao;
-
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 

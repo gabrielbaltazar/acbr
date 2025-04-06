@@ -38,8 +38,10 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXGravarXml,
+  ACBrNFSeXConversao;
 
 type
   { TNFSeW_GeisWeb }
@@ -78,8 +80,6 @@ var
   NFSeNode, xmlNode: TACBrXmlNode;
 begin
   Configuracao;
-
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -171,10 +171,10 @@ begin
   Result := CreateElement('OrgaoGerador');
 
   Result.AppendChild(AddNode(tcStr, '#1', 'CodigoMunicipio', 1, 10, 1,
-                                             Nfse.Servico.CodigoMunicipio, ''));
+                                  Nfse.Prestador.Endereco.CodigoMunicipio, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'Uf', 1, 2, 1,
-                                                 Nfse.Servico.UFPrestacao, ''));
+                                               Nfse.Prestador.Endereco.UF, ''));
 end;
 
 function TNFSeW_GeisWeb.GerarOutrosImpostos: TACBrXmlNode;

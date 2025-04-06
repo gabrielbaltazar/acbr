@@ -38,7 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
+  ACBrXmlBase,
+  ACBrXmlDocument,
   ACBrNFSeXGravarXml;
 
 type
@@ -54,10 +55,7 @@ type
 implementation
 
 uses
-  ACBrNFSeXConversao,
-  ACBrNFSeXConsts,
-  ACBrUtil.Strings,
-  ACBrNFSeXClass;
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -78,8 +76,6 @@ var
   aliquota: double;
 begin
   Configuracao;
-
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -167,10 +163,20 @@ begin
   NFSeNode.AppendChild(AddNode(tcDe2, '#1', 'ws_001_in_nfse_valor_deducoes', 1, 18, 0,
                                        NFSe.Servico.Valores.ValorDeducoes, ''));
 
-  if NFSe.Tomador.Endereco.CodigoMunicipio = NFSe.Prestador.Endereco.CodigoMunicipio then
-    issRetido := 'S'
+  if Length(NFSe.Servico.CodigoMunicipio) = 7 then
+  begin
+    if NFSe.Servico.CodigoMunicipio = NFSe.Prestador.Endereco.CodigoMunicipio then
+      issRetido := 'S'
+    else
+      issRetido := 'N';
+  end
   else
-    issRetido := 'N';
+  begin
+    if NFSe.Tomador.Endereco.CodigoMunicipio = NFSe.Prestador.Endereco.CodigoMunicipio then
+      issRetido := 'S'
+    else
+      issRetido := 'N';
+  end;
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'ws_001_in_nfse_local_retencao', 1, 1, 1,
                                       issRetido, ''));

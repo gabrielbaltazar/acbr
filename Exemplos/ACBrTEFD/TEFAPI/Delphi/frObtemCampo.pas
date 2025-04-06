@@ -61,6 +61,7 @@ type
   private
     { private declarations }
     fMascara: String;
+    fNaoRemoverMascaraResposta: Boolean;
     FTamanhoMaximo: Integer;
     FTamanhoMinimo: Integer;
     fTipoCampo: TTipoCampo;
@@ -231,7 +232,7 @@ begin
     AValor := StrToIntDef(OnlyNumber(edtResposta.Text), 0);
     Result := FloatToString(AValor/100, '.', '0.00');
   end
-  else if (fMascara <> '') then
+  else if (fMascara <> '') and (not fNaoRemoverMascaraResposta) then
     Result := ACBrValidador.RemoverMascara(edtResposta.Text, fMascara)
   else
     Result := edtResposta.Text;

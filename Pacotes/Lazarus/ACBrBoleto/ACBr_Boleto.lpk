@@ -21,7 +21,7 @@
     <Description Value="ACBr - Boleto - (http://www.projetoacbr.com.br/)"/>
     <License Value="LGPL"/>
     <Version Minor="1"/>
-    <Files Count="87">
+    <Files Count="99">
       <Item1>
         <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBoleto.pas"/>
         <UnitName Value="ACBrBoleto"/>
@@ -55,8 +55,8 @@
         <UnitName Value="ACBrBancoSantander"/>
       </Item8>
       <Item9>
-        <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoBancoob.pas"/>
-        <UnitName Value="ACBrBancoBancoob"/>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoSicoob.pas"/>
+        <UnitName Value="ACBrBancoSicoob"/>
       </Item9>
       <Item10>
         <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoHSBC.pas"/>
@@ -79,8 +79,8 @@
         <UnitName Value="ACBrBancoBanestes"/>
       </Item14>
       <Item15>
-        <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoCecred.pas"/>
-        <UnitName Value="ACBrBancoCecred"/>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoAilos.pas"/>
+        <UnitName Value="ACBrBancoAilos"/>
       </Item15>
       <Item16>
         <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoCaixa.pas"/>
@@ -272,12 +272,12 @@
         <UnitName Value="ACBrBoletoWS.SOAP"/>
       </Item62>
       <Item63>
-        <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrUniprime.pas"/>
-        <UnitName Value="ACBrUniprime"/>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoUniprime.pas"/>
+        <UnitName Value="ACBrBancoUniprime"/>
       </Item63>
       <Item64>
-        <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrUniprimeNortePR.pas"/>
-        <UnitName Value="ACBrUniprimeNortePR"/>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoSisprime.pas"/>
+        <UnitName Value="ACBrBancoSisprime"/>
       </Item64>
       <Item65>
         <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Credisis.pas"/>
@@ -324,12 +324,12 @@
         <UnitName Value="ACBrBoletoW_Sicredi_APIV2"/>
       </Item75>
       <Item76>
-        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Bancoob.pas"/>
-        <UnitName Value="ACBrBoletoRet_Bancoob"/>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Sicoob.pas"/>
+        <UnitName Value="ACBrBoletoRet_Sicoob"/>
       </Item76>
       <Item77>
-        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Bancoob.pas"/>
-        <UnitName Value="ACBrBoletoW_Bancoob"/>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Sicoob.pas"/>
+        <UnitName Value="ACBrBoletoW_Sicoob"/>
       </Item77>
       <Item78>
         <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoPefisa.pas"/>
@@ -371,6 +371,54 @@
         <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Itau_API.pas"/>
         <UnitName Value="ACBrBoletoW_Itau_API"/>
       </Item87>
+      <Item88>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoBocomBBM.pas"/>
+        <UnitName Value="ACBrBancoBocomBBM"/>
+      </Item88>
+      <Item89>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Cresol.pas"/>
+        <UnitName Value="ACBrBoletoRet_Cresol"/>
+      </Item89>
+      <Item90>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Cresol.pas"/>
+        <UnitName Value="ACBrBoletoW_Cresol"/>
+      </Item90>
+      <Item91>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoCora.pas"/>
+        <UnitName Value="ACBrBancoCora"/>
+      </Item91>
+      <Item92>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Cora.pas"/>
+        <UnitName Value="ACBrBoletoW_Cora"/>
+      </Item92>
+      <Item93>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Cora.pas"/>
+        <UnitName Value="ACBrBoletoRet_Cora"/>
+      </Item93>
+      <Item94>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_Kobana.pas"/>
+        <UnitName Value="ACBrBoletoW_Kobana"/>
+      </Item94>
+      <Item95>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_Kobana.pas"/>
+        <UnitName Value="ACBrBoletoRet_Kobana"/>
+      </Item95>
+      <Item96>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoKobana.Classes.pas"/>
+        <UnitName Value="ACBrBoletoKobana.Classes"/>
+      </Item96>
+      <Item97>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\ACBrBancoSulcredi.pas"/>
+        <UnitName Value="ACBrBancoSulcredi"/>
+      </Item97>
+	  <Item98>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoW_BTGPactual.pas"/>
+        <UnitName Value="ACBrBoletoW_BTGPactual"/>
+      </Item98>
+	  <Item99>
+        <Filename Value="..\..\..\Fontes\ACBrBoleto\WS\ACBrBoletoRet_BTGPactual.pas"/>
+        <UnitName Value="ACBrBoletoRet_BTGPactual"/>
+      </Item99>
     </Files>
     <CompatibilityMode Value="True"/>
     <RequiredPkgs Count="2">

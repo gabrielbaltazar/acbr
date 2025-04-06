@@ -40,7 +40,9 @@ uses
   Classes, SysUtils, synautil,
   ACBrDFe, ACBrDFeConfiguracoes, ACBrDFeException, ACBrBase,
   ACBrXmlBase, ACBrDCeConfiguracoes, ACBrDCeWebServices, ACBrDCeDeclaracoes,
-  ACBrDCeDACEClass, ACBrDCeClass, pcnConversao, ACBrDCeConversao;
+  ACBrDCe.DACEClass, ACBrDCe.Classes, pcnConversao, ACBrDCe.Conversao,
+  ACBrDCe.EventoClass,
+  ACBrDCe.EnvEvento;
 
 const
   ACBRDCE_NAMESPACE = 'http://www.portalfiscal.inf.br/dce';
@@ -56,13 +58,11 @@ type
   private
     FDACE: TACBrDCeDACEClass;
     FDeclaracoes: TDeclaracoes;
-//    FEventoDCe: TEventoDCe;
+    FEventoDCe: TEventoDCe;
     FStatus: TStatusDCe;
     FWebServices: TWebServices;
 
     function GetConfiguracoes: TConfiguracoesDCe;
-    function Distribuicao(const ACNPJCPF, AultNSU, ANSU,
-      AchDCe: String): Boolean;
 
     procedure SetConfiguracoes(AValue: TConfiguracoesDCe);
     procedure SetDACE(const Value: TACBrDCeDACEClass);
@@ -86,10 +86,8 @@ type
       sMensagem: TStrings = nil; sCC: TStrings = nil; Anexos: TStrings = nil;
       sReplyTo: TStrings = nil);
 
-    function Enviar(ALote: integer; Imprimir: Boolean = True;
-      ASincrono:  Boolean = False): Boolean; overload;
     function Enviar(const ALote: String; Imprimir: Boolean = True;
-      ASincrono:  Boolean = False): Boolean; overload;
+      Zipado: Boolean = True): Boolean;
 
     function GetNomeModeloDFe: String; override;
     function GetNameSpaceURI: String; override;
@@ -99,7 +97,6 @@ type
     function cStatCancelado(AValue: integer): Boolean;
 
     function Consultar(const AChave: String = ''; AExtrairEventos: Boolean = False): Boolean;
-    function ConsultarDCeNaoEnc(const ACNPJCPF: String): Boolean;
     function Cancelamento(const AJustificativa: String; ALote: integer = 0): Boolean;
     function EnviarEvento(idLote: integer): Boolean;
 
@@ -107,11 +104,11 @@ type
       var URL: String); reintroduce; overload;
     function LerVersaoDeParams(LayOutServico: TLayOutDCe): String; reintroduce; overload;
 
-    function GetURLConsulta(const CUF: integer; const TipoAmbiente: TpcnTipoAmbiente;
+    function GetURLConsulta(const CUF: integer; const TipoAmbiente: TACBrTipoAmbiente;
       const Versao: Double): String;
 
-    function GetURLQRCode(const CUF: integer; const TipoAmbiente: TpcnTipoAmbiente;
-      const TipoEmissao: TpcnTipoEmissao; const AChaveDCe: String;
+    function GetURLQRCode(const CUF: integer; const TipoAmbiente: TACBrTipoAmbiente;
+      const TipoEmissao: TACBrTipoEmissao; const AChaveDCe: String;
       const DocEmitente: string; const TipoEmitente: string;
       const Versao: Double): String;
 
@@ -125,15 +122,12 @@ type
 
     property WebServices: TWebServices read FWebServices write FWebServices;
     property Declaracoes: TDeclaracoes read FDeclaracoes write FDeclaracoes;
-//    property EventoDCe: TEventoDCe read FEventoDCe write FEventoDCe;
+    property EventoDCe: TEventoDCe read FEventoDCe write FEventoDCe;
     property Status: TStatusDCe read FStatus;
 
     procedure SetStatus(const stNewStatus: TStatusDCe);
     procedure ImprimirEvento;
     procedure ImprimirEventoPDF;
-    function DistribuicaoDFePorUltNSU(const ACNPJCPF, AultNSU: String): Boolean;
-    function DistribuicaoDFePorNSU(const ACNPJCPF, ANSU: String): Boolean;
-    function DistribuicaoDFePorChaveDCe(const ACNPJCPF, AchDCe: String): Boolean;
 
   published
     property Configuracoes: TConfiguracoesDCe
@@ -162,15 +156,15 @@ constructor TACBrDCe.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  FDeclaracoes := TDeclaracoes.Create(Self, Declaracao);
-//  FEventoDCe := TEventoDCe.Create;
+  FDeclaracoes := TDeclaracoes.Create(Self, TDeclaracao);
+  FEventoDCe := TEventoDCe.Create;
   FWebServices := TWebServices.Create(Self);
 end;
 
 destructor TACBrDCe.Destroy;
 begin
   FDeclaracoes.Free;
-//  FEventoDCe.Free;
+  FEventoDCe.Free;
   FWebServices.Free;
 
   inherited;
@@ -209,7 +203,7 @@ begin
     ImprimirEventoPDF;
     AnexosEmail.Add(DACE.ArquivoPDF);
 
-//    NomeArq := OnlyNumber(EventoDCe.Evento[0].InfEvento.Id);
+    NomeArq := OnlyNumber(EventoDCe.Evento[0].InfEvento.Id);
     EnviarEmail(sPara, sAssunto, sMensagem, sCC, AnexosEmail, StreamDCe,
 	    NomeArq + '-procEventoDCe.xml', sReplyTo);
   finally
@@ -262,7 +256,7 @@ begin
 end;
 
 function TACBrDCe.GetURLConsulta(const CUF: integer;
-  const TipoAmbiente: TpcnTipoAmbiente; const Versao: Double): String;
+  const TipoAmbiente: TACBrTipoAmbiente; const Versao: Double): String;
 //var
 //  VersaoDFe: TVersaoDCe;
 //  ok: Boolean;
@@ -271,22 +265,22 @@ begin
   // devemos descomentar as linhas e trocar o zero da função abaixo pela variável
   // VersaoDFe
 //  VersaoDFe := DblToVersaoDCe(ok, Versao);
-  Result := LerURLDeParams('DCe', CUFtoUF(CUF), TipoAmbiente, 'URL-ConsultaDCe', 0);
+  Result := LerURLDeParams('DCe', CUFtoUF(CUF), TpcnTipoAmbiente(TipoAmbiente), 'URL-Consulta', 0);
 end;
 
 function TACBrDCe.GetURLQRCode(const CUF: integer;
-  const TipoAmbiente: TpcnTipoAmbiente; const TipoEmissao: TpcnTipoEmissao;
+  const TipoAmbiente: TACBrTipoAmbiente; const TipoEmissao: TACBrTipoEmissao;
   const AChaveDCe: String; const DocEmitente: string; const TipoEmitente: string;
   const Versao: Double): String;
 var
   idDCe,
-  sEntrada, urlUF, Passo2, Passo3, Passo4, Sign: String;
+  sEntrada, urlUF, Passo3, Passo4, Sign: String;
 //  VersaoDFe: TVersaoDCe;
 //  ok: Boolean;
 begin
 //  VersaoDFe := DblToVersaoDCe(ok, Versao);
 
-  urlUF := LerURLDeParams('DCe', CUFtoUF(CUF), TipoAmbiente, 'URL-QRCode', 0);
+  urlUF := LerURLDeParams('DCe', CUFtoUF(CUF), TpcnTipoAmbiente(TipoAmbiente), 'URL-QRCode', 0);
 
   if Pos('?', urlUF) <= 0 then
     urlUF := urlUF + '?';
@@ -294,10 +288,10 @@ begin
   idDCe := OnlyNumber(AChaveDCe);
 
   // Passo 1
-  sEntrada := 'chDCe=' + idDCe + '&tpAmb=' + TpAmbToStr(TipoAmbiente);
+  sEntrada := 'chDCe=' + idDCe + '&tpAmb=' + TipoAmbienteToStr(TipoAmbiente);
 
   // Passo 2 calcular o SHA-1 da string idDCe se emissão em contingência
-  if TipoEmissao = teContingencia then
+  if TpcnTipoEmissao(TipoEmissao) = teContingencia then
   begin
     if TipoEmitente = 'J' then
       Passo3 := '&CNPJ=' + DocEmitente
@@ -374,11 +368,10 @@ begin
     I := pos('<infEvento', AXML);
     if I > 0 then
     begin
-//      lTipoEvento := StrToTpEventoDCe(Ok, Trim(RetornarConteudoEntre(AXML, '<tpEvento>', '</tpEvento>')));
+      lTipoEvento := StrToTpEventoDCe(Ok, Trim(RetornarConteudoEntre(AXML, '<tpEvento>', '</tpEvento>')));
 
       case lTipoEvento of
         teCancelamento: Result := schevCancDCe;
-//        teEncerramento: Result := schevEncDCe;
       else 
         Result := schErroDCe;
       end;
@@ -414,7 +407,7 @@ end;
 function TACBrDCe.GerarNomeArqSchemaEvento(ASchemaEventoDCe: TSchemaDCe;
   VersaoServico: Double): String;
 begin
-  if VersaoServico = 0.0 then
+  if VersaoServico = 0 then
     Result := ''
   else
     Result := PathWithDelim( Configuracoes.Arquivos.PathSchemas ) +
@@ -478,15 +471,11 @@ begin
 end;
 
 function TACBrDCe.NomeServicoToNomeSchema(const NomeServico: String): String;
-Var
-  ok: Boolean;
+var
   ALayout: TLayOutDCe;
 begin
-  ALayout := ServicoToLayOutDCe(ok, NomeServico);
-  if ok then
-    Result := SchemaDCeToStr( LayOutDCeToSchema( ALayout ) )
-  else
-    Result := '';
+  ALayout := ServicoToLayOutDCe(NomeServico);
+  Result := SchemaDCeToStr(LayOutDCeToSchema(ALayout));
 end;
 
 procedure TACBrDCe.LerServicoDeParams(LayOutServico: TLayOutDCe;
@@ -515,7 +504,7 @@ var
 begin
   if Declaracoes.Count = 0 then
     GerarException(ACBrStr('ERRO: Nenhum DC-e Informado!'));
-  (*
+
   for i := 0 to Declaracoes.Count - 1 do
   begin
     WebServices.Consulta.DCeChave := Declaracoes.Items[i].NumID;
@@ -539,10 +528,10 @@ begin
     try
       EnviarEvento(ALote);
     except
-      raise Exception.Create(WebServices.EnvEvento.EventoRetorno.xMotivo);
+      raise Exception.Create(WebServices.EnvEvento.EventoRetorno.retInfEvento[0].retInfEvento.xMotivo);
     end;
   end;
-  *)
+
   Result := True;
 end;
 
@@ -552,7 +541,7 @@ var
 begin
   if (Declaracoes.Count = 0) and EstaVazio(AChave) then
     GerarException(ACBrStr('ERRO: Nenhum DC-e ou Chave Informada!'));
-  (*
+
   if NaoEstaVazio(AChave) then
   begin
     Declaracoes.Clear;
@@ -569,28 +558,16 @@ begin
       WebServices.Consulta.Executar;
     end;
   end;
-  *)
+
   Result := True;
 end;
 
-function TACBrDCe.ConsultarDCeNaoEnc(const ACNPJCPF: String): Boolean;
-begin
-//  Result := WebServices.ConsultaDCeNaoEnc(ACNPJCPF);
-end;
-
-function TACBrDCe.Enviar(ALote: Integer; Imprimir:Boolean = True;
-      ASincrono:  Boolean = False): Boolean;
-begin
-  Result := Enviar(IntToStr(ALote), Imprimir, ASincrono);
-end;
-
 function TACBrDCe.Enviar(const ALote: String; Imprimir:Boolean = True;
-      ASincrono:  Boolean = False): Boolean;
+  Zipado: Boolean = True): Boolean;
 var
  i: Integer;
 begin
   WebServices.Enviar.Clear;
-  WebServices.Retorno.Clear;
 
   if Declaracoes.Count <= 0 then
     GerarException(ACBrStr('ERRO: Nenhum DC-e adicionado ao Lote'));
@@ -602,7 +579,7 @@ begin
   Declaracoes.Assinar;
   Declaracoes.Validar;
 
-  Result := WebServices.Envia(ALote, ASincrono);
+  Result := WebServices.Envia(ALote, Zipado);
 
   if DACE <> nil then
   begin
@@ -619,7 +596,6 @@ var
   i, j: integer;
   chDCe: String;
 begin
-  (*
   if EventoDCe.Evento.Count <= 0 then
     GerarException(ACBrStr('ERRO: Nenhum Evento adicionado ao Lote'));
 
@@ -635,7 +611,7 @@ begin
     if EventoDCe.Evento.Items[i].InfEvento.nSeqEvento = 0 then
       EventoDCe.Evento.Items[i].infEvento.nSeqEvento := 1;
 
-    FEventoDCe.Evento.Items[i].InfEvento.tpAmb := Configuracoes.WebServices.Ambiente;
+    FEventoDCe.Evento.Items[i].InfEvento.tpAmb := TACBrTipoAmbiente(Configuracoes.WebServices.Ambiente);
 
     if Declaracoes.Count > 0 then
     begin
@@ -686,7 +662,6 @@ begin
 
   if not Result then
     GerarException( WebServices.EnvEvento.Msg );
-  *)
 end;
 
 procedure TACBrDCe.ImprimirEvento;
@@ -702,43 +677,7 @@ begin
   if not Assigned(DACE) then
      raise EACBrDCeException.Create('Componente DACE não associado.')
   else
-     DACE.ImprimirEVENTOPDF(nil);
-end;
-
-function TACBrDCe.Distribuicao(const ACNPJCPF, AultNSU, ANSU,
-      AchDCe: String): Boolean;
-begin
-  {
-  WebServices.DistribuicaoDFe.CNPJCPF := ACNPJCPF;
-  WebServices.DistribuicaoDFe.ultNSU := AultNSU;
-  WebServices.DistribuicaoDFe.NSU := ANSU;
-  WebServices.DistribuicaoDFe.chDCe := AchDCe;
-
-  Result := WebServices.DistribuicaoDFe.Executar;
-
-  if not Result then
-    GerarException( WebServices.DistribuicaoDFe.Msg );
-  }
-end;
-
-function TACBrDCe.DistribuicaoDFePorUltNSU(const ACNPJCPF, AultNSU: String): Boolean;
-begin
-  Result := Distribuicao(ACNPJCPF, AultNSU, '', '');
-end;
-
-function TACBrDCe.DistribuicaoDFePorNSU(const ACNPJCPF, ANSU: String): Boolean;
-begin
-  Result := Distribuicao(ACNPJCPF, '', ANSU, '');
-end;
-
-function TACBrDCe.DistribuicaoDFePorChaveDCe(const ACNPJCPF,
-  AchDCe: String): Boolean;
-begin
-  // Aguardando a SEFAZ implementar esse recurso já existente para a NF-e.
-  Result := False;
-  GerarException('Aguardando a SEFAZ implementar esse recurso já existente para a NF-e.');
-
-//  Result := Distribuicao(ACNPJCPF, '', '', AchDCe);
+     DACE.ImprimirEVENTOPDF;
 end;
 
 end.

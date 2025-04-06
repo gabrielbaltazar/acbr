@@ -38,7 +38,6 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase,
   ACBrNFSeXGravarXml_ABRASFv2;
 
 type
@@ -54,6 +53,7 @@ type
 implementation
 
 uses
+  ACBrXmlBase,
   ACBrUtil.Strings;
 
 //==============================================================================
@@ -70,6 +70,9 @@ begin
   FormatoAliq := tcDe2;
   GerarIDRps := True;
   DivAliq100 := True;
+
+  if FpAOwner.ConfigGeral.Params.TemParametro('NaoDividir100') then
+    DivAliq100 := False;
 end;
 
 procedure TNFSeW_Sudoeste202.DefinirIDRps;

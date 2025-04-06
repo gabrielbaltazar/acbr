@@ -44,6 +44,33 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+02/12/2024
+-- ACBrEPCBloco_0_Class, ACBrEPCBloco_D, ACBrEPCBloco_D_Class, ACBrEPCBloco_P_Class --
+[+] #TK-6223 - Ajustes da Nota Técnica nº009/2024 do EFD-Contribuições - https://www.projetoacbr.com.br/forum/topic/80612-publicada-nota-t%C3%A9cnica-efd-contribui%C3%A7%C3%B5es-n%C2%BA-009-com-altera%C3%A7%C3%B5es-para-2025/
+    por: Renato Rubinho
+
+27/11/2024
+-- ACBrECFBloco_0_Class --
+[-] Correção de memory leaks.
+    https://www.projetoacbr.com.br/forum/topic/80766-problema-de-memoryleak-no-bloco-0-do-acbrspedecf/
+    por: doszapro
+
+-- Frm_SPEDFiscal, ACBrEFDBloco_D, ACBrEFDBloco_D_Class, ACBrEFDBlocos --
+[+] #TK-6218 - Novo leiaute 019 (vlVersao118) do EFD-ICMS/IPI com inicio em 01/2025 - https://www.projetoacbr.com.br/forum/topic/80580-publicada-vers%C3%A3o-317-do-guia-pr%C3%A1tico-da-efd-icms-ipi/
+    por: Renato Rubinho
+
+30/10/2024
+-- ACBrECDBloco_K --
+[-] Correção do problema de MemoryLeak no Registro K210, K310, K315 
+    #TK-6161 https://www.projetoacbr.com.br/forum/topic/80329-problemas-de-memoryleak-no-acbrecdbloco_k/
+    Por: Júlio Cavalcanti
+
+16/10/2024
+-- ACBrECDBloco_I --
+[*] Correção do problema de MemoryLeak no Registro I157 
+    #TK-6086 https://www.projetoacbr.com.br/forum/topic/80117-problema-de-memoryleak-no-registro-i157-do-acbrecdbloco_i/
+    Por: Juliomar Marchetti / Júlio Cavalcanti
+
 17/10/2023
 -- ACBrECDBloco_C --
 [*] Correção da geração do registro de encerramento C990.

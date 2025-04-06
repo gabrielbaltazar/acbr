@@ -50,7 +50,8 @@ type
     procedure EhObrigatorioContaDV; override;
     procedure EhObrigatorioAgenciaDV; override;
     function DefineCampoLivreCodigoBarras(const ACBrTitulo: TACBrTitulo): String; override;
-    function DefinePosicaoNossoNumeroRetorno: Integer; override;                     //Define posição para leitura de Retorno campo: NossoNumero
+    function DefinePosicaoNossoNumeroRetorno: Integer; override; //Define posição para leitura de Retorno campo: NossoNumero
+    function DefinePosicaoCarteiraRetorno: Integer; override;
     function MontaInstrucoesCNAB240(ATitulo : TACBrTitulo; AIndex : Integer) : string;
     function ConverterDigitoModuloFinal(): String; override;
     function DefineDataOcorrencia(const ALinha: String): String; override;
@@ -354,15 +355,22 @@ begin
             + '0';                                                       // zero fixo
 end;
 
-function TACBrBancoBTGPactual.DefineDataOcorrencia(
-  const ALinha: String): String;
+function TACBrBancoBTGPactual.DefineDataOcorrencia(const ALinha: String): String;
 begin
-  Result := copy(ALinha, 158, 2)+'/'+copy(ALinha, 160, 2)+'/'+copy(ALinha, 162, 4);
+  if (trim(copy(ALinha, 158, 2)) <> '') and (trim(copy(ALinha, 158, 2)) <> '00') then
+    Result := copy(ALinha, 158, 2)+'/'+copy(ALinha, 160, 2)+'/'+copy(ALinha, 162, 4)
+  else
+    Result := copy(ALinha, 138, 2)+'/'+copy(ALinha, 140, 2)+'/'+copy(ALinha, 142, 4);
+end;
+
+function TACBrBancoBTGPactual.DefinePosicaoCarteiraRetorno: Integer;
+begin
+  Result := 58
 end;
 
 function TACBrBancoBTGPactual.DefinePosicaoNossoNumeroRetorno: Integer;
 begin
-  Result := 47
+  Result := 38
 end;
 
 procedure TACBrBancoBTGPactual.EhObrigatorioAgenciaDV;
@@ -788,14 +796,13 @@ begin
     else
       ATipoDocumento := '1';
     end;
-	
     {SEGMENTO P}
     fValorTotalDocs := fValorTotalDocs  + ValorDocumento;
-    Inc(fpQtdRegsLote);					   
+    Inc(fpQtdRegsLote);
     Result:= IntToStrZero(ACBrBanco.Numero, 3)                                      + // 001 a 003 Código do banco  {Ok}
              '0001'                                                                 + // 004 a 007 Lote de serviço {ok}
              '3'                                                                    + // 008 a 008 Tipo do registro: Registro detalhe
-             IntToStrZero(fpQtdRegsLote, 5)                                          + // 009 a 013 Número seqüencial do registro no lote - Cada título tem 2 registros (P e Q)' {ok}
+             IntToStrZero(fpQtdRegsLote, 5)                                         + // 009 a 013 Número seqüencial do registro no lote - Cada título tem 2 registros (P e Q)' {ok}
              'P'                                                                    + // 014 a 014 Código do segmento do registro detalhe {ok}
              Space(1)                                                               + // 015 a 015 Uso exclusivo FEBRABAN/CNAB: Branco ok
              ATipoOcorrencia                                                        + // 016 a 017 Código de movimento {2 digitos 01- entrada de titulos}
@@ -805,11 +812,11 @@ begin
              PadRight(ACBrBoleto.Cedente.ContaDigito, 1, ' ')                       + // 036 a 036 Dígito verificador da conta {ok}
              Space(1)                                                               + // 037 a 037 Dígito verificador da ag/conta {?? pq branco}
              PadRight(NossoNumero, 20, ' ')                                         + // 038 a 057 Identificação do título no banco{OK}
-             PadLeft(ACodigoCarteira, 1, ' ')                                        + // 058 a 058 Código da Carteira (característica dos títulos dentro das modalidades de cobrança: '1' = Cobrança Simples '3' = Cobrança Caucionada) {ok}
-             PadLeft(ATipoCarteira, 1, ' ')                                          + // 059 a 059 Forma de cadastramento do título no banco (1=Cobrança Registrada, 2=Cobrança sem Registro) {ok}            Space(1)                                                               + // 060 a 060 Tipo de documento: Brancos   {pq fica em branco ? tradicional/escritual}
-             PadLeft(ATipoDocumento, 1, ' ')                                         + // 060 a 060 Tipo de documento: Brancos   {tradicional/escritual}
-             PadLeft(ATipoBoleto, 1, ' ')                                            + // 061 a 061 Quem emite / ident da emissao boleto  pgto
-             PadLeft(ATipoDistribuicao, 1, ' ')                                      + // 062 a 062 Quem distribui  {ok}
+             PadLeft(ACodigoCarteira, 1, ' ')                                       + // 058 a 058 Código da Carteira (característica dos títulos dentro das modalidades de cobrança: '1' = Cobrança Simples '3' = Cobrança Caucionada) {ok}
+             PadLeft(ATipoCarteira, 1, ' ')                                         + // 059 a 059 Forma de cadastramento do título no banco (1=Cobrança Registrada, 2=Cobrança sem Registro) {ok}            Space(1)                                                               + // 060 a 060 Tipo de documento: Brancos   {pq fica em branco ? tradicional/escritual}
+             PadLeft(ATipoDocumento, 1, ' ')                                        + // 060 a 060 Tipo de documento: Brancos   {tradicional/escritual}
+             PadLeft(ATipoBoleto, 1, ' ')                                           + // 061 a 061 Quem emite / ident da emissao boleto  pgto
+             PadLeft(ATipoDistribuicao, 1, ' ')                                     + // 062 a 062 Quem distribui  {ok}
              PadRight(NumeroDocumento, 15)                                          + // 063 a 077 Nº do documento de cobrança {ok}
              FormatDateTime('ddmmyyyy', Vencimento)                                 + // 078 a 085 Data de vencimento do título  {ok}
              IntToStrZero( Round( ValorDocumento * 100), 15)                        + // 086 a 100 Valor nominal do título {ok}
@@ -826,7 +833,7 @@ begin
              IntToStrZero(round(ValorDesconto * 100), 15)                           + // 151 a 165 Valor do desconto por dia {ok}
              IntToStrZero(Round(ValorIOF * 100), 15)                                + // 166 a 180 Valor do IOF a ser recolhido {ok}
              IntToStrZero(Round(ValorAbatimento * 100), 15)                         + // 181 a 195 Valor do abatimento {ok}
-             PadRight(NumeroDocumento, 25)                                          + // 196 a 220 Identificação do título na empresa  {ok}
+             PadRight(IfThen(SeuNumero <> '',SeuNumero, NumeroDocumento), 25, ' ')  + // 196 a 220 Identificação do título na empresa  {ok}
              CodProtesto                                                            + // 221 a 221 Código para protesto   {ok}
              DiasProtesto                                                           + // 222 a 223 Número de dias para protesto {ok}
              IfThen((DataBaixa <> 0) and (DataBaixa > Vencimento), '1', '2')        + // 224 a 224 Código para baixa/devolução: Não baixar/não devolver
@@ -836,7 +843,7 @@ begin
              Space(1);                                                                // 240 a 240 Uso exclusivo FEBRABAN/CNAB { ok}
 
     {SEGMENTO Q}
-	Inc(fpQtdRegsLote);					   
+    Inc(fpQtdRegsLote);					   
     Result:= Result +  #13#10 +
              IntToStrZero(ACBrBanco.Numero, 3)                                          + // 001 a 003 Código do banco     {ok}
              '0001'                                                                     + // 004 a 007 Número do lote     {ok}
@@ -888,7 +895,16 @@ begin
                Space(10)                                                  + // 090 - 099 / Reservado (uso Banco)
                MontaInstrucoesCNAB240(ACBrTitulo,1)                       + // 100 - 139 / Mensagem 3
                                                                             // 140 - 179 / Mensagem 4
-               Space(61);                                                   // 180 - 240 / Reservado (uso Banco)
+               Space(20)                                                  + // 180 - 199 / CNAB Uso Exclusivo FEBRABAN/CNAB
+               PadRight('', 8, '0')                                       + // 200 - 207 / Cód. Ocor. do Pagador
+               PadRight('', 3, '0')                                       + // 208 - 210 / Cód. do Banco na Conta do Débito
+               PadRight('', 5, '0')                                       + // 211 - 215 / Código da Agência do Débito
+               Space(1)                                                   + // 216 - 216 / Dígito Verificador da Agência
+               PadRight('', 12, '0')                                      + // 217 - 228 / Conta Corrente para Débito
+               Space(1)                                                   + // 229 - 229 / Dígito Verificador da Conta
+               Space(1)                                                   + // 230 - 230 / DV Dígito Verificador Ag/Conta
+               PadRight('', 1, '0')                                       + // 231 - 231 / Aviso Déb. Aviso para Débito Automático
+               Space(9);                                                    // 232 - 240 / CNAB Uso Exclusivo FEBRABAN/CNAB
       {SEGMENTO R - FIM}
     end;
 

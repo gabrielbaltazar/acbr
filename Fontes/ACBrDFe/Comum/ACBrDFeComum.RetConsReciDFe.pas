@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -43,7 +43,9 @@ uses
   {$ELSEIF DEFINED(DELPHICOMPILER16_UP)}
    System.Contnrs,
   {$IfEnd}
-  ACBrBase, ACBrXmlBase;
+  ACBrBase,
+  ACBrXmlBase,
+  ACBrXmlDocument;
 
 type
 
@@ -102,6 +104,8 @@ type
     FXmlRetorno: string;
 
     procedure SetProtDFe(const Value: TProtDFeCollection);
+
+    procedure Ler_ProtDFe(ANode: TACBrXmlNode);
   public
     constructor Create(const AtagGrupoMsg: string);
     destructor Destroy; override;
@@ -109,7 +113,7 @@ type
     function LerXML: Boolean;
 
     property versao: string              read Fversao   write Fversao;
-    property tpAmb: TACBrTipoAmbiente     read FtpAmb    write FtpAmb;
+    property tpAmb: TACBrTipoAmbiente    read FtpAmb    write FtpAmb;
     property verAplic: string            read FverAplic write FverAplic;
     property nRec: string                read FnRec     write FnRec;
     property cStat: Integer              read FcStat    write FcStat;
@@ -125,8 +129,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings,
-  ACBrXmlDocument;
+  ACBrUtil.Strings;
 
 { TRetConsReciDFe }
 
@@ -166,15 +169,15 @@ end;
 function TRetConsReciDFe.LerXML: Boolean;
 var
   Document: TACBrXmlDocument;
-  ANode, AuxNode: TACBrXmlNode;
-  ANodes: TACBrXmlNodeArray;
+  ANode: TACBrXmlNode;
   ok: Boolean;
-  i: Integer;
 begin
   Document := TACBrXmlDocument.Create;
 
   try
     try
+      if XmlRetorno = '' then Exit;
+
       Document.LoadFromXml(XmlRetorno);
 
       ANode := Document.Root;
@@ -191,37 +194,7 @@ begin
         cMsg := ObterConteudoTag(Anode.Childrens.FindAnyNs('cMsg'), tcInt);
         xMsg := ObterConteudoTag(ANode.Childrens.FindAnyNs('xMsg'), tcStr);
 
-        ANodes := ANode.Childrens.FindAllAnyNs('prot' + FtagGrupoMsg);
-
-        ProtDFe.Clear;
-
-        for i := 0 to Length(ANodes) - 1 do
-        begin
-          ProtDFe.New;
-          with ProtDFe[i] do
-          begin
-            // A propriedade XMLprotDFe contem o XML que traz o resultado do
-            // processamento da NF-e.
-            XMLprotDFe := ANodes[i].OuterXml;
-
-            AuxNode := ANodes[i].Childrens.FindAnyNs('infProt');
-
-            if AuxNode <> nil then
-            begin
-              Id := ObterConteudoTag(AuxNode.Attributes.Items['Id']);
-              tpAmb := StrToTipoAmbiente(ok, ObterConteudoTag(AuxNode.Childrens.FindAnyNs('tpAmb'), tcStr));
-              verAplic := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('verAplic'), tcStr);
-              chDFe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('chDFe'), tcStr);
-              dhRecbto := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dhRecbto'), tcDatHor);
-              nProt := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nProt'), tcStr);
-              digVal := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('digVal'), tcStr);
-              cStat := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cStat'), tcInt);
-              xMotivo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('xMotivo'), tcStr);
-              cMsg := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cMsg'), tcInt);
-              xMsg := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('xMsg'), tcStr);
-            end;
-          end;
-        end;
+        Ler_ProtDFe(ANode);
       end;
 
       Result := True;
@@ -230,6 +203,46 @@ begin
     end;
   finally
     FreeAndNil(Document);
+  end;
+end;
+
+procedure TRetConsReciDFe.Ler_ProtDFe(ANode: TACBrXmlNode);
+var
+  ANodes: TACBrXmlNodeArray;
+  AuxNode: TACBrXmlNode;
+  i: Integer;
+  ok: Boolean;
+begin
+  ANodes := ANode.Childrens.FindAllAnyNs('prot' + FtagGrupoMsg);
+
+  ProtDFe.Clear;
+
+  for i := 0 to Length(ANodes) - 1 do
+  begin
+    ProtDFe.New;
+    with ProtDFe[i] do
+    begin
+      // A propriedade XMLprotDFe contem o XML que traz o resultado do
+      // processamento da NF-e.
+      XMLprotDFe := ANodes[i].OuterXml;
+
+      AuxNode := ANodes[i].Childrens.FindAnyNs('infProt');
+
+      if AuxNode <> nil then
+      begin
+        Id := ObterConteudoTag(AuxNode.Attributes.Items['Id']);
+        tpAmb := StrToTipoAmbiente(ok, ObterConteudoTag(AuxNode.Childrens.FindAnyNs('tpAmb'), tcStr));
+        verAplic := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('verAplic'), tcStr);
+        chDFe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ch' + FtagGrupoMsg), tcStr);
+        dhRecbto := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('dhRecbto'), tcDatHor);
+        nProt := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nProt'), tcStr);
+        digVal := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('digVal'), tcStr);
+        cStat := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cStat'), tcInt);
+        xMotivo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('xMotivo'), tcStr);
+        cMsg := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('cMsg'), tcInt);
+        xMsg := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('xMsg'), tcStr);
+      end;
+    end;
   end;
 end;
 

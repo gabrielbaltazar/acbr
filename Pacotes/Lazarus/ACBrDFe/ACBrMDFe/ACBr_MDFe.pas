@@ -9,11 +9,12 @@ interface
 
 uses
   ACBrMDFe, ACBrMDFeConfiguracoes, ACBrMDFeManifestos, ACBrMDFeReg, 
-  ACBrMDFeWebServices, pmdfeConsMDFeNaoEnc, pmdfeConsSitMDFe, 
-  pmdfeConversaoMDFe, pmdfeEnvEventoMDFe, pmdfeEventoMDFe, pmdfeMDFe, 
-  pmdfeMDFeR, pmdfeMDFeW, pmdfeProcMDFe, pmdfeRetConsMDFeNaoEnc, 
-  pmdfeRetConsSitMDFe, pmdfeRetEnvEventoMDFe, pmdfeRetEnvMDFe, 
-  ACBrMDFeDAMDFeClass, pmdfeConsts, pmdfeProcInfraSA, LazarusPackageIntf;
+  ACBrMDFeWebServices, pmdfeConversaoMDFe, pmdfeMDFeR, pmdfeMDFeW, 
+  pmdfeProcMDFe, ACBrMDFeDAMDFeClass, ACBrMDFe.Classes, ACBrMDFe.ProcInfraSA, 
+  ACBrMDFe.XmlReader, ACBrMDFe.XmlWriter, ACBrMDFe.ConsNaoEnc, 
+  ACBrMDFe.RetConsNaoEnc, ACBrMDFe.ConsSit, ACBrMDFe.RetConsSit, 
+  ACBrMDFe.EventoClass, ACBrMDFe.EnvEvento, ACBrMDFe.RetEnvEvento, 
+  ACBrMDFe.Consts, LazarusPackageIntf;
 
 implementation
 

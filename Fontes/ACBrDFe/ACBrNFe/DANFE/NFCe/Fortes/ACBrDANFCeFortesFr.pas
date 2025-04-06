@@ -45,7 +45,7 @@ uses
    Forms, Graphics,
   {$EndIf}
   ACBrNFeDANFEClass, ACBrBase,
-  pcnNFe, pcnConversao, ACBrDFeUtil,
+  ACBrNFe.Classes, pcnConversao, ACBrDFeUtil,
   RLConsts, RLUtils, RLReport, RLBarcode, RLPDFFilter, RLHTMLFilter,
   RLFilters, RLPrinters, RLTypes, Controls;
 
@@ -359,7 +359,7 @@ end;
 procedure TACBrNFeDANFCeFortesFr.rlbChaveDeAcessoBeforePrint(Sender: TObject;
   var PrintIt: boolean);
 var
-  Via: String;
+  Via,LNNF: String;
 begin
   with ACBrNFeDANFCeFortes.FpNFe do
   begin
@@ -392,8 +392,13 @@ begin
       lContingencia1.Visible   := NaoEstaVazio(Trim(lContingencia1.Lines.Text));
       lMensagemFiscal1.Visible := NaoEstaVazio(Trim(lMensagemFiscal1.Lines.Text));
 
+      if fACBrNFeDANFCeFortes.FormatarNumeroDocumento then
+        LNNF := IntToStrZero(Ide.nNF, 9)
+      else
+        LNNF := IntToStr(Ide.nNF);
+
       lNumeroSerie1.Lines.Text := ACBrStr(
-        'NFC-e nº ' + IntToStrZero(Ide.nNF, 9) + ' ' + sLineBreak +
+        'NFC-e nº ' + LNNF + ' ' + sLineBreak +
         'Série ' + IntToStrZero(Ide.serie, 3) + ' ' + sLineBreak +
         FormatDateTimeBr(Ide.dEmi) + sLineBreak +
         Via
@@ -421,8 +426,13 @@ begin
       lContingencia.Visible   := NaoEstaVazio(Trim(lContingencia.Lines.Text));
       lMensagemFiscal.Visible := NaoEstaVazio(Trim(lMensagemFiscal.Lines.Text));
 
+      if fACBrNFeDANFCeFortes.FormatarNumeroDocumento then
+        LNNF := IntToStrZero(Ide.nNF, 9)
+      else
+        LNNF := IntToStr(Ide.nNF);
+
       lNumeroSerie.Caption := ACBrStr(
-        'NFC-e nº ' + IntToStrZero(Ide.nNF, 9) + ' ' +
+        'NFC-e nº ' + LNNF + ' ' +
         'Série ' + IntToStrZero(Ide.serie, 3) + ' ' +
         FormatDateTimeBr(Ide.dEmi)+ Via );
     end;
@@ -497,6 +507,7 @@ procedure TACBrNFeDANFCeFortesFr.rlbRodapeBeforePrint(Sender: TObject;
 var
   i:integer;
   MsgTributos: String;
+  LinhaCmd: String;
 begin
   with ACBrNFeDANFCeFortes.FpNFe do
   begin
@@ -532,12 +543,34 @@ begin
       for I := 0 to InfAdic.obsCont.Count - 1 do
       begin
         lObservacoes.Lines.Add( StringReplace( InfAdic.obsCont[i].xCampo + ': ' +
-                                               InfAdic.obsCont[i].xTexto, ';', #13, [rfReplaceAll] ) ) ;
+                                               InfAdic.obsCont[i].xTexto, fACBrNFeDANFCeFortes.CaractereQuebraDeLinha, #13, [rfReplaceAll] ) ) ;
       end;
     end;
 
     if InfAdic.infCpl <> '' then
-      lObservacoes.Lines.Add( StringReplace( InfAdic.infCpl, ';', #13, [rfReplaceAll] ) );
+      lObservacoes.Lines.Add( StringReplace( InfAdic.infCpl, fACBrNFeDANFCeFortes.CaractereQuebraDeLinha, #13, [rfReplaceAll] ) );
+
+    // Informações sobre a Entrega
+
+    if Entrega.xLgr <> '' then
+    begin
+      lObservacoes.Lines.Add(ACBrStr('INFORMAÇÕES SOBRE A ENTREGA'));
+
+      if Entrega.xNome <> '' then
+        lObservacoes.Lines.Add(Entrega.xNome);
+
+      LinhaCmd := Trim(
+        Trim(Entrega.xLgr) + ' ' +
+        IfThen(Trim(Entrega.xLgr) = '','',Trim(Entrega.nro)) + ' ' +
+        Trim(Entrega.xCpl) + ' ' +
+        Trim(Entrega.xBairro) + ' ' +
+        Trim(Entrega.xMun) + ' ' +
+        Trim(Entrega.UF)
+      );
+
+      if LinhaCmd <> '' then
+        lObservacoes.Lines.Add(LinhaCmd);
+    end;
 
     lObservacoes.Visible := ( lObservacoes.Lines.Count > 0 );
   end;
@@ -545,6 +578,7 @@ end;
 
 procedure TACBrNFeDANFCeFortesFr.rlbMensagemFiscalCancBeforePrint(
   Sender: TObject; var PrintIt: Boolean);
+var LNNF : string;
 begin
   with ACBrNFeDANFCeFortes.FpNFe do
   begin
@@ -562,8 +596,14 @@ begin
         lMensagemFiscalCanc.Caption := ACBrStr('');
     end;
 
+
+    if fACBrNFeDANFCeFortes.FormatarNumeroDocumento then
+      LNNF := IntToStrZero(Ide.nNF, 9)
+    else
+      LNNF := IntToStr(Ide.nNF);
+
     lNumeroSerieCanc.Caption := ACBrStr(
-      'Número ' + IntToStrZero(Ide.nNF, 9) + ' - ' +
+      'Número ' + LNNF + ' - ' +
       'Série ' + IntToStrZero(Ide.serie, 3)
     );
 
@@ -742,7 +782,7 @@ end;
 procedure TACBrNFeDANFCeFortesFr.rlVendaBeforePrint(Sender: TObject;
   var PrintIt: boolean);
 var
-  qrcode: String;
+  qrcode: string;
   CarregouLogo: Boolean;
 begin
   fNumItem  := 0;
@@ -809,13 +849,7 @@ begin
 
     // QRCode  //
     if EstaVazio(Trim(infNFeSupl.qrCode)) then
-      qrcode := TACBrNFe(ACBrNFeDANFCeFortes.ACBrNFe).GetURLQRCode( ide.cUF, ide.tpAmb,
-                                     OnlyNumber(InfNFe.ID),  //correcao para pegar somente numeros, estava indo junto o NFE
-                                     ifthen(Dest.idEstrangeiro <> '',Dest.idEstrangeiro, OnlyNumber(Dest.CNPJCPF)),
-                                     ide.dEmi,
-                                     Total.ICMSTot.vNF, Total.ICMSTot.vICMS,
-                                     signature.DigestValue,
-                                     infNFe.Versao)
+      qrcode := TACBrNFe(ACBrNFeDANFCeFortes.ACBrNFe).GetURLQRCode(ACBrNFeDANFCeFortes.FpNFe)
     else
       qrcode := infNFeSupl.qrCode;
 
@@ -1163,7 +1197,7 @@ begin
     begin
       PrintIt := True ;
 
-      lObservacoesCanc.Lines.Add( StringReplace( infCpl, ';', #13, [rfReplaceAll] ) );
+      lObservacoesCanc.Lines.Add( StringReplace( infCpl, fACBrNFeDANFCeFortes.CaractereQuebraDeLinha, #13, [rfReplaceAll] ) );
     end;
   end;
 end;
@@ -1258,13 +1292,7 @@ begin
 
     // QRCode  //
     if EstaVazio(Trim(infNFeSupl.qrCode)) then
-      qrcode := TACBrNFe(ACBrNFeDANFCeFortes.ACBrNFe).GetURLQRCode( ide.cUF, ide.tpAmb,
-                                     OnlyNumber(InfNFe.ID),  //correcao para pegar somente numeros, estava indo junto o NFE
-                                     ifthen(Dest.idEstrangeiro <> '',Dest.idEstrangeiro, OnlyNumber(Dest.CNPJCPF)),
-                                     ide.dEmi,
-                                     Total.ICMSTot.vNF, Total.ICMSTot.vICMS,
-                                     signature.DigestValue,
-                                     infNFe.Versao)
+      qrcode := TACBrNFe(ACBrNFeDANFCeFortes.ACBrNFe).GetURLQRCode(ACBrNFeDANFCeFortes.FpNFe)
     else
       qrcode := infNFeSupl.qrCode;
 
@@ -1331,9 +1359,28 @@ begin
 end;
 
 procedure TACBrNFeDANFCeFortes.ImprimirDANFEPDF(NFE: TNFe);
+var I : Integer;
 begin
-  AtribuirNFe(NFE);
-  Imprimir(False, fiPDF);
+  //AtribuirNFe(NFE);
+  //Imprimir(False, fiPDF);
+  FPArquivoPDF := '';
+  if (NFE = nil) then
+  begin
+    try
+      for I := 0 to Pred(TACBrNFe(ACBrNFe).NotasFiscais.Count) do
+      begin
+        FIndexImpressaoIndividual := I;
+        AtribuirNFe(TACBrNFe(ACBrNFe).NotasFiscais[I].NFe);
+        Imprimir(False, fiPDF);
+      end;
+    finally
+      FIndexImpressaoIndividual := 0;
+    end;
+  end else
+  begin
+    AtribuirNFe(NFE);
+    Imprimir(False, fiPDF);
+  end;
 end;
 
 procedure TACBrNFeDANFCeFortes.ImprimirDANFEPDF(AStream: TStream; ANFE: TNFe);
@@ -1391,20 +1438,11 @@ begin
 
       Resumido := DanfeResumido or (not Self.ImprimeItens);
 
-      if (NumCopias > 0) and (RLPrinter.Copies <> NumCopias) then
-      begin
-        RLPrinter.Copies := NumCopias;
-      end;
-
-      if not EstaVazio(Impressora) then
-        RLPrinter.PrinterName := Impressora;
+      TDFeReportFortes.AjustarReport(RLLayout, ACBrNFeDANFCeFortes);
 
       RLLayout.JobTitle := NomeDocumento;
       if (RLLayout.JobTitle = '') then
         RLLayout.JobTitle := OnlyNumber(FpNFe.infNFe.ID) + IfThen(Cancelado, '-cancelado', '')+'-nfe.xml';
-
-      RLLayout.ShowProgress := MostraStatus;
-      RLLayout.PrintDialog  := (not MostraPreview) and EstaVazio(Impressora);
 
       // Largura e Margens do Relatório //
       RLLayout.Width := LarguraBobina;
@@ -1449,9 +1487,13 @@ begin
           end
           else
           begin
-            RLFiltro.FileName := PathWithDelim(ACBrNFeDANFCeFortes.PathPDF) + ChangeFileExt( RLLayout.JobTitle, '.pdf');
+            //RLFiltro.FileName := PathWithDelim(ACBrNFeDANFCeFortes.PathPDF) + ChangeFileExt( RLLayout.JobTitle, '.pdf');
+            RLFiltro.FileName := DefinirNomeArquivo(ACBrNFeDANFCeFortes.PathPDF,
+                                                    OnlyNumber(FpNFe.infNFe.ID) + '-nfe.pdf',
+                                                    ACBrNFeDANFCeFortes.NomeDocumento);
             RLFiltro.FilterPages( RLLayout.Pages );
             ACBrNFeDANFCeFortes.FPArquivoPDF := RLFiltro.FileName;
+
           end;
         end;
       end;
@@ -1468,7 +1510,7 @@ begin
     if not Assigned(ACBrNFe) then
       raise Exception.Create('Componente ACBrNFe não atribuído');
 
-    FpNFe := TACBrNFe(ACBrNFe).NotasFiscais.Items[0].NFe;
+    FpNFe := TACBrNFe(ACBrNFe).NotasFiscais[0].NFe;
   end
   else
     FpNFe := NFE;

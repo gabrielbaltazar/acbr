@@ -53,10 +53,11 @@ type
     function GetSoapAction: string;
     function GetAliasCidade: string;
   public
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLinkNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -84,6 +85,9 @@ type
 
     procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
     procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
+
+    procedure PrepararConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse); override;
+    procedure TratarRetornoConsultaLinkNFSe(Response: TNFSeConsultaLinkNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
@@ -119,28 +123,23 @@ begin
     Identificador := '';
     ModoEnvio := meLoteSincrono;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := True;
-      ConsultarLote := True;
-      ConsultarNfse := True;
-      CancelarNfse := True;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarNfse := True;
+    ServicosDisponibilizados.ConsultarLinkNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
   end;
 
   ConfigAssinar.Rps := True;
 
-  SetXmlNameSpace('http://www.geisweb.net.br/xsd/envio_lote_rps.xsd');
+  SetXmlNameSpace('http://www.gerenciadecidades.com.br/xsd/envio_lote_rps.xsd');
 
   with ConfigMsgDados do
   begin
     UsarNumLoteConsLote := True;
 
-    with XmlRps do
-    begin
-      DocElemento := 'Rps';
-      InfElemento := 'Rps';
-    end;
+    XmlRps.DocElemento := 'Rps';
+    XmlRps.InfElemento := 'Rps';
   end;
 
   SetNomeXSD('***');
@@ -151,6 +150,7 @@ begin
     ConsultarLote := 'consulta_lote_rps.xsd';
     ConsultarNFSe := 'consulta_nfse.xsd';
     CancelarNFSe := 'cancela_nfse.xsd';
+    ConsultarLinkNFSe := 'baixa_nfse_pdf.xsd';
   end;
 end;
 
@@ -244,7 +244,7 @@ end;
 function TACBrNFSeProviderGeisWeb.PrepararRpsParaLote(
   const aXml: string): string;
 begin
-  Result := '<Rps xmlns="http://www.geisweb.net.br/xsd/envio_lote_rps.xsd">' +
+  Result := '<Rps xmlns="http://www.gerenciadecidades.com.br/xsd/envio_lote_rps.xsd">' +
             SeparaDados(aXml, 'Rps') + '</Rps>';
 end;
 
@@ -258,14 +258,14 @@ begin
   with Params do
   begin
     Response.ArquivoEnvio := '<EnviaLoteRps' + NameSpace + '>' +
-                           '<CnpjCpf>' +
-                             OnlyNumber(Emitente.CNPJ) +
-                           '</CnpjCpf>' +
-                           '<NumeroLote>' +
-                             Response.NumeroLote +
-                           '</NumeroLote>' +
-                           Xml +
-                         '</EnviaLoteRps>';
+                               '<CnpjCpf>' +
+                                 OnlyNumber(Emitente.CNPJ) +
+                               '</CnpjCpf>' +
+                               '<NumeroLote>' +
+                                 Response.NumeroLote +
+                               '</NumeroLote>' +
+                               Xml +
+                             '</EnviaLoteRps>';
   end;
 end;
 
@@ -382,18 +382,18 @@ begin
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
   Response.ArquivoEnvio := '<ConsultaLoteRps>' +
-                         '<CnpjCpf>' +
-                           OnlyNumber(Emitente.CNPJ) +
-                         '</CnpjCpf>' +
-                         '<Consulta>' +
-                           '<CnpjCpfPrestador>' +
-                             OnlyNumber(Emitente.CNPJ) +
-                           '</CnpjCpfPrestador>' +
-                           '<NumeroLote>' +
-                             Response.NumeroLote +
-                           '</NumeroLote>' +
-                         '</Consulta>' +
-                       '</ConsultaLoteRps>';
+                             '<CnpjCpf>' +
+                               OnlyNumber(Emitente.CNPJ) +
+                             '</CnpjCpf>' +
+                             '<Consulta>' +
+                               '<CnpjCpfPrestador>' +
+                                 OnlyNumber(Emitente.CNPJ) +
+                               '</CnpjCpfPrestador>' +
+                               '<NumeroLote>' +
+                                 Response.NumeroLote +
+                               '</NumeroLote>' +
+                             '</Consulta>' +
+                           '</ConsultaLoteRps>';
 end;
 
 procedure TACBrNFSeProviderGeisWeb.TratarRetornoConsultaLoteRps(
@@ -619,6 +619,94 @@ begin
   end;
 end;
 
+procedure TACBrNFSeProviderGeisWeb.PrepararConsultaLinkNFSe(
+  Response: TNFSeConsultaLinkNFSeResponse);
+var
+  AErro: TNFSeEventoCollectionItem;
+  Emitente: TEmitenteConfNFSe;
+begin
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  if EstaVazio(Emitente.CNPJ) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod130;
+    AErro.Descricao := ACBrStr(Desc130);
+    Exit;
+  end;
+
+  if Response.InfConsultaLinkNFSe.NumeroRps = 0 then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod108;
+    AErro.Descricao := ACBrStr(Desc108);
+    Exit;
+  end;
+
+  if EstaVazio(Response.InfConsultaLinkNFSe.CnpjCpfToma) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod127;
+    AErro.Descricao := ACBrStr(Desc127);
+    Exit;
+  end;
+
+  Response.ArquivoEnvio := '<GeraPDFNFSe>' +
+                             '<CnpjCpf>' +
+                               Emitente.CNPJ +
+                             '</CnpjCpf>' +
+                             '<Baixa>' +
+                               '<NumeroNfse>' +
+                                 Response.InfConsultaLinkNFSe.NumeroNFSe +
+                               '</NumeroNfse>' +
+                               '<Tomador>' +
+                                 Response.InfConsultaLinkNFSe.CnpjCpfToma +
+                               '</Tomador>' +
+                             '</Baixa>' +
+                           '</GeraPDFNFSe>';
+end;
+
+procedure TACBrNFSeProviderGeisWeb.TratarRetornoConsultaLinkNFSe(
+  Response: TNFSeConsultaLinkNFSeResponse);
+var
+  Document: TACBrXmlDocument;
+  AErro: TNFSeEventoCollectionItem;
+  ANode: TACBrXmlNode;
+begin
+  Document := TACBrXmlDocument.Create;
+  try
+    try
+      if Response.ArquivoRetorno = '' then
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod201;
+        AErro.Descricao := ACBrStr(Desc201);
+        Exit
+      end;
+
+      Document.LoadFromXml(Response.ArquivoRetorno);
+
+      ANode := Document.Root;
+
+      ProcessarMensagemErros(ANode, Response);
+
+      Response.Sucesso := (Response.Erros.Count = 0);
+
+      Response.NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('NumeroNfse'), tcStr);
+      Response.Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('Link'), tcStr);
+    except
+      on E:Exception do
+      begin
+        AErro := Response.Erros.New;
+        AErro.Codigo := Cod999;
+        AErro.Descricao := ACBrStr(Desc999 + E.Message);
+      end;
+    end;
+  finally
+    FreeAndNil(Document);
+  end;
+end;
+
 procedure TACBrNFSeProviderGeisWeb.PrepararCancelaNFSe(
   Response: TNFSeCancelaNFSeResponse);
 var
@@ -735,7 +823,7 @@ begin
   else
     ambiente := 'homologacao/modelo';
 
-  Result := 'xmlns:geis="urn:https://www.geisweb.net.br/' + ambiente +
+  Result := 'xmlns:geis="urn:https://www.gerenciadecidades.com.br/' + ambiente +
             '/webservice/GeisWebServiceImpl.php"';
 end;
 
@@ -748,11 +836,11 @@ begin
   else
     ambiente := 'homologacao/modelo';
 
-  Result := 'urn:https://www.geisweb.net.br/' + ambiente +
+  Result := 'urn:https://www.gerenciadecidades.com.br/' + ambiente +
             '/webservice/GeisWebServiceImpl.php#';
 end;
 
-function TACBrNFSeXWebserviceGeisWeb.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceGeisWeb.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -772,7 +860,7 @@ begin
                       NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceGeisWeb.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceGeisWeb.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -792,7 +880,7 @@ begin
                       NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceGeisWeb.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceGeisWeb.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -811,7 +899,27 @@ begin
                       NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceGeisWeb.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceGeisWeb.ConsultarLinkNFSe(const ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<geis:GeraPDFNFSe soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">';
+  Request := Request + '<GeraPDFNFSe xsi:type="xsd:string">' +
+                          XmlToStr(AMSG) +
+                       '</GeraPDFNFSe>';
+  Request := Request + '</geis:GeraPDFNFSe>';
+
+  Result := Executar(SoapAction + 'GeraPDFNFSe', Request,
+                     ['GeraPDFNFSeResposta', 'GeraPDFNFSeResposta'],
+                     ['xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+                      'xmlns:xsd="http://www.w3.org/2001/XMLSchema"',
+                      NameSpace]);
+end;
+
+function TACBrNFSeXWebserviceGeisWeb.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -833,7 +941,8 @@ end;
 function TACBrNFSeXWebserviceGeisWeb.TratarXmlRetornado(
   const aXML: string): string;
 begin
-  Result := inherited TratarXmlRetornado(aXML);
+  Result := ConverteANSIparaUTF8(aXML);
+  Result := inherited TratarXmlRetornado(Result);
 
   Result := ParseText(Result);
   Result := RemoverIdentacao(Result);

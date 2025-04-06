@@ -5,8 +5,8 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior, Juliana Tamizou e Daniel }
-{ de Morais(InfoCotidiano)                                                     }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior, Juliana Tamizou e      }
+{ Daniel de Morais(InfoCotidiano)                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
 {                                                                              }
@@ -734,8 +734,13 @@ begin
 
      // Nº Dias para Baixa/Devolucao
      sDiasBaixa  := '   ';
-     if ((ATipoOcorrencia = '01') or (ATipoOcorrencia = '39')) and (Max(DataBaixa, DataLimitePagto) > Vencimento) then
-       sDiasBaixa  := IntToStrZero(DaysBetween(Vencimento, Max(DataBaixa, DataLimitePagto)), 3);
+     if ((ATipoOcorrencia = '01') or (ATipoOcorrencia = '39')) then
+     begin
+       if (Max(DataBaixa, DataLimitePagto) > Vencimento) then
+         sDiasBaixa  := IntToStrZero(DaysBetween(Vencimento, Max(DataBaixa, DataLimitePagto)), 3)
+       else
+         sDiasBaixa  := '000';
+     end;
 
      {SEGMENTO P}
      Result:= IntToStrZero(ACBrBanco.Numero, 3)                                         + // 1 a 3 - Código do banco
@@ -972,7 +977,7 @@ var
   aModalidade,wLinha, aTipoCobranca:String;
   TamConvenioMaior6                :Boolean;
   wCarteira, LDiasProtesto, LDiasTrabalhados : Integer;
-  sDiasBaixa: String;
+  sDiasBaixa, LConvenio: String;
 begin
 
    with ACBrTitulo do
@@ -992,6 +997,11 @@ begin
       end;
       
      TamConvenioMaior6:= Length(trim(ACBrBoleto.Cedente.Convenio)) > 6;
+     if (not TamConvenioMaior6) and (Length(trim(ACBrBoleto.Cedente.Convenio)) = 4) then
+       LConvenio := PadLeft(trim(ACBrBoleto.Cedente.Convenio), 6,'0')
+     else
+       LConvenio := PadLeft(trim(ACBrBoleto.Cedente.Convenio), 6);
+
      aAgencia         := PadLeft(ACBrBoleto.Cedente.Agencia, 4, '0');
      aConta           := RightStr(ACBrBoleto.Cedente.Conta, 8);
      aModalidade      := PadLeft(trim(ACBrBoleto.Cedente.Modalidade), 3, '0');
@@ -1210,7 +1220,7 @@ begin
        if TamConvenioMaior6 then
          wLinha:= wLinha + PadLeft( trim(Cedente.Convenio), 7)  // Número do convenio
        else
-         wLinha:= wLinha + PadLeft( trim(Cedente.Convenio), 6); // Número do convenio
+         wLinha:= wLinha + LConvenio; // Número do convenio
 
        wLinha:= wLinha + PadRight( SeuNumero, 25 );             // Numero de Controle do Participante
 
@@ -1284,6 +1294,16 @@ begin
        end;
 
        aRemessa.Text := aRemessa.Text + UpperCase(wLinha);
+
+       if (StrToIntDef(ATipoOcorrencia,0) in [1,85,86]) and ((Instrucao1 = '88') or (Instrucao2 = '88')) then
+       begin
+         wLinha := '5'                                          + //001 - 001 Identificação do Registro Transação Tipo 5
+                   '08'                                         + //002 - 003 Tipo de Serviço 08
+                   PadLeft(OrgaoNegativador,2,'0')              + //004 - 005 Agente Negativador 10 - Serasa ou 11 Quod
+                   Space(395);                                    //006 - 400 Brancos
+
+         aRemessa.Add(UpperCase(wLinha));
+       end;
      end;
    end;
 end;
@@ -2263,14 +2283,18 @@ begin
       CodOcorrencia   := StrToIntDef(copy(Linha,109,2),0);
       OcorrenciaOriginal.Tipo := CodOcorrenciaToTipo(CodOcorrencia);
 
-      if ((CodOcorrencia >= 5) and (CodOcorrencia <= 8)) or
-          (CodOcorrencia = 15) or (CodOcorrencia = 46) then
+
+//      if ((CodOcorrencia >= 5) and (CodOcorrencia <= 8)) or
+//          (CodOcorrencia = 15) or (CodOcorrencia = 46) then
+
+      if( CodOcorrencia in [5..8,15,46] ) then
       begin
         CodigoLiquidacao := copy(Linha,109,2);
         CodigoLiquidacaoDescricao := TipoOcorrenciaToDescricao(OcorrenciaOriginal.Tipo);
       end;
 
-      if(CodOcorrencia >= 2) and ((CodOcorrencia <= 10)) then
+      //if(CodOcorrencia >= 2) and (CodOcorrencia <= 10) then
+      if( CodOcorrencia in [2..10,85,86] ) then
       begin
 
         CodMotivo:= StrToIntDef(Copy(Linha,87,2),0);
@@ -2294,6 +2318,20 @@ begin
       ValorMoraJuros       := StrToFloatDef(Copy(Linha,267,13),0)/100;
       ValorOutrosCreditos  := StrToFloatDef(Copy(Linha,280,13),0)/100;
       Carteira             := Copy(Linha,107,2);
+
+      if Copy(Linha,1,1) = '7' then
+      begin
+        case StrToIntDef(Copy(Linha,81,1),0) of
+          1 : CaracTitulo := tcSimples;
+          2 : CaracTitulo := tcVinculada;
+          4 : CaracTitulo := tcDescontada;
+          7 : CaracTitulo := tcDiretaEspecial;
+          8 : CaracTitulo := tcVendor;
+        else
+          CaracTitulo := tcSimples;
+        end;
+      end;
+
       NossoNumero          := Copy(Linha,71,10);
       ValorDespesaCobranca := StrToFloatDef(Copy(Linha,182,07),0)/100;
       ValorOutrasDespesas  := StrToFloatDef(Copy(Linha,189,13),0)/100;

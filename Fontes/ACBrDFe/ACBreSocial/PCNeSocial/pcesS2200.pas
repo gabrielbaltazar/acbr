@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -58,31 +58,6 @@ uses
   pcesCommon, pcesConversaoeSocial, pcesGerador, pcnLeitor;
 
 type
-  TS2200Collection = class;
-  TS2200CollectionItem = class;
-  TEvtAdmissao = class;
-
-  TS2200Collection = class(TeSocialCollection)
-  private
-    function GetItem(Index: Integer): TS2200CollectionItem;
-    procedure SetItem(Index: Integer; Value: TS2200CollectionItem);
-  public
-    function Add: TS2200CollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TS2200CollectionItem;
-    property Items[Index: Integer]: TS2200CollectionItem read GetItem write SetItem; default;
-  end;
-
-  TS2200CollectionItem = class(TObject)
-  private
-    FTipoEvento: TTipoEvento;
-    FEvtAdmissao: TEvtAdmissao;
-  public
-    constructor Create(AOwner: TComponent);
-    destructor Destroy; override;
-    property TipoEvento: TTipoEvento read FTipoEvento;
-    property EvtAdmissao: TEvtAdmissao read FEvtAdmissao write FEvtAdmissao;
-  end;
-
   TEvtAdmissao = class(TeSocialEvento)
   private
     FIdeEvento: TIdeEvento2;
@@ -102,6 +77,27 @@ type
     property IdeEmpregador: TIdeEmpregador read FIdeEmpregador write FIdeEmpregador;
     property Trabalhador: TTrabalhador read FTrabalhador write FTrabalhador;
     property Vinculo: TVinculo read FVinculo write FVinculo;
+  end;
+
+  TS2200CollectionItem = class(TObject)
+  private
+    FTipoEvento: TTipoEvento;
+    FEvtAdmissao: TEvtAdmissao;
+  public
+    constructor Create(AOwner: TComponent);
+    destructor Destroy; override;
+    property TipoEvento: TTipoEvento read FTipoEvento;
+    property EvtAdmissao: TEvtAdmissao read FEvtAdmissao write FEvtAdmissao;
+  end;
+
+  TS2200Collection = class(TeSocialCollection)
+  private
+    function GetItem(Index: Integer): TS2200CollectionItem;
+    procedure SetItem(Index: Integer; Value: TS2200CollectionItem);
+  public
+    function Add: TS2200CollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TS2200CollectionItem;
+    property Items[Index: Integer]: TS2200CollectionItem read GetItem write SetItem; default;
   end;
 
 implementation
@@ -244,6 +240,9 @@ begin
       trabalhador.GrauInstr  := INIRec.ReadString(sSecao, 'grauInstr', '01');
       Trabalhador.IndPriEmpr := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'indPriEmpr', 'S'));
       trabalhador.nmSoc      := INIRec.ReadString(sSecao, 'nmSoc', EmptyStr);
+      sFim := INIRec.ReadString(sSecao, 'ExtrangeiroSN', '');
+      if Trim(sFim) <> '' then
+        trabalhador.ExtrangeiroSN := StrToBoolDef(sFim, Trabalhador.ExtrangeiroSN);
 
       sSecao := 'nascimento';
       trabalhador.Nascimento.dtNascto   := StringToDateTime(INIRec.ReadString(sSecao, 'dtNascto', '0'));
@@ -350,13 +349,13 @@ begin
       sSecao := 'infoDeficiencia';
       if INIRec.ReadString(sSecao, 'defFisica', '') <> '' then
       begin
-        trabalhador.infoDeficiencia.DefFisica      := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defFisica', 'S'));
-        trabalhador.infoDeficiencia.DefVisual      := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defVisual', 'S'));
-        trabalhador.infoDeficiencia.DefAuditiva    := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defAuditiva', 'S'));
-        trabalhador.infoDeficiencia.DefMental      := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defMental', 'S'));
-        trabalhador.infoDeficiencia.DefIntelectual := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defIntelectual', 'S'));
-        trabalhador.infoDeficiencia.ReabReadap     := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'reabReadap', 'S'));
-        trabalhador.infoDeficiencia.infoCota       := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'infoCota', 'S'));
+        trabalhador.infoDeficiencia.DefFisica      := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defFisica', 'N'));
+        trabalhador.infoDeficiencia.DefVisual      := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defVisual', 'N'));
+        trabalhador.infoDeficiencia.DefAuditiva    := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defAuditiva', 'N'));
+        trabalhador.infoDeficiencia.DefMental      := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defMental', 'N'));
+        trabalhador.infoDeficiencia.DefIntelectual := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'defIntelectual', 'N'));
+        trabalhador.infoDeficiencia.ReabReadap     := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'reabReadap', 'N'));
+        trabalhador.infoDeficiencia.infoCota       := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'infoCota', ''));
         trabalhador.infoDeficiencia.Observacao     := INIRec.ReadString(sSecao, 'observacao', '');
       end;
 
@@ -395,7 +394,7 @@ begin
       begin
         trabalhador.contato.FonePrinc     := INIRec.ReadString(sSecao, 'fonePrinc', '');
         trabalhador.contato.FoneAlternat  := INIRec.ReadString(sSecao, 'foneAlternat', 'S');
-        trabalhador.contato.EmailPrinc    := INIRec.ReadString(sSecao, 'emailPrinc', 'S');
+        trabalhador.contato.EmailPrinc    := INIRec.ReadString(sSecao, 'emailPrinc', '');
         trabalhador.contato.EmailAlternat := INIRec.ReadString(sSecao, 'emailAlternat', 'S');
       end;
 
@@ -463,14 +462,8 @@ begin
 
       sSecao := 'aprend';
 
-      Ok := False;
-      if (TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF >= veS01_02_00) then
-      begin
-        if INIRec.ReadString(sSecao, 'indAprend', '') = '1' then
-          Ok := (INIRec.ReadString(sSecao, 'cnpjEntQual', '') <> EmptyStr)
-        else
-          Ok := (INIRec.ReadString(sSecao, 'tpInsc', '') <> EmptyStr);
-      end
+      if INIRec.ReadString(sSecao, 'indAprend', '') = '1' then
+        Ok := (INIRec.ReadString(sSecao, 'cnpjEntQual', '') <> EmptyStr)
       else
         Ok := (INIRec.ReadString(sSecao, 'tpInsc', '') <> EmptyStr);
 
@@ -491,7 +484,7 @@ begin
         vinculo.InfoRegimeTrab.infoEstatutario.DtNomeacao  := StringToDateTime(INIRec.ReadString(sSecao, 'dtNomeacao', '0'));
         vinculo.InfoRegimeTrab.infoEstatutario.DtPosse     := StringToDateTime(INIRec.ReadString(sSecao, 'dtPosse', '0'));
         vinculo.InfoRegimeTrab.infoEstatutario.DtExercicio := StringToDateTime(INIRec.ReadString(sSecao, 'dtExercicio', '0'));
-        vinculo.InfoRegimeTrab.infoEstatutario.tpPlanRP    := eSStrToTpPlanRP(Ok, INIRec.ReadString(sSecao, 'tpPlanRP', '1'));
+        vinculo.InfoRegimeTrab.infoEstatutario.tpPlanRP    := eSStrToTpPlanRP(Ok, INIRec.ReadString(sSecao, 'tpPlanRP', '-1'));
         vinculo.InfoRegimeTrab.infoEstatutario.infoDecJud.nrProcJud := INIRec.ReadString(sSecao, 'nrProcJud', '');
         vinculo.InfoRegimeTrab.infoEstatutario.indTetoRGPS := eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'indTetoRGPS', ''));
         vinculo.InfoRegimeTrab.infoEstatutario.indAbonoPerm:= eSStrToSimNaoFacultativo(Ok, INIRec.ReadString(sSecao, 'indAbonoPerm', ''));
@@ -518,9 +511,9 @@ begin
       vinculo.infoContrato.remuneracao.DscSalVar  := INIRec.ReadString(sSecao, 'dscSalVar', '');
 
       sSecao := 'duracao';
-      if INIRec.ReadString(sSecao, 'tpContr', '1') <> '3' then
+      if INIRec.ReadString(sSecao, 'tpContr', '4') <> '4' then
       begin
-      vinculo.infoContrato.duracao.TpContr   := eSStrToTpContr(Ok, INIRec.ReadString(sSecao, 'tpContr', '1'));
+      vinculo.infoContrato.duracao.TpContr   := eSStrToTpContr(Ok, INIRec.ReadString(sSecao, 'tpContr', '4'));
       vinculo.infoContrato.duracao.dtTerm    := StringToDateTime(INIRec.ReadString(sSecao, 'dtTerm', '0'));
       vinculo.infoContrato.duracao.clauAssec := eSStrToSimNao(Ok, INIRec.ReadString(sSecao, 'clauAssec', 'S'));
       vinculo.infoContrato.duracao.objDet    := INIRec.ReadString(sSecao, 'objDet', '');
@@ -648,27 +641,6 @@ begin
         Inc(I);
       end;
 
-      sSecao := 'sucessaoVinc';
-      if ((INIRec.ReadString(sSecao, 'cnpjEmpregAnt', '') <> '') and (TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF <= ve02_05_00)) then
-      begin
-        vinculo.sucessaoVinc.tpInsc        := eSStrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
-        vinculo.sucessaoVinc.nrInsc        := INIRec.ReadString(sSecao, 'nrInsc', '');
-        vinculo.sucessaoVinc.tpInscAnt     := eSStrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInscAnt', '1'));
-        vinculo.sucessaoVinc.cnpjEmpregAnt := INIRec.ReadString(sSecao, 'cnpjEmpregAnt', '');
-        vinculo.sucessaoVinc.MatricAnt     := INIRec.ReadString(sSecao, 'matricAnt', '');
-        vinculo.sucessaoVinc.dtTransf      := StringToDateTime(INIRec.ReadString(sSecao, 'dtTransf', '0'));
-        vinculo.sucessaoVinc.Observacao    := INIRec.ReadString(sSecao, 'observacao', '');
-      end;
-
-      if ((INIRec.ReadString(sSecao, 'tpInsc', '') <> '') and (TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF > ve02_05_00)) then
-      begin
-        vinculo.sucessaoVinc.tpInsc       := eSStrToTpInscricao(Ok, INIRec.ReadString(sSecao, 'tpInsc', '1'));
-        vinculo.sucessaoVinc.nrInsc       := INIRec.ReadString(sSecao, 'nrInsc', '');
-        vinculo.sucessaoVinc.MatricAnt    := INIRec.ReadString(sSecao, 'matricAnt', '');
-        vinculo.sucessaoVinc.dtTransf     := StringToDateTime(INIRec.ReadString(sSecao, 'dtTransf', '0'));
-        vinculo.sucessaoVinc.Observacao   := INIRec.ReadString(sSecao, 'observacao', '');
-      end;
-
       sSecao := 'transfDom';
       if INIRec.ReadString(sSecao, 'cpfSubstituido', '') <> '' then
       begin
@@ -723,8 +695,7 @@ begin
 
     if Leitor.rExtrai(1, 'evtAdmissao') <> '' then
     begin
-      if Self.Id = '' then
-        Self.Id := Leitor.rAtributo('Id=');
+      Id := Leitor.rAtributo('Id=');
 
       if Leitor.rExtrai(2, 'ideEvento') <> '' then
       begin
@@ -989,17 +960,6 @@ begin
             end;
             Inc(i);
           end;
-        end;
-
-        if ((Leitor.rExtrai(3, 'sucessaoVinc') <> '') and (TACBreSocial(FACBreSocial).Configuracoes.Geral.VersaoDF <= ve02_05_00)) then
-        begin
-          vinculo.sucessaoVinc.tpInsc        := eSStrToTpInscricao(bOk, Leitor.rCampo(tcStr, 'tpInsc'));
-          vinculo.sucessaoVinc.nrInsc        := Leitor.rCampo(tcStr, 'nrInsc');
-          vinculo.sucessaoVinc.tpInscAnt     := eSStrToTpInscricao(bOk, Leitor.rCampo(tcStr, 'tpInscAnt'));
-          vinculo.sucessaoVinc.cnpjEmpregAnt := Leitor.rCampo(tcStr, 'cnpjEmpregAnt');
-          vinculo.sucessaoVinc.MatricAnt     := Leitor.rCampo(tcStr, 'matricAnt');
-          vinculo.sucessaoVinc.dtTransf      := StringToDateTime(Leitor.rCampo(tcDat, 'dtTransf'));
-          vinculo.sucessaoVinc.Observacao    := Leitor.rCampo(tcStr, 'observacao');
         end;
 
         if Leitor.rExtrai(3, 'transfDom') <> '' then

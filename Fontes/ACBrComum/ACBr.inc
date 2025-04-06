@@ -55,12 +55,20 @@
 // Descomente a linha abaixo, se você não utiliza a obsoleta Capicom para Criptografia (RECOMENDADO)
 {$DEFINE DFE_SEM_CAPICOM}
 // Descomente a linha abaixo, se você não utiliza a obsoleta MSXML para Assinatura de XML (RECOMENDADO)
-{.$DEFINE DFE_SEM_MSXML}
+{$DEFINE DFE_SEM_MSXML}
 // Descomente a linha abaixo, se você não deseja adicionar a Dependência da INDY nos seus Projetos
 {.$DEFINE DFE_SEM_INDY}
+// Descomente a linha abaixo, se você deseja que sejam utilizadas as classes baseadas na ACBrXMLDocument
+{.$DEFINE USE_ACBr_XMLDOCUMENT}
 
 // Descomente essa linha, para usar a carga de DLL tardia, nas Units do OpenSSL  (Apenas Delphi)
 {$DEFINE USE_DELAYED}
+
+// Descomente essa linha, para usar a exportação de Fast Reports com suporte a SVG
+{.$DEFINE USE_REPORT_FR_SVG}
+
+// Descomente essa linha, para usar a exportação de Fast Reports com suporte a PNG
+{.$DEFINE USE_REPORT_FR_PNG}
 
 // Descomente essa linha, para usar ZLibExGZ de \ACBr\Fontes\Terceiros\ZLibExGZ
 // ZLib de D7 contém bugs e está incompleta. Caso contrário usará compactação nativa, unit "ZLib"
@@ -95,6 +103,7 @@
   {$DEFINE HAS_REGEXPR}
   {$DEFINE HAS_INLINE}
   {$DEFINE HAS_STRICTDELIMITER}
+  {$DEFINE HAS_PNG}
   {$H+}
 
   {$UnDef FMX}
@@ -152,6 +161,10 @@
 
 {$IFDEF DFE_SEM_LIBXML2}
   {$UNDEF DFE_ACBR_LIBXML2}
+{$ENDIF}
+
+{$IFDEF USE_ACBr_XMLDOCUMENT}
+  {$UNDEF DFE_SEM_LIBXML2} 
 {$ENDIF}
 
 {$IFNDEF SUPPORTS_DELAYED_LOADING}
@@ -306,7 +319,15 @@
   {$IFDEF DELPHIXE2_UP}
     {$DEFINE USE_NAMESPACES}
   {$ENDIF}
+
+  {$IFDEF DELPHI14_UP}// delphi 2010 pra cima existe
+    {$DEFINE HAS_PNG}
+  {$ENDIF}
 {$ENDIF}
+
+{$IfDef NOGUI}
+  {$UnDef HAS_PNG}
+{$EndIf}
 
 
 {$ENDIF ~ACBr_INC}

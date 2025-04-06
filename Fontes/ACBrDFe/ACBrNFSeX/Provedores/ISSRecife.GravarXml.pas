@@ -38,7 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv1, ACBrNFSeXConversao;
+  ACBrNFSeXGravarXml_ABRASFv1,
+  ACBrNFSeXConversao;
 
 type
   { TNFSeW_ISSRecife }
@@ -71,7 +72,6 @@ begin
   NrOcorrValorIr := 1;
   NrOcorrValorCsll := 1;
   NrOcorrValorIss := 1;
-  NrOcorrAliquota := 0;
   NrOcorrValorTotalRecebido := 1;
 end;
 

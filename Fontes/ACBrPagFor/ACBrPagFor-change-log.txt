@@ -42,6 +42,84 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+22/02/2025
+-- Diversos --
+[*] TK-6636: Implementado o Segmento 5 utilizado pelo Banco Bradesco.
+  Por: Italo Giurizzato Junior
+
+03/02/2025
+-- PagFor.Sicredi.GravarTxtRemessa --
+[*] TK-6570: Ajustes para gerar o Segmento J52 com a chave PIX e TX ID.
+  Por: Italo Giurizzato Junior
+
+07/01/2025
+-- ACBrPagForConversao --
+[+] TK-6451: Acrescentado a função de conversão: FmLancamentoToDesc para converter
+    o enumerado de Lançamento na descrição do mesmo.
+  Por: Fernando Batista
+
+02/01/2025
+-- PagFor.Safra.GravarTxtRemessa --
+[-] A unit estava gerando o CEP com 11 dígitos em vez de 8.
+  Por: Italo Giurizzato Junior
+
+19/12/2024
+-- PagFor.Safra.GravarTxtRemessa --
+[-] A unit estava no formato UTF-8 BOM em vez de ANSI.
+  Por: Italo Giurizzato Junior
+-- PagFor.Safra.GravarTxtRemessa --
+[*] TK-6381: Acrescentado o override para a procedure: GeraSegmentoB.
+  Por: Aleph Costa Melo
+
+29/10/2024
+--- Diversos ---
+[+] Implementação do Banco Cresol.
+   Por: Limber Software
+
+16/08/2024
+-- PagFor.Itau.LerTxtRetorno --
+[*] #TK-5867: Sobreescrita a procedure que faz a leitura do Registro 1.
+  Por: Quality Automação
+
+23/07/2024
+-- CNAB240.GravarTxtRemessa --
+[-] Alteração no Segmento J53, visando gerar com 240 caracteres.
+  Por: Centrodata Sistemas
+
+16/07/2024
+-- ACBrPagForClass/CNAB240.LerTxtRetorno --
+[*] Alteração para ler o campo que contem o código do movimento de remessa.
+  Por: Eduardo Rodrigues de Faria
+--- Diversos ---
+[*] Trocado o tipo tcInt por tcInt64 na geração do campo Conta.Numero
+   Por: Italo Giurizzato Junior
+
+15/07/2024
+-- PagFor.Sicredi.GravarTxtRemessa --
+[*] Altera o parâmetro da GravarCampo do numero da conta corrente para corresponder ao tipo da propriedade.
+  Por: Diego Folieni
+
+05/07/2024
+-- PagFor.Bradesco.GravarTxtRemessa --
+[-] Correção, ao gerar o Registro 0 se PIX estava colocando o literal Pix sendo
+    que o correto é PIX.
+   Por: Eduardo Rodrigues de Faria
+
+20/06/2024
+--- Diversos ---
+[+] Implementação o Segmento J53 conforme a versão 10.11 do Manual CNAB240 - Febraban.
+   Por: Italo Giurizzato Junior
+
+24/05/2024
+-- PagFor.BancodoBrasil.GravarTxtRemessa --
+[*] Alteração visando a geração do Segmento J52 com as informações da chave PIX e
+    do TXID.
+   Por: Marcelo Gonçalves
+
+15/05/2024
+-- PagFor.BancodoBrasil.LerTxtRetorno --
+[*] Alteração visando a leitura do Segmento Z ao ler o Segmento A.
+   Por: Marcelo Gonçalves
 
 01/02/2024
 --- ACBrPagForConversao ---

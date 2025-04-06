@@ -4,10 +4,8 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
   Caption = 'frlDANFeRLRetrato'
   ClientHeight = 703
   Font.Height = -18
-  PixelsPerInch = 96
   TextHeight = 24
   inherited RLNFe: TRLReport
-    Left = 10
     Top = 10
     Margins.LeftMargin = 7.000000000000000000
     Margins.TopMargin = 7.000000000000000000
@@ -1024,8 +1022,8 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
       end
       object rlmEndereco: TRLMemo
         Tag = 703
-        Left = 80
-        Top = 48
+        Left = 81
+        Top = 43
         Width = 185
         Height = 33
         AutoSize = False
@@ -5534,9 +5532,9 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
         Tag = 10
         Left = 490
         Top = 75
-        Width = 49
+        Width = 63
         Height = 7
-        Caption = 'PESO BRUTO'
+        Caption = 'PESO BRUTO (Kg)'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
         Font.Height = -7
@@ -5783,9 +5781,9 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
         Tag = 10
         Left = 618
         Top = 75
-        Width = 52
+        Width = 67
         Height = 7
-        Caption = 'PESO L'#205'QUIDO'
+        Caption = 'PESO L'#205'QUIDO (Kg)'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
         Font.Height = -7
@@ -8519,6 +8517,6 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
   end
   inherited RLPDFFilter1: TRLPDFFilter
     Left = 688
-    Top = 106
+    Top = 114
   end
 end

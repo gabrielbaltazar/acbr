@@ -45,6 +45,103 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+03/04/2025
+-- ACBrBPeClass --
+[-] Ao ler a propriedade ID para gerar o QR-Code não estava removendo o literal
+    BPe da chave.
+  Por: Italo Giurizzato Junior
+
+02/04/2025
+-- Diversos --
+[*] #TK-5814: Ajustes nas units: ACBrBPeIniReader e ACBrBPeIniWrite que
+    são ser responsáveis por ler e gerar o arquivo INI para atender a Reforma
+    Tributária.
+    Refatorado a função GetURLQRCode para que a mesma receba a classe TBPe em 
+    vez de diversos parâmetros de entrada.
+    Implementado a propriedade de configuração: SalvarEvento (valor padrão False)
+    agora ao salvar o XML *-procEventoCTe o componente vai checar o valor dessa 
+    propriedade.
+    Alterado a URL do QR-Code de MG.
+  Por: Italo Giurizzato Junior
+
+08/03/2025
+-- ACBrBPeClass/ACBrBPeXmlReader/ACBrBPeXmlWriter --
+[*] #TK-5814: Alteração visando contemplar a Reforma Tributária.
+  Por: Italo Giurizzato Junior
+
+27/02/2025
+-- ACBrBPeIniReader/ACBrBPeIniWriter --
+[*] O conteúdo das funções: GerarBPeIni e LerArqIni foram migrados para units
+    especializadas em gerar e ler o arquivo INI que contem informações do BPe.
+  Por: Italo Giurizzato Junior
+-- ACBrBPeXmlWriter --
+[*] #TK-5814: Alteração visando contemplar a Reforma Tributária.
+  Por: Italo Giurizzato Junior
+
+14/02/2025
+-- ACBrBPeClass/ACBrBPeConsts --
+[+] Inclusão de novas contantes e ajustes nas novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+10/02/2025
+-- ACBrBPeClass --
+[+] Inclusão das novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+08/01/2025
+-- Diversos --
+[*] Ajustes na geração do XML de eventos para usar o ACBrXmlDocument.
+   Por: Italo Giurizzato Junior
+
+26/12/2024
+-- Diversos --
+[*] TK-5866-2: Ajustes visando padronização do caractere de quebra de linha.
+   Por: Diego Folieni
+
+01/10/2024
+-- Diversos --
+[*] Ajustes necessários para utilizar a unit: ACBrDFeComum.Proc
+   Por: Italo Giurizzato Junior
+
+24/09/2024
+-- ACBrBPeDABPEFR --
+[-] Mais algumas correção para a impressão correta do DABPE.
+   Por: Evertof
+
+23/09/2024
+-- ACBrBPeDABPEFR --
+[-] Correção no nome da unit para que ocorra a compilação da unit.
+   Por: Evertof
+
+12/09/2024
+-- ACBrBPeWebServices --
+[*] Ajustes na montagem do XML *-ProcEventoBPe.xml
+   Por: Italo Giurizzato Junior
+
+08/05/2024
+-- ACBrBPeWebServices/ACBrBPeXmlWriter --
+[*] Remoção de código não utilizado.
+   Por: Italo Giurizzato Junior
+
+08/05/2024
+-- ACBrBPeBilhetes --
+[*] Reversão da alteração que visava o uso das configurações na geração do XML.
+   Por: Italo Giurizzato Junior
+-- ACBrBPeXmlWriter --
+[*] Comentado as linhas que usa os dados de configuração na geração do XML.
+   Por: Italo Giurizzato Junior
+
+22/04/2024
+-- ACBrBPeBilhetes/ACBrBPeClass/ACBrBPeXmlWriter --
+[*] Alterações visando usar os valores definidos na configuração ao gerar o 
+    XML do BPe
+  Por: Italo Giurizzato Junior
+
+13/03/2024
+-- Diversos --
+[*] Melhorias no código usando o FixInsight (ainda não ficou 100%).
+  Por: Italo Giurizzato Junior
+
 08/03/2024
 -- ACBrBPeBilhetes/ACBrBPeXmlReader --
 [*] Alterações visando a leitura de um XML cuja tag inicial é bpeProc em vez de BPeProc.

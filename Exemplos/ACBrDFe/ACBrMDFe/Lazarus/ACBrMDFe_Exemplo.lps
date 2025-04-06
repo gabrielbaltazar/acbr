@@ -18,9 +18,10 @@
         <ComponentName Value="frmACBrMDFe"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="298"/>
-        <CursorPos X="19" Y="304"/>
+        <TopLine Value="1031"/>
+        <CursorPos X="43" Y="1039"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -54,42 +55,47 @@
       </Unit4>
       <Unit5>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\DAMDFE\Fortes\ACBrMDFeDAEventoRLRetrato.pas"/>
-        <EditorIndex Value="-1"/>
+        <ComponentName Value="frmMDFeDAEventoRLRetrato"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="29"/>
         <CursorPos X="31" Y="42"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\DAMDFE\Fortes\ACBrMDFeDAEventoRL.pas"/>
-        <EditorIndex Value="-1"/>
+        <ComponentName Value="frmMDFeDAEventoRL"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="22"/>
         <CursorPos X="59" Y="35"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\DAMDFE\Fortes\ACBrMDFeDAMDFeRLRetrato.pas"/>
         <ComponentName Value="frlDAMDFeRLRetrato"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="161"/>
         <CursorPos Y="169"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit7>
       <Unit8>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\DAMDFE\Fortes\ACBrMDFeDAMDFeRL.pas"/>
         <ComponentName Value="frlDAMDFeRL"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="29"/>
         <CursorPos X="14" Y="44"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit8>
       <Unit9>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\ACBrMDFeReg.pas"/>
@@ -120,7 +126,7 @@
         <UsageCount Value="10"/>
       </Unit12>
     </Units>
-    <JumpHistory Count="12" HistoryIndex="11">
+    <JumpHistory Count="14" HistoryIndex="13">
       <Position1>
         <Filename Value="Frm_ACBrMDFe.pas"/>
         <Caret Line="1138" Column="14" TopLine="1125"/>
@@ -162,13 +168,20 @@
         <Caret Line="304" Column="19" TopLine="299"/>
       </Position10>
       <Position11>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\DAMDFE\Fortes\ACBrMDFeDAMDFeRLRetrato.pas"/>
-        <Caret Line="222" Column="3" TopLine="222"/>
+        <Filename Value="ACBrMDFe_Exemplo.lpr"/>
       </Position11>
       <Position12>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\DAMDFE\Fortes\ACBrMDFeDAMDFeRLRetrato.pas"/>
-        <Caret Line="359" TopLine="338"/>
+        <Filename Value="Frm_ACBrMDFe.pas"/>
+        <Caret Line="321" Column="15" TopLine="311"/>
       </Position12>
+      <Position13>
+        <Filename Value="Frm_ACBrMDFe.pas"/>
+        <Caret Line="804" Column="48" TopLine="798"/>
+      </Position13>
+      <Position14>
+        <Filename Value="Frm_ACBrMDFe.pas"/>
+        <Caret Line="978" Column="43" TopLine="973"/>
+      </Position14>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>

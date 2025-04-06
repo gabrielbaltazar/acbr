@@ -237,6 +237,7 @@ function TACBrDFe.Gravar(NomeArquivo: String; ConteudoXML: String;
   const aPath: String; ConteudoEhUTF8: Boolean): Boolean;
 var
   UTF8Str, SoNome, SoPath: String;
+  Tratado: Boolean;
 begin
   Result := False;
   try
@@ -268,6 +269,13 @@ begin
     WriteToTXT(NomeArquivo, UTF8Str, False, False);
     Result := True;
   except
+    on E: EACBrDFeException do
+    begin
+      Tratado := False;
+      FazerLog('ERRO: ' + E.Message, Tratado);
+      if not Tratado then raise;
+    end;
+
     on E: Exception do
       GerarException('Erro ao salvar.', E);
   end;
@@ -625,8 +633,14 @@ var
   MsgErro: String;
 begin
   MsgErro := Msg;
+
   if Assigned(E) then
-    MsgErro := MsgErro + sLineBreak + E.Message;
+    begin
+      if EstaVazio(MsgErro) then
+        MsgErro := E.Message
+      else
+        MsgErro := MsgErro + sLineBreak + E.Message;
+    end;
 
   Tratado := False;
   FazerLog('ERRO: ' + MsgErro, Tratado);

@@ -1361,6 +1361,7 @@ object frmACBrNFCom: TfrmACBrNFCom
           Height = 25
           Caption = 'Imprimir DANFCOM'
           TabOrder = 8
+          OnClick = btnImprimirDANFCOMClick
         end
         object btnImprimirDANFCOMOffline: TButton
           Left = 373
@@ -1440,6 +1441,28 @@ object frmACBrNFCom: TfrmACBrNFCom
           Caption = 'Enviar Evento Email'
           TabOrder = 3
           OnClick = btnEnviarEventoEmailClick
+        end
+      end
+      object tsOutros: TTabSheet
+        Caption = 'Outros'
+        ImageIndex = 3
+        object btnLerArqINI: TButton
+          Left = 3
+          Top = 3
+          Width = 177
+          Height = 25
+          Caption = 'Ler Arquivo INI/Gerar XML'
+          TabOrder = 0
+          OnClick = btnLerArqINIClick
+        end
+        object btnGerarArqINI: TButton
+          Left = 186
+          Top = 3
+          Width = 177
+          Height = 25
+          Caption = 'Gerar Arquivo INI'
+          TabOrder = 1
+          OnClick = btnGerarArqINIClick
         end
       end
     end
@@ -1532,7 +1555,7 @@ object frmACBrNFCom: TfrmACBrNFCom
       'Arquivos NFE (*-nfe.XML)|*-nfe.XML|Arquivos XML (*.XML)|*.XML|To' +
       'dos os Arquivos (*.*)|*.*'
     Title = 'Selecione a NFe'
-    Left = 531
+    Left = 459
     Top = 295
   end
   object ACBrNFCom1: TACBrNFCom
@@ -1550,7 +1573,36 @@ object frmACBrNFCom: TfrmACBrNFCom
     Configuracoes.WebServices.AguardarConsultaRet = 0
     Configuracoes.WebServices.QuebradeLinha = '|'
     Configuracoes.RespTec.IdCSRT = 0
+    DANFCom = ACBrNFComDANFComRL1
     Left = 334
+    Top = 228
+  end
+  object ACBrNFComDANFComRL1: TACBrNFComDANFComRL
+    Sistema = 'Projeto ACBr - www.projetoacbr.com.br'
+    MargemInferior = 8.000000000000000000
+    MargemSuperior = 8.000000000000000000
+    MargemEsquerda = 6.000000000000000000
+    MargemDireita = 5.100000000000000000
+    ExpandeLogoMarcaConfig.Altura = 0
+    ExpandeLogoMarcaConfig.Esquerda = 0
+    ExpandeLogoMarcaConfig.Topo = 0
+    ExpandeLogoMarcaConfig.Largura = 0
+    ExpandeLogoMarcaConfig.Dimensionar = False
+    ExpandeLogoMarcaConfig.Esticar = True
+    CasasDecimais.Formato = tdetInteger
+    CasasDecimais.qCom = 2
+    CasasDecimais.vUnCom = 2
+    CasasDecimais.MaskqCom = ',0.00'
+    CasasDecimais.MaskvUnCom = ',0.00'
+    CasasDecimais.Aliquota = 2
+    CasasDecimais.MaskAliquota = ',0.00'
+    ACBrNFCom = ACBrNFCom1
+    TipoDANFCom = tiSemGeracao
+    Cancelada = False
+    ViaConsumidor = True
+    ImprimeNomeFantasia = False
+    PrintDialog = True
+    Left = 462
     Top = 228
   end
 end

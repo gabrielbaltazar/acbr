@@ -38,14 +38,17 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXGravarXml;
 
 type
   { TNFSeW_Giap }
 
   TNFSeW_Giap = class(TNFSeWClass)
   protected
+    procedure Configuracao; override;
+
     function GerarDadosPrestador: TACBrXmlNode;
     function GerarDadosServico: TACBrXmlNode;
     function GerarDadosTomador: TACBrXmlNode;
@@ -59,8 +62,7 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings,
-  ACBrDFeUtil;
+  ACBrUtil.Strings;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -69,6 +71,16 @@ uses
 
 { TNFSeW_Giap }
 
+procedure TNFSeW_Giap.Configuracao;
+begin
+  inherited Configuracao;
+
+  FormatoAliq := tcDe2;
+
+  if FpAOwner.ConfigGeral.Params.TemParametro('Aliquota4Casas') then
+    FormatoAliq := tcDe4;
+end;
+
 function TNFSeW_Giap.GerarXml: Boolean;
 var
   NFSeNode, xmlNode: TACBrXmlNode;
@@ -76,7 +88,7 @@ begin
   Configuracao;
 
   Opcoes.DecimalChar := '.';
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
+
   ListaDeAlertas.Clear;
 
   FDocument.Clear();
@@ -231,8 +243,8 @@ begin
   Result.AppendChild(xmlNode);
 
   Result.AppendChild(AddNode(tcStr, '#1', 'obs', 1, 4000, 1,
-    StringReplace(NFSe.OutrasInformacoes, ';', FpAOwner.ConfigGeral.QuebradeLinha,
-                                                          [rfReplaceAll]), ''));
+    StringReplace(NFSe.OutrasInformacoes, Opcoes.QuebraLinha,
+                      FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), ''));
 
   Result.AppendChild(AddNode(tcDe2, '#1', 'pisPasep', 1, 15, 1,
                                             NFSe.Servico.Valores.ValorPis, ''));
@@ -242,7 +254,7 @@ function TNFSeW_Giap.GerarItem: TACBrXmlNode;
 begin
   Result := CreateElement('item');
 
-  Result.AppendChild(AddNode(tcDe2, '#1', 'aliquota', 1, 15, 1,
+  Result.AppendChild(AddNode(FormatoAliq, '#1', 'aliquota', 1, 15, 1,
                                             NFSe.Servico.Valores.Aliquota, ''));
 
   Result.AppendChild(AddNode(tcInt, '#1', 'cnae', 1, 8, 0,
@@ -252,8 +264,8 @@ begin
                                 OnlyNumber(NFSe.Servico.ItemListaServico), ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'descricao', 1, 4000, 1,
-    StringReplace(NFSe.Servico.Discriminacao, ';', FpAOwner.ConfigGeral.QuebradeLinha,
-                                           [rfReplaceAll, rfIgnoreCase] ), ''));
+    StringReplace(NFSe.Servico.Discriminacao, Opcoes.QuebraLinha,
+                     FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll] ), ''));
 
   Result.AppendChild(AddNode(tcDe2, '#1', 'valor', 1, 15, 1,
                                        NFSe.Servico.Valores.ValorServicos, ''));

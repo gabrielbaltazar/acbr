@@ -54,7 +54,7 @@ type
   protected
     procedure Configuracao; override;
 
-    function FormatarCnae(Codigo: string): string;
+    function FormatarCnae(const Codigo: string): string;
 
     function GerarInfDeclaracaoPrestacaoServico: TACBrXmlNode;
     function GerarIdentificacaoPrestador: TACBrXmlNode;
@@ -116,7 +116,7 @@ begin
     FpNrOcorrItemLei116 := -1;
 end;
 
-function TNFSeW_Agili.FormatarCnae(Codigo: string): string;
+function TNFSeW_Agili.FormatarCnae(const Codigo: string): string;
 begin
   Result := OnlyNumber(Codigo);
 
@@ -131,8 +131,6 @@ var
   NFSeNode, xmlNode: TACBrXmlNode;
 begin
   Configuracao;
-
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -220,8 +218,8 @@ begin
     Result[i] := CreateElement('DadosServico');
 
     Result[i].AppendChild(AddNode(tcStr, '#1', 'Discriminacao', 1, 2000, 1,
-      StringReplace( NFSe.Servico.ItemServico[i].Descricao, ';',
-        FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll, rfIgnoreCase] ), ''));
+      StringReplace( NFSe.Servico.ItemServico[i].Descricao, Opcoes.QuebraLinha,
+                     FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll] ), ''));
 
     Result[i].AppendChild(AddNode(tcStr, '#1', 'CodigoCnae', 1, 7, FpNrOcorrCodigoCnae,
                      FormatarCnae(NFSe.Servico.ItemServico[i].CodigoCnae), ''));
@@ -595,7 +593,7 @@ function TNFSeW_Agili.GerarPais: TACBrXmlNode;
 begin
   Result := CreateElement('Pais');
 
-  Result.AppendChild(AddNode(tcStr, '#1', 'CodigoPaisBacen', 4, 4, 1,
+  Result.AppendChild(AddNode(tcInt, '#1', 'CodigoPaisBacen', 4, 4, 1,
                                          NFSe.Tomador.Endereco.CodigoPais, ''));
 
   Result.AppendChild(AddNode(tcStr, '#1', 'Descricao', 1, 300, 0,

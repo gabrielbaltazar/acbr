@@ -94,6 +94,8 @@ begin
   if XmlNode = nil then
     raise Exception.Create('Arquivo xml vazio.');
 
+  NFSe.tpXML := tpXml;
+
   if tpXML = txmlNFSe then
     Result := LerXmlNfse(XmlNode)
   else
@@ -106,7 +108,7 @@ function TNFSeR_CTAConsult.LerXmlNfse(const ANode: TACBrXmlNode): Boolean;
 begin
   Result := True;
 
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   // Precisamos de um retorno com o XML da nota para terminar a implementação
 
@@ -117,7 +119,7 @@ function TNFSeR_CTAConsult.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
 begin
   Result := True;
 
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   // Precisamos de um retorno com o XML do Rps para terminar a implementação
 end;

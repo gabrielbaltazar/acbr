@@ -39,39 +39,43 @@ uses
   SysUtils,
   ACBrValidador,
   httpsend,
-  Classes;
+  Classes,
+  ACBrUtil.Strings;
 type
   TParams =
-    record  prName,PrValue:String;
+    record  prName,PrValue:string;
   end;
   EACBrConsultaCNPJWSException = class ( Exception );
   TACBrConsultaCNPJWSResposta = class (TObject)
-    NaturezaJuridica     : String ;
-    EmpresaTipo          : String;
+    NaturezaJuridica     : string ;
+    EmpresaTipo          : string;
     Abertura             : TDateTime;
-    RazaoSocial          : String;
-    Fantasia             : String;
-    Porte                : String;
-    CNAE1                : String;
+    RazaoSocial          : string;
+    Fantasia             : string;
+    Porte                : string;
+    CNAE1                : string;
     CNAE2                : TStringList;
-    Endereco             : String;
-    Numero               : String;
-    Complemento          : String;
-    CEP                  : String;
-    Bairro               : String;
-    Cidade               : String;
-    UF                   : String;
-    Situacao             : String;
-    SituacaoEspecial     : String;
-    CNPJ                 : String;
+    Endereco             : string;
+    Numero               : string;
+    Complemento          : string;
+    CEP                  : string;
+    Bairro               : string;
+    Cidade               : string;
+    UF                   : string;
+    Situacao             : string;
+    SituacaoEspecial     : string;
+    CNPJ                 : string;
     DataSituacao         : TDateTime;
     DataSituacaoEspecial : TDateTime;
-    EndEletronico        : String;
-    Telefone             : String;
+    EndEletronico        : string;
+    Telefone             : string;
     EFR                  : string;
     MotivoSituacaoCad    : string;
-    CodigoIBGE           : String;
-    InscricaoEstadual    : String;
+    CodigoIBGE           : string;
+    InscricaoEstadual    : string;
+    CapitalSocial        : Double;
+    ResultString         : string;
+    ResultCode           : integer;
   end;
   { TACBrConsultaCNPJWS }
   TACBrConsultaCNPJWS = class( TObject )
@@ -107,7 +111,8 @@ implementation
 
 uses
   blcksock,
-  synautil;
+  synautil,
+  ACBrUtil.XMLHTML;
 
 { TACBrConsultaCNPJWS }
 
@@ -188,10 +193,12 @@ begin
     LRetorno := ReadStrFromStream(LStream, LStream.Size);
 
     Result := FHTTPSend.ResultCode;
-    FResultString := FHTTPSend.ResultString;
+    FResultString := ParseText( FHTTPSend.ResultString );
     if (Result >= 300) then
       FResultString := FResultString +' '+ FHTTPSend.Sock.LastErrorDesc;
 
+    FResposta.ResultString := UTF8ToNativeString(LRetorno);
+    FResposta.ResultCode   := Result;
   finally
     LStream.Free;
     FHTTPSend.Free;

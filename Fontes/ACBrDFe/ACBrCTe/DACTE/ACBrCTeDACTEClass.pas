@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                              Wemerson Souto                                  }
 {                              Wiliam Zacarias da Silva Rosa                   }
 {                                                                              }
@@ -41,7 +41,7 @@ interface
 uses
   SysUtils, Classes,
   ACBrBase, ACBrDFeReport,
-  pcteCTE, pcnConversao;
+  ACBrCTe.Classes, pcnConversao;
 
 type
   {$IFDEF RTL230_UP}
@@ -85,6 +85,8 @@ type
 
     procedure ImprimirINUTILIZACAO(ACTE: TCTe = nil); virtual;
     procedure ImprimirINUTILIZACAOPDF(ACTE: TCTe = nil); virtual;
+
+    function CaractereQuebraDeLinha: String;
   published
     property ACBrCTE: TComponent read FACBrCTE write SetACBrCTE;
     property ImprimirHoraSaida: boolean read FImprimirHoraSaida write FImprimirHoraSaida;
@@ -242,6 +244,13 @@ begin
         DescricaoModelo, ACTe.Emit.CNPJ, ACTe.Emit.IE, dhEmissao, DescricaoModelo);
     end;
   end;
+end;
+
+function TACBrCTeDACTEClass.CaractereQuebraDeLinha: String;
+begin
+  Result := '|';
+  if Assigned(FACBrCTE) and (FACBrCTe is TACBrCTe) then
+    Result := TACBrCTe(FACBrCTe).Configuracoes.WebServices.QuebradeLinha;
 end;
 
 end.

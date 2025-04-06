@@ -45,6 +45,40 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+19/12/2024
+-- ACBrGNReGuiaRLClass --
+[*] #TK-6366: Alteração visando usar o caminho/nome definido na propriedade ArquivoPDF como
+    sendo o nome do PDF salvo em disco.
+Por: Italo Giurizzato Junior
+
+27/11/2024
+-- pgnreRetConsResLoteGNRE --
+[-] Correção de memory leaks.
+    https://www.projetoacbr.com.br/forum/topic/80787-fuga-de-mem%C3%B3ria-leak-gnre/#comment-523118
+    por: doszapro
+
+08/08/2024
+-- pgnreConsResLoteGNRE --
+[*] #TK-5791: Altera os parâmetros de tamanho min e max do numeroRecibo na geração do XML de consulta para coincidir com versão 2.11 do manual e schemas.
+Por: Diego Folieni
+
+05/08/2024
+-- ACBrGNReGuiaRLRetrato, ACBrGNREGuiaFRDM --
+[*] Altera a rotina para somar o valor de MultaFCP a Multa e JurosFCP e Juros.
+Por: FabioTellini / Diego Folieni #TK-4864
+
+24/05/2024
+-- Diversos --
+[+] Adiciona suporte ao PIX, conforme versão 2.10 do Manual do GNRe
+Por: Diego Folieni
+-- ACBrGNREGuias --
+[*] Correção para a validação não alterar o xml quando não for de lote
+Por: Renato Rubinho
+
+21/03/2024
+-- ACBrGNReWebServices --
+[*] Adiciona chamada a UTF8ToNativeString quando usa ParseText para corrigir problemas de conversão de acentuação
+Por: Diego Folieni
 
 09/02/2024
 -- Diversos --

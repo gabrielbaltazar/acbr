@@ -51,9 +51,9 @@ type
   protected
     procedure SetHeaders(aHeaderReq: THTTPHeader); override;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -109,7 +109,7 @@ begin
   with ConfigGeral do
   begin
     Identificador := '';
-    QuebradeLinha := '\\';
+    QuebradeLinha := sLineBreak;
     UseCertificateHTTP := False;
     UseAuthorizationHeader := True;
     ModoEnvio := meLoteAssincrono;
@@ -119,29 +119,22 @@ begin
     Autenticacao.RequerCertificado := False;
     Autenticacao.RequerChaveAutorizacao := True;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := True;
-      ConsultarRps := True;
-      CancelarNfse := True;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+
+    Particularidades.PermiteTagOutrasInformacoes := True;
   end;
 
   SetXmlNameSpace('');
 
   with ConfigMsgDados do
   begin
-    with XmlRps do
-    begin
-      InfElemento := 'notaFiscal';
-      DocElemento := 'nfe';
-    end;
+    XmlRps.InfElemento := 'notaFiscal';
+    XmlRps.DocElemento := 'nfe';
 
-    with LoteRps do
-    begin
-      InfElemento := 'notaFiscal';
-      DocElemento := 'nfe';
-    end;
+    LoteRps.InfElemento := 'notaFiscal';
+    LoteRps.DocElemento := 'nfe';
   end;
 
   ConfigSchemas.Validar := False;
@@ -433,7 +426,7 @@ begin
           Response.Cancelamento.Motivo := 'Nota Cancelada';
         end
         else
-          Response.DescSituacao := 'Nota não Encontrada';
+          Response.DescSituacao := ACBrStr('Nota não Encontrada');
 
         Response.NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('numeroNota'), tcStr);
         Response.Link := ObterConteudoTag(ANode.Childrens.FindAnyNs('wsLink'), tcStr);
@@ -597,7 +590,7 @@ begin
   end;
 end;
 
-function TACBrNFSeXWebserviceGiap.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceGiap.Recepcionar(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -605,7 +598,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceGiap.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceGiap.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -613,7 +606,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceGiap.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceGiap.Cancelar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 

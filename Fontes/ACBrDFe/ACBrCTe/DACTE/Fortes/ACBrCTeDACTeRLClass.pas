@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                              Mark dos Santos Gonçalves                       }
 {                              Juliomar Marchetti                              }
 {                                                                              }
@@ -45,7 +45,7 @@ uses
   Classes, 
   ACBrBase,
   pcnConversao, 
-  pcteCTe, 
+  ACBrCTe.Classes,
   ACBrCTeDACTEClass, 
   RLTypes;
 
@@ -57,7 +57,8 @@ type
   {$ENDIF RTL230_UP}
   TACBrCTeDACTeRL = class(TACBrCTeDACTeClass)
   protected
-     FPrintDialog: Boolean;
+    FPrintDialog: Boolean;
+    FMarcadagua: String;
   public
     constructor Create(AOwner: TComponent); override;
     procedure ImprimirDACTe(ACTe: TCTe = nil); override;
@@ -71,6 +72,7 @@ type
     procedure ImprimirINUTILIZACAO(ACTe: TCTe = nil); override;
     procedure ImprimirINUTILIZACAOPDF(ACTe: TCTe = nil); override;
   published
+    property MarcadAgua: String read FMarcadagua write FMarcadagua;
     property PrintDialog: Boolean read FPrintDialog write FPrintDialog;
   end;
 
@@ -82,7 +84,7 @@ uses
   ACBrUtil.Strings, 
   ACBrUtil.FilesIO,
   ACBrCTe, 
-  pcteEnvEventoCTe,
+  ACBrCTe.EnvEvento,
   ACBrCTeDAInutRL, 
   ACBrCTeDAInutRLRetrato,
   ACBrCTeDACTeRL, 

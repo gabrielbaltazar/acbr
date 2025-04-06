@@ -38,25 +38,44 @@ interface
 
 uses
   SysUtils, Classes,
+  ACBrXmlBase,
   pcnConversao, pcnGerador,
-  pmdfeConversaoMDFe, pmdfeMDFe,
+  pmdfeConversaoMDFe, ACBrMDFe.Classes,
   ACBrUtil.Strings,
   ACBrUtil.Base,
   ACBrUtil.DateTime,
-  pmdfeConsts, ACBrDFeUtil;
+  ACBrMDFe.Consts, ACBrDFeUtil;
 
 type
-  TGeradorOpcoes = class;
+  TGeradorOpcoes = class(TPersistent)
+  private
+    FNormatizarMunicipios: boolean;
+    FGerarTagAssinatura: TpcnTagAssinatura;
+    FPathArquivoMunicipios: string;
+    FValidarInscricoes: boolean;
+    FValidarListaServicos: boolean;
+  published
+    property NormatizarMunicipios: boolean         read FNormatizarMunicipios  write FNormatizarMunicipios;
+    property GerarTagAssinatura: TpcnTagAssinatura read FGerarTagAssinatura    write FGerarTagAssinatura;
+    property PathArquivoMunicipios: string         read FPathArquivoMunicipios write FPathArquivoMunicipios;
+    property ValidarInscricoes: boolean            read FValidarInscricoes;
+    property ValidarListaServicos: boolean         read FValidarListaServicos;
+  end;
 
   TMDFeW = class(TPersistent)
   private
     FGerador: TGerador;
-    FMDFe: TMDFe;
     FOpcoes: TGeradorOpcoes;
-    FVersaoDF: TVersaoMDFe;
+    FMDFe: TMDFe;
+
     FChaveMDFe: string;
+
+    FVersaoDF: TVersaoMDFe;
+    FModeloDF: string;
+    FtpEmis: TpcnTipoEmissao;
+    FtpAmb: TpcnTipoAmbiente;
     FIdCSRT: Integer;
-    FCSRT: String;
+    FCSRT: string;
 
     procedure GerarInfMDFe;       // Nivel 0
 
@@ -90,34 +109,24 @@ type
     procedure GerarinfRespTec;    // Nivel 1
     procedure GerarProdPred;      // Nivel 1
 
-    procedure AjustarMunicipioUF(var xUF: String; var xMun: String; var cMun: Integer; cPais: Integer; const vxUF, vxMun: String; vcMun: Integer);
+    procedure AjustarMunicipioUF(var xUF: string; var xMun: string; var cMun: Integer; cPais: Integer; const vxUF, vxMun: string; vcMun: Integer);
 
   public
     constructor Create(AOwner: TMDFe);
     destructor Destroy; override;
+
     function GerarXml: boolean;
   published
-    property Gerador: TGerador      read FGerador  write FGerador;
-    property MDFe: TMDFe            read FMDFe     write FMDFe;
-    property Opcoes: TGeradorOpcoes read FOpcoes   write FOpcoes;
-    property VersaoDF: TVersaoMDFe  read FVersaoDF write FVersaoDF;
-    property IdCSRT: Integer        read FIdCSRT   write FIdCSRT;
-    property CSRT: String           read FCSRT     write FCSRT;
-  end;
+    property Gerador: TGerador      read FGerador write FGerador;
+    property Opcoes: TGeradorOpcoes read FOpcoes  write FOpcoes;
+    property MDFe: TMDFe            read FMDFe    write FMDFe;
 
-  TGeradorOpcoes = class(TPersistent)
-  private
-    FNormatizarMunicipios: boolean;
-    FGerarTagAssinatura: TpcnTagAssinatura;
-    FPathArquivoMunicipios: String;
-    FValidarInscricoes: boolean;
-    FValidarListaServicos: boolean;
-  published
-    property NormatizarMunicipios: boolean         read FNormatizarMunicipios  write FNormatizarMunicipios;
-    property GerarTagAssinatura: TpcnTagAssinatura read FGerarTagAssinatura    write FGerarTagAssinatura;
-    property PathArquivoMunicipios: String         read FPathArquivoMunicipios write FPathArquivoMunicipios;
-    property ValidarInscricoes: boolean            read FValidarInscricoes;
-    property ValidarListaServicos: boolean         read FValidarListaServicos;
+    property VersaoDF: TVersaoMDFe   read FVersaoDF write FVersaoDF;
+    property ModeloDF: string        read FModeloDF write FModeloDF;
+    property tpAmb: TpcnTipoAmbiente read FtpAmb    write FtpAmb;
+    property tpEmis: TpcnTipoEmissao read FtpEmis   write FtpEmis;
+    property IdCSRT: Integer         read FIdCSRT   write FIdCSRT;
+    property CSRT: string            read FCSRT     write FCSRT;
   end;
 
 implementation
@@ -137,7 +146,7 @@ begin
   FGerador := TGerador.Create;
 
   FGerador.FIgnorarTagNivel   := '|?xml version|MDFe xmlns|infMDFe versao|';
-  FGerador.Opcoes.QuebraLinha := ';';
+  FGerador.Opcoes.QuebraLinha := '|';
 
   FOpcoes := TGeradorOpcoes.Create;
 
@@ -157,7 +166,7 @@ end;
 function TMDFeW.GerarXml: boolean;
 var
   Gerar, Ok: boolean;
-  xProtMDFe: String;
+  xProtMDFe, VersaoStr: string;
 begin
   // Carrega Layout que sera utilizado para gera o txt
   Gerador.ListaDeAlertas.Clear;
@@ -165,8 +174,17 @@ begin
   Gerador.ArquivoFormatoXML := '';
   Gerador.ArquivoFormatoTXT := '';
 
-
-  VersaoDF := DblToVersaoMDFe(Ok, MDFe.infMDFe.versao);
+  {
+    Os campos abaixo tem que ser os mesmos da configuração
+  }
+{
+  MDFe.infMDFe.Versao := VersaoMDFeToDbl(VersaoDF);
+  MDFe.ide.modelo := ModeloDF;
+  MDFe.Ide.tpAmb := tpAmb;
+  MDFe.ide.tpEmis := tpEmis;
+}
+  VersaoDF :=  DblToVersaoMDFe(Ok, MDFe.infMDFe.Versao);
+  VersaoStr := 'versao="' + FloatToString(MDFe.infMDFe.Versao, '.', '#0.00') + '"';
 
   FChaveMDFe := GerarChaveAcesso(MDFe.ide.cUF, MDFe.ide.dhEmi, MDFe.emit.CNPJCPF, MDFe.ide.serie,
                             MDFe.ide.nMDF, StrToInt(TpEmisToStr(MDFe.ide.tpEmis)),
@@ -181,10 +199,10 @@ begin
   {$EndIf}
 
   if MDFe.procMDFe.nProt <> '' then
-    Gerador.wGrupo('mdfeProc ' + MDFe.infMDFe.VersaoStr + ' ' + NAME_SPACE_MDFe, '');
+    Gerador.wGrupo('mdfeProc ' + VersaoStr + ' ' + NAME_SPACE_MDFe, '');
 
   Gerador.wGrupo('MDFe ' + NAME_SPACE_MDFe);
-  Gerador.wGrupo('infMDFe ' + MDFe.infMDFe.VersaoStr + ' Id="' + MDFe.infMDFe.ID + '"');
+  Gerador.wGrupo('infMDFe ' + VersaoStr + ' Id="' + MDFe.infMDFe.ID + '"');
   GerarInfMDFe;
   Gerador.wGrupo('/infMDFe');
 
@@ -216,11 +234,11 @@ begin
   if MDFe.procMDFe.nProt <> '' then
    begin
      xProtMDFe :=
-           '<protMDFe ' + MDFe.infMDFe.VersaoStr + '>' +
+           '<protMDFe ' + VersaoStr + '>' +
              '<infProt>'+
-               '<tpAmb>'+TpAmbToStr(MDFe.procMDFe.tpAmb)+'</tpAmb>'+
+               '<tpAmb>'+TipoAmbienteToStr(MDFe.procMDFe.tpAmb)+'</tpAmb>'+
                '<verAplic>'+MDFe.procMDFe.verAplic+'</verAplic>'+
-               '<chMDFe>'+MDFe.procMDFe.chMDFe+'</chMDFe>'+
+               '<chMDFe>'+MDFe.procMDFe.chDFe+'</chMDFe>'+
                '<dhRecbto>'+FormatDateTime('yyyy-mm-dd"T"hh:nn:ss',MDFe.procMDFe.dhRecbto)+'</dhRecbto>'+
                '<nProt>'+MDFe.procMDFe.nProt+'</nProt>'+
                '<digVal>'+MDFe.procMDFe.digVal+'</digVal>'+
@@ -367,8 +385,8 @@ end;
 procedure TMDFeW.GerarEnderEmit;
 var
   cMun: Integer;
-  xMun: String;
-  xUF: String;
+  xMun: string;
+  xUF: string;
 begin
   AjustarMunicipioUF(xUF, xMun, cMun, CODIGO_BRASIL,
                                       MDFe.Emit.enderEmit.UF,
@@ -394,7 +412,7 @@ end;
 
 procedure TMDFeW.GerarInfModal;
 var
- versao: String;
+ versao: string;
 begin
   versao := GetVersaoModalMDFe(VersaoDF, MDFe.Ide.modal);
 
@@ -915,6 +933,7 @@ begin
                Gerador.wCampo(tcStr, '#95', 'qVolTipo ', 01,  60, 0, MDFe.infDoc.infMunDescarga[i].infCTe[j].peri.Items[k].qVolTipo, DSC_QVOLTIPO);
                Gerador.wGrupo('/peri');
              end;
+
              if MDFe.infDoc.infMunDescarga[i].infCTe[j].peri.Count > 990 then
                Gerador.wAlerta('#89', 'peri', '', ERR_MSG_MAIOR_MAXIMO + '990');
 
@@ -928,12 +947,22 @@ begin
                Gerador.wGrupo('/infEntregaParcial');
              end;
 
+             if MDFe.infDoc.infMunDescarga[i].infCTe[j].indPrestacaoParcial = tieSim then
+               Gerador.wCampo(tcStr, '#99', 'indPrestacaoParcial', 1, 1, 1, '1');
+
+             for k := 0 to MDFe.infDoc.infMunDescarga[i].infCTe[j].infNFePrestParcial.Count - 1 do
+             begin
+               Gerador.wGrupo('infNFePrestParcial', '#100');
+               Gerador.wCampo(tcStr, '#101', 'chNFe', 44, 44, 1,
+                MDFe.infDoc.infMunDescarga[i].infCTe[j].infNFePrestParcial[k].chNFe, DSC_CHAVE);
+               Gerador.wGrupo('/infNFePrestParcial');
+             end;
            end;
 
            Gerador.wGrupo('/infCTe');
          end;
-         if MDFe.infDoc.infMunDescarga[i].infCTe.Count > 10000 then
-          Gerador.wAlerta('#048', 'infCTe', '', ERR_MSG_MAIOR_MAXIMO + '10000');
+         if MDFe.infDoc.infMunDescarga[i].infCTe.Count > 20000 then
+          Gerador.wAlerta('#048', 'infCTe', '', ERR_MSG_MAIOR_MAXIMO + '20000');
 
          for j := 0 to MDFe.infDoc.infMunDescarga[i].infCT.Count - 1 do
          begin
@@ -1055,8 +1084,8 @@ begin
 
            Gerador.wGrupo('/infNFe');
          end;
-         if MDFe.infDoc.infMunDescarga[i].infNFe.Count > 10000 then
-          Gerador.wAlerta('#057', 'infNFe', '', ERR_MSG_MAIOR_MAXIMO + '10000');
+         if MDFe.infDoc.infMunDescarga[i].infNFe.Count > 20000 then
+          Gerador.wAlerta('#057', 'infNFe', '', ERR_MSG_MAIOR_MAXIMO + '20000');
 
          for j := 0 to MDFe.infDoc.infMunDescarga[i].infNF.Count - 1 do
          begin
@@ -1176,8 +1205,8 @@ begin
 
          Gerador.wGrupo('/infMDFeTransp');
        end;
-       if MDFe.infDoc.infMunDescarga[i].infMDFeTransp.Count > 10000 then
-        Gerador.wAlerta('#057', 'infMDFeTransp', '', ERR_MSG_MAIOR_MAXIMO + '10000');
+       if MDFe.infDoc.infMunDescarga[i].infMDFeTransp.Count > 20000 then
+        Gerador.wAlerta('#057', 'infMDFeTransp', '', ERR_MSG_MAIOR_MAXIMO + '20000');
      end;
 
     Gerador.wGrupo('/infMunDescarga');
@@ -1300,8 +1329,8 @@ begin
    end;
 end;
 
-procedure TMDFeW.AjustarMunicipioUF(var xUF, xMun: String;
-  var cMun: Integer; cPais: Integer; const vxUF, vxMun: String; vcMun: Integer);
+procedure TMDFeW.AjustarMunicipioUF(var xUF, xMun: string;
+  var cMun: Integer; cPais: Integer; const vxUF, vxMun: string; vcMun: Integer);
 var
   PaisBrasil: boolean;
 begin

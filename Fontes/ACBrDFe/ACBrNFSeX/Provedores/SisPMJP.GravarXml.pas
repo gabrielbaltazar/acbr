@@ -39,7 +39,8 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv2, ACBrNFSeXConversao;
+  ACBrNFSeXGravarXml_ABRASFv2,
+  ACBrNFSeXConversao;
 
 type
   { TNFSeW_SisPMJP202 }
@@ -71,11 +72,20 @@ end;
 
 function TNFSeW_SisPMJP202.GerarXml: Boolean;
 begin
-  if (NFSe.OptanteSimplesNacional = snNao) and
-     (NFSe.RegimeEspecialTributacao in [retMicroempresaMunicipal, retMicroempresarioEmpresaPP]) then
-    NrOcorrValorIss := 1
+  if (NFSe.OptanteSimplesNacional = snNao) then
+  begin
+    if (NFSe.RegimeEspecialTributacao in [retMicroempresaMunicipal, retMicroempresarioEmpresaPP]) then
+      NrOcorrValorIss := 1
+    else
+      NrOcorrValorIss := -1;
+  end
   else
-    NrOcorrValorIss := -1;
+  begin
+    if (NFSe.RegimeEspecialTributacao in [retMicroempresaMunicipal]) then
+      NrOcorrValorIss := 1
+    else
+      NrOcorrValorIss := -1;
+  end;
 
   Result := inherited GerarXml;
 end;

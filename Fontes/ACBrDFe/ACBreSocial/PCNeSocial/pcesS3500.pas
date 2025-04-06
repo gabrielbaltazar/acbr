@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -58,31 +58,31 @@ uses
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
-  TS3500Collection = class;
-  TS3500CollectionItem = class;
-  TEvtExcProcTrab = class;
-  TInfoExclusao = class;
-  TIdeProcTrab = class;
-
-  TS3500Collection = class(TeSocialCollection)
+  TIdeProcTrab = class(TObject)
   private
-    function GetItem(Index: Integer): TS3500CollectionItem;
-    procedure SetItem(Index: Integer; Value: TS3500CollectionItem);
+    FcpfTrab: string;
+    FnrProcTrab: string;
+    FperApurPgto: string;
+    FideSeqProc: integer;
   public
-    function New: TS3500CollectionItem;
-    property Items[Index: Integer]: TS3500CollectionItem read GetItem write SetItem; default;
+    property cpfTrab: string read FcpfTrab write FcpfTrab;
+    property nrProcTrab: string read FnrProcTrab write FnrProcTrab;
+    property perApurPgto: string read FperApurPgto write FperApurPgto;
+    property ideSeqProc: integer read FideSeqProc write FideSeqProc;
   end;
 
-  TS3500CollectionItem = class(TObject)
+  TInfoExclusao = class(TObject)
   private
-    FTipoEvento: TTipoEvento;
-    FEvtExcProcTrab: TEvtExcProcTrab;
+    FtpEvento: TTipoEvento;
+    FnrRecEvt: string;
+    FideProcTrab: TIdeProcTrab;
   public
-    constructor Create(AOwner: TComponent);
+    constructor Create;
     destructor Destroy; override;
 
-    property TipoEvento: TTipoEvento read FTipoEvento;
-    property EvtExcProcTrab: TEvtExcProcTrab read FEvtExcProcTrab write FEvtExcProcTrab;
+    property tpEvento: TTipoEvento read FtpEvento write FtpEvento;
+    property nrRecEvt: string read FnrRecEvt write FnrRecEvt;
+    property ideProcTrab: TIdeProcTrab read FideProcTrab write FideProcTrab;
   end;
 
   TEvtExcProcTrab = class(TESocialEvento)
@@ -102,29 +102,25 @@ type
     property InfoExclusao: TInfoExclusao read FInfoExclusao write FInfoExclusao;
   end;
 
-  TInfoExclusao = class(TObject)
+  TS3500CollectionItem = class(TObject)
   private
-    FtpEvento: TTipoEvento;
-    FnrRecEvt: string;
-    FideProcTrab: TIdeProcTrab;
+    FTipoEvento: TTipoEvento;
+    FEvtExcProcTrab: TEvtExcProcTrab;
   public
-    constructor Create;
+    constructor Create(AOwner: TComponent);
     destructor Destroy; override;
 
-    property tpEvento: TTipoEvento read FtpEvento write FtpEvento;
-    property nrRecEvt: string read FnrRecEvt write FnrRecEvt;
-    property ideProcTrab: TIdeProcTrab read FideProcTrab write FideProcTrab;
+    property TipoEvento: TTipoEvento read FTipoEvento;
+    property EvtExcProcTrab: TEvtExcProcTrab read FEvtExcProcTrab write FEvtExcProcTrab;
   end;
 
-  TIdeProcTrab = class(TObject)
+  TS3500Collection = class(TeSocialCollection)
   private
-    FcpfTrab: string;
-    FnrProcTrab: string;
-    FperApurPgto: string;
+    function GetItem(Index: Integer): TS3500CollectionItem;
+    procedure SetItem(Index: Integer; Value: TS3500CollectionItem);
   public
-    property cpfTrab: string read FcpfTrab write FcpfTrab;
-    property nrProcTrab: string read FnrProcTrab write FnrProcTrab;
-    property perApurPgto: string read FperApurPgto write FperApurPgto;
+    function New: TS3500CollectionItem;
+    property Items[Index: Integer]: TS3500CollectionItem read GetItem write SetItem; default;
   end;
 
 implementation
@@ -231,8 +227,16 @@ begin
 
     if self.InfoExclusao.tpEvento = teS2500 then
       Gerador.wCampo(tcStr, '', 'cpfTrab'    ,  11, 11, 1, self.InfoExclusao.ideProcTrab.cpfTrab)
-    else if self.InfoExclusao.tpEvento = teS2501 then
-      Gerador.wCampo(tcStr, '', 'perApurPgto',   7,  7, 1, self.InfoExclusao.ideProcTrab.perApurPgto);
+    else
+    begin
+      if self.InfoExclusao.tpEvento = teS2501 then
+      begin
+        Gerador.wCampo(tcStr, '', 'perApurPgto',   7,  7, 1, self.InfoExclusao.ideProcTrab.perApurPgto);
+
+        if VersaoDF > veS01_02_00 then
+          Gerador.wCampo(tcInt, '', 'ideSeqProc', 1, 3, 0, Self.infoExclusao.ideProcTrab.ideSeqProc);
+      end;
+    end;
 
     Gerador.wGrupo('/ideProcTrab');
     Gerador.wGrupo('/infoExclusao');
@@ -241,9 +245,6 @@ begin
     GerarRodape;
 
     FXML := Gerador.ArquivoFormatoXML;
-//    XML := Assinar(Gerador.ArquivoFormatoXML, 'evtExcProcTrab');
-
-//    Validar(schevtExcProcTrab);
   except on e:exception do
     raise Exception.Create('ID: ' + Self.Id + sLineBreak + ' ' + e.Message);
   end;
@@ -286,6 +287,7 @@ begin
       infoExclusao.ideProcTrab.cpfTrab     := INIRec.ReadString(sSecao, 'cpfTrab', EmptyStr);
       infoExclusao.ideProcTrab.nrProcTrab  := INIRec.ReadString(sSecao, 'nrProcTrab', EmptyStr);
       infoExclusao.ideProcTrab.perApurPgto := INIRec.ReadString(sSecao, 'perApurPgto', EmptyStr);
+      infoExclusao.ideProcTrab.ideSeqProc  := INIRec.ReadInteger(sSecao, 'ideSeqProc', 0);
     end;
 
     GerarXML;

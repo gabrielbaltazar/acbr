@@ -52,7 +52,7 @@ type
 
  TRetornoEnvio_Caixa = class(TRetornoEnvioSOAP)
   private
-
+    function RetornaCodigoOcorrencia(const ASituacao: string) : String;
   public
     constructor Create(ABoletoWS: TACBrBoleto); override;
     destructor  Destroy; Override;
@@ -92,6 +92,10 @@ begin
   lXML:= StringReplace(Leitor.Arquivo, 'sibar_base:', '', [rfReplaceAll]) ;
   Leitor.Arquivo := lXML;
   Leitor.Grupo := Leitor.Arquivo;//StringReplace(Leitor.Arquivo, 'sibar_base:"', '', [rfReplaceAll] );
+
+  ARetornoWS.HTTPResultCode  := HTTPResultCode;
+  ARetornoWS.JSONEnvio       := EnvWs;
+  ARetornoWS.Header.Operacao := ACBrBoleto.Configuracoes.WebService.Operacao;
 
   //RetornoCaixa:= ACBrBoleto.CriarRetornoWebNaLista;
   try
@@ -137,10 +141,9 @@ begin
               OriRetorno := Leitor.rCampo(tcStr, 'ORIGEM_RETORNO');
               CodRetorno := Leitor.rCampo(tcStr, 'COD_RETORNO');
               NSU        := Leitor.rCampo(tcStr, 'NSU');
-
               if leitor.rExtrai(3, 'MENSAGENS') <> '' then
               begin
-                Retorno := Leitor.rCampo(tcStr, 'RETORNO');
+                  Retorno := Leitor.rCampo(tcStr, 'RETORNO');
               end;
             end;
           end;
@@ -159,18 +162,26 @@ begin
             DadosRet.IDBoleto.LinhaDig  := Leitor.rCampo(tcStr, 'LINHA_DIGITAVEL');
             DadosRet.IDBoleto.NossoNum  := Leitor.rCampo(tcStr, 'NOSSO_NUMERO');
             DadosRet.IDBoleto.URL       := Leitor.rCampo(tcStr, 'URL');
+
+            if ACBrBoleto.Cedente.CedenteWS.IndicadorPix then
+              DadosRet.TituloRet.EMV := Leitor.rCampo(tcStr, 'QRCODE');
           end;
 
           if leitor.rExtrai(2, 'CONSULTA_BOLETO') <> '' then
           begin
             if leitor.rExtrai(3, 'TITULO') <> ''  then
             begin
+              ControleNegocial.Retorno := Leitor.rCampo(tcStr, 'SITUACAO');
+              TituloRet.EstadoTituloCobranca := ControleNegocial.Retorno;
+              TituloRet.CodigoEstadoTituloCobranca := RetornaCodigoOcorrencia(AnsiUpperCase(ControleNegocial.Retorno));
+
               TituloRet.NumeroDocumento         := Leitor.rCampo(tcStr, 'NUMERO_DOCUMENTO');
               TituloRet.Vencimento              := Leitor.rCampo(tcDat, 'DATA_VENCIMENTO');
               TituloRet.ValorDocumento          := Leitor.rCampo(tcDe2, 'VALOR');
               TituloRet.EspecieDoc              := Leitor.rCampo(tcStr, 'TIPO_ESPECIE');
               TituloRet.Aceite                  := StrToAceite(Ok, Leitor.rCampo(tcStr, 'FLAG_ACEITE'));
               TituloRet.DataDocumento           := Leitor.rCampo(tcDat, 'DATA_EMISSAO');
+              TituloRet.DataRegistro            := Leitor.rCampo(tcDat, 'DATA_EMISSAO');
               TituloRet.ValorAbatimento         := Leitor.rCampo(tcDe2, 'VALOR_ABATIMENTO');
               TituloRet.EspecieMod              := Leitor.rCampo(tcInt, 'CODIGO_MOEDA');
 
@@ -180,6 +191,13 @@ begin
               TituloRet.CodBarras               := Leitor.rCampo(tcStr, 'CODIGO_BARRAS');
               TituloRet.LinhaDig                := Leitor.rCampo(tcStr, 'LINHA_DIGITAVEL');
               TituloRet.URL                     := Leitor.rCampo(tcStr, 'URL');
+
+              TituloRet.ValorPago               := Leitor.rCampo(tcDe2, 'VALOR_PAGO');
+              TituloRet.DataCredito             := Leitor.rCampo(tcDatHor, 'DATA_HORA_PAGAMENTO');
+              TituloRet.DataBaixa               := Leitor.rCampo(tcDatHor, 'DATA_HORA_PAGAMENTO');
+
+              if ACBrBoleto.Cedente.CedenteWS.IndicadorPix then
+                DadosRet.TituloRet.EMV := Leitor.rCampo(tcStr, 'QRCODE');
 
               if leitor.rExtrai(4, 'JUROS_MORA') <> '' then
               begin
@@ -305,6 +323,34 @@ begin
     Result := False;
   end;
 
+end;
+
+function TRetornoEnvio_Caixa.RetornaCodigoOcorrencia(const ASituacao: string) : String;
+begin
+  Result := '';
+  if pos('EM ABERTO', ASituacao) > 0 then
+    Result := '01'
+  else
+  if pos('BAIXA POR DEVOLUCAO', ASituacao) > 0 then
+    Result := '07'
+  else
+  if pos('BAIXA POR ESTORNO', ASituacao) > 0 then
+    Result := '07'
+  else
+  if pos('BAIXA POR PROTESTO', ASituacao) > 0 then
+    Result := '13'
+  else
+  if pos('ENVIADO AO CARTORIO', ASituacao) > 0 then
+    Result := '02'
+  else
+  if pos('LIQUIDADO NO CARTORIO', ASituacao) > 0 then
+    Result := '10'
+  else
+  if pos('LIQUIDADO', ASituacao) > 0 then
+    Result := '06'
+  else
+  if pos('TITULO JA PAGO NO DIA', ASituacao) > 0 then
+    Result := '06'
 end;
 
 function TRetornoEnvio_Caixa.RetornoEnvio(const AIndex: Integer): Boolean;

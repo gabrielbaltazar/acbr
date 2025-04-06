@@ -4,7 +4,7 @@
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
-{																			                                         }
+{                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
 {                                                                              }
@@ -38,8 +38,7 @@ uses
   Spin, Buttons, ComCtrls, OleCtrls, SHDocVw, ACBrMail,
   ACBrPosPrinter, ACBrNFeDANFeESCPOS, ACBrNFeDANFEClass, ACBrDANFCeFortesFr,
   ACBrDFeReport, ACBrDFeDANFeReport, ACBrNFeDANFeRLClass, ACBrBase, ACBrDFe,
-  ACBrNFe, ShellAPI, XMLIntf, XMLDoc, zlib, ACBrIntegrador,
-  ACBrDANFCeFortesFrA4;
+  ACBrNFe, ShellAPI, XMLIntf, XMLDoc, zlib, ACBrDANFCeFortesFrA4;
 
 type
   TfrmACBrNFe = class(TForm)
@@ -263,7 +262,6 @@ type
     btnImprimirDANFCEOffline: TButton;
     rgDANFCE: TRadioGroup;
     btnStatusServ: TButton;
-    ACBrIntegrador1: TACBrIntegrador;
     btVersao: TButton;
     ACBrNFeDANFCeFortesA41: TACBrNFeDANFCeFortesA4;
     Label51: TLabel;
@@ -280,6 +278,20 @@ type
     btnManifDestCiencia: TButton;
     btnManifDestOperNaoRealizada: TButton;
     btnEventoEPEC: TButton;
+    btnAdministrarCSC: TButton;
+    btnInsucessoEntrega: TButton;
+    btnCancInsucessoEntrega: TButton;
+    btnEventoECONF: TButton;
+    btnEventoCancECONF: TButton;
+    Label41: TLabel;
+    edtIdCSRT: TEdit;
+    Label46: TLabel;
+    edtCSRT: TEdit;
+    tsOutros: TTabSheet;
+    btnLerArqINI: TButton;
+    btnGerarArqINI: TButton;
+    Label53: TLabel;
+    cbVersaoQRCode: TComboBox;
 
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
@@ -345,6 +357,13 @@ type
     procedure btnDistrDFePorChaveClick(Sender: TObject);
     procedure sbPathPDFClick(Sender: TObject);
     procedure btnEventoEPECClick(Sender: TObject);
+    procedure btnAdministrarCSCClick(Sender: TObject);
+    procedure btnInsucessoEntregaClick(Sender: TObject);
+    procedure btnCancInsucessoEntregaClick(Sender: TObject);
+    procedure btnEventoECONFClick(Sender: TObject);
+    procedure btnEventoCancECONFClick(Sender: TObject);
+    procedure btnLerArqINIClick(Sender: TObject);
+    procedure btnGerarArqINIClick(Sender: TObject);
   private
     { Private declarations }
     procedure GravarConfiguracao;
@@ -371,7 +390,7 @@ uses
   IniFiles, Printers,
   ACBrUtil.Base, ACBrUtil.FilesIO, ACBrUtil.DateTime, ACBrUtil.Strings,
   ACBrUtil.XMLHTML,
-  pcnAuxiliar, pcnNFe, pcnConversao, pcnConversaoNFe, pcnNFeRTXT, pcnRetConsReciDFe,
+  ACBrNFe.Classes, pcnConversao, pcnConversaoNFe, pcnNFeRTXT, pcnRetConsReciDFe,
   ACBrDFeConfiguracoes, ACBrDFeSSL, ACBrDFeOpenSSL, ACBrDFeUtil,
   ACBrNFeNotasFiscais, ACBrNFeConfiguracoes,
   Frm_Status, Frm_SelecionarCertificado, Frm_ConfiguraSerial;
@@ -540,8 +559,8 @@ begin
     Ide.dSaiEnt   := now;
     Ide.hSaiEnt   := now;
     Ide.tpNF      := tnSaida;
-    Ide.tpEmis    := TpcnTipoEmissao(cbFormaEmissao.ItemIndex);;
-    Ide.tpAmb     := taHomologacao;  //Lembre-se de trocar esta variavel quando for para ambiente de producao
+    Ide.tpEmis    := TpcnTipoEmissao(cbFormaEmissao.ItemIndex);
+    Ide.tpAmb     := ACBrNFe1.Configuracoes.WebServices.Ambiente;
     Ide.cUF       := UFtoCUF(edtEmitUF.Text);
     Ide.cMunFG    := StrToInt(edtEmitCodCidade.Text);
     Ide.finNFe    := fnNormal;
@@ -566,6 +585,15 @@ begin
 
 //     Ide.dhCont := date;
 //     Ide.xJust  := 'Justificativa Contingencia';
+
+    // Reforma Tributária
+    {
+    Ide.cMunFGIBS := StrToInt(edtEmitCodCidade.Text);
+    Ide.indMultaJuros := timjNenhum;
+    Ide.gCompraGov.tpCompraGov := tcgEstados;
+    Ide.gCompraGov.pRedutor := 5;
+    Ide.tipoNotaCredito := ''; // Aguardando GT06. A definir.
+    }
 
     Emit.CNPJCPF           := edtEmitCNPJ.Text;
     Emit.IE                := edtEmitIE.Text;
@@ -670,6 +698,12 @@ begin
       //  correspondente àquele da menor unidade comercializável identificado por Código de Barras
       // por exemplo: código de barras de catálogo, partnumber, etc
       Prod.cBarraTrib := 'ABC123456';
+
+      // Reforma Tributária
+      {
+      DFeReferenciado.chaveAcesso := '';
+      DFeReferenciado.nItem := 1;
+      }
 
       // Declaração de Importação. Pode ser adicionada várias através do comando Prod.DI.New
       (*
@@ -868,6 +902,108 @@ begin
           // Indica se o valor da COFINS ST compõe o valor total da NF-e
           indSomaCOFINSST :=  iscNenhum;
         end;
+
+        // Reforma Tributária
+        {
+        IBSCBSSel.CST := 100;
+        IBSCBSSel.cClassTrib := 100000;
+        IBSCBSSel.indPerecimento := tipNenhum;
+
+        IBSCBSSel.seletivo.CST := 100;
+        IBSCBSSel.seletivo.cClassTrib := 100000;
+
+        IBSCBSSel.seletivo.gImpSel.vBCImpSel := 100;
+        IBSCBSSel.seletivo.gImpSel.pImpSel := 5;
+        IBSCBSSel.seletivo.gImpSel.pImpSelEspec := 5;
+        IBSCBSSel.seletivo.gImpSel.uTrib := 'UNIDAD';
+        IBSCBSSel.seletivo.gImpSel.qTrib := 10;
+        IBSCBSSel.seletivo.gImpSel.vImpSel := 100;
+
+        IBSCBSSel.gIBSCBS.vBC := 100;
+
+        IBSCBSSel.gIBSCBS.gIBSUF.pIBSUF := 5;
+        IBSCBSSel.gIBSCBS.gIBSUF.vTribOP := 100;
+        IBSCBSSel.gIBSCBS.gIBSUF.vIBSUF := 100;
+
+        IBSCBSSel.gIBSCBS.gIBSUF.gDif.pDif := 5;
+        IBSCBSSel.gIBSCBS.gIBSUF.gDif.pDif := 100;
+
+        IBSCBSSel.gIBSCBS.gIBSUF.gDevTrib.vDevTrib := 100;
+
+        IBSCBSSel.gIBSCBS.gIBSUF.gRed.pRedAliq := 5;
+        IBSCBSSel.gIBSCBS.gIBSUF.gRed.pAliqEfet := 5;
+
+        IBSCBSSel.gIBSCBS.gIBSUF.gDeson.CST := 100;
+        IBSCBSSel.gIBSCBS.gIBSUF.gDeson.cClassTrib := 100000;
+        IBSCBSSel.gIBSCBS.gIBSUF.gDeson.vBC := 100;
+        IBSCBSSel.gIBSCBS.gIBSUF.gDeson.pAliq := 5;
+        IBSCBSSel.gIBSCBS.gIBSUF.gDeson.vDeson := 100;
+
+        IBSCBSSel.gIBSCBS.gIBSMun.pIBSMun := 5;
+        IBSCBSSel.gIBSCBS.gIBSMun.vTribOP := 100;
+        IBSCBSSel.gIBSCBS.gIBSMun.vIBSMun := 100;
+
+        IBSCBSSel.gIBSCBS.gIBSMun.gDif.pDif := 5;
+        IBSCBSSel.gIBSCBS.gIBSMun.gDif.pDif := 100;
+
+        IBSCBSSel.gIBSCBS.gIBSMun.gDevTrib.vDevTrib := 100;
+
+        IBSCBSSel.gIBSCBS.gIBSMun.gRed.pRedAliq := 5;
+        IBSCBSSel.gIBSCBS.gIBSMun.gRed.pAliqEfet := 5;
+
+        IBSCBSSel.gIBSCBS.gIBSMun.gDeson.CST := 100;
+        IBSCBSSel.gIBSCBS.gIBSMun.gDeson.cClassTrib := 100000;
+        IBSCBSSel.gIBSCBS.gIBSMun.gDeson.vBC := 100;
+        IBSCBSSel.gIBSCBS.gIBSMun.gDeson.pAliq := 5;
+        IBSCBSSel.gIBSCBS.gIBSMun.gDeson.vDeson := 100;
+
+        IBSCBSSel.gIBSCBS.gIBSCredPres.cCredPres := 1;
+        IBSCBSSel.gIBSCBS.gIBSCredPres.pCredPres := 5;
+        IBSCBSSel.gIBSCBS.gIBSCredPres.vCredPres := 100;
+        IBSCBSSel.gIBSCBS.gIBSCredPres.vCredPresCondSus := 100;
+
+        IBSCBSSel.gIBSCBS.gCBS.pCBS := 5;
+        IBSCBSSel.gIBSCBS.gCBS.vTribOp := 100;
+        IBSCBSSel.gIBSCBS.gCBS.vCBS := 100;
+
+        IBSCBSSel.gIBSCBS.gCBS.gCBSCredPres.cCredPres := 1;
+        IBSCBSSel.gIBSCBS.gCBS.gCBSCredPres.pCredPres := 5;
+        IBSCBSSel.gIBSCBS.gCBS.gCBSCredPres.vCredPres := 100;
+        IBSCBSSel.gIBSCBS.gCBS.gCBSCredPres.vCredPresCondSus := 100;
+
+        IBSCBSSel.gIBSCBS.gCBS.gDif.pDif := 5;
+        IBSCBSSel.gIBSCBS.gCBS.gDif.pDif := 100;
+
+        IBSCBSSel.gIBSCBS.gCBS.gDevTrib.vDevTrib := 100;
+
+        IBSCBSSel.gIBSCBS.gCBS.gRed.pRedAliq := 5;
+        IBSCBSSel.gIBSCBS.gCBS.gRed.pAliqEfet := 5;
+
+        IBSCBSSel.gIBSCBS.gCBS.gDeson.CST := 100;
+        IBSCBSSel.gIBSCBS.gCBS.gDeson.cClassTrib := 100000;
+        IBSCBSSel.gIBSCBS.gCBS.gDeson.vBC := 100;
+        IBSCBSSel.gIBSCBS.gCBS.gDeson.pAliq := 5;
+        IBSCBSSel.gIBSCBS.gCBS.gDeson.vDeson := 100;
+
+        IBSCBSSel.gIBSCBSMono.qBCMono := 1;
+        IBSCBSSel.gIBSCBSMono.adRemIBS := 5;
+        IBSCBSSel.gIBSCBSMono.adRemCBS := 5;
+        IBSCBSSel.gIBSCBSMono.vIBSMono := 100;
+        IBSCBSSel.gIBSCBSMono.vCBSMono := 100;
+        IBSCBSSel.gIBSCBSMono.qBCMonoReten := 1;
+        IBSCBSSel.gIBSCBSMono.adRemIBSREten := 5;
+        IBSCBSSel.gIBSCBSMono.vIBSMonoReten := 100;
+        IBSCBSSel.gIBSCBSMono.pCredPresIBS := 5;
+        IBSCBSSel.gIBSCBSMono.vCRedPresIBS := 100;
+        IBSCBSSel.gIBSCBSMono.pCredPresCBS := 5;
+        IBSCBSSel.gIBSCBSMono.vCredPresCBS := 100;
+        IBSCBSSel.gIBSCBSMono.pDifIBS := 5;
+        IBSCBSSel.gIBSCBSMono.vIBSMonoDif := 100;
+        IBSCBSSel.gIBSCBSMono.pDifCBS := 5;
+        IBSCBSSel.gIBSCBSMono.vCBSMonoDif := 100;
+        IBSCBSSel.gIBSCBSMono.vTotIBSMono := 100;
+        IBSCBSSel.gIBSCBSMono.vTotCBSMono := 100;
+        }
       end;
     end;
 
@@ -950,6 +1086,39 @@ begin
     // (agenciador, plataforma de delivery, marketplace e similar) de serviços e de
     // negócios.
     infIntermed.idCadIntTran := '';
+
+    // Reforma Tributária
+    {
+    IBSCBSSelTot.vBCIBSCBS := 100;
+    IBSCBSSelTot.vTotNF := 100;
+
+    IBSCBSSelTot.gSel.vBCSel := 100;
+    IBSCBSSelTot.gSel.vImpSel := 100;
+
+    IBSCBSSelTot.gIBS.vCresPres := 100;
+    IBSCBSSelTot.gIBS.vCredPresCondSus := 100;
+
+    IBSCBSSelTot.gIBS.gIBSUFTot.vDif := 100;
+    IBSCBSSelTot.gIBS.gIBSUFTot.vDevTrib := 100;
+    IBSCBSSelTot.gIBS.gIBSUFTot.vDeson := 100;
+    IBSCBSSelTot.gIBS.gIBSUFTot.vIBSUF := 100;
+
+    IBSCBSSelTot.gIBS.gIBSMunTot.vDif := 100;
+    IBSCBSSelTot.gIBS.gIBSMunTot.vDevTrib := 100;
+    IBSCBSSelTot.gIBS.gIBSMunTot.vDeson := 100;
+    IBSCBSSelTot.gIBS.gIBSMunTot.vIBSMun := 100;
+    IBSCBSSelTot.gIBS.gIBSMunTot.vIBSTot := 100;
+
+    IBSCBSSelTot.gCBS.vCresPres := 100;
+    IBSCBSSelTot.gCBS.vCredPresCondSus := 100;
+    IBSCBSSelTot.gCBS.vDif := 100;
+    IBSCBSSelTot.gCBS.vDevTrib := 100;
+    IBSCBSSelTot.gCBS.vDeson := 100;
+    IBSCBSSelTot.gCBS.vCBS := 100;
+
+    IBSCBSSelTot.gMono.vTotIBSMono := 100;
+    IBSCBSSelTot.gMono.vTotCBSMono := 100;
+    }
   end;
 
   ACBrNFe1.NotasFiscais.GerarNFe;
@@ -974,6 +1143,8 @@ var
 //    Reboque: TreboqueCollectionItem;
 //    Lacre: TLacresCollectionItem;
 //    ProcReferenciado: TprocRefCollectionItem;
+//  Agropecuario: Tagropecuario;
+//  Defensivo: TdefensivoCollectionItem;
   InfoPgto: TpagCollectionItem;
 begin
   NotaF := ACBrNFe1.NotasFiscais.Add;
@@ -987,8 +1158,9 @@ begin
   NotaF.NFe.Ide.dSaiEnt   := Date;
   NotaF.NFe.Ide.hSaiEnt   := Now;
   NotaF.NFe.Ide.tpNF      := tnSaida;
-  NotaF.NFe.Ide.tpEmis    := TpcnTipoEmissao(cbFormaEmissao.ItemIndex);;
-  NotaF.NFe.Ide.tpAmb     := taHomologacao;  //Lembre-se de trocar esta variável quando for para ambiente de produção
+  NotaF.NFe.Ide.tpEmis    := TpcnTipoEmissao(cbFormaEmissao.ItemIndex);
+
+  NotaF.NFe.Ide.tpAmb     := ACBrNFe1.Configuracoes.WebServices.Ambiente;
   NotaF.NFe.Ide.verProc   := '1.0.0.0'; //Versão do seu sistema
   NotaF.NFe.Ide.cUF       := UFtoCUF(edtEmitUF.Text);
   NotaF.NFe.Ide.cMunFG    := StrToInt(edtEmitCodCidade.Text);
@@ -996,16 +1168,9 @@ begin
   if  Assigned( ACBrNFe1.DANFE ) then
     NotaF.NFe.Ide.tpImp     := ACBrNFe1.DANFE.TipoDANFE;
 
-  // Valores aceitos:
-  // iiSemOperacao, iiOperacaoSemIntermediador, iiOperacaoComIntermediador
-//  NotaF.NFe.Ide.indIntermed := iiSemOperacao;
-
 //  NotaF.NFe.Ide.dhCont := date;
 //  NotaF.NFe.Ide.xJust  := 'Justificativa Contingencia';
 
-  {
-    abaixo o campo incluido no layout a partir da NT 2020/006
-  }
   {
     valores aceitos pelo campo:
     iiSemOperacao, iiOperacaoSemIntermediador, iiOperacaoComIntermediador
@@ -1013,7 +1178,14 @@ begin
   // Indicador de intermediador/marketplace
   NotaF.NFe.Ide.indIntermed := iiSemOperacao;
 
-
+  // Reforma Tributária
+  {
+  NotaF.NFe.Ide.cMunFGIBS := StrToInt(edtEmitCodCidade.Text);
+  NotaF.NFe.Ide.indMultaJuros := timjNenhum;
+  NotaF.NFe.Ide.gCompraGov.tpCompraGov := tcgEstados;
+  NotaF.NFe.Ide.gCompraGov.pRedutor := 5;
+  NotaF.NFe.Ide.tipoNotaCredito := ''; // Aguardando GT06. A definir.
+  }
   //Para NFe referenciada use os campos abaixo
   (*
   Referenciada := NotaF.NFe.Ide.NFref.Add;
@@ -1078,7 +1250,6 @@ begin
   NotaF.NFe.Avulsa.vDAR    := 0;
   NotaF.NFe.Avulsa.repEmi  := '';
   NotaF.NFe.Avulsa.dPag    := now;
-
 
   NotaF.NFe.Dest.CNPJCPF           := '05481336000137';
   NotaF.NFe.Dest.IE                := '687138770110';
@@ -1256,6 +1427,22 @@ begin
   Arma.descr  := '';
   *)
 
+//Campos específicos para agropecuario / defensivo
+// Devemos gerar somente o grupo defensivo ou o grupo guiaTransito
+(*
+  Defensivo := Agropecuario.defensivo.Add;
+  Defensivo.nReceituario := '123';
+  Defensivo.CPFRespTec := '12345678901';
+*)
+
+//Campos específicos para agropecuario / guiaTransito
+(*
+  Agropecuario.guiaTransito.tpGuia := tpgGuiaFlorestal;
+  Agropecuario.guiaTransito.UFGuia := 'SP';
+  Agropecuario.guiaTransito.serieGuia := '1';
+  Agropecuario.guiaTransito.nGuia := '1';
+*)
+
 //Campos específicos para venda de combustível(distribuidoras)
 
   Produto.Prod.comb.cProdANP := 0;
@@ -1279,7 +1466,11 @@ begin
   Produto.Prod.comb.ICMSCons.vICMSSTCons   := 0;
   Produto.Prod.comb.ICMSCons.UFcons        := '';
 
-
+  // Reforma Tributária
+  {
+  Produto.DFeReferenciado.chaveAcesso := '';
+  Produto.DFeReferenciado.nItem := 1;
+  }
   with Produto.Imposto do
   begin
     // lei da transparencia nos impostos
@@ -1344,6 +1535,7 @@ begin
 
       if NotaF.NFe.Emit.CRT in [crtSimplesExcessoReceita, crtRegimeNormal] then
       begin
+      {
         CST     := cst00;
         modBC   := dbiPrecoTabelado;
         vBC     := 100;
@@ -1356,13 +1548,23 @@ begin
         pICMSST := 0;
         vICMSST := 0;
         pRedBC  := 0;
+      }
+        CST := cst20;
+        modBC := dbiMargemValorAgregado;
+        pRedBC := 0;
+        vBC := 100;
+        pICMS := 18;
+        vICMS := 18;
+        vICMSDeson := 8;
+        motDesICMS := mdiOutros;
+        indDeduzDeson := tieSim;
       end
       else
       begin
         CSOSN   := csosn101;
         modBC   := dbiValorOperacao;
         pCredSN := 5;
-        vCredICMSSN := 100 * pCredSN / 100;;
+        vCredICMSSN := 100 * pCredSN / 100;
         vBC     := 0;
         pICMS   := 0;
         vICMS   := 0;
@@ -1507,9 +1709,109 @@ begin
       // Indica se o valor da COFINS ST compõe o valor total da NF-e
       indSomaCOFINSST :=  iscNenhum;
     end;
+
+    // Reforma Tributária
+    {
+    IBSCBSSel.CST := 100;
+    IBSCBSSel.cClassTrib := 100000;
+    IBSCBSSel.indPerecimento := tipNenhum;
+
+    IBSCBSSel.seletivo.CST := 100;
+    IBSCBSSel.seletivo.cClassTrib := 100000;
+
+    IBSCBSSel.seletivo.gImpSel.vBCImpSel := 100;
+    IBSCBSSel.seletivo.gImpSel.pImpSel := 5;
+    IBSCBSSel.seletivo.gImpSel.pImpSelEspec := 5;
+    IBSCBSSel.seletivo.gImpSel.uTrib := 'UNIDAD';
+    IBSCBSSel.seletivo.gImpSel.qTrib := 10;
+    IBSCBSSel.seletivo.gImpSel.vImpSel := 100;
+
+    IBSCBSSel.gIBSCBS.vBC := 100;
+
+    IBSCBSSel.gIBSCBS.gIBSUF.pIBSUF := 5;
+    IBSCBSSel.gIBSCBS.gIBSUF.vTribOP := 100;
+    IBSCBSSel.gIBSCBS.gIBSUF.vIBSUF := 100;
+
+    IBSCBSSel.gIBSCBS.gIBSUF.gDif.pDif := 5;
+    IBSCBSSel.gIBSCBS.gIBSUF.gDif.pDif := 100;
+
+    IBSCBSSel.gIBSCBS.gIBSUF.gDevTrib.vDevTrib := 100;
+
+    IBSCBSSel.gIBSCBS.gIBSUF.gRed.pRedAliq := 5;
+    IBSCBSSel.gIBSCBS.gIBSUF.gRed.pAliqEfet := 5;
+
+    IBSCBSSel.gIBSCBS.gIBSUF.gDeson.CST := 100;
+    IBSCBSSel.gIBSCBS.gIBSUF.gDeson.cClassTrib := 100000;
+    IBSCBSSel.gIBSCBS.gIBSUF.gDeson.vBC := 100;
+    IBSCBSSel.gIBSCBS.gIBSUF.gDeson.pAliq := 5;
+    IBSCBSSel.gIBSCBS.gIBSUF.gDeson.vDeson := 100;
+
+    IBSCBSSel.gIBSCBS.gIBSMun.pIBSMun := 5;
+    IBSCBSSel.gIBSCBS.gIBSMun.vTribOP := 100;
+    IBSCBSSel.gIBSCBS.gIBSMun.vIBSMun := 100;
+
+    IBSCBSSel.gIBSCBS.gIBSMun.gDif.pDif := 5;
+    IBSCBSSel.gIBSCBS.gIBSMun.gDif.pDif := 100;
+
+    IBSCBSSel.gIBSCBS.gIBSMun.gDevTrib.vDevTrib := 100;
+
+    IBSCBSSel.gIBSCBS.gIBSMun.gRed.pRedAliq := 5;
+    IBSCBSSel.gIBSCBS.gIBSMun.gRed.pAliqEfet := 5;
+
+    IBSCBSSel.gIBSCBS.gIBSMun.gDeson.CST := 100;
+    IBSCBSSel.gIBSCBS.gIBSMun.gDeson.cClassTrib := 100000;
+    IBSCBSSel.gIBSCBS.gIBSMun.gDeson.vBC := 100;
+    IBSCBSSel.gIBSCBS.gIBSMun.gDeson.pAliq := 5;
+    IBSCBSSel.gIBSCBS.gIBSMun.gDeson.vDeson := 100;
+
+    IBSCBSSel.gIBSCBS.gIBSCredPres.cCredPres := 1;
+    IBSCBSSel.gIBSCBS.gIBSCredPres.pCredPres := 5;
+    IBSCBSSel.gIBSCBS.gIBSCredPres.vCredPres := 100;
+    IBSCBSSel.gIBSCBS.gIBSCredPres.vCredPresCondSus := 100;
+
+    IBSCBSSel.gIBSCBS.gCBS.pCBS := 5;
+    IBSCBSSel.gIBSCBS.gCBS.vTribOp := 100;
+    IBSCBSSel.gIBSCBS.gCBS.vCBS := 100;
+
+    IBSCBSSel.gIBSCBS.gCBS.gCBSCredPres.cCredPres := 1;
+    IBSCBSSel.gIBSCBS.gCBS.gCBSCredPres.pCredPres := 5;
+    IBSCBSSel.gIBSCBS.gCBS.gCBSCredPres.vCredPres := 100;
+    IBSCBSSel.gIBSCBS.gCBS.gCBSCredPres.vCredPresCondSus := 100;
+
+    IBSCBSSel.gIBSCBS.gCBS.gDif.pDif := 5;
+    IBSCBSSel.gIBSCBS.gCBS.gDif.pDif := 100;
+
+    IBSCBSSel.gIBSCBS.gCBS.gDevTrib.vDevTrib := 100;
+
+    IBSCBSSel.gIBSCBS.gCBS.gRed.pRedAliq := 5;
+    IBSCBSSel.gIBSCBS.gCBS.gRed.pAliqEfet := 5;
+
+    IBSCBSSel.gIBSCBS.gCBS.gDeson.CST := 100;
+    IBSCBSSel.gIBSCBS.gCBS.gDeson.cClassTrib := 100000;
+    IBSCBSSel.gIBSCBS.gCBS.gDeson.vBC := 100;
+    IBSCBSSel.gIBSCBS.gCBS.gDeson.pAliq := 5;
+    IBSCBSSel.gIBSCBS.gCBS.gDeson.vDeson := 100;
+
+    IBSCBSSel.gIBSCBSMono.qBCMono := 1;
+    IBSCBSSel.gIBSCBSMono.adRemIBS := 5;
+    IBSCBSSel.gIBSCBSMono.adRemCBS := 5;
+    IBSCBSSel.gIBSCBSMono.vIBSMono := 100;
+    IBSCBSSel.gIBSCBSMono.vCBSMono := 100;
+    IBSCBSSel.gIBSCBSMono.qBCMonoReten := 1;
+    IBSCBSSel.gIBSCBSMono.adRemIBSREten := 5;
+    IBSCBSSel.gIBSCBSMono.vIBSMonoReten := 100;
+    IBSCBSSel.gIBSCBSMono.pCredPresIBS := 5;
+    IBSCBSSel.gIBSCBSMono.vCRedPresIBS := 100;
+    IBSCBSSel.gIBSCBSMono.pCredPresCBS := 5;
+    IBSCBSSel.gIBSCBSMono.vCredPresCBS := 100;
+    IBSCBSSel.gIBSCBSMono.pDifIBS := 5;
+    IBSCBSSel.gIBSCBSMono.vIBSMonoDif := 100;
+    IBSCBSSel.gIBSCBSMono.pDifCBS := 5;
+    IBSCBSSel.gIBSCBSMono.vCBSMonoDif := 100;
+    IBSCBSSel.gIBSCBSMono.vTotIBSMono := 100;
+    IBSCBSSel.gIBSCBSMono.vTotCBSMono := 100;
+    }
   end;
-
-
 
   //Adicionando Serviços
   (*
@@ -1666,7 +1968,7 @@ begin
   ProcReferenciado.indProc := ipSEFAZ;
   *)
 
-  NotaF.NFe.exporta.UFembarq   := '';;
+  NotaF.NFe.exporta.UFembarq   := '';
   NotaF.NFe.exporta.xLocEmbarq := '';
 
   NotaF.NFe.compra.xNEmp := '';
@@ -1715,6 +2017,38 @@ begin
   // negócios.
   NotaF.NFe.infIntermed.idCadIntTran := '';
 
+  // Reforma Tributária
+  {
+  NotaF.NFe.IBSCBSSelTot.vBCIBSCBS := 100;
+  NotaF.NFe.IBSCBSSelTot.vTotNF := 100;
+
+  NotaF.NFe.IBSCBSSelTot.gSel.vBCSel := 100;
+  NotaF.NFe.IBSCBSSelTot.gSel.vImpSel := 100;
+
+  NotaF.NFe.IBSCBSSelTot.gIBS.vCresPres := 100;
+  NotaF.NFe.IBSCBSSelTot.gIBS.vCredPresCondSus := 100;
+
+  NotaF.NFe.IBSCBSSelTot.gIBS.gIBSUFTot.vDif := 100;
+  NotaF.NFe.IBSCBSSelTot.gIBS.gIBSUFTot.vDevTrib := 100;
+  NotaF.NFe.IBSCBSSelTot.gIBS.gIBSUFTot.vDeson := 100;
+  NotaF.NFe.IBSCBSSelTot.gIBS.gIBSUFTot.vIBSUF := 100;
+
+  NotaF.NFe.IBSCBSSelTot.gIBS.gIBSMunTot.vDif := 100;
+  NotaF.NFe.IBSCBSSelTot.gIBS.gIBSMunTot.vDevTrib := 100;
+  NotaF.NFe.IBSCBSSelTot.gIBS.gIBSMunTot.vDeson := 100;
+  NotaF.NFe.IBSCBSSelTot.gIBS.gIBSMunTot.vIBSMun := 100;
+  NotaF.NFe.IBSCBSSelTot.gIBS.gIBSMunTot.vIBSTot := 100;
+
+  NotaF.NFe.IBSCBSSelTot.gCBS.vCresPres := 100;
+  NotaF.NFe.IBSCBSSelTot.gCBS.vCredPresCondSus := 100;
+  NotaF.NFe.IBSCBSSelTot.gCBS.vDif := 100;
+  NotaF.NFe.IBSCBSSelTot.gCBS.vDevTrib := 100;
+  NotaF.NFe.IBSCBSSelTot.gCBS.vDeson := 100;
+  NotaF.NFe.IBSCBSSelTot.gCBS.vCBS := 100;
+
+  NotaF.NFe.IBSCBSSelTot.gMono.vTotIBSMono := 100;
+  NotaF.NFe.IBSCBSSelTot.gMono.vTotCBSMono := 100;
+  }
   ACBrNFe1.NotasFiscais.GerarNFe;
 end;
 
@@ -1757,6 +2091,45 @@ begin
     ACBrNFe1.NotasFiscais.Items[0].GravarXML(NomeArq);
     ShowMessage('Arquivo gravado em: ' + NomeArq);
     memoLog.Lines.Add('Arquivo gravado em: ' + NomeArq);
+  end;
+end;
+
+procedure TfrmACBrNFe.btnAdministrarCSCClick(Sender: TObject);
+var
+  xTitulo, xCNPJ, xIndOp, xIdCSC, xCodigoCSC: string;
+  AIndOP: TpcnIndOperacao;
+  Ok: Boolean;
+  i: Integer;
+begin
+  xTitulo := 'Administrar CSC - Código de Segurança do Contribuinte';
+
+  xIndOp := '1';
+  if not(InputQuery(xTitulo, '1 = Consultar / 2 = Novo / 3 = Revogar', xIndOp)) then
+     exit;
+
+  xIdCSC := '';
+  if not(InputQuery(xTitulo, 'Id do CSC', xIdCSC)) then
+     exit;
+
+  xCodigoCSC := '';
+  if not(InputQuery(xTitulo, 'Código do CSC', xCodigoCSC)) then
+     exit;
+
+  xCNPJ := Copy(OnlyNumber(edtEmitCNPJ.Text), 1, 8);
+  AIndOP := StrToIndOperacao(Ok, xIndOp);
+
+  ACBrNFe1.AdministrarCSC(xCNPJ, AIndOP, StrToIntDef(xIdCSC, 0), xCodigoCSC);
+
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add(xTitulo);
+  MemoDados.Lines.Add('tpAmb  : '+ TpAmbToStr(ACBrNFe1.WebServices.AdministrarCSCNFCe.retAdmCSCNFCe.tpAmb));
+  MemoDados.Lines.Add('cStat  : '+ IntToStr(ACBrNFe1.WebServices.AdministrarCSCNFCe.retAdmCSCNFCe.cStat));
+  MemoDados.Lines.Add('xMotivo: '+ ACBrNFe1.WebServices.AdministrarCSCNFCe.retAdmCSCNFCe.xMotivo);
+
+  for i := 0 to ACBrNFe1.WebServices.AdministrarCSCNFCe.retAdmCSCNFCe.dadosCsc.Count -1 do
+  begin
+    MemoDados.Lines.Add('idCsc    : '+ IntToStr(ACBrNFe1.WebServices.AdministrarCSCNFCe.retAdmCSCNFCe.dadosCsc[i].idCsc));
+    MemoDados.Lines.Add('codigoCsc: '+ ACBrNFe1.WebServices.AdministrarCSCNFCe.retAdmCSCNFCe.dadosCsc[i].codigoCsc);
   end;
 end;
 
@@ -1845,7 +2218,27 @@ begin
   ACBrNFe1.EnviarEvento(StrToInt(idLote));
 
   MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
-  LoadXML(ACBrNFe1.WebServices.EnvEvento.RetWS, WBResposta);
+  memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
+
+  LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
+
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Retorno do Evento');
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Id.........: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.Id);
+  MemoDados.Lines.Add('tpAmb......: ' + TpAmbToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.TpAmb));
+  MemoDados.Lines.Add('verAplic...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.verAplic);
+  MemoDados.Lines.Add('cOrgao.....: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cOrgao));
+  MemoDados.Lines.Add('cStat......: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cStat));
+  MemoDados.Lines.Add('xMotivo....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xMotivo);
+  MemoDados.Lines.Add('chNFe......: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.chNFe);
+  MemoDados.Lines.Add('tpEvento...: ' + TpEventoToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.tpEvento));
+  MemoDados.Lines.Add('xEvento....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xEvento);
+  MemoDados.Lines.Add('nSeqEvento.: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nSeqEvento));
+  MemoDados.Lines.Add('CNPJDest...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.CNPJDest);
+  MemoDados.Lines.Add('emailDest..: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.emailDest);
+  MemoDados.Lines.Add('dhRegEvento: ' + DateTimeToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.dhRegEvento));
+  MemoDados.Lines.Add('Protocolo..: '+ ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nProt);
 end;
 
 procedure TfrmACBrNFe.btnCancelarChaveClick(Sender: TObject);
@@ -1885,16 +2278,28 @@ begin
 
   MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
   memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
+
   LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
-  (*
-  ACBrNFe1.WebServices.EnvEvento.EventoRetorno.TpAmb
-  ACBrNFe1.WebServices.EnvEvento.EventoRetorno.verAplic
-  ACBrNFe1.WebServices.EnvEvento.EventoRetorno.cStat
-  ACBrNFe1.WebServices.EnvEvento.EventoRetorno.xMotivo
-  ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0].RetInfEvento.chNFe
-  ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0].RetInfEvento.dhRegEvento
-  ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0].RetInfEvento.nProt
-  *)
+
+//  ArqXML := ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.XML;
+
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Retorno do Evento');
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Id.........: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.Id);
+  MemoDados.Lines.Add('tpAmb......: ' + TpAmbToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.TpAmb));
+  MemoDados.Lines.Add('verAplic...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.verAplic);
+  MemoDados.Lines.Add('cOrgao.....: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cOrgao));
+  MemoDados.Lines.Add('cStat......: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cStat));
+  MemoDados.Lines.Add('xMotivo....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xMotivo);
+  MemoDados.Lines.Add('chNFe......: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.chNFe);
+  MemoDados.Lines.Add('tpEvento...: ' + TpEventoToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.tpEvento));
+  MemoDados.Lines.Add('xEvento....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xEvento);
+  MemoDados.Lines.Add('nSeqEvento.: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nSeqEvento));
+  MemoDados.Lines.Add('CNPJDest...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.CNPJDest);
+  MemoDados.Lines.Add('emailDest..: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.emailDest);
+  MemoDados.Lines.Add('dhRegEvento: ' + DateTimeToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.dhRegEvento));
+  MemoDados.Lines.Add('Protocolo..: '+ ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nProt);
 end;
 
 procedure TfrmACBrNFe.btnCancelarXMLClick(Sender: TObject);
@@ -1934,9 +2339,186 @@ begin
 
     MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
     memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
+
     LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
-    ShowMessage(IntToStr(ACBrNFe1.WebServices.EnvEvento.cStat));
-    ShowMessage(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0].RetInfEvento.nProt);
+
+    MemoDados.Lines.Add('');
+    MemoDados.Lines.Add('Retorno do Evento');
+    MemoDados.Lines.Add('');
+    MemoDados.Lines.Add('Id.........: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.Id);
+    MemoDados.Lines.Add('tpAmb......: ' + TpAmbToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.TpAmb));
+    MemoDados.Lines.Add('verAplic...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.verAplic);
+    MemoDados.Lines.Add('cOrgao.....: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cOrgao));
+    MemoDados.Lines.Add('cStat......: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cStat));
+    MemoDados.Lines.Add('xMotivo....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xMotivo);
+    MemoDados.Lines.Add('chNFe......: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.chNFe);
+    MemoDados.Lines.Add('tpEvento...: ' + TpEventoToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.tpEvento));
+    MemoDados.Lines.Add('xEvento....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xEvento);
+    MemoDados.Lines.Add('nSeqEvento.: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nSeqEvento));
+    MemoDados.Lines.Add('CNPJDest...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.CNPJDest);
+    MemoDados.Lines.Add('emailDest..: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.emailDest);
+    MemoDados.Lines.Add('dhRegEvento: ' + DateTimeToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.dhRegEvento));
+    MemoDados.Lines.Add('Protocolo..: '+ ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nProt);
+  end;
+end;
+
+procedure TfrmACBrNFe.btnInsucessoEntregaClick(Sender: TObject);
+var
+  vData, vHora, vNumTentativa, vJustificativa, vPathImg: String;
+  iLote: Integer;
+begin
+  OpenDialog1.Title := 'Selecione a NFe';
+  OpenDialog1.DefaultExt := '*-nfe.XML';
+  OpenDialog1.Filter := 'Arquivos NFe (*-nfe.XML)|*-nfe.XML|Arquivos XML (*.XML)|*.XML|Todos os Arquivos (*.*)|*.*';
+
+  OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
+
+  if OpenDialog1.Execute then
+  begin
+    ACBrNFe1.NotasFiscais.Clear;
+    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+
+    vData := DateToStr(Date);
+    if not(InputQuery('Insucesso de Entrega:', 'Data da Tentativa de Entrega (DD/MM/AAAA)', vData)) then
+      exit;
+
+    vHora := TimeToStr(Time);
+    if not(InputQuery('Insucesso de Entrega:', 'Hora da Tentativa de Entrega (HH:MM:SS)', vHora)) then
+      exit;
+
+    vNumTentativa := '1';
+    if not(InputQuery('Insucesso de Entrega:', 'Numero da Tentativa', vNumTentativa)) then
+      exit;
+
+    vJustificativa := '';
+    if not(InputQuery('Insucesso de Entrega:', 'Justificativa/Motivo (15-255)', vJustificativa)) then
+      exit;
+
+    OpenDialog1.Title := 'Selecione a Imagem da Entrega';
+    OpenDialog1.DefaultExt := '*.jpg';
+    OpenDialog1.Filter := 'Arquivos de Imagem (*.jpg)|*.jpg|Todos os Arquivos (*.*)|*.*';
+    OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
+
+    if OpenDialog1.Execute then
+      vPathImg := OpenDialog1.FileName
+    else
+      exit;
+
+    ACBrNFe1.EventoNFe.Evento.Clear;
+
+    with ACBrNFe1.EventoNFe.Evento.New do
+    begin
+      // Para o Evento de Cancelamento: nSeqEvento sempre = 1
+      infEvento.nSeqEvento := 1;
+      infEvento.chNFe := Copy(ACBrNFe1.NotasFiscais.Items[0].NFe.infNFe.Id, 4, 44);
+      infEvento.CNPJ := edtEmitCNPJ.Text;
+      infEvento.dhEvento := now;
+      infEvento.cOrgao := 92; // Código do Órgão de recepção deste evento
+      infEvento.tpEvento := teInsucessoEntregaNFe;
+
+      infEvento.detEvento.cOrgaoAutor := ACBrNFe1.Configuracoes.WebServices.UFCodigo;
+      infEvento.detEvento.verAplic := '1.00';
+      infEvento.detEvento.dhTentativaEntrega := StrToDateTime(vData + ' ' + vHora);
+      infEvento.detEvento.nTentativa := StrToIntDef(vNumTentativa, 1);
+
+      // (tmNaoEncontrado, tmRecusa, tmInexistente, tmOutro);
+      InfEvento.detEvento.tpMotivo := tmNaoEncontrado;
+      infEvento.detEvento.xJustMotivo := vJustificativa;
+      infEvento.detEvento.hashTentativaEntrega := CalcularHashArquivo(vPathImg, infEvento.chNFe);
+      infEvento.detEvento.dhHashTentativaEntrega := Now;
+      infEvento.detEvento.UF := CodigoUFParaUF(ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.cUF);
+    end;
+
+    iLote := 1; // Numero do Lote do Evento
+    ACBrNFe1.EnviarEvento(iLote);
+
+    MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
+    memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
+
+    LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
+
+    MemoDados.Lines.Add('');
+    MemoDados.Lines.Add('Retorno do Evento');
+    MemoDados.Lines.Add('');
+    MemoDados.Lines.Add('Id.........: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.Id);
+    MemoDados.Lines.Add('tpAmb......: ' + TpAmbToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.TpAmb));
+    MemoDados.Lines.Add('verAplic...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.verAplic);
+    MemoDados.Lines.Add('cOrgao.....: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cOrgao));
+    MemoDados.Lines.Add('cStat......: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cStat));
+    MemoDados.Lines.Add('xMotivo....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xMotivo);
+    MemoDados.Lines.Add('chNFe......: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.chNFe);
+    MemoDados.Lines.Add('tpEvento...: ' + TpEventoToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.tpEvento));
+    MemoDados.Lines.Add('xEvento....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xEvento);
+    MemoDados.Lines.Add('nSeqEvento.: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nSeqEvento));
+    MemoDados.Lines.Add('CNPJDest...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.CNPJDest);
+    MemoDados.Lines.Add('emailDest..: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.emailDest);
+    MemoDados.Lines.Add('dhRegEvento: ' + DateTimeToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.dhRegEvento));
+    MemoDados.Lines.Add('Protocolo..: '+ ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nProt);
+  end;
+end;
+
+procedure TfrmACBrNFe.btnCancInsucessoEntregaClick(Sender: TObject);
+var
+  vProt: String;
+  iLote: Integer;
+begin
+  OpenDialog1.Title := 'Selecione a NFe para Cancelar o Insucesso de Entrega';
+  OpenDialog1.DefaultExt := '*-nfe.xml';
+  OpenDialog1.Filter := 'Arquivos NFe (*-nfe.xml)|*-nfe.xml|Arquivos XML (*.xml)|*.xml|Todos os Arquivos (*.*)|*.*';
+  OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
+
+  if OpenDialog1.Execute then
+  begin
+    ACBrNFe1.NotasFiscais.Clear;
+    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+
+    vProt := '';
+    if not(InputQuery('Insucesso de Entrega:', 'Numero do Protocolo', vProt)) then
+      exit;
+
+    ACBrNFe1.EventoNFe.Evento.Clear;
+
+    with ACBrNFe1.EventoNFe.Evento.New do
+    begin
+      // Para o Evento de Cancelamento de Insucesso de Entrega:
+      // nSeqEvento sempre = 1
+      infEvento.nSeqEvento := 1;
+      infEvento.chNFe := Copy(ACBrNFe1.NotasFiscais.Items[0].NFe.infNFe.Id, 4, 44);
+      infEvento.CNPJ := edtEmitCNPJ.Text;
+      infEvento.dhEvento := now;
+      infEvento.cOrgao := 92; // Código do Órgão de recepção deste evento
+      infEvento.tpEvento := teCancInsucessoEntregaNFe;
+
+      infEvento.detEvento.cOrgaoAutor := ACBrNFe1.Configuracoes.WebServices.UFCodigo;
+      infEvento.detEvento.verAplic := '1.00';
+      infEvento.detEvento.nProtEvento := vProt;
+    end;
+
+    iLote := 1; // Numero do Lote do Evento
+    ACBrNFe1.EnviarEvento(iLote);
+
+    MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
+    memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
+
+    LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
+
+    MemoDados.Lines.Add('');
+    MemoDados.Lines.Add('Retorno do Evento');
+    MemoDados.Lines.Add('');
+    MemoDados.Lines.Add('Id.........: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.Id);
+    MemoDados.Lines.Add('tpAmb......: ' + TpAmbToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.TpAmb));
+    MemoDados.Lines.Add('verAplic...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.verAplic);
+    MemoDados.Lines.Add('cOrgao.....: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cOrgao));
+    MemoDados.Lines.Add('cStat......: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cStat));
+    MemoDados.Lines.Add('xMotivo....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xMotivo);
+    MemoDados.Lines.Add('chNFe......: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.chNFe);
+    MemoDados.Lines.Add('tpEvento...: ' + TpEventoToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.tpEvento));
+    MemoDados.Lines.Add('xEvento....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xEvento);
+    MemoDados.Lines.Add('nSeqEvento.: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nSeqEvento));
+    MemoDados.Lines.Add('CNPJDest...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.CNPJDest);
+    MemoDados.Lines.Add('emailDest..: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.emailDest);
+    MemoDados.Lines.Add('dhRegEvento: ' + DateTimeToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.dhRegEvento));
+    MemoDados.Lines.Add('Protocolo..: '+ ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nProt);
   end;
 end;
 
@@ -2040,7 +2622,27 @@ begin
   ACBrNFe1.EnviarEvento(StrToInt(idLote));
 
   MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
-  LoadXML(ACBrNFe1.WebServices.EnvEvento.RetWS, WBResposta);
+  memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
+
+  LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
+
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Retorno do Evento');
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Id.........: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.Id);
+  MemoDados.Lines.Add('tpAmb......: ' + TpAmbToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.TpAmb));
+  MemoDados.Lines.Add('verAplic...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.verAplic);
+  MemoDados.Lines.Add('cOrgao.....: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cOrgao));
+  MemoDados.Lines.Add('cStat......: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cStat));
+  MemoDados.Lines.Add('xMotivo....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xMotivo);
+  MemoDados.Lines.Add('chNFe......: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.chNFe);
+  MemoDados.Lines.Add('tpEvento...: ' + TpEventoToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.tpEvento));
+  MemoDados.Lines.Add('xEvento....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xEvento);
+  MemoDados.Lines.Add('nSeqEvento.: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nSeqEvento));
+  MemoDados.Lines.Add('CNPJDest...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.CNPJDest);
+  MemoDados.Lines.Add('emailDest..: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.emailDest);
+  MemoDados.Lines.Add('dhRegEvento: ' + DateTimeToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.dhRegEvento));
+  MemoDados.Lines.Add('Protocolo..: '+ ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nProt);
 end;
 
 procedure TfrmACBrNFe.btnCNPJClick(Sender: TObject);
@@ -2112,7 +2714,7 @@ begin
     MemoDados.Lines.Add('xBairro: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xBairro);
     MemoDados.Lines.Add('cMun: ' + IntToStr(ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].cMun));
     MemoDados.Lines.Add('xMun: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].xMun);
-    MemoDados.Lines.Add('CEP: ' + IntToStr(ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].CEP));
+    MemoDados.Lines.Add('CEP: ' + ACBrNFe1.WebServices.ConsultaCadastro.RetConsCad.InfCad[i].CEP);
   end;
 end;
 
@@ -2269,19 +2871,6 @@ begin
     MemoDados.Lines.Add('cUF: ' + IntToStr(ACBrNFe1.WebServices.Enviar.cUF));
     MemoDados.Lines.Add('xMotivo: ' + ACBrNFe1.WebServices.Enviar.xMotivo);
     MemoDados.Lines.Add('Recibo: '+ ACBrNFe1.WebServices.Enviar.Recibo);
-
-    if (ACBrNFe1.Integrador= ACBrIntegrador1) then
-    begin
-      if (ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo <> '') then
-      begin
-        MemoResp.Lines.Add('[Integrador]');
-        MemoResp.Lines.Add('Codigo=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo);
-        MemoResp.Lines.Add('Valor=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor);
-
-        ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo := '';
-        ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor := '';
-      end;
-    end;
   end;
   (*
   ACBrNFe1.WebServices.Retorno.NFeRetorno.ProtNFe.Items[0].tpAmb
@@ -2552,6 +3141,188 @@ begin
 
 end;
 
+procedure TfrmACBrNFe.btnEventoCancECONFClick(Sender: TObject);
+var
+  vProt: String;
+  iLote: Integer;
+begin
+  OpenDialog1.Title := 'Selecione a NFe';
+  OpenDialog1.DefaultExt := '*-nfe.xml';
+  OpenDialog1.Filter := 'Arquivos NFe (*-nfe.xml)|*-nfe.xml|Arquivos XML (*.xml)|*.xml|Todos os Arquivos (*.*)|*.*';
+  OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
+
+  if OpenDialog1.Execute then
+  begin
+    ACBrNFe1.NotasFiscais.Clear;
+    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+
+    vProt := '123456789012345';
+    if not(InputQuery('Conciliação Financeira:', 'Numero do Protocolo', vProt)) then
+      exit;
+
+    ACBrNFe1.EventoNFe.Evento.Clear;
+
+    with ACBrNFe1.EventoNFe.Evento.New do
+    begin
+      // Para o Evento de Cancelamento de Conciliação Financeira
+      // nSeqEvento sempre = 1
+      infEvento.nSeqEvento := 1;
+      infEvento.chNFe := Copy(ACBrNFe1.NotasFiscais.Items[0].NFe.infNFe.Id, 4, 44);
+      infEvento.CNPJ := edtEmitCNPJ.Text;
+      infEvento.dhEvento := now;
+      infEvento.cOrgao := 92; // Código do Órgão de recepção deste evento
+      infEvento.tpEvento := teCancConcFinanceira;
+
+//      infEvento.detEvento.cOrgaoAutor := ACBrNFe1.Configuracoes.WebServices.UFCodigo;
+      infEvento.detEvento.verAplic := '1.00';
+      infEvento.detEvento.nProtEvento := vProt;
+    end;
+
+    iLote := 1; // Numero do Lote do Evento
+    ACBrNFe1.EnviarEvento(iLote);
+
+    MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
+    memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
+
+    LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
+
+    MemoDados.Lines.Add('');
+    MemoDados.Lines.Add('Retorno do Evento');
+    MemoDados.Lines.Add('');
+    MemoDados.Lines.Add('Id.........: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.Id);
+    MemoDados.Lines.Add('tpAmb......: ' + TpAmbToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.TpAmb));
+    MemoDados.Lines.Add('verAplic...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.verAplic);
+    MemoDados.Lines.Add('cOrgao.....: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cOrgao));
+    MemoDados.Lines.Add('cStat......: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cStat));
+    MemoDados.Lines.Add('xMotivo....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xMotivo);
+    MemoDados.Lines.Add('chNFe......: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.chNFe);
+    MemoDados.Lines.Add('tpEvento...: ' + TpEventoToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.tpEvento));
+    MemoDados.Lines.Add('xEvento....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xEvento);
+    MemoDados.Lines.Add('nSeqEvento.: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nSeqEvento));
+    MemoDados.Lines.Add('CNPJDest...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.CNPJDest);
+    MemoDados.Lines.Add('emailDest..: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.emailDest);
+    MemoDados.Lines.Add('dhRegEvento: ' + DateTimeToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.dhRegEvento));
+    MemoDados.Lines.Add('Protocolo..: '+ ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nProt);
+  end;
+end;
+
+procedure TfrmACBrNFe.btnEventoECONFClick(Sender: TObject);
+var
+  iLote: Integer;
+begin
+  OpenDialog1.Title := 'Selecione a NFe';
+  OpenDialog1.DefaultExt := '*-nfe.XML';
+  OpenDialog1.Filter := 'Arquivos NFe (*-nfe.XML)|*-nfe.XML|Arquivos XML (*.XML)|*.XML|Todos os Arquivos (*.*)|*.*';
+
+  OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
+
+  if OpenDialog1.Execute then
+  begin
+    ACBrNFe1.NotasFiscais.Clear;
+    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+
+    ACBrNFe1.EventoNFe.Evento.Clear;
+
+    with ACBrNFe1.EventoNFe.Evento.New do
+    begin
+      // Para o Evento de Cancelamento: nSeqEvento sempre = 1
+      infEvento.nSeqEvento := 1;
+      infEvento.chNFe := Copy(ACBrNFe1.NotasFiscais.Items[0].NFe.infNFe.Id, 4, 44);
+      infEvento.CNPJ := edtEmitCNPJ.Text;
+      infEvento.dhEvento := now;
+      infEvento.cOrgao := 92; // Código do Órgão de recepção deste evento
+      infEvento.tpEvento := teConcFinanceira;
+
+      infEvento.detEvento.verAplic := '1.00';
+
+      with InfEvento.detEvento.detPag.New do
+      begin
+        // ipVista, ipPrazo, ipOutras, ipNenhum
+        indPag := ipVista;
+        {
+         fpDinheiro, fpCheque, fpCartaoCredito, fpCartaoDebito, fpCreditoLoja,
+         fpValeAlimentacao, fpValeRefeicao, fpValePresente, fpValeCombustivel,
+         fpDuplicataMercantil, fpBoletoBancario, fpDepositoBancario,
+         fpPagamentoInstantaneo, fpTransfBancario, fpProgramaFidelidade,
+         fpSemPagamento, fpRegimeEspecial, fpOutro, fpPagamentoInstantaneoEstatico,
+         fpCreditoEmLojaPorDevolucao, fpFalhaHardware
+        }
+        tPag := fpDinheiro;
+        xPag := ''; // Só informar se a forma de pagamento for Outros.
+        vPag := 100;
+        dPag := Now; // Data do Pagamento
+
+        {
+         CNPJ transacional do pagamento - Preencher informando o CNPJ do
+         estabelecimento onde o pagamento foi processado/transacionado/recebido
+         quando a emissão do documento fiscal ocorrer em estabelecimento distinto
+        }
+        CNPJPag := '';
+        {
+         UF do CNPJ do estabelecimento onde o pagamento foi
+         processado/transacionado/recebido.
+        }
+        UFPag := '';
+        {
+         CNPJ da instituição financeira, de pagamento, adquirente ou subadquirente.
+        }
+        CNPJIF := '';
+        {
+         Bandeira da operadora de cartão
+
+         bcVisa, bcMasterCard, bcAmericanExpress, bcSorocred, bcDinersClub,
+         bcElo, bcHipercard, bcAura, bcCabal, bcAlelo, bcBanesCard,
+         bcCalCard, bcCredz, bcDiscover, bcGoodCard, bcGreenCard,
+         bcHiper, bcJcB, bcMais, bcMaxVan, bcPolicard, bcRedeCompras,
+         bcSodexo, bcValeCard, bcVerocheque, bcVR, bcTicket,
+         bcOutros
+        }
+        tBand := bcVisa;
+        {
+         Número de autorização da operação com cartões, PIX, boletos e
+         outros pagamentos eletrônicos
+        }
+        cAut := '';
+
+        {
+         Informar o CNPJ do estabelecimento beneficiário do pagamento
+        }
+        CNPJReceb := '';
+        {
+         UF do CNPJ do estabelecimento beneficiário do pagamento
+        }
+        UFReceb := '';
+      end;
+    end;
+
+    iLote := 1; // Numero do Lote do Evento
+    ACBrNFe1.EnviarEvento(iLote);
+
+    MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
+    memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
+
+    LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
+
+    MemoDados.Lines.Add('');
+    MemoDados.Lines.Add('Retorno do Evento');
+    MemoDados.Lines.Add('');
+    MemoDados.Lines.Add('Id.........: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.Id);
+    MemoDados.Lines.Add('tpAmb......: ' + TpAmbToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.TpAmb));
+    MemoDados.Lines.Add('verAplic...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.verAplic);
+    MemoDados.Lines.Add('cOrgao.....: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cOrgao));
+    MemoDados.Lines.Add('cStat......: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cStat));
+    MemoDados.Lines.Add('xMotivo....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xMotivo);
+    MemoDados.Lines.Add('chNFe......: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.chNFe);
+    MemoDados.Lines.Add('tpEvento...: ' + TpEventoToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.tpEvento));
+    MemoDados.Lines.Add('xEvento....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xEvento);
+    MemoDados.Lines.Add('nSeqEvento.: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nSeqEvento));
+    MemoDados.Lines.Add('CNPJDest...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.CNPJDest);
+    MemoDados.Lines.Add('emailDest..: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.emailDest);
+    MemoDados.Lines.Add('dhRegEvento: ' + DateTimeToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.dhRegEvento));
+    MemoDados.Lines.Add('Protocolo..: '+ ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nProt);
+  end;
+end;
+
 procedure TfrmACBrNFe.btnEventoEPECClick(Sender: TObject);
 var
   Chave, idLote, CNPJ, IE, ValorNF, CNPJDest, UFDest, Titulo: string;
@@ -2605,7 +3376,59 @@ begin
 
   MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
   memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
+
   LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
+
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Retorno do Evento');
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Id.........: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.Id);
+  MemoDados.Lines.Add('tpAmb......: ' + TpAmbToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.TpAmb));
+  MemoDados.Lines.Add('verAplic...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.verAplic);
+  MemoDados.Lines.Add('cOrgao.....: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cOrgao));
+  MemoDados.Lines.Add('cStat......: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cStat));
+  MemoDados.Lines.Add('xMotivo....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xMotivo);
+  MemoDados.Lines.Add('chNFe......: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.chNFe);
+  MemoDados.Lines.Add('tpEvento...: ' + TpEventoToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.tpEvento));
+  MemoDados.Lines.Add('xEvento....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xEvento);
+  MemoDados.Lines.Add('nSeqEvento.: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nSeqEvento));
+  MemoDados.Lines.Add('CNPJDest...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.CNPJDest);
+  MemoDados.Lines.Add('emailDest..: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.emailDest);
+  MemoDados.Lines.Add('dhRegEvento: ' + DateTimeToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.dhRegEvento));
+  MemoDados.Lines.Add('Protocolo..: '+ ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nProt);
+end;
+
+procedure TfrmACBrNFe.btnGerarArqINIClick(Sender: TObject);
+var
+  vAux: string;
+  SaveDlg: TSaveDialog;
+  ArqINI: TStringList;
+begin
+  vAux := '1';
+  if not(InputQuery('Gerar Arquivo INI', 'Numero da Nota', vAux)) then
+    exit;
+
+  ACBrNFe1.NotasFiscais.Clear;
+  AlimentarComponente(vAux);
+  ACBrNFe1.NotasFiscais.GerarNFe;
+
+  ArqINI := TStringList.Create;
+  SaveDlg := TSaveDialog.Create(nil);
+  try
+    ArqINI.Text := ACBrNFe1.NotasFiscais.GerarIni;
+
+    SaveDlg.Title := 'Escolha o local onde gerar o INI';
+    SaveDlg.DefaultExt := '*.INI';
+    SaveDlg.Filter := 'Arquivo INI(*.INI)|*.INI|Arquivo ini(*.ini)|*.ini|Todos os arquivos(*.*)|*.*';
+
+    if SaveDlg.Execute then
+      ArqINI.SaveToFile(SaveDlg.FileName);
+
+    memoLog.Lines.Add('Arquivo Salvo: ' + SaveDlg.FileName);
+  finally
+    SaveDlg.Free;
+    ArqINI.Free;
+  end;
 end;
 
 procedure TfrmACBrNFe.btnGerarPDFClick(Sender: TObject);
@@ -2943,7 +3766,7 @@ begin
                         trvwNFe.Items.AddChild(NodePai,'xLocDesemb='  +xLocDesemb);
                         trvwNFe.Items.AddChild(NodePai,'UFDesemb='    +UFDesemb);
                         trvwNFe.Items.AddChild(NodePai,'dDesemb='     +DateToStr(dDesemb));
-                        trvwNFe.Items.AddChild(NodePai,'cExportador=' +cExportador);;
+                        trvwNFe.Items.AddChild(NodePai,'cExportador=' +cExportador);
 
                         for K:=0 to adi.Count-1 do
                          begin
@@ -3402,7 +4225,7 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrNFe1.NotasFiscais.Clear;
-    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName,False);
+    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
     ACBrNFe1.NotasFiscais.Imprimir;
   end;
 end;
@@ -3421,7 +4244,7 @@ begin
       PrepararImpressao;
 
     ACBrNFe1.NotasFiscais.Clear;
-    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName,False);
+    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
     ACBrNFe1.NotasFiscais.Imprimir;
   end;
 end;
@@ -3440,7 +4263,7 @@ begin
       PrepararImpressao;
 
     ACBrNFe1.NotasFiscais.Clear;
-    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName,False);
+    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
     ACBrNFe1.NotasFiscais.Imprimir;
   end;
 end;
@@ -3503,6 +4326,8 @@ begin
   LoadXML(ACBrNFe1.WebServices.Inutilizacao.RetornoWS, WBResposta);
 
   pgRespostas.ActivePageIndex := 1;
+
+//  ArqXML := ACBrNFe1.WebServices.Inutilizacao.XML_ProcInutNFe;
 
   MemoDados.Lines.Add('');
   MemoDados.Lines.Add('Inutilização');
@@ -3567,9 +4392,45 @@ begin
   end;
 end;
 
+procedure TfrmACBrNFe.btnLerArqINIClick(Sender: TObject);
+begin
+  OpenDialog1.Title := 'Selecione o Arquivo INI';
+  OpenDialog1.DefaultExt := '*.ini';
+  OpenDialog1.Filter :=
+    'Arquivos INI (*.ini)|*.ini|Todos os Arquivos (*.*)|*.*';
+  OpenDialog1.InitialDir := ACBrNFe1.Configuracoes.Arquivos.PathSalvar;
+
+  if OpenDialog1.Execute then
+  begin
+    ACBrNFe1.NotasFiscais.Clear;
+    ACBrNFe1.NotasFiscais.LoadFromIni(OpenDialog1.FileName);
+    ACBrNFe1.NotasFiscais.Assinar;
+    ACBrNFe1.NotasFiscais.GravarXML();
+
+    memoLog.Lines.Add('Arquivo gerado em: ' + ACBrNFe1.NotasFiscais[0].NomeArq);
+
+    try
+      ACBrNFe1.NotasFiscais.Validar;
+
+      if ACBrNFe1.NotasFiscais[0].Alertas <> '' then
+        MemoDados.Lines.Add('Alertas: '+ACBrNFe1.NotasFiscais[0].Alertas);
+
+      ShowMessage('Nota Fiscal Eletrônica Valida');
+    except
+      on E: Exception do
+      begin
+        pgRespostas.ActivePage := Dados;
+        MemoDados.Lines.Add('Exception: ' + E.Message);
+        MemoDados.Lines.Add('Erro: ' + ACBrNFe1.NotasFiscais[0].ErroValidacao);
+        MemoDados.Lines.Add('Erro Completo: ' + ACBrNFe1.NotasFiscais[0].ErroValidacaoCompleto);
+      end;
+    end;
+  end;
+end;
+
 procedure TfrmACBrNFe.btnManifDestConfirmacaoClick(Sender: TObject);
 var
-  Chave, idLote, CNPJ, lMsg, Titulo: string;
+  Chave, idLote, CNPJ, Titulo: string;
   AtpEvento: TpcnTpEvento;
 begin
   if Sender = btnManifDestConfirmacao then
@@ -3579,7 +4440,9 @@ begin
   else if Sender = btnManifDestCiencia then
     AtpEvento := teManifDestCiencia
   else if Sender = btnManifDestOperNaoRealizada then
-    AtpEvento := teManifDestOperNaoRealizada;
+    AtpEvento := teManifDestOperNaoRealizada
+  else
+    AtpEvento := teNaoMapeado;
 
   Titulo := 'Manifestação Destinatario - ' + StringReplace(TpEventoToDescStr(AtpEvento),'ManifDest','',[rfReplaceAll]);
 
@@ -3624,31 +4487,28 @@ begin
 
   ACBrNFe1.EnviarEvento(StrToInt(idLote));
 
-  with AcbrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento.Items[0].RetInfEvento do
-  begin
-    lMsg:=
-      'Id: ' + Id + #13 +
-      'tpAmb: ' + TpAmbToStr(tpAmb) + #13 +
-      'verAplic: ' + verAplic + #13 +
-      'cOrgao: ' + IntToStr(cOrgao) + #13 +
-      'cStat: ' + IntToStr(cStat) + #13 +
-      'xMotivo: ' + xMotivo + #13 +
-      'chNFe: ' + chNFe + #13 +
-      'tpEvento: ' + TpEventoToStr(tpEvento) + #13 +
-      'xEvento: ' + xEvento + #13 +
-      'nSeqEvento: ' + IntToStr(nSeqEvento) + #13 +
-      'CNPJDest: ' + CNPJDest + #13 +
-      'emailDest: ' + emailDest + #13 +
-      'dhRegEvento: ' + DateTimeToStr(dhRegEvento) + #13 +
-      'nProt: ' + nProt;
-  end;
-
-  ShowMessage(lMsg);
-
   MemoResp.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetWS;
   memoRespWS.Lines.Text := ACBrNFe1.WebServices.EnvEvento.RetornoWS;
 
   LoadXML(ACBrNFe1.WebServices.EnvEvento.RetornoWS, WBResposta);
+
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Retorno do Evento');
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Id.........: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.Id);
+  MemoDados.Lines.Add('tpAmb......: ' + TpAmbToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.TpAmb));
+  MemoDados.Lines.Add('verAplic...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.verAplic);
+  MemoDados.Lines.Add('cOrgao.....: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cOrgao));
+  MemoDados.Lines.Add('cStat......: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.cStat));
+  MemoDados.Lines.Add('xMotivo....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xMotivo);
+  MemoDados.Lines.Add('chNFe......: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.chNFe);
+  MemoDados.Lines.Add('tpEvento...: ' + TpEventoToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.tpEvento));
+  MemoDados.Lines.Add('xEvento....: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.xEvento);
+  MemoDados.Lines.Add('nSeqEvento.: ' + IntToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nSeqEvento));
+  MemoDados.Lines.Add('CNPJDest...: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.CNPJDest);
+  MemoDados.Lines.Add('emailDest..: ' + ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.emailDest);
+  MemoDados.Lines.Add('dhRegEvento: ' + DateTimeToStr(ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.dhRegEvento));
+  MemoDados.Lines.Add('Protocolo..: '+ ACBrNFe1.WebServices.EnvEvento.EventoRetorno.retEvento[0].RetInfEvento.nProt);
 end;
 
 procedure TfrmACBrNFe.btnNumSerieClick(Sender: TObject);
@@ -3691,19 +4551,6 @@ begin
   MemoDados.Lines.Add('tMed: '     +IntToStr(ACBrNFe1.WebServices.StatusServico.TMed));
   MemoDados.Lines.Add('dhRetorno: '+DateTimeToStr(ACBrNFe1.WebServices.StatusServico.dhRetorno));
   MemoDados.Lines.Add('xObs: '     +ACBrNFe1.WebServices.StatusServico.xObs);
-
-  if (ACBrNFe1.Integrador= ACBrIntegrador1) then
-  begin
-    if (ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo <> '') then
-    begin
-      MemoDados.Lines.Add('[Integrador]');
-      MemoDados.Lines.Add('Codigo=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo);
-      MemoDados.Lines.Add('Valor=' + ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor);
-
-      ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Codigo := '';
-      ACBrIntegrador1.ComandoIntegrador.IntegradorResposta.Valor := '';
-    end;
-  end;
 end;
 
 procedure TfrmACBrNFe.btnSubNameClick(Sender: TObject);
@@ -3790,7 +4637,7 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrNFe1.NotasFiscais.Clear;
-    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, True);
+    ACBrNFe1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
 
     try
       ACBrNFe1.NotasFiscais.Validar;
@@ -3888,6 +4735,7 @@ var
   Y: TSSLType;
   N: TACBrPosPrinterModelo;
   O: TACBrPosPaginaCodigo;
+  P: TpcnVersaoQrCode;
 begin
   cbSSLLib.Items.Clear;
   for T := Low(TSSLLib) to High(TSSLLib) do
@@ -3937,6 +4785,11 @@ begin
   for O := Low(TACBrPosPaginaCodigo) to High(TACBrPosPaginaCodigo) do
      cbxPagCodigo.Items.Add( GetEnumName(TypeInfo(TACBrPosPaginaCodigo), integer(O) ) ) ;
 
+  cbVersaoQRCode.Items.Clear;
+  for P := Low(TpcnVersaoQrCode) to High(TpcnVersaoQrCode) do
+     cbVersaoQRCode.Items.Add( GetEnumName(TypeInfo(TpcnVersaoQrCode), integer(P) ) );
+  cbVersaoQRCode.ItemIndex := 0;
+
   cbxPorta.Items.Clear;
   ACBrPosPrinter1.Device.AcharPortasSeriais( cbxPorta.Items );
   ACBrPosPrinter1.Device.AcharPortasRAW( cbxPorta.Items );
@@ -3957,7 +4810,7 @@ begin
   LerConfiguracao;
   pgRespostas.ActivePageIndex := 0;
   PageControl1.ActivePageIndex := 0;
-  PageControl4.ActivePageIndex := 0;
+  PageControl4.ActivePageIndex := 3;
 end;
 
 procedure TfrmACBrNFe.GravarConfiguracao;
@@ -3985,6 +4838,7 @@ begin
     Ini.WriteInteger('Geral', 'FormaEmissao',     cbFormaEmissao.ItemIndex);
     Ini.WriteInteger('Geral', 'ModeloDF',         cbModeloDF.ItemIndex);
     Ini.WriteInteger('Geral', 'VersaoDF',         cbVersaoDF.ItemIndex);
+    Ini.WriteInteger('Geral', 'VersaoQRCode',     cbVersaoQRCode.ItemIndex);
     Ini.WriteString( 'Geral', 'IdToken',          edtIdToken.Text);
     Ini.WriteString( 'Geral', 'Token',            edtToken.Text);
     Ini.WriteBool(   'Geral', 'RetirarAcentos',   cbxRetirarAcentos.Checked);
@@ -4034,6 +4888,10 @@ begin
     Ini.WriteString('Emitente', 'Cidade',      edtEmitCidade.Text);
     Ini.WriteString('Emitente', 'UF',          edtEmitUF.Text);
     Ini.WriteInteger('Emitente', 'CRT',        cbTipoEmpresa.ItemIndex);
+
+    // Responsável Técnico
+    Ini.WriteString('RespTecnico', 'IdCSRT', edtIdCSRT.Text);
+    Ini.WriteString('RespTecnico', 'CSRT', edtCSRT.Text);
 
     Ini.WriteString('Email', 'Host',    edtSmtpHost.Text);
     Ini.WriteString('Email', 'Port',    edtSmtpPort.Text);
@@ -4106,7 +4964,8 @@ begin
     cbFormaEmissao.ItemIndex    := Ini.ReadInteger('Geral', 'FormaEmissao',     0);
     cbModeloDF.ItemIndex        := Ini.ReadInteger('Geral', 'ModeloDF',         0);
 
-    cbVersaoDF.ItemIndex      := Ini.ReadInteger('Geral', 'VersaoDF',       0);
+    cbVersaoDF.ItemIndex      := Ini.ReadInteger('Geral', 'VersaoDF',       3);
+    cbVersaoQRCode.ItemIndex  := Ini.ReadInteger('Geral', 'VersaoQRCode',   2);
     edtIdToken.Text           := Ini.ReadString( 'Geral', 'IdToken',        '');
     edtToken.Text             := Ini.ReadString( 'Geral', 'Token',          '');
     ckSalvar.Checked          := Ini.ReadBool(   'Geral', 'Salvar',         True);
@@ -4159,6 +5018,10 @@ begin
 
     cbTipoEmpresa.ItemIndex := Ini.ReadInteger('Emitente', 'CRT', 2);
 
+    // Responsável Técnico
+    edtIdCSRT.Text := Ini.ReadString('RespTecnico', 'IdCSRT', '');
+    edtCSRT.Text := Ini.ReadString('RespTecnico', 'CSRT', '');
+
     edtSmtpHost.Text     := Ini.ReadString('Email', 'Host',    '');
     edtSmtpPort.Text     := Ini.ReadString('Email', 'Port',    '');
     edtSmtpUser.Text     := Ini.ReadString('Email', 'User',    '');
@@ -4195,6 +5058,7 @@ end;
 procedure TfrmACBrNFe.ConfigurarComponente;
 var
   Ok: Boolean;
+  PathMensal: string;
 begin
   ACBrNFe1.Configuracoes.Certificados.URLPFX      := edtURLPFX.Text;
   ACBrNFe1.Configuracoes.Certificados.ArquivoPFX  := edtCaminho.Text;
@@ -4235,7 +5099,7 @@ begin
 
     IdCSC            := edtIdToken.Text;
     CSC              := edtToken.Text;
-    VersaoQRCode     := veqr200;
+    VersaoQRCode     := TpcnVersaoQrCode(cbVersaoQRCode.ItemIndex);
   end;
 
   with ACBrNFe1.Configuracoes.WebServices do
@@ -4284,14 +5148,27 @@ begin
     PathNFe          := edtPathNFe.Text;
     PathInu          := edtPathInu.Text;
     PathEvento       := edtPathEvento.Text;
-    PathSalvar       := edtPathLogs.Text;
+    PathMensal       := GetPathNFe(0);
+    PathSalvar       := PathMensal;
   end;
+
+  // IdCSRT e CSRT do Responsável Técnico, no momento só a SEFAZ-PR esta exigindo
+  ACBrNFe1.Configuracoes.RespTec.idCSRT := StrToIntDef(edtIdCSRT.Text, 0);
+  ACBrNFe1.Configuracoes.RespTec.CSRT := edtCSRT.Text;
 
   if ACBrNFe1.DANFE <> nil then
   begin
     ACBrNFe1.DANFE.TipoDANFE := StrToTpImp(OK, IntToStr(rgTipoDanfe.ItemIndex + 1));
-    ACBrNFe1.DANFE.Logo      := edtLogoMarca.Text;
-    ACBrNFe1.DANFE.PathPDF   := edtPathPDF.Text;
+
+    {
+      A Configuração abaixo utilizanda em conjunto com o TipoDANFE = tiSimplificado
+      para impressão do DANFE Simplificado - Etiqueta (Fortes Report)
+
+    ACBrNFeDANFeRL1.Etiqueta := True;
+    }
+
+    ACBrNFe1.DANFE.Logo    := edtLogoMarca.Text;
+    ACBrNFe1.DANFE.PathPDF := edtPathPDF.Text;
 
     ACBrNFe1.DANFE.MargemDireita  := 7;
     ACBrNFe1.DANFE.MargemEsquerda := 7;
@@ -4317,7 +5194,7 @@ end;
 procedure TfrmACBrNFe.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser);
 begin
   ACBrUtil.FilesIO.WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
-                      ACBrUtil.XMLHTML.ConverteXMLtoUTF8(RetWS), False, False);
+                      RetWS, False, False);
 
   MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml');
 
@@ -4345,7 +5222,6 @@ begin
   ACBrPosPrinter1.Modelo         := TACBrPosPrinterModelo(cbxModeloPosPrinter.ItemIndex);
   ACBrPosPrinter1.PaginaDeCodigo := TACBrPosPaginaCodigo(cbxPagCodigo.ItemIndex);
   ACBrPosPrinter1.Porta          := cbxPorta.Text;
-  ACBrPosPrinter1.Porta          := 'C:\Boss\CostaoTst.txt';
 
   ACBrPosPrinter1.ColunasFonteNormal := seColunas.Value;
   ACBrPosPrinter1.LinhasEntreCupons  := seLinhasPular.Value;

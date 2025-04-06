@@ -548,14 +548,16 @@ var
 begin
   Result := '';
   prtUltimoErroXml := xmlGetLastError();
-  if (prtUltimoErroXml <> nil) then
+  if prtUltimoErroXml = nil then
   begin
-    Result := MsgErroAtual + ' --> ' +
-              IntToStr(prtUltimoErroXml^.code) + ' - ' + prtUltimoErroXml^.message;
-  end
-  else
     Result := MsgErroAtual;
+    Exit;
+  end;
 
+  Result := MsgErroAtual + ' --> ' + IntToStr(prtUltimoErroXml^.code);
+
+  if (prtUltimoErroXml^.message <> nil) then
+    Result := Result + ' - ' + prtUltimoErroXml^.message;
 end;
 
 procedure TDFeSSLXmlSignLibXml2.VerificarValoresPadrao(var SignatureNode

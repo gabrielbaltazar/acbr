@@ -154,7 +154,11 @@ var
    {$If not DECLARED(TBytes)}
     TBytes = array of Byte;
    {$IfEnd}
-   cint = LongInt;
+    {$IFDEF POSIX}
+     cint = Int32;
+    {$Else}
+     cint = LongInt;
+    {$EndIf}
    pcint = ^cint;
    cuint = LongWord;
    pcuint = ^cuint;
@@ -465,6 +469,8 @@ type
                  const m: PByte; m_length: cuint;
                  const sigbuf: PByte; siglen: cuint; arsa: PRSA): cint;
   Trsa_keygen = function(arsa: PRSA; bits: cint; e: PBIGNUM; cb: PBN_GENCB): cint;
+
+  Tsk_pop_free_func = procedure (p : Pointer);
 
   RSA_METHOD = record
     name: PAnsiChar;
@@ -1317,8 +1323,12 @@ var
   procedure ErrRemoveState(pid: cInt);
   procedure RandScreen;
   function d2iPKCS12bio(b:PBIO; Pkcs12: SslPtr): SslPtr;
+  function i2dPKCS12bio(b:PBIO; Pkcs12: SslPtr): cint;
   function PKCS12parse(p12: SslPtr; pass: AnsiString; var pkey: pEVP_PKEY;
      var cert: pX509; var ca: SslPtr): cInt;
+  function PKCS12create(pass: AnsiString; name: AnsiString; pkey: PEVP_PKEY;
+     cert: pX509; ca: SslPtr; nid_key: cint = 0; nid_cert: cint = 0; iter: cint = 0;
+     mac_iter: cint = 0; keytype: cint = 0): SslPtr;
   procedure PKCS12free(p12: SslPtr);
   function Asn1StringTypeNew(aType : cint): PASN1_STRING;
   Function Asn1UtctimePrint(b : PBio; a: PASN1_UTCTIME) : integer;
@@ -1332,6 +1342,7 @@ var
   function i2dPrivateKeyBio(b: PBIO; pkey: PEVP_PKEY): cInt;
   function OPENSSL_sk_num(Stack: PSTACK): Integer;
   function OPENSSL_sk_value(Stack: PSTACK; Item: Integer): PAnsiChar;
+  procedure OPENSSL_sk_pop_free(Stack: PSTACK; func: Tsk_pop_free_func);
   function X509_STORE_add_cert(Store: PX509_STORE; Cert: PX509): Integer;
   function SSL_CTX_get_cert_store(const Ctx: PSSL_CTX): PX509_STORE;
 
@@ -1457,8 +1468,8 @@ var
   //
   function EVP_EncryptInit(ctx: PEVP_CIPHER_CTX; const chipher_: PEVP_CIPHER;
            const key, iv: PByte): cint;
-  function EVP_EncryptUpdate(ctx: PEVP_CIPHER_CTX; out_: pcuchar;
-           outlen: pcint; const in_: pcuchar; inlen: cint): cint;
+  function EVP_EncryptUpdate(ctx: PEVP_CIPHER_CTX; out_: PByte;
+           outlen: pcint; const in_: PByte; inlen: cint): cint;
   function EVP_EncryptFinal(ctx: PEVP_CIPHER_CTX; out_data: PByte; outlen: pcint): cint;
   //
   function EVP_DecryptInit(ctx: PEVP_CIPHER_CTX; chiphir_type: PEVP_CIPHER;
@@ -1675,6 +1686,8 @@ function InitLibeaInterface(AVerboseLoading: Boolean = false): Boolean; deprecat
 function DestroySSLEAInterface: Boolean; deprecated;
 function DestroyLibeaInterface: Boolean; deprecated;
 
+function LibNumVersion: String;
+function LibVersionIsGreaterThan1_0_0: Boolean;
 
 var
   OpenSSL_unavailable_functions: string;
@@ -1762,6 +1775,22 @@ function DestroyLibeaInterface: Boolean; deprecated;
 
 begin
   Result:=DestroySSLInterface;
+end;
+
+function LibNumVersion: String;
+begin
+  Result := IntToHex(OpenSSLVersionNum, 9);
+end;
+
+function LibVersionIsGreaterThan1_0_0: Boolean;
+var
+  Major, Minor: Integer;
+  s: String;
+begin
+  s := LibNumVersion;
+  Major := StrToIntDef(copy(s, 1, 2), 0);
+  Minor := StrToIntDef(copy(s, 3, 2), 0);
+  Result :=  (Major > 1) or ((Major = 1) and (Minor > 0));
 end;
 
 type
@@ -1871,8 +1900,12 @@ type
   TBioWrite = function(b: PBIO; Buf: PAnsiChar; Len: cInt): cInt; cdecl;
   TBioReset = function(b: pBIO): cint; cdecl;
   Td2iPKCS12bio = function(b:PBIO; Pkcs12: SslPtr): SslPtr; cdecl;
+  Ti2dPKCS12bio = function(b:PBIO; Pkcs12: SslPtr): cint; cdecl;
   TPKCS12parse = function(p12: SslPtr; pass: PAnsiChar; var pkey: pEVP_PKEY;
     var cert: pX509; var ca: SslPtr): cInt; cdecl;
+  TPKCS12create = function(pass: AnsiString; name: AnsiString; pkey: PEVP_PKEY;
+     cert: pX509; ca: SslPtr; nid_key: cint = 0; nid_cert: cint = 0; iter: cint = 0;
+     mac_iter: cint = 0; keytype: cint = 0): SslPtr; cdecl;
   TPKCS12free = procedure(p12: SslPtr); cdecl;
   TAsn1StringTypeNew = function(aype : cint): SSlPtr; cdecl;
   TAsn1UtcTimeSetString = function(t : PASN1_UTCTIME; S : PAnsiChar): cint; cdecl;
@@ -1887,6 +1920,7 @@ type
   TOPENSSL_sk_num = function(Stack: PSTACK): Integer; cdecl;
   TOPENSSL_sk_value = function(Stack: PSTACK; Item: Integer): PAnsiChar; cdecl;
   TOPENSSL_sk_free = procedure(Stack: PSTACK); cdecl;
+  TOPENSSL_sk_pop_free = procedure(Stack: PSTACK; func: Tsk_pop_free_func); cdecl;
   TOPENSSL_sk_insert = function(Stack: PSTACK; Data: PAnsiChar; Index: Integer): Integer; cdecl;
   TX509_dup = function(X: PX509): PX509; cdecl;
   TSSL_CTX_get_cert_store =  function(const Ctx: PSSL_CTX): PX509_STORE;cdecl;
@@ -1991,8 +2025,8 @@ type
   //
   TEVP_EncryptInit = function(ctx: PEVP_CIPHER_CTX; const chipher_: PEVP_CIPHER;
            const key, iv: PByte): cint; cdecl;
-  TEVP_EncryptUpdate = function(ctx: PEVP_CIPHER_CTX; out_: pcuchar;
-           outlen: pcint; const in_: pcuchar; inlen: cint): cint; cdecl;
+  TEVP_EncryptUpdate = function(ctx: PEVP_CIPHER_CTX; out_: PByte;
+           outlen: pcint; const in_: PByte; inlen: cint): cint; cdecl;
   TEVP_EncryptFinal = function(ctx: PEVP_CIPHER_CTX; out_data: PByte; outlen: pcint): cint; cdecl;
   //
   TEVP_DecryptInit = function(ctx: PEVP_CIPHER_CTX; chiphir_type: PEVP_CIPHER;
@@ -2154,7 +2188,9 @@ var
   _BioWrite: TBioWrite = nil;
   _BioReset: TBioReset = nil;
   _d2iPKCS12bio: Td2iPKCS12bio = nil;
+  _i2dPKCS12bio: Ti2dPKCS12bio = nil;
   _PKCS12parse: TPKCS12parse = nil;
+  _PKCS12Create: TPKCS12create = nil;
   _PKCS12free: TPKCS12free = nil;
   _Asn1StringTypeNew: TAsn1StringTypeNew = nil;
   _Asn1UtctimeSetString : TAsn1UtctimeSetString = Nil;
@@ -2168,6 +2204,7 @@ var
   _OPENSSL_sk_new_null: TOPENSSL_sk_new_null  = nil;
   _OPENSSL_sk_num: TOPENSSL_sk_num  = nil;
   _OPENSSL_sk_value: TOPENSSL_sk_value  = nil;
+  _OPENSSL_sk_pop_free: TOPENSSL_sk_pop_free = nil;
   _OPENSSL_sk_free: TOPENSSL_sk_free   = nil;
   _OPENSSL_sk_insert: TOPENSSL_sk_insert = nil;
   _SSL_CTX_get_cert_store : TSSL_CTX_get_cert_store = nil;
@@ -3172,6 +3209,14 @@ begin
     Result := nil;
 end;
 
+function i2dPKCS12bio(b: PBIO; Pkcs12: SslPtr): cint;
+begin
+  if InitSSLInterface and Assigned(_i2dPKCS12bio) then
+    Result := _i2dPKCS12bio(b, Pkcs12)
+  else
+    Result := 0;
+end;
+
 function PKCS12parse(p12: SslPtr; pass: AnsiString; var pkey: pEVP_PKEY;
   var cert: pX509; var ca: SslPtr): cInt;
 begin
@@ -3179,6 +3224,16 @@ begin
     Result := _PKCS12parse(p12, PAnsiChar(pass), pkey, cert, ca)
   else
     Result := 0;
+end;
+
+function PKCS12create(pass: AnsiString; name: AnsiString; pkey: PEVP_PKEY;
+  cert: pX509; ca: SslPtr; nid_key: cint; nid_cert: cint; iter: cint;
+  mac_iter: cint; keytype: cint): SslPtr;
+begin
+  if InitSSLInterface and Assigned(_PKCS12Create) then
+    Result := _PKCS12Create(pass, name, pkey, cert, ca, nid_key, nid_cert, iter, mac_iter, keytype)
+  else
+    Result := nil;
 end;
 
 procedure PKCS12free(p12: SslPtr);
@@ -3403,6 +3458,12 @@ begin
     Result := _OPENSSL_sk_value(Stack, Item)
   else
     Result := Nil;
+end;
+
+procedure OPENSSL_sk_pop_free(Stack: PSTACK; func: Tsk_pop_free_func);
+begin
+  if InitSSLInterface and Assigned(_OPENSSL_sk_pop_free) then
+    _OPENSSL_sk_pop_free(Stack, func);
 end;
 
 function X509_STORE_add_cert(Store: PX509_STORE; Cert: PX509): Integer;
@@ -4206,8 +4267,8 @@ begin
     Result := -1;
 end;
 
-function EVP_EncryptUpdate(ctx: PEVP_CIPHER_CTX; out_: pcuchar;
-         outlen: pcint; const in_: pcuchar; inlen: cint): cint;
+function EVP_EncryptUpdate(ctx: PEVP_CIPHER_CTX; out_: PByte;
+         outlen: pcint; const in_: PByte; inlen: cint): cint;
 begin
   if InitSSLInterface and Assigned(_EVP_EncryptUpdate) then
     Result := _EVP_EncryptUpdate(ctx, out_, outlen, in_, inlen)
@@ -5540,6 +5601,10 @@ end;
 
 Procedure LoadSSLEntryPoints;
 begin
+  {$IfDef ANDROID}{$IfDef FPC}
+   SysLogWrite(DefaultSysLogPriority, 'OpenSSL', 'LoadSSLEntryPoints');
+  {$EndIf}{$EndIf}
+
   _SslGetError := GetProcAddr(SSLLibHandle, 'SSL_get_error');
   _SslLibraryInit := GetProcAddr(SSLLibHandle, 'SSL_library_init');
   _SslLoadErrorStrings := GetProcAddr(SSLLibHandle, 'SSL_load_error_strings');
@@ -5596,6 +5661,10 @@ end;
 
 Procedure LoadUtilEntryPoints;
 begin
+  {$IfDef ANDROID}{$IfDef FPC}
+   SysLogWrite(DefaultSysLogPriority, 'OpenSSL', 'LoadUtilEntryPoints');
+  {$EndIf}{$EndIf}
+
   _OpenSSLVersionNum := GetProcAddr(SSLUtilHandle, 'OpenSSL_version_num');
   if not Assigned(_OpenSSLVersionNum) then
     _OpenSSLVersionNum := GetProcAddr(SSLUtilHandle, 'SSLeay');  // Version 1.0.x
@@ -5655,7 +5724,9 @@ begin
   _BioWrite := GetProcAddr(SSLUtilHandle, 'BIO_write');
   _BioReset := GetProcAddr(SSLUtilHandle, 'BIO_reset');
   _d2iPKCS12bio := GetProcAddr(SSLUtilHandle, 'd2i_PKCS12_bio');
+  _i2dPKCS12bio := GetProcAddr(SSLUtilHandle, 'i2d_PKCS12_bio');
   _PKCS12parse := GetProcAddr(SSLUtilHandle, 'PKCS12_parse');
+  _PKCS12Create := GetProcAddr(SSLUtilHandle, 'PKCS12_create');
   _PKCS12free := GetProcAddr(SSLUtilHandle, 'PKCS12_free');
   _Asn1UtctimeSetString := GetProcAddr(SSLUtilHandle, 'ASN1_UTCTIME_set_string');
   _Asn1StringTypeNew := GetProcAddr(SSLUtilHandle, 'ASN1_STRING_type_new');
@@ -5669,6 +5740,7 @@ begin
   _OPENSSL_sk_new_null:= GetProcAddr(SSLUtilHandle, 'OPENSSL_sk_new_null');
   _OPENSSL_sk_num:= GetProcAddr(SSLUtilHandle, 'OPENSSL_sk_num');
   _OPENSSL_sk_value:= GetProcAddr(SSLUtilHandle, 'OPENSSL_sk_value');
+  _OPENSSL_sk_pop_free:= GetProcAddr(SSLUtilHandle, 'OPENSSL_sk_pop_free');
   _OPENSSL_sk_free:= GetProcAddr(SSLUtilHandle, 'OPENSSL_sk_free');
   _OPENSSL_sk_insert:= GetProcAddr(SSLUtilHandle, 'OPENSSL_sk_insert');
   _SSL_CTX_get_cert_store:= GetProcAddr(SSLLibHandle, 'SSL_CTX_get_cert_store');
@@ -6199,7 +6271,9 @@ begin
   _BioWrite := nil;
   _BioReset := nil;
   _d2iPKCS12bio := nil;
+  _i2dPKCS12bio := nil;
   _PKCS12parse := nil;
+  _PKCS12Create := nil;
   _PKCS12free := nil;
   _Asn1UtctimeSetString := nil;
   _Asn1StringTypeNew := nil;
@@ -6213,6 +6287,7 @@ begin
   _OPENSSL_sk_new_null := nil;
   _OPENSSL_sk_num := nil;
   _OPENSSL_sk_value := nil;
+  _OPENSSL_sk_pop_free := nil;
   _OPENSSL_sk_free := nil;
   _OPENSSL_sk_insert := nil;
   _SSL_CTX_get_cert_store := nil;
@@ -6383,8 +6458,10 @@ begin
 end;
 
 Procedure UnloadLibraries;
-
 begin
+  {$IfDef ANDROID}{$IfDef FPC}
+   SysLogWrite(DefaultSysLogPriority, 'OpenSSL', 'UnloadLibraries');
+  {$EndIf}{$EndIf}
   SSLloaded := false;
   if SSLLibHandle <> 0 then
   begin
@@ -6406,6 +6483,10 @@ var
    s: String;
   {$EndIf}
 begin
+  {$IfDef ANDROID}{$IfDef FPC}
+  SysLogWrite(DefaultSysLogPriority, 'OpenSSL', PAnsiChar('LoadLibraries, SSLLibPath: '+SSLLibPath));
+  {$EndIf}{$EndIf}
+
   for i := low(DLLUtilNames) to high(DLLUtilNames) do
   begin
     SSLUtilHandle := LoadLib(DLLUtilNames[i]);
@@ -6451,11 +6532,12 @@ begin
   Result:=SSLLoaded;
   if Result then
     exit;
+  {$IfDef ANDROID}{$IfDef FPC}
+   SysLogWrite(DefaultSysLogPriority, 'OpenSSL', 'InitSSLInterface');
+  {$EndIf}{$EndIf}
+
   SSLCS.Enter;
   try
-    if SSLloaded then
-      Exit;
-
     {$IfDef ANDROID}
     if (SSLLibPath = '') then     // Try to load from "./assets/internal/" first
       SSLLibPath := {$IfNDef FPC}TPath.GetDocumentsPath{$Else}'./assets/internal/'{$EndIf};
@@ -6472,6 +6554,9 @@ begin
 
     if Not Result then
     begin
+      {$IfDef ANDROID}{$IfDef FPC}
+       SysLogWrite(DefaultSysLogPriority, 'OpenSSL', 'InitSSLInterface Fail');
+      {$EndIf}{$EndIf}
       UnloadLibraries;
       Exit;
     end;

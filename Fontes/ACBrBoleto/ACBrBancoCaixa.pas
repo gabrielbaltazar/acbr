@@ -48,6 +48,9 @@ type
     function GetLocalPagamento: String; override;
     function DefineAceiteImpressao(const ACBrTitulo: TACBrTitulo): String; override;
     procedure EhObrigatorioAgenciaDV; override;
+    function MontaInstrucoes1CNAB240(const ACBrTitulo: TACBrTitulo): String;
+    function MontaInstrucoes2CNAB240(const ACBrTitulo: TACBrTitulo): String;
+
    private
     fValorTotalDocs:Double;
     fQtRegLote: Integer;
@@ -403,6 +406,88 @@ begin
   end;
 end;
 
+function TACBrCaixaEconomica.MontaInstrucoes1CNAB240(
+  const ACBrTitulo: TACBrTitulo): String;
+begin
+  with ACBrTitulo do
+  begin
+    if Mensagem.Count = 0 then
+    begin
+      Result := PadRight('', 80, ' '); // 2 registros
+      Exit;
+    end;
+
+    Result := '';
+    if Mensagem.Count >= 1 then
+    begin
+      Result := Result +
+                Copy(PadRight(Mensagem[0], 40, ' '), 1, 40);
+    end;
+
+    if Mensagem.Count >= 2 then
+    begin
+      Result := Result +
+                Copy(PadRight(Mensagem[1], 40, ' '), 1, 40)
+    end
+    else
+    begin
+      if (Result <> EmptyStr) then
+        Result := Result + PadRight('', 40, ' ')  // 1 registro
+      else
+        Result := Result + PadRight('', 80, ' '); // 2 registros
+      Exit;
+    end;
+  end;
+
+end;
+
+function TACBrCaixaEconomica.MontaInstrucoes2CNAB240(
+  const ACBrTitulo: TACBrTitulo): String;
+begin
+  with ACBrTitulo do
+  begin
+    if (Mensagem.Count <= 2) then
+    begin
+      // Somente duas linhas, foi montado o MonarInstrucoes1
+      Result := PadRight('', 200, ' ');
+      Exit;
+    end;
+
+    Result := '';
+    if Mensagem.Count >= 3 then
+    begin
+      Result := Copy(PadRight(Mensagem[2], 40, ' '), 1, 40);
+    end;
+
+    if Mensagem.Count >= 4 then
+    begin
+      Result := Result +
+                Copy(PadRight(Mensagem[3], 40, ' '), 1, 40)
+    end;
+
+    if Mensagem.Count >= 5 then
+    begin
+      Result := Result +
+                Copy(PadRight(Mensagem[4], 40, ' '), 1, 40)
+    end;
+
+    if Mensagem.Count >= 6 then
+    begin
+      Result := Result +
+                Copy(PadRight(Mensagem[5], 40, ' '), 1, 40)
+    end;
+
+    if Mensagem.Count >= 7 then
+    begin
+      Result := Result +
+                Copy(PadRight(Mensagem[6], 40, ' '), 1, 40)
+    end;
+
+    // Acertar a quantidade de caracteres
+    Result := PadRight(Result, 200);
+  end;
+end;
+
 function TACBrCaixaEconomica.MontarCampoCodigoCedente (
    const ACBrTitulo: TACBrTitulo ) : String;
 begin
@@ -538,57 +623,6 @@ var
   ADataDesconto, ADataMulta, ANossoNumero, ATipoAceite, AEspecieDoc: String;
   ACodigoDesconto                                                  : String;
   ACodCedente: String;
-
-  function MontarInstrucoes2: string;
-  begin
-    Result := '';
-    with ACBrTitulo do
-    begin
-      if (Mensagem.Count <= 2) then
-      begin
-        if (Mensagem.Count = 2) then
-          Result := Copy(PadRight(Mensagem[0] +' / '+ Mensagem[1], 140, ' '), 1, 140)
-        else
-          Result := Copy(PadRight(Mensagem[0], 140, ' '), 1, 140);
-
-        Exit;
-      end;
-
-      if (Mensagem.Count >= 3) then
-      begin
-        Result := Copy(PadRight(Mensagem[2], 40, ' '), 1, 40);
-      end;
-
-      if (Mensagem.Count >= 4) then
-      begin
-        Result := Result +
-                  Copy(PadRight(Mensagem[3], 40, ' '), 1, 40)
-      end;
-
-      if (Mensagem.Count >= 5) then
-      begin
-        Result := Result +
-                  Copy(PadRight(Mensagem[4], 40, ' '), 1, 40)
-      end;
-
-      if (Mensagem.Count >= 6) then
-      begin
-        Result := Result +
-                  Copy(PadRight(Mensagem[5], 40, ' '), 1, 40)
-      end;
-
-      if (Mensagem.Count >= 7) then
-      begin
-        Result := Result +
-                  Copy(PadRight(Mensagem[6], 40, ' '), 1, 40)
-      end;
-
-      // Acertar a quantidade de caracteres
-      Result := PadRight(Result, 200);
-
-    end;
-  end;
-
 begin
    with ACBrTitulo do
    begin
@@ -822,37 +856,35 @@ begin
                IfThen(PercentualMulta > 0, IntToStrZero(round(PercentualMulta * 100), 15),
                       PadRight('', 15, '0'))                                                   + //  75 a 89  - Valor/Percentual a ser aplicado
                PadRight('', 10, ' ')                                                           + //  90 a 99  - Informação ao Sacado
-               PadRight('', 40, ' ')                                                           + // 100 a 139 - Mensagem 3
-               PadRight('', 40, ' ')                                                           + // 140 a 179 - Mensagem 4
+               MontaInstrucoes1CNAB240(ACBrTitulo)                                             + // 100 a 139 - Mensagem 3
+                                                                                                 // 140 a 179 - Mensagem 4
                PadRight(Sacado.Email, 50, ' ')                                                 + // 180 a 229 - Email do Sacado P/ Envio de Informacoes
                PadRight('', 11, ' ');                                                            // 230 a 240 - Uso Exclusivo Febraban/CNAB
 
     Inc(fQtRegLote);
 
     {SEGMENTO S}
-    if (Mensagem.Count > 0) then
-    begin
-      Result := Result + #13#10 +
-                IntToStrZero(ACBrBanco.Numero, 3)                                           + //   1 a 3   - Código do banco
-                '0001'                                                                      + // 004 - 007 / Numero do lote remessa
-                '3'                                                                         + // 008 - 008 / Tipo de registro
-                IntToStrZero(fQtRegLote + 1,5)                                              + //   9 a 13  - Número seqüencial do registro no lote - Cada título tem 2 registros (P e Q)
-                'S'                                                                         + // 014 - 014 / Cód. Segmento do registro detalhe
-                Space(1)                                                                    + // 015 - 015 / Reservado (uso Banco)
-                ATipoOcorrencia                                                             + // 016 - 017 / Código de movimento remessa
-                ifthen( (Mensagem.Count <= 2), '2', '3' )                                   + // 018 - 018 / Identificação da impressão
-                ifthen( (Mensagem.Count <= 2), '00', '' )                                   + // 019 - 020 / Reservado (uso Banco) para tipo de impressão 1 e 2
-                MontarInstrucoes2                                                           + // 019 - 058 / Mensagem 5
-                                                                                              // 059 - 098 / Mensagem 6
-                                                                                              // 099 - 138 / Mensagem 7
-                                                                                              // 139 - 178 / Mensagem 8
-                                                                                              // 179 - 218 / Mensagem 9
-                ifthen( (Mensagem.Count <= 2), '00' + Space(78) ,Space(22));                  // 219 - 240 / Reservado (uso Banco) para tipo de impressão 3
-
-      Inc(fQtRegLote);
-    end;                                                                                       // 161 - 240 / Reservado (uso Banco) para tipo de impressão 1 e 2
-    {SEGMENTO S - FIM}
-      end;
+      if (Mensagem.Count > 0) then
+      begin
+        Result := Result + #13#10 +
+                  IntToStrZero(ACBrBanco.Numero, 3)                                           + //   1 a 3   - Código do banco
+                  '0001'                                                                      + // 004 - 007 / Numero do lote remessa
+                  '3'                                                                         + // 008 - 008 / Tipo de registro
+                  IntToStrZero(fQtRegLote + 1,5)                                              + //   9 a 13  - Número seqüencial do registro no lote - Cada título tem 2 registros (P e Q)
+                  'S'                                                                         + // 014 - 014 / Cód. Segmento do registro detalhe
+                  Space(1)                                                                    + // 015 - 015 / Reservado (uso Banco)
+                  ATipoOcorrencia                                                             + // 016 - 017 / Código de movimento remessa
+                  ifthen( Verso, '2', '3' )                                                   + // 018 - 018 / Identificação da impressão
+                  MontaInstrucoes2CNAB240(ACBrTitulo)                                         + // 019 - 058 / Mensagem 5
+                                                                                                // 059 - 098 / Mensagem 6
+                                                                                                // 099 - 138 / Mensagem 7
+                                                                                                // 139 - 178 / Mensagem 8
+                                                                                                // 179 - 218 / Mensagem 9
+                  Space(22);                                                                    // 219 - 240 / Reservado (uso Banco)
+        Inc(fQtRegLote);
+      end;                                                                                       // 161 - 240 / Reservado (uso Banco) para tipo de impressão 1 e 2
+      {SEGMENTO S - FIM}
+   end;
 end;
 
 procedure TACBrCaixaEconomica.GerarRegistroTransacao400(ACBrTitulo: TACBrTitulo; aRemessa: TStringList);
@@ -1451,6 +1483,9 @@ begin
       32: Result := toRetornoOutrasTarifasAlteracao;
       33: Result := toRetornoEstornoBaixaLiquidacao;
       34: Result := toRetornoDebitoTarifas;
+      51: Result := toRetornoTituloDDAReconhecidoPagador;
+      52: Result := toRetornoTituloDDANaoReconhecidoPagador;
+      53: Result := toRetornoTituloDDARecusadoCIP;
       99: Result := toRetornoRegistroRecusado;
     end;
   end;
@@ -1512,6 +1547,7 @@ begin
     toRemessaNaoConcederDesconto                  : Result := '17';// Não conceder Desconto
     toRemessaAlterarValorAbatimento               : Result := '18';// Alteração do Valor de Abatimento
     toRemessaAlterarNomeEnderecoSacado            : Result := '31';
+    toRemessaAlterarPrazoDevolucao                : Result := '31'; //Alteração de Outros Dados
     toRemessaAlterarDadosRateioCredito            : Result := '33';// Alteração dos Dados do Rateio de Crédito
     toRemessaPedidoCancelamentoDadosRateioCredito : Result := '34';// Pedido de Cancelamento dos Dados do Rateio de Crédito
 //    toRemessa                                     : Result := '36';// Inclusão no Banco de Pagadores

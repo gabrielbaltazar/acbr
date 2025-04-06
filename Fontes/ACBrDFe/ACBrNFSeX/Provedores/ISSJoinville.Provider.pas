@@ -49,10 +49,10 @@ type
     function GetNamespace: string;
     function GetSoapAction: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -93,15 +93,12 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteSincrono := False;
-      EnviarUnitario := False;
-      ConsultarFaixaNfse := False;
-      ConsultarServicoPrestado := False;
-      ConsultarServicoTomado := False;
-      SubstituirNfse := False;
-    end;
+    ServicosDisponibilizados.EnviarLoteSincrono := False;
+    ServicosDisponibilizados.EnviarUnitario := False;
+    ServicosDisponibilizados.ConsultarFaixaNfse := False;
+    ServicosDisponibilizados.ConsultarServicoPrestado := False;
+    ServicosDisponibilizados.ConsultarServicoTomado := False;
+    ServicosDisponibilizados.SubstituirNfse := False;
   end;
 
   with ConfigAssinar do
@@ -267,10 +264,10 @@ begin
   if FPConfiguracoes.WebServices.AmbienteCodigo = 1 then
     Result := 'https://nfemws.joinville.sc.gov.br/'
   else
-    Result := 'http://nfemwshomologacao.pmjlle.joinville.sc.gov.br/';
+    Result := 'https://nfemwshomologacao.joinville.sc.gov.br/';
 end;
 
-function TACBrNFSeXWebserviceISSJoinville204.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceISSJoinville204.Recepcionar(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -280,7 +277,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceISSJoinville204.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceISSJoinville204.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -290,7 +287,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceISSJoinville204.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceISSJoinville204.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -300,7 +297,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceISSJoinville204.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSJoinville204.Cancelar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 

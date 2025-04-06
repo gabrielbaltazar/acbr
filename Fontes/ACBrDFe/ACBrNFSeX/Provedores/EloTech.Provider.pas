@@ -46,15 +46,15 @@ uses
 type
   TACBrNFSeXWebserviceEloTech203 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -89,6 +89,10 @@ type
 
     procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
   public
+    function RegimeEspecialTributacaoToStr(const t: TnfseRegimeEspecialTributacao): string; override;
+    function StrToRegimeEspecialTributacao(out ok: boolean; const s: string): TnfseRegimeEspecialTributacao; override;
+    function RegimeEspecialTributacaoDescricao(const t: TnfseRegimeEspecialTributacao): string; override;
+
     function TipoDeducaoToStr(const t: TTipoDeducao): string; override;
     function StrToTipoDeducao(out ok: Boolean; const s: string): TTipoDeducao; override;
   end;
@@ -112,10 +116,13 @@ begin
     Identificador := '';
     CancPreencherCodVerificacao := True;
     DetalharServico := True;
+    ConsultaPorFaixaPreencherNumNfseFinal := True;
 
     Autenticacao.RequerLogin := True;
 
     ServicosDisponibilizados.EnviarUnitario := False;
+
+    Particularidades.PermiteMaisDeUmServico := True;
   end;
 
   with ConfigWebServices do
@@ -513,6 +520,45 @@ begin
   end;
 end;
 
+function TACBrNFSeProviderEloTech203.RegimeEspecialTributacaoToStr(
+  const t: TnfseRegimeEspecialTributacao): string;
+begin
+  Result := EnumeradoToStr(t,
+                       ['', '1', '2', '3', '4', '5', '6','7'],
+                       [retNenhum, retMicroempresaMunicipal, retEstimativa,
+                        retSociedadeProfissionais, retCooperativa,
+                        retMicroempresarioIndividual, retMicroempresarioEmpresaPP,
+                        retSimplesNacional]);
+end;
+
+function TACBrNFSeProviderEloTech203.StrToRegimeEspecialTributacao(
+  out ok: boolean; const s: string): TnfseRegimeEspecialTributacao;
+begin
+  Result := StrToEnumerado(ok, s,
+                       ['', '1', '2', '3', '4', '5', '6','7'],
+                       [retNenhum, retMicroempresaMunicipal, retEstimativa,
+                        retSociedadeProfissionais, retCooperativa,
+                        retMicroempresarioIndividual, retMicroempresarioEmpresaPP,
+                        retSimplesNacional]);
+end;
+
+function TACBrNFSeProviderEloTech203.RegimeEspecialTributacaoDescricao(
+  const t: TnfseRegimeEspecialTributacao): string;
+begin
+  case t of
+    retNenhum                    : Result := 'Nenhum';
+    retMicroempresaMunicipal     : Result := '1 - Microempresa municipal';
+    retEstimativa                : Result := '2 - Estimativa';
+    retSociedadeProfissionais    : Result := '3 - Sociedade de profissionais';
+    retCooperativa               : Result := '4 - Cooperativa';
+    retMicroempresarioIndividual : Result := '5 - Microempresário Individual (MEI)';
+    retMicroempresarioEmpresaPP  : Result := '6 - Microempresário e Empresa de Pequeno Porte (ME EPP)';
+    retSimplesNacional           : Result := '7 - Optante pelo Simples Nacional';
+  else
+    Result := '';
+  end;
+end;
+
 function TACBrNFSeProviderEloTech203.TipoDeducaoToStr(
   const t: TTipoDeducao): string;
 begin
@@ -531,7 +577,7 @@ end;
 
 { TACBrNFSeXWebserviceEloTech203 }
 
-function TACBrNFSeXWebserviceEloTech203.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceEloTech203.Recepcionar(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -540,7 +586,7 @@ begin
         ['xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceEloTech203.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceEloTech203.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -549,7 +595,7 @@ begin
         ['xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceEloTech203.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceEloTech203.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -558,7 +604,7 @@ begin
         ['xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceEloTech203.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceEloTech203.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -567,7 +613,7 @@ begin
         ['xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceEloTech203.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceEloTech203.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -576,7 +622,7 @@ begin
         ['xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceEloTech203.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceEloTech203.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -585,7 +631,7 @@ begin
         ['xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceEloTech203.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceEloTech203.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -594,7 +640,7 @@ begin
         ['xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceEloTech203.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceEloTech203.Cancelar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
@@ -602,7 +648,7 @@ begin
         ['xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceEloTech203.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceEloTech203.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -621,6 +667,7 @@ begin
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
   Result := RemoverCaracteresDesnecessarios(Result);
+  Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
 end;
 
 end.

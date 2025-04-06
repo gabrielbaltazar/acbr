@@ -140,7 +140,6 @@ begin
   NrOcorrValorTotalRecebido := -1;
   NrOcorrInscEstTomador := -1;
   NrOcorrOutrasInformacoes := -1;
-  NrOcorrCodPaisTomador := -1;
   NrOcorrInformacoesComplemetares := -1;
   NrOcorrRegimeEspecialTributacao := -1;
 end;

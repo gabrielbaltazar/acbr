@@ -39,7 +39,7 @@ uses
   Dialogs, ExtCtrls, StdCtrls, Spin, Buttons, ComCtrls, OleCtrls, SHDocVw,
   ShellAPI, XMLIntf, XMLDoc, zlib,
   ACBrDFe, ACBrDFeReport, ACBrBase,
-  ACBrNFComDANFComClass, ACBrMail, ACBrNFCom;
+  ACBrNFComDANFComClass, ACBrMail, ACBrNFCom, ACBrNFCom.DANFComRLClass;
 
 type
   TfrmACBrNFCom = class(TForm)
@@ -213,6 +213,10 @@ type
     rgTipoDANFCom: TRadioGroup;
     ACBrNFCom1: TACBrNFCom;
     wbXmlEnvio: TWebBrowser;
+    ACBrNFComDANFComRL1: TACBrNFComDANFComRL;
+    tsOutros: TTabSheet;
+    btnLerArqINI: TButton;
+    btnGerarArqINI: TButton;
 
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
@@ -262,6 +266,8 @@ type
     procedure ACBrNFCom1GerarLog(const ALogLine: String;
       var Tratado: Boolean);
     procedure ACBrNFCom1StatusChange(Sender: TObject);
+    procedure btnLerArqINIClick(Sender: TObject);
+    procedure btnGerarArqINIClick(Sender: TObject);
   private
     { Private declarations }
     procedure GravarConfiguracao;
@@ -424,6 +430,13 @@ begin
 
     // Grupo de Informações do Cofaturamento
     gCofat.chNFComLocal := '';
+    // ou
+    gCofat.gNF.CNPJ := '';
+    gCofat.gNF.Modelo := 21; // 21 ou 22
+    gCofat.gNF.serie := '';
+    gCofat.gNF.nNF := 0;
+    gCofat.gNF.CompetEmis := StrToDate('01/01/2024');
+    gCofat.gNF.hash115 := '';
 
     // Detalhamento de Produtos e Servicos
     with Det.New do
@@ -431,6 +444,7 @@ begin
       nItem := 1;
       chNFComAnt := '';
       nItemAnt := 0;
+      indNFComAntPapelFatCentral := tiNao;
 
       with Prod do
       begin
@@ -453,12 +467,19 @@ begin
 
       with Imposto do
       begin
+        // Indicador de Sem CST para ICMS
+        // se Sim, não vai ser gerado as informações do ICMS
+        indSemCST := tiNao;
+
         with ICMS do
         begin
           CST   := cst00;
           vBC   := 100;
           pICMS := 18;
           vICMS := vBC * pICMS / 100;
+
+          // Indicador de Simples Nacional
+          indSN := tiNao;
         end;
 
         with PIS do
@@ -499,6 +520,67 @@ begin
           vBCIRRF := 0;
           vIRRF := 0;
         end;
+
+
+        // Reforma Tributária
+        {
+        IBSCBS.CST := 100;
+        IBSCBS.cClassTrib := 100000;
+
+        IBSCBS.gIBSCBS.vBC := 100;
+
+        IBSCBS.gIBSCBS.gIBSUF.pIBS := 5;
+        IBSCBS.gIBSCBS.gIBSUF.vTribOp := 50;
+        IBSCBS.gIBSCBS.gIBSUF.gDif.pDif := 5;
+        IBSCBS.gIBSCBS.gIBSUF.gDif.vDif := 50;
+        IBSCBS.gIBSCBS.gIBSUF.gDevTrib.vDevTrib := 50;
+        IBSCBS.gIBSCBS.gIBSUF.gRed.pRedAliq := 5;
+        IBSCBS.gIBSCBS.gIBSUF.gRed.pAliqEfet := 5;
+        IBSCBS.gIBSCBS.gIBSUF.gDeson.CST := 100;
+        IBSCBS.gIBSCBS.gIBSUF.gDeson.cClassTrib := 100000;
+        IBSCBS.gIBSCBS.gIBSUF.gDeson.vBC := 100;
+        IBSCBS.gIBSCBS.gIBSUF.gDeson.pAliq := 5;
+        IBSCBS.gIBSCBS.gIBSUF.gDeson.vDeson := 50;
+        IBSCBS.gIBSCBS.gIBSUF.vIBS := 50;
+
+        IBSCBS.gIBSCBS.gIBSMun.pIBS := 5;
+        IBSCBS.gIBSCBS.gIBSMun.vTribOp := 50;
+        IBSCBS.gIBSCBS.gIBSMun.gDif.pDif := 5;
+        IBSCBS.gIBSCBS.gIBSMun.gDif.vDif := 50;
+        IBSCBS.gIBSCBS.gIBSMun.gDevTrib.vDevTrib := 50;
+        IBSCBS.gIBSCBS.gIBSMun.gRed.pRedAliq := 5;
+        IBSCBS.gIBSCBS.gIBSMun.gRed.pAliqEfet := 5;
+        IBSCBS.gIBSCBS.gIBSMun.gDeson.CST := 100;
+        IBSCBS.gIBSCBS.gIBSMun.gDeson.cClassTrib := 100000;
+        IBSCBS.gIBSCBS.gIBSMun.gDeson.vBC := 100;
+        IBSCBS.gIBSCBS.gIBSMun.gDeson.pAliq := 5;
+        IBSCBS.gIBSCBS.gIBSMun.gDeson.vDeson := 50;
+        IBSCBS.gIBSCBS.gIBSMun.vIBS := 50;
+
+        IBSCBS.gIBSCBS.gCBS.pCBS := 5;
+        IBSCBS.gIBSCBS.gCBS.vTribOp := 50;
+        IBSCBS.gIBSCBS.gCBS.gDif.pDif := 5;
+        IBSCBS.gIBSCBS.gCBS.gDif.vDif := 50;
+        IBSCBS.gIBSCBS.gCBS.gDevTrib.vDevTrib := 50;
+        IBSCBS.gIBSCBS.gCBS.gRed.pRedAliq := 5;
+        IBSCBS.gIBSCBS.gCBS.gRed.pAliqEfet := 5;
+        IBSCBS.gIBSCBS.gCBS.gDeson.CST := 100;
+        IBSCBS.gIBSCBS.gCBS.gDeson.cClassTrib := 100000;
+        IBSCBS.gIBSCBS.gCBS.gDeson.vBC := 100;
+        IBSCBS.gIBSCBS.gCBS.gDeson.pAliq := 5;
+        IBSCBS.gIBSCBS.gCBS.gDeson.vDeson := 50;
+        IBSCBS.gIBSCBS.gCBS.vCBS := 50;
+
+        IBSCBS.gIBSCBS.gIBSCredPres.cCredPres := 100;
+        IBSCBS.gIBSCBS.gIBSCredPres.pCredPres := 5;
+        IBSCBS.gIBSCBS.gIBSCredPres.vCredPres := 50;
+        IBSCBS.gIBSCBS.gIBSCredPres.vCredPresCondSus := 50;
+
+        IBSCBS.gIBSCBS.gCBSCredPres.cCredPres := 100;
+        IBSCBS.gIBSCBS.gCBSCredPres.pCredPres := 5;
+        IBSCBS.gIBSCBS.gCBSCredPres.vCredPres := 50;
+        IBSCBS.gIBSCBS.gCBSCredPres.vCredPresCondSus := 50;
+        }
       end;
 
       with gProcRef do
@@ -556,6 +638,31 @@ begin
       vNF        := 100;
     end;
 
+    // Reforma Tributária
+    {
+    total.vTotDFe := 100;
+    total.IBSCBSTot.vBCCIBS := 100;
+
+    total.IBSCBSTot.gIBS.gIBSUFTot.vDif := 100;
+    total.IBSCBSTot.gIBS.gIBSUFTot.vDevTrib := 100;
+    total.IBSCBSTot.gIBS.gIBSUFTot.vDeson := 100;
+    total.IBSCBSTot.gIBS.gIBSUFTot.vIBSUF := 100;
+
+    total.IBSCBSTot.gIBS.gIBSMunTot.vDif := 100;
+    total.IBSCBSTot.gIBS.gIBSMunTot.vDevTrib := 100;
+    total.IBSCBSTot.gIBS.gIBSMunTot.vDeson := 100;
+    total.IBSCBSTot.gIBS.gIBSMunTot.vIBSMun := 100;
+
+    total.IBSCBSTot.gIBS.vCredPres := 100;
+    total.IBSCBSTot.gIBS.vCredPresCondSus := 100;
+    total.IBSCBSTot.gIBS.vIBSTot := 100;
+
+    total.IBSCBSTot.gCBS.vDif := 100;
+    total.IBSCBSTot.gCBS.vDevTrib := 100;
+    total.IBSCBSTot.gCBS.vDeson := 100;
+    total.IBSCBSTot.gCBS.vCBS := 100;
+    total.IBSCBSTot.gCBS.vCredPresCondSus := 100;
+    }
     with gFidelidade do
     begin
       qtdSaldoPts := '';
@@ -645,7 +752,7 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrNFCom1.NotasFiscais.Clear;
-    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, False);
     ACBrNFCom1.Consultar;
 
     ShowMessage(ACBrNFCom1.WebServices.Consulta.Protocolo);
@@ -723,7 +830,7 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrNFCom1.NotasFiscais.Clear;
-    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, False);
 
     idLote := '1';
     if not(InputQuery('WebServices Eventos: Cancelamento', 'Identificador de controle do Lote de envio do Evento', idLote)) then
@@ -847,7 +954,7 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrNFCom1.NotasFiscais.Clear;
-    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, False);
     ACBrNFCom1.Consultar;
 
     LoadXML(ACBrNFCom1.WebServices.Consulta.RetWS, wbXmlRetorno);
@@ -928,7 +1035,7 @@ begin
     Exit;
 
   ACBrNFCom1.NotasFiscais.Clear;
-  ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+  ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, False);
 
   CC := TStringList.Create;
   try
@@ -962,7 +1069,7 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrNFCom1.NotasFiscais.Clear;
-    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, False);
   end;
 
   OpenDialog1.Title := 'Selecione ao Evento';
@@ -998,6 +1105,39 @@ begin
   end;
 end;
 
+procedure TfrmACBrNFCom.btnGerarArqINIClick(Sender: TObject);
+var
+  vAux: string;
+  SaveDlg: TSaveDialog;
+  ArqINI: TStringList;
+begin
+  vAux := '1';
+  if not(InputQuery('Gerar Arquivo INI', 'Numero da Nota', vAux)) then
+    exit;
+
+  ACBrNFCom1.NotasFiscais.Clear;
+  AlimentarComponente(vAux);
+  ACBrNFCom1.NotasFiscais.GerarNFCom;
+
+  ArqINI := TStringList.Create;
+  SaveDlg := TSaveDialog.Create(nil);
+  try
+    ArqINI.Text := ACBrNFCom1.NotasFiscais.GerarIni;
+
+    SaveDlg.Title := 'Escolha o local onde gerar o INI';
+    SaveDlg.DefaultExt := '*.INI';
+    SaveDlg.Filter := 'Arquivo INI(*.INI)|*.INI|Arquivo ini(*.ini)|*.ini|Todos os arquivos(*.*)|*.*';
+
+    if SaveDlg.Execute then
+      ArqINI.SaveToFile(SaveDlg.FileName);
+
+    memoLog.Lines.Add('Arquivo Salvo: ' + SaveDlg.FileName);
+  finally
+    SaveDlg.Free;
+    ArqINI.Free;
+  end;
+end;
+
 procedure TfrmACBrNFCom.btnGerarXMLClick(Sender: TObject);
 var
   vAux, Xml: string;
@@ -1017,7 +1157,7 @@ begin
   ShowMessage('Arquivo gerado em: ' + ACBrNFCom1.NotasFiscais.Items[0].NomeArq);
   memoLog.Lines.Add('Arquivo gerado em: ' + ACBrNFCom1.NotasFiscais.Items[0].NomeArq);
 
-  ACBrNFCom1.NotasFiscais.LoadFromFile(ACBrNFCom1.NotasFiscais.Items[0].NomeArq);
+  ACBrNFCom1.NotasFiscais.LoadFromFile(ACBrNFCom1.NotasFiscais.Items[0].NomeArq, False);
   Xml := ACBrNFCom1.NotasFiscais.Items[0].XMLAssinado;
 
   LoadXML(Xml, wbXmlRetorno);
@@ -1036,7 +1176,7 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrNFCom1.NotasFiscais.Clear;
-    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName,False);
+    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, False);
     ACBrNFCom1.NotasFiscais.Imprimir;
   end;
 end;
@@ -1052,7 +1192,7 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrNFCom1.NotasFiscais.Clear;
-    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName,False);
+    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, False);
     ACBrNFCom1.NotasFiscais.Imprimir;
   end;
 end;
@@ -1068,7 +1208,7 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrNFCom1.NotasFiscais.Clear;
-    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, False);
   end;
 
   OpenDialog1.Title := 'Selecione o Evento';
@@ -1113,6 +1253,41 @@ begin
     //  ShowMessage('ERRO: '+Erro)
 
     pgRespostas.ActivePageIndex := 0;
+  end;
+end;
+
+procedure TfrmACBrNFCom.btnLerArqINIClick(Sender: TObject);
+begin
+  OpenDialog1.Title := 'Selecione o Arquivo INI';
+  OpenDialog1.DefaultExt := '*.ini';
+  OpenDialog1.Filter :=
+    'Arquivos INI (*.ini)|*.ini|Todos os Arquivos (*.*)|*.*';
+  OpenDialog1.InitialDir := ACBrNFCom1.Configuracoes.Arquivos.PathSalvar;
+
+  if OpenDialog1.Execute then
+  begin
+    ACBrNFCom1.NotasFiscais.Clear;
+    ACBrNFCom1.NotasFiscais.LoadFromIni(OpenDialog1.FileName);
+    ACBrNFCom1.NotasFiscais.Assinar;
+    ACBrNFCom1.NotasFiscais.GravarXML();
+
+    memoLog.Lines.Add('Arquivo gerado em: ' + ACBrNFCom1.NotasFiscais[0].NomeArq);
+
+    try
+      ACBrNFCom1.NotasFiscais.Validar;
+
+      if ACBrNFCom1.NotasFiscais[0].Alertas <> '' then
+        memoLog.Lines.Add('Alertas: '+ACBrNFCom1.NotasFiscais[0].Alertas);
+
+      ShowMessage('Nota Fiscal de Comunicação Eletrônica Valida');
+    except
+      on E: Exception do
+      begin
+        memoLog.Lines.Add('Exception: ' + E.Message);
+        memoLog.Lines.Add('Erro: ' + ACBrNFCom1.NotasFiscais[0].ErroValidacao);
+        memoLog.Lines.Add('Erro Completo: ' + ACBrNFCom1.NotasFiscais[0].ErroValidacaoCompleto);
+      end;
+    end;
   end;
 end;
 
@@ -1166,7 +1341,7 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrNFCom1.NotasFiscais.Clear;
-    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, False);
     pgRespostas.ActivePageIndex := 0;
     memoLog.Lines.Add('');
     memoLog.Lines.Add('');
@@ -1201,7 +1376,7 @@ begin
   if OpenDialog1.Execute then
   begin
     ACBrNFCom1.NotasFiscais.Clear;
-    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName);
+    ACBrNFCom1.NotasFiscais.LoadFromFile(OpenDialog1.FileName, False);
     Inicio := Now;
     Ok := ACBrNFCom1.NotasFiscais.ValidarRegrasdeNegocios(Msg);
     Tempo := FormatDateTime('hh:nn:ss:zzz', Now - Inicio);
@@ -1570,12 +1745,7 @@ begin
   ACBrNFCom1.Configuracoes.Certificados.ArquivoPFX  := edtCaminho.Text;
   ACBrNFCom1.Configuracoes.Certificados.Senha       := edtSenha.Text;
   ACBrNFCom1.Configuracoes.Certificados.NumeroSerie := edtNumSerie.Text;
-  {
-  if cbModeloDF.ItemIndex = 0 then
-    ACBrNFCom1.DANFCom := ACBrNFComDANFComRL1
-  else
-    ACBrNFCom1.DANFCom := ACBrNFComDANFComESCPOS1;
-  }
+
   ACBrNFCom1.SSL.DescarregarCertificado;
 
   with ACBrNFCom1.Configuracoes.Geral do
@@ -1647,7 +1817,7 @@ begin
   if ACBrNFCom1.DANFCom <> nil then
   begin
     ACBrNFCom1.DANFCom.TipoDANFCom := StrToTpImp(OK, IntToStr(rgTipoDaNFCom.ItemIndex + 1));
-    ACBrNFCom1.DANFCom.Logo       := edtLogoMarca.Text;
+    ACBrNFCom1.DANFCom.Logo := edtLogoMarca.Text;
   end;
 end;
 
@@ -1668,7 +1838,7 @@ end;
 procedure TfrmACBrNFCom.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser);
 begin
   WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
-                      ConverteXMLtoUTF8(RetWS), False, False);
+                      RetWS, False, False);
 
   MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml');
 

@@ -48,7 +48,7 @@ type
   {$ENDIF RTL230_UP}
   TACBrNF3eDANF3eClass = class( TACBrDFeReport )
   private
-    procedure SetNF3e(const Value: TComponent);
+    procedure SetACBrNF3e(const Value: TComponent);
     procedure ErroAbstract(const NomeProcedure: String);
 
   protected
@@ -75,8 +75,10 @@ type
     procedure ImprimirEVENTO(NF3e: TNF3e = nil); virtual;
     procedure ImprimirEVENTOPDF(NF3e: TNF3e = nil); virtual;
 
+    function CaractereQuebraDeLinha: String;
+
   published
-    property ACBrNF3e: TComponent          read FACBrNF3e            write SetNF3e;
+    property ACBrNF3e: TComponent          read FACBrNF3e            write SetACBrNF3e;
     property TipoDANF3e: TpcnTipoImpressao read FTipoDANF3e          write FTipoDANF3e;
     property Protocolo: String             read FProtocolo           write FProtocolo;
     property Cancelada: Boolean            read FCancelada           write FCancelada;
@@ -153,7 +155,7 @@ begin
     FACBrNF3e := nil;
 end;
 
-procedure TACBrNF3eDANF3eClass.SetNF3e(const Value: TComponent);
+procedure TACBrNF3eDANF3eClass.SetACBrNF3e(const Value: TComponent);
   Var OldValue : TACBrNF3e;
 begin
   if Value <> FACBrNF3e then
@@ -214,6 +216,13 @@ begin
                          DescricaoModelo);
     end;
   end;
+end;
+
+function TACBrNF3eDANF3eClass.CaractereQuebraDeLinha: String;
+begin
+  Result := '|';
+  if Assigned(FACBrNF3e) and (FACBrNF3e is TACBrNF3e) then
+    Result := TACBrNF3e(FACBrNF3e).Configuracoes.WebServices.QuebradeLinha;
 end;
 
 end.

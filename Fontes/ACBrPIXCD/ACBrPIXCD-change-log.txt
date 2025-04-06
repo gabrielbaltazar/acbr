@@ -47,6 +47,176 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+27/03/2025
+-- ACBrSchemasAppLess --
+[+] Inclusão de arquivo com mapeamento da API AppLess.
+    por: Júlio Cavalcanti
+	
+-- ACBrPIXPSPAppLess --
+[+] Inclusão do PSP AppLess.
+
+-- ACBrPIXCD --
+[+] Inclusão do PSP AppLess;
+[+] Inclusão de log de certificados PFX.
+[*] Adicionado parâmetro 'NivelLog' no método 'RegistrarLog';
+[*] Alteração para logar arquivos de certificado apenas se forem utilizados;
+    por: Elias César
+
+10/03/2025
+-- ACBrPixPSPBradesco --
+[*] Remoção de inclusão desnecessária da "Authorization" na Autenticação.
+    por: Elias César
+
+28/02/2025
+-- ACBrSchemasMatera --
+[-] Correção de memory-leak
+	por: Tales Mendes de Camargo / Rev.: Alexandre de Paula
+
+05/02/2025
+-- ACBrPIXPSPInter --
+[*] Adicionado endereço Sandbox do PSP Inter
+	por: Paulo Aguiar / Rev.: Alexandre de Paula
+
+03/12/2024
+-- ACBrPIXPSPMatera --
+[-] Correção de MemoryLeak.
+    https://www.projetoacbr.com.br/forum/topic/80771-memory-leaked-no-acbrpspmatera-se-chamar-consultartransacao-ou-consultarextratoec/
+    por: Tales Mendes de Camargo
+
+21/11/2024
+-- ACBrPIXPSPSicoob --
+[-] Correção do log no momento da autenticação do componente.
+    por: Elias César
+
+12/11/2024
+-- ACBrSchemasMatera --
+[-] Alteração para limpar a classe antes de carregar as informações do Ini.
+    por: Elias César
+	
+21/10/2024
+-- ACBrPIXCD, ACBrPIXPSPBancoDoBrasil --
+[-] Corrige envio de datas na consulta PIX para o BB, volta o original do ACBrPIXCD --
+    por: Alexandre de Paula
+
+16/10/2024
+-- ACBrPIXPSPSicoob --
+[-] Corrige problema na resposta ao criar uma cobrança enviando o txID para o PSP Sicoob
+    por: Elias César
+
+09/10/2024
+-- ACBrSchemasMatera --
+[-] Corrige problema ao ler campos do objeto 'generateImage' no json de resposta.
+    por: Elias César
+
+08/10/2024
+-- ACBrPIXPSPMatera, ACBrSchemasMatera --
+[*] Inclusão de novos campos no retorno das consultas
+[*] Ajuste no envio de contrato social na abertura de conta
+    Por: christian@adminfo.com.br / Rev.: Alexandre de Paula
+
+03/10/2024
+-- ACBrPixCDGerenciaNET --
+[*] Atualização de endereços e inclusão de PartnerToken.
+    Por: djinfope  / Rev.: Daniel Simões / Alexandre de Paula
+
+20/09/2024
+-- ACBrPIXPSPBradesco --
+[*] Corrige o HTTP.Protocol para correta comunicação com o PSP.
+    Por: Diego Folieni
+
+17/09/2024
+-- ACBrPSP --
+[+] Publicadas as propriedades ClientID e ClientSecret diretamente na classe pai TACBrPSPCertificate
+[*] Alteradas as classes dos bancos que não irão precisar mais publicar essas propriedades
+    por: Elias César
+
+-- ACBrPIXPSPAilos --
+[+] Alteração para incluir o RootCrt em "Http.Sock.SSL.CertCAFile"
+    https://www.projetoacbr.com.br/forum/topic/79682-problema-ao-integrar-psp-ailos-pixcd
+
+12/09/2024
+-- ACBrPIXPSPBradesco --
+[*] #TK-5445: Ajuste visando correta utilização com o PSP Bradesco.
+   Por: Vagner S Oliveira
+
+10/09/2024
+-- ACBrPIXPSPC6Bank --
+[+] Liberado PSP para utilização.
+
+30/08/2024
+-- ACBrSchemasMatera --
+[*] Ajuste função StringToMateraAliasType - #TK-5790 (https://www.projetoacbr.com.br/forum/topic/78912-ajuste-na-convers%C3%A3o-do-tipo-do-alias-do-psp-matera/)
+    Por: Elias Cesar / Antonio Carlos Junior
+
+30/07/2024
+-- ACBrPIXCD --
+[*] Ajuste para enviar o TimeZone nos parâmetros de consulta com datas.
+    por: Elias César
+
+04/07/2024
+-- ACBrSchemasMatera --
+[*] Ajuste no valor padrão da propriedade performDebit nas classes TMateraInstantPaymentRequest e TMateraDevolucaoRequest.
+[*] Ajuste no nome da propriedade Alias na classe TMateraInstantPayment.
+    Por: Antonio Carlos Junior 
+
+04/07/2024
+-- ACBrSchemasMatera --
+[*] propriedade taxIdentifier da classe TMateraParticipantInstantPayment deve ser do tipo TMateraTaxIdentifier.
+    Por: Antonio Carlos Junior
+
+04/07/2024
+-- ACBrSchemasMatera --
+[*] Inclusão do campo "field" na classe TMateraError.
+    por: Luiz Carlos Ruiz Cestaro
+	
+-- ACBrPSPMercadoPago --
+[-] Remoção do uses da unit Dialogs.
+    por: Gabriel Franciscon
+
+03/07/2024
+-- ACBrSchemasMatera --
+[+] Incluídos métodos "LoadFromIni" e "LoadFromMemIni" para serem utilizados pela lib
+    por: Antônio Carlos
+
+02/07/2024
+-- ACBrPSPC6Bank -- 
+[+] Inclusão do novo PSP C6Bank (EM DESENVOLVIMENTO)
+    por Elias César
+
+14/06/2024
+-- ACBrSchemasMatera --
+[*] Incluído novo status da conta: REJECTED
+    por: Elias César
+
+06/06/2024
+-- ACBrPIXCD --
+[*] Adicionada rotinas de redirecionamento de URL no método:
+
+23/05/2024
+-- ACBrPIXCD --
+[+] Inclusão do novo PSP Banrisul
+    por: Elias César Vieira
+
+14/05/2024
+-- ACBrSchemasMatera --
+[*] Inclusão de novo status no enumerado TMateraAccountStatus
+    por: MatheusHenrique9
+
+19/04/2024
+-- ACBrSchemasMatera --
+[*] Correção de problema ao converter String para tipo TMateraWithdrawType
+    por: MatheusHenrique9
+
+26/03/2024
+-- ACBrSchemasMatera --
+[*] Correção no método NewSchema de algumas classes.
+    por: MatheusHenrique9
+
+22/03/2024
+-- ACBrPIXPSPMatera --
+[*] Alteração para corrigir problema de acentuação ao criar uma conta
+    por: Elias César
+
 08/03/2024
 -- ACBrSchemasMatera --
 [-] Correção do schema de leitura de saldo.
@@ -54,7 +224,7 @@ Símbolo : Significado
 
 23/02/2024
 -- ACBrPIXPSPGate2All --
-[-] Correção na conversão do Valor do Pix para Gate2All, que conssidera o valor
+[-] Correção na conversão do Valor do Pix para Gate2All, que considera o valor
     inteiro, sem decimais
     (por: DSA)
 

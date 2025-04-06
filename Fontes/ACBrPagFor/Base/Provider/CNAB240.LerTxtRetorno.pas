@@ -76,6 +76,8 @@ type
 
     procedure LerSegmentoJ52(mSegmentoJ52List: TSegmentoJ52List; nLinha: Integer); virtual;
 
+    procedure LerSegmentoJ53(mSegmentoJ53List: TSegmentoJ53List; nLinha: Integer); virtual;
+
     procedure LerSegmentoJ99(mSegmentoJ99List: TSegmentoJ99List; nLinha: Integer); virtual;
 
     procedure LerSegmentoN(mSegmentoN: TSegmentoN); virtual;
@@ -100,11 +102,14 @@ type
 
     procedure LerSegmentoZ(mSegmentoZList: TSegmentoZList; nLinha: Integer); virtual;
 
+    procedure LerSegmento5(mSegmento5List: TSegmento5List; nLinha: Integer); virtual;
+
     procedure LerLote;
     procedure GerarAvisos(const aCodOcorrencia, aSegmento, aSegmentoFilho,
                           aSeuNumero: string);
 
     function GetOcorrencia(aOcorrencia: TOcorrencia): string; virtual;
+    function GetMovimentoRemessa(aCodigo: integer): string; virtual;
   public
     function LerTxt: Boolean; override;
 
@@ -321,6 +326,50 @@ begin
   end;
 end;
 
+function TArquivoR_CNAB240.GetMovimentoRemessa(aCodigo: integer): string;
+begin
+  case aCodigo of
+     1: Result := 'Entrada de Títulos';
+     2: Result := 'Pedido de Baixa';
+     3: Result := 'Protesto para Fins Falimentares';
+     4: Result := 'Concessão de Abatimento';
+     5: Result := 'Cancelamento de Abatimento';
+     6: Result := 'Alteração de Vencimento';
+     7: Result := 'Concessão de Desconto';
+     8: Result := 'Cancelamento de Desconto';
+     9: Result := 'Protestar';
+    10: Result := 'Sustar Protesto e Baixar Título';
+    11: Result := 'Sustar Protesto e Manter em Carteira';
+    12: Result := 'Alteração de Juros de Mora';
+    13: Result := 'Dispensar Cobrança de Juros de Mora';
+    14: Result := 'Alteração de Valor/Percentual de Multa';
+    15: Result := 'Dispensar Cobrança de Multa';
+    16: Result := 'Alteração do Valor de Desconto';
+    17: Result := 'Não conceder Desconto';
+    18: Result := 'Alteração do Valor de Abatimento';
+    19: Result := 'Prazo Limite de Recebimento - Alterar';
+    20: Result := 'Prazo Limite de Recebimento - Dispensar';
+    21: Result := 'Alterar número do título dado pelo Beneficiário';
+    22: Result := 'Alterar número controle do Participante';
+    23: Result := 'Alterar dados do Pagador';
+    24: Result := 'Alterar dados do SACADOR AVALISTA/Avalista';
+    30: Result := 'Recusa da Alegação do Pagador';
+    31: Result := 'Alteração de Outros Dados';
+    33: Result := 'Alteração dos Dados do Rateio de Crédito';
+    34: Result := 'Pedido de Cancelamento dos Dados do Rateio de Crédito';
+    35: Result := 'Pedido de Desagendamento do Débito Automático';
+    40: Result := 'Alteração de Carteira';
+    41: Result := 'Cancelar protesto';
+    42: Result := 'Alteração de Espécie de Título';
+    43: Result := 'Transferência de carteira/modalidade de cobrança';
+    44: Result := 'Alteração de contrato de cobrança';
+    45: Result := 'Negativação Sem Protesto';
+    46: Result := 'Solicitação de Baixa de Título Negativado Sem Protesto';
+  else
+    Result := '';
+  end;
+end;
+
 procedure TArquivoR_CNAB240.LerRegistro0;
 var
   mOk: Boolean;
@@ -470,6 +519,11 @@ begin
   PagFor.Registro9.Totais.QtdeContasConciliadas := LerCampo(Linha, 30, 6, tcInt);
 end;
 
+procedure TArquivoR_CNAB240.LerSegmento5(mSegmento5List: TSegmento5List; nLinha: Integer);
+begin
+  // Somente o Bradesco tem esse Segmento
+end;
+
 procedure TArquivoR_CNAB240.LerSegmentoA(nLinha: Integer);
 var
   mOk: Boolean;
@@ -526,15 +580,14 @@ begin
   Linha := ArquivoTXT.Strings[nLinha+1];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
-  while Pos(RegSeg, '3B/3C/3D/3E/3F/3Z/') > 0 do
+  while Pos(RegSeg, '3B/3C/3D/35/3Z/') > 0 do
   begin
     Inc(nLinha); //próxima linha do txt a ser lida
     {opcionais do segmento A}
     LerSegmentoB(PagFor.Lote.Last.SegmentoA.Last.SegmentoB, nLinha);
     LerSegmentoC(PagFor.Lote.Last.SegmentoA.Last.SegmentoC, nLinha);
-//    LerSegmentoE(PagFor.Lote.Last.SegmentoA.Last.SegmentoE, I);
-//    LerSegmentoF(PagFor.Lote.Last.SegmentoA.Last.SegmentoF, I);
-//    LerSegmentoZ(PagFor.Lote.Last.SegmentoA.Last.SegmentoZ, I);
+    LerSegmento5(PagFor.Lote.Last.SegmentoA.Last.Segmento5, nLinha);
+    LerSegmentoZ(PagFor.Lote.Last.SegmentoA.Last.SegmentoZ, nLinha);
 
     for x := 0 to PagFor.Lote.Last.SegmentoA.Last.SegmentoB.Count - 1 do
     begin
@@ -553,25 +606,25 @@ begin
           PagFor.Lote.Last.SegmentoA.Last.Credito.SeuNumero);
       end;
     end;
-    (*
-    for x := 0 to PagFor.Lote.Last.SegmentoA.Last.SegmentoE.Count - 1 do
+
+    for x := 0 to PagFor.Lote.Last.SegmentoA.Last.Segmento5.Count - 1 do
     begin
-      with PagFor.Lote.Last.SegmentoA.Last.SegmentoE.Items[x] do
+      with PagFor.Lote.Last.SegmentoA.Last.Segmento5.Items[x] do
       begin
         GerarAvisos(CodOcorrencia, 'A', 'E',
           PagFor.Lote.Last.SegmentoA.Last.Credito.SeuNumero);
       end;
     end;
 
-    for x := 0 to PagFor.Lote.Last.SegmentoA.Last.SegmentoF.Count - 1 do
+    for x := 0 to PagFor.Lote.Last.SegmentoA.Last.SegmentoZ.Count - 1 do
     begin
-      with PagFor.Lote.Last.SegmentoA.Last.SegmentoF.Items[x] do
+      with PagFor.Lote.Last.SegmentoA.Last.SegmentoZ.Items[x] do
       begin
         GerarAvisos(CodOcorrencia, 'A', 'F',
           PagFor.Lote.Last.SegmentoA.Last.Credito.SeuNumero);
       end;
     end;
-    *)
+
 
     Linha := ArquivoTXT.Strings[nLinha+1];
     RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
@@ -731,6 +784,7 @@ begin
 
   with PagFor.Lote.Last.SegmentoG.Last do
   begin
+    MovimentoRemessa := GetMovimentoRemessa(StrToInt(LerCampo(Linha, 16, 2, tcStr)));
     CodigoBarras := LerCampo(Linha, 18, 44, tcStr);
     Cedente.Inscricao.Tipo := StrToTpInscricao(mOk, LerCampo(Linha, 62, 1, tcStr));
 
@@ -869,16 +923,16 @@ begin
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
   RegOpc := LerCampo(Linha, 18, 2, tcStr);
 
-  while (Pos(RegSeg, '3B/3C/3D/3E/3F/3Z/') > 0) or
+  while (Pos(RegSeg, '3B/3C/3D/35/3Z/') > 0) or
         (RegSeg = '3J') and (Pos(RegOpc, '52/99/') > 0) do
   begin
     Inc(nLinha); //próxima linha do txt a ser lida
 
     {opcionais segmento J}
     LerSegmentoJ52(PagFor.Lote.Last.SegmentoJ.Last.SegmentoJ52, nLinha);
+    LerSegmentoJ53(PagFor.Lote.Last.SegmentoJ.Last.SegmentoJ53, nLinha);
     LerSegmentoJ99(PagFor.Lote.Last.SegmentoJ.Last.SegmentoJ99, nLinha);
-//    LerSegmentoB(PagFor.Lote.Last.SegmentoJ.Last.SegmentoB, I);
-//    LerSegmentoC(PagFor.Lote.Last.SegmentoJ.Last.SegmentoC, I);
+    LerSegmento5(PagFor.Lote.Last.SegmentoJ.Last.Segmento5, nLinha);
     LerSegmentoZ(PagFor.Lote.Last.SegmentoJ.Last.SegmentoZ, nLinha);
 
     Linha := ArquivoTXT.Strings[nLinha+1];
@@ -917,6 +971,35 @@ begin
     SacadorAvalista.Inscricao.Tipo := StrToTpInscricao(mOk, LerCampo(Linha, 132, 1, tcStr));
     SacadorAvalista.Inscricao.Numero := LerCampo(Linha, 133, 15, tcStr);
     SacadorAvalista.Nome := LerCampo(Linha, 148, 40, tcStr);
+  end;
+end;
+
+procedure TArquivoR_CNAB240.LerSegmentoJ53(mSegmentoJ53List: TSegmentoJ53List;
+  nLinha: Integer);
+var
+  mOk: Boolean;
+  RegSegOpc: string;
+begin
+  Linha := ArquivoTXT.Strings[nLinha];
+  RegSegOpc := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr) +
+               LerCampo(Linha, 18, 2, tcStr);
+
+  if RegSegOpc <> '3J53' then
+    Exit;
+
+  mSegmentoJ53List.New;
+
+  with mSegmentoJ53List.Last do
+  begin
+    CodMovimento := StrToInMovimento(mOk, LerCampo(Linha, 16, 2, tcStr));
+
+    Pagador.Inscricao.Tipo := StrToTpInscricao(mOk, LerCampo(Linha, 20, 1, tcStr));
+    Pagador.Inscricao.Numero := LerCampo(Linha, 21, 15, tcStr);
+    Pagador.Nome := LerCampo(Linha, 36, 40, tcStr);
+
+    Agregador.Inscricao.Tipo := StrToTpInscricao(mOk, LerCampo(Linha, 76, 1, tcStr));
+    Agregador.Inscricao.Numero := LerCampo(Linha, 77, 15, tcStr);
+    Agregador.Nome := LerCampo(Linha, 92, 40, tcStr);
   end;
 end;
 
@@ -1357,13 +1440,13 @@ begin
   Linha := ArquivoTXT.Strings[nLinha+1];
   RegSeg := LerCampo(Linha, 8, 1, tcStr) + LerCampo(Linha, 14, 1, tcStr);
 
-  while Pos(RegSeg, '3Z') > 0 do
+  while Pos(RegSeg, '3W/35/3Z') > 0 do
   begin
     Inc(nLinha); //próxima linha do txt a ser lida
 
     {opcionais segmento O}
     LerSegmentoW(PagFor.Lote.Last.SegmentoO.Last.SegmentoW, nLinha);
-    LerSegmentoB(PagFor.Lote.Last.SegmentoO.Last.SegmentoB, nLinha);
+    LerSegmento5(PagFor.Lote.Last.SegmentoO.Last.Segmento5, nLinha);
     LerSegmentoZ(PagFor.Lote.Last.SegmentoO.Last.SegmentoZ, nLinha);
 
     Linha := ArquivoTXT.Strings[nLinha+1];

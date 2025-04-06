@@ -41,8 +41,9 @@ uses
 {$IFNDEF VER130}
   Variants,
 {$ENDIF}
+  ACBrXmlBase,
   pcnConversao, pcnLeitor,
-  pmdfeConversaoMDFe, pmdfeMDFe,
+  pmdfeConversaoMDFe, ACBrMDFe.Classes,
   ACBrUtil.Strings,
   ACBrUtil.Base;
 
@@ -526,7 +527,10 @@ begin
         MDFe.infDoc.infMunDescarga[i01].infCTe[i02].SegCodBarra := Leitor.rCampo(tcStr, 'SegCodBarra');
 
         if MDFe.infMDFe.versao >= 3 then
+        begin
           MDFe.infDoc.infMunDescarga[i01].infCTe[i02].indReentrega := Leitor.rCampo(tcStr, 'indReentrega');
+          MDFe.infDoc.infMunDescarga[i01].infCTe[i02].indPrestacaoParcial := StrToTIndicadorEx(ok, Leitor.rCampo(tcStr, 'indPrestacaoParcial'));
+        end;
 
         i03 := 0;
         while Leitor.rExtrai(4, 'infUnidTransp', '', i03 + 1) <> '' do
@@ -605,6 +609,14 @@ begin
           begin
             MDFe.infDoc.infMunDescarga[i01].infCTe[i02].infEntregaParcial.qtdTotal   := Leitor.rCampo(tcDe4, 'qtdTotal');
             MDFe.infDoc.infMunDescarga[i01].infCTe[i02].infEntregaParcial.qtdParcial := Leitor.rCampo(tcDe4, 'qtdParcial');
+          end;
+
+          i03 := 0;
+          while Leitor.rExtrai(4, 'infNFePrestParcial', '', i03 + 1) <> '' do
+          begin
+            MDFe.infDoc.infMunDescarga[i01].infCTe[i02].infNFePrestParcial.New;
+            MDFe.infDoc.infMunDescarga[i01].infCTe[i02].infNFePrestParcial[i03].chNFe := Leitor.rCampo(tcStr, 'chNFe');
+            inc(i03);
           end;
         end;
 
@@ -1060,9 +1072,9 @@ begin
   (* Grupo da TAG <protMDFe> **************************************************)
   if Leitor.rExtrai(1, 'protMDFe') <> '' then
   begin
-    MDFe.procMDFe.tpAmb    := StrToTpAmb(ok, Leitor.rCampo(tcStr, 'tpAmb'));
+    MDFe.procMDFe.tpAmb    := StrToTipoAmbiente(ok, Leitor.rCampo(tcStr, 'tpAmb'));
     MDFe.procMDFe.verAplic := Leitor.rCampo(tcStr, 'verAplic');
-    MDFe.procMDFe.chMDFe   := Leitor.rCampo(tcStr, 'chMDFe');
+    MDFe.procMDFe.chDFe   := Leitor.rCampo(tcStr, 'chMDFe');
     MDFe.procMDFe.dhRecbto := Leitor.rCampo(tcDatHor, 'dhRecbto');
     MDFe.procMDFe.nProt    := Leitor.rCampo(tcStr, 'nProt');
     MDFe.procMDFe.digVal   := Leitor.rCampo(tcStr, 'digVal');

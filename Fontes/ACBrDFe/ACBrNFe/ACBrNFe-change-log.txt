@@ -44,6 +44,573 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+03/04/2025
+-- ACBrNFe.Classes --
+[-] Ao ler a propriedade ID para gerar o QR-Code não estava removendo o literal
+    NFe da chave.
+  Por: Italo Giurizzato Junior
+
+02/04/2025
+-- ACBrNFCeDANFeFPDF --
+[*] #TK-6611: Adiciona impressão de evento para NFC-e com FPDF.
+   Por: Arimateia Jr / Diego Folieni
+
+01/04/2025
+-- ACBrNFe.IniReader --
+[-] Correção realizada para não ler os campos: tpCompraGov e pRedutor no arquivo
+    INI quando pRedutor for zero. 
+   Por: Italo Giurizzato Junior
+-- ACBrNFe.IniWriter --
+[-] Correção realizada para não gerar os campos: tpCompraGov e pRedutor no arquivo
+    INI quando pRedutor for zero. 
+   Por: Italo Giurizzato Junior
+
+31/03/2025
+-- Diversos --
+[*] #TK-6814: Implementado a versão 3.00 do QR-Code.
+   Por: Italo Giurizzato Junior
+-- ACBrNFeServicos --
+[*] #TK-6825: Ajustes da URL de consulta da NFC-e para a UF RN.
+   Por: Italo Giurizzato Junior
+
+28/03/2025
+-- ACBrNFeDANFeFPDF --
+[*] #TK-6749: Corrigidos erros de encoding no DANFE em FPDF
+   Por: Renato Rubinho
+
+27/03/2025
+-- ACBrNFe.XmlWriter --
+[*] #TK-6707: Configurado cst51 para gerar tags pRedBC, vICMSOp, pDif e vICMSDif mesmo zeradas para o RJ
+   Por: Renato Rubinho
+
+25/03/2025
+-- ACBrNFe.IniReader/ACBrNFe.IniWriter --
+[+] #TK-5816: Implementado duas novas units especificas para a leitura e escrita do
+    arquivo INI que contem os dados da nota fiscal.
+-- ACBrNFeNotasFiscais/ACBrNFe.Classes/ACBrNFe.XmlReader/ACBrNFe.XmlWriter --
+[*] Ajustes realizados por conta das duas novas units e da Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+21/03/2025
+-- ACBrNFeWebServices --
+[*] #TK-6740: Alterado a condição que determina se o XML do evento deve ser salvo em disco
+    ou não, antes checava a propriedade de configuração Salvar, agora checa a propriedade
+    SalvarEvento
+   Por: Italo Giurizzato Junior
+
+-- pcnNFeW.pas --
+[*] #TK-6728: Correção para geração das tags de ST para cst90.
+    https://www.projetoacbr.com.br/forum/topic/82236-problema-com-o-preenchimento-das-tags-de-icms-st/
+   Por: Renato Rubinho
+
+20/03/2025
+-- ACBrNFeConfiguracoes, ACBrNFeWebServices --
+[*] #TK-6730: Ajuste visando que a rotina que define o caminho onde será salvo o XML de Inutilização considere o Modelo passado no comando.
+  Por: Diego Folieni 
+
+08/03/2025
+-- ACBrNFe.Classes/ACBrNFe.XmlReader/ACBrNFe.XmlWriter --
+[*] #TK-5816: Ajustes visando atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+07/03/2025
+-- ACBrNFeNotasFiscais --
+[*] #TK-6620: Removida a validação para cStat 737 que estava incorreta no ValidarRegrasDeNegocio.
+   Por: Diego Folieni 
+   
+03/03/2025
+-- ACBrNFe.XmlWriter --
+[*] Ajuste visando evitar erro caso não preencha cMunFGIBS
+   Por: Diego Folieni
+
+28/02/2025
+-- ACBrNFe.Classes --
+[-]  incluido o gCompraGov no Create e no Destroy da classe Ide.
+   Por: Italo Giurizzato Junior
+
+25/02/2025
+-- Diversos --
+[+] Ajustes na escrita e leitura do XML para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+14/02/2025
+-- ACBrNFe.Classes/ACBrNFe.Consts --
+[+] Inclusão de novas contantes e ajustes nas novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+11/02/2025
+-- ACBrNFe.XmlWriter --
+[-] Possível solução para o erro que estava ocorrendo ao gerar o grupo detExport.
+   Por: Italo Giurizzato Junior
+
+10/02/2025
+-- ACBrNFe.Classes/ACBrNFe.Conversao/pcnConversaoNFe--
+[+] Inclusão das novas classes e tipos para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+20/01/2025
+-- ACBrNFeServicos --
+[*] Atualizado a URL do serviço ConsultaCadastro do RS.
+   Por: Italo Giurizzato Junior
+
+27/01/2025
+-- ACBrNFe.XmlReader --
+[-] #TK-6488: Corrige problema na leitura do grupo NVE.
+  Por: Jeanny Paiva Lopes
+
+20/01/2025
+-- pcnNFe --
+[*] Remoção de unit por estar em desuso.
+   Por: Italo Giurizzato Junior
+
+09/01/2025
+-- ACBrNFe.XmlWriter --
+[*] Corrige problema na geração do grupo agropecuário.
+  Por: Diego Folieni
+
+08/01/2025
+-- ACBrNFe.EnvEvento --
+[*] Melhorias no código.
+   Por: Italo Giurizzato Junior
+
+07/01/2025
+-- ACBrNFeDANFeESCPOS/ACBrDANFCeFortesFr/ACBrDANFCeFortesFrA4 --
+[+] #TK-6435: Incluído no DANFE a impressão do endereço de entrega caso este esteja
+    no XML da NFC-e.
+   Por: Italo Giurizzato Junior
+
+-- ACBrNFe.Classes/pcnNFe/pcnNFeR/pcnNFeW --
+[-] Ajustes para corrigir erro de compilação/instalação se o uso do ACBrXmlDocument.
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[*] #TK-6415: Realizado a substituição da unit de classes de: pcnNFe
+    por: ACBrNFe.Classes 
+   Por: Italo Giurizzato Junior
+
+23/12/2024
+-- ACBrNFeDANFEClass --
+[*] #TK-6398: Ajustado a quantidade de casas decimais do campo qLote. 
+   Por: Italo Giurizzato Junior
+-- pcnNFeConsts --
+[*] Remoção de unit sem uso.
+   Por: Italo Giurizzato Junior
+
+20/12/2024
+-- pcnNFe --
+[*] #TK-6132: Altera o tipo dos campos qCom/qTrib para Double visando corrigir divergência no comportamento das compilações x86 e x64.
+  Por: Diego Folieni
+
+19/12/2024
+-- ACBrNFe.XmlWriter --
+[*] Imposta uma condição para que as tags do ICMS 51 sejam obrigatórias se a UF for PR.
+   Por: Italo Giurizzato Junior
+
+13/12/2024
+-- Diversos --
+[+] #TK-5944: Implementado a unit especifica para imprimir a DANFE em Etiqueta
+    em Fortes.
+  Por: Rodrigo Ogioni/Italo Giurizzato Junior
+
+12/12/2024
+-- ACBrNFeWebService --
+[*] #TK-5992: Trocado a unit pcnRetEnvNFe pela ACBrDFeComum.RetEnvio que não
+    utiliza a pcnLeitor para realizar a leitura do XML de retorno do envio da
+    NF-e.
+  Por: Italo Giurizzato Junior
+
+11/12/2024
+-- ACBrNFe.Classes --
+[+] #TK-6346: Criação da nova unit que contem as classes do NF-e.
+   Por: Italo Giurizzato Junior
+
+04/12/2024
+-- ACBrNFe.XmlWriter --
+[-] Corrigido as condições para gerar algumas tags do CST 60 e CSOSN 500.
+   Por: Italo Giurizzato Junior
+
+03/12/2024
+-- pcnModeloNFe --
+[*] Removida a referida unit por ela não ser utilizada pelo componente.
+   Por: Italo Giurizzato Junior
+-- ACBrNFeWebServices/ACBrNFe.AdmCSC/ACBrNFe.ConsSit/ACBrNFe.EnvEvento --
+-- ACBrNFe.Inut/ACBrNFe.RetConsSit/pcnNFeW/pcnProcNFe --
+[*] #TK-5993: Realizado a substituição da unit de constantes de: pcnNFeConsts
+    por: ACBrNFe.Consts 
+   Por: Italo Giurizzato Junior
+
+02/12/2024
+-- ACBrNFe.XmlWriter --
+[-] Corrigido a geração da tag vICMSSubstituto para o ICMS60.
+   Por: Italo Giurizzato Junior
+
+29/11/2024
+-- ACBrNFeNotasFiscais --
+[*] Alterado a condição na leitura do arquivo INI que determina se vai ler os
+    campos referente a Retirada e Entrega.
+   Por: Italo Giurizzato Junior
+
+27/11/2024
+-- ACBrNFe.Consts --
+[+] #TK-5993: Disponibilizado a nova Unit de Constantes do NFe, mas ela ainda não esta
+    em uso.
+   Por: Italo Giurizzato Junior
+
+26/11/2024
+-- pcnEnvNFe --
+[*] TK-5991: Removida a referida unit por ela não ser utilizada pelo componente.
+   Por: Italo Giurizzato Junior
+
+25/11/2024
+-- ACBrNFe.XmlReader --
+[*] TK-6266: Adiciona leitura da tag pesoB.
+   Por: Diego Folieni 
+
+22/11/2024
+-- ACBrNFeNotasFiscais --
+[*] Corrige o nome da função
+   Por: Diego Folieni
+[*] #TK-6139: Adiciona tratativa para arquivos UTF8BOM.
+   Por: Diego Folieni 
+
+14/11/2024
+-- ACBrNFe.EnvEvento --
+[-] Correção na grafia da seção de detalhamento de pagamento ao ler o arquivo INI.
+   Por: Italo Giurizzato Junior
+
+04/11/2024
+-- ACBrNFe.XmlReader --
+[*] #TK-6202: Ajuste visando a correta leitura das informações do grupo ICMSST
+  Por: Diego Folieni 
+
+21/10/2024
+-- pcnConversaoNFe --
+[+] Acrescentado o enumerador: teRegistroPassagemMDFe.
+   Por: Italo Giurizzato Junior
+-- ACBrDFeDANFeReport --
+[*] Adiciona validação que verifica se propriedade tem valor diferente de nil antes de utilizar.
+   Por: Waldir Paim 
+
+17/10/2024
+-- ACBrNFe.XmlReader --
+[-] Realizado correções na leitura dos impostos: ICMS, PIS e COFINS.
+   Por: Italo Giurizzato Junior
+
+11/10/2024
+-- ACBrDFeDANFeReport, ACBrDFeDANFeFRDM --
+[*] #TK-6038: Ajustes visando a correta quebra de linhas nas observações quando for criada pelo componente.
+   Por: Diogo Loff 
+-- pcnNFeConsts --
+[+] #TK-5795: Adiciona as constantes que haviam sido criadas previamente em ACBrDFeConsts
+   Por: Diego Folieni
+-- Diversos --
+[+] #TK-5975: Adequa o componente ACBrNFe as modificações propostas pela NT2024/003
+   Por: Diego Folieni 
+[+] Implementado a propriedade de configuração: ExibeCampoDuplicata com o valor
+    padrão True que permite definir se o quadro referente as duplicatas vai ser
+    impresso ou não. 
+   Por: Italo Giurizzato Junior
+
+01/10/2024
+-- ACBrNFe.RetConsSit --
+[*] Ajustes necessários para utilizar a unit: ACBrDFeComum.Proc
+   Por: Italo Giurizzato Junior
+
+30/09/2024
+-- ACBrDANFCeFortesFrA4 --
+[*] #TK-6029: Ajuste para compatibilizar com os demais impressos a lógica para vTotTrib, vTribFed, vTribEst e vTribMun.
+   Por: Diego Folieni
+
+20/09/2024
+-- ACBrNFe.EnvEvento --
+[*] Ajuste na forma como é lido a informação idLote em LerFromIni visando compatibilização com o tipo da propriedade.
+   Por: Diego Folieni
+
+16/09/2024
+-- ACBrNFeServicos --
+[*] #TK-5967 - Atualização das URLs de Produção do SVAN/SVC-AN
+    Por: Italo Giurizzato Junior
+
+13/09/2024
+-- ACBrNFeNotasFiscais --
+[*] #TK-5931 - Adicionar na classe de alto nível propriedades para seção infNFeSupl
+    - Implementado a classe infNFeSupl nas funções LerArqIni e GerarNFeIni para que o mesmo funcione nas classes do C#.
+    Por: Antonio Carlos Junior / Julio Cavalcanti / Diego Folieni
+
+12/09/2024
+-- ACBrNFeWebService --
+[*] #TK-5953: Ajuste visando retornar a data/hora do recebimento do documento.
+  Por: Italo Giurizzato Junior
+
+11/09/2024
+-- ACBrNFeWebService --
+[*] #TK-5933: Ajuste visando corrigir a forma como a string é devolvida na propriedade.
+  Por: Diego Folieni / Italo Giurizzato Junior / Victor H Gonzales - Pandaaa 
+
+10/09/2024
+-- ACBrNFe.XmlReader --
+[-] Correção na leitura do XML, não estava lendo corretamente o grupo <card>.
+  Por: Jeanny Paiva
+
+06/09/2024
+-- ACBrNFe.EnvEvento --
+[*] Remove linha que modificava config de RetirarAcentos para True independente da config definida.
+  Por: Diego Folieni
+
+05/09/2024
+-- ACBrNFeNotasFiscais --
+[*] #TK-5866-3: Adiciona correta config QuebraLinha no momento em que alimenta as configurações para o gerador do XML.
+   Por: Diego Folieni 
+
+04/09/2024
+-- ACBrNFe/ACBrNFeWebServices/ACBrNFe.RetConsSit --
+[*] Ajuste para considerar os cStat de denegação como rejeição.
+   Por: Italo Giurizzato Junior
+
+04/09/2024
+-- ACBrNFeNotasFiscais, ACBrNFeWebServices, ACBrNFeDAInutRLRetrato --
+[*] #TK-5866-3: Ajuste visando correto uso config de quebra de linha nas rotinas que substituem a quebra nativa pela config definida.
+  Por: Diego Folieni 
+
+02/09/2024
+-- Diversos --
+[*] #TK-5866: Ajuste visando padronização do caractere de quebra de linha.
+   por: Diego Folieni
+
+15/08/2024
+-- ACBrNFeWebServices --
+[*] #TK-5833: Adiciona o preenchimento da propriedade que alimenta o XML na resposta da Lib.
+   Por: Diego Folieni
+
+12/08/2024
+-- ACBrNFeNotasFiscais --
+[*] Ajuste para considerar o valor do ICMS Mono Retenção no ValidarRegrasdeNegocio.
+   Por: Italo Giurizzato Junior
+
+02/08/2024
+-- ACBrNFeNotasFiscais --
+[*] Alterado o nome da nova unit responsável pela leitura do XML da NF-e/NFC-e.
+[*] Remoção das units: ACBrNFeXmlReader, ACBrNFeXmlWriter, pcnAdmCSCNFCe, 
+    pcnConsSitNFe, pcnEnvEventoNFe, pcnEventoNFe, pcnInutNFe, pcnRetAdmCSCNFCe, 
+    pcnRetConsSitNFe, pcnRetEnvEventoNFe, pcnRetInutNFe.
+   Por: Italo Giurizzato Junior
+
+31/07/2024
+-- Diversos --
+[*] Ajustes para o envio correto dos eventos: ECONF e Cancelamento de 
+    Conciliação Financeira
+   Por: Italo Giurizzato Junior
+
+26/07/2024
+-- ACBrNFeDANFeEventoRLRetrato --
+[*] Revisado a impressão de todos os eventos.
+   Por: Italo Giurizzato Junior
+
+25/07/2024
+-- ACBrNFe.EnvEvento --
+[*] Ajuste visando sanar problema com a xCondUso acentuada no evento de Ator Interessado.
+ Por: Diego Folieni
+
+17/07/2024
+-- pcnNFeW, ACBrNFeXmlWriter --
+[*] Altera rotinas de geração do XML tornando os campos qBCMono, qBCMonoReten e qBCMonoRet obrigatórios em seus respectivos CSTs.
+  Por: Diego Folieni
+
+16/07/2024
+-- ACBrNFeWebServices --
+[*] Alteração visando não usar o ParseText nos retornos dos webservices.
+  Por: BigWings
+-- ACBrNFe.EnvEvento --
+[-] Correções na geração e leitura do retorno referente aos novos eventos
+    de Conciliação Financeira e Cancelamento de Conciliação Financeira.
+   Por: Italo Giurizzato Junior
+-- ACBrNFeXmlWriter --
+[-] Trocado o override por overload na assinatura da função: ObterNomeArquivo.
+   Por: Italo Giurizzato Junior
+
+12/07/2024
+-- ACBrNFe.RetEnvEvento --
+[*] Possível solução para carregar corretamente o XML do evento gerado por outra
+    aplicação.
+   Por: Italo Giurizzato Junior
+-- ACBrNFe.EnvEvento --
+[*] O valor para a tag <tpAutor> do evento Ator Interessado na NF-e estava 
+    com o valor fixo, alteração feita para conter os valores: 1, 2 ou 3 
+    conforme o Schema
+   Por: Marcelo Santos
+
+08/07/2024
+-- ACBrNFe.EnvEvento/pcnConversaoNFe --
+[*] Acrescentado o enumerador: taNaoInformar com o objetivo de fazer com que a
+    tag <tpAutorizacao> do evento Ator Interessado não seja gerada.
+   Por: Italo Giurizzato Junior
+
+03/07/2024
+-- ACBrNFe.Inut --
+[-] Estava perdendo o conteudo do campo xJust.
+   Por: Italo Giurizzato Junior
+-- ACBrNFe.Inut/ACBrNFe.RetInut --
+[*] Alteração visando a leitura correta do XML de retorno de Inutilização.
+   Por: Italo Giurizzato Junior
+
+27/06/2024
+-- ACBrNFe.RetEnvEvento --
+[*] Alteração visando a leitura correta do XML de retorno de eventos.
+   Por: Italo Giurizzato Junior
+
+20/06/2024
+-- Diversos --
+[+] Implementação dos eventos: Conciliação Financeira (ECONF) e do Cancelamento de
+    Conciliação Financeira.
+    Ainda não possível testar uma vez que o ambiente de homologação esta previsto
+    para ser liberado em 01/07/2024 e ainda não foi disponibilizado os schemas, que
+    são utilizados para validar o XML do evento antes do seu envio.
+   Por: Italo Giurizzato Junior
+
+17/06/2024
+-- Diversos --
+[*] Alteração nos fontes para passar a utilizar as novas units: ACBrNFe.EnvEvento
+    e ACBrNFe.RetEnvEvento responsávels por gerar o pedido de Evento e a leitura
+    do retorno da SEFAZ no que se refere ao evento enviado.
+   Por: Italo Giurizzato Junior
+
+-- ACBrNFe.EnvEvento.pas/ACBrNFe.RetAdmCSC.pas/ACBrNFe.RetConsSit.pas/
+   ACBrNFe.RetEnvEvento.pas/ACBrNFe.RetInut.pas --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
+14/06/2024
+-- ACBrNFeWebServices --
+[*] Ajustes na classe TAdministrarCSCNFCe, inclusão da procedure InicializarServico.
+-- ACBrNFe.XmlWriter/ACBrNFeXmlWriter/pcnNFeW --
+[*] Substituida a unit pcnRetEnvEventoNFe pela nova ACBrNFe.RetEnvEvento.
+    Para o CSOSN 102, 103, 300, 400 e 900 a tag orig passa a ser opcional.
+   Por: Italo Giurizzato Junior
+
+11/06/2024
+-- ACBrNFeWebServices --
+[*] Substituida a unit pcnRetEnvEventoNFe pela nova ACBrNFe.RetEnvEvento.
+    Pois a nova unit ACBrNFe.RetConsSit a utiliza.
+   Por: Italo Giurizzato Junior
+
+10/06/2024
+-- ACBrNFeWebServices --
+[*] Alteração nos fontes para passar a utilizar as novas units: ACBrNFe.AdmCSC,
+    ACBrNFe.ConsSit, ACBrNFe.RetAdmCSC e ACBrNFe.RetConsSit responsávels por 
+    gerar o pedido de Administração do CSC e Consulta a situação e a leitura
+    do retorno da SEFAZ no que se refere aos serviços solicitados.
+   Por: Italo Giurizzato Junior
+
+03/06/2024
+-- Diversos --
+[*] Alteração nos fontes para passar a utilizar as novas units: ACBrNFe.Inut e 
+    ACBrNFe.RetInut responsávels por gerar o pedido de inutilização e a leitura
+    do retorno da SEFAZ no que se refere ao pedido de inutilização.
+   Por: Italo Giurizzato Junior
+
+31/05/2024
+-- Diversos --
+[*] Ajustes nas novas units a serem utilizadas pelo componente.
+   Por: Italo Giurizzato Junior
+
+16/05/2024
+-- ACBrNFeNotasFiscais --
+[*] Altera a conversao de dhCont para devolver data e hora na geração do INI
+  Por: Diego Folieni
+
+14/05/2024
+-- ACBrNFe.EnvEvento/pcnEnvEventoNFe --
+[*] Alinhando as mesmas correções feitas na unit atual na nova unit.
+   Por: Italo Giurizzato Junior
+
+09/05/2024
+-- Diversos --
+[*] Ajustes realizados com base nos testes unitários
+   Por: Italo Giurizzato Junior
+
+08/05/2024
+-- ACBrNFeNotasFiscais --
+[*] Reversão da alteração que visava o uso das configurações na geração do XML.
+   Por: Italo Giurizzato Junior
+-- ACBrNFeXmlWriter/pcnNFe/pcnNFeW.pas --
+[*] Comentado as linhas que usa os dados de configuração na geração do XML.
+   Por: Italo Giurizzato Junior
+
+30/04/2024
+-- Diversos --
+[+] Implementação dos eventos: Insucesso na Entrega da NF-e e Cancelamento do
+    Insucesso na Entrega da NF-e.
+  Por: Italo Giurizzato Junior
+
+29/04/2024
+-- ACBrNFeXmlWriter/pcnNFe/pcnNFeW.pas --
+[*] Ajustes para usar a configuração do tipo de ambiente e de emissão ao
+    gerar o XML.
+  Por: Italo Giurizzato Junior
+-- ACBrNFeNotasFiscais --
+[*] Adiciona leitura do informação IM para o grupo dest
+  Por: Diego Folieni
+
+27/04/2024
+-- ACBrNFe.XmlReader/pcnNFeW --
+[*] Adiciona propriedades faltantes visando corrigir problema de compilação.
+  Por: Diego Folieni 
+-- ACBrNFe.XmlReader/ACBrNFe.XmlWriter --
+[+] Novas Units de Leitura e Escrita do XML da nota.
+-- ACBrNFe.AdmCSC/ACBrNFe.ConsSit/ACBrNFe.EnvEvento/ACBrNFe.EventoClass --
+-- ACBrNFe.Inut/ACBrNFe.RetAdmCSC/ACBrNFe.RetConsSit/ACBrNFe.RetEnvEvento/ACBrNFe.RetInut --
+[+] Novas Units de Leitura e Escrita do XML de diversos serviços.
+    Observação: essas Units estão em fase de testes.
+  Por: Italo Giurizzato Junior
+
+22/04/2024
+-- ACBrDANFCeFortesFrA4,ACBrNFeDANFeEventoRL,ACBrNFeDANFeRLPaisagem,ACBrNFeDANFeRLRetrato --
+[*] TK-2944 ACBrNFCe/ACBrNFE - Convertido relatórios Delphi para Lazarus.
+  Por: Daniel de Morais InfoCotidiano
+
+17/04/2024
+-- Diversos --
+[*] Criado um novo tipo chamado TIndicadorEx que contem os valores:
+    tieNenhum, tieSim e tieNao para ser utilizado no lugar do TIndicador 
+    para o campo indDeduzDeson, cujo valor padrão vai ser tieNenhum.
+  Por: Italo Giurizzato Junior
+
+16/04/2024
+-- ACBrNFeServicos --
+[*] Adiciona a URL de produção da Inutilização versão 4 para a SVC - AN.
+  Por: Italo Giurizzato Junior
+
+11/04/2024
+-- ACBrNFeXmlReader --
+[*] Correções para evitar erro na leitura do XML.
+  Por: Italo Giurizzato Junior
+
+01/04/2024
+-- Diversos --
+[*] Incluido a propriedade Etiqueta do tipo Boolean para ser usanda em conjunto com o
+    TipoDANFE = tiSimplificado visando a impressão do DANFE Simplificado - Etiqueta.
+  Por: CDVDT
+
+27/03/2024
+-- ACBrNFeXmlReader --
+[*] Correções para evitar erro de validação do XML quando carrega e re-gera o arquivo.
+  Por: Diego Folieni
+-- Diversos --
+[*] Adequa a leitura e geração dos campos do grupo gCred no INI e no XML a versão 1.62 da NT2019/001
+  Por: Diego Folieni
+
+21/03/2024
+-- ACBrNFeWebServices --
+[*] Adiciona chamada a UTF8ToNativeString quando usa ParseText para corrigir problemas de conversão de acentuação
+  Por: Diego Folieni
+
+11/03/2024
+-- pcnNFeR --
+[*] Ajustes para a leitura correta da tag indDeduzDeson.
+  Por: Jeanny Paiva Lopes
+-- ACBrNFeNotasFiscais --
+[*] Move o bloco de leitura do grupo CredPresumido para que não confunda as seções.
+  Por: Diego Folieni
+
 06/03/2024
 -- ACBrNFeNotasFiscais --
 [*] Alteração no nome da diretiva DFE_ACBR_LIBXML2 para USE_ACBr_XMLDOCUMENT.

@@ -49,12 +49,12 @@ type
     function GetDadosUsuario: string;
 
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -74,15 +74,15 @@ type
 
   TACBrNFSeXWebserviceSimplISS203 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -96,6 +96,9 @@ type
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
     function PrepararRpsParaLote(const aXml: string): string; override;
+
+    procedure LerCancelamento(const ANode: TACBrXmlNode;
+      const Response: TNFSeWebServiceResponse); override;
   public
     function RegimeEspecialTributacaoToStr(const t: TnfseRegimeEspecialTributacao): string; override;
     function StrToRegimeEspecialTributacao(out ok: boolean; const s: string): TnfseRegimeEspecialTributacao; override;
@@ -125,6 +128,9 @@ begin
     DetalharServico := True;
 
     Autenticacao.RequerLogin := True;
+
+    Particularidades.PermiteMaisDeUmServico := True;
+    Particularidades.PermiteTagOutrasInformacoes := True;
   end;
 
   SetXmlNameSpace('http://www.sistema.com.br/Nfse/arquivos/nfse_3.xsd');
@@ -255,7 +261,7 @@ begin
   end;
 end;
 
-function TACBrNFSeXWebserviceSimplISS.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -275,7 +281,7 @@ begin
             'xmlns:nfse="http://www.sistema.com.br/Nfse/arquivos/nfse_3.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS.ConsultarSituacao(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS.ConsultarSituacao(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -295,7 +301,7 @@ begin
             'xmlns:nfse="http://www.sistema.com.br/Nfse/arquivos/nfse_3.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -315,7 +321,7 @@ begin
             'xmlns:nfse="http://www.sistema.com.br/Nfse/arquivos/nfse_3.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -335,7 +341,7 @@ begin
             'xmlns:nfse="http://www.sistema.com.br/Nfse/arquivos/nfse_3.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS.ConsultarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS.ConsultarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -355,7 +361,7 @@ begin
             'xmlns:nfse="http://www.sistema.com.br/Nfse/arquivos/nfse_3.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS.Cancelar(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS.Cancelar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -392,6 +398,7 @@ begin
   ConfigGeral.ModoEnvio := meLoteAssincrono;
 
   ConfigGeral.ServicosDisponibilizados.EnviarLoteSincrono := False;
+  ConfigGeral.Particularidades.PermiteTagOutrasInformacoes := True;
 
   with ConfigAssinar do
   begin
@@ -439,6 +446,31 @@ begin
       raise EACBrDFeException.Create(ERR_SEM_URL_PRO)
     else
       raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
+  end;
+end;
+
+procedure TACBrNFSeProviderSimplISS203.LerCancelamento(
+  const ANode: TACBrXmlNode; const Response: TNFSeWebServiceResponse);
+var
+  AuxNode, ANodeNfseCancelamento: TACBrXmlNode;
+begin
+  ANodeNfseCancelamento := ANode.Childrens.FindAnyNs('NfseCancelamento');
+
+  if ANodeNfseCancelamento <> nil then
+  begin
+    AuxNode := ANodeNfseCancelamento.Childrens.FindAnyNs('Confirmacao');
+
+    if Assigned(AuxNode) then
+    begin
+      Response.DataCanc := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('DataHoraCancelamento'), FpFormatoDataHora);
+
+      Response.SucessoCanc := Response.DataCanc > 0;
+    end;
+
+    Response.DescSituacao := '';
+
+    if (Response.DataCanc > 0) and (Response.SucessoCanc) then
+      Response.DescSituacao := 'Nota Cancelada';
   end;
 end;
 
@@ -499,7 +531,7 @@ end;
 
 { TACBrNFSeXWebserviceSimplISS203 }
 
-function TACBrNFSeXWebserviceSimplISS203.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS203.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -516,7 +548,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS203.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS203.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -533,7 +565,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS203.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS203.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -550,7 +582,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS203.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS203.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -567,7 +599,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS203.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS203.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -584,7 +616,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS203.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS203.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -601,7 +633,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS203.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS203.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -618,7 +650,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS203.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSimplISS203.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -634,7 +666,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceSimplISS203.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSimplISS203.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;

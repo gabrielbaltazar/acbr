@@ -44,15 +44,36 @@ uses
    System.Contnrs,
   {$IFEND}
   ACBrBase, ACBrXmlBase,
+//  ACBrDFeComum.SignatureClass,
   pcnSignature,
   ACBrNFComEventoClass;
 
 type
+  TRetInfEventoCollectionItem = class(TObject)
+  private
+    FRetInfEvento: TRetInfEvento;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property RetInfEvento: TRetInfEvento read FRetInfEvento write FRetInfEvento;
+  end;
+
+  TRetInfEventoCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TRetInfEventoCollectionItem;
+    procedure SetItem(Index: Integer; Value: TRetInfEventoCollectionItem);
+  public
+    function Add: TRetInfEventoCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TRetInfEventoCollectionItem;
+    property Items[Index: Integer]: TRetInfEventoCollectionItem read GetItem write SetItem; default;
+  end;
 
   TRetEventoNFCom = class(TObject)
   private
     Fversao: string;
     FretInfEvento: TRetInfEvento;
+    FretEvento: TRetInfEventoCollection;
     Fsignature: Tsignature;
 
     FXmlRetorno: string;
@@ -63,6 +84,7 @@ type
 
     property versao: string read Fversao write Fversao;
     property retInfEvento: TRetInfEvento read FretInfEvento write FretInfEvento;
+    property retEvento: TRetInfEventoCollection read FretEvento write FretEvento;
     property signature: Tsignature read Fsignature write Fsignature;
 
     property XmlRetorno: string read FXmlRetorno write FXmlRetorno;
@@ -82,12 +104,14 @@ begin
   inherited Create;
 
   FretInfEvento := TRetInfEvento.Create;
+  FretEvento := TRetInfEventoCollection.Create;
   Fsignature := Tsignature.Create;
 end;
 
 destructor TRetEventoNFCom.Destroy;
 begin
   FretInfEvento.Free;
+  FretEvento.Free;
   Fsignature.Free;
 
   inherited;
@@ -96,7 +120,7 @@ end;
 function TRetEventoNFCom.LerXml: Boolean;
 var
   Document: TACBrXmlDocument;
-  ANode, ANodeAux, SignatureNode{, ReferenceNode, X509DataNode}: TACBrXmlNode;
+  ANode, ANodeAux, SignatureNode: TACBrXmlNode;
   ok: Boolean;
 begin
   Document := TACBrXmlDocument.Create;
@@ -132,20 +156,6 @@ begin
         SignatureNode := ANode.Childrens.FindAnyNs('Signature');
 
         LerSignature(SignatureNode, signature);
-        {
-        if SignatureNode <> nil then
-        begin
-          ReferenceNode := SignatureNode.Childrens.FindAnyNs('SignedInfo')
-                                        .Childrens.FindAnyNs('Reference');
-          X509DataNode :=  SignatureNode.Childrens.FindAnyNs('KeyInfo')
-                                        .Childrens.FindAnyNs('X509Data');
-
-          signature.URI := ObterConteudoTag(ReferenceNode.Attributes.Items['URI']);
-          signature.DigestValue := ObterConteudoTag(ReferenceNode.Childrens.FindAnyNs('DigestValue'), tcStr);
-          signature.SignatureValue := ObterConteudoTag(SignatureNode.Childrens.FindAnyNs('SignatureValue'), tcStr);
-          signature.X509Certificate := ObterConteudoTag(X509DataNode.Childrens.FindAnyNs('X509Certificate'), tcStr);
-        end;
-        }
       end;
 
       Result := True;
@@ -155,6 +165,47 @@ begin
   finally
     FreeAndNil(Document);
   end;
+end;
+
+{ TRetInfEventoCollectionItem }
+
+constructor TRetInfEventoCollectionItem.Create;
+begin
+  inherited Create;
+
+  FRetInfEvento := TRetInfEvento.Create;
+end;
+
+destructor TRetInfEventoCollectionItem.Destroy;
+begin
+  FRetInfEvento.Free;
+
+  inherited;
+end;
+
+{ TRetInfEventoCollection }
+
+function TRetInfEventoCollection.Add: TRetInfEventoCollectionItem;
+begin
+  Result := Self.New;
+end;
+
+function TRetInfEventoCollection.GetItem(
+  Index: Integer): TRetInfEventoCollectionItem;
+begin
+  Result := TRetInfEventoCollectionItem(inherited Items[Index]);
+end;
+
+function TRetInfEventoCollection.New: TRetInfEventoCollectionItem;
+begin
+  Result := TRetInfEventoCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+procedure TRetInfEventoCollection.SetItem(Index: Integer;
+  Value: TRetInfEventoCollectionItem);
+begin
+  inherited Items[Index] := Value;
 end;
 
 end.

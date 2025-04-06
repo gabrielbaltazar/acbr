@@ -81,7 +81,7 @@ var
   ANodes: TACBrXmlNodeArray;
   i: Integer;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('servicos');
 
@@ -97,10 +97,11 @@ begin
         Quantidade := ObterConteudo(ANodes[i].Childrens.FindAnyNs('quantidade'), tcDe6);
         Descricao := ObterConteudo(ANodes[i].Childrens.FindAnyNs('atividade'), tcStr);
         Descricao := StringReplace(Descricao, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
         ValorUnitario := ObterConteudo(ANodes[i].Childrens.FindAnyNs('valor'), tcDe2);
         DescontoIncondicionado := ObterConteudo(ANodes[i].Childrens.FindAnyNs('deducao'), tcDe2);
         ItemListaServico := ObterConteudo(ANodes[i].Childrens.FindAnyNs('codigoservico'), tcStr);
+        xItemListaServico := ItemListaServicoDescricao(ItemListaServico);
         Aliquota := ObterConteudo(ANodes[i].Childrens.FindAnyNs('aliquota'), tcDe2);
         ValorINSS := ObterConteudo(ANodes[i].Childrens.FindAnyNs('inss'), tcDe2);
         ValorTotal := ObterConteudo(ANodes[i].Childrens.FindAnyNs('total'), tcDe2);
@@ -114,7 +115,7 @@ var
   AuxNode: TACBrXmlNode;
   xUF: string;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('prestador');
 
@@ -122,28 +123,22 @@ begin
   begin
     with NFSe.Prestador do
     begin
-      with Endereco do
-      begin
-        Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('endereco'), tcStr);
-        Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
-        Complemento := ObterConteudo(AuxNode.Childrens.FindAnyNs('complemento'), tcStr);
-        Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('bairro'), tcStr);
-        CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('cep'), tcStr);
-        CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('cidade'), tcStr);
-        UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('uf'), tcStr);
-        xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
+      Endereco.Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('endereco'), tcStr);
+      Endereco.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
+      Endereco.Complemento := ObterConteudo(AuxNode.Childrens.FindAnyNs('complemento'), tcStr);
+      Endereco.Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('bairro'), tcStr);
+      Endereco.CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('cep'), tcStr);
+      Endereco.CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('cidade'), tcStr);
+      Endereco.UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('uf'), tcStr);
+      Endereco.xMunicipio := ObterNomeMunicipioUF(StrToIntDef(Endereco.CodigoMunicipio, 0), xUF);
 
-        if UF = '' then
-          UF := xUF;
-      end;
+      if Endereco.UF = '' then
+        Endereco.UF := xUF;
 
       RazaoSocial := ObterConteudo(AuxNode.Childrens.FindAnyNs('nome'), tcStr);
 
-      with IdentificacaoPrestador do
-      begin
-        InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('inscricao'), tcStr);
-        CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('cpfcnpj'), tcStr);
-      end;
+      IdentificacaoPrestador.InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('inscricao'), tcStr);
+      IdentificacaoPrestador.CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('cpfcnpj'), tcStr);
     end;
   end;
 end;
@@ -153,7 +148,7 @@ var
   AuxNode: TACBrXmlNode;
   xUF: string;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('tomador');
 
@@ -161,28 +156,22 @@ begin
   begin
     with NFSe.Tomador do
     begin
-      with Endereco do
-      begin
-        Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('endereco'), tcStr);
-        Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
-        Complemento := ObterConteudo(AuxNode.Childrens.FindAnyNs('complemento'), tcStr);
-        Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('bairro'), tcStr);
-        CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('cep'), tcStr);
-        CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('cidade'), tcStr);
-        UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('uf'), tcStr);
-        xMunicipio := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
+      Endereco.Endereco := ObterConteudo(AuxNode.Childrens.FindAnyNs('endereco'), tcStr);
+      Endereco.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('numero'), tcStr);
+      Endereco.Complemento := ObterConteudo(AuxNode.Childrens.FindAnyNs('complemento'), tcStr);
+      Endereco.Bairro := ObterConteudo(AuxNode.Childrens.FindAnyNs('bairro'), tcStr);
+      Endereco.CEP := ObterConteudo(AuxNode.Childrens.FindAnyNs('cep'), tcStr);
+      Endereco.CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('cidade'), tcStr);
+      Endereco.UF := ObterConteudo(AuxNode.Childrens.FindAnyNs('uf'), tcStr);
+      Endereco.xMunicipio := ObterNomeMunicipioUF(StrToIntDef(Endereco.CodigoMunicipio, 0), xUF);
 
-        if UF = '' then
-          UF := xUF;
-      end;
+      if Endereco.UF = '' then
+        Endereco.UF := xUF;
 
       RazaoSocial := ObterConteudo(AuxNode.Childrens.FindAnyNs('nome'), tcStr);
 
-      with IdentificacaoTomador do
-      begin
-        InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('inscricao'), tcStr);
-        CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('cpfcnpj'), tcStr);
-      end;
+      IdentificacaoTomador.InscricaoMunicipal := ObterConteudo(AuxNode.Childrens.FindAnyNs('inscricao'), tcStr);
+      IdentificacaoTomador.CpfCnpj := ObterConteudo(AuxNode.Childrens.FindAnyNs('cpfcnpj'), tcStr);
     end;
   end;
 end;
@@ -222,7 +211,7 @@ var
 begin
   Result := True;
 
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   with NFSe do
   begin
@@ -239,7 +228,11 @@ begin
     // <valor>/valor>
     // <valorimposto>?</valorimposto>
     OptanteSimplesNacional := FpAOwner.StrToSimNao(Ok, ObterConteudo(ANode.Childrens.FindAnyNs('optantesimples'), tcStr));
-    // <situacao>?</situacao>
+    CodigoVerificacao := ObterConteudo(ANode.Childrens.FindAnyNs('codigoverificacao'), tcStr);
+
+    if (ObterConteudo(ANode.Childrens.FindAnyNs('situacao'), tcStr) = 'Emitida') then
+      SituacaoNfse := snNormal;
+
     // <deducao>?</deducao>
     // <basecalculo>?</basecalculo>
     // <retido>?</ retido >

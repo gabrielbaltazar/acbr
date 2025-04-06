@@ -38,7 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv1, ACBrNFSeXConversao;
+  ACBrNFSeXGravarXml_ABRASFv1,
+  ACBrNFSeXConversao;
 
 type
   { TNFSeW_BHISS }
@@ -67,6 +68,9 @@ begin
   FormatoItemListaServico := filsComFormatacaoSemZeroEsquerda;
 
   DivAliq100 := True;
+
+  if FpAOwner.ConfigGeral.Params.TemParametro('NaoDividir100') then
+    DivAliq100 := False;
 end;
 
 end.

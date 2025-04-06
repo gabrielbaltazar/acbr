@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                              Mark dos Santos Gonçalves                       }
 {                              Juliomar Marchetti                              }
 {                                                                              }
@@ -476,6 +476,7 @@ type
     rllFoneReceb: TRLLabel;
     RLLabel108: TRLLabel;
     RLDraw12: TRLDraw;
+    rliMarcadAgua: TRLImage;
     procedure rlb_01_ReciboBeforePrint(Sender: TObject; var PrintIt: boolean);
     procedure rlb_02_CabecalhoBeforePrint(Sender: TObject; var PrintIt: boolean);
     procedure rlb_03_DadosDACTeBeforePrint(Sender: TObject; var PrintIt: boolean);
@@ -519,7 +520,7 @@ uses
   ACBrUtil.Strings,
   ACBrUtil.DateTime,
   ACBrValidador, pcteConversaoCTe,
-  pcteCTe, ACBrDFeReportFortes;
+  ACBrCTe.Classes, ACBrDFeReportFortes;
 
 {$IFnDEF FPC}
   {$R *.dfm}
@@ -795,6 +796,11 @@ begin
   if Trim(fpDACTe.Logo) <> '' then
   begin
     rliLogo.Picture.LoadFromFile(fpDACTe.Logo);
+  end;
+
+  if NaoEstaVazio(fpDACTe.MarcaDagua) and FileExists(fpDACTe.MarcaDagua) then begin
+    rliMarcadAgua.Visible := True;
+    rliMarcadAgua.Picture.LoadFromFile(fpDACTe.MarcaDagua);
   end;
 
   if fpDACTe.ExpandeLogoMarca then
@@ -1337,7 +1343,7 @@ begin
     rlmObs.Lines.Add(ACBrStr(
       'DACTE em Contingência - DPEC regularmente recebida pela Receita Federal do Brasil'));
 
-  rlmObs.Lines.Text := StringReplace(rlmObs.Lines.Text, ';', #13, [rfReplaceAll]);
+  rlmObs.Lines.Text := StringReplace(rlmObs.Lines.Text, fpDACTe.CaractereQuebraDeLinha, #13, [rfReplaceAll]);
   rlmObs.Lines.EndUpdate;
 
   rlmObsFisco.Lines.BeginUpdate;
@@ -1352,7 +1358,7 @@ begin
     end;
 
   rlmObsFisco.Lines.Text := StringReplace(rlmObsFisco.Lines.Text,
-    ';', #13, [rfReplaceAll]);
+    fpDACTe.CaractereQuebraDeLinha, #13, [rfReplaceAll]);
   rlmObsFisco.Lines.EndUpdate;
 
   rllMsgTeste.Visible := False;

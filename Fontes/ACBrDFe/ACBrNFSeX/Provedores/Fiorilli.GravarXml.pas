@@ -39,7 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXMLBase,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv2, ACBrNFSeXConversao;
+  ACBrNFSeXGravarXml_ABRASFv2;
 
 type
   { TNFSeW_Fiorilli200 }
@@ -64,7 +64,7 @@ begin
 
   FormatoCompetencia := tcDat;
 
-  NrOcorrCodigoPaisTomador := -1;
+  NrOcorrCodigoPaisTomador := 0;
 end;
 
 end.

@@ -791,14 +791,25 @@ begin
 end;
 
 procedure TevtRetPF.GerarideBenef;
+var
+  NrOcorrCpfBenef: integer;
+  NrOcorrNmBenef: integer;
 begin
+  if Self.ideEstab.ideBenef.cpfBenef = '' then
+    NrOcorrNmBenef := 1
+  else
+    NrOcorrNmBenef := 0;
+
+  NrOcorrCpfBenef := Abs(NrOcorrNmBenef-1);
+
   Gerador.wGrupo('ideBenef');
 
   with Self.ideEstab do
   begin
-    Gerador.wCampo(tcStr, '', 'cpfBenef', 11, 11, 1, ideBenef.cpfBenef);
-    Gerador.wCampo(tcStr, '', 'nmBenef',   1, 70, 0, ideBenef.nmBenef);
-    if TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF >= v2_01_02 then
+    Gerador.wCampo(tcStr, '', 'cpfBenef', 11, 11, NrOcorrCpfBenef, ideBenef.cpfBenef);
+    Gerador.wCampo(tcStr, '', 'nmBenef',   1, 70, NrOcorrNmBenef, ideBenef.nmBenef);
+    if ((TACBrReinf(FACBrReinf).Configuracoes.Geral.VersaoDF >= v2_01_02) and
+        (ideBenef.cpfBenef <> '')) then
       Gerador.wCampo(tcStr, '', 'ideEvtAdic',1,  8, 0, ideBenef.ideEvtAdic);
 
     GerarideDep(ideBenef.ideDep);
@@ -874,7 +885,7 @@ begin
         Gerador.wCampo(tcStr, '', 'compFP', 7,  7, 0, FormatDateTime('yyyy-mm',item.compFP));
     end;
     Gerador.wCampo(tcStr, '', 'indDecTerc',     1,   1,  0, item.indDecTerc);
-    Gerador.wCampo(tcDe2, '', 'vlrRendBruto',   1,  14,  1, item.vlrRendBruto);
+    Gerador.wCampo(tcDe2, '', 'vlrRendBruto',   1,  14,  0, item.vlrRendBruto);
     Gerador.wCampo(tcDe2, '', 'vlrRendTrib',    1,  14,  0, item.vlrRendTrib);
     Gerador.wCampo(tcDe2, '', 'vlrIR',          1,  14,  0, item.vlrIR);
     Gerador.wCampo(tcStr, '', 'indRRA',         1,   1,  0, item.indRRA);

@@ -29,9 +29,14 @@ package ACBr_TEFD;
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
 
+{$I ACBr.inc}  
+
 requires
   rtl,
   vcl,
+  {$IFDEF HAS_PNG}
+  vclimg,
+  {$ENDIF}
   ACBr_Comum,
   soaprtl,
   ACBr_Diversos,
@@ -69,6 +74,19 @@ contains
   ACBrTEFAPI in '..\..\..\Fontes\ACBrTEFD\ACBrTEFAPI.pas',
   ACBrTEFAPIComum in '..\..\..\Fontes\ACBrTEFD\ACBrTEFAPIComum.pas',
   ACBrTEFAPIPayGoWeb in '..\..\..\Fontes\ACBrTEFD\ACBrTEFAPIPayGoWeb.pas',
-  ACBrTEFAPICliSiTef in '..\..\..\Fontes\ACBrTEFD\ACBrTEFAPICliSiTef.pas';
+  ACBrTEFAPICliSiTef in '..\..\..\Fontes\ACBrTEFD\ACBrTEFAPICliSiTef.pas',
+{$IFDEF DELPHIX_BERLIN_UP}
+  ACBrTEFAndroid in '..\..\..\Fontes\ACBrTEFD\ACBrTEFAndroid.pas',
+{$ENDIF}
+  ACBrTEFDCliSiTefModular in '..\..\..\Fontes\ACBrTEFD\ACBrTEFDCliSiTefModular.pas',
+  ACBrTEFDDirecao in '..\..\..\Fontes\ACBrTEFD\ACBrTEFDDirecao.pas',
+  ACBrTEFDDialScopeGetcard in '..\..\..\Fontes\ACBrTEFD\ACBrTEFDDialScopeGetcard.pas',
+  ACBrTEFDElgin in '..\..\..\Fontes\ACBrTEFD\ACBrTEFDElgin.pas',
+  ACBrTEFAPIDestaxa in '..\..\..\Fontes\ACBrTEFD\ACBrTEFAPIDestaxa.pas',
+  ACBrTEFDestaxaComum in '..\..\..\Fontes\ACBrTEFD\ACBrTEFDestaxaComum.pas',
+  ACBrTEFScopeAPI in '..\..\..\Fontes\ACBrTEFD\ACBrTEFScopeAPI.pas',
+  ACBrTEFAPIScope in '..\..\..\Fontes\ACBrTEFD\ACBrTEFAPIScope.pas',
+  ACBrTEFAPITPag in '..\..\..\Fontes\ACBrTEFD\ACBrTEFAPITPag.pas',
+  ACBrTEFTPagAPI in '..\..\..\Fontes\ACBrTEFD\ACBrTEFTPagAPI.pas';
 
 end.

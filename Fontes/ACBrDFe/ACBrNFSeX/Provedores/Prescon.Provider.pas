@@ -49,11 +49,11 @@ uses
 type
   TACBrNFSeXWebservicePrescon = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function GerarToken(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function GerarToken(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -86,7 +86,7 @@ type
     procedure PrepararGerarToken(Response: TNFSeGerarTokenResponse); override;
     procedure TratarRetornoGerarToken(Response: TNFSeGerarTokenResponse); override;
 
-    function AplicarLineBreak(AXMLRps: String; const ABreak: String): String; override;
+    function AplicarLineBreak(const AXMLRps: string; const ABreak: string): string; override;
 
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
@@ -119,14 +119,11 @@ begin
     Autenticacao.RequerLogin := True;
     Autenticacao.RequerChaveAutorizacao := True;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := True;
-      ConsultarRps := True;
-      ConsultarFaixaNfse := True;
-      CancelarNfse := True;
-      GerarToken := True;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.ConsultarFaixaNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+    ServicosDisponibilizados.GerarToken := True;
   end;
 
   ConfigSchemas.Validar := False;
@@ -747,8 +744,8 @@ begin
   end;
 end;
 
-function TACBrNFSeProviderPrescon.AplicarLineBreak(AXMLRps: String;
-  const ABreak: String): String;
+function TACBrNFSeProviderPrescon.AplicarLineBreak(const AXMLRps: string;
+  const ABreak: string): string;
 begin
   Result := AXMLRps;
   if Trim(Result) <> '' then
@@ -846,7 +843,7 @@ end;
 
 { TACBrNFSeXWebservicePrescon }
 
-function TACBrNFSeXWebservicePrescon.Recepcionar(ACabecalho,
+function TACBrNFSeXWebservicePrescon.Recepcionar(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -855,7 +852,7 @@ begin
     ['xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"']);
 end;
 
-function TACBrNFSeXWebservicePrescon.ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservicePrescon.ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
@@ -863,7 +860,7 @@ begin
     ['xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"']);
 end;
 
-function TACBrNFSeXWebservicePrescon.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservicePrescon.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 var
   CodVerif: string;
 begin
@@ -876,7 +873,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebservicePrescon.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservicePrescon.Cancelar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
@@ -884,7 +881,7 @@ begin
     ['xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"']);
 end;
 
-function TACBrNFSeXWebservicePrescon.GerarToken(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservicePrescon.GerarToken(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 

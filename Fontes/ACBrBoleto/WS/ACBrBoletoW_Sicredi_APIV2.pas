@@ -38,10 +38,11 @@ unit ACBrBoletoW_Sicredi_APIV2;
 interface
 
 uses
+  ACBrBase,
   ACBrJSON,
   ACBrBoleto,
   ACBrBoletoWS,
-  ACBrBoletoWS.Rest;
+  ACBrBoletoWS.Rest, ACBrUtil.FilesIO;
 
 type
   { TBoletoW_Sicredi_APIV2 }
@@ -77,6 +78,7 @@ type
     procedure RequisicaoBaixa;
     procedure RequisicaoConsulta;
     procedure RequisicaoConsultaDetalhe;
+    procedure RequisicaoConcederAbatimento;
     procedure GerarPagador(AJson: TACBrJSONObject);
     procedure GerarBenificiarioFinal(AJson: TACBrJSONObject);
     procedure GerarInfomativo(AJson: TACBrJSONObject);
@@ -121,7 +123,7 @@ procedure TBoletoW_Sicredi_APIV2.DefinirURL;
 var
   LId: String;
 begin
-  FPURL     := IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao,C_URL, C_URL_HOM);
+  FPURL     := IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao,C_URL, C_URL_HOM);
 
   if ATitulo <> nil then
 		LId      := DefinirNossoNumero;
@@ -134,8 +136,9 @@ begin
     tpAltera                :
     begin
       case ATitulo.OcorrenciaOriginal.Tipo of
-        toRemessaAlterarVencimento : FPURL := FPURL + '/boletos/'+ LId + '/data-vencimento';
-        toRemessaAlterarOutrosDados:
+        toRemessaAlterarVencimento  : FPURL := FPURL + '/boletos/'+ LId + '/data-vencimento';
+        toRemessaConcederAbatimento : FPURL := FPURL + '/boletos/'+ LId + '/conceder-abatimento';
+        toRemessaAlterarOutrosDados :
         begin
           case ATitulo.OcorrenciaOriginal.ComplementoOutrosDados of
             TCompDesconto : FPURL := FPURL + '/boletos/'+ LId + '/desconto';
@@ -158,24 +161,24 @@ end;
 
 procedure TBoletoW_Sicredi_APIV2.DefinirCodigoBeneficiario;
 begin
-  FPHeaders.Add( Format('codigoBeneficiario: %s',[Boleto.Cedente.CodigoCedente]) );
+  AddHeaderParam('codigoBeneficiario',Boleto.Cedente.CodigoCedente);
 end;
 
 procedure TBoletoW_Sicredi_APIV2.DefinirContentType;
 begin
-  FPContentType := 'application/json';
+  FPContentType := 'application/json; charset=utf-8';
   if (Boleto.Configuracoes.WebService.Operacao = tpConsulta) then
     FPContentType := 'application/x-www-form-urlencoded';
 end;
 
 procedure TBoletoW_Sicredi_APIV2.DefinirCooperativa;
 begin
-  FPHeaders.Add( Format('cooperativa: %s',[OnlyNumber(Boleto.Cedente.Agencia)]) );
+  AddHeaderParam('cooperativa',OnlyNumber(Boleto.Cedente.Agencia) );
 end;
 
 procedure TBoletoW_Sicredi_APIV2.GerarHeader;
 begin
-	FPHeaders.Clear;
+  ClearHeaderParams;
   DefinirContentType;
   DefinirKeyUser;
   DefinirPosto;
@@ -190,7 +193,6 @@ end;
 procedure TBoletoW_Sicredi_APIV2.GerarInfomativo(AJson: TACBrJSONObject);
 var
   LJsonArray: TACBrJSONArray;
-  LJsonInformativoObject: TACBrJSONObject;
   I: Integer;
 begin
   if ATitulo.Informativo.Text <> '' then
@@ -198,11 +200,11 @@ begin
     LJsonArray := TACBrJSONArray.Create;
     for I := 0 to ATitulo.Informativo.Count - 1 do
     begin
-      LJsonArray.AddElement(Copy(Atitulo.Informativo.Strings[I],1,80));
+      LJsonArray.AddElement(Copy(Atitulo.Informativo[I],1,80));
       if I = 4 then
         break;
     end;
-    LJsonInformativoObject.AddPair('informativos', LJsonArray);
+    AJson.AddPair('informativos', LJsonArray);
   end;
 end;
 
@@ -286,6 +288,10 @@ begin
         LConsulta.Delimiter := '&';
         LConsulta.Add(Format('codigoBeneficiario=%s',[Boleto.Cedente.CodigoCedente]));
         LConsulta.Add(Format('dia=%s', [FormatDateBr(Boleto.Configuracoes.WebService.Filtro.dataMovimento.DataInicio, 'DD/MM/YYYY')]));
+
+        if Boleto.Configuracoes.WebService.Filtro.indiceContinuidade > 0 then
+           LConsulta.Add('pagina='+FloatToStr(Boleto.Configuracoes.WebService.Filtro.indiceContinuidade));
+
       finally
         Result := LConsulta.DelimitedText;
         LConsulta.Free;
@@ -324,7 +330,9 @@ end;
 
 procedure TBoletoW_Sicredi_APIV2.DefinirPosto;
 begin
-  FPHeaders.Add( Format('posto: %s', [OnlyNumber(Boleto.Cedente.AgenciaDigito)]) );
+  if Length(Boleto.Cedente.AgenciaDigito) <> 2 then
+     raise EACBrException.Create('Agência necessidade de dois digitos!');
+  AddHeaderParam('posto',Boleto.Cedente.AgenciaDigito );
 end;
 
 procedure TBoletoW_Sicredi_APIV2.DefinirAutenticacao;
@@ -334,7 +342,7 @@ end;
 
 function TBoletoW_Sicredi_APIV2.ValidaAmbiente: Integer;
 begin
-  Result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = taProducao, '1', '2'), 2);
+  Result := StrToIntDef(IfThen(Boleto.Configuracoes.WebService.Ambiente = tawsProducao, '1', '2'), 2);
 end;
 
 procedure TBoletoW_Sicredi_APIV2.RequisicaoJson;
@@ -403,6 +411,7 @@ begin
   begin
     case ATitulo.OcorrenciaOriginal.Tipo of
       toRemessaAlterarVencimento  : RequisicaoAlteraVencimento;
+      toRemessaConcederAbatimento : RequisicaoConcederAbatimento;
       toRemessaAlterarOutrosDados :
           Begin
             case ATitulo.OcorrenciaOriginal.ComplementoOutrosDados of
@@ -433,19 +442,19 @@ begin
     try
       if ((ATitulo.DataDesconto > EncodeDate(2000,01,01)) and(ATitulo.ValorDesconto > 0) and (ATitulo.ValorDescontoAntDia = 0)) then
       begin
-        LJsonObject.AddPair('dataDesconto1', FormatDateBr(ATitulo.DataDesconto, 'YYYY-MM-DD') );
+        LJsonObject.AddPair('data1', FormatDateBr(ATitulo.DataDesconto, 'YYYY-MM-DD') );
         LDescontoErro := False;
       end;
 
       if ((ATitulo.DataDesconto2 > EncodeDate(2000,01,01))and(ATitulo.ValorDesconto2 > 0) and (ATitulo.ValorDescontoAntDia = 0)) then
       begin
-        LJsonObject.AddPair('dataDesconto2', FormatDateBr(ATitulo.DataDesconto2, 'YYYY-MM-DD') );
+        LJsonObject.AddPair('data2', FormatDateBr(ATitulo.DataDesconto2, 'YYYY-MM-DD') );
         LDescontoErro := False;
       end;
 
       if ((ATitulo.DataDesconto3 > EncodeDate(2000,01,01)) and(ATitulo.ValorDesconto3 > 0) and (ATitulo.ValorDescontoAntDia = 0)) then
       begin
-        LJsonObject.AddPair('dataDesconto3', FormatDateBr(ATitulo.DataDesconto3, 'YYYY-MM-DD') );
+        LJsonObject.AddPair('data3', FormatDateBr(ATitulo.DataDesconto3, 'YYYY-MM-DD') );
         LDescontoErro := False;
       end;
 
@@ -504,8 +513,7 @@ begin
   begin
     LJsonObject := TACBrJSONObject.Create;
     try
-      LJsonObject.AddPair('valorouPercentual', ATitulo.ValorMoraJuros);
-
+      LJsonObject.AddPair('valorOuPercentual', ATitulo.ValorMoraJuros);
       FPDadosMsg := LJsonObject.ToJSON;
     finally
       LJsonObject.Free;
@@ -552,6 +560,22 @@ begin
   if Assigned(ATitulo) then
   begin
     FPDadosMsg := '{}';
+  end;
+end;
+
+procedure TBoletoW_Sicredi_APIV2.RequisicaoConcederAbatimento;
+var
+  LJsonObject: TACBrJSONObject;
+begin
+  if Assigned(ATitulo) then
+  begin
+    LJsonObject := TACBrJSONObject.Create;
+    try
+      LJsonObject.AddPair('valorAbatimento', ATitulo.ValorAbatimento);
+      FPDadosMsg := LJsonObject.ToJSON;
+    finally
+      LJsonObject.Free;
+    end;
   end;
 end;
 
@@ -635,12 +659,12 @@ var
   I: Integer;
 begin
 
-  if ATitulo.Mensagem.Text <> '' then
+  if Trim(ATitulo.Mensagem.Text) <> '' then
   begin
     LJsonMensagemArray := TACBrJSONArray.Create;
     for I := 0 to ATitulo.Mensagem.Count - 1 do
     begin
-      LJsonMensagemArray.AddElement( Copy(Atitulo.Mensagem.Strings[I],1,80) );
+      LJsonMensagemArray.AddElement( Copy(Trim(Atitulo.Mensagem.Strings[I]),1,80) );
       if I = 3 then break;//Somente 4 infos
     end;
     AJson.AddPair('mensagens', LJsonMensagemArray);
@@ -687,10 +711,10 @@ begin
 
   if Assigned(OAuth) then
   begin
-    if OAuth.Ambiente = taHomologacao then
-      OAuth.URL := C_URL_OAUTH_HOM
+    if OAuth.Ambiente = tawsProducao then
+      OAuth.URL := C_URL_OAUTH_PROD
     else
-      OAuth.URL := C_URL_OAUTH_PROD;
+      OAuth.URL := C_URL_OAUTH_HOM;
 
     OAuth.Payload := True;
   end;

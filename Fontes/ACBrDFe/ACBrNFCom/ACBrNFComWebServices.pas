@@ -764,7 +764,7 @@ begin
   // Consta no Retorno da NFC-e
   FRecibo := FNFComRetornoSincrono.nRec;
   FcUF := FNFComRetornoSincrono.cUF;
-  chNFCom := FNFComRetornoSincrono.ProtNFCom.chNFCom;
+  chNFCom := FNFComRetornoSincrono.ProtNFCom.chDFe;
 
   if (FNFComRetornoSincrono.protNFCom.cStat > 0) then
     FcStat := FNFComRetornoSincrono.protNFCom.cStat
@@ -783,7 +783,7 @@ begin
   end;
 
   // Verificar se a NFCom-e foi autorizada com sucesso
-  Result := (FNFComRetornoSincrono.cStat = 104) and
+  Result := (FNFComRetornoSincrono.cStat = 100) and
     (TACBrNFCom(FPDFeOwner).CstatProcessado(FNFComRetornoSincrono.protNFCom.cStat));
 
   if Result then
@@ -798,19 +798,19 @@ begin
              (FNFComRetornoSincrono.protNFCom.digVal <> '') and
              (NFCom.signature.DigestValue <> FNFComRetornoSincrono.protNFCom.digVal) then
           begin
-            raise EACBrNFComException.Create('DigestValue do documento ' + NumID + ' não coNFComre.');
+            raise EACBrNFComException.Create('DigestValue do documento ' + NumID + ' não confere.');
           end;
 
           NFCom.procNFCom.cStat := FNFComRetornoSincrono.protNFCom.cStat;
           NFCom.procNFCom.tpAmb := FNFComRetornoSincrono.tpAmb;
           NFCom.procNFCom.verAplic := FNFComRetornoSincrono.verAplic;
-          NFCom.procNFCom.chNFCom := FNFComRetornoSincrono.ProtNFCom.chNFCom;
+          NFCom.procNFCom.chDFe := FNFComRetornoSincrono.ProtNFCom.chDFe;
           NFCom.procNFCom.dhRecbto := FNFComRetornoSincrono.protNFCom.dhRecbto;
           NFCom.procNFCom.nProt := FNFComRetornoSincrono.ProtNFCom.nProt;
           NFCom.procNFCom.digVal := FNFComRetornoSincrono.protNFCom.digVal;
           NFCom.procNFCom.xMotivo := FNFComRetornoSincrono.protNFCom.xMotivo;
 
-          AProcNFCom := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NFCom, 'NFCom');
+          AProcNFCom := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NFCom, 'nfcomProc', 'NFCom');
           try
             // Processando em UTF8, para poder gravar arquivo corretamente //
             AProcNFCom.XML_DFe := RemoverDeclaracaoXML(XMLAssinado);
@@ -1308,7 +1308,7 @@ begin
   if Assigned(FprocEventoNFCom) then
     FprocEventoNFCom.Free;
 
-  FprotNFCom := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NFCom, 'NFCom');
+  FprotNFCom := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NFCom, 'nfcomProc', 'NFCom');
   FprocEventoNFCom := TRetEventoNFComCollection.Create;
 end;
 
@@ -1428,7 +1428,7 @@ begin
     sCNPJ       := SeparaDados(aEvento, 'CNPJ');
     sPathEvento := PathWithDelim(FPConfiguracoesNFCom.Arquivos.GetPathEvento(TipoEvento, sCNPJ));
 
-    if (aProcEvento <> '') then
+    if FPConfiguracoesNFCom.Arquivos.SalvarEvento and (aProcEvento <> '') then
       FPDFeOwner.Gravar( aIDEvento + '-procEventoNFCom.xml', aProcEvento, sPathEvento);
   end;
 end;
@@ -1471,12 +1471,12 @@ begin
 
     // <protNFCom> - Retorno dos dados do ENVIO da NFCom-e
     // Considerá-los apenas se não existir nenhum evento de cancelamento (110111)
-    FprotNFCom.PathDFe := NFComRetorno.protNFCom.PathNFCom;
-    FprotNFCom.PathRetConsReciDFe := NFComRetorno.protNFCom.PathRetConsReciNFCom;
-    FprotNFCom.PathRetConsSitDFe := NFComRetorno.protNFCom.PathRetConsSitNFCom;
+    FprotNFCom.PathDFe := NFComRetorno.protNFCom.PathDFe;
+    FprotNFCom.PathRetConsReciDFe := NFComRetorno.protNFCom.PathRetConsReciDFe;
+    FprotNFCom.PathRetConsSitDFe := NFComRetorno.protNFCom.PathRetConsSitDFe;
     FprotNFCom.tpAmb := NFComRetorno.protNFCom.tpAmb;
     FprotNFCom.verAplic := NFComRetorno.protNFCom.verAplic;
-    FprotNFCom.chDFe := NFComRetorno.protNFCom.chNFCom;
+    FprotNFCom.chDFe := NFComRetorno.protNFCom.chDFe;
     FprotNFCom.dhRecbto := NFComRetorno.protNFCom.dhRecbto;
     FprotNFCom.nProt := NFComRetorno.protNFCom.nProt;
     FprotNFCom.digVal := NFComRetorno.protNFCom.digVal;
@@ -1637,7 +1637,7 @@ begin
                   NFCom.procNFCom.digVal := NFComRetorno.protNFCom.digVal;
                   NFCom.procNFCom.cStat := NFComRetorno.cStat;
                   NFCom.procNFCom.xMotivo := NFComRetorno.xMotivo;
-                  NFCom.procNFCom.Versao := NFComRetorno.protNFCom.Versao;
+//                  NFCom.procNFCom.Versao := NFComRetorno.protNFCom.Versao;
 
                   GerarXML;
                 end
@@ -1645,16 +1645,16 @@ begin
                 begin
                   NFCom.procNFCom.tpAmb := NFComRetorno.protNFCom.tpAmb;
                   NFCom.procNFCom.verAplic := NFComRetorno.protNFCom.verAplic;
-                  NFCom.procNFCom.chNFCom := NFComRetorno.protNFCom.chNFCom;
+                  NFCom.procNFCom.chDFe := NFComRetorno.protNFCom.chDFe;
                   NFCom.procNFCom.dhRecbto := NFComRetorno.protNFCom.dhRecbto;
                   NFCom.procNFCom.nProt := NFComRetorno.protNFCom.nProt;
                   NFCom.procNFCom.digVal := NFComRetorno.protNFCom.digVal;
                   NFCom.procNFCom.cStat := NFComRetorno.protNFCom.cStat;
                   NFCom.procNFCom.xMotivo := NFComRetorno.protNFCom.xMotivo;
-                  NFCom.procNFCom.Versao := NFComRetorno.protNFCom.Versao;
+//                  NFCom.procNFCom.Versao := NFComRetorno.protNFCom.Versao;
 
                   // O código abaixo é bem mais rápido que "GerarXML" (acima)...
-                  AProcNFCom := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NFCom, 'NFCom');;
+                  AProcNFCom := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NFCom, 'nfcomProc', 'NFCom');;
                   try
                     AProcNFCom.XML_DFe := RemoverDeclaracaoXML(XMLOriginal);
                     AProcNFCom.XML_Prot := NFComRetorno.XMLprotNFCom;
@@ -1682,9 +1682,9 @@ begin
 
                 FRetNFComDFe := '<' + ENCODING_UTF8 + '>' +
                                 '<NFComDFe>' +
-                                 '<nfComProc versao="' + FVersao + '">' +
+                                 '<nfcomProc versao="' + FVersao + '">' +
                                    SeparaDados(XMLOriginal, 'nfComProc') +
-                                 '</nfComProc>' +
+                                 '</nfcomProc>' +
                                  '<procEventoNFCom versao="' + FVersao + '">' +
                                    aEventos +
                                  '</procEventoNFCom>' +
@@ -1733,7 +1733,7 @@ begin
       end
       else
       begin
-        if ExtrairEventos and FPConfiguracoesNFCom.Arquivos.Salvar and
+        if ExtrairEventos and FPConfiguracoesNFCom.Arquivos.SalvarEvento and
            (NaoEstaVazio(SeparaDados(FPRetWS, 'procEventoNFCom'))) then
         begin
           Inicio := Pos('<procEventoNFCom', FPRetWS);
@@ -1912,7 +1912,8 @@ begin
     EventoNFCom.Versao := FPVersaoServico;
     EventoNFCom.GerarXML;
 
-    AssinarXML(EventoNFCom.Xml, 'eventoNFCom', 'infEvento', 'Falha ao assinar o Envio de Evento ');
+    AssinarXML(EventoNFCom.XmlEnvio, 'eventoNFCom', 'infEvento',
+                                         'Falha ao assinar o Envio de Evento ');
 
     // Separa o XML especifico do Evento para ser Validado.
     AXMLEvento := SeparaDados(FPDadosMsg, 'detEvento');
@@ -1924,6 +1925,8 @@ begin
                           Trim(RetornarConteudoEntre(AXMLEvento, '<evCancNFCom>', '</evCancNFCom>')) +
                         '</evCancNFCom>';
         end;
+    else
+      AXMLEvento := '';
     end;
 
     AXMLEvento := '<' + ENCODING_UTF8 + '>' + AXMLEvento;
@@ -1956,10 +1959,9 @@ begin
 end;
 
 function TNFComEnvEvento.TratarResposta: Boolean;
-//var
-//  Leitor: TLeitor;
-//  I, J: integer;
-//  NomeArq, PathArq, VersaoEvento, Texto: string;
+var
+  I, J: integer;
+  NomeArq, PathArq, VersaoEvento, Texto: string;
 begin
   FEvento.idLote := idLote;
 
@@ -1977,78 +1979,70 @@ begin
   FPMsg := EventoRetorno.retInfEvento.xMotivo;
   FTpAmb := EventoRetorno.retInfEvento.tpAmb;
 
-  Result := (FcStat = 128);
+  Result := (FcStat = 135);
 
   //gerar arquivo proc de evento
-  (*
+
   if Result then
   begin
-    Leitor := TLeitor.Create;
-    try
-      for I := 0 to FEvento.Evento.Count - 1 do
+    for I := 0 to FEvento.Evento.Count - 1 do
+    begin
+      for J := 0 to EventoRetorno.retEvento.Count - 1 do
       begin
-        for J := 0 to EventoRetorno.retEvento.Count - 1 do
+        if FEvento.Evento.Items[I].InfEvento.chNFCom =
+          EventoRetorno.retEvento.Items[J].RetInfEvento.chNFCom then
         begin
-          if FEvento.Evento.Items[I].InfEvento.chNFCom =
-            EventoRetorno.retEvento.Items[J].RetInfEvento.chNFCom then
+          FEvento.Evento.Items[I].RetInfEvento.tpAmb := EventoRetorno.retEvento.Items[J].RetInfEvento.tpAmb;
+          FEvento.Evento.Items[I].RetInfEvento.nProt := EventoRetorno.retEvento.Items[J].RetInfEvento.nProt;
+          FEvento.Evento.Items[I].RetInfEvento.dhRegEvento := EventoRetorno.retEvento.Items[J].RetInfEvento.dhRegEvento;
+          FEvento.Evento.Items[I].RetInfEvento.cStat := EventoRetorno.retEvento.Items[J].RetInfEvento.cStat;
+          FEvento.Evento.Items[I].RetInfEvento.xMotivo := EventoRetorno.retEvento.Items[J].RetInfEvento.xMotivo;
+
+          Texto := '';
+
+          if EventoRetorno.retEvento.Items[J].RetInfEvento.cStat in [135, 136, 155] then
           begin
-            FEvento.Evento.Items[I].RetInfEvento.tpAmb := EventoRetorno.retEvento.Items[J].RetInfEvento.tpAmb;
-            FEvento.Evento.Items[I].RetInfEvento.nProt := EventoRetorno.retEvento.Items[J].RetInfEvento.nProt;
-            FEvento.Evento.Items[I].RetInfEvento.dhRegEvento := EventoRetorno.retEvento.Items[J].RetInfEvento.dhRegEvento;
-            FEvento.Evento.Items[I].RetInfEvento.cStat := EventoRetorno.retEvento.Items[J].RetInfEvento.cStat;
-            FEvento.Evento.Items[I].RetInfEvento.xMotivo := EventoRetorno.retEvento.Items[J].RetInfEvento.xMotivo;
+            VersaoEvento := TACBrNFCom(FPDFeOwner).LerVersaoDeParams(LayNFComEvento);
 
-            Texto := '';
-
-            if EventoRetorno.retEvento.Items[J].RetInfEvento.cStat in [135, 136, 155] then
-            begin
-              VersaoEvento := TACBrNFCom(FPDFeOwner).LerVersaoDeParams(LayNFComEvento);
-
-              Leitor.Arquivo := FPDadosMsg;
-              Texto := '<procEventoNFCom versao="' + VersaoEvento + '" xmlns="' + ACBRNFCom_NAMESPACE + '">' +
-                        '<evento versao="' + VersaoEvento + '">' +
-                         Leitor.rExtrai(1, 'infEvento', '', I + 1) +
+            Texto := '<evento versao="' + VersaoEvento + '">' +
+                         SeparaDados(FPDadosMsg, 'infEvento', True) +
                          '<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">' +
-                          Leitor.rExtrai(1, 'SignedInfo', '', I + 1) +
-                          Leitor.rExtrai(1, 'SignatureValue', '', I + 1) +
-                          Leitor.rExtrai(1, 'KeyInfo', '', I + 1) +
+                         SeparaDados(FPDadosMsg, 'Signature', False) +
                          '</Signature>'+
-                        '</evento>';
+                     '</evento>';
 
-              Leitor.Arquivo := FPRetWS;
-              Texto := Texto +
-                         '<retEvento versao="' + VersaoEvento + '">' +
-                          Leitor.rExtrai(1, 'infEvento', '', J + 1) +
-                         '</retEvento>' +
-                        '</procEventoNFCom>';
+            Texto := Texto +
+                       '<retEvento versao="' + VersaoEvento + '">' +
+                          SeparaDados(FPRetWS, 'infEvento', True) +
+                       '</retEvento>';
 
-              if FPConfiguracoesNFCom.Arquivos.Salvar then
-              begin
-                NomeArq := OnlyNumber(FEvento.Evento.Items[i].InfEvento.Id) + '-procEventoNFCom.xml';
-                PathArq := PathWithDelim(GerarPathEvento(FEvento.Evento.Items[I].InfEvento.CNPJ));
+            Texto := '<procEventoNFCom versao="' + VersaoEvento + '" xmlns="' + ACBRNFCom_NAMESPACE + '">' +
+                       Texto +
+                     '</procEventoNFCom>';
 
-                FPDFeOwner.Gravar(NomeArq, Texto, PathArq);
-                FEventoRetorno.retEvento.Items[J].RetInfEvento.NomeArquivo := PathArq + NomeArq;
-                FEvento.Evento.Items[I].RetInfEvento.NomeArquivo := PathArq + NomeArq;
-              end;
+            if FPConfiguracoesNFCom.Arquivos.Salvar then
+            begin
+              NomeArq := OnlyNumber(FEvento.Evento.Items[i].InfEvento.Id) + '-procEventoNFCom.xml';
+              PathArq := PathWithDelim(GerarPathEvento(FEvento.Evento.Items[I].InfEvento.CNPJ));
 
-              { Converte de UTF8 para a String nativa e Decodificar caracteres HTML Entity }
-              Texto := ParseText(Texto);
+              FPDFeOwner.Gravar(NomeArq, Texto, PathArq);
+              FEventoRetorno.retEvento.Items[J].RetInfEvento.NomeArquivo := PathArq + NomeArq;
+              FEvento.Evento.Items[I].RetInfEvento.NomeArquivo := PathArq + NomeArq;
             end;
 
-            // Se o evento for rejeitado a propriedade XML conterá uma string vazia
-            FEventoRetorno.retEvento.Items[J].RetInfEvento.XML := Texto;
-            FEvento.Evento.Items[I].RetInfEvento.XML := Texto;
-
-            break;
+            { Converte de UTF8 para a String nativa e Decodificar caracteres HTML Entity }
+            Texto := ParseText(Texto);
           end;
+
+          // Se o evento for rejeitado a propriedade XML conterá uma string vazia
+          FEventoRetorno.retEvento.Items[J].RetInfEvento.XML := Texto;
+          FEvento.Evento.Items[I].RetInfEvento.XML := Texto;
+
+          break;
         end;
       end;
-    finally
-      Leitor.Free;
     end;
   end;
-  *)
 end;
 
 function TNFComEnvEvento.GerarMsgLog: string;

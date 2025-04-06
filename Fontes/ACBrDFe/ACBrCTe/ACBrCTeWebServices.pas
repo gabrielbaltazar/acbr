@@ -41,13 +41,18 @@ uses
   ACBrDFe, ACBrDFeWebService,
   ACBrDFeConsts,
   ACBrDFeUtil,
-  pcteCTe,
+  ACBrCTe.Classes,
   pcnRetConsReciDFe,
   ACBrDFeComum.RetConsCad,
+  ACBrDFeComum.RetEnvio,
   pcnConversao,
-  pcteConversaoCTe, pcteProcCte, pcteEnvEventoCTe, pcteRetEnvEventoCTe,
-  pcteRetConsSitCTe, pcteRetEnvCTe, pcnDistDFeInt, pcnRetDistDFeInt,
-  ACBrCteConhecimentos, ACBrCTeConfiguracoes, pcteConsts;
+  pcteConversaoCTe, pcteProcCte,
+  ACBrCTe.EnvEvento,
+  ACBrCTe.RetEnvEvento,
+  ACBrCTe.RetConsSit,
+  pcnDistDFeInt, pcnRetDistDFeInt,
+  ACBrCTeConhecimentos, ACBrCTeConfiguracoes,
+  ACBrCTe.Consts;
 
 type
 
@@ -131,7 +136,7 @@ type
     FSincrono: Boolean;
     FMsgUnZip: String;
 
-    FCTeRetorno: TretEnvCTe;
+    FCTeRetorno: TretEnvDFe;
 //    FCTeRetornoOS: TRetConsSitCTe;
     FCTeRetornoSincrono: TRetConsSitCTe;
 
@@ -582,6 +587,7 @@ implementation
 
 uses
   StrUtils, Math,
+  ACBrXmlBase,
   ACBrUtil.Base,
   ACBrUtil.Strings,
   ACBrUtil.DateTime,
@@ -592,7 +598,8 @@ uses
   ACBrDFeComum.ConsCad,
   ACBrDFeComum.ConsStatServ,
   ACBrDFeComum.RetConsStatServ,
-  pcteConsSitCTe, pcteInutCTe, pcteRetInutCTe, pcnConsReciDFe;
+  ACBrCTe.ConsSit,
+  pcteInutCTe, pcteRetInutCTe, pcnConsReciDFe;
 
 { TCTeWebService }
 
@@ -740,7 +747,7 @@ begin
   CTeRetorno := TRetConsStatServ.Create('CTe');
 
   try
-    CTeRetorno.XmlRetorno := ParseText(FPRetWS);
+    CTeRetorno.XmlRetorno := FPRetWS; // ParseText(FPRetWS);
     CTeRetorno.LerXml;
 
     Fversao := CTeRetorno.versao;
@@ -842,9 +849,9 @@ begin
 //  if Assigned(FCTeRetornoOS) then
 //    FCTeRetornoOS.Free;
 
-  FCTeRetorno := TretEnvCTe.Create;
+  FCTeRetorno := TretEnvDFe.Create;
 //  FCTeRetornoOS := TRetConsSitCTe.Create;
-  FCTeRetornoSincrono := TRetConsSitCTe.Create;
+  FCTeRetornoSincrono := TRetConsSitCTe.Create(FPVersaoServico);
 end;
 
 function TCTeRecepcao.GetLote: String;
@@ -879,24 +886,27 @@ var
   VerServ: Double;
   Modelo: TModeloCTe;
   Ok: Boolean;
+  Emissao: TACBrTipoEmissao;
 begin
   case FPConfiguracoesCTe.Geral.ModeloDF of
-    moCTe: begin
-             if Sincrono then
-             begin
-               FPLayout := LayCTeRecepcaoSinc;
-               FPHeaderElement := ''
-             end
-             else
-             begin
-               FPLayout := LayCTeRecepcao;
+    moCTe:
+      begin
+        if Sincrono then
+        begin
+          FPLayout := LayCTeRecepcaoSinc;
+          FPHeaderElement := ''
+        end
+        else
+        begin
+          FPLayout := LayCTeRecepcao;
 
-               if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
-                 FPHeaderElement := 'cteCabecMsg'
-               else
-                 FPHeaderElement := '';
-             end;
-           end;
+          if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
+            FPHeaderElement := 'cteCabecMsg'
+          else
+            FPHeaderElement := '';
+        end;
+      end;
+
     moCTeOS:
       begin
         FPLayout := LayCTeRecepcaoOS;
@@ -905,6 +915,12 @@ begin
           FPHeaderElement := 'cteCabecMsg'
         else
           FPHeaderElement := '';
+      end;
+
+    moCTeSimp:
+      begin
+        FPLayout := LayCTeRecepcaoSimp;
+        FPHeaderElement := '';
       end
   else
     begin
@@ -916,6 +932,10 @@ begin
   if FConhecimentos.Count > 0 then    // Tem CTe ? Se SIM, use as informações do XML
   begin
     Modelo := StrToModeloCTe(ok, IntToStr(FConhecimentos.Items[0].CTe.Ide.modelo));
+
+    if FConhecimentos.Items[0].CTe.ide.tpCTe in [tcCTeSimp, tcSubstCTeSimpl] then
+      Modelo := moCTeSimp;
+
     FcUF   := FConhecimentos.Items[0].CTe.Ide.cUF;
 
     if FPConfiguracoesCTe.WebServices.Ambiente <> FConhecimentos.Items[0].CTe.Ide.tpAmb then
@@ -931,8 +951,9 @@ begin
   FTpAmb := FPConfiguracoesCTe.WebServices.Ambiente;
   FPVersaoServico := '';
   FPURL := '';
+  Emissao := TACBrTipoEmissao(FPConfiguracoesCTe.Geral.FormaEmissao);
 
-  case FPConfiguracoesCTe.Geral.FormaEmissao of
+  case Emissao of
     teSVCRS: xUF := 'SVC-RS';
     teSVCSP: xUF := 'SVC-SP';
   else
@@ -990,6 +1011,11 @@ begin
         end;
       end;
 
+    moCTeSimp:
+      begin
+        FPServico := GetUrlWsd + 'CTeRecepcaoSimpV4';
+        FPSoapAction := FPServico + '/cteRecepcaoSimp';
+      end;
   else
     begin
       if (FPConfiguracoesCTe.Geral.VersaoDF <= ve300) then
@@ -1058,6 +1084,27 @@ begin
           FPDadosMsg := EncodeBase64(GZipCompress(FPDadosMsg));
         end;
       end;
+
+    moCTeSimp:
+      begin
+        // Só podemos ter apena UM CT-e Simplificado, pois o seu processamento é
+        // síncrono
+        if FConhecimentos.Count > 1 then
+          GerarException(ACBrStr('ERRO: Conjunto de CT-e Simplificado transmitidos ' +
+                 '(máximo de 1 CT-e Simplificado) excedido. Quantidade atual: ' +
+                 IntToStr(FConhecimentos.Count)));
+
+        if FConhecimentos.Count > 0 then
+          FPDadosMsg := '<CTeSimp' + RetornarConteudoEntre(
+                  FConhecimentos.Items[0].XMLAssinado, '<CTeSimp', '</CTeSimp>') +
+                  '</CTeSimp>';
+
+        if FPConfiguracoesCTe.Geral.VersaoDF >= ve400 then
+        begin
+          FMsgUnZip := FPDadosMsg;
+          FPDadosMsg := EncodeBase64(GZipCompress(FPDadosMsg));
+        end;
+      end;
   else
     begin
       // No modelo 64 só podemos ter apena UM GTV-e, pois o seu processamento é
@@ -1096,6 +1143,7 @@ begin
                               ,'cteRecepcaoOSCTResult'
                               ,'cteRecepcaoSincResult'
                               ,'CTeRecepcaoGTVeResult'
+                              ,'cteRecepcaoSimpResult'
                               ,'cteRecepcaoResult']
                              , FPRetornoWS);
 
@@ -1110,7 +1158,7 @@ begin
           else
             AXML := FPRetWS;
 
-          FCTeRetornoSincrono.Leitor.Arquivo := ParseText(AXML);
+          FCTeRetornoSincrono.XmlRetorno := AXML; // ParseText(AXML);
           FCTeRetornoSincrono.LerXml;
 
           Fversao := FCTeRetornoSincrono.versao;
@@ -1118,7 +1166,7 @@ begin
           FverAplic := FCTeRetornoSincrono.verAplic;
 
           FcUF  := FCTeRetornoSincrono.cUF;
-          chCTe := FCTeRetornoSincrono.ProtCTe.chCTe;
+          chCTe := FCTeRetornoSincrono.ProtCTe.chDFe;
 
           if (FCTeRetornoSincrono.protCTe.cStat > 0) then
             FcStat := FCTeRetornoSincrono.protCTe.cStat
@@ -1161,7 +1209,7 @@ begin
                   CTe.procCTe.cStat := FCTeRetornoSincrono.protCTe.cStat;
                   CTe.procCTe.tpAmb := FCTeRetornoSincrono.tpAmb;
                   CTe.procCTe.verAplic := FCTeRetornoSincrono.verAplic;
-                  CTe.procCTe.chCTe := FCTeRetornoSincrono.protCTe.chCTe;
+                  CTe.procCTe.chCTe := FCTeRetornoSincrono.protCTe.chDFe;
                   CTe.procCTe.dhRecbto := FCTeRetornoSincrono.protCTe.dhRecbto;
                   CTe.procCTe.nProt := FCTeRetornoSincrono.protCTe.nProt;
                   CTe.procCTe.digVal := FCTeRetornoSincrono.protCTe.digVal;
@@ -1210,11 +1258,11 @@ begin
         end
         else
         begin
-          FCTeRetorno.Leitor.Arquivo := ParseText(FPRetWS);
+          FCTeRetorno.XmlRetorno := FPRetWS; // ParseText(FPRetWS);
           FCTeRetorno.LerXml;
 
           Fversao := FCTeRetorno.versao;
-          FTpAmb := FCTeRetorno.TpAmb;
+          FTpAmb := TpcnTipoAmbiente(FCTeRetorno.TpAmb);
           FverAplic := FCTeRetorno.verAplic;
           FcStat := FCTeRetorno.cStat;
           FxMotivo := FCTeRetorno.xMotivo;
@@ -1229,30 +1277,41 @@ begin
       end;
   else
     begin
-      if FPConfiguracoesCTe.Geral.ModeloDF = moCTeOS then
-      begin
-        if pos('retCTeOS', FPRetWS) > 0 then
-          AXML := StringReplace(FPRetWS, 'retCTeOS', 'retConsSitCTe',
-                                         [rfReplaceAll, rfIgnoreCase])
-        else if pos('retEnviOS', FPRetWS) > 0 then
-          AXML := StringReplace(FPRetWS, 'retEnviOS', 'retConsSitCTe',
-                                         [rfReplaceAll, rfIgnoreCase])
-        else if pos('retConsReciCTe', FPRetWS) > 0 then
-          AXML := StringReplace(FPRetWS, 'retConsReciCTe', 'retConsSitCTe',
-                                         [rfReplaceAll, rfIgnoreCase])
-        else
-          AXML := FPRetWS;
-      end
+      case FPConfiguracoesCTe.Geral.ModeloDF of
+        moCTeOS:
+          begin
+            if pos('retCTeOS', FPRetWS) > 0 then
+              AXML := StringReplace(FPRetWS, 'retCTeOS', 'retConsSitCTe',
+                                             [rfReplaceAll, rfIgnoreCase])
+            else if pos('retEnviOS', FPRetWS) > 0 then
+              AXML := StringReplace(FPRetWS, 'retEnviOS', 'retConsSitCTe',
+                                             [rfReplaceAll, rfIgnoreCase])
+            else if pos('retConsReciCTe', FPRetWS) > 0 then
+              AXML := StringReplace(FPRetWS, 'retConsReciCTe', 'retConsSitCTe',
+                                             [rfReplaceAll, rfIgnoreCase])
+            else
+              AXML := FPRetWS;
+          end;
+
+        moCTeSimp:
+          begin
+            if pos('retCTeSimp', FPRetWS) > 0 then
+              AXML := StringReplace(FPRetWS, 'retCTeSimp', 'retConsSitCTe',
+                                             [rfReplaceAll, rfIgnoreCase])
+            else
+              AXML := FPRetWS;
+          end;
       else
-      begin
-        if pos('retGTVe', FPRetWS) > 0 then
-          AXML := StringReplace(FPRetWS, 'retGTVe', 'retConsSitCTe',
-                                         [rfReplaceAll, rfIgnoreCase])
-        else
-          AXML := FPRetWS;
+        begin
+          if pos('retGTVe', FPRetWS) > 0 then
+            AXML := StringReplace(FPRetWS, 'retGTVe', 'retConsSitCTe',
+                                           [rfReplaceAll, rfIgnoreCase])
+          else
+            AXML := FPRetWS;
+        end;
       end;
 
-      FCTeRetornoSincrono.Leitor.Arquivo := ParseText(AXML);
+      FCTeRetornoSincrono.XmlRetorno := AXML; // ParseText(AXML);
       FCTeRetornoSincrono.LerXml;
 
       Fversao := FCTeRetornoSincrono.versao;
@@ -1260,7 +1319,7 @@ begin
       FverAplic := FCTeRetornoSincrono.verAplic;
 
       FcUF  := FCTeRetornoSincrono.cUF;
-      chCTe := FCTeRetornoSincrono.ProtCTe.chCTe;
+      chCTe := FCTeRetornoSincrono.ProtCTe.chDFe;
 
       if (FCTeRetornoSincrono.protCTe.cStat > 0) then
         FcStat := FCTeRetornoSincrono.protCTe.cStat
@@ -1303,7 +1362,7 @@ begin
               CTe.procCTe.cStat := FCTeRetornoSincrono.protCTe.cStat;
               CTe.procCTe.tpAmb := FCTeRetornoSincrono.tpAmb;
               CTe.procCTe.verAplic := FCTeRetornoSincrono.verAplic;
-              CTe.procCTe.chCTe := FCTeRetornoSincrono.protCTe.chCTe;
+              CTe.procCTe.chCTe := FCTeRetornoSincrono.protCTe.chDFe;
               CTe.procCTe.dhRecbto := FCTeRetornoSincrono.protCTe.dhRecbto;
               CTe.procCTe.nProt := FCTeRetornoSincrono.protCTe.nProt;
               CTe.procCTe.digVal := FCTeRetornoSincrono.protCTe.digVal;
@@ -1388,7 +1447,7 @@ begin
                                'Recebimento: %s ' + LineBreak +
                                'Tempo Médio: %s ' + LineBreak),
                        [FCTeRetorno.versao,
-                        TpAmbToStr(FCTeRetorno.TpAmb),
+                        TipoAmbienteToStr(FCTeRetorno.TpAmb),
                         FCTeRetorno.verAplic,
                         IntToStr(FCTeRetorno.cStat),
                         FCTeRetorno.xMotivo,
@@ -1555,6 +1614,7 @@ var
   VerServ: Double;
   Modelo: TModeloCTe;
   Ok: Boolean;
+  Emissao: TACBrTipoEmissao;
 begin
   if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
     FPHeaderElement := 'cteCabecMsg'
@@ -1566,6 +1626,10 @@ begin
   if FConhecimentos.Count > 0 then    // Tem CTe ? Se SIM, use as informações do XML
   begin
     Modelo := StrToModeloCTe(ok, IntToStr(FConhecimentos.Items[0].CTe.Ide.modelo));
+
+    if FConhecimentos.Items[0].CTe.ide.tpCTe in [tcCTeSimp, tcSubstCTeSimpl] then
+      Modelo := moCTeSimp;
+
     FcUF   := FConhecimentos.Items[0].CTe.Ide.cUF;
 
     if FPConfiguracoesCTe.WebServices.Ambiente <> FConhecimentos.Items[0].CTe.Ide.tpAmb then
@@ -1581,8 +1645,9 @@ begin
   FTpAmb := FPConfiguracoesCTe.WebServices.Ambiente;
   FPVersaoServico := '';
   FPURL := '';
+  Emissao := TACBrTipoEmissao(FPConfiguracoesCTe.Geral.FormaEmissao);
 
-  case FPConfiguracoesCTe.Geral.FormaEmissao of
+  case Emissao of
     teSVCRS: xUF := 'SVC-RS';
     teSVCSP: xUF := 'SVC-SP';
   else
@@ -1631,7 +1696,8 @@ function TCTeRetRecepcao.TratarResposta: Boolean;
 begin
   FPRetWS := SeparaDados(FPRetornoWS, 'cteRetRecepcaoResult');
 
-  FCTeRetorno.Leitor.Arquivo := ParseText(FPRetWS);
+  //A função UTF8ToNativeString deve ser removida quando for refatorado para usar ACBrXmlDocument
+  FCTeRetorno.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
   FCTeRetorno.LerXML;
 
   Fversao := FCTeRetorno.versao;
@@ -1693,11 +1759,8 @@ begin
           CTe.procCTe.xMotivo := AInfProt.Items[I].xMotivo;
         end;
 
-//        NomeXML := '-cte.xml';
-
-        // Monta o XML do CT-e assinado e com o protocolo de Autorização ou Denegação
-        if (AInfProt.Items[I].cStat = 100) or (AInfProt.Items[I].cStat = 110) or
-           (AInfProt.Items[I].cStat = 150) or (AInfProt.Items[I].cStat = 301) then
+        // Monta o XML do CT-e assinado e com o protocolo de Autorização
+        if (AInfProt.Items[I].cStat = 100) or (AInfProt.Items[I].cStat = 150) then
         begin
           AProcCTe := TProcCTe.Create;
           try
@@ -1872,6 +1935,7 @@ var
   VerServ: Double;
   Modelo: TModeloCTe;
   Ok: Boolean;
+  Emissao: TACBrTipoEmissao;
 begin
   if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
     FPHeaderElement := 'cteCabecMsg'
@@ -1883,6 +1947,10 @@ begin
   if FConhecimentos.Count > 0 then    // Tem CTe ? Se SIM, use as informações do XML
   begin
     Modelo := StrToModeloCTe(ok, IntToStr(FConhecimentos.Items[0].CTe.Ide.modelo));
+
+    if FConhecimentos.Items[0].CTe.ide.tpCTe in [tcCTeSimp, tcSubstCTeSimpl] then
+      Modelo := moCTeSimp;
+
     FcUF   := FConhecimentos.Items[0].CTe.Ide.cUF;
 
     if FPConfiguracoesCTe.WebServices.Ambiente <> FConhecimentos.Items[0].CTe.Ide.tpAmb then
@@ -1898,8 +1966,9 @@ begin
   FTpAmb := FPConfiguracoesCTe.WebServices.Ambiente;
   FPVersaoServico := '';
   FPURL := '';
+  Emissao := TACBrTipoEmissao(FPConfiguracoesCTe.Geral.FormaEmissao);
 
-  case FPConfiguracoesCTe.Geral.FormaEmissao of
+  case Emissao of
     teSVCRS: xUF := 'SVC-RS';
     teSVCSP: xUF := 'SVC-SP';
   else
@@ -1942,7 +2011,8 @@ function TCTeRecibo.TratarResposta: Boolean;
 begin
   FPRetWS := SeparaDados(FPRetornoWS, 'cteRetRecepcaoResult');
 
-  FCTeRetorno.Leitor.Arquivo := ParseText(FPRetWS);
+  //A função UTF8ToNativeString deve ser removida quando for refatorado para usar ACBrXmlDocument
+  FCTeRetorno.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
   FCTeRetorno.LerXML;
 
   Fversao := FCTeRetorno.versao;
@@ -2048,6 +2118,7 @@ var
   VerServ: Double;
   Modelo, xUF: String;
   Ok: Boolean;
+  Emissao: TACBrTipoEmissao;
 begin
   if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
     FPHeaderElement := 'cteCabecMsg'
@@ -2059,13 +2130,14 @@ begin
   Modelo  := ModeloCTeToPrefixo( StrToModeloCTe(ok, ExtrairModeloChaveAcesso(FCTeChave) ));
   FcUF    := ExtrairUFChaveAcesso(FCTeChave);
   VerServ := VersaoCTeToDbl(FPConfiguracoesCTe.Geral.VersaoDF);
+  Emissao := TACBrTipoEmissao(FPConfiguracoesCTe.Geral.FormaEmissao);
 
   if FConhecimentos.Count > 0 then
     FTpAmb := FConhecimentos.Items[0].CTe.Ide.tpAmb
   else
     FTpAmb := FPConfiguracoesCTe.WebServices.Ambiente;
 
-  case FPConfiguracoesCTe.Geral.FormaEmissao of
+  case Emissao of
     teSVCRS: xUF := 'SVC-RS';
     teSVCSP: xUF := 'SVC-SP';
   else
@@ -2104,11 +2176,9 @@ begin
     ConsSitCTe.chCTe := FCTeChave;
     ConsSitCTe.Versao := FPVersaoServico;
 
-    AjustarOpcoes( ConsSitCTe.Gerador.Opcoes );
+//    AjustarOpcoes( ConsSitCTe.Gerador.Opcoes );
 
-    ConsSitCTe.GerarXML;
-
-    FPDadosMsg := ConsSitCTe.Gerador.ArquivoFormatoXML;
+    FPDadosMsg := ConsSitCTe.GerarXML;
   finally
     ConsSitCTe.Free;
   end;
@@ -2150,7 +2220,7 @@ begin
 
       XML := StringReplace(XML, 'ds:', '', [rfReplaceAll]);
 
-      if FPConfiguracoesCTe.Arquivos.Salvar then
+      if FPConfiguracoesCTe.Arquivos.SalvarEvento and (XML <> '') then
         FPDFeOwner.Gravar( aIDEvento + '-procEventoCTe.xml', XML, sPathEvento);
     end;
   end;
@@ -2164,12 +2234,12 @@ var
   I, J, K, Inicio, Fim: Integer;
   dhEmissao: TDateTime;
 begin
-  CTeRetorno := TRetConsSitCTe.Create;
+  CTeRetorno := TRetConsSitCTe.Create(FPVersaoServico);
 
   try
     FPRetWS := SeparaDados(FPRetornoWS, 'cteConsultaCTResult');
 
-    CTeRetorno.Leitor.Arquivo := ParseText(FPRetWS);
+    CTeRetorno.XmlRetorno := FPRetWS; // ParseText(FPRetWS);
     CTeRetorno.LerXML;
 
     CTCancelado := False;
@@ -2183,6 +2253,9 @@ begin
     FcStat := CTeRetorno.cStat;
     FXMotivo := CTeRetorno.xMotivo;
     FcUF := CTeRetorno.cUF;
+//    FCTeChave := CTeRetorno.chCTe;
+    FdhRecbto := CTeRetorno.dhRecbto;
+
     FPMsg := FXMotivo;
 
     // Verifica se o Conhecimento está cancelado pelo método antigo. Se estiver,
@@ -2207,17 +2280,23 @@ begin
 
     // <protCTe> - Retorno dos dados do ENVIO da CT-e
     // Considerá-los apenas se não existir nenhum evento de cancelamento (110111)
-    FprotCTe.PathCTe := CTeRetorno.protCTe.PathCTe;
-    FprotCTe.PathRetConsReciCTe := CTeRetorno.protCTe.PathRetConsReciCTe;
-    FprotCTe.PathRetConsSitCTe := CTeRetorno.protCTe.PathRetConsSitCTe;
-    FprotCTe.tpAmb := CTeRetorno.protCTe.tpAmb;
+    FprotCTe.PathCTe := CTeRetorno.protCTe.PathDFe;
+    FprotCTe.PathRetConsReciCTe := CTeRetorno.protCTe.PathRetConsReciDFe;
+    FprotCTe.PathRetConsSitCTe := CTeRetorno.protCTe.PathRetConsSitDFe;
+    FprotCTe.tpAmb := TpcnTipoAmbiente(CTeRetorno.protCTe.tpAmb);
     FprotCTe.verAplic := CTeRetorno.protCTe.verAplic;
-    FprotCTe.chCTe := CTeRetorno.protCTe.chCTe;
+    FprotCTe.chCTe := CTeRetorno.protCTe.chDFe;
     FprotCTe.dhRecbto := CTeRetorno.protCTe.dhRecbto;
     FprotCTe.nProt := CTeRetorno.protCTe.nProt;
     FprotCTe.digVal := CTeRetorno.protCTe.digVal;
     FprotCTe.cStat := CTeRetorno.protCTe.cStat;
     FprotCTe.xMotivo := CTeRetorno.protCTe.xMotivo;
+
+    if FCTeChave = '' then
+    begin
+      FCTeChave := FprotCTe.chCTe;
+      FdhRecbto := FprotCTe.dhRecbto;
+    end;
 
     if Assigned(CTeRetorno.procEventoCTe) and (CTeRetorno.procEventoCTe.Count > 0) then
     begin
@@ -2450,7 +2529,7 @@ begin
       else
       begin
         // Salva o XML de eventos retornados ao consultar um CT-e
-        if ExtrairEventos and FPConfiguracoesCTe.Arquivos.Salvar and
+        if ExtrairEventos and FPConfiguracoesCTe.Arquivos.SalvarEvento and
            (NaoEstaVazio(SeparaDados(FPRetWS, 'procEventoCTe'))) then
           SalvarEventos(CTeRetorno);
       end;
@@ -2616,7 +2695,8 @@ begin
   try
     FPRetWS := SeparaDados(FPRetornoWS, 'cteInutilizacaoCTResult');
 
-    CTeRetorno.Leitor.Arquivo := ParseText(FPRetWS);
+    //A função UTF8ToNativeString deve ser removida quando for refatorado para usar ACBrXmlDocument
+    CTeRetorno.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
     CTeRetorno.LerXml;
 
     Fversao := CTeRetorno.versao;
@@ -2771,7 +2851,7 @@ begin
   if Assigned(FPDFeOwner.Integrador) then
   begin
     FPDFeOwner.Integrador.Parametros.Values['versaoDados'] := VersaoCTeToStr(FPConfiguracoesCTe.Geral.VersaoDF);
-    FPDFeOwner.Integrador.SetNomeMetodo('CadConsultaCadastro2Soap12', (FPConfiguracoesCTe.WebServices.Ambiente = taHomologacao) );
+    FPDFeOwner.Integrador.SetNomeMetodo('CadConsultaCadastro2Soap12', (FPConfiguracoesCTe.WebServices.AmbienteCodigo = 2) );
   end;
 end;
 
@@ -2854,7 +2934,7 @@ begin
 
   VerificarSemResposta;
 
-  FRetConsCad.XmlRetorno := ParseText(FPRetWS);
+  FRetConsCad.XmlRetorno := FPRetWS; // ParseText(FPRetWS);
   FRetConsCad.LerXml;
 
   Fversao := FRetConsCad.versao;
@@ -2950,6 +3030,7 @@ var
   UF, Modelo: String;
   VerServ: Double;
   Ok: Boolean;
+  Emissao: TACBrTipoEmissao;
 begin
   if FPConfiguracoesCTe.Geral.VersaoDF <= ve300 then
     FPHeaderElement := 'cteCabecMsg'
@@ -2961,8 +3042,9 @@ begin
   FIE     := FEvento.Evento.Items[0].InfEvento.detEvento.IE;
   FTpAmb  := FEvento.Evento.Items[0].InfEvento.tpAmb;
   Modelo  := ModeloCTeToPrefixo( StrToModeloCTe(ok, ExtrairModeloChaveAcesso(FEvento.Evento.Items[0].InfEvento.chCTe) ));
+  Emissao := TACBrTipoEmissao(FPConfiguracoesCTe.Geral.FormaEmissao);
 
-  case FPConfiguracoesCTe.Geral.FormaEmissao of
+  case Emissao of
     teSVCRS: UF := 'SVC-RS';
     teSVCSP: UF := 'SVC-SP';
   else
@@ -3194,12 +3276,13 @@ begin
 
     EventoCTe.Versao := FPVersaoServico;
 
-    AjustarOpcoes( EventoCTe.Gerador.Opcoes );
+//    AjustarOpcoes( EventoCTe.Gerador.Opcoes );
 //    EventoCTe.Gerador.Opcoes.RetirarAcentos := False;  // Não funciona sem acentos
 
+    AjustarOpcoes(EventoCTe.Opcoes);
     EventoCTe.GerarXML;
 
-    Eventos := NativeStringToUTF8( EventoCTe.Gerador.ArquivoFormatoXML );
+    Eventos := NativeStringToUTF8( EventoCTe.XmlEnvio );
     EventosAssinados := '';
 
     // Realiza a assinatura para cada evento
@@ -3299,6 +3382,8 @@ begin
                           Trim(RetornarConteudoEntre(AXMLEvento, '<evCancIECTe>', '</evCancIECTe>')) +
                         '</evCancIECTe>';
         end;
+    else
+      AXMLEvento := '';
     end;
 
     AXMLEvento := '<' + ENCODING_UTF8 + '>' + AXMLEvento;
@@ -3341,12 +3426,14 @@ begin
     Texto := Texto + '<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' +
                                      ' xmlns:xsd="http://www.w3.org/2001/XMLSchema"' +
                                      ' xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">';
+    {
     Texto := Texto +   '<soap12:Header>';
     Texto := Texto +     '<cteCabecMsg xmlns="' + FPServico + '">';
     Texto := Texto +       GerarUFSoap;
     Texto := Texto +       GerarVersaoDadosSoap;
     Texto := Texto +     '</cteCabecMsg>';
     Texto := Texto +   '</soap12:Header>';
+    }
     Texto := Texto +   '<soap12:Body>';
     Texto := Texto +     '<cteDadosMsg xmlns="' + FPServico + '">';
     Texto := Texto +       FPDadosMsg;
@@ -3359,12 +3446,14 @@ begin
     Texto := Texto + '<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' +
                                    ' xmlns:xsd="http://www.w3.org/2001/XMLSchema"' +
                                    ' xmlns:soap="http://www.w3.org/2003/05/soap-envelope">';
+    {
     Texto := Texto +   '<soap:Header>';
     Texto := Texto +     '<cteCabecMsg xmlns="' + FPServico + '">';
     Texto := Texto +       GerarUFSoap;
     Texto := Texto +       GerarVersaoDadosSoap;
     Texto := Texto +     '</cteCabecMsg>';
     Texto := Texto +   '</soap:Header>';
+    }
     Texto := Texto +   '<soap:Body>';
     Texto := Texto +     '<cteDadosMsg xmlns="' + FPServico + '">';
     Texto := Texto +       FPDadosMsg;
@@ -3378,7 +3467,6 @@ end;
 
 function TCTeEnvEvento.TratarResposta: Boolean;
 var
-  Leitor: TLeitor;
   I, J: Integer;
   NomeArq, PathArq, VersaoEvento, Texto: String;
 begin
@@ -3386,7 +3474,7 @@ begin
 
   FPRetWS := SeparaDados(FPRetornoWS, 'cteRecepcaoEventoResult');
 
-  EventoRetorno.Leitor.Arquivo := ParseText(FPRetWS);
+  EventoRetorno.XmlRetorno := FPRetWS; //ParseText(FPRetWS);
   EventoRetorno.LerXml;
 
   FcStat := EventoRetorno.cStat;
@@ -3399,47 +3487,47 @@ begin
   //gerar arquivo proc de evento
   if Result then
   begin
-    Leitor := TLeitor.Create;
-    try
-      for I := 0 to FEvento.Evento.Count - 1 do
+    for I := 0 to FEvento.Evento.Count - 1 do
+    begin
+      for J := 0 to EventoRetorno.retEvento.Count - 1 do
       begin
-        for J := 0 to EventoRetorno.retEvento.Count - 1 do
+        if FEvento.Evento.Items[I].InfEvento.chCTe =
+          EventoRetorno.retEvento.Items[J].RetInfEvento.chCTe then
         begin
-          if FEvento.Evento.Items[I].InfEvento.chCTe =
-            EventoRetorno.retEvento.Items[J].RetInfEvento.chCTe then
-          begin
-            FEvento.Evento.Items[I].RetInfEvento.tpAmb :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.tpAmb;
-            FEvento.Evento.Items[I].RetInfEvento.nProt :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.nProt;
-            FEvento.Evento.Items[I].RetInfEvento.dhRegEvento :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.dhRegEvento;
-            FEvento.Evento.Items[I].RetInfEvento.cStat :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.cStat;
-            FEvento.Evento.Items[I].RetInfEvento.xMotivo :=
-              EventoRetorno.retEvento.Items[J].RetInfEvento.xMotivo;
-            FEvento.Evento.Items[i].RetInfEvento.chCTe :=
-              EventoRetorno.retEvento.Items[j].RetInfEvento.chCTe;
+          FEvento.Evento.Items[I].RetInfEvento.tpAmb :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.tpAmb;
+          FEvento.Evento.Items[I].RetInfEvento.nProt :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.nProt;
+          FEvento.Evento.Items[I].RetInfEvento.dhRegEvento :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.dhRegEvento;
+          FEvento.Evento.Items[I].RetInfEvento.cStat :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.cStat;
+          FEvento.Evento.Items[I].RetInfEvento.xMotivo :=
+            EventoRetorno.retEvento.Items[J].RetInfEvento.xMotivo;
+          FEvento.Evento.Items[i].RetInfEvento.chCTe :=
+            EventoRetorno.retEvento.Items[j].RetInfEvento.chCTe;
 
+          Texto := '';
+
+          if EventoRetorno.retEvento.Items[J].RetInfEvento.cStat in [134, 135, 136] then
+          begin
             VersaoEvento := TACBrCTe(FPDFeOwner).LerVersaoDeParams(LayCTeEvento);
 
-            Leitor.Arquivo := FPDadosMsg;
-            Texto := '<procEventoCTe versao="' + VersaoEvento + '" xmlns="' + ACBRCTE_NAMESPACE + '">' +
-                      '<eventoCTe versao="' + VersaoEvento + '">' +
-                       Leitor.rExtrai(1, 'infEvento', '', I + 1) +
-                       '<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">' +
-                        Leitor.rExtrai(1, 'SignedInfo', '', I + 1) +
-                        Leitor.rExtrai(1, 'SignatureValue', '', I + 1) +
-                        Leitor.rExtrai(1, 'KeyInfo', '', I + 1) +
-                       '</Signature>' +
-                      '</eventoCTe>';
+            Texto := '<eventoCTe versao="' + VersaoEvento + '">' +
+                         SeparaDados(FPDadosMsg, 'infEvento', True) +
+                         '<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">' +
+                         SeparaDados(FPDadosMsg, 'Signature', False) +
+                         '</Signature>'+
+                     '</eventoCTe>';
 
-            Leitor.Arquivo := FPRetWS;
             Texto := Texto +
                        '<retEventoCTe versao="' + VersaoEvento + '">' +
-                        Leitor.rExtrai(1, 'infEvento', '', J + 1) +
-                       '</retEventoCTe>' +
-                      '</procEventoCTe>';
+                          SeparaDados(FPRetWS, 'infEvento', True) +
+                       '</retEventoCTe>';
+
+            Texto := '<procEventoCTe versao="' + VersaoEvento + '" xmlns="' + ACBRCTE_NAMESPACE + '">' +
+                       Texto +
+                     '</procEventoCTe>';
 
             if FPConfiguracoesCTe.Arquivos.Salvar then
             begin
@@ -3451,16 +3539,21 @@ begin
               FEvento.Evento.Items[I].RetInfEvento.NomeArquivo := PathArq + NomeArq;
             end;
 
-            Texto := ParseText(Texto);
+            { Converte de UTF8 para a String nativa e Decodificar caracteres HTML Entity }
+            Texto := UTF8ToNativeString(ParseText(Texto));
+          end;
+
+          // Se o evento for rejeitado a propriedade XML conterá uma string vazia
+          if Texto <> '' then
+          begin
+            Texto := ConverteXMLtoUTF8(Texto);
             FEventoRetorno.retEvento.Items[J].RetInfEvento.XML := Texto;
             FEvento.Evento.Items[I].RetInfEvento.XML := Texto;
-
-            break;
           end;
+
+          break;
         end;
       end;
-    finally
-      Leitor.Free;
     end;
   end;
 end;
@@ -3596,7 +3689,8 @@ begin
   FPRetWS := SeparaDados(FPRetornoWS, 'cteDistDFeInteresseResult');
 
   // Processando em UTF8, para poder gravar arquivo corretamente //
-  FretDistDFeInt.Leitor.Arquivo := ParseText(FPRetWS);
+  //A função UTF8ToNativeString deve ser removida quando for refatorado para usar ACBrXmlDocument
+  FretDistDFeInt.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
   FretDistDFeInt.LerXml;
 
   for I := 0 to FretDistDFeInt.docZip.Count - 1 do
@@ -3621,7 +3715,8 @@ begin
         *)
         schprocCTe,
         schprocCTeOS,
-        schprocGTVe:
+        schprocGTVe,
+		schprocCTeSimp:
           FNomeArq := FretDistDFeInt.docZip.Items[I].resDFe.chDFe + '-cte.xml';
 
         schprocEventoCTe:
@@ -3640,7 +3735,8 @@ begin
         if (FretDistDFeInt.docZip.Items[I].schema in [schprocEventoCTe]) then
           FPDFeOwner.Gravar(FNomeArq, AXML, aPath);
 
-        if (FretDistDFeInt.docZip.Items[I].schema in [schprocCTe, schprocCTeOS, schprocGTVe]) then
+        if (FretDistDFeInt.docZip.Items[I].schema in [schprocCTe, schprocCTeOS,
+             schprocGTVe, schprocCTeSimp]) then
           FPDFeOwner.Gravar(FNomeArq, AXML, aPath);
       end;
     end;

@@ -43,6 +43,122 @@ Símbolo : Significado
 [-]     : Correção de Bug (assim esperamos)
 
 
+04/04/2025
+-- Diversos --
+[*] #TK-5814: Implementado as units: ACBrNFComIniReader e ACBrNFComIniWrite que
+    vão ser responsáveis por ler e gerar o arquivo INI.
+    Refatorado a função GetURLQRCode para que a mesma receba a classe TNFCom em 
+    vez de diversos parâmetros de entrada.
+    Implementado a propriedade de configuração: SalvarEvento (valor padrão False)
+    agora ao salvar o XML *-procEventoNFCom o componente vai checar o valor dessa 
+    propriedade.
+  Por: Italo Giurizzato Junior
+
+08/03/2025
+-- ACBrNFComClass/ACBrNFComXmlReader/ACBrNFComXmlWriter --
+[*] #TK-5814: Alteração visando contemplar a Reforma Tributária.
+  Por: Italo Giurizzato Junior
+
+27/02/2025
+-- ACBrNFComXmlWriter --
+[*] #TK-5814: Alteração visando contemplar a Reforma Tributária.
+  Por: Italo Giurizzato Junior
+
+15/02/2025
+-- ACBrNFComClass/ACBrNFComConsts --
+[+] Inclusão de novas contantes e ajustes nas novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+10/02/2025
+-- ACBrNFComClass --
+[+] Inclusão das novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+-- ACBrNFComServicos --
+[+] Incluído as URLs de produção da SEFAZ-MS.
+   Por: Italo Giurizzato Junior
+
+06/02/2025
+-- ACBrNFCom.DAEventoRLRetrato/ACBrNFCom.DANFComRLRetrato --
+[*] Ajustes para compilar/instalar no Delphi 7.
+   Por: Italo Giurizzato Junior
+
+13/01/2025
+-- ACBrNFComServicos --
+[+] Incluído as URLs de homologação da SEFAZ-MS.
+[*] Alteração na URL de consulta da NFCom da SEFAZ-MG.
+   Por: Italo Giurizzato Junior
+
+08/01/2025
+-- Diversos --
+[*] Ajustes na geração do XML de eventos para usar o ACBrXmlDocument.
+   Por: Italo Giurizzato Junior
+
+03/01/2025
+-- ACBrNFComNotasFiscais/ACBrNFComWebServices/ACBrNFComXmlReader/ACBrNFCom.DANFComRLRetrato --
+[-] Ajustes na montagem do XML protocolado e na leitura do mesmo.
+   Por: Italo Giurizzato Junior
+
+18/11/2024
+-- ACBrNFComXmlWriter --
+[-] Quando o ICMS for SN (Simples Nacional) gerar com o valor 90 para o CST.
+   Por: Italo Giurizzato Junior
+
+08/10/2024
+-- ACBrNFComServicos --
+[+] Incluído as URLs de homologação da SEFAZ-MG
+   Por: Italo Giurizzato Junior
+
+01/10/2024
+-- Diversos --
+[*] Ajustes necessários para utilizar a unit: ACBrDFeComum.Proc
+   Por: Italo Giurizzato Junior
+
+26/09/2024
+-- ACBrNFComWebServices --
+[*] Correção nos códigos dos status na leitura dos retornos da recepção e Eventos.
+   Por: Cleverton Martins
+
+12/09/2024
+-- ACBrNFComWebServices --
+[*] Ajustes na montagem do XML *-ProcEventoNFCom.xml
+   Por: Italo Giurizzato Junior
+
+12/07/2024
+-- ACBrNFComXmlWriter --
+[*] Possível solução para a geração correta da string do QR-Code.
+   Por: Diego Folieni/Italo Giurizzato Junior
+
+11/07/2024
+-- ACBrNFComNotasFiscais/ACBrNFComWebServices/ACBrNFComClass/ACBrNFComXmlReader/
+   ACBrNFComXmlWriter --
+[*] Alteração visando a leitura correta do XML.
+   Por: Italo Giurizzato Junior
+
+27/06/2024
+-- ACBrNFComXmlWriter --
+[*] Alteração na assinatura da função: ObterNomeArquivo.
+   Por: Italo Giurizzato Junior
+
+25/06/2024
+-- Diversos --
+[*] Implementação para deixar o componente em conformidade com a NT 2024/002.
+    Inclusão de novos campos.
+    Homologação: 01/07/2024 - Produção: 15/07/2024
+   Por: Italo Giurizzato Junior
+
+08/05/2024
+-- ACBrNFComNotasFiscais --
+[*] Reversão da alteração que visava o uso das configurações na geração do XML.
+   Por: Italo Giurizzato Junior
+-- ACBrNFComXmlWriter --
+[*] Comentado as linhas que usa os dados de configuração na geração do XML.
+   Por: Italo Giurizzato Junior
+
+02/04/2024
+-- Diversos --
+[*] Melhorias no código usando o FixInsight (ainda não ficou 100%).
+  Por: Italo Giurizzato Junior
+
 02/03/2024
 -- ACBrNFComXmlWriter --
 [*] Corrigido o tipo de conversão para a tag: cNF.

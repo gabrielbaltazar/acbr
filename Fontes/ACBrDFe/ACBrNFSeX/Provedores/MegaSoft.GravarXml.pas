@@ -38,8 +38,9 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv2, ACBrNFSeXConversao;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXGravarXml_ABRASFv2;
 
 type
   { TNFSeW_MegaSoft200 }
@@ -70,7 +71,11 @@ begin
   FormatoCompetencia := tcDatHor;
 
   NrOcorrCodTribMun_2 := 0;
+  NrOcorrInfAdicional := 0;
+  NrOcorrCepTomador_2 := 0;
+
   NrOcorrDiscriminacao_2 := 1;
+
   NrOcorrSerieRPS := -1;
   NrOcorrTipoRPS := -1;
   NrOcorrUFTomador := -1;

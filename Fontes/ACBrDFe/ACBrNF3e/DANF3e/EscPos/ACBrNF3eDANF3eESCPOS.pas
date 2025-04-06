@@ -50,7 +50,7 @@ type
   private
     FPosPrinter: TACBrPosPrinter;
 
-    procedure MontarEnviarDANF3e(NF3e: TNF3e; const AResumido: Boolean);
+    procedure MontarEnviarDANF3e(NF3e: TNF3e);
     procedure SetPosPrinter(AValue: TACBrPosPrinter);
   protected
     FpNF3e: TNF3e;
@@ -517,7 +517,7 @@ begin
                                          FPosPrinter.ColunasFonteCondensada, ''));
     FPosPrinter.Buffer.Add(' ');
 
-    TextoObservacao := StringReplace(FpNF3e.InfAdic.infAdFisco, ';', sLineBreak, [rfReplaceAll]);
+    TextoObservacao := StringReplace(FpNF3e.InfAdic.infAdFisco, CaractereQuebraDeLinha , sLineBreak, [rfReplaceAll]);
     FPosPrinter.Buffer.Add('<c>' + TextoObservacao);
 
     FPosPrinter.Buffer.Add('</linha_simples>');
@@ -533,7 +533,7 @@ begin
   TextoObservacao := Trim(FpNF3e.InfAdic.infCpl);
   if TextoObservacao <> '' then
   begin
-    TextoObservacao := StringReplace(FpNF3e.InfAdic.infCpl, ';', sLineBreak, [rfReplaceAll]);
+    TextoObservacao := StringReplace(FpNF3e.InfAdic.infCpl, CaractereQuebraDeLinha, sLineBreak, [rfReplaceAll]);
     FPosPrinter.Buffer.Add('<c>' + TextoObservacao);
   end;
 
@@ -570,8 +570,7 @@ begin
     FPosPrinter.Buffer.Add('</pular_linhas>')
 end;
 
-procedure TACBrNF3eDANF3eESCPOS.MontarEnviarDANF3e(NF3e: TNF3e;
-  const AResumido: Boolean);
+procedure TACBrNF3eDANF3eESCPOS.MontarEnviarDANF3e(NF3e: TNF3e);
 begin
   if NF3e = nil then
   begin
@@ -603,7 +602,7 @@ end;
 procedure TACBrNF3eDANF3eESCPOS.ImprimirDANF3e(NF3e: TNF3e);
 begin
   AtivarPosPrinter;
-  MontarEnviarDANF3e(NF3e, False);
+  MontarEnviarDANF3e(NF3e);
 end;
 
 procedure TACBrNF3eDANF3eESCPOS.GerarDadosEvento;

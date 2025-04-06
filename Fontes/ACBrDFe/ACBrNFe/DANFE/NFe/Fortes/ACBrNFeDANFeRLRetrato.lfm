@@ -1,10 +1,10 @@
 inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
-  Left = 560
-  Top = 187
+  Left = 226
+  Top = 117
   Caption = 'frlDANFeRLRetrato'
   Font.Height = -18
   inherited RLNFe: TRLReport
-    Top = 0
+    Top = 10
     AdjustableMargins = True
     Background.Arrange = baDistributed
     Background.Height = 96
@@ -289,20 +289,6 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
         Alignment = taCenter
         AutoSize = False
         Caption = 'CST'
-        Font.Color = clBlack
-        Font.Height = -7
-        Font.Name = 'Arial'
-        HoldStyle = hsRelatively
-        ParentFont = False
-      end
-      object lblCST2: TRLLabel
-        Tag = 10
-        Left = 284
-        Height = 7
-        Top = 21
-        Width = 22
-        Alignment = taCenter
-        AutoSize = False
         Font.Color = clBlack
         Font.Height = -7
         Font.Name = 'Arial'
@@ -614,6 +600,21 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
         Alignment = taCenter
         AutoSize = False
         Caption = 'VALOR'
+        Font.Color = clBlack
+        Font.Height = -7
+        Font.Name = 'Arial'
+        HoldStyle = hsRelatively
+        ParentFont = False
+      end
+      object lblCST2: TRLLabel
+        Tag = 10
+        Left = 284
+        Height = 7
+        Top = 21
+        Width = 22
+        Alignment = taCenter
+        AutoSize = False
+        Caption = 'CST'
         Font.Color = clBlack
         Font.Height = -7
         Font.Name = 'Arial'
@@ -942,9 +943,9 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
       end
       object rlmEndereco: TRLMemo
         Tag = 703
-        Left = 80
+        Left = 81
         Height = 33
-        Top = 48
+        Top = 43
         Width = 185
         AutoSize = False
         Behavior = [beSiteExpander]
@@ -4934,8 +4935,8 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
         Left = 490
         Height = 7
         Top = 75
-        Width = 49
-        Caption = 'PESO BRUTO'
+        Width = 63
+        Caption = 'PESO BRUTO (Kg)'
         Font.Color = clBlack
         Font.Height = -7
         Font.Name = 'Arial'
@@ -5167,8 +5168,8 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
         Left = 618
         Height = 7
         Top = 75
-        Width = 52
-        Caption = 'PESO LÍQUIDO'
+        Width = 67
+        Caption = 'PESO LÍQUIDO (Kg)'
         Font.Color = clBlack
         Font.Height = -7
         Font.Name = 'Arial'
@@ -7655,7 +7656,7 @@ inherited frlDANFeRLRetrato: TfrlDANFeRLRetrato
     end
   end
   inherited RLPDFFilter1: TRLPDFFilter
-    Left = 696
-    Top = 106
+    Left = 680
+    Top = 120
   end
 end

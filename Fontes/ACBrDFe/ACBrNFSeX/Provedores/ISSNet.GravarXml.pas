@@ -38,9 +38,10 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros,
-  ACBrNFSeXGravarXml_ABRASFv1, ACBrNFSeXGravarXml_ABRASFv2;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXGravarXml_ABRASFv1,
+  ACBrNFSeXGravarXml_ABRASFv2;
 
 type
   { TNFSeW_ISSNet }
@@ -155,8 +156,9 @@ end;
 
 function TNFSeW_ISSNet204.GerarXml: Boolean;
 begin
-  if (NFSe.Tomador.Endereco.CodigoMunicipio = '9999999') or
-     (NFSe.Tomador.Endereco.UF = 'EX') then
+  if ((NFSe.Tomador.Endereco.CodigoMunicipio = '9999999') or
+      (NFSe.Tomador.Endereco.UF = 'EX')) and
+     (NFSe.Servico.ExigibilidadeISS = exiExportacao)  then
     NrOcorrCodigoPaisServico := 1;
 
   if (NFSe.OptanteSimplesNacional = snSim) or

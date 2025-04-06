@@ -42,6 +42,224 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+18/03/2025
+-- ACBrMDFeManifestos --
+[-] #TK-6767: Possível solução para a leitura do XML.
+   Por: Italo Giurizzato Junior
+
+04/02/2025
+-- ACBrMDFe.RetEnvEvento --
+[-] Não estava lendo o grupo condutor do evento de Inclusão de condutor ao ler um XML.
+   Por: Italo Giurizzato Junior
+
+28/01/2025
+-- Diversos --
+[*] Ajustes em diversas units por conta da troca da unit pmdfeProcMDFe por ACBrDFeComum.Proc
+   Por: Italo Giurizzato Junior
+
+20/01/2025
+-- pmdfeMDFe --
+[*] Remoção de unit por estar em desuso.
+   Por: Italo Giurizzato Junior
+
+08/01/2025
+-- ACBrMDFe.EnvEvento --
+[*] Melhorias no código.
+   Por: Italo Giurizzato Junior
+
+07/01/2025
+-- Diversos --
+[*] #TK-6409: Realizado a substituição da unit de classes de: pmdfeMDFe
+    por: ACBrMDFe.Classes 
+   Por: Italo Giurizzato Junior
+
+23/12/2024
+-- pmdfeConsts --
+[*] Remoção de unit sem uso.
+   Por: Italo Giurizzato Junior
+
+11/12/2024
+-- ACBrMDFe.Classes --
+[+] #TK-6345: Criação da nova unit que contem as classes do MDF-e.
+   Por: Italo Giurizzato Junior
+-- ACBrMDFeWebServices.pas --
+[*] Corrigida leitura do xml da consulta por chave quando houverem caracteres especiais.
+   Por: Renato Rubinho
+
+03/12/2024
+-- pmdfeConsMDFeNaoEnc/pmdfeConsSitMDFe/pmdfeEnvEventoMDFe/pmdfeEventoMDFe --
+-- pmdfeProcInfraSA/pmdfeRetConsMDFeNaoEnc/pmdfeRetConsSitMDFe --
+-- pmdfeRetEnvEventoMDFe/pmdfeRetEnvMDFe --
+[*] #TK-5874: Removido as units acima por estarem em desuso.
+   Por: Italo Giurizzato Junior
+-- ACBrMDFeWebServices/ACBrMDFe.XmlWriter/ACBrMDFe.ConsNaoEnc/ACBrMDFe.ConsSit --
+-- ACBrMDFe.EnvEvento/ACBrMDFe.RetConsSit/pmdfeConsMDFeNaoEnc/pmdfeConsSitMDFe --
+-- pmdfeEnvEventoMDFe/pmdfeMDFeW/pmdfeProcMDFe --
+[*] #TK-5997: Realizado a substituição da unit de constantes de: pmdfeConsts
+    por: ACBrMDFe.Consts 
+   Por: Italo Giurizzato Junior
+
+27/11/2024
+-- ACBrMDFe.Consts --
+[+] #TK-5997: Disponibilizado a nova Unit de Constantes do MDFe, mas ela ainda não esta
+    em uso.
+   Por: Italo Giurizzato Junior
+
+19/11/2024
+-- ACBrMDFeWebServices --
+[*] Ajustes para a migração para as novas units.
+   Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Migração para as novas units.
+   Por: Italo Giurizzato Junior
+
+04/10/2024
+-- Diversos --
+[*] #TK-5866-2: Ajuste visando padronização do caractere de quebra de linha.
+   Por: Diego Folieni
+
+01/10/2024
+-- ACBrMDFe.RetConsSit --
+[*] Ajustes necessários para utilizar a unit: ACBrDFeComum.Proc
+-- ACBrMDFeWebServices --
+[*] Migração para as novas units: ACBrMDFe.ConsNaoEnc e ACBrMDFe.RetConsNaoEnc.
+   Por: Italo Giurizzato Junior
+
+27/09/2024
+-- pmdfeMDFeR --
+[-] Corrigido a posição da linha que faz a leitura da tag indPrestacaoParcial.
+  Por: Silvania
+
+18/09/2024
+-- ACBrMDFe.ProcInfraSA --
+[+] Nova unit que contem a classe InfraSA que consta no retorno da consulta.
+  Por: Italo Giurizzato Junior
+-- ACBrMDFe.RetConsSit --
+[-] Correção para evitar AV ao ler o retorno da consulta.
+  Por: Italo Giurizzato Junior
+
+16/09/2024
+-- ACBrMDFe.XmlWriter --
+[-] Correção visando não gerar o grupo <valePed> quando este não for informado
+    na versão 1.00 do MDF-e.
+  Por: SEI-INFO/Italo Giurizzato Junior
+
+13/09/2024
+-- ACBrMDFe.RetConsSit --
+[-] Correção para que a leitura do retorno ocorra com sucesso.
+  Por: Italo Giurizzato Junior
+
+12/09/2024
+-- ACBrMDFeWebServices --
+[*] Ajustes na montagem do XML *-ProcEventoMDFe.xml
+   Por: Italo Giurizzato Junior
+
+10/09/2024
+-- ACBrMDFe.XmlWriter --
+[-] Correção visando não gerar o grupo <valePed> quando este não for informado.
+  Por: Italo Giurizzato Junior
+
+06/09/2024
+-- ACBrMDFe/ACBrMDFeWebServices/ACBrMDFeDAMDFeClass/ACBrMDFeDAMDFEFR --
+-- ACBrMDFeDAEventoRL/ACBrMDFeDAMDFeRLClass --
+[+] Implementado o Imprimir Evento PDF por Stream.
+  Por: Antonio Carlos/Juliomar Marchetti/Italo Giurizzato Junior
+-- ACBrMDFe.ConsNaoEnc/ACBrMDFe.ConsSit/ACBrMDFe.EnvEvento --
+-- ACBrMDFe.EventoClass/ACBrMDFe.RetConsNaoEnc/ACBrMDFe.RetConsSit --
+-- ACBrMDFe.RetEnvEvento --
+[+] Implementado as novas units para os serviços de Consulta MDF-e não Encerrados,
+    Consulta a Situação e envio de eventos, bem como as units que fazem as leituras
+    dos retornos.
+  Por: Italo Giurizzato Junior
+
+14/08/2024
+-- ACBrMDFe.XmlWriter --
+[+] Escrito a nova unit responsável pela geração do XML do MDF-e.
+-- ACBrMDFeManifestos --
+[*] Alteração visando o desenvolvedor optar por qual unit deseja usar para a 
+    geração do XML mediante a diretiva de compilação: USE_ACBr_XMLDOCUMENT.
+-- ACBrMDFe.XmlReader/pmdfeMDFe/pmdfeMDFeR/pmdfeMDFeW --
+[*] Alteração visando a leitura das novas tags para atender a NT 2024/002 que
+    trata sobre o CT-e Simplificado.
+  Por: Italo Giurizzato Junior
+
+05/08/2024
+-- ACBrMDFe.XmlReader --
+[*] Correção para ler a string do QR-Code.
+  Por: Italo Giurizzato Junior
+
+02/08/2024
+-- ACBrMDFe.XmlReader --
+[+] Escrito a nova unit responsável pela leitura do XML do MDF-e.
+-- ACBrMDFeManifestos --
+[*] Alteração visando o desenvolvedor optar por qual unit deseja usar para a 
+    leitura do XML mediante a diretiva de compilação: USE_ACBr_XMLDOCUMENT.
+  Por: Italo Giurizzato Junior
+
+10/07/2024
+-- Diversos --
+[*] Ajustes para a impressão de todos os tipos de eventos do MDF-e.
+  Por: Italo Giurizzato Junior
+
+02/07/2024
+-- ACBrMDFeWebServices --
+[*] Alteração visando atender o envio no modo síncrono.
+    A partir de 01/07/2024 o modo de envio passa a ser exclusivamente síncrono.
+  Por: Italo Giurizzato Junior
+
+07/06/2024
+-- ACBrMDFeWebServices --
+[*] Incluido a leitura da tag dhRecbto do retorno do envio síncrono.
+  Por: Lucas ATZ
+
+21/05/2024
+-- ACBrMDFeWebServices --
+[-] Removido da procedure TMDFeRetRecepcao.Clear a linha que inicializa a
+    propriedade FRecibo.
+  Por: Italo Giurizzato Junior
+
+09/05/2024
+-- pmdfeMDFeW --
+[*] Correção para gerar a versão correta do Modal.
+   Por: Italo Giurizzato Junior
+
+08/05/2024
+-- ACBrMDFeManifestos --
+[*] Reversão da alteração que visava o uso das configurações na geração do XML.
+   Por: Italo Giurizzato Junior
+-- pmdfeMDFeW --
+[*] Comentado as linhas que usa os dados de configuração na geração do XML.
+   Por: Italo Giurizzato Junior
+
+26/04/2024
+-- ACBrMDFeWebServices --
+[*] Ajustes para evitar vazamento de memória.
+  Por: Antonio Carlos L
+
+16/04/2024
+-- ACBrMDFeDAMDFeRLRetrato.dfm --
+[*] Removido a linha que tem o propriedade: StyleElements, para poder compatibilizar
+    com o Delphi 7 e Lazarus.
+  Por: Doni Delphi
+
+11/04/2024
+-- ACBrMDFeWebServices --
+[*] Ajustes nas funções de Clear das classes.
+  Por: Nicolas Dorr
+-- Diversos --
+[*] Melhorias no código usando o FixInsight (ainda não ficou 100%).
+  Por: Italo Giurizzato Junior
+
+21/03/2024
+-- ACBrMDFeWebServices --
+[*] Adiciona chamada a UTF8ToNativeString quando usa ParseText para corrigir problemas de conversão de acentuação
+  Por: Diego Folieni
+
+20/03/2024
+-- pmdfeMDFeW --
+[*] Aumenta o limite dos campos infCTe, infNFe e infMDFeTransp para 20000.
+  Por: Diego Folieni
+
 06/03/2024
 -- Diversos --
 [*] Diversas alterações visando atender o novo campo no evento de encerramento,

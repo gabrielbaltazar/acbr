@@ -645,7 +645,7 @@ implementation
 
 uses
   DateUtils, StrUtils, Math,
-  ACBrNFe, pcnNFe, pcnConversao, pcnConversaoNFe,
+  ACBrNFe, ACBrNFe.Classes, pcnConversao, pcnConversaoNFe,
   ACBrNFeDANFeRLClass, ACBrDFeUtil, ACBrValidador,
   ACBrDFeDANFeReport, ACBrDFeReportFortes,
   ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime;
@@ -806,11 +806,14 @@ begin
   rlsProdEAN.Visible := fpDANFe.ExibeEAN;
   LinhaProdEAN.Visible := fpDANFe.ExibeEAN;
 
+  rlmDescricao.SecondHolder := nil;
+
   if (not fpDANFe.ExibeEAN) then
   begin
     rlmDescricaoProduto.Left := rlsProd.Left + 2;
     rlmDescricaoProduto.Width := (rlsMcm.Left - rlsProd.Left) - 3;
     rlmDescricao.Left := LinhaDescricao.Left + 2;
+    rlmDescricao.Width := (LinhaNCM.Left - LinhaDescricao.Left) - 24;
   end
   else
   begin
@@ -821,9 +824,8 @@ begin
     rlmDescricaoProduto.Left := (rlsProdEAN.Left) + 2;
     rlmDescricaoProduto.Width := (rlsMcm.Left - rlsProdEAN.Left) - 3;
     rlmDescricao.Left := LinhaProdEAN.Left + 2;
+    rlmDescricao.Width := (LinhaNCM.Left - LinhaDescricao.Left - LinhaProdEAN.Left ) - 24;
   end;
-  rlmDescricao.SecondHolder := nil;
-  rlmDescricao.Width := (LinhaNCM.Left - LinhaDescricao.Left) - 24;
 
   // ajusta a posição do 'código do produto'
   if (rlmCodProd.Width > 90) then
@@ -1029,7 +1031,11 @@ begin
 
     rlbCodigoBarras.Visible := True;
     rlbCodigoBarras.Caption := OnlyNumber(fpNFe.InfNFe.Id);
-    rllNumNF0.Caption := ACBrStr('Nº ') + FormatarNumeroDocumentoFiscal(IntToStr(nNF));
+    if fpDANFe.FormatarNumeroDocumento then
+      rllNumNF0.Caption := ACBrStr('Nº ') + FormatarNumeroDocumentoFiscal(IntToStr(nNF))
+    else
+      rllNumNF0.Caption := ACBrStr('Nº ') + IntToStr(nNF);
+
     rllNumNF1.Caption := rllNumNF0.Caption;
     rllSERIE0.Caption := ACBrStr('SÉRIE ') + IntToStr(Serie);
     rllSERIE1.Caption := rllSERIE0.Caption;
@@ -1910,7 +1916,7 @@ end;
 function TfrlDANFeRLPaisagem.ManterBandinfAdProd(const sInforAdicProduto: String): String;
 begin
   Result := Trim(sInforAdicProduto);
-  Result := StringReplace(Result, ';', sLineBreak, [rfReplaceAll]);
+  Result := StringReplace(Result, fpDanfe.CaractereQuebraDeLinha, sLineBreak, [rfReplaceAll]);
 
   RLBandInfAd.Visible := (Result <> '') and (fpDANFe.ExibeInforAdicProduto = infSeparadamente);
 end;
@@ -1940,7 +1946,7 @@ begin
       lblCST2.Font.Size := 5;
     end;
 
-    crtSimplesNacional:
+    crtSimplesNacional, crtMEI:
     begin
       lblCST1.Caption := 'CSOSN';
       lblCST1.Font.Size := 4;
@@ -2187,7 +2193,7 @@ var
   iAltQuadro,
   iAltBand: Integer;
 begin
-  rlbFatura.Visible := (fpNFe.Cobr.Dup.Count > 0);
+  rlbFatura.Visible := (fpNFe.Cobr.Dup.Count > 0) and fpDANFe.ExibeCampoDuplicata;
 
   if (fpNFe.Cobr.Dup.Count > 0) then
   begin
@@ -2235,9 +2241,7 @@ procedure TfrlDANFeRLPaisagem.AdicionarInformacoesPagamento;
     for x := 0 to (Result - 1) do
     begin
       TRLLabel(FindComponent('RLPagDescricao' + IntToStr(x))).Caption :=
-        ACBrStr(
-          Copy(FormaPagamentoToDescricao(fpNFe.pag.Items[x].tPag, fpNFe.pag.Items[x].xPag),1,22)
-                  );
+        ACBrStr(FormaPagamentoToDescricao(fpNFe.pag.Items[x].tPag, fpNFe.pag.Items[x].xPag));
       TRLLabel(FindComponent('RLPagValor' + IntToStr(x))).Caption :=
         FormatFloatBr(fpNFe.pag.Items[x].vPag);
     end;

@@ -88,8 +88,6 @@ type
 
   published
     property APIVersion;
-    property ClientID;
-    property ClientSecret;
 
     //Token fornecido pelo Sicoob na área de SandBox
     property TokenSandbox: String read fTokenSandbox write fTokenSandbox;
@@ -178,8 +176,7 @@ begin
    fpAutenticado := True;
   end
   else
-    DispararExcecao(EACBrPixHttpException.CreateFmt( sErroHttp,
-      [Http.ResultCode, ChttpMethodGET, AURL]));
+    DispararExcecao(EACBrPixHttpException.CreateFmt(sErroHttp, [Http.ResultCode, ChttpMethodPOST, AURL]));
 end;
 
 procedure TACBrPSPSicoob.QuandoReceberRespostaEndPoint(const AEndPoint, AURL,
@@ -191,7 +188,7 @@ begin
 
   // Ajuste no Json de Resposta alterando 'brcode' para 'pixCopiaECola'
   if (((UpperCase(AMethod) = ChttpMethodPUT) and (AEndPoint = cEndPointCobV)) or
-      ((UpperCase(AMethod) = ChttpMethodPOST) and (AEndPoint = cEndPointCob))) and (AResultCode = HTTP_CREATED) then
+     (((UpperCase(AMethod) = ChttpMethodPUT) or (UpperCase(AMethod) = ChttpMethodPOST)) and (AEndPoint = cEndPointCob))) and (AResultCode = HTTP_CREATED) then
     RespostaHttp := StringReplace(RespostaHttp, 'brcode', 'pixCopiaECola', [rfReplaceAll]);
 end;
 

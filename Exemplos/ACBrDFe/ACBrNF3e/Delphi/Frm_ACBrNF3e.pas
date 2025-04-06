@@ -39,7 +39,8 @@ uses
   Dialogs, ExtCtrls, StdCtrls, Spin, Buttons, ComCtrls, OleCtrls, SHDocVw,
   ShellAPI, XMLIntf, XMLDoc, zlib,
   ACBrDFe, ACBrDFeReport, ACBrBase,
-  ACBrPosPrinter, ACBrNF3eDANF3eClass, ACBrNF3eDANF3eESCPOS, ACBrNF3e, ACBrMail;
+  ACBrPosPrinter, ACBrNF3eDANF3eClass, ACBrNF3eDANF3eESCPOS, ACBrNF3e, ACBrMail,
+  ACBrNF3e.DANF3ERLClass;
 
 type
   TfrmACBrNF3e = class(TForm)
@@ -246,6 +247,7 @@ type
     btnStatusServ: TButton;
     ACBrNF3e1: TACBrNF3e;
     ACBrNF3eDANF3eESCPOS1: TACBrNF3eDANF3eESCPOS;
+    ACBrNF3eDANF3eRL1: TACBrNF3eDANF3eRL;
     procedure FormCreate(Sender: TObject);
     procedure btnSalvarConfigClick(Sender: TObject);
     procedure sbPathNF3eClick(Sender: TObject);
@@ -835,8 +837,7 @@ end;
 
 procedure TfrmACBrNF3e.btnCriarEnviarClick(Sender: TObject);
 var
-  vAux, vNumLote, vSincrono: String;
-  Sincrono: Boolean;
+  vAux, vNumLote: String;
 begin
   if not(InputQuery('WebServices Enviar', 'Numero da Nota', vAux)) then
     exit;
@@ -845,7 +846,6 @@ begin
     exit;
 
   vNumLote := OnlyNumber(vNumLote);
-  Sincrono := False;
 
   if Trim(vNumLote) = '' then
   begin
@@ -855,58 +855,22 @@ begin
 
   AlimentarComponente(vAux);
 
-  vSincrono := '1';
-  if not(InputQuery('WebServices Enviar', 'Envio Síncrono(1=Sim, 0=Não)', vSincrono)) then
-    exit;
-
-  if (Trim(vSincrono) <> '1') and (Trim(vSincrono) <> '0') then
-  begin
-    MessageDlg('Valor Inválido.', mtError,[mbok], 0);
-    exit;
-  end;
-
-  if Trim(vSincrono) = '1' then
-    Sincrono := True
-  else
-    Sincrono := False;
-
-  ACBrNF3e1.Enviar(vNumLote, True, Sincrono);
+  ACBrNF3e1.Enviar(vNumLote, True, True);
 
   pgRespostas.ActivePageIndex := 1;
 
-  if not Sincrono then
-  begin
-    MemoResp.Lines.Text := ACBrNF3e1.WebServices.Retorno.RetWS;
-    memoRespWS.Lines.Text := ACBrNF3e1.WebServices.Retorno.RetornoWS;
-    LoadXML(ACBrNF3e1.WebServices.Retorno.RetWS, WBResposta);
+  MemoResp.Lines.Text := ACBrNF3e1.WebServices.Enviar.RetWS;
+  memoRespWS.Lines.Text := ACBrNF3e1.WebServices.Enviar.RetornoWS;
+  LoadXML(ACBrNF3e1.WebServices.Enviar.RetWS, WBResposta);
 
-    MemoDados.Lines.Add('');
-    MemoDados.Lines.Add('Envio NF3e');
-    MemoDados.Lines.Add('tpAmb: ' + TipoAmbienteToStr(ACBrNF3e1.WebServices.Retorno.TpAmb));
-    MemoDados.Lines.Add('verAplic: ' + ACBrNF3e1.WebServices.Retorno.verAplic);
-    MemoDados.Lines.Add('cStat: ' + IntToStr(ACBrNF3e1.WebServices.Retorno.cStat));
-    MemoDados.Lines.Add('cUF: ' + IntToStr(ACBrNF3e1.WebServices.Retorno.cUF));
-    MemoDados.Lines.Add('xMotivo: ' + ACBrNF3e1.WebServices.Retorno.xMotivo);
-    MemoDados.Lines.Add('cMsg: ' + IntToStr(ACBrNF3e1.WebServices.Retorno.cMsg));
-    MemoDados.Lines.Add('xMsg: ' + ACBrNF3e1.WebServices.Retorno.xMsg);
-    MemoDados.Lines.Add('Recibo: ' + ACBrNF3e1.WebServices.Retorno.Recibo);
-    MemoDados.Lines.Add('Protocolo: ' + ACBrNF3e1.WebServices.Retorno.Protocolo);
-  end
-  else
-  begin
-    MemoResp.Lines.Text := ACBrNF3e1.WebServices.Enviar.RetWS;
-    memoRespWS.Lines.Text := ACBrNF3e1.WebServices.Enviar.RetornoWS;
-    LoadXML(ACBrNF3e1.WebServices.Enviar.RetWS, WBResposta);
-
-    MemoDados.Lines.Add('');
-    MemoDados.Lines.Add('Envio NF3e');
-    MemoDados.Lines.Add('tpAmb: ' + TpAmbToStr(ACBrNF3e1.WebServices.Enviar.TpAmb));
-    MemoDados.Lines.Add('verAplic: ' + ACBrNF3e1.WebServices.Enviar.verAplic);
-    MemoDados.Lines.Add('cStat: ' + IntToStr(ACBrNF3e1.WebServices.Enviar.cStat));
-    MemoDados.Lines.Add('cUF: ' + IntToStr(ACBrNF3e1.WebServices.Enviar.cUF));
-    MemoDados.Lines.Add('xMotivo: ' + ACBrNF3e1.WebServices.Enviar.xMotivo);
-    MemoDados.Lines.Add('Recibo: '+ ACBrNF3e1.WebServices.Enviar.Recibo);
-  end;
+  MemoDados.Lines.Add('');
+  MemoDados.Lines.Add('Envio NF3e');
+  MemoDados.Lines.Add('tpAmb: ' + TpAmbToStr(ACBrNF3e1.WebServices.Enviar.TpAmb));
+  MemoDados.Lines.Add('verAplic: ' + ACBrNF3e1.WebServices.Enviar.verAplic);
+  MemoDados.Lines.Add('cStat: ' + IntToStr(ACBrNF3e1.WebServices.Enviar.cStat));
+  MemoDados.Lines.Add('cUF: ' + IntToStr(ACBrNF3e1.WebServices.Enviar.cUF));
+  MemoDados.Lines.Add('xMotivo: ' + ACBrNF3e1.WebServices.Enviar.xMotivo);
+  MemoDados.Lines.Add('Recibo: '+ ACBrNF3e1.WebServices.Enviar.Recibo);
   (*
   ACBrNF3e1.WebServices.Retorno.NF3eRetorno.ProtNF3e.Items[0].tpAmb
   ACBrNF3e1.WebServices.Retorno.NF3eRetorno.ProtNF3e.Items[0].verAplic
@@ -1107,7 +1071,8 @@ begin
 
   if OpenDialog1.Execute then
   begin
-    PrepararImpressao;
+    if ACBrNF3e1.DANF3E = ACBrNF3eDANF3eESCPOS1 then
+      PrepararImpressao;
 
     ACBrNF3e1.NotasFiscais.Clear;
     ACBrNF3e1.NotasFiscais.LoadFromFile(OpenDialog1.FileName,False);
@@ -1125,7 +1090,8 @@ begin
 
   if OpenDialog1.Execute then
   begin
-    PrepararImpressao;
+    if ACBrNF3e1.DANF3E = ACBrNF3eDANF3eESCPOS1 then
+      PrepararImpressao;
 
     ACBrNF3e1.NotasFiscais.Clear;
     ACBrNF3e1.NotasFiscais.LoadFromFile(OpenDialog1.FileName,False);
@@ -1719,12 +1685,12 @@ begin
   ACBrNF3e1.Configuracoes.Certificados.ArquivoPFX  := edtCaminho.Text;
   ACBrNF3e1.Configuracoes.Certificados.Senha       := edtSenha.Text;
   ACBrNF3e1.Configuracoes.Certificados.NumeroSerie := edtNumSerie.Text;
-  {
-  if cbModeloDF.ItemIndex = 0 then
-    ACBrNF3e1.DANF3e := ACBrNF3eDANF3eRL1
-  else
-    ACBrNF3e1.DANF3e := ACBrNF3eDANF3eESCPOS1;
-  }
+
+  case rgDANF3E.ItemIndex of
+    0: ACBrNF3e1.DANF3E := ACBrNF3eDANF3eRL1;
+    1: ACBrNF3e1.DANF3E := ACBrNF3eDANF3eESCPOS1;
+  end;
+
   ACBrNF3e1.SSL.DescarregarCertificado;
 
   with ACBrNF3e1.Configuracoes.Geral do
@@ -1817,7 +1783,7 @@ end;
 procedure TfrmACBrNF3e.LoadXML(RetWS: String; MyWebBrowser: TWebBrowser);
 begin
   WriteToTXT(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml',
-                      ConverteXMLtoUTF8(RetWS), False, False);
+                      RetWS, False, False);
 
   MyWebBrowser.Navigate(PathWithDelim(ExtractFileDir(application.ExeName)) + 'temp.xml');
 

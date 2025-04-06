@@ -109,8 +109,10 @@ begin
       FResposta.DataSituacaoEspecial := StringToDateTimeDef(LJsonObject.AsString['data_situacao_especial'],0,'yyyy/mm/dd');
       FResposta.Cidade               := LJsonObject.AsJSONObject['cidade'].AsString['nome'];
       FResposta.UF                   := LJsonObject.AsJSONObject['estado'].AsString['sigla'];
+      FResposta.CodigoIBGE     := LJsonObject.AsJSONObject['cidade'].AsString['ibge_id'];
 
       FResposta.EFR                  := '';
+      FResposta.CapitalSocial        := StrToFloatDef(StringReplace(LJson.AsString['capital_social'],'.',',',[rfReplaceAll]),0);
 
       FResposta.CNAE1 := LJsonObject.AsJSONObject['atividade_principal'].AsString['id'] + ' ' +
                          LJsonObject.AsJSONObject['atividade_principal'].AsString['descricao'];

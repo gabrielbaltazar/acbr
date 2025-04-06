@@ -4,15 +4,10 @@
     <Version Value="12"/>
     <PathDelim Value="\"/>
     <General>
-      <Flags>
-        <MainUnitHasUsesSectionForAllUnits Value="False"/>
-        <MainUnitHasCreateFormStatements Value="False"/>
-        <MainUnitHasTitleStatement Value="False"/>
-        <MainUnitHasScaledStatement Value="False"/>
-      </Flags>
       <SessionStorage Value="InProjectDir"/>
       <Title Value="AcbrBoletoDemo"/>
       <UseAppBundle Value="False"/>
+      <ResourceType Value="res"/>
     </General>
     <BuildModes>
       <Item Name="Default" Default="True"/>
@@ -32,7 +27,7 @@
         <PackageName Value="ACBrDFeComum"/>
       </Item>
       <Item>
-        <PackageName Value="ACBr_Boleto"/>
+        <PackageName Value="ACBr_PIXCD"/>
       </Item>
       <Item>
         <PackageName Value="ACBrTCP"/>
@@ -41,7 +36,10 @@
         <PackageName Value="ACBrComum"/>
       </Item>
       <Item>
-        <PackageName Value="ACBr_BoletoFC_Fortes"/>
+        <PackageName Value="ACBr_Boleto"/>
+      </Item>
+      <Item>
+        <PackageName Value="ACBr_BoletoFC_FPDF"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>
@@ -65,24 +63,13 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="$(ProjOutDir)"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
-        <SyntaxMode Value="Delphi"/>
-        <IncludeAssertionCode Value="True"/>
+        <SyntaxMode Value="delphi"/>
       </SyntaxOptions>
     </Parsing>
-    <CodeGeneration>
-      <Checks>
-        <IOChecks Value="True"/>
-        <RangeChecks Value="True"/>
-        <OverflowChecks Value="True"/>
-        <StackChecks Value="True"/>
-      </Checks>
-      <VerifyObjMethodCallValidity Value="True"/>
-    </CodeGeneration>
     <Linking>
       <Options>
         <Win32>
@@ -90,6 +77,9 @@
         </Win32>
       </Options>
     </Linking>
+    <Other>
+      <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions>

@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -61,55 +61,394 @@ uses
   ACBrUtil.Strings, ACBrUtil.DateTime;
 
 type
-  TS2501Collection = class;
-  TS2501CollectionItem = class;
-  TEvtContProc = class;
-  TIdeProc = class;
-  TIdeTrabCollection = class;
-  TIdeTrabCollectionItem = class;
-  TCalcTribCollection = class;
-  TCalcTribCollectionItem = class;
-  TInfoCRContribCollection = class;
-  TInfoCRContribCollectionItem = class;
-  TInfoCRIRRFCollection = class;
-  TInfoCRIRRFCollectionItem = class;
-  TinfoIRCollection = class;
-  TinfoIRCollectionItem = class;
-  TdedDepenCollection = class;
-  TdedDepenCollectionItem = class;
-  TpenAlimCollection = class;
-  TpenAlimCollectionItem = class;
-  TinfoProcRetCollection = class;
-  TinfoProcRetCollectionItem = class;
-  TinfoValoresCollection = class;
-  TinfoValoresCollectionItem = class;
-  TdedSuspCollection = class;
-  TdedSuspCollectionItem = class;
-  TbenefPenCollection = class;
-  TbenefPenCollectionItem = class;
-  TinfoIRComplem = class;
-  TinfoDepCollection = class;
-  TinfoDepCollectionItem = class;
-
-  TS2501Collection = class(TeSocialCollection)
+  TIdeProc = class(TObject)
   private
-    function GetItem(Index: Integer): TS2501CollectionItem;
-    procedure SetItem(Index: Integer; Value: TS2501CollectionItem);
+    FnrProcTrab: string;
+    FperApurPgto: string;
+    FideSeqProc: Integer;
+    Fobs: string;
   public
-    function New: TS2501CollectionItem;
-    property Items[Index: Integer]: TS2501CollectionItem read GetItem write SetItem; default;
+    property nrProcTrab: string read FnrProcTrab write FnrProcTrab;
+    property perApurPgto: string read FperApurPgto write FperApurPgto;
+    property ideSeqProc: Integer read FideSeqProc write FideSeqProc;
+    property obs: string read Fobs write Fobs;
   end;
 
-  TS2501CollectionItem = class(TObject)
+  TInfoCRContribCollectionItem = class(TObject)
   private
-    FTipoEvento: TTipoEvento;
-    FEvtContProc: TEvtContProc;
+    FtpCR: string;
+    FvrCR: double;
   public
-    constructor Create(AOwner: TComponent);
+    property tpCR: string read FtpCR write FtpCR;
+    property vrCR: double read FvrCR write FvrCR;
+  end;
+
+  TInfoCRContribCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TInfoCRContribCollectionItem;
+    procedure SetItem(Index: Integer; Value: TInfoCRContribCollectionItem);
+  public
+    function New: TInfoCRContribCollectionItem;
+    property Items[Index: Integer]: TInfoCRContribCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TCalcTribCollectionItem = class(TObject)
+  private
+    FperRef: string;
+    FvrBcCpMensal: double;
+    FvrBcCp13: double;
+    FvrRendIRRF: double;
+    FvrRendIRRF13: double;
+    FinfoCRContrib: TInfoCRContribCollection;
+
+    function getInfoCRContrib(): TInfoCRContribCollection;
+  public
+    constructor Create;
+    destructor  Destroy; override;
+
+    function instInfoCRContrib(): boolean;
+
+    property perRef: string read FperRef write FperRef;
+    property vrBcCpMensal: double read FvrBcCpMensal write FvrBcCpMensal;
+    property vrBcCp13: double read FvrBcCp13 write FvrBcCp13;
+    property vrRendIRRF: double read FvrRendIRRF write FvrRendIRRF;
+    property vrRendIRRF13: double read FvrRendIRRF13 write FvrRendIRRF13;
+    property infoCRContrib: TInfoCRContribCollection read getInfoCRContrib write FinfoCRContrib;
+  end;
+
+  TCalcTribCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TCalcTribCollectionItem;
+    procedure SetItem(Index: Integer; Value: TCalcTribCollectionItem);
+  public
+    function New: TCalcTribCollectionItem;
+    property Items[Index: Integer]: TCalcTribCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TrendIsen0561 = class(TObject)
+  private
+    FvlrDiarias: Double;
+    FvlrAjudaCusto: Double;
+    FvlrIndResContrato: Double;
+    FvlrAbonoPec: Double;
+    FvlrAuxMoradia: Double;
+  public
+    property vlrDiarias: Double read FvlrDiarias write FvlrDiarias;
+    property vlrAjudaCusto: Double read FvlrAjudaCusto write FvlrAjudaCusto;
+    property vlrIndResContrato: Double read FvlrIndResContrato write FvlrIndResContrato;
+    property vlrAbonoPec: Double read FvlrAbonoPec write FvlrAbonoPec;
+    property vlrAuxMoradia: Double read FvlrAuxMoradia write FvlrAuxMoradia;
+  end;
+
+  TinfoIRCollectionItem = class(TObject)
+  private
+    FvrRendTrib: double;
+    FvrRendTrib13: double;
+    FvrRendMoleGrave: double;
+//    FvrRendModeGrave13: double;
+    FvrRendIsen65: double;
+    FvrRendIsen65Dec: double;
+    FvrJurosMora: double;
+    FvrJurosMora13: double;
+    FvrRendIsenNTrib: double;
+    FdescIsenNTrib: string;
+    FvrPrevOficial: double;
+    FvrPrevOficial13: double;
+    FrendIsen0561: TrendIsen0561;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property vrRendTrib: double read FvrRendTrib write FvrRendTrib;
+    property vrRendTrib13: double read FvrRendTrib13 write FvrRendTrib13;
+    property vrRendMoleGrave: double read FvrRendMoleGrave write FvrRendMoleGrave;
+    property vrRendMoleGrave13: double read FvrRendMoleGrave write FvrRendMoleGrave;
+    property vrRendIsen65: double read FvrRendIsen65 write FvrRendIsen65;
+    property vrRendIsen65Dec: double read FvrRendIsen65Dec write FvrRendIsen65Dec;
+    property vrJurosMora: double read FvrJurosMora write FvrJurosMora;
+    property vrJurosMora13: Double read FvrJurosMora13 write FvrJurosMora13;
+    property vrRendIsenNTrib: double read FvrRendIsenNTrib write FvrRendIsenNTrib;
+    property descIsenNTrib: string read FdescIsenNTrib write FdescIsenNTrib;
+    property vrPrevOficial: double read FvrPrevOficial write FvrPrevOficial;
+    property vrPrevOficial13: double read FvrPrevOficial13 write FvrPrevOficial13;
+    property rendIsen0561: TrendIsen0561 read FrendIsen0561 write FrendIsen0561;
+  end;
+
+  TinfoIRCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TinfoIRCollectionItem;
+    procedure SetItem(Index: Integer; Value: TinfoIRCollectionItem);
+  public
+    function New: TinfoIRCollectionItem;
+    property Items[Index: Integer]: TinfoIRCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TdedDepenCollectionItem = class(TObject)
+  private
+    FtpRend: integer;
+    FcpfDep: string;
+    FvlrDeducao: double;
+  public
+    property tpRend: integer read FtpRend write FtpRend;
+    property cpfDep: string read FcpfDep write FcpfDep;
+    property vlrDeducao: double read FvlrDeducao write FvlrDeducao;
+  end;
+
+  TdedDepenCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TdedDepenCollectionItem;
+    procedure SetItem(Index: Integer; const Value: TdedDepenCollectionItem);
+  public
+    function New: TdedDepenCollectionItem;
+    property Items[Index: Integer]: TdedDepenCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TpenAlimCollectionItem = class(TObject)
+  private
+    FtpRend: integer;
+    FcpfDep: string;
+    FvlrPensao: double;
+  public
+    property tpRend: integer read FtpRend write FtpRend;
+    property cpfDep: string read FcpfDep write FcpfDep;
+    property vlrPensao: double read FvlrPensao write FvlrPensao;
+  end;
+
+  TpenAlimCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TpenAlimCollectionItem;
+    procedure SetItem(Index: Integer; const Value: TpenAlimCollectionItem);
+  public
+    function New: TpenAlimCollectionItem;
+    property Items[Index: Integer]: TpenAlimCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TbenefPenCollectionItem = class(TObject)
+  private
+    FcpfDep: string;
+    FvlrDepenSusp: double;
+  public
+    property cpfDep: string read FcpfDep write FcpfDep;
+    property vlrDepenSusp: double read FvlrDepenSusp write FvlrDepenSusp;
+  end;
+
+  TbenefPenCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TbenefPenCollectionItem;
+    procedure SetItem(Index: Integer; const Value: TbenefPenCollectionItem);
+  public
+    function New: TbenefPenCollectionItem;
+    property Items[Index: Integer]: TbenefPenCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TdedSuspCollectionItem = class(TObject)
+  private
+    FindTpDeducao: tpIndTpDeducaoT;
+    FvlrDedSusp: double;
+    FbenefPen: TbenefPenCollection;
+
+   function getBenefPen: TbenefPenCollection;
+  public
+    constructor Create;
     destructor Destroy; override;
 
-    property TipoEvento: TTipoEvento read FTipoEvento;
-    property EvtContProc: TEvtContProc read FEvtContProc write FEvtContProc;
+    function benefPenInst: boolean;
+
+    property indTpDeducao: tpIndTpDeducaoT read FindTpDeducao write FindTpDeducao;
+    property vlrDedSusp: double read FvlrDedSusp write FvlrDedSusp;
+    property benefPen: TbenefPenCollection read getBenefPen write Fbenefpen;
+  end;
+
+  TdedSuspCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TdedSuspCollectionItem;
+    procedure SetItem(Index: Integer; const Value: TdedSuspCollectionItem);
+  public
+    function New: TdedSuspCollectionItem;
+    property Items[Index: Integer]: TdedSuspCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TinfoValoresCollectionItem = class(TObject)
+  private
+    FindApuracao: tpIndApuracao;
+    FvlrNRetido: double;
+    FvlrDepJud: double;
+    FvlrCmpAnoCal: double;
+    FvlrCmpAnoAnt: double;
+    FvlrRendSusp: double;
+    FdedSusp: TdedSuspCollection;
+
+    function getDedSusp: TdedSuspCollection;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function dedSuspInst: boolean;
+
+    property indApuracao: tpIndApuracao read FindApuracao write FindApuracao;
+    property vlrNRetido: double read FvlrNRetido write FvlrNRetido;
+    property vlrDepJud: double read FvlrDepJud write FvlrDepJud;
+    property vlrCmpAnoCal: double read FvlrCmpAnoCal write FvlrCmpAnoCal;
+    property vlrCmpAnoAnt: double read FvlrCmpAnoAnt write FvlrCmpAnoAnt;
+    property vlrRendSusp: double read FvlrRendSusp write FvlrRendSusp;
+    property dedSusp: TdedSuspCollection read getDedSusp write FdedSusp;
+  end;
+
+  TinfoValoresCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TinfoValoresCollectionItem;
+    procedure SetItem(Index: Integer; const Value: TinfoValoresCollectionItem);
+  public
+    function New: TinfoValoresCollectionItem;
+    property Items[Index: Integer]: TinfoValoresCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TinfoProcRetCollectionItem = class(TObject)
+  private
+    FtpProcRet: tpTpProcRet;
+    FnrProcRet: string;
+    FcodSusp: string;
+    FinfoValores: TinfoValoresCollection;
+
+    function getInfoValores: TinfoValoresCollection;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function infoValoresInst: boolean;
+
+    property tpProcRet: tpTpProcRet read FtpProcRet write FtpProcRet;
+    property nrProcRet: string read FnrProcRet write FnrProcRet;
+    property codSusp: string read FcodSusp write FcodSusp;
+    property infoValores: TinfoValoresCollection read getInfoValores write FinfoValores;
+  end;
+
+  TinfoProcRetCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TinfoProcRetCollectionItem;
+    procedure SetItem(Index: Integer; const Value: TinfoProcRetCollectionItem);
+  public
+    function New: TinfoProcRetCollectionItem;
+    property Items[Index: Integer]: TinfoProcRetCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TInfoCRIRRFCollectionItem = class(TObject)
+  private
+    FtpCR: string;
+    FvrCR: double;
+    FvrCR13: Double;
+    FinfoIR: TinfoIRCollection;
+    FinfoRRA: TinfoRRA;
+    FdedDepen: TdedDepenCollection;
+    FpenAlim: TpenAlimCollection;
+    FinfoProcRet: TinfoProcRetCollection;
+
+    function getInfoIR: TinfoIRCollection;
+    function getInfoRRA: TinfoRRA;
+    function getDedDepen: TdedDepenCollection;
+    function getPenAlim: TpenAlimCollection;
+    function getInfoProcRet: TinfoProcRetCollection;
+  public
+    constructor Create;
+    destructor  Destroy; override;
+
+    function infoIRInst: boolean;
+    function infoRRAInst: boolean;
+    function dedDepenInst: boolean;
+    function penAlimInst: boolean;
+    function infoProcRetInst: boolean;
+
+    property tpCR: string read FtpCR write FtpCR;
+    property vrCR: double read FvrCR write FvrCR;
+    property vrCR13: Double read FvrCR13 write FvrCR13;
+    property infoIR: TinfoIRCollection read getInfoIR write FinfoIR;
+    property infoRRA: TinfoRRA read getInfoRRA write FinfoRRA;
+    property dedDepen: TdedDepenCollection read getDedDepen write FdedDepen;
+    property penAlim: TpenAlimCollection read getPenAlim write FpenAlim;
+    property infoProcRet: TinfoProcRetCollection read getInfoProcRet write FinfoProcRet;
+  end;
+
+  TInfoCRIRRFCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TInfoCRIRRFCollectionItem;
+    procedure SetItem(Index: Integer; Value: TInfoCRIRRFCollectionItem);
+  public
+    function New: TInfoCRIRRFCollectionItem;
+    property Items[Index: Integer]: TInfoCRIRRFCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TinfoDepCollectionItem = class(TObject)
+  private
+    FcpfDep: string;
+    FdtNascto: TDateTime;
+    Fnome: string;
+    FdepIRRF: tpSimNaoFacultativo;
+    FtpDep: tpTpDep;
+    FdescrDep: string;
+  public
+    property cpfDep: string read FcpfDep write FcpfDep;
+    property dtNascto: TDateTime read FdtNascto write FdtNascto;
+    property nome: string read Fnome write Fnome;
+    property depIRRF: tpSimNaoFacultativo read FdepIRRF write FdepIRRF;
+    property tpDep: tpTpDep read FtpDep write FtpDep;
+    property descrDep: string read FdescrDep write FdescrDep;
+  end;
+
+  TinfoDepCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TInfoDepCollectionItem;
+    procedure SetItem(Index: Integer; const Value: TInfoDepCollectionItem);
+  public
+    function New: TInfoDepCollectionItem;
+    property Items[Index: Integer]: TInfoDepCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TinfoIRComplem = class(TObject)
+  private
+    FdtLaudo: TDateTime;
+    FinfoDep: TinfoDepCollection;
+
+    function getInfoDep: TinfoDepCollection;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function infoDepInst: boolean;
+
+    property dtLaudo: TDateTime read FdtLaudo write FdtLaudo;
+    property infoDep: TinfoDepCollection read getInfoDep write FinfoDep;
+  end;
+
+  TIdeTrabCollectionItem = class(TObject)
+  private
+    FcpfTrab: string;
+    FcalcTrib: TCalcTribCollection;
+    FinfoCRIRRF: TInfoCRIRRFCollection;
+    FinfoIRComplem: TinfoIRComplem;
+
+    function getCalcTrib: TCalcTribCollection;
+    function getInfoCRIRRF: TInfoCRIRRFCollection;
+    function getInfoIRComplem: TinfoIRComplem;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    function instCalcTrib: boolean;
+    function instInfoCRIRRF: boolean;
+    function instInfoIRComplem: boolean;
+
+    property cpfTrab: string read FcpfTrab write FcpfTrab;
+    property calcTrib: TCalcTribCollection read getCalcTrib write FcalcTrib;
+    property infoCRIRRF: TInfoCRIRRFCollection read getInfoCRIRRF write FinfoCRIRRF;
+    property infoIRComplem: TinfoIRComplem read getInfoIRComplem write FinfoIRComplem;
+  end;
+
+  TIdeTrabCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TIdeTrabCollectionItem;
+    procedure SetItem(Index: Integer; Value: TIdeTrabCollectionItem);
+  public
+    function New: TIdeTrabCollectionItem;
+    property Items[Index: Integer]: TIdeTrabCollectionItem read GetItem write SetItem; default;
   end;
 
   TEvtContProc = class(TESocialEvento)
@@ -149,363 +488,25 @@ type
     property ideTrab: TIdeTrabCollection read FideTrab write FideTrab;
   end;
 
-  TIdeProc = class(TObject)
+  TS2501CollectionItem = class(TObject)
   private
-    FnrProcTrab: string;
-    FperApurPgto: string;
-    Fobs: string;
+    FTipoEvento: TTipoEvento;
+    FEvtContProc: TEvtContProc;
   public
-    property nrProcTrab: string read FnrProcTrab write FnrProcTrab;
-    property perApurPgto: string read FperApurPgto write FperApurPgto;
-    property obs: string read Fobs write Fobs;
-  end;
-
-  TIdeTrabCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TIdeTrabCollectionItem;
-    procedure SetItem(Index: Integer; Value: TIdeTrabCollectionItem);
-  public
-    function New: TIdeTrabCollectionItem;
-    property Items[Index: Integer]: TIdeTrabCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TIdeTrabCollectionItem = class(TObject)
-  private
-    FcpfTrab: string;
-    FcalcTrib: TCalcTribCollection;
-    FinfoCRIRRF: TInfoCRIRRFCollection;
-    FinfoIRComplem: TinfoIRComplem;
-
-    function getCalcTrib: TCalcTribCollection;
-    function getInfoCRIRRF: TInfoCRIRRFCollection;
-    function getInfoIRComplem: TinfoIRComplem;
-  public
-    constructor Create;
+    constructor Create(AOwner: TComponent);
     destructor Destroy; override;
 
-    function instCalcTrib: boolean;
-    function instInfoCRIRRF: boolean;
-    function instInfoIRComplem: boolean;
-    
-    property cpfTrab: string read FcpfTrab write FcpfTrab;
-    property calcTrib: TCalcTribCollection read getCalcTrib write FcalcTrib;
-    property infoCRIRRF: TInfoCRIRRFCollection read getInfoCRIRRF write FinfoCRIRRF;
-    property infoIRComplem: TinfoIRComplem read getInfoIRComplem write FinfoIRComplem;
+    property TipoEvento: TTipoEvento read FTipoEvento;
+    property EvtContProc: TEvtContProc read FEvtContProc write FEvtContProc;
   end;
 
-  TCalcTribCollection = class(TACBrObjectList)
+  TS2501Collection = class(TeSocialCollection)
   private
-    function GetItem(Index: Integer): TCalcTribCollectionItem;
-    procedure SetItem(Index: Integer; Value: TCalcTribCollectionItem);
+    function GetItem(Index: Integer): TS2501CollectionItem;
+    procedure SetItem(Index: Integer; Value: TS2501CollectionItem);
   public
-    function New: TCalcTribCollectionItem;
-    property Items[Index: Integer]: TCalcTribCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TCalcTribCollectionItem = class(TObject)
-  private
-    FperRef: string;
-    FvrBcCpMensal: double;
-    FvrBcCp13: double;
-    FvrRendIRRF: double;
-    FvrRendIRRF13: double;
-    FinfoCRContrib: TInfoCRContribCollection;
-
-    function getInfoCRContrib(): TInfoCRContribCollection;
-  public
-    constructor Create;
-    destructor  Destroy; override;
-
-    function instInfoCRContrib(): boolean;
-
-    property perRef: string read FperRef write FperRef;
-    property vrBcCpMensal: double read FvrBcCpMensal write FvrBcCpMensal;
-    property vrBcCp13: double read FvrBcCp13 write FvrBcCp13;
-    property vrRendIRRF: double read FvrRendIRRF write FvrRendIRRF;
-    property vrRendIRRF13: double read FvrRendIRRF13 write FvrRendIRRF13;
-    property infoCRContrib: TInfoCRContribCollection read getInfoCRContrib write FinfoCRContrib;
-  end;
-
-  TInfoCRContribCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TInfoCRContribCollectionItem;
-    procedure SetItem(Index: Integer; Value: TInfoCRContribCollectionItem);
-  public
-    function New: TInfoCRContribCollectionItem;
-    property Items[Index: Integer]: TInfoCRContribCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TInfoCRContribCollectionItem = class(TObject)
-  private
-    FtpCR: string;
-    FvrCR: double;
-  public
-    property tpCR: string read FtpCR write FtpCR;
-    property vrCR: double read FvrCR write FvrCR;
-  end;
-
-  TInfoCRIRRFCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TInfoCRIRRFCollectionItem;
-    procedure SetItem(Index: Integer; Value: TInfoCRIRRFCollectionItem);
-  public
-    function New: TInfoCRIRRFCollectionItem;
-    property Items[Index: Integer]: TInfoCRIRRFCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TInfoCRIRRFCollectionItem = class(TObject)
-  private
-    FtpCR: string;
-    FvrCR: double;
-    FinfoIR: TinfoIRCollection;
-    FinfoRRA: TinfoRRA;
-    FdedDepen: TdedDepenCollection;
-    FpenAlim: TpenAlimCollection;
-    FinfoProcRet: TinfoProcRetCollection;
-
-    function getInfoIR: TinfoIRCollection;
-    function getInfoRRA: TinfoRRA;
-    function getDedDepen: TdedDepenCollection;
-    function getPenAlim: TpenAlimCollection;
-    function getInfoProcRet: TinfoProcRetCollection;
-  public
-    constructor Create;
-    destructor  Destroy; override;
-
-    function infoIRInst: boolean;
-    function infoRRAInst: boolean;
-    function dedDepenInst: boolean;
-    function penAlimInst: boolean;
-    function infoProcRetInst: boolean;
-
-    property tpCR: string read FtpCR write FtpCR;
-    property vrCR: double read FvrCR write FvrCR;
-    property infoIR: TinfoIRCollection read getInfoIR write FinfoIR;
-    property infoRRA: TinfoRRA read getInfoRRA write FinfoRRA;
-    property dedDepen: TdedDepenCollection read getDedDepen write FdedDepen;
-    property penAlim: TpenAlimCollection read getPenAlim write FpenAlim;
-    property infoProcRet: TinfoProcRetCollection read getInfoProcRet write FinfoProcRet;
-  end;
-
-  TpenAlimCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TpenAlimCollectionItem;
-    procedure SetItem(Index: Integer; const Value: TpenAlimCollectionItem);
-  public
-    function New: TpenAlimCollectionItem;
-    property Items[Index: Integer]: TpenAlimCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TpenAlimCollectionItem = class(TObject)
-  private
-    FtpRend: integer;
-    FcpfDep: string;
-    FvlrPensao: double;
-  public
-    property tpRend: integer read FtpRend write FtpRend;
-    property cpfDep: string read FcpfDep write FcpfDep;
-    property vlrPensao: double read FvlrPensao write FvlrPensao;
-  end;
-
-  TinfoIRCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TinfoIRCollectionItem;
-    procedure SetItem(Index: Integer; Value: TinfoIRCollectionItem);
-  public
-    function New: TinfoIRCollectionItem;
-    property Items[Index: Integer]: TinfoIRCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TinfoIRCollectionItem = class(TObject)
-  private
-    FvrRendTrib: double;
-    FvrRendTrib13: double;
-    FvrRendMoleGrave: double;
-    FvrRendIsen65: double;
-    FvrJurosMora: double;
-    FvrRendIsenNTrib: double;
-    FdescIsenNTrib: string;
-    FvrPrevOficial: double;
-  public
-    property vrRendTrib: double read FvrRendTrib write FvrRendTrib;
-    property vrRendTrib13: double read FvrRendTrib13 write FvrRendTrib13;
-    property vrRendMoleGrave: double read FvrRendMoleGrave write FvrRendMoleGrave;
-    property vrRendIsen65: double read FvrRendIsen65 write FvrRendIsen65;
-    property vrJurosMora: double read FvrJurosMora write FvrJurosMora;
-    property vrRendIsenNTrib: double read FvrRendIsenNTrib write FvrRendIsenNTrib;
-    property descIsenNTrib: string read FdescIsenNTrib write FdescIsenNTrib;
-    property vrPrevOficial: double read FvrPrevOficial write FvrPrevOficial;
-  end;
-
-  TdedDepenCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TdedDepenCollectionItem;
-    procedure SetItem(Index: Integer; const Value: TdedDepenCollectionItem);
-  public
-    function New: TdedDepenCollectionItem;
-    property Items[Index: Integer]: TdedDepenCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TdedDepenCollectionItem = class(TObject)
-  private
-    FtpRend: integer;
-    FcpfDep: string;
-    FvlrDeducao: double;
-  public
-    property tpRend: integer read FtpRend write FtpRend;
-    property cpfDep: string read FcpfDep write FcpfDep;
-    property vlrDeducao: double read FvlrDeducao write FvlrDeducao;
-  end;
-
-  TinfoProcRetCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TinfoProcRetCollectionItem;
-    procedure SetItem(Index: Integer; const Value: TinfoProcRetCollectionItem);
-  public
-    function New: TinfoProcRetCollectionItem;
-    property Items[Index: Integer]: TinfoProcRetCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TinfoProcRetCollectionItem = class(TObject)
-  private
-    FtpProcRet: tpTpProcRet;
-    FnrProcRet: string;
-    FcodSusp: string;
-    FinfoValores: TinfoValoresCollection;
-
-    function getInfoValores: TinfoValoresCollection;
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    function infoValoresInst: boolean;
-
-    property tpProcRet: tpTpProcRet read FtpProcRet write FtpProcRet;
-    property nrProcRet: string read FnrProcRet write FnrProcRet;
-    property codSusp: string read FcodSusp write FcodSusp;
-    property infoValores: TinfoValoresCollection read getInfoValores write FinfoValores;
-  end;
-
-  TinfoValoresCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TinfoValoresCollectionItem;
-    procedure SetItem(Index: Integer; const Value: TinfoValoresCollectionItem);
-  public
-    function New: TinfoValoresCollectionItem;
-    property Items[Index: Integer]: TinfoValoresCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TinfoValoresCollectionItem = class(TObject)
-  private
-    FindApuracao: tpIndApuracao;
-    FvlrNRetido: double;
-    FvlrDepJud: double;
-    FvlrCmpAnoCal: double;
-    FvlrCmpAnoAnt: double;
-    FvlrRendSusp: double;
-    FdedSusp: TdedSuspCollection;
-
-    function getDedSusp: TdedSuspCollection;
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    function dedSuspInst: boolean;
-
-    property indApuracao: tpIndApuracao read FindApuracao write FindApuracao;
-    property vlrNRetido: double read FvlrNRetido write FvlrNRetido;
-    property vlrDepJud: double read FvlrDepJud write FvlrDepJud;
-    property vlrCmpAnoCal: double read FvlrCmpAnoCal write FvlrCmpAnoCal;
-    property vlrCmpAnoAnt: double read FvlrCmpAnoAnt write FvlrCmpAnoAnt;
-    property vlrRendSusp: double read FvlrRendSusp write FvlrRendSusp;
-    property dedSusp: TdedSuspCollection read getDedSusp write FdedSusp;
-  end;
-
-  TdedSuspCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TdedSuspCollectionItem;
-    procedure SetItem(Index: Integer; const Value: TdedSuspCollectionItem);
-  public
-    function New: TdedSuspCollectionItem;
-    property Items[Index: Integer]: TdedSuspCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TdedSuspCollectionItem = class(TObject)
-  private
-    FindTpDeducao: tpIndTpDeducaoT;
-    FvlrDedSusp: double;
-    FbenefPen: TbenefPenCollection;
-
-   function getBenefPen: TbenefPenCollection;
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    function benefPenInst: boolean;
-
-    property indTpDeducao: tpIndTpDeducaoT read FindTpDeducao write FindTpDeducao;
-    property vlrDedSusp: double read FvlrDedSusp write FvlrDedSusp;
-    property benefPen: TbenefPenCollection read getBenefPen write Fbenefpen;
-  end;
-
-  TbenefPenCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TbenefPenCollectionItem;
-    procedure SetItem(Index: Integer; const Value: TbenefPenCollectionItem);
-  public
-    function New: TbenefPenCollectionItem;
-    property Items[Index: Integer]: TbenefPenCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TbenefPenCollectionItem = class(TObject)
-  private
-    FcpfDep: string;
-    FvlrDepenSusp: double;
-  public
-    property cpfDep: string read FcpfDep write FcpfDep;
-    property vlrDepenSusp: double read FvlrDepenSusp write FvlrDepenSusp;
-  end;
-
-  TinfoIRComplem = class(TObject)
-  private
-    FdtLaudo: TDateTime;
-    FinfoDep: TinfoDepCollection;
-
-    function getInfoDep: TinfoDepCollection;
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    function infoDepInst: boolean;
-
-    property dtLaudo: TDateTime read FdtLaudo write FdtLaudo;
-    property infoDep: TinfoDepCollection read getInfoDep write FinfoDep;
-  end;
-
-  TinfoDepCollection = class(TACBrObjectList)
-  private
-    function GetItem(Index: Integer): TInfoDepCollectionItem;
-    procedure SetItem(Index: Integer; const Value: TInfoDepCollectionItem);
-  public
-    function New: TInfoDepCollectionItem;
-    property Items[Index: Integer]: TInfoDepCollectionItem read GetItem write SetItem; default;
-  end;
-
-  TinfoDepCollectionItem = class(TObject)
-  private
-    FcpfDep: string;
-    FdtNascto: TDateTime;
-    Fnome: string;
-    FdepIRRF: tpSimNaoFacultativo;
-    FtpDep: tpTpDep;
-    FdescrDep: string;
-  public
-    property cpfDep: string read FcpfDep write FcpfDep;
-    property dtNascto: TDateTime read FdtNascto write FdtNascto;
-    property nome: string read Fnome write Fnome;
-    property depIRRF: tpSimNaoFacultativo read FdepIRRF write FdepIRRF;
-    property tpDep: tpTpDep read FtpDep write FtpDep;
-    property descrDep: string read FdescrDep write FdescrDep;
+    function New: TS2501CollectionItem;
+    property Items[Index: Integer]: TS2501CollectionItem read GetItem write SetItem; default;
   end;
 
 implementation
@@ -1157,12 +1158,24 @@ end;
 procedure TEvtContProc.GerarInfoCRIRRF(obj: TInfoCRIRRFCollection);
 var
   i: integer;
+  LAtributos: String;
 begin
   for i := 0 to obj.Count - 1 do
   begin
-    Gerador.wGrupo('infoCRIRRF tpCR="' + obj.Items[i].tpCR + '"' +
-                             ' vrCR="' + FloatToString(obj.Items[i].vrCR, '.', FloatMask(2, False))+'"'
-                  );
+    if VersaoDF < veS01_03_00 then
+      LAtributos :='tpCR="' + obj.Items[i].tpCR + '"' +
+                   ' vrCR="' + FloatToString(obj.Items[i].vrCR, '.', FloatMask(2, False))+'"'
+    else
+    begin
+      LAtributos := 'tpCR="' + obj.Items[i].tpCR + '"' +
+                    ' vrCR="' + FloatToString(obj.Items[i].vrCR, '.', FloatMask(2, False))+'"';
+      if obj.Items[i].vrCR13 > 0.00 then
+        LAtributos := LAtributos + ' vrCR13="' + FloatToString(obj.Items[i].vrCR13, '.', FloatMask(2, False))+ '"';
+    end;
+
+
+
+    Gerador.wGrupo('infoCRIRRF ' + LAtributos);
 
     if VersaoDF >= veS01_02_00 then
     begin
@@ -1196,15 +1209,50 @@ begin
        (obj[i].vrRendIsen65 > 0)    or (obj[i].vrJurosMora > 0)   or (obj[i].vrRendIsenNTrib > 0) or
        (obj[i].descIsenNTrib <> '') or (obj[i].vrPrevOficial > 0) then
     begin
-      Gerador.wGrupo('infoIR' + IfThen(obj[i].vrRendTrib > 0,      ' vrRendTrib="'      + FloatToString(obj[i].vrRendTrib, '.',   FloatMask(2, False)) + '"', '')
-                              + IfThen(obj[i].vrRendTrib13 > 0,    ' vrRendTrib13="'    + FloatToString(obj[i].vrRendTrib13, '.', FloatMask(2, False)) + '"', '')
-                              + IfThen(obj[i].vrRendMoleGrave > 0, ' vrRendMoleGrave="' + FloatToString(obj[i].vrRendMoleGrave, '.', FloatMask(2, False)) + '"', '')
-                              + IfThen(obj[i].vrRendIsen65 > 0,    ' vrRendIsen65="'    + FloatToString(obj[i].vrRendIsen65, '.', FloatMask(2, False)) + '"', '')
-                              + IfThen(obj[i].vrJurosMora > 0,     ' vrJurosMora="'     + FloatToString(obj[i].vrJurosMora, '.', FloatMask(2, False)) + '"', '')
-                              + IfThen(obj[i].vrRendIsenNTrib > 0, ' vrRendIsenNTrib="' + FloatToString(obj[i].vrRendIsenNTrib, '.', FloatMask(2, False)) + '"', '')
-                              + IfThen(obj[i].descIsenNTrib <> '', ' descIsenNTrib="'   + TiraAcentos(obj[i].descIsenNTrib)                            + '"', '')
-                              + IfThen(obj[i].vrPrevOficial > 0,   ' vrPrevOficial="'   + FloatToString(obj[i].vrPrevOficial, '.', FloatMask(2, False)) + '"', '') 
-                    );
+      if VersaoDF < veS01_03_00 then
+      begin
+        Gerador.wGrupo('infoIR' + IfThen(obj[i].vrRendTrib > 0,      ' vrRendTrib="'      + FloatToString(obj[i].vrRendTrib, '.',   FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrRendTrib13 > 0,    ' vrRendTrib13="'    + FloatToString(obj[i].vrRendTrib13, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrRendMoleGrave > 0, ' vrRendMoleGrave="' + FloatToString(obj[i].vrRendMoleGrave, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrRendIsen65 > 0,    ' vrRendIsen65="'    + FloatToString(obj[i].vrRendIsen65, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrJurosMora > 0,     ' vrJurosMora="'     + FloatToString(obj[i].vrJurosMora, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrRendIsenNTrib > 0, ' vrRendIsenNTrib="' + FloatToString(obj[i].vrRendIsenNTrib, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].descIsenNTrib <> '', ' descIsenNTrib="'   + TiraAcentos(obj[i].descIsenNTrib)                            + '"', '')
+                                + IfThen(obj[i].vrPrevOficial > 0,   ' vrPrevOficial="'   + FloatToString(obj[i].vrPrevOficial, '.', FloatMask(2, False)) + '"', '')
+                      );
+      end
+      else
+      begin
+        Gerador.wGrupo('infoIR' + IfThen(obj[i].vrRendTrib > 0,      ' vrRendTrib="'      + FloatToString(obj[i].vrRendTrib, '.',   FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrRendTrib13 > 0,    ' vrRendTrib13="'    + FloatToString(obj[i].vrRendTrib13, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrRendMoleGrave > 0, ' vrRendMoleGrave="' + FloatToString(obj[i].vrRendMoleGrave, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrRendMoleGrave > 0, ' vrRendMoleGrave13="' + FloatToString(obj[i].vrRendMoleGrave13, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrRendIsen65 > 0,    ' vrRendIsen65="'    + FloatToString(obj[i].vrRendIsen65, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrRendIsen65Dec > 0, ' vrRendIsen65Dec="' + FloatToString(obj[i].vrRendIsen65Dec, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrJurosMora > 0,     ' vrJurosMora="'     + FloatToString(obj[i].vrJurosMora, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrJurosMora > 0,     ' vrJurosMora13="'   + FloatToString(obj[i].vrJurosMora13, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrRendIsenNTrib > 0, ' vrRendIsenNTrib="' + FloatToString(obj[i].vrRendIsenNTrib, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].descIsenNTrib <> '', ' descIsenNTrib="'   + TiraAcentos(obj[i].descIsenNTrib)                            + '"', '')
+                                + IfThen(obj[i].vrPrevOficial > 0,   ' vrPrevOficial="'   + FloatToString(obj[i].vrPrevOficial, '.', FloatMask(2, False)) + '"', '')
+                                + IfThen(obj[i].vrPrevOficial > 0,   ' vrPrevOficial13="' + FloatToString(obj[i].vrPrevOficial13, '.', FloatMask(2, False)) + '"', '')
+                      );
+
+
+        if (obj[i].rendIsen0561.vlrDiarias > 0) or (obj[i].rendIsen0561.vlrAjudaCusto > 0) or
+           (obj[i].rendIsen0561.vlrIndResContrato > 0) or (obj[i].rendIsen0561.vlrAbonoPec > 0) or
+           (obj[i].rendIsen0561.vlrAuxMoradia > 0) then
+        begin
+          Gerador.wGrupo('rendIsen0561'
+                          + IfThen(obj[i].rendIsen0561.vlrDiarias > 0,        ' vlrDiarias="' + FloatToString(obj[i].rendIsen0561.vlrDiarias, '.', FloatMask(2, False)) + '"', '')
+                          + ifThen(obj[i].rendIsen0561.vlrAjudaCusto > 0,     ' vlrAjudaCusto="' + FloatToString(obj[i].rendIsen0561.vlrAjudaCusto, '.', FloatMask(2, False)) + '"', '')
+                          + ifThen(obj[i].rendIsen0561.vlrIndResContrato > 0, ' vlrIndResContrato="' + FloatToString(obj[i].rendIsen0561.vlrIndResContrato, '.', FloatMask(2, False)) + '"', '')
+                          + IfThen(obj[i].rendIsen0561.vlrAbonoPec > 0,       ' vlrAbonoPec="' + FloatToString(obj[i].rendIsen0561.vlrAbonoPec, '.', FloatMask(2, False)) + '"', '')
+                          + IfThen(obj[i].rendIsen0561.vlrAuxMoradia > 0,     ' vlrAuxMoradia="' + FloatToString(obj[i].rendIsen0561.vlrAuxMoradia, '.', FloatMask(2, False)) + '"', '')
+                         );
+          Gerador.wGrupo('/rendIsen0561');
+
+        end;
+      end;
 
       Gerador.wGrupo('/infoIR');
     end;
@@ -1232,12 +1280,15 @@ var
 begin
   for i := 0 to obj.Count - 1 do
   begin
-    Gerador.wGrupo('ideAdv tpInsc="' + eSTpInscricaoToStr(obj[i].tpInsc) + '"' +
-                         ' nrInsc="' + obj[i].nrInsc + '"' + 
-                         IfThen(obj[i].vlrAdv > 0, ' vlrAdv="' + FloatToString(obj[i].vlrAdv, '.', FloatMask(2,False)) + '"', '')
-                  );       
+    if obj[i].vlrAdv > 0 then
+    begin
+      Gerador.wGrupo('ideAdv tpInsc="' + eSTpInscricaoToStr(obj[i].tpInsc) + '"' +
+                           ' nrInsc="' + obj[i].nrInsc + '"' +
+                           ' vlrAdv="' + FloatToString(obj[i].vlrAdv, '.', FloatMask(2,False)) + '"'
+                    );
 
-    Gerador.wGrupo('/ideAdv');
+      Gerador.wGrupo('/ideAdv');
+    end;
   end;
 
   if obj.Count > 99 then
@@ -1259,6 +1310,9 @@ begin
 
   Gerador.wCampo(tcStr, '', 'nrProcTrab',  15,  20, 1, obj.nrProcTrab);
   Gerador.wCampo(tcStr, '', 'perApurPgto',  7,   7, 1, obj.perApurPgto);
+
+  if (obj.ideSeqProc > 0) and (VersaoDF = veS01_03_00) then
+    Gerador.wCampo(tcStr, '', 'ideSeqProc', 01, 03, 0, obj.ideSeqProc);
 
   if obj.obs <> '' then
     Gerador.wCampo(tcStr, '', 'obs',        0, 999, 0, obj.obs);
@@ -1287,9 +1341,6 @@ begin
     GerarRodape;
 
     FXML := Gerador.ArquivoFormatoXML;
-//    XML := Assinar(Gerador.ArquivoFormatoXML, 'evtContProc');
-
-//    Validar(schevtContProc);
   except on e:exception do
     raise Exception.Create('ID: ' + Self.Id + sLineBreak + ' ' + e.Message);
   end;
@@ -1329,6 +1380,7 @@ begin
       sSecao := 'ideProc';
       ideProc.nrProcTrab  := INIRec.ReadString(sSecao, 'nrProcTrab', EmptyStr);
       ideProc.perApurPgto := INIRec.ReadString(sSecao, 'perApurPgto', EmptyStr);
+      ideProc.ideSeqProc  := INIRec.ReadInteger(sSecao, 'ideSeqProc', 0);
       ideProc.obs         := INIRec.ReadString(sSecao, 'obs', EmptyStr);
 
       I := 1;
@@ -1400,6 +1452,7 @@ begin
             begin
               tpCR := sFim;
               vrCR := StringToFloat(INIRec.ReadString(sSecao, 'vrCR', '0'));
+              vrCR13 := StringToFloat(INIRec.ReadString(sSecao, 'vrCR13', '0'));
 
               K := 1;
               while true do
@@ -1422,11 +1475,25 @@ begin
                   vrRendTrib := StringToFloat(INIRec.ReadString(sSecao, 'vrRendTrib', '0'));
                   vrRendTrib13 := StringToFloat(INIRec.ReadString(sSecao, 'vrRendTrib13', '0'));
                   vrRendMoleGrave := StringToFloat(INIRec.ReadString(sSecao, 'vrRendMoleGrave', '0'));
+                  vrRendMoleGrave13 := StringToFloat(INIRec.ReadString(sSecao, 'vrRendMoleGrave13', '0'));
                   vrRendIsen65 := StringToFloat(INIRec.ReadString(sSecao, 'vrRendIsen65', '0'));
+                  vrRendIsen65Dec := StringToFloat(INIRec.ReadString(sSecao, 'vrRendIsen65Dec', '0'));
                   vrJurosMora := StringToFloat(INIRec.ReadString(sSecao, 'vrJurosMora', '0'));
+                  vrJurosMora13 := StringToFloat(INIRec.ReadString(sSecao, 'vrJurosMora13', '0'));
                   vrRendIsenNTrib := StringToFloat(INIRec.ReadString(sSecao, 'vrRendIsenNTrib', '0'));
                   descIsenNTrib := INIRec.ReadString(sSecao, 'descIsenNTrib', '');
                   vrPrevOficial := StringToFloat(INIRec.ReadString(sSecao, 'vrPrevOficial', '0'));
+                  vrPrevOficial13 := StringToFloat(INIRec.ReadString(sSecao, 'vrPrevOficial13', '0'));
+
+                  sSecao := 'rendISen0561' + IntToStrZero(I, 4) + IntToStrZero(J, 2) + IntToStrZero(K, 1);
+                  if INIRec.SectionExists(sSecao) then
+                  begin
+                    rendIsen0561.vlrDiarias := StringToFloat(INIRec.ReadString(sSecao, 'vlrDiarias', '0'));
+                    rendIsen0561.vlrAjudaCusto := StringToFloat(INIRec.ReadString(sSecao, 'vlrAjudaCusto', '0'));
+                    rendIsen0561.vlrIndResContrato := StringToFloat(INIRec.ReadString(sSecao, 'vlrIndResContrato', '0'));
+                    rendIsen0561.vlrAbonoPec   := StringToFloat(INIRec.ReadString(sSecao, 'vlrAbonoPec', '0'));
+                    rendIsen0561.vlrAuxMoradia := StringToFloat(INIRec.ReadString(sSecao, 'vlrAuxMoradia', '0'));
+                  end;
                 end;
 
                 Inc(K);
@@ -1806,6 +1873,20 @@ begin
 
   if obj.Count > 999 then
     Gerador.wAlerta('', 'infoDep', 'Informações de dependentes não cadastrados pelos eventos', ERR_MSG_MAIOR_MAXIMO + '999');
+end;
+
+{ TinfoIRCollectionItem }
+
+constructor TinfoIRCollectionItem.Create;
+begin
+  inherited Create;
+  FrendIsen0561 := TrendIsen0561.Create;
+end;
+
+destructor TinfoIRCollectionItem.Destroy;
+begin
+  FrendIsen0561.Free;
+  inherited;
 end;
 
 end.

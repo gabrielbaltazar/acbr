@@ -79,7 +79,7 @@ resourcestring
   DSC_GENERICOSTITULO = 'Título do campo livre';
   DESC_GENERICOSDESCRICAO = 'Conteúdo do campo livre.';
   DSC_VTTS = 'Valor Taxa Turismo';
-  DSC_QDiaria = 'Quantidade Diaria';
+  DSC_QDIARIA = 'Quantidade Diaria';
   DSC_REGTRIB = 'Código de Regime Tributário';
   DSC_CLISTSERV = 'Código do Item da Lista Prestação de Serviços';
   DSC_VISS = 'Valor do Imposto sobre Serviço';
@@ -106,6 +106,9 @@ resourcestring
   DSC_NPROCESSO = 'Número do Processo';
   DSC_TPAG = 'Forma de Pagamento';
   DSC_DVENC = 'Data de vencimento';
+  DSC_INFADICIONAL = 'Informação Adicional';
+  DSC_INSTPAG = 'Instrução de Pagamento';
+  DSC_CODVENV = 'Código de Vencimento';
 
   // Descrição de Documentos - Futuramente vai para ACBrDFeConst
   DSC_CNPJ = 'CNPJ(MF)';
@@ -236,6 +239,8 @@ resourcestring
   Desc133	= 'Geral.CNPJPrefeitura não informado.';
   Cod134 = 'X134';
   Desc134 = 'Número da NFSe ou RPS não informado.';
+  Cod135 = 'X135';
+  Desc135 = 'Número da NFSe Substituta não informado.';
 
   Cod201 = 'X201';
   Desc201 = 'WebService retornou um XML vazio.';

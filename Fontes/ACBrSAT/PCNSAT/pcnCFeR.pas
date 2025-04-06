@@ -3,8 +3,9 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -238,6 +239,8 @@ begin
       (*I19*)CFe.Det[i].Prod.obsFiscoDet[j].xTextoDet := Leitor.rCampo(tcStr, 'xTextoDet');
       inc(j);
     end;
+
+    (*I20*)CFe.Det[i].Prod.cANP := Leitor.rCampo(tcInt64, 'cANP');
 
     (* Grupo da TAG <det><imposto> ********************************************)
     Leitor.rExtrai(2, 'imposto');

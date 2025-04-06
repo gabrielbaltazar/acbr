@@ -44,6 +44,7 @@ uses
 
 type
   TOFXItem = class
+    OriginalMovType: string;
     MovType: String;
     MovDate: TDateTime;
     Value: Currency;
@@ -51,6 +52,7 @@ type
     Document: string;
     Description: string;
     Name: string;
+    RefNum : string;
   end;
 
 type
@@ -92,6 +94,10 @@ CONST
   FILE_NOT_FOUND = 'Arquivo não encontrado!';
 
 implementation
+
+uses
+  ACBrUtil.Base,
+  ACBrUtil.Strings;
 
 { TACBrOFX }
 
@@ -181,10 +187,15 @@ var
         LInicio := Pos('[',LLine);
         LFim    := Pos(':',LLine);
         LFuso   := StrToFloat(Copy(LLine, LInicio + 1, LFim - LInicio - 1));
+		if Length(Copy(LLine, 0, LInicio - 1)) > 12 then
+        begin
         LTime   := Copy(LLine, 7, LInicio-7);
         // Quando for mais que 6 dígitos, indica ser um horário e não um fator.
         // Assim, os dígitos 7 e 8 são o dia como em um datetime padrão.
         Result  := (Length(LTime) <= 6);
+		end
+        else
+          Result := False;
       end else
        LFuso := 0;
     end;
@@ -213,6 +224,9 @@ begin
   try
     oFile.LoadFromFile(FOFXFile);
     i := 0;
+
+    if (Pos('ENCODING:UTF-8',oFile.Text) > 0) then
+      oFile.Text := UTF8ToNativeString(oFile.Text);
 
     while i < oFile.Count do
     begin
@@ -260,8 +274,10 @@ begin
           begin
             Inc(i);
             sLine := oFile.Strings[i];
+
             if FindString('<TRNTYPE>', sLine) then
             begin
+            {
               if (InfLine(sLine) = '0')
                 or (InfLine(sLine) = 'CREDIT')
                 or (InfLine(sLine) = 'DEP')
@@ -276,38 +292,79 @@ begin
                 oItem.MovType := 'D'
               else
                 oItem.MovType := 'OTHER';
+            }
+
+              oItem.OriginalMovType := InfLine(sLine);
+              if {(InfLine(sLine) = '0')
+                or} (InfLine(sLine) = 'CREDIT')
+                or (InfLine(sLine) = 'DEP')
+                or (InfLine(sLine) = 'IN') then
+                  oItem.MovType := 'C'
+              else if {(InfLine(sLine) = '1')
+                  or} (InfLine(sLine) = 'DEBIT')
+                  or (InfLine(sLine) = 'OUT') then
+                oItem.MovType := 'D'
+              else
+              begin
+                // Coloca como OUTRO, pois esta tag vem p´rimeiro do que a tag Value no OFX...
+                oItem.MovType := 'O'
+              end;
+
             end;
+
             if FindString('<DTPOSTED>', sLine) then
               oItem.MovDate := EncodeDate(StrToIntDef(Copy(InfLine(sLine), 1, 4), 0), StrToIntDef(Copy(InfLine(sLine), 5, 2), 0),
                 StrToIntDef(Copy(InfLine(sLine), 7, 2), 0));
-            if FindString('<FITID>', sLine) then
-              oItem.ID := InfLine(sLine);
-            if FindString('<CHKNUM>', sLine) or FindString('<CHECKNUM>', sLine) then
-              oItem.Document := InfLine(sLine);
-            if FindString('<MEMO>', sLine) then
-            begin
-              LDescricaoMemo := LDescricaoMemo + ifthen(LDescricaoMemo='','',', ')+trim(InfLine(sLine));
-              if bOFX then                
-                oItem.Description := Trim(LDescricaoMemo);
-            end;
+
             if FindString('<TRNAMT>', sLine) then
             begin
               Amount := InfLine(sLine);
               Amount := StringReplace(Amount,'.',',',[rfReplaceAll]);
-              oItem.Value := StrToFloat(Amount);
+              oItem.Value := StringToFloat(Amount);
+
+              //Verifico se o MovType está como Outros e adequo para D/C conforme Valor
+              if oItem.MovType = 'O' then
+              begin
+                if oItem.Value < 0.00 then
+                  oItem.MovType := 'D'
+                else
+                  oItem.MovType := 'C';
+              end;
             end;
+
+            if FindString('<FITID>', sLine) then
+              oItem.ID := InfLine(sLine);
+
+            if FindString('<CHKNUM>', sLine) or FindString('<CHECKNUM>', sLine) then
+              oItem.Document := InfLine(sLine);
+
+            if FindString('<REFNUM>', sLine) then
+              oItem.RefNum := InfLine(sLine);
+
+            if FindString('<MEMO>', sLine) then
+            begin
+              LDescricaoMemo := LDescricaoMemo +
+                       ifthen(LDescricaoMemo='','',', ') + trim(InfLine(sLine));
+
+              if bOFX then
+                oItem.Description := Trim(LDescricaoMemo);
+            end;
+
             if FindString('<NAME>', sLine) then
               oItem.Name := InfLine(sLine);
+
             if oItem.Document = '' then
               oItem.Document := FirstWord(oItem.ID);
           end;
 
-          if (Pos('REC', UpperCase(oItem.Description)) > 0) and (oItem.Value >= 0) then
-            oItem.MovType := 'C';
+//          if (Pos('REC', UpperCase(oItem.Description)) > 0) and (oItem.Value >= 0) then
+//            oItem.MovType := 'C';
         end;
       end;
+
       Inc(i);
     end;
+
     Result := bOFX;
   finally
     oFile.Free;

@@ -48,7 +48,7 @@ uses
   Forms, 
   ACBrBase, 
   ACBrNFeDANFEClass, 
-  pcnNFe, 
+  ACBrNFe.Classes,
   ACBrNFe,
   RLReport, 
   RLHTMLFilter, 
@@ -323,7 +323,8 @@ uses
   ACBrUtil.Strings, 
   ACBrUtil.FilesIO, 
   ACBrUtil.DateTime,
-  ACBrDFeDANFeReport, 
+  pcnConversaoNFe,
+  ACBrDFeDANFeReport,
   ACBrDFeReportFortes,
   ACBrValidador, 
   ACBrImage, 
@@ -433,7 +434,7 @@ end;
 procedure TfrmACBrDANFCeFortesFrA4.RLBand10BeforePrint(Sender: TObject;
   var PrintIt: Boolean);
 begin
-  PrintIt := StringReplace(Trim(self.FACBrNFeDANFCeFortesA4.FpNFe.InfAdic.infCpl), ';', #13, [rfReplaceAll] ) <> '';
+  PrintIt := StringReplace(Trim(self.FACBrNFeDANFCeFortesA4.FpNFe.InfAdic.infCpl), Self.FACBrNFeDANFCeFortesA4.CaractereQuebraDeLinha, #13, [rfReplaceAll] ) <> '';
 end;
 
 procedure TfrmACBrDANFCeFortesFrA4.RLBand11BeforePrint(Sender: TObject;
@@ -539,13 +540,7 @@ var
 begin
   with self.FACBrNFeDANFCeFortesA4.FpNFe do
   begin
-    qrcode := TACBrNFe(self.FACBrNFeDANFCeFortesA4.ACBrNFe).GetURLQRCode( ide.cUF, ide.tpAmb,
-                                     OnlyNumber(InfNFe.ID),  //correcao para pegar somente numeros, estava indo junto o NFE
-                                     ifthen(Dest.idEstrangeiro <> '',Dest.idEstrangeiro, OnlyNumber(Dest.CNPJCPF)),
-                                     ide.dEmi,
-                                     Total.ICMSTot.vNF, Total.ICMSTot.vICMS,
-                                     signature.DigestValue,
-                                     infNFe.Versao);
+    qrcode := TACBrNFe(self.FACBrNFeDANFCeFortesA4.ACBrNFe).GetURLQRCode(self.FACBrNFeDANFCeFortesA4.FpNFe);
     PintarQRCode(qrcode, imgQRCode.Picture.Bitmap, qrUTF8NoBOM);
 
     lProtocolo.Caption := ACBrStr('Protocolo de Autorização: '+procNFe.nProt+
@@ -669,8 +664,13 @@ end;
 
 procedure TfrmACBrDANFCeFortesFrA4.RLLabel33BeforePrint(Sender: TObject;
   var Text: string; var PrintIt: Boolean);
+var LNNF : string;
 begin
-  Text := ACBrStr('Número ')   + FormatFloat(',0', FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF) +
+  if FACBrNFeDANFCeFortesA4.FormatarNumeroDocumento then
+    LNNF := IntToStrZero(FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF, 9)
+  else
+    LNNF := IntToStr(FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF);
+  Text := ACBrStr('Número ')   + LNNF +
           ACBrStr(' Série ')   + FormatFloat('000', FACBrNFeDANFCeFortesA4.FpNFe.Ide.serie) +
           ACBrStr(' Emissão ') + FormatDateTime('dd/MM/yyyy hh:mm:ss', FACBrNFeDANFCeFortesA4.FpNFe.Ide.dEmi);
 end;
@@ -764,8 +764,13 @@ end;
 
 procedure TfrmACBrDANFCeFortesFrA4.rllNumNF0BeforePrint(Sender: TObject;
   var AText: string; var PrintIt: Boolean);
+var LNNF : string;
 begin
-  AText := ACBrStr('Nº ')   + FormatFloat(',0', FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF)
+  if FACBrNFeDANFCeFortesA4.FormatarNumeroDocumento then
+    LNNF := IntToStrZero(FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF, 9)
+  else
+    LNNF := IntToStr(FACBrNFeDANFCeFortesA4.FpNFe.Ide.nNF);
+  AText := ACBrStr('Nº ')   + LNNF;
 end;
 
 procedure TfrmACBrDANFCeFortesFrA4.rllRecebemosDeBeforePrint(Sender: TObject;
@@ -795,13 +800,14 @@ begin
     Text := self.FACBrNFeDANFCeFortesA4.FpNFe.Det[self.FNumItem].Prod.xProd
   else
     Text := self.FACBrNFeDANFCeFortesA4.FpNFe.Det[self.FNumItem].Prod.xProd + ' - '
-			+ StringReplace( self.FACBrNFeDANFCeFortesA4.FpNFe.Det[self.FNumItem].infAdProd, ';',#13,[rfReplaceAll]);
+			+ StringReplace( self.FACBrNFeDANFCeFortesA4.FpNFe.Det[self.FNumItem].infAdProd, Self.FACBrNFeDANFCeFortesA4.CaractereQuebraDeLinha,#13,[rfReplaceAll]);
 end;
 
 procedure TfrmACBrDANFCeFortesFrA4.RLMemo2BeforePrint(Sender: TObject;
   var Text: string; var PrintIt: Boolean);
 var
   I:integer;
+  LinhaCmd: String;
 begin
   with self.FACBrNFeDANFCeFortesA4.FpNFe do
   begin
@@ -809,10 +815,32 @@ begin
     begin
       for I := 0 to InfAdic.obsCont.Count - 1 do
         Text := Text + StringReplace(InfAdic.obsCont[i].xCampo + ': ' +
-                                     InfAdic.obsCont[i].xTexto, ';', #13, [rfReplaceAll] ) + #13;
+                                     InfAdic.obsCont[i].xTexto, FACBrNFeDANFCeFortesA4.CaractereQuebraDeLinha, #13, [rfReplaceAll] ) + #13;
     end;
 
-    Text := Text + StringReplace(InfAdic.infCpl, ';', #13, [rfReplaceAll] ) + #13;
+    Text := Text + StringReplace(InfAdic.infCpl, FACBrNFeDANFCeFortesA4.CaractereQuebraDeLinha, #13, [rfReplaceAll] ) + #13;
+
+    // Informações sobre a Entrega
+
+    if Entrega.xLgr <> '' then
+    begin
+      Text := Text + #13 + ACBrStr('INFORMAÇÕES SOBRE A ENTREGA');
+
+      if Entrega.xNome <> '' then
+        Text := Text + #13 + Entrega.xNome;
+
+      LinhaCmd := Trim(
+        Trim(Entrega.xLgr) + ' ' +
+        IfThen(Trim(Entrega.xLgr) = '','',Trim(Entrega.nro)) + ' ' +
+        Trim(Entrega.xCpl) + ' ' +
+        Trim(Entrega.xBairro) + ' ' +
+        Trim(Entrega.xMun) + ' ' +
+        Trim(Entrega.UF)
+      );
+
+      if LinhaCmd <> '' then
+        Text := Text + #13 + LinhaCmd;
+    end;
   end;
 end;
 
@@ -951,9 +979,16 @@ begin
   sTemp := '';
   with FACBrNFeDANFCeFortesA4 do
   begin
-    if ( FpNFe.Total.ICMSTot.vTotTrib > 0 ) then
+    if (ImprimeTributos = trbSeparadamente) and ((vTribFed+vTribEst+vTribMun) > 0) then
+    begin
       sTemp := ACBrStr('Informação dos Tributos Totais (Lei Federal 12.741/2012 ) ')+
-                FormatFloatBr( FpNFe.Total.ICMSTot.vTotTrib, 'R$ ,0.00');
+               FormatFloatBr(vTribFed+vTribEst+vTribMun, 'R$ ,0.00');
+    end else
+    begin
+      if ( FpNFe.Total.ICMSTot.vTotTrib > 0 ) then
+        sTemp := ACBrStr('Informação dos Tributos Totais (Lei Federal 12.741/2012 ) ')+
+                  FormatFloatBr( FpNFe.Total.ICMSTot.vTotTrib, 'R$ ,0.00');
+    end;
     if Trim(FonteTributos) <> '' then
       sTemp := sTemp + 'Fonte : ' + FonteTributos+'  '+ ChaveTributos+' ';
   end;
@@ -996,16 +1031,8 @@ begin
       RLLayout := rlReportA4;
       Resumido := DanfeResumido;
 
-      if (NumCopias > 0) and (RLPrinter.Copies <> NumCopias) then
-      begin
-        RLPrinter.Copies := NumCopias;
-      end;
+      TDFeReportFortes.AjustarReport(RLLayout, FACBrNFeDANFCeFortesA4);
 
-      if FACBrNFeDANFCeFortesA4.Impressora <> '' then
-        RLPrinter.PrinterName := FACBrNFeDANFCeFortesA4.Impressora;
-
-      RLLayout.PrintDialog := FACBrNFeDANFCeFortesA4.MostraPreview;
-      RLLayout.ShowProgress:= False ;
 
       if Filtro = fiNenhum then
       begin
@@ -1066,8 +1093,9 @@ begin
 end;
 
 procedure TACBrNFeDANFCeFortesA4.ImprimirDANFEPDF(NFE: TNFe);
+var I : Integer;
 begin
-  if NFe = nil then
+(*  if NFe = nil then
    begin
      if not Assigned(ACBrNFe) then
         raise Exception.Create('Componente ACBrNFe não atribuí­do');
@@ -1077,6 +1105,27 @@ begin
   else
     FpNFe := NFE;
   Imprimir(False, fiPDF);
+*)
+  if not Assigned(ACBrNFe) then
+    raise Exception.Create('Componente ACBrNFe não atribuí­do');
+  FPArquivoPDF := '';
+  if (NFE = nil) then
+  begin
+    try
+      for I := 0 to Pred(TACBrNFe(ACBrNFe).NotasFiscais.Count) do
+      begin
+        FIndexImpressaoIndividual := I;
+        FpNFe := TACBrNFe(ACBrNFe).NotasFiscais[I].NFe;
+        Imprimir(False, fiPDF);
+      end;
+    finally
+      FIndexImpressaoIndividual := 0;
+    end;
+  end else
+  begin
+    FpNFe := NFE;
+    Imprimir(False, fiPDF);
+  end;
 end;
 
 procedure TACBrNFeDANFCeFortesA4.ImprimirDANFEResumido(NFE: TNFe);

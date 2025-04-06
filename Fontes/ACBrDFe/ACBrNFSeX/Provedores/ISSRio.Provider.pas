@@ -45,13 +45,13 @@ uses
 type
   TACBrNFSeXWebserviceISSRio = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -82,7 +82,7 @@ uses
 
 { TACBrNFSeXWebserviceISSRio }
 
-function TACBrNFSeXWebserviceISSRio.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSRio.Recepcionar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -97,7 +97,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceISSRio.GerarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSRio.GerarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -112,7 +112,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceISSRio.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSRio.ConsultarLote(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -127,7 +127,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceISSRio.ConsultarSituacao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSRio.ConsultarSituacao(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -142,7 +142,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceISSRio.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSRio.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -157,7 +157,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceISSRio.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSRio.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -172,7 +172,7 @@ begin
                      []);
 end;
 
-function TACBrNFSeXWebserviceISSRio.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceISSRio.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -201,7 +201,7 @@ procedure TACBrNFSeProviderISSRio.Configuracao;
 begin
   inherited Configuracao;
 
-  ConfigGeral.QuebradeLinha := '&#xA;';
+  ConfigGeral.QuebradeLinha := sLineBreak;
 
   ConfigGeral.ServicosDisponibilizados.EnviarUnitario := True;
 
@@ -319,10 +319,8 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANode, AuxNode: TACBrXmlNode;
-  ANodeArray: TACBrXmlNodeArray;
   ANota: TNotaFiscal;
   NumRps: String;
-  I: Integer;
 begin
   if Response.ModoEnvio <> meUnitario then
   begin
@@ -343,16 +341,7 @@ begin
       Response.Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('DataRecebimento'), tcDatHor);
       Response.Protocolo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Protocolo'), tcStr);
 
-      ANode := Document.Root.Childrens.FindAnyNs('ListaNfse');
-      if not Assigned(ANode) then
-      begin
-        AErro := Response.Erros.New;
-        AErro.Codigo := Cod202;
-        AErro.Descricao := ACBrStr(Desc202);
-        Exit;
-      end;
-
-      ANodeArray := ANode.Childrens.FindAllAnyNs('CompNfse');
+      ANode := ANode.Childrens.FindAnyNs('CompNfse');
       if not Assigned(ANode) then
       begin
         AErro := Response.Erros.New;
@@ -361,20 +350,24 @@ begin
         Exit;
       end;
 
-      for I := Low(ANodeArray) to High(ANodeArray) do
-      begin
-        ANode := ANodeArray[I];
-        AuxNode := ANode.Childrens.FindAnyNs('Nfse');
-        AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-        AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
-        AuxNode := AuxNode.Childrens.FindAnyNs('Numero');
-        NumRps := AuxNode.AsString;
+      AuxNode := ANode.Childrens.FindAnyNs('Nfse');
+      if not Assigned(AuxNode) then Exit;
 
-        ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+      AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
+      if not Assigned(AuxNode) then Exit;
 
-        ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
-        SalvarXmlNfse(ANota);
-      end;
+      AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
+      if not Assigned(AuxNode) then Exit;
+
+      AuxNode := AuxNode.Childrens.FindAnyNs('Numero');
+      if not Assigned(AuxNode) then Exit;
+
+      NumRps := AuxNode.AsString;
+
+      ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
+
+      ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
+      SalvarXmlNfse(ANota);
 
       Response.Sucesso := (Response.Erros.Count = 0);
     except

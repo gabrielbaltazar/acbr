@@ -96,11 +96,11 @@ var
   aValor: string;
   Ok: Boolean;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('demaisDados');
 
-  if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+  if not Assigned(AuxNode) then Exit;
 
   //codigoObra
   //ART
@@ -126,7 +126,7 @@ begin
 
   NFSe.Servico.Discriminacao := ObterConteudo(AuxNode.Childrens.FindAnyNs('servicoDiscriminacao'), tcStr);
   NFSe.Servico.Discriminacao := StringReplace(NFSe.Servico.Discriminacao, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
 
   VerificarSeConteudoEhLista(NFSe.Servico.Discriminacao);
 
@@ -174,7 +174,7 @@ begin
   NFSe.Servico.MunicipioIncidencia := ObterConteudo(AuxNode.Childrens.FindAnyNs('municipioIncidencia'), tcStr);
   NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('outrasInformacoes'), tcStr);
   NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
 
   NFSe.SituacaoTrib := FpAOwner.StrToSituacaoTrib(Ok, ObterConteudo(AuxNode.Childrens.FindAnyNs('ISSDevido'), tcStr));
 
@@ -191,7 +191,7 @@ var
   ok: Boolean;
   xUF: string;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('dadosTomador');
 
@@ -233,7 +233,7 @@ var
   AuxNode: TACBrXmlNode;
   xUF: string;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('dadosPrestador');
 
@@ -274,7 +274,7 @@ procedure TNFSeR_ISSCambe.LerDadosNFSe2(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('dadosNFSe');
 
@@ -290,7 +290,7 @@ procedure TNFSeR_ISSCambe.LerSubstituicaoNFSe(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('substituicaoNFSe');
 
@@ -305,7 +305,7 @@ procedure TNFSeR_ISSCambe.LerIdentificacaoNFSe(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('identificacaoNFSe');
 
@@ -320,6 +320,9 @@ begin
 
     NFSe.dhRecebimento := Now;
     NFSe.SituacaoNfse := snNormal;
+
+    if ObterConteudo(AuxNode.Childrens.FindAnyNs('statusNFSe'), tcStr) = 'CANCELADA' then
+      NFSe.SituacaoNfse := snCancelado;
   end;
 end;
 
@@ -327,7 +330,7 @@ procedure TNFSeR_ISSCambe.LerNFSe(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('NFSe');
 
@@ -344,7 +347,7 @@ procedure TNFSeR_ISSCambe.LerEspelhoXML(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('EspelhoXML');
 
@@ -361,7 +364,7 @@ procedure TNFSeR_ISSCambe.LerDadosNFSe(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
 begin
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('DadosNFSe');
 
@@ -398,6 +401,8 @@ begin
   if XmlNode = nil then
     raise Exception.Create('Arquivo xml vazio.');
 
+  NFSe.tpXML := tpXml;
+
   if tpXML = txmlNFSe then
     Result := LerXmlNfse(XmlNode)
   else
@@ -412,7 +417,7 @@ var
 begin
   Result := True;
 
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('ListaDadosNFSeInfo');
 
@@ -423,7 +428,7 @@ function TNFSeR_ISSCambe.LerXmlRps(const ANode: TACBrXmlNode): Boolean;
 begin
   Result := True;
 
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   {
     Implementar a leitura do XML do Rps

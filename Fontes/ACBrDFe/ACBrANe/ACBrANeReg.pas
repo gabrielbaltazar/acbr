@@ -3,9 +3,9 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -37,24 +37,25 @@ unit ACBrANeReg;
 interface
 
 uses
-  SysUtils, Classes, ACBrANe, pcnConversao,
+  SysUtils, Classes,
   {$IFDEF FPC}
-     LResources, LazarusPackageIntf, PropEdits, componenteditors
+     LResources, LazarusPackageIntf, PropEdits, componenteditors,
   {$ELSE}
      {$IFNDEF COMPILER6_UP}
-        DsgnIntf
+        DsgnIntf,
      {$ELSE}
         DesignIntf,
-        DesignEditors
+        DesignEditors,
      {$ENDIF}
-  {$ENDIF} ;
+  {$ENDIF}
+  ACBrANe;
 
 procedure Register;
 
 implementation
 
 uses
-  ACBrReg, ACBrDFeRegUtil, ACBrDFeConfiguracoes, ACBrANeConfiguracoes;
+  ACBrReg, ACBrDFeConfiguracoes, ACBrANeConfiguracoes;
 
 {$IFNDEF FPC}
    {$R ACBrANe.dcr}
@@ -73,9 +74,6 @@ begin
   RegisterPropertyEditor(TypeInfo(TWebServicesConf), TConfiguracoes, 'WebServices',
     TClassProperty);
 
-  RegisterPropertyEditor(TypeInfo(String), TWebServicesConf, 'UF',
-     TACBrUFProperty);
-
   RegisterPropertyEditor(TypeInfo(TGeralConfANe), TConfiguracoes, 'Geral',
     TClassProperty);
 
@@ -87,11 +85,20 @@ begin
 
   RegisterPropertyEditor(TypeInfo(String), TArquivosConfANe, 'PathANe',
      TACBrDirProperty);
+
+  RegisterPropertyEditor(TypeInfo(String), TArquivosConfANe, 'PathCan',
+     TACBrDirProperty);
+
+  {$IFDEF FPC}
+    RegisterPropertyEditor(TypeInfo(String), TWebServicesConf, 'QuebradeLinha', THiddenPropertyEditor);
+  {$ELSE}
+    UnlistPublishedProperty(TWebServicesConf, 'QuebradeLinha');
+  {$ENDIF}
 end;
 
-{$IFDEF FPC}
+{$ifdef FPC}
 initialization
    {$I ACBrANe.lrs}
-{$ENDIF}
+{$endif}
 
 end.

@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -81,6 +81,7 @@ type
     function GetIDEvento: string;
   public
     constructor Create(AOwner: TComponent); reintroduce; //overload;
+    destructor Destroy; override;
 
     property IDEvento: string read GetIDEvento;
     property XML : AnsiString read FXML write SetXML;
@@ -471,6 +472,13 @@ begin
   FACBreSocial := AOwner;
   FLeitor      := TLeitor.Create;
   FXML         := '';
+end;
+
+destructor TItemLoteEventos.Destroy;
+begin
+  FLeitor.Free;
+
+  inherited;
 end;
 
 function TItemLoteEventos.GetIDEvento: string;

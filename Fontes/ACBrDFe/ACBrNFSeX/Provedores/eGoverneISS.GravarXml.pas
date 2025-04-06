@@ -38,8 +38,9 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXGravarXml, ACBrNFSeXConversao;
 
 type
   { TNFSeW_eGoverneISS }
@@ -78,8 +79,6 @@ var
   NFSeNode, xmlNode: TACBrXmlNode;
 begin
   Configuracao;
-
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -162,7 +161,11 @@ begin
     NFSeNode.AppendChild(AddNode(tcStr, '#1', 'SimplesNacional', 4, 5, 1,
                                                                   'false', ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'SubstituicaoTributaria', 5, 5, 1,
+  if Nfse.Servico.Valores.IssRetido = stRetencao then
+    NFSeNode.AppendChild(AddNode(tcStr, '#1', 'SubstituicaoTributaria', 4, 5, 1,
+                                                                    'true', ''))
+  else
+    NFSeNode.AppendChild(AddNode(tcStr, '#1', 'SubstituicaoTributaria', 5, 5, 1,
                                                                   'false', ''));
 
   if NFSE.Tomador.IdentificacaoTomador.CpfCnpj <> '' then

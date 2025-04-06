@@ -43,8 +43,8 @@ uses
   ACBrDFe, ACBrDFeConfiguracoes, ACBrBase,
   ACBrCTeConfiguracoes, ACBrCTeWebServices, ACBrCTeConhecimentos,
   ACBrCTeDACTEClass, ACBrDFeException,
-  pcteCTe, pcnConversao, pcteConversaoCTe,
-  pcteEnvEventoCTe, pcteInutCTe, 
+  ACBrCTe.Classes, pcnConversao, pcteConversaoCTe,
+  ACBrCTe.EnvEvento, pcteInutCTe,
   ACBrDFeUtil;
 
 const
@@ -100,7 +100,8 @@ type
       const Versao: Double): String;
     function GetURLQRCode(const CUF: integer; const TipoAmbiente: TpcnTipoAmbiente;
       const TipoEmissao: TpcnTipoEmissao; const AChaveCTe: String;
-      const Versao: Double): String;
+      const Versao: Double): String; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Utilize a função que recebe apenas um parâmetro' {$ENDIF};
+    function GetURLQRCode(FCTe: TCTe): string; overload;
 
     function IdentificaSchema(const AXML: String): TSchemaCTe;
     function IdentificaSchemaModal(const AXML: String): TSchemaCTe;
@@ -316,15 +317,8 @@ var
 begin
 //  VersaoDFe := DblToVersaoCTe(ok, Versao);  // Deixado para usu futuro
 
-  if TipoAmbiente = taHomologacao then
-  begin
-    if ( (TipoEmissao in [teSVCSP]) and (CUF in [41, 50, 51]) ) then
-      urlUF := LerURLDeParams('CTe', GetUFFormaEmissao, TipoAmbiente, 'URL-QRCode', 0)
-    else
-      urlUF := LerURLDeParams('CTe', CUFtoUF(CUF), TipoAmbiente, 'URL-QRCode', 0);
-  end
-  else
-    urlUF := LerURLDeParams('CTe', CUFtoUF(CUF), TipoAmbiente, 'URL-QRCode', 0);
+
+  urlUF := LerURLDeParams('CTe', CUFtoUF(CUF), TipoAmbiente, 'URL-QRCode', 0);
 
   if Pos('?', urlUF) <= 0 then
     urlUF := urlUF + '?';
@@ -348,13 +342,45 @@ begin
   Result := urlUF + sEntrada;
 end;
 
+function TACBrCTe.GetURLQRCode(FCTe: TCTe): string;
+var
+  idCTe, sEntrada, urlUF, Passo2, sign: String;
+//  VersaoDFe: TVersaoCTe;
+begin
+//  VersaoDFe := DblToVersaoCTe(ok, FCTe.infCTe.Versao);  // Deixado para usu futuro
+
+
+  urlUF := LerURLDeParams('CTe', CUFtoUF(FCTe.Ide.cUF), FCTe.Ide.tpAmb, 'URL-QRCode', 0);
+
+  if Pos('?', urlUF) <= 0 then
+    urlUF := urlUF + '?';
+
+  idCTe := OnlyNumber(FCTe.infCTe.ID);
+
+  // Passo 1
+  sEntrada := 'chCTe=' + idCTe + '&tpAmb=' + TpAmbToStr(FCTe.Ide.tpAmb);
+
+  // Passo 2 calcular o SHA-1 da string idCTe se o Tipo de Emissão for EPEC ou FSDA
+  if FCTe.ide.tpEmis in [teDPEC, teFSDA] then
+  begin
+    // Tipo de Emissão em Contingência
+    SSL.CarregarCertificadoSeNecessario;
+    sign := SSL.CalcHash(idCTe, dgstSHA1, outBase64, True);
+    Passo2 := '&sign=' + sign;
+
+    sEntrada := sEntrada + Passo2;
+  end;
+
+  Result := urlUF + sEntrada;
+end;
+
 function TACBrCTe.GravarStream(AStream: TStream): Boolean;
 begin
-  if EstaVazio(FEventoCTe.Gerador.ArquivoFormatoXML) then
+  if EstaVazio(FEventoCTe.XmlEnvio) then
     FEventoCTe.GerarXML;
 
   AStream.Size := 0;
-  WriteStrToStream(AStream, AnsiString(FEventoCTe.Gerador.ArquivoFormatoXML));
+  WriteStrToStream(AStream, AnsiString(FEventoCTe.XmlEnvio));
   Result := True;
 end;
 
@@ -367,17 +393,17 @@ function TACBrCTe.cStatConfirmado(AValue: Integer): Boolean;
 begin
   case AValue of
     100, 150: Result := True;
-    else
-      Result := False;
+  else
+    Result := False;
   end;
 end;
 
 function TACBrCTe.cStatProcessado(AValue: Integer): Boolean;
 begin
   case AValue of
-    100, 110, 150, 301, 302: Result := True;
-    else
-      Result := False;
+    100, 150: Result := True;
+  else
+    Result := False;
   end;
 end;
 
@@ -385,8 +411,8 @@ function TACBrCTe.cStatCancelado(AValue: integer): Boolean;
 begin
   case AValue of
     101, 151, 155: Result := True;
-    else
-      Result := False;
+  else
+    Result := False;
   end;
 end;
 
@@ -432,6 +458,7 @@ begin
   case Configuracoes.Geral.ModeloDF of
     moCTeOS: Result := schCTeOS;
     moGTVe: Result := schGTVe;
+    moCTeSimp: Result := schCTeSimp;
   else
     Result := schCTe;
   end;
@@ -541,7 +568,7 @@ end;
 function TACBrCTe.GerarNomeArqSchemaModal(const AXML: String;
   VersaoServico: Double): String;
 begin
-  if VersaoServico = 0.0 then
+  if VersaoServico = 0 then
     Result := ''
   else
     Result := PathWithDelim( Configuracoes.Arquivos.PathSchemas ) +
@@ -552,7 +579,7 @@ end;
 function TACBrCTe.GerarNomeArqSchemaEvento(ASchemaEventoCTe: TSchemaCTe;
   VersaoServico: Double): String;
 begin
-  if VersaoServico = 0.0 then
+  if VersaoServico = 0 then
     Result := ''
   else
     Result := PathWithDelim( Configuracoes.Arquivos.PathSchemas ) +

@@ -48,6 +48,8 @@ uses
 
 type
 
+  TDetFormato   = (tdetInteger, tdetMascara);
+
   { TCasasDecimais }
   {@class TCasasDecimais - Propriedades para configurar a formatação das casas decimais.
    Determina como será a formatação das casas decimais existentes no relátorio.
@@ -179,6 +181,8 @@ type
     function AplicarAtributoTexto(const ATexto, ABloco, ATag: String): String;
 
   public
+    FIndexImpressaoIndividual : Integer;
+    FIndexImpressaoEventosIndividual : Integer;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 

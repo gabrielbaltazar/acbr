@@ -51,7 +51,7 @@ uses
 
 type
   /// Versão do Leiaute do arquivo - TRegistro0000
-  TACBrCodVer = (
+  TACBrVersaoLeiauteSPEDContribuicoes = (
                  vlVersao100,  // Código 001 - Versão 100 ADE Cofis nº 31/2010 de 01/01/2011
                  vlVersao101,  // Código 002 - Versão 101 ADE Cofis nº 34/2010 de 01/01/2011
                  vlVersao200,  // Código 002 - Versão 200 ADE Cofis nº 20/2012
@@ -60,7 +60,11 @@ type
                  vlVersao310,  // Código 005 - ADE Cofis nº 82/2018 - Apuração em 01/01/2019
                  vlVersao320   // Código 006 - ADE Cofis ??? - Apuração em 01/01/2020
                 );
-  TACBrVersaoLeiaute = TACBrCodVer;
+
+  TACBrVersaoLeiaute = TACBrVersaoLeiauteSPEDContribuicoes {$IfDef DELPHI2009_UP} deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Esse tipo é obsoleto: Use o tipo TACBrVersaoLeiauteSPEDContribuicoes'{$EndIf}{$EndIf};
+  TACBrCodVer = TACBrVersaoLeiauteSPEDContribuicoes {$IfDef DELPHI2009_UP} deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Esse tipo é obsoleto: Use o tipo TACBrVersaoLeiauteSPEDContribuicoes'{$EndIf}{$EndIf};
+
+
 
   /// Indicador de movimento - TOpenBlocos
   TACBrIndMov = (
@@ -1533,7 +1537,7 @@ begin
   else if AValue = '99' then
     Result := indOutrasDeducoes
     else
-     raise Exception.Create(format('Valor informado [%s] deve estar entre (01,02,03 e 04)',[AValue]));
+     raise Exception.Create(format('Valor informado [%s] deve estar entre (01,02,03,04 e 99)',[AValue]));
 end;
 
 function StrToIndNatRec(const AValue: string):TACBrIndNatRec;
@@ -2523,7 +2527,7 @@ begin
   else if AValue = '42' then
     Result := tcaOutrVlrsSemDecJudicial
   else
-    raise Exception.Create(format('Valor informado [%s] deve estar entre (01,02,03 e 04)',[AValue]));
+    raise Exception.Create(format('Valor informado [%s] deve estar entre (01,02,21,41 e 42)', [AValue]));
 end;
 
 
@@ -2536,7 +2540,7 @@ begin
   else if AValue = '03' then
     Result := iaaRefUnicaCofins
   else
-    raise Exception.Create(format('Valor informado [%s] deve estar entre (01,02,03 e 04)',[AValue]));
+    raise Exception.Create(format('Valor informado [%s] deve estar entre (01,02 e 03)', [AValue]));
 end;
 
 

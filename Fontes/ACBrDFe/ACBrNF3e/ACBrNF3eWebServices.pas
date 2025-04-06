@@ -131,7 +131,7 @@ type
     FxMotivo: String;
     FdhRecbto: TDateTime;
     FTMed: integer;
-    FSincrono: Boolean;
+//    FSincrono: Boolean;
     FVersaoDF: TVersaoNF3e;
 
     FNF3eRetornoSincrono: TRetConsSitNF3e;
@@ -165,7 +165,7 @@ type
     property dhRecbto: TDateTime read FdhRecbto;
     property TMed: integer read FTMed;
     property Lote: String read GetLote write FLote;
-    property Sincrono: Boolean read FSincrono write FSincrono;
+//    property Sincrono: Boolean read FSincrono write FSincrono;
     property MsgUnZip: String read FMsgUnZip write FMsgUnZip;
 
     property NF3eRetornoSincrono: TRetConsSitNF3e read FNF3eRetornoSincrono;
@@ -549,10 +549,10 @@ end;
 
 procedure TNF3eWebService.EnviarDados;
 var
-  UsaIntegrador: Boolean;
+//  UsaIntegrador: Boolean;
   Integrador: TACBrIntegrador;
 begin
-  UsaIntegrador := Assigned(FPDFeOwner.Integrador);
+//  UsaIntegrador := Assigned(FPDFeOwner.Integrador);
 
   Integrador := Nil;
 
@@ -707,7 +707,6 @@ begin
   inherited Create(AOwner);
 
   FNotasFiscais := ANotasFiscais;
-  FSincrono := False;
 end;
 
 destructor TNF3eRecepcao.Destroy;
@@ -764,6 +763,8 @@ end;
 
 procedure TNF3eRecepcao.InicializarServico;
 begin
+//  Sincrono := True;
+
   if FNotasFiscais.Count > 0 then    // Tem NF3e ? Se SIM, use as informações do XML
     FVersaoDF := DblToVersaoNF3e(FNotasFiscais.Items[0].NF3e.infNF3e.Versao)
   else
@@ -797,11 +798,13 @@ begin
   FPVersaoServico := '';
   FPURL := '';
 
+  FPLayout := LayNF3eRecepcaoSinc;
+{
   if FSincrono then
     FPLayout := LayNF3eRecepcaoSinc
   else
     FPLayout := LayNF3eRecepcao;
-
+}
   // Configuração correta ao enviar para o SVC
   case FPConfiguracoesNF3e.Geral.FormaEmissao of
     teSVCAN: xUF := 'SVC-AN';
@@ -825,6 +828,11 @@ end;
 
 procedure TNF3eRecepcao.DefinirServicoEAction;
 begin
+  if EstaVazio(FPServico) then
+    FPServico := GetUrlWsd + 'NF3eRecepcaoSinc';
+  if EstaVazio(FPSoapAction) then
+    FPSoapAction := FPServico + '/nf3eRecepcao';
+  {
   if FSincrono then
   begin
     if EstaVazio(FPServico) then
@@ -837,13 +845,24 @@ begin
     FPServico := GetUrlWsd + 'NF3eRecepcao';
     FPSoapAction := FPServico + '/nf3eRecepcaoLote';
   end;
+  }
 end;
 
 procedure TNF3eRecepcao.DefinirDadosMsg;
-var
-  I: integer;
-  vNotas: String;
+//var
+//  I: integer;
+//  vNotas: String;
 begin
+  // No envio só podemos ter apena UM NF3-e, pois o seu processamento é síncrono
+  if FNotasFiscais.Count > 1 then
+    GerarException(ACBrStr('ERRO: Conjunto de NF3-e transmitidos (máximo de 1 NF3-e)' +
+           ' excedido. Quantidade atual: ' + IntToStr(FNotasFiscais.Count)));
+
+  if FNotasFiscais.Count > 0 then
+    FPDadosMsg := '<NF3e' +
+      RetornarConteudoEntre(FNotasFiscais.Items[0].XMLAssinado, '<NF3e', '</NF3e>') +
+      '</NF3e>';
+  {
   if Sincrono then
   begin
     // No envio só podemos ter apena UM NF3-e, pois o seu processamento é síncrono
@@ -868,7 +887,7 @@ begin
       FPVersaoServico + '">' + '<idLote>' + FLote + '</idLote>' +
       vNotas + '</enviNF3e>';
   end;
-
+  }
   FMsgUnZip := FPDadosMsg;
 
   FPDadosMsg := EncodeBase64(GZipCompress(FPDadosMsg));
@@ -894,8 +913,8 @@ begin
 
   RemoverNameSpace;
 
-  if FSincrono then
-  begin
+//  if FSincrono then
+//  begin
     if pos('retNF3e', FPRetWS) > 0 then
       AXML := StringReplace(FPRetWS, 'retNF3e', 'retConsSitNF3e',
                                      [rfReplaceAll, rfIgnoreCase])
@@ -961,7 +980,7 @@ begin
             NF3e.procNF3e.digVal := FNF3eRetornoSincrono.protNF3e.digVal;
             NF3e.procNF3e.xMotivo := FNF3eRetornoSincrono.protNF3e.xMotivo;
 
-            AProcNF3e := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NF3e, 'NF3e');
+            AProcNF3e := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NF3e, 'nf3eProc', 'NF3e');
             try
               // Processando em UTF8, para poder gravar arquivo corretamente //
               AProcNF3e.XML_DFe := RemoverDeclaracaoXML(XMLAssinado);
@@ -994,6 +1013,7 @@ begin
         end;
       end;
     end;
+  {
   end
   else
   begin
@@ -1013,11 +1033,28 @@ begin
 
     Result := (FNF3eRetorno.CStat = 103);
   end;
+  }
 end;
 
 function TNF3eRecepcao.GerarMsgLog: String;
 begin
-  {(*}
+  Result := Format(ACBrStr('Versão Layout: %s ' + LineBreak +
+                         'Ambiente: %s ' + LineBreak +
+                         'Versão Aplicativo: %s ' + LineBreak +
+                         'Status Código: %s ' + LineBreak +
+                         'Status Descrição: %s ' + LineBreak +
+                         'UF: %s ' + sLineBreak +
+                         'dhRecbto: %s ' + sLineBreak +
+                         'chNF3e: %s ' + LineBreak),
+                   [FNF3eRetornoSincrono.versao,
+                    TipoAmbienteToStr(FNF3eRetornoSincrono.TpAmb),
+                    FNF3eRetornoSincrono.verAplic,
+                    IntToStr(FNF3eRetornoSincrono.protNF3e.cStat),
+                    FNF3eRetornoSincrono.protNF3e.xMotivo,
+                    CodigoUFparaUF(FNF3eRetornoSincrono.cUF),
+                    FormatDateTimeBr(FNF3eRetornoSincrono.dhRecbto),
+                    FNF3eRetornoSincrono.chNF3e]);
+  {
   if FSincrono then
     Result := Format(ACBrStr('Versão Layout: %s ' + LineBreak +
                            'Ambiente: %s ' + LineBreak +
@@ -1055,11 +1092,22 @@ begin
                       IfThen(FNF3eRetorno.InfRec.dhRecbto = 0, '',
                              FormatDateTimeBr(FNF3eRetorno.InfRec.dhRecbto)),
                       IntToStr(FNF3eRetorno.InfRec.TMed)]);
-  {*)}
+  }
 end;
 
 function TNF3eRecepcao.GerarPrefixoArquivo: String;
 begin
+  if FRecibo <> '' then
+  begin
+    Result := Recibo;
+    FPArqResp := 'pro-rec';
+  end
+  else
+  begin
+    Result := Lote;
+    FPArqResp := 'pro-lot';
+  end;
+  {
   if FSincrono then  // Esta procesando nome do Retorno Sincrono ?
   begin
     if FRecibo <> '' then
@@ -1075,6 +1123,7 @@ begin
   end
   else
     Result := Lote;
+  }
 end;
 
 { TNF3eRetRecepcao }
@@ -1336,12 +1385,10 @@ begin
           NF3e.procNF3e.xMotivo := AInfProt.Items[I].xMotivo;
         end;
 
-        // Monta o XML da NF3-e assinado e com o protocolo de Autorização ou Denegação
-        if (AInfProt.Items[I].cStat = 100) or (AInfProt.Items[I].cStat = 110) or
-           (AInfProt.Items[I].cStat = 150) or (AInfProt.Items[I].cStat = 301) or
-           (AInfProt.Items[I].cStat = 302) or (AInfProt.Items[I].cStat = 303) then
+        // Monta o XML da NF3-e assinado e com o protocolo de Autorização
+        if (AInfProt.Items[I].cStat = 100) or (AInfProt.Items[I].cStat = 150) then
         begin
-          AProcNF3e := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NF3e, 'NF3e');
+          AProcNF3e := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NF3e, 'nf3eProc', 'NF3e');
           try
             AProcNF3e.XML_DFe := RemoverDeclaracaoXML(FNotasFiscais.Items[J].XMLAssinado);
             AProcNF3e.XML_Prot := AInfProt.Items[I].XMLprotDFe;
@@ -1672,7 +1719,7 @@ begin
   if Assigned(FprocEventoNF3e) then
     FprocEventoNF3e.Free;
 
-  FprotNF3e := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NF3e, 'NF3e');
+  FprotNF3e := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NF3e, 'nf3eProc', 'NF3e');
   FprocEventoNF3e := TRetEventoNF3eCollection.Create;
 end;
 
@@ -2014,7 +2061,7 @@ begin
                   NF3e.procNF3e.xMotivo := NF3eRetorno.protNF3e.xMotivo;
 
                   // O código abaixo é bem mais rápido que "GerarXML" (acima)...
-                  AProcNF3e := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NF3e, 'NF3e');
+                  AProcNF3e := TProcDFe.Create(FPVersaoServico, NAME_SPACE_NF3e, 'nf3eProc', 'NF3e');
                   try
                     AProcNF3e.XML_DFe := RemoverDeclaracaoXML(XMLOriginal);
                     AProcNF3e.XML_Prot := NF3eRetorno.XMLprotNF3e;
@@ -2244,10 +2291,10 @@ end;
 procedure TNF3eEnvEvento.DefinirDadosMsg;
 var
   EventoNF3e: TEventoNF3e;
-  I, F: integer;
-  Lote, Evento, Eventos, EventosAssinados, AXMLEvento: AnsiString;
+  I: integer;
+  AXMLEvento: AnsiString;
   FErroValidacao: string;
-  MsgEventoEhValido, EventoEhValido: Boolean;
+  EventoEhValido: Boolean;
   SchemaEventoNF3e: TSchemaNF3e;
 begin
   EventoNF3e := TEventoNF3e.Create;
@@ -2282,7 +2329,8 @@ begin
     EventoNF3e.Versao := FPVersaoServico;
     EventoNF3e.GerarXML;
 
-    AssinarXML(EventoNF3e.Xml, 'eventoNF3e', 'infEvento', 'Falha ao assinar o Envio de Evento ');
+    AssinarXML(EventoNF3e.XmlEnvio, 'eventoNF3e', 'infEvento',
+                                         'Falha ao assinar o Envio de Evento ');
 
     // Separa o XML especifico do Evento para ser Validado.
     AXMLEvento := SeparaDados(FPDadosMsg, 'detEvento');
@@ -2295,6 +2343,8 @@ begin
                           Trim(RetornarConteudoEntre(AXMLEvento, '<evCancNF3e>', '</evCancNF3e>')) +
                         '</evCancNF3e>';
         end;
+    else
+      AXMLEvento := '';
     end;
 
     AXMLEvento := '<' + ENCODING_UTF8 + '>' + AXMLEvento;
@@ -2327,10 +2377,9 @@ begin
 end;
 
 function TNF3eEnvEvento.TratarResposta: Boolean;
-//var
-//  Leitor: TLeitor;
-//  I, J: integer;
-//  NomeArq, PathArq, VersaoEvento, Texto: String;
+var
+  I, J: integer;
+  NomeArq, PathArq, VersaoEvento, Texto: String;
 begin
   FEvento.idLote := idLote;
 
@@ -2349,76 +2398,68 @@ begin
   FTpAmb := EventoRetorno.retInfEvento.tpAmb;
 
   Result := (FcStat = 128);
-  (*
+
   //gerar arquivo proc de evento
   if Result then
   begin
-    Leitor := TLeitor.Create;
-    try
-      for I := 0 to FEvento.Evento.Count - 1 do
+    for I := 0 to FEvento.Evento.Count - 1 do
+    begin
+      for J := 0 to EventoRetorno.retEvento.Count - 1 do
       begin
-        for J := 0 to EventoRetorno.retEvento.Count - 1 do
+        if FEvento.Evento.Items[I].InfEvento.chNF3e =
+          EventoRetorno.retEvento.Items[J].RetInfEvento.chNF3e then
         begin
-          if FEvento.Evento.Items[I].InfEvento.chNF3e =
-            EventoRetorno.retEvento.Items[J].RetInfEvento.chNF3e then
+          FEvento.Evento.Items[I].RetInfEvento.tpAmb := EventoRetorno.retEvento.Items[J].RetInfEvento.tpAmb;
+          FEvento.Evento.Items[I].RetInfEvento.nProt := EventoRetorno.retEvento.Items[J].RetInfEvento.nProt;
+          FEvento.Evento.Items[I].RetInfEvento.dhRegEvento := EventoRetorno.retEvento.Items[J].RetInfEvento.dhRegEvento;
+          FEvento.Evento.Items[I].RetInfEvento.cStat := EventoRetorno.retEvento.Items[J].RetInfEvento.cStat;
+          FEvento.Evento.Items[I].RetInfEvento.xMotivo := EventoRetorno.retEvento.Items[J].RetInfEvento.xMotivo;
+
+          Texto := '';
+
+          if EventoRetorno.retEvento.Items[J].RetInfEvento.cStat in [135, 136, 155] then
           begin
-            FEvento.Evento.Items[I].RetInfEvento.tpAmb := EventoRetorno.retEvento.Items[J].RetInfEvento.tpAmb;
-            FEvento.Evento.Items[I].RetInfEvento.nProt := EventoRetorno.retEvento.Items[J].RetInfEvento.nProt;
-            FEvento.Evento.Items[I].RetInfEvento.dhRegEvento := EventoRetorno.retEvento.Items[J].RetInfEvento.dhRegEvento;
-            FEvento.Evento.Items[I].RetInfEvento.cStat := EventoRetorno.retEvento.Items[J].RetInfEvento.cStat;
-            FEvento.Evento.Items[I].RetInfEvento.xMotivo := EventoRetorno.retEvento.Items[J].RetInfEvento.xMotivo;
+            VersaoEvento := TACBrNF3e(FPDFeOwner).LerVersaoDeParams(LayNF3eEvento);
 
-            Texto := '';
-
-            if EventoRetorno.retEvento.Items[J].RetInfEvento.cStat in [135, 136, 155] then
-            begin
-              VersaoEvento := TACBrNF3e(FPDFeOwner).LerVersaoDeParams(LayNF3eEvento);
-
-              Leitor.Arquivo := FPDadosMsg;
-              Texto := '<procEventoNF3e versao="' + VersaoEvento + '" xmlns="' + ACBRNF3e_NAMESPACE + '">' +
-                        '<evento versao="' + VersaoEvento + '">' +
-                         Leitor.rExtrai(1, 'infEvento', '', I + 1) +
+            Texto := '<evento versao="' + VersaoEvento + '">' +
+                         SeparaDados(FPDadosMsg, 'infEvento', True) +
                          '<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">' +
-                          Leitor.rExtrai(1, 'SignedInfo', '', I + 1) +
-                          Leitor.rExtrai(1, 'SignatureValue', '', I + 1) +
-                          Leitor.rExtrai(1, 'KeyInfo', '', I + 1) +
+                         SeparaDados(FPDadosMsg, 'Signature', False) +
                          '</Signature>'+
-                        '</evento>';
+                     '</evento>';
 
-              Leitor.Arquivo := FPRetWS;
-              Texto := Texto +
-                         '<retEvento versao="' + VersaoEvento + '">' +
-                          Leitor.rExtrai(1, 'infEvento', '', J + 1) +
-                         '</retEvento>' +
-                        '</procEventoNF3e>';
+            Texto := Texto +
+                       '<retEvento versao="' + VersaoEvento + '">' +
+                          SeparaDados(FPRetWS, 'infEvento', True) +
+                       '</retEvento>';
 
-              if FPConfiguracoesNF3e.Arquivos.Salvar then
-              begin
-                NomeArq := OnlyNumber(FEvento.Evento.Items[i].InfEvento.Id) + '-procEventoNF3e.xml';
-                PathArq := PathWithDelim(GerarPathEvento(FEvento.Evento.Items[I].InfEvento.CNPJ));
+            Texto := '<procEventoNF3e versao="' + VersaoEvento + '" xmlns="' + ACBRNF3e_NAMESPACE + '">' +
+                       Texto +
+                     '</procEventoNF3e>';
 
-                FPDFeOwner.Gravar(NomeArq, Texto, PathArq);
-                FEventoRetorno.retEvento.Items[J].RetInfEvento.NomeArquivo := PathArq + NomeArq;
-                FEvento.Evento.Items[I].RetInfEvento.NomeArquivo := PathArq + NomeArq;
-              end;
+            if FPConfiguracoesNF3e.Arquivos.Salvar then
+            begin
+              NomeArq := OnlyNumber(FEvento.Evento.Items[i].InfEvento.Id) + '-procEventoNF3e.xml';
+              PathArq := PathWithDelim(GerarPathEvento(FEvento.Evento.Items[I].InfEvento.CNPJ));
 
-              { Converte de UTF8 para a String nativa e Decodificar caracteres HTML Entity }
-              Texto := ParseText(Texto);
+              FPDFeOwner.Gravar(NomeArq, Texto, PathArq);
+              FEventoRetorno.retEvento.Items[J].RetInfEvento.NomeArquivo := PathArq + NomeArq;
+              FEvento.Evento.Items[I].RetInfEvento.NomeArquivo := PathArq + NomeArq;
             end;
 
-            // Se o evento for rejeitado a propriedade XML conterá uma string vazia
-            FEventoRetorno.retEvento.Items[J].RetInfEvento.XML := Texto;
-            FEvento.Evento.Items[I].RetInfEvento.XML := Texto;
-
-            break;
+            { Converte de UTF8 para a String nativa e Decodificar caracteres HTML Entity }
+            Texto := ParseText(Texto);
           end;
+
+          // Se o evento for rejeitado a propriedade XML conterá uma string vazia
+          FEventoRetorno.retEvento.Items[J].RetInfEvento.XML := Texto;
+          FEvento.Evento.Items[I].RetInfEvento.XML := Texto;
+
+          break;
         end;
       end;
-    finally
-      Leitor.Free;
     end;
   end;
-  *)
 end;
 
 function TNF3eEnvEvento.GerarMsgLog: String;
@@ -2784,18 +2825,10 @@ begin
   FRetorno.Clear;
 
   FEnviar.Lote := ALote;
-  FEnviar.Sincrono := ASincrono;
+//  FEnviar.Sincrono := ASincrono;
 
   if not Enviar.Executar then
     Enviar.GerarException( Enviar.Msg );
-
-  if not ASincrono or ((FEnviar.Recibo <> '') and (FEnviar.cStat = 103)) then
-  begin
-    FRetorno.Recibo := FEnviar.Recibo;
-
-    if not FRetorno.Executar then
-      FRetorno.GerarException( FRetorno.Msg );
-  end;
 
   Result := True;
 end;

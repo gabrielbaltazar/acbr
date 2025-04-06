@@ -38,8 +38,9 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXGravarXml;
 
 type
   { Provedor com layout próprio }
@@ -55,7 +56,6 @@ type
 implementation
 
 uses
-  ACBrUtil.Strings,
   ACBrNFSeXConversao;
 
 //==============================================================================
@@ -73,7 +73,6 @@ begin
   Configuracao;
 
   Opcoes.DecimalChar := ',';
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -159,8 +158,8 @@ begin
   NFSeNode.AppendChild(AddNode(tcDatVcto, '#1', 'data_emissao', 10, 10, 1,
                                                          NFSe.DataEmissao, ''));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'forma_de_pagamento', 1, 2, 1,
-                                                                       '', ''));
+  NFSeNode.AppendChild(AddNode(tcStr, '#1', 'forma_de_pagamento', 1, 100, 1,
+                                             NFSe.Servico.xFormaPagamento, ''));
 
   NFSeNode.AppendChild(AddNode(tcStr, '#1', 'descricao', 1, 100, 1,
                                                NFSe.Servico.Discriminacao, ''));

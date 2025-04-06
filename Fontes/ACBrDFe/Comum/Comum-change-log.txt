@@ -42,6 +42,58 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+26/03/2025
+-- ACBrDFeComum.RetConsCad --
+[*] Alteração visando retornar o CEP como uma string em vez de Integer, pelo fato
+    de existirem CEP começados por zero.
+   Por: João Vitor Bogo
+
+23/02/2025
+-- ACBrDFeComum.RetDistDFeInt --
+[*] Ajustes para identificar o CT-e Simplificado.
+   Por: Italo Giurizzato Junior
+
+18/10/2024
+-- ACBrDFeComum.RetDistDFeInt --
+[-] Correções visando a leitura correta do XML de retorno quando este contem
+    documentos no retorno.
+   Por: Italo Giurizzato Junior
+
+01/10/2024
+-- ACBrDFeComum.Proc/ACBrDFeComum.RetDistDFeInt--
+[*] Melhoras para atender todos os DFe.
+   Por: Italo Giurizzato Junior
+
+23/09/2024
+-- ACBrDFeComum.RetDistDFeInt/ACBrDFeComum.RetEnvio --
+[-] Correção para a leitura correta do XML de retorno.
+   Por: Italo Giurizzato Junior
+
+17/06/2024
+-- ACBrDFeComum.RetConsCad --
+[*] Remoção de Warnings e Hints.
+   Por: Italo Giurizzato Junior
+
+07/05/2024
+-- Diversos --
+[*] Incluido nas units de leitura de retorno a verificação se o XML a ser lido
+    esta vazio ou não.
+  Por: Italo Giurizzato Junior
+
+02/04/2024
+-- Diversos --
+[*] Melhorias no código usando o FixInsight (ainda não ficou 100%).
+  Por: Italo Giurizzato Junior
+
+25/03/2024
+-- ACBrDFeComum.RetConsReciDFe --
+[*] Corrigido da tag a ser lida que contem a chave do DFe.
+-- ACBrDFeComum.RetDistDFeInt --
+[*] Alteração realizada com base no Fix Insight.
+-- ACBrDFeComum.SignatureClass --
+[+] Implementado a function GerarXml visando gerar o grupo Signature.
+  Por: Italo Giurizzato Junior
+
 27/02/2024
 -- Diversos --
 [*] Removido o uso da função ACBrStr ao ler uma mensagem.

@@ -75,7 +75,7 @@ var
 begin
   inherited LerServico(ANode);
 
-  if not Assigned(ANode) or (ANode = nil) then Exit;
+  if not Assigned(ANode) then Exit;
 
   AuxNode := ANode.Childrens.FindAnyNs('Servico');
   if AuxNode <> nil then
@@ -86,7 +86,7 @@ begin
       NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, '&lt;br&gt;',
                                                FpQuebradeLinha, [rfReplaceAll]);
       NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
     end;
   end;
 end;

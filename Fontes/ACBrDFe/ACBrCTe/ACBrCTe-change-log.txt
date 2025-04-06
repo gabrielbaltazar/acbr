@@ -44,6 +44,368 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+03/04/2025
+-- ACBrCTe.Classes --
+[-] Ao ler a propriedade ID para gerar o QR-Code não estava removendo o literal
+    CTe da chave.
+  Por: Italo Giurizzato Junior
+
+01/04/2025
+-- Diversos --
+[*] #TK-5814: Implementado as units: ACBrCTe.IniReader e ACBrCTe.IniWrite que
+    vão ser responsáveis por ler e gerar o arquivo INI.
+    Refatorado a função GetURLQRCode para que a mesma receba a classe TCTe em 
+    vez de diversos parâmetros de entrada.
+    Implementado a propriedade de configuração: SalvarEvento (valor padrão False)
+    agora ao salvar o XML *-procEventoCTe o componente vai checar o valor dessa 
+    propriedade.
+    Alterado a URL do QR-Code de MG.
+  Por: Italo Giurizzato Junior
+
+08/03/2025
+-- ACBrCTe.Classes/ACBrCTe.XmlReader/ACBrCTe.XmlWriter --
+[*] #TK-5814: Alteração visando contemplar a Reforma Tributária.
+  Por: Italo Giurizzato Junior
+
+27/02/2025
+-- ACBrCTe.XmlWriter --
+[*] #TK-5814: Alteração visando contemplar a Reforma Tributária.
+  Por: Italo Giurizzato Junior
+
+23/02/2025
+-- ACBrCTeWebServices --
+[*] #TK-6647: Ajustes para identificar o CT-e Simplificado no DistribuicaoDFe.
+   Por: galegoga
+
+14/02/2025
+-- ACBrCTe.Classes/ACBrCTe.Consts --
+[+] Inclusão de novas contantes e ajustes nas novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+10/02/2025
+-- ACBrCTe.Classes --
+[+] Inclusão das novas classes para atender a Reforma Tributária.
+   Por: Italo Giurizzato Junior
+
+31/01/2025
+-- ACBrCTe.XmlWriter --
+[*] Correção para alguns campos do ICMS que são opcionais e estavam como obrigatórios.
+   Por: devFortes/Italo Giurizzato Junior
+-- ACBrCTeConhecimentos, pcteConversaoCTe --
+[*] #Tk-6521 - Altera o tipo dos enumerados TpcteTipoDataPeriodo e TpcteTipoHorarioIntervalo de não preenchido e N para -1
+  Por: Diego Folieni
+
+27/01/2025
+-- ACBrCTe.XmlHandler --
+[*] Correção na procedure LerToma4, não estava lendo o CNPJ/CPF do nó correto.
+   Por: devFortes
+
+24/01/2025
+-- ACBrCTeConhecimentos --
+[*] Alteração visando os campos do grupo <fluxo>
+   Por: Italo Giurizzato Junior
+
+20/01/2025
+-- pcteCTe --
+[*] Remoção de unit por estar em desuso.
+   Por: Italo Giurizzato Junior
+
+10/01/2025
+-- ACBrCTe.Conversao/ACBrCTe.EventoClass/ACBrCTe.RetEnvEvento --
+[*] Ajustes para a leitura de Eventos do Fisco.
+   Por: Italo Giurizzato Junior
+
+08/01/2025
+-- ACBrCTe.EnvEvento --
+[*] Melhorias no código.
+   Por: Italo Giurizzato Junior
+
+07/01/2025
+-- Diversos --
+[*] #TK-6403: Realizado a substituição da unit de classes de: pcteCTe
+    por: ACBrCTe.Classes 
+   Por: Italo Giurizzato Junior
+
+23/12/2024
+-- pcteConsts --
+[*] Remoção de unit sem uso.
+   Por: Italo Giurizzato Junior
+-- pcteCTeR --
+[-] #TK-6418: Alteração visando a leitura correta do grupo <toma> presente nos
+    documentos: CT-e OS e CT-e Simplificado.
+   Por: Evertof/Italo Giurizzato Junior
+
+11/12/2024
+-- pcteRetEnvCTe --
+[*] Remoção de unit sem uso.
+   Por: Italo Giurizzato Junior
+
+-- ACBrCTe.Classes --
+[+] #TK-6344: Criação da nova unit que contem as classes do CT-e.
+   Por: Italo Giurizzato Junior
+
+10/12/2024
+-- ACBrCTe.XmlHandler --
+[-] #TK-6336: Correção, para a leitura de CT-e Simplificado.
+   Por: Evertof
+
+09/12/2024
+-- ACBrCTeConhecimentos, pcteConversaoCTe --
+[*] Realizado ajustes e validação para que não ocorra erro de assinatura - #TK-6313
+    Por: Antonio Carlos Junior, Diego Folieni, Italo Giurizzato Junior.
+
+03/12/2024
+-- ACBrCTeWebServices/ACBrCTe.ConsSit/ACBrCTe.EnvEvento/ACBrCTe.RetConsSit --
+-- pcteCTeW/pcteInutCTe/pcteProcCTe --
+[*] #TK-5994: Realizado a substituição da unit de constantes de: pcteConsts
+    por: ACBrCTe.Consts 
+   Por: Italo Giurizzato Junior
+
+27/11/2024
+-- ACBrCTe.Consts --
+[+] #TK-5994: Disponibilizado a nova Unit de Constantes do CTe, mas ela ainda não esta
+    em uso.
+   Por: Italo Giurizzato Junior
+-- ACBrCTeWebServices --
+[*] #TK-5995: Realizado a troca da unit pcteRetEnvCTe pela unit ACBrDFeComum.RetEnvio.
+   Por: Italo Giurizzato Junior
+
+22/11/2024
+-- ACBrCTeWebServices --
+[*] #TK-6256: Removido o ParseText antes da leitura do XML retornado para evitar erros
+    na leitura do XML quando estiver tiver alguma tag com o caractere &. 
+   Por: Italo Giurizzato Junior
+
+11/11/2024
+-- ACBrCTeConhecimentos, pcteCTeW --
+[*] #TK-6193: Ajustes visando correta leitura e geração do CTeSimp a partir de arquivo INI.
+   Por: Diego Folieni
+
+29/10/2024
+-- ACBrCTe.XmlHandler --
+[-] #TK-6152: Correção, para a leitura de CT-e OS e também a tag Hora (previsão de entrega).
+   Por: Jeanny Paiva Lopes
+
+28/10/2024
+-- ACBrCTeDACTeRLRetrato/pcteConversaoCTe --
+[+] #TK-6143: Implementado em Fortes Report o DACTE para o CT-e Simplificado.
+   Por: Italo Giurizzato Junior
+
+24/10/2024
+-- pcteCTeW --
+[*] #TK-6144: Alteração visando gerar o grupo infCteSub quando for o CT-e Simplificado.
+   Por: C4Dev
+-- ACBrCTe.RetEnvEvento --
+[-] #TK-6159: Correção para a leitura do grupo Signature ao ler o XML completo do
+    Evento (*-procEventoCTe.xml)
+   Por: Italo Giurizzato Junior
+
+14/10/2024
+-- ACBrCTe.XmlHandler --
+[-] #TK-6088: Correção, não estava lendo a tag indIEToma.
+-- pcteCTeW --
+[*] #TK-6088: Acrescentado a condição para checar o conteúdo de xObs antes de gerar
+    ou não o grupo: compl
+   Por: dev Fortes
+[+] Incluído a leitura do grupo <total> e suas tags.
+   Por: Italo Giurizzato Junior
+
+09/10/2024
+-- ACBrCTe --
+[*] #TK-6050: Ajuste visando a correta geração do URL-QRCode quando emitido em contingência.
+   Por: Italo Giurizzato Junior / Diego Folieni
+
+08/10/2024
+-- ACBrCTe.XmlHandler --
+[-] Correção para a leitura correta da chave da NF-e quando se tratar de CT-e Simplificado.
+   Por: Italo Giurizzato Junior
+-- pcteCTeW --
+[-] Correção para gerar a tag xNome do Tomador com um texto fixo quando se tratar
+    de ambiente de homologação.
+   Por: Alisson Orsolin
+-- ACBrCTe.XmlHandler --
+[-] Correção para identificar corretamente um CT-e Simplificado que foi processado
+    com sucesso, ou seja, autorizado.
+   Por: Italo Giurizzato Junior
+
+03/10/2024
+-- ACBrCTeServicos --
+[+] Incluída as URLs de produção e homologação de recepção do 
+    CT-e Simplificado das UF: MG, MS e SP.
+   Por: Italo Giurizzato Junior
+
+01/10/2024
+-- ACBrCTe.RetConsSit.pas --
+[*] Ajustes necessários para utilizar a unit: ACBrDFeComum.Proc
+   Por: Italo Giurizzato Junior
+
+26/09/2024
+-- ACBrCTeConhecimentos/pcteProcCTe --
+[-] Correção para ocorrer a união entre o XML do CT-e Simplificado com o
+    retorno que contem o protocolo de autorização.
+   Por: Italo Giurizzato Junior
+
+26/09/2024
+-- ACBrCTeServicos --
+[+] #TK-6020: Incluída as URLs de produção e homologação de recepção do 
+    CT-e Simplificado SEFAZ-PR.
+   Por: Marcelo Dev
+
+25/09/2024
+-- Diversos --
+[*] #TK-5866-2: Ajuste visando padronização do caractere de quebra de linha.
+   Por: Diego Folieni
+
+19/09/2024
+-- ACBrCTeServicos --
+[+] Incluída as URLs de produção e homologação de recepção do CT-e Simplificado
+    SEFAZ-MT.
+   Por: Italo Giurizzato Junior
+
+17/09/2024
+-- Diversos --
+[*] #TK-5326 - Implementação do CT-e Simplificado.
+   Por: Italo Giurizzato Junior
+
+20/08/2024
+[*] Remoção das units: pcteConsSitCTe, pcteEnvEventoCTe, pcteEventoCTe,
+    pcteLayoutTXT, pcteModeloCTe, pcteRetConsSitCTe, pcteRetEnvEventoCTe.
+    Elas não são mais utilizadas, foram substituidas. 
+   Por: Italo Giurizzato Junior
+
+07/08/2024
+-- Diversos --
+[*] Alteração nos fontes para passar a utilizar as novas units: ACBrCTe.ConsSit,
+    ACBrCTe.RetConsSit, ACBrCTe.EventoClass, ACBrCTe.EnvEvento e ACBrCTe.RetEnvEvento 
+    responsávels por gerar o pedido de Consulta a Situação e Eventos e a leitura
+    do retorno da SEFAZ no que se refere a consulta e os eventos enviados.
+   Por: Italo Giurizzato Junior
+
+02/08/2024
+-- ACBrCTeConhecimentos --
+[*] Alterado o nome da nova unit responsável pela leitura do XML do CT-e.
+[*] Remoção da unit ACBrCTeXmlHandler que esta na pasta PCNCTe pois a mesma
+    agora se encontra na pasta Base.
+   Por: Italo Giurizzato Junior
+
+29/07/2024
+-- ACBrCTeConfiguracoes --
+[*] Alterado o valor padrão da propriedade de configuração VersaoDF para ve400.
+   Por: Italo Giurizzato Junior
+
+16/07/2024
+-- pcteConversaoCTe --
+[+] Incluído a função de conversão: tpMotivoToDesc (Motivo da não entrega).
+   Por: Italo Giurizzato Junior
+-- ACBrCTeDAEventoRLRetrato --
+[*] Revisado a impressão de todos os eventos.
+   Por: Italo Giurizzato Junior
+-- ACBrCTeServicos --
+[*] Alterado as URLs envio do evento EPEC de MG, o que tudo indica tem que
+    enviar o evento para a SEFAZ-MG e não para o SVC.
+   Por: Italo Giurizzato Junior
+
+16/07/2024
+-- pcteCTeR --
+[-] Correção para leitura correta do grupo infOutros no que se refere as 
+    Unidades de Transporte.
+   Por: Leandro Araújo
+
+11/07/2024
+-- ACBrCTeServicos --
+[*] Revisão nas URLs de todas UF de envio do evento EPEC que não 
+    utiliza o webservice de recepção  normal.
+   Por: Italo Giurizzato Junior
+
+27/06/2024
+-- ACBrCTe.EnvEvento.pas/ACBrCTe.RetConsSit/ACBrCTe.RetEnvEvento --
+[*] Correções nas novas Units.
+  Por: Italo Giurizzato Junior
+
+14/06/2024
+-- ACBrCTe.XmlHandler --
+[+] Nova Unit de Leitura do XML do conhecimento.
+-- ACBrCTe.ConsSit/ACBrCTe.EnvEvento/ACBrCTe.EventoClass --
+-- ACBrCTe.RetConsSit/ACBrCTe.RetEnvEvento --
+[+] Novas Units de Leitura e Escrita do XML de diversos serviços.
+    Observação: essas Units estão em fase de testes.
+  Por: Italo Giurizzato Junior
+
+15/05/2024
+-- pcteCTeR --
+[-] Correção para leitura correta do grupo obsFisco
+   Por: DigitalWay Informatica
+
+14/05/2024
+-- pcteCTeW --
+[-] Correção para identificar corretamente o modelo selecionado.
+   Por: Italo Giurizzato Junior
+
+09/05/2024
+-- pcteCTeW --
+[*] Correção para gerar a versão correta do Modal.
+   Por: Italo Giurizzato Junior
+
+08/05/2024
+-- ACBrCTeConhecimentos --
+[*] Reversão da alteração que visava o uso das configurações na geração do XML.
+   Por: Italo Giurizzato Junior
+-- pcteCTeW --
+[*] Comentado as linhas que usa os dados de configuração na geração do XML.
+   Por: Italo Giurizzato Junior
+
+26/04/2024
+-- pcteCTeW --
+[*] A SEFAZ-MT mudou a validação do campo xNome, agora segue o padrão.
+  Por: Fabricio Langer
+-- ACBrCTeConhecimentos/pcteCTe/pcteCTeR/pcteEventoCTe --
+[*] Remoção de variáveis definidas e não usadas e possível solução para
+    usar o valor definido no campo tpImp pelo desenvolvedor.
+  Por: Italo Giurizzato Junior
+
+22/04/2024
+-- ACBrCTeConhecimentos --
+[*] Alterado a forma de gerar o valor do campo versao da seção infCTe.
+  Por: Italo Giurizzato Junior
+
+05/04/2024
+-- Diversos --
+[*] Melhorias no código usando o FixInsight (ainda não ficou 100%).
+  Por: Italo Giurizzato Junior
+-- pcteCTeW --
+[*] Alterado o tamanho minimo de 10 para 8 da tag cBenef.
+  Por: Raul Cardoso
+
+03/04/2024
+-- ACBrCTeXmlHandler --
+[*] Corrige problema na definição do tomador.
+  Por: Diego Folieni
+
+25/03/2024
+-- ACBrCTeXmlHandler --
+[*] Corrige a leitura do grupo ProcCTe alterando para que considere o subgrupo infProt para correta leitura das informações
+  Por: luisclaudio_jr 
+
+21/03/2024
+-- ACBrCTeWebServices --
+[*] Adiciona chamada a UTF8ToNativeString quando usa ParseText para corrigir problemas de conversão de acentuação
+  Por: Diego Folieni
+
+18/03/2024
+-- ACBrCTeConhecimentos, ACBrCTeXmlHandler --
+[+] Adiciona nova unit para leitura dos XMLs de CTe baseada na ACBrXmlDocument.
+  Por: Diego Folieni
+
+12/03/2024
+-- ACBrCTeServicos --
+[*] Ajustes nas URL de homologação e produção de Recepção de eventos Ambiente
+    Nacional.
+-- ACBrCTeWebServices --
+[*] Remoção do cabeçalho do Envelope no envio de eventos.
+-- pcteEventoCTe --
+[*] Alteração visando pegar a UF da chave para todos os tipos de eventos.
+  Por: Italo Giurizzato Junior
+
 06/03/2024
 -- ACBrCTeServicos --
 [+] Incluído as URL de homologação e produção de Recepção de eventos Ambiente

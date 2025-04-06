@@ -37,19 +37,20 @@ unit ACBrTEFCliSiTefComum;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes,
+  SysUtils,
   ACBrTEFComum;
 
 resourcestring
   CACBrTEFCliSiTef_PressioneEnter = 'PRESSIONE <ENTER>';
-  CACBrTEFCliSiTef_TransacaoNaoEfetuada = 'Transação não efetuada.';
+  CACBrTEFCliSiTef_TransacaoNaoEfetuada = 'Transação T.E.F. não efetuada.';
   CACBrTEFCliSiTef_TransacaoNaoEfetuadaReterCupom =
-    'Transação não efetuada.' + sLineBreak + 'Favor reter o Cupom';
+    'Transação T.E.F. não efetuada.' + sLineBreak + 'Favor reter o Cupom';
   CACBrTEFCliSiTef_TransacaoEfetuadaReImprimir =
-    'Transação TEF efetuada.' + sLineBreak +
-    'Favor reimprimir último Cupom.' + sLineBreak +
+    'Transação T.E.F. realizada com sucesso.'+ sLineBreak +
+    'Para reimpressão, favor solicitar o último cupom.' + sLineBreak +
     '%s' + sLineBreak +
-    '(Para Cielo utilizar os 6 últimos dígitos.)';
+    'No caso da Cielo, utilize apenas os 6 últimos dígitos';
   CACBrTEFCliSiTef_NaoInicializado = 'CliSiTEF não inicializado';
   CACBrTEFCliSiTef_NaoConcluido = 'Requisição anterior não concluida';
   CACBrTEFCliSiTef_Erro1 = 'Endereço IP inválido ou não resolvido';
@@ -77,9 +78,22 @@ const
   {$ENDIF}
 {$ENDIF}
 
+  CSITEF_OP_Venda = 0;
+  CSITEF_OP_Administrativo = 110;
+  CSITEF_OP_ConsultarTrasPendente = 130;
+  CSITEF_OP_Cancelamento = 200;
+  CSITEF_ESPERA_MINIMA_MSG_FINALIZACAO = 5000;
+  CSITEF_OP_DadosPinPadAberto = 789;
+
+  CSITEF_RestricoesCueque = '10';
+  CSITEF_RestricoesCredito = '24;26;27;28;29;30;34;35;44;73';
+  CSITEF_RestricoesDebito = '16;17;18;19;42;43';
+  CSITEF_RestricoesAVista = '16;24;26;34';
+  CSITEF_RestricoesParcelado = '18;35;44';
+  CSITEF_RestricoesParcelaEstabelecimento = '27;3988';
+  CSITEF_RestricoesParcelaAministradora = '28;3988';
 
 type
-
   { TACBrTEFRespCliSiTef }
 
   TACBrTEFRespCliSiTef = class(TACBrTEFResp)
@@ -239,7 +253,9 @@ procedure ConteudoToPropertyCliSiTef(AACBrTEFResp: TACBrTEFResp);
 implementation
 
 uses
-  strutils, Math, dateutils,
+  StrUtils,
+  Math,
+  DateUtils,
   ACBrUtil.Strings,
   ACBrUtil.Base,
   ACBrUtil.Math,
@@ -397,13 +413,16 @@ begin
           ValorTotal := ValorTotal - Desconto;
         end;
         4153: CodigoPSP := LinStr;
+        4249: EndToEndID := LinStr;
       else
         ProcessarTipoInterno(Linha);
       end;
     end;
 
     QtdLinhasComprovante := max(ImagemComprovante1aVia.Count, ImagemComprovante2aVia.Count);
-    Confirmar := (QtdLinhasComprovante > 0);
+    Confirmar := (QtdLinhasComprovante > 0) or (LeInformacao(899, 110).AsInteger = CSITEF_OP_ConsultarTrasPendente);
+
+
     Sucesso := (NSU_TEF <> '') or Confirmar;
 
     // leitura de parcelas conforme nova documentação
@@ -468,8 +487,9 @@ begin
   { Os Tipos abaixo, devem ter a Sequencia incrementada, se já foram salvos antes,
     pois o SiTef retorna o mesmo Tipo, para várias ocorrências do campo }
   case Identificacao of
-    141, 142,            // 141 - Data Parcela, 142 - Valor Parcela
-    600..607, 611..624:  // Dados do Corresp. Bancário
+    141, 142,             // 141 - Data Parcela, 142 - Valor Parcela
+    160..164, 211, 1319,  // Dados de Transações Pendentes
+    600..607, 611..624:   // Dados do Corresp. Bancário
     begin
       Sequencia := 1;
       while (Trim(LeInformacao(Identificacao, Sequencia).AsString) <> '') do

@@ -37,9 +37,10 @@ unit WebISS.GravarXml;
 interface
 
 uses
-  SysUtils, Classes, StrUtils, ACBrXmlBase,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv1, ACBrNFSeXGravarXml_ABRASFv2,
-  ACBrNFSeXConversao;
+  SysUtils, Classes, StrUtils,
+  ACBrNFSeXConversao,
+  ACBrNFSeXGravarXml_ABRASFv1,
+  ACBrNFSeXGravarXml_ABRASFv2;
 
 type
   { TNFSeW_WebISS }
@@ -74,6 +75,10 @@ begin
   inherited Configuracao;
 
   DivAliq100 := True;
+
+  if FpAOwner.ConfigGeral.Params.TemParametro('NaoDividir100') then
+    DivAliq100 := False;
+
   FormatoItemListaServico := filsSemFormatacao;
   NrOcorrAliquota := 1;
 end;

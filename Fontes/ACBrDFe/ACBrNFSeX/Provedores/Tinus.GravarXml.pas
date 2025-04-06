@@ -38,8 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv1, ACBrNFSeXConversao;
+  ACBrNFSeXGravarXml_ABRASFv1,
+  ACBrNFSeXConversao;
 
 type
   { TNFSeW_Tinus }
@@ -68,7 +68,9 @@ begin
 
   DivAliq100 := True;
 
-  NrOcorrAliquota := 0;
+  if FpAOwner.ConfigGeral.Params.TemParametro('NaoDividir100') then
+    DivAliq100 := False;
+
   NrOcorrValorIss := 1;
 end;
 

@@ -1390,8 +1390,8 @@ object frmACBrMDFe: TfrmACBrMDFe
           OnClick = btnAdicionarProtocoloClick
         end
         object btnCarregarXMLEnviar: TButton
-          Left = 8
-          Top = 40
+          Left = 374
+          Top = 9
           Width = 177
           Height = 25
           Caption = 'Carregar XML e Enviar'
@@ -1407,22 +1407,13 @@ object frmACBrMDFe: TfrmACBrMDFe
           TabOrder = 8
           OnClick = btnValidarAssinaturaClick
         end
-        object btnCriarEnviar: TButton
-          Left = 192
-          Top = 9
-          Width = 177
-          Height = 25
-          Caption = 'Criar e Enviar modo Ass'#237'ncrono'
-          TabOrder = 9
-          OnClick = btnCriarEnviarClick
-        end
         object btnCriarEnviarSincrono: TButton
-          Left = 375
+          Left = 191
           Top = 9
           Width = 177
           Height = 25
           Caption = 'Criar e Enviar modo S'#237'ncrono'
-          TabOrder = 10
+          TabOrder = 9
           OnClick = btnCriarEnviarSincronoClick
         end
       end
@@ -1660,8 +1651,14 @@ object frmACBrMDFe: TfrmACBrMDFe
           Width = 559
           Height = 385
           Align = alClient
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Lucida Console'
+          Font.Style = []
           Lines.Strings = (
             '')
+          ParentFont = False
           ScrollBars = ssBoth
           TabOrder = 0
           WordWrap = False
@@ -1678,7 +1675,7 @@ object frmACBrMDFe: TfrmACBrMDFe
     DefaultCharset = UTF_8
     IDECharset = CP1252
     Left = 330
-    Top = 287
+    Top = 295
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '*-nfe.XML'
@@ -1686,8 +1683,8 @@ object frmACBrMDFe: TfrmACBrMDFe
       'Arquivos NFE (*-nfe.XML)|*-nfe.XML|Arquivos XML (*.XML)|*.XML|To' +
       'dos os Arquivos (*.*)|*.*'
     Title = 'Selecione a NFe'
-    Left = 432
-    Top = 288
+    Left = 456
+    Top = 296
   end
   object ACBrMDFe1: TACBrMDFe
     MAIL = ACBrMail1
@@ -1725,6 +1722,8 @@ object frmACBrMDFe: TfrmACBrMDFe
     CasasDecimais.vUnCom = 2
     CasasDecimais.MaskqCom = ',0.00'
     CasasDecimais.MaskvUnCom = ',0.00'
+    CasasDecimais.Aliquota = 2
+    CasasDecimais.MaskAliquota = ',0.00'
     ACBrMDFe = ACBrMDFe1
     ImprimeHoraSaida = False
     TipoDAMDFe = tiSemGeracao
@@ -1734,7 +1733,7 @@ object frmACBrMDFe: TfrmACBrMDFe
     ImprimeDadosExtras = [deValorTotal, deRelacaoDFe]
     ExibirMunicipioDescarregamento = False
     PrintDialog = True
-    Left = 430
+    Left = 454
     Top = 238
   end
 end

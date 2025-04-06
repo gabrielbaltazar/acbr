@@ -9,7 +9,7 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
   Font.Style = [fsBold]
   TextHeight = 10
   inherited RLCTe: TRLReport
-    Left = 8
+    Left = 0
     Top = 0
     Margins.LeftMargin = 7.000000000000000000
     Margins.TopMargin = 7.000000000000000000
@@ -1045,7 +1045,7 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
       object rllTipoCte: TRLLabel
         Left = 4
         Top = 137
-        Width = 76
+        Width = 168
         Height = 15
         AutoSize = False
         Color = clWhite
@@ -1060,7 +1060,7 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
       object rllTipoServico: TRLLabel
         Left = 178
         Top = 137
-        Width = 91
+        Width = 132
         Height = 15
         AutoSize = False
         Color = clWhite
@@ -2205,6 +2205,15 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
       Color = clWhite
       ParentColor = False
       BeforePrint = rlb_03_DadosDACTeBeforePrint
+      object rliMarcadAgua: TRLImage
+        Left = 0
+        Top = 0
+        Width = 742
+        Height = 202
+        Center = True
+        Scaled = True
+        Visible = False
+      end
       object rlsLinhaH08: TRLDraw
         Left = 1
         Top = 167
@@ -7687,7 +7696,7 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
         Left = 0
         Top = 0
         Width = 741
-        Height = 68
+        Height = 66
         Brush.Style = bsClear
         Visible = False
       end
@@ -7970,7 +7979,7 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
       end
       object rllFoneToma1: TRLLabel
         Left = 402
-        Top = 50
+        Top = 52
         Width = 85
         Height = 13
         AutoSize = False
@@ -8001,7 +8010,7 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
       end
       object rllInscEstToma1: TRLLabel
         Left = 260
-        Top = 50
+        Top = 52
         Width = 111
         Height = 13
         AutoSize = False
@@ -8032,7 +8041,7 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
       end
       object rllCnpjToma1: TRLLabel
         Left = 40
-        Top = 50
+        Top = 52
         Width = 130
         Height = 13
         AutoSize = False
@@ -8636,7 +8645,7 @@ inherited frmDACTeRLRetrato: TfrmDACTeRLRetrato
     Top = 16
   end
   inherited Datasource1: TDataSource
-    Left = 336
+    Left = 328
     Top = 16
   end
 end

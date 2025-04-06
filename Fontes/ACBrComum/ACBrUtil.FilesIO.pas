@@ -1558,8 +1558,8 @@ function SetGlobalEnvironment(const AName, AValue: string; const UserEnvironment
 const
   REG_MACHINE_LOCATION = 'System\CurrentControlSet\Control\Session Manager\Environment';
   REG_USER_LOCATION = 'Environment';
-var
-  dwReturnValue: {$IfDef CPU64}PDWORD_PTR{$Else}Cardinal{$EndIf};
+//var
+//  dwReturnValue: {$IfDef CPU64}PDWORD_PTR{$Else}Cardinal{$EndIf};
 begin
   with TRegistry.Create do
   try
@@ -1585,11 +1585,11 @@ begin
   end;
 
   { Update Current Process Environment Variable }
-  SetEnvironmentVariable(PChar(AName), PChar(AValue));
+   SetEnvironmentVariable(PChar(AName), PChar(AValue));
 
   { Send Message To All Top Windows for Refresh }
   //SendMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, LPARAM(PChar('Environment')));
-  SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, dwReturnValue);
+  //SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, dwReturnValue);  // Removido por causar lentidão
 end;
 {$ELSE}
 begin

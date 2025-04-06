@@ -45,9 +45,9 @@ uses
 type
   TACBrNFSeXWebserviceTcheInfo204 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -86,16 +86,13 @@ begin
 
     Autenticacao.RequerLogin := True;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := False;
-      EnviarLoteSincrono := False;
-      ConsultarLote := False;
-      ConsultarFaixaNfse := False;
-      ConsultarServicoPrestado := False;
-      ConsultarServicoTomado := False;
-      SubstituirNfse := False;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := False;
+    ServicosDisponibilizados.EnviarLoteSincrono := False;
+    ServicosDisponibilizados.ConsultarLote := False;
+    ServicosDisponibilizados.ConsultarFaixaNfse := False;
+    ServicosDisponibilizados.ConsultarServicoPrestado := False;
+    ServicosDisponibilizados.ConsultarServicoTomado := False;
+    ServicosDisponibilizados.SubstituirNfse := False;
   end;
 
   with ConfigAssinar do
@@ -115,20 +112,17 @@ begin
   begin
     GerarPrestadorLoteRps := True;
 
-    with TACBrNFSeX(FAOwner).Configuracoes.Geral do
-    begin
-      if TACBrNFSeX(FAOwner).Configuracoes.WebServices.AmbienteCodigo = 1 then
-        CodigoIBGE := IntToStr(CodigoMunicipio)
-      else
-        CodigoIBGE := '9999999';
+    if TACBrNFSeX(FAOwner).Configuracoes.WebServices.AmbienteCodigo = 1 then
+      CodigoIBGE := IntToStr(TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio)
+    else
+      CodigoIBGE := '9999999';
 
-      DadosCabecalho := '<cabecalho versao="1.00" xmlns="http://www.abrasf.org.br/nfse.xsd">' +
-                        '<versaoDados>2.04</versaoDados>' +
-                        '<CodigoIBGE>' + CodigoIBGE + '</CodigoIBGE>' +
-                        '<CpfCnpj>' + Emitente.WSUser + '</CpfCnpj>' +
-                        '<Token>' + Emitente.WSSenha + '</Token>' +
-                        '</cabecalho>';
-    end;
+    DadosCabecalho := '<cabecalho versao="1.00" xmlns="http://www.abrasf.org.br/nfse.xsd">' +
+                      '<versaoDados>2.04</versaoDados>' +
+                      '<CodigoIBGE>' + CodigoIBGE + '</CodigoIBGE>' +
+                      '<CpfCnpj>' + TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente.WSUser + '</CpfCnpj>' +
+                      '<Token>' + TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente.WSSenha + '</Token>' +
+                      '</cabecalho>';
   end;
 end;
 
@@ -166,7 +160,7 @@ end;
 
 { TACBrNFSeXWebserviceTcheInfo204 }
 
-function TACBrNFSeXWebserviceTcheInfo204.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceTcheInfo204.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -193,7 +187,7 @@ begin
   Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
-function TACBrNFSeXWebserviceTcheInfo204.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceTcheInfo204.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -211,7 +205,7 @@ begin
                      ['xmlns:nfse="http://www.abrasf.org.br/nfse.xsd"']);
 end;
 
-function TACBrNFSeXWebserviceTcheInfo204.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceTcheInfo204.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin

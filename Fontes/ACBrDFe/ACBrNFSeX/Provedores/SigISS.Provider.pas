@@ -47,18 +47,22 @@ uses
   ACBrNFSeXWebserviceBase, ACBrNFSeXWebservicesResponse;
 
 type
+  { TACBrNFSeXWebserviceSigISS }
+
   TACBrNFSeXWebserviceSigISS = class(TACBrNFSeXWebserviceSoap11)
   private
     function GetSoapAction: string;
   public
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
     property SoapAction: string read GetSoapAction;
   end;
+
+  { TACBrNFSeProviderSigISS }
 
   TACBrNFSeProviderSigISS = class (TACBrNFSeProviderProprio)
   protected
@@ -88,22 +92,43 @@ type
     function AjustarRetorno(const Retorno: string): string;
   end;
 
-  TACBrNFSeXWebserviceSigISS103 = class(TACBrNFSeXWebserviceSigISS)
+  { TACBrNFSeXWebserviceSigISS101 }
+
+  TACBrNFSeXWebserviceSigISS101 = class(TACBrNFSeXWebserviceSigISS)
   public
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
 
   end;
+
+  { TACBrNFSeProviderSigISS101 }
+
+  TACBrNFSeProviderSigISS101 = class (TACBrNFSeProviderSigISS)
+  protected
+    function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; override;
+    function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
+
+    procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
+  end;
+
+  { TACBrNFSeXWebserviceSigISS103 }
+
+  TACBrNFSeXWebserviceSigISS103 = class(TACBrNFSeXWebserviceSigISS)
+  public
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+
+  end;
+
+  { TACBrNFSeProviderSigISS103 }
 
   TACBrNFSeProviderSigISS103 = class (TACBrNFSeProviderSigISS)
   protected
     function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; override;
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
+    function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
     procedure PrepararConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
     procedure TratarRetornoConsultaNFSeporNumero(Response: TNFSeConsultaNFSeResponse); override;
 
     procedure PrepararCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
-//    procedure TratarRetornoCancelaNFSe(Response: TNFSeCancelaNFSeResponse); override;
 
   end;
 
@@ -125,17 +150,15 @@ begin
 
   with ConfigGeral do
   begin
+    QuebradeLinha := '|';
     ModoEnvio := meUnitario;
     NumMaxRpsEnviar := 1;
 
     Autenticacao.RequerLogin := True;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarUnitario := True;
-      ConsultarNfse := True;
-      CancelarNfse := True;
-    end;
+    ServicosDisponibilizados.EnviarUnitario := True;
+    ServicosDisponibilizados.ConsultarNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
   end;
 
   SetXmlNameSpace('urn:sigiss_ws');
@@ -184,6 +207,19 @@ var
   ANodeArray: TACBrXmlNodeArray;
   AErro, AAlerta: TNFSeEventoCollectionItem;
   aID, aCorrecao, aMensagem: string;
+
+  function EhAvisoNotaEmitida: Boolean;
+  begin
+    Result := ((aCorrecao = '') or
+              (aCorrecao = 'Sem erros') or
+              (Pos('sucesso', aCorrecao) > 0) or
+              (Copy(aID, 1, 1) = 'A'))
+              or
+              ((aMensagem = '') or
+              (aMensagem = 'Sem erros') or
+              (Pos('sucesso', aMensagem) > 0) or
+              (Copy(aID, 1, 1) = 'A'));
+  end;
 begin
   ANode := RootNode.Childrens.FindAnyNs(AListTag);
 
@@ -203,7 +239,7 @@ begin
     aCorrecao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoErro'), tcStr);
     aMensagem := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('DescricaoProcesso'), tcStr);
 
-    if (aCorrecao = '') or (aCorrecao = 'Sem erros') then
+    if EhAvisoNotaEmitida then
     begin
       if aMensagem <> '' then
       begin
@@ -513,7 +549,7 @@ begin
     Result := TACBrNFSeX(FPDFeOwner).Provider.ConfigWebServices.Producao.SoapAction;
 end;
 
-function TACBrNFSeXWebserviceSigISS.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSigISS.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -525,7 +561,7 @@ begin
                       'xmlns:urn="' + SoapAction + '"']);
 end;
 
-function TACBrNFSeXWebserviceSigISS.ConsultarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSigISS.ConsultarNFSe(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -537,7 +573,7 @@ begin
                       'xmlns:urn="' + SoapAction + '"']);
 end;
 
-function TACBrNFSeXWebserviceSigISS.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSigISS.Cancelar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
@@ -551,7 +587,10 @@ end;
 function TACBrNFSeXWebserviceSigISS.TratarXmlRetornado(
   const aXML: string): string;
 begin
-  Result := inherited TratarXmlRetornado(aXML);
+  Result := ConverteANSIparaUTF8(aXml);
+  Result := RemoverDeclaracaoXML(Result);
+
+  Result := inherited TratarXmlRetornado(Result);
 
   Result := ParseText(Result);
   Result := RemoverPrefixosDesnecessarios(Result);
@@ -559,9 +598,69 @@ begin
   Result := RemoverIdentacao(Result);
 end;
 
+{ TACBrNFSeProviderSigISS101 }
+
+function TACBrNFSeProviderSigISS101.CriarGeradorXml(
+  const ANFSe: TNFSe): TNFSeWClass;
+begin
+  Result := TNFSeW_SigISS101.Create(Self);
+  Result.NFSe := ANFSe;
+end;
+
+function TACBrNFSeProviderSigISS101.CriarLeitorXml(
+  const ANFSe: TNFSe): TNFSeRClass;
+begin
+  Result := TNFSeR_SigISS101.Create(Self);
+  Result.NFSe := ANFSe;
+end;
+
+procedure TACBrNFSeProviderSigISS101.PrepararCancelaNFSe(
+  Response: TNFSeCancelaNFSeResponse);
+var
+  AErro: TNFSeEventoCollectionItem;
+  Emitente: TEmitenteConfNFSe;
+begin
+  if EstaVazio(Response.InfCancelamento.NumeroNFSe) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod108;
+    AErro.Descricao := ACBrStr(Desc108);
+    Exit;
+  end;
+
+  if EstaVazio(Response.InfCancelamento.MotCancelamento) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod110;
+    AErro.Descricao := ACBrStr(Desc110);
+    Exit;
+  end;
+
+  Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  Response.ArquivoEnvio := '<CancelarNota xmlns="urn:sigiss_ws">' +
+                             '<DadosPrestador>' +
+                               '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
+                               '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
+                               '<senha>' + Trim(Emitente.WSSenha) + '</senha>' +
+                             '</DadosPrestador>' +
+                             '<DescricaoCancelaNota>' +
+                               '<nota>' +
+                                 Response.InfCancelamento.NumeroNFSe +
+                               '</nota>' +
+                               '<motivo>' +
+                                 Response.InfCancelamento.MotCancelamento +
+                               '</motivo>' +
+                               '<email>' +
+                                 Response.InfCancelamento.email +
+                               '</email>' +
+                             '</DescricaoCancelaNota>' +
+                           '</CancelarNota>';
+end;
+
 { TACBrNFSeXWebserviceSigISS103 }
 
-function TACBrNFSeXWebserviceSigISS103.ConsultarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSigISS103.ConsultarNFSe(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -587,6 +686,24 @@ function TACBrNFSeProviderSigISS103.CriarLeitorXml(
 begin
   Result := TNFSeR_SigISS103.Create(Self);
   Result.NFSe := ANFSe;
+end;
+
+function TACBrNFSeProviderSigISS103.CriarServiceClient(
+  const AMetodo: TMetodo): TACBrNFSeXWebservice;
+var
+  URL: string;
+begin
+  URL := GetWebServiceURL(AMetodo);
+
+  if URL <> '' then
+    Result := TACBrNFSeXWebserviceSigISS103.Create(FAOwner, AMetodo, URL)
+  else
+  begin
+    if ConfigGeral.Ambiente = taProducao then
+      raise EACBrDFeException.Create(ERR_SEM_URL_PRO)
+    else
+      raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
+  end;
 end;
 
 procedure TACBrNFSeProviderSigISS103.PrepararConsultaNFSeporNumero(
@@ -624,16 +741,16 @@ begin
   Response.Metodo := tmConsultarNFSe;
 
   Response.ArquivoEnvio := '<ConsultarNfseServicoPrestado xmlns="http://iss.londrina.pr.gov.br/ws/v1_03">' +
-                         '<ConsultarNfseServicoPrestadoEnvio>' +
-                           '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
-                           '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
-                           '<cpf>' + Trim(Emitente.WSUser) + '</cpf>' +
-                           '<senha>' + Trim(Emitente.WSSenha) + '</senha>' +
-                           '<numero_nfse>' +
-                             Response.InfConsultaNFSe.NumeroIniNFSe +
-                           '</numero_nfse>' +
-                         '</ConsultarNfseServicoPrestadoEnvio>' +
-                       '</ConsultarNfseServicoPrestado>';
+                             '<ConsultarNfseServicoPrestadoEnvio>' +
+                               '<ccm>' + Trim(Emitente.InscMun) + '</ccm>' +
+                               '<cnpj>' + Trim(Emitente.Cnpj) + '</cnpj>' +
+                               '<cpf>' + Trim(Emitente.WSUser) + '</cpf>' +
+                               '<senha>' + Trim(Emitente.WSSenha) + '</senha>' +
+                               '<numero_nfse>' +
+                                 Response.InfConsultaNFSe.NumeroIniNFSe +
+                               '</numero_nfse>' +
+                             '</ConsultarNfseServicoPrestadoEnvio>' +
+                           '</ConsultarNfseServicoPrestado>';
 end;
 
 procedure TACBrNFSeProviderSigISS103.TratarRetornoConsultaNFSeporNumero(
@@ -642,7 +759,7 @@ var
   Document: TACBrXmlDocument;
   AErro: TNFSeEventoCollectionItem;
   ANode, AuxNode, ANodeNFSe: TACBrXmlNode;
-  NumRps: String;
+  NumRps, aXml: String;
   ANota: TNotaFiscal;
 begin
   Document := TACBrXmlDocument.Create;
@@ -703,7 +820,9 @@ begin
 
               ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps);
 
-              ANota := CarregarXmlNfse(ANota, ANode.OuterXml);
+              aXml := SeparaDados(ANode.OuterXml, 'RetornoNota');
+
+              ANota := CarregarXmlNfse(ANota, aXml);
               SalvarXmlNfse(ANota);
             end;
           end;

@@ -49,12 +49,12 @@ uses
 type
   TACBrNFSeXWebserviceEquiplano = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -122,15 +122,14 @@ begin
     FpCodigoCidade := Params.ValorParametro('CodigoCidade');
     DetalharServico := True;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := True;
-      ConsultarSituacao := True;
-      ConsultarLote := True;
-      ConsultarRps := True;
-      ConsultarNfse := True;
-      CancelarNfse := True;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarSituacao := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.ConsultarNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+
+    Particularidades.PermiteMaisDeUmServico := True;
   end;
 
   with ConfigAssinar do
@@ -150,41 +149,23 @@ begin
     Prefixo := 'es';
     UsarNumLoteConsLote := True;
 
-    with LoteRps do
-    begin
-      InfElemento := 'lote';
-      DocElemento := 'enviarLoteRpsEnvio';
-    end;
+    LoteRps.InfElemento := 'lote';
+    LoteRps.DocElemento := 'enviarLoteRpsEnvio';
 
-    with ConsultarSituacao do
-    begin
-      InfElemento := 'prestador';
-      DocElemento := 'esConsultarSituacaoLoteRpsEnvio';
-    end;
+    ConsultarSituacao.InfElemento := 'prestador';
+    ConsultarSituacao.DocElemento := 'esConsultarSituacaoLoteRpsEnvio';
 
-    with ConsultarLote do
-    begin
-      InfElemento := 'prestador';
-      DocElemento := 'esConsultarLoteRpsEnvio';
-    end;
+    ConsultarLote.InfElemento := 'prestador';
+    ConsultarLote.DocElemento := 'esConsultarLoteRpsEnvio';
 
-    with ConsultarNFSeRps do
-    begin
-      InfElemento := 'rps';
-      DocElemento := 'esConsultarNfsePorRpsEnvio';
-    end;
+    ConsultarNFSeRps.InfElemento := 'rps';
+    ConsultarNFSeRps.DocElemento := 'esConsultarNfsePorRpsEnvio';
 
-    with ConsultarNFSe do
-    begin
-      InfElemento := 'prestador';
-      DocElemento := 'esConsultarNfseEnvio';
-    end;
+    ConsultarNFSe.InfElemento := 'prestador';
+     ConsultarNFSe.DocElemento := 'esConsultarNfseEnvio';
 
-    with CancelarNFSe do
-    begin
-      InfElemento := 'prestador';
-      DocElemento := 'esCancelarNfseEnvio';
-    end;
+    CancelarNFSe.InfElemento := 'prestador';
+    CancelarNFSe.DocElemento := 'esCancelarNfseEnvio';
 
     DadosCabecalho := '1';
   end;
@@ -1047,7 +1028,7 @@ end;
 
 { TACBrNFSeXWebserviceSP }
 
-function TACBrNFSeXWebserviceEquiplano.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceEquiplano.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1064,7 +1045,7 @@ begin
                      ['xmlns:ser="http://services.enfsws.es"']);
 end;
 
-function TACBrNFSeXWebserviceEquiplano.ConsultarSituacao(ACabecalho,
+function TACBrNFSeXWebserviceEquiplano.ConsultarSituacao(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1081,7 +1062,7 @@ begin
                      ['xmlns:ser="http://services.enfsws.es"']);
 end;
 
-function TACBrNFSeXWebserviceEquiplano.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceEquiplano.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1098,7 +1079,7 @@ begin
                      ['xmlns:ser="http://services.enfsws.es"']);
 end;
 
-function TACBrNFSeXWebserviceEquiplano.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceEquiplano.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1115,7 +1096,7 @@ begin
                      ['xmlns:ser="http://services.enfsws.es"']);
 end;
 
-function TACBrNFSeXWebserviceEquiplano.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceEquiplano.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -1131,7 +1112,7 @@ begin
                      ['xmlns:ser="http://services.enfsws.es"']);
 end;
 
-function TACBrNFSeXWebserviceEquiplano.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceEquiplano.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -1154,6 +1135,7 @@ begin
 
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := ParseText(Result);
+  Result := StringReplace(Result, '&', '&amp;', [rfReplaceAll]);
   Result := RemoverDeclaracaoXML(Result);
   Result := RemoverIdentacao(Result);
   Result := RemoverPrefixosDesnecessarios(Result);

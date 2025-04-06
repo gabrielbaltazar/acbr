@@ -59,9 +59,13 @@ resourcestring
   ERR_MSG_MAIOR_MAXIMO = 'Número de ocorrências maior que o máximo permitido - Máximo ';
   ERR_MSG_MENOR_MINIMO = 'Número de ocorrências menor que o mínimo permitido - Mínimo ';
 
+  // Descrição de Lotes
+  DSC_IDLOTE = 'Numero do Lote';
+
   // Descrição de Documentos
   DSC_CNPJ = 'CNPJ(MF)';
   DSC_CPF = 'CPF';
+  DSC_IDOUTROS = 'Identificação de Extrangeiro';
   DSC_IE = 'Inscrição Estadual';
   DSC_IM = 'Inscrição Municipal';
 
@@ -141,6 +145,7 @@ resourcestring
   // Descrição de dados do DistribuicaoDFe
   DSC_ULTNSU = 'Último NSU recebido pela Empresa';
   DSC_NSU = 'NSU específico';
+
 
 implementation
 

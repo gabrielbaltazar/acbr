@@ -38,6 +38,56 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+26/02/2025
+-- pcnLeitor --
+[*] #TK-6581: Altera uso da ReverterFiltroTextoXML pela DecodeHTMLEntities
+  Por: Diego Folieni
+
+23/02/2025
+-- pcnRetDistDFeInt --
+[*] Ajustes para identificar o CT-e Simplificado.
+   Por: galegoga
+
+10/02/2025
+-- pcnConversao --
+[+] acrescentado o enumerador: schprocCTeSimp ao tipo TSchemaDFe.
+   Por: Italo Giurizzato Junior
+
+07/02/2024
+-- pcnAuxiliar --
+[*] #Tk-6581: Ajuste visando sanar problema na leitura de caracteres escapados em Hex-Code.
+  Por: Diego Folieni 
+
+21/10/2024
+-- pcnConversao --
+[+] acrescentado o enumerador: teRegistroPassagemMDFe.
+   Por: Italo Giurizzato Junior
+-- pcnRetDistDFeInt --
+[*] #TK-6131: Adiciona chamada a função de conversão para string nativa nos locais em que há o ParseText
+   Por: Diego Folieni
+
+20/06/2024
+-- pcnConversao --
+[+] acrescentado os enumeradores: teConcFinanceira, teCancConcFinanceira.
+   Por: Italo Giurizzato Junior
+
+14/06/2024
+-- pcnConversao --
+[*] Acrescentado o enumerado crtMEI ao tipo TpcnCRT
+  Por: Italo Giurizzato Junior
+
+30/04/2024
+-- pcnConversao --
+[*] Acrescentado os enumerados para os eventos: Insucesso na Entrega da NF-e e
+    Cancelamento do Insucesso na Entrega da NF-e.
+  Por: Italo Giurizzato Junior
+
+17/04/2024
+-- pcnConversao --
+[*] Criado um novo tipo chamado TIndicadorEx que contem os valores:
+    tieNenhum, tieSim e tieNao.
+  Por: Italo Giurizzato Junior
+
 22/02/2024
 -- pcnConversao --
 [*] Novo enumerado (ipCONFAZ) para o tipo: TpcnIndicadorProcesso.

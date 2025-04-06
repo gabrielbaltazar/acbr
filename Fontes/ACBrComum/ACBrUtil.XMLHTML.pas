@@ -80,12 +80,48 @@ Uses
     {$EndIf}
   {$EndIf} ;
 
+const
+  // Array contendo as HTML entities a serem tratadas
+  HTML_ENTITIES_ARRAY: array[0..57] of string = (
+    '&nbsp;', '&amp;', '&lt;', '&gt;', '&quot;', '&#39;',
+    '&cent;', '&pound;', '&yen;', '&euro;', '&copy;', '&reg;',
+    '&Agrave;', '&Aacute;', '&Acirc;', '&Atilde;', '&Auml;', '&Ccedil;',
+    '&Egrave;', '&Eacute;', '&Ecirc;', '&Euml;',
+    '&Igrave;', '&Iacute;', '&Icirc;', '&Iuml;',
+    '&Ograve;', '&Oacute;', '&Ocirc;', '&Otilde;', '&Ouml;',
+    '&Ugrave;', '&Uacute;', '&Ucirc;', '&Uuml;',
+    '&agrave;', '&aacute;', '&acirc;', '&atilde;', '&auml;',
+    '&ccedil;',
+    '&egrave;', '&eacute;', '&ecirc;', '&euml;',
+    '&igrave;', '&iacute;', '&icirc;', '&iuml;',
+    '&ograve;', '&oacute;', '&ocirc;', '&otilde;', '&ouml;',
+    '&ugrave;', '&uacute;', '&ucirc;', '&uuml;'
+  );
+
+  // Array com os símbolos correspondentes às HTML entities acima
+  HTML_SYMBOLS_ARRAY: array[0..57] of string = (
+    ' ', '&', '<', '>', '"', '''',
+    '¢', '£', '¥', '€', '©', '®',
+    'À', 'Á', 'Â', 'Ã', 'Ä', 'Ç',
+    'È', 'É', 'Ê', 'Ë',
+    'Ì', 'Í', 'Î', 'Ï',
+    'Ò', 'Ó', 'Ô', 'Õ', 'Ö',
+    'Ù', 'Ú', 'Û', 'Ü',
+    'à', 'á', 'â', 'ã', 'ä',
+    'ç',
+    'è', 'é', 'ê', 'ë',
+    'ì', 'í', 'î', 'ï',
+    'ò', 'ó', 'ô', 'õ', 'ö',
+    'ù', 'ú', 'û', 'ü'
+  );
+
 
 function ParseText( const Texto : AnsiString; const Decode : Boolean = True;
    const IsUTF8: Boolean = True) : String;
 
 function LerTagXML( const AXML, ATag: String; IgnoreCase: Boolean = True) : String; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Use o método SeparaDados()' {$ENDIF};
 function XmlEhUTF8(const AXML: String): Boolean;
+function XmlEhUTF8BOM(const AXML: String): Boolean;
 function ConverteXMLtoUTF8(const AXML: String): String;
 function ConverteXMLtoNativeString(const AXML: String): String;
 function ObtemDeclaracaoXML(const AXML: String): String;
@@ -105,6 +141,8 @@ function FiltrarTextoXML(const RetirarEspacos: boolean; aTexto: String;
   RetirarAcentos: boolean = True; SubstituirQuebrasLinha: Boolean = True;
   const QuebraLinha: String = ';'): String;
 function ReverterFiltroTextoXML(aTexto: String): String;
+function GetNamedEntity(const Entity: string): string;
+function DecodeHTMLEntities(const S: string): string;
 function xml4line(texto: String): String;
 
 implementation
@@ -213,16 +251,36 @@ begin
 end;
 
 {------------------------------------------------------------------------------
+   Retorna True se o XML contêm a os bytes do BOM em seu início;
+ ------------------------------------------------------------------------------}
+function XmlEhUTF8BOM(const AXML: String): Boolean;
+const
+  UTF8BOM: array[0..2] of Byte = ($EF, $BB, $BF);
+var
+  LBytesOfXML: array[0..2] of Byte;
+  i: Integer;
+begin
+  for i := 1 to 3 do
+    LBytesOfXML[i-1] := Byte(ord(AXML[i]));
+
+  Result := (LBytesOfXML[0] = UTF8BOM[0]) and
+            (LBytesOfXML[1] = UTF8BOM[1]) and
+            (LBytesOfXML[2] = UTF8BOM[2]) ;
+end;
+
+{------------------------------------------------------------------------------
    Se XML não contiver a TAG de encoding em UTF8, no seu início, adiciona a TAG
    e converte o conteudo do mesmo para UTF8 (se necessário, dependendo da IDE)
  ------------------------------------------------------------------------------}
 function ConverteXMLtoUTF8(const AXML: String): String;
 var
+  XMLProcessado: string;
   UTF8Str: AnsiString;
 begin
   if not XmlEhUTF8(AXML) then   // Já foi convertido antes ou montado em UTF8 ?
   begin
-    UTF8Str := NativeStringToUTF8(AXML);
+    XMLProcessado := RemoverDeclaracaoXML(AXML);
+    UTF8Str := NativeStringToUTF8(XMLProcessado);
     Result := CUTF8DeclaracaoXML + String(UTF8Str);
   end
   else
@@ -498,6 +556,80 @@ begin
     end;
   end;
   result := Trim(aTexto);
+end;
+
+
+function GetNamedEntity(const Entity: string): string;
+var
+  i: Integer;
+begin
+  for i := Low(HTML_ENTITIES_ARRAY) to High(HTML_ENTITIES_ARRAY) do
+  begin
+    if Entity = HTML_ENTITIES_ARRAY[i] then
+    begin
+      Result := HTML_SYMBOLS_ARRAY[i];
+      Exit;
+    end;
+  end;
+  Result := Entity;
+end;
+
+function DecodeHTMLEntities(const S: string): string;
+var
+  i, j, Code: Integer;
+  ResultStr, Entity, NumberStr: string;
+begin
+  ResultStr := '';
+  i := 1;
+  while i <= Length(S) do
+  begin
+    if S[i] = '&' then
+    begin
+      j := i;
+      while (j <= Length(S)) and (S[j] <> ';') do
+        Inc(j);
+      if j <= Length(S) then
+      begin
+        Entity := Copy(S, i, j - i + 1);
+        if (Length(Entity) >= 3) and (Entity[2] = '#') then
+        begin
+          if (Length(Entity) > 3) and ((Entity[3] = 'x') or (Entity[3] = 'X')) then
+          begin
+            try
+              Code := StrToInt('$' + Copy(Entity, 4, Length(Entity) - 4));
+              ResultStr := ResultStr + ACBrStr(Chr(Code));
+            except
+              ResultStr := ResultStr + Entity;
+            end;
+          end
+          else
+          begin
+            try
+              NumberStr := Copy(Entity, 3, Length(Entity) - 3);
+              Code := StrToInt(NumberStr);
+              ResultStr := ResultStr + ACBrStr(Chr(Code));
+            except
+              ResultStr := ResultStr + Entity;
+            end;
+          end;
+        end
+        else
+          ResultStr := ResultStr + GetNamedEntity(Entity);
+        i := j + 1;
+      end
+      else
+      begin
+        ResultStr := ResultStr + S[i];
+        Inc(i);
+      end;
+    end
+    else
+    begin
+      ResultStr := ResultStr + S[i];
+      Inc(i);
+    end;
+  end;
+  Result := ResultStr;
 end;
 
 {------------------------------------------------------------------------------

@@ -49,16 +49,16 @@ type
     function GetSoapAction: string;
     function GetNameSpace: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -150,15 +150,25 @@ end;
 
 function TACBrNFSeXWebserviceFisco203.GetSoapAction: string;
 begin
-  Result := 'https://www.fisco.net.br/wsnfseabrasf/ServicosNFSEAbrasf.asmx/';
+  // 1 - Produção
+  // 2 - Homologação
+  if FPConfiguracoes.WebServices.AmbienteCodigo = 1 then
+    Result := 'https://www.fisco.net.br/wsnfseabrasf/ServicosNFSEAbrasf.asmx/'
+  else
+    Result := 'https://www.fisco.net.br/wsnfseabrasf/ServicosNFSEAbrasfHomologacao.asmx/';
 end;
 
 function TACBrNFSeXWebserviceFisco203.GetNameSpace: string;
 begin
-  Result := 'xmlns:nfse="https://www.fisco.net.br/wsnfseabrasf/ServicosNFSEAbrasf.asmx"';
+  // 1 - Produção
+  // 2 - Homologação
+  if FPConfiguracoes.WebServices.AmbienteCodigo = 1 then
+    Result := 'xmlns:nfse="https://www.fisco.net.br/wsnfseabrasf/ServicosNFSEAbrasf.asmx"'
+  else
+    Result := 'xmlns:nfse="https://www.fisco.net.br/wsnfseabrasf/ServicosNFSEAbrasfHomologacao.asmx"'
 end;
 
-function TACBrNFSeXWebserviceFisco203.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceFisco203.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -174,7 +184,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceFisco203.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceFisco203.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -190,7 +200,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceFisco203.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceFisco203.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -206,7 +216,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceFisco203.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceFisco203.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -222,7 +232,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceFisco203.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceFisco203.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -238,7 +248,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceFisco203.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceFisco203.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -254,7 +264,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceFisco203.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceFisco203.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -270,7 +280,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceFisco203.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceFisco203.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -286,7 +296,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceFisco203.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceFisco203.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -301,7 +311,7 @@ begin
                      [NameSpace]);
 end;
 
-function TACBrNFSeXWebserviceFisco203.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceFisco203.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;

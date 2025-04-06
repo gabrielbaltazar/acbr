@@ -39,7 +39,7 @@ interface
 uses Classes, SysUtils,
 {$IFDEF FPC}LResources, {$ENDIF}
   ACBrECFVirtual, ACBrECFVirtualPrinter, ACBrNFe, ACBrECF, ACBrDevice, ACBrBase,
-  pcnNFe, pcnConversao;
+  ACBrNFe.Classes, pcnConversao, pcnConversaoNFe;
 
 const
   ACBrECFVirtualNFCe_VERSAO = '0.1.0a';
@@ -184,7 +184,7 @@ type
 
 implementation
 
-uses pcnConversaoNFe,
+uses
   ACBrConsts, ACBrECFClass, ACBrUtil.Strings, ACBrUtil.Math, ACBrUtil.FilesIO, ACBrUtil.Base, ACBrNFeDANFEClass;
 	
 { TACBrECFVirtualNFCe }
@@ -570,7 +570,7 @@ begin
     AliqECF := fpAliquotas[ItemCupom.AliqPos];
 
     Det.Prod.CFOP := '5102';
-    if NotasFiscais.Items[0].NFe.Emit.CRT = crtSimplesNacional then
+    if (NotasFiscais.Items[0].NFe.Emit.CRT in [crtSimplesNacional, crtMEI]) then
     begin
       Det.Imposto.ICMS.CSOSN := csosn101;
       Det.Imposto.ICMS.vBC := 0;
@@ -626,7 +626,7 @@ begin
   else
     Det.Prod.vDesc := -ItemCupom.DescAcres;
 
-  if (fsACBrNFCe.NotasFiscais.Items[0].NFe.Emit.CRT <> crtSimplesNacional) and (det.Imposto.ICMS.pICMS>0)  then
+  if (not (fsACBrNFCe.NotasFiscais.Items[0].NFe.Emit.CRT in [crtSimplesNacional,crtMEI])) and (det.Imposto.ICMS.pICMS>0)  then
   begin
     Det.Imposto.ICMS.vBC := RoundABNT((ItemCupom.Qtd * ItemCupom.ValorUnit) + ItemCupom.DescAcres, 2);
     Det.Imposto.ICMS.vICMS := RoundABNT(Det.Imposto.ICMS.vBC * (Det.Imposto.ICMS.pICMS / 100), 2);
@@ -792,10 +792,8 @@ begin
       if NFCePagto.tPag = fpOutro then
         NFCePagto.xPag := fpFormasPagamentos[Pagto.PosFPG].Descricao;
 
-      if (NFCePagto.tPag in [fpCartaoCredito, fpCartaoDebito]) then
-      begin
+      if (NFCePagto.tPag in [fpCartaoCredito, fpCartaoDebito, fpPagamentoInstantaneo]) then
         NFCePagto.tpIntegra := tiPagNaoIntegrado;
-      end;
 
       if Assigned(fsQuandoEfetuarPagamento) then
         fsQuandoEfetuarPagamento(NFCePagto);

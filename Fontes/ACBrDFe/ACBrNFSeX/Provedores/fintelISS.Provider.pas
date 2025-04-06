@@ -45,16 +45,16 @@ uses
 type
   TACBrNFSeXWebservicefintelISS200 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -81,7 +81,32 @@ type
 
     function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; override;
     function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
+  end;
 
+  TACBrNFSeXWebservicefintelISS204 = class(TACBrNFSeXWebservicefintelISS202)
+  public
+    // Métodos testados com sucesso
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+
+    // implementado mas nao testado
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
+  end;
+
+  TACBrNFSeProviderfintelISS204 = class (TACBrNFSeProviderfintelISS202)
+  protected
+    procedure Configuracao; override;
+
+    function CriarGeradorXml(const ANFSe: TNFSe): TNFSeWClass; override;
+    function CriarLeitorXml(const ANFSe: TNFSe): TNFSeRClass; override;
+    function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
   end;
 
 implementation
@@ -160,7 +185,7 @@ end;
 
 { TACBrNFSeXWebservicefintelISS200 }
 
-function TACBrNFSeXWebservicefintelISS200.Recepcionar(ACabecalho,
+function TACBrNFSeXWebservicefintelISS200.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -177,7 +202,7 @@ begin
                      ['xmlns:web="http://www.fintel.com.br/WebService"']);
 end;
 
-function TACBrNFSeXWebservicefintelISS200.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebservicefintelISS200.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -194,7 +219,7 @@ begin
                      ['xmlns:web="http://www.fintel.com.br/WebService"']);
 end;
 
-function TACBrNFSeXWebservicefintelISS200.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebservicefintelISS200.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -211,7 +236,7 @@ begin
                      ['xmlns:web="http://www.fintel.com.br/WebService"']);
 end;
 
-function TACBrNFSeXWebservicefintelISS200.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebservicefintelISS200.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -228,7 +253,7 @@ begin
                      ['xmlns:web="http://www.fintel.com.br/WebService"']);
 end;
 
-function TACBrNFSeXWebservicefintelISS200.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebservicefintelISS200.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -245,7 +270,7 @@ begin
                      ['xmlns:web="http://www.fintel.com.br/WebService"']);
 end;
 
-function TACBrNFSeXWebservicefintelISS200.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebservicefintelISS200.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -262,7 +287,7 @@ begin
                      ['xmlns:web="http://www.fintel.com.br/WebService"']);
 end;
 
-function TACBrNFSeXWebservicefintelISS200.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebservicefintelISS200.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -279,7 +304,7 @@ begin
                      ['xmlns:web="http://www.fintel.com.br/WebService"']);
 end;
 
-function TACBrNFSeXWebservicefintelISS200.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebservicefintelISS200.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -296,7 +321,7 @@ begin
                      ['xmlns:web="http://www.fintel.com.br/WebService"']);
 end;
 
-function TACBrNFSeXWebservicefintelISS200.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservicefintelISS200.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -312,7 +337,7 @@ begin
                      ['xmlns:web="http://www.fintel.com.br/WebService"']);
 end;
 
-function TACBrNFSeXWebservicefintelISS200.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebservicefintelISS200.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -347,6 +372,9 @@ begin
 
   ConfigGeral.DetalharServico := True;
 
+  ConfigGeral.Particularidades.PermiteMaisDeUmServico := True;
+  ConfigGeral.Particularidades.PermiteTagOutrasInformacoes := True;
+
   with ConfigAssinar do
   begin
     Rps := False;
@@ -364,12 +392,9 @@ begin
 
   with ConfigMsgDados do
   begin
-    with XmlRps do
-    begin
-      xmlns := ConfigWebServices.Producao.XMLNameSpace;
+    XmlRps.xmlns := ConfigWebServices.Producao.XMLNameSpace;
 
-      SetXmlNameSpace(xmlns);
-    end;
+    SetXmlNameSpace(XmlRps.xmlns);
 
     DadosCabecalho := GetCabecalho(XmlRps.xmlns);
   end;
@@ -389,6 +414,228 @@ function TACBrNFSeProviderfintelISS202.CriarLeitorXml(
 begin
   Result := TNFSeR_fintelISS202.Create(Self);
   Result.NFSe := ANFSe;
+end;
+
+{ TACBrNFSeProviderfintelISS204 }
+
+procedure TACBrNFSeProviderfintelISS204.Configuracao;
+begin
+  inherited Configuracao;
+
+  with ConfigWebServices do
+  begin
+    VersaoDados := '2.04';
+    VersaoAtrib := '2.04';
+    AtribVerLote := 'versao';
+  end;
+
+  SetXmlNameSpace('http://www.abrasf.org.br/nfse.xsd');
+  ConfigMsgDados.DadosCabecalho := GetCabecalho('');
+  ConfigMsgDados.GerarPrestadorLoteRps := True;
+  SetNomeXSD('nfseV204.xsd');
+end;
+
+function TACBrNFSeProviderfintelISS204.CriarGeradorXml(
+  const ANFSe: TNFSe): TNFSeWClass;
+begin
+  Result := TNFSeW_fintelISS204.Create(Self);
+  Result.NFSe := ANFSe;
+end;
+
+function TACBrNFSeProviderfintelISS204.CriarLeitorXml(
+  const ANFSe: TNFSe): TNFSeRClass;
+begin
+  Result := TNFSeR_fintelISS204.Create(Self);
+  Result.NFSe := ANFSe;
+end;
+
+function TACBrNFSeProviderfintelISS204.CriarServiceClient(
+  const AMetodo: TMetodo): TACBrNFSeXWebservice;
+var
+  URL: string;
+begin
+  URL := GetWebServiceURL(AMetodo);
+
+  if URL <> '' then
+    Result := TACBrNFSeXWebservicefintelISS204.Create(FAOwner, AMetodo, URL)
+  else
+  begin
+    if ConfigGeral.Ambiente = taProducao then
+      raise EACBrDFeException.Create(ERR_SEM_URL_PRO)
+    else
+      raise EACBrDFeException.Create(ERR_SEM_URL_HOM);
+  end;
+end;
+
+{ TACBrNFSeXWebservicefintelISS204 }
+
+function TACBrNFSeXWebservicefintelISS204.Cancelar(const ACabecalho, AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:CancelarNfse>';
+  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '</nfse:CancelarNfse>';
+
+  Result := Executar('http://nfse.abrasf.org.br/CancelarNfse', Request,
+                     ['outputXML', 'CancelarNfseResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebservicefintelISS204.ConsultarLote(const ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:ConsultarLoteRps>';
+  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '</nfse:ConsultarLoteRps>';
+
+  Result := Executar('http://nfse.abrasf.org.br/ConsultarLoteRps', Request,
+                     ['outputXML', 'ConsultarLoteRpsResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebservicefintelISS204.ConsultarNFSePorFaixa(
+  const ACabecalho, AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:ConsultarNfseFaixa>';
+  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '</nfse:ConsultarNfseFaixa>';
+
+  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfseFaixa', Request,
+                     ['outputXML', 'ConsultarNfseFaixaResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebservicefintelISS204.ConsultarNFSePorRps(const ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:ConsultarNfsePorRps>';
+  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '</nfse:ConsultarNfsePorRps>';
+
+  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfsePorRps', Request,
+                     ['outputXML', 'ConsultarNfseRpsResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebservicefintelISS204.ConsultarNFSeServicoPrestado(
+  const ACabecalho, AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:ConsultarNfseServicoPrestado>';
+  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '</nfse:ConsultarNfseServicoPrestado>';
+
+  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfseServicoPrestado', Request,
+                     ['outputXML', 'ConsultarNfseServicoPrestadoResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebservicefintelISS204.ConsultarNFSeServicoTomado(
+  const ACabecalho, AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:ConsultarNfseServicoTomado>';
+  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '</nfse:ConsultarNfseServicoTomado>';
+
+  Result := Executar('http://nfse.abrasf.org.br/ConsultarNfseServicoTomado', Request,
+                     ['outputXML', 'ConsultarNfseServicoTomadoResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebservicefintelISS204.GerarNFSe(const ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:GerarNfse>';
+  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '</nfse:GerarNfse>';
+
+  Result := Executar('http://nfse.abrasf.org.br/GerarNfse', Request,
+                     ['outputXML', 'GerarNfseResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebservicefintelISS204.Recepcionar(const ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:RecepcionarLoteRps>';
+  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '</nfse:RecepcionarLoteRps>';
+
+  Result := Executar('http://nfse.abrasf.org.br/RecepcionarLoteRps', Request,
+                     ['outputXML', 'RecepcionarLoteRpsResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebservicefintelISS204.RecepcionarSincrono(const ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:RecepcionarLoteRpsSincrono>';
+  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '</nfse:RecepcionarLoteRpsSincrono>';
+
+  Result := Executar('http://nfse.abrasf.org.br/RecepcionarLoteRpsSincrono', Request,
+                     ['outputXML', 'EnviarLoteRpsSincronoResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
+end;
+
+function TACBrNFSeXWebservicefintelISS204.SubstituirNFSe(const ACabecalho,
+  AMSG: String): string;
+var
+  Request: string;
+begin
+  FPMsgOrig := AMSG;
+
+  Request := '<nfse:SubstituirNfse>';
+  Request := Request + '<nfseCabecMsg>' + XmlToStr(ACabecalho) + '</nfseCabecMsg>';
+  Request := Request + '<nfseDadosMsg>' + XmlToStr(AMSG) + '</nfseDadosMsg>';
+  Request := Request + '</nfse:SubstituirNfse>';
+
+  Result := Executar('http://nfse.abrasf.org.br/SubstituirNfse', Request,
+                     ['outputXML', 'SubstituirNfseResposta'],
+                     ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
 end.

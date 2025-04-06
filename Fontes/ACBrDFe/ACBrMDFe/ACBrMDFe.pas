@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -44,7 +44,8 @@ uses
   ACBrDFe, ACBrDFeConfiguracoes, ACBrDFeException, ACBrBase,
   ACBrMDFeConfiguracoes, ACBrMDFeWebServices, ACBrMDFeManifestos,
   ACBrMDFeDAMDFEClass,
-  pmdfeMDFe, pcnConversao, pmdfeConversaoMDFe, pmdfeEnvEventoMDFe;
+  ACBrMDFe.Classes, pcnConversao, pmdfeConversaoMDFe,
+  ACBrMDFe.EnvEvento;
 
 const
   ACBRMDFE_NAMESPACE = 'http://www.portalfiscal.inf.br/mdfe';
@@ -163,7 +164,7 @@ constructor TACBrMDFe.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  FManifestos := TManifestos.Create(Self, Manifesto);
+  FManifestos := TManifestos.Create(Self, TManifesto);
   FEventoMDFe := TEventoMDFe.Create;
   FWebServices := TWebServices.Create(Self);
 end;
@@ -312,11 +313,11 @@ end;
 
 function TACBrMDFe.GravarStream(AStream: TStream): Boolean;
 begin
-  if EstaVazio(FEventoMDFe.Gerador.ArquivoFormatoXML) then
+  if EstaVazio(FEventoMDFe.XmlEnvio) then
     FEventoMDFe.GerarXML;
 
   AStream.Size := 0;
-  WriteStrToStream(AStream, AnsiString(FEventoMDFe.Gerador.ArquivoFormatoXML));
+  WriteStrToStream(AStream, AnsiString(FEventoMDFe.XmlEnvio));
   Result := True;
 end;
 
@@ -436,7 +437,7 @@ end;
 function TACBrMDFe.GerarNomeArqSchemaModal(const AXML: String;
   VersaoServico: Double): String;
 begin
-  if VersaoServico = 0.0 then
+  if VersaoServico = 0 then
     Result := ''
   else
     Result := PathWithDelim( Configuracoes.Arquivos.PathSchemas ) +
@@ -447,7 +448,7 @@ end;
 function TACBrMDFe.GerarNomeArqSchemaEvento(ASchemaEventoMDFe: TSchemaMDFe;
   VersaoServico: Double): String;
 begin
-  if VersaoServico = 0.0 then
+  if VersaoServico = 0 then
     Result := ''
   else
     Result := PathWithDelim( Configuracoes.Arquivos.PathSchemas ) +
@@ -729,7 +730,7 @@ begin
   if not Assigned(DAMDFE) then
      raise EACBrMDFeException.Create('Componente DAMDFE não associado.')
   else
-     DAMDFE.ImprimirEVENTOPDF(nil);
+     DAMDFE.ImprimirEVENTOPDF;
 end;
 
 function TACBrMDFe.Distribuicao(const ACNPJCPF, AultNSU, ANSU,

@@ -39,15 +39,15 @@ unit ACBrNFeUtilsFPDF;
 interface
 
 uses
-  Classes,
   SysUtils,
   StrUtils,
-
-  pcnNFe,
+  ACBrNFe.Classes,
   pcnConversao,
+  pcnConversaoNFe,
   ACBrNFe,
   ACBrNFeDANFEClass,
-  StrUtilsEx, ACBrDFeDANFeReport;
+  StrUtilsEx,
+  ACBrDFeDANFeReport;
 
 type
   TLogoAlign = (laLeft, laCenter, laRight, laFull);
@@ -112,7 +112,7 @@ end;
 function TNFeUtilsFPDF.GetTextoAdicional: string;
 begin
   Result := TACBrNFeDANFEClass(DANFEClassOwner).ManterInformacoesDadosAdicionais(NFe);
-  Result := FastStringReplace(Result, ';', sLineBreak, [rfReplaceAll]);
+  Result := FastStringReplace(Result, DANFEClassOwner.CaractereQuebraDeLinha, sLineBreak, [rfReplaceAll]);
 end;
 
 function TNFeUtilsFPDF.GetTextoFatura: string;

@@ -10,10 +10,8 @@ object frmACBrNFe: TfrmACBrNFe
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMenus: TPanel
     Left = 0
@@ -26,7 +24,7 @@ object frmACBrNFe: TfrmACBrNFe
       Left = 1
       Top = 1
       Width = 295
-      Height = 544
+      Height = 553
       ActivePage = TabSheet1
       TabOrder = 0
       object TabSheet1: TTabSheet
@@ -35,7 +33,7 @@ object frmACBrNFe: TfrmACBrNFe
           Left = 0
           Top = 0
           Width = 287
-          Height = 516
+          Height = 525
           ActivePage = TabSheet12
           Align = alClient
           MultiLine = True
@@ -361,7 +359,7 @@ object frmACBrNFe: TfrmACBrNFe
               Left = 3
               Top = 12
               Width = 265
-              Height = 389
+              Height = 464
               Caption = 'Geral'
               TabOrder = 0
               object sbtnPathSalvar: TSpeedButton
@@ -409,9 +407,9 @@ object frmACBrNFe: TfrmACBrNFe
               object Label32: TLabel
                 Left = 8
                 Top = 165
-                Width = 119
+                Width = 59
                 Height = 13
-                Caption = 'Vers'#227'o Documento Fiscal'
+                Caption = 'Vers'#227'o DF-e'
               end
               object Label33: TLabel
                 Left = 8
@@ -454,6 +452,27 @@ object frmACBrNFe: TfrmACBrNFe
                   3BB33773333773333773B333333B3333333B7333333733333337}
                 NumGlyphs = 2
                 OnClick = spPathSchemasClick
+              end
+              object Label41: TLabel
+                Left = 8
+                Top = 378
+                Width = 140
+                Height = 13
+                Caption = 'IdCSRT (Somente SEFAZ-PR)'
+              end
+              object Label46: TLabel
+                Left = 7
+                Top = 418
+                Width = 130
+                Height = 13
+                Caption = 'CSRT (Somente SEFAZ-PR)'
+              end
+              object Label53: TLabel
+                Left = 133
+                Top = 165
+                Width = 80
+                Height = 13
+                Caption = 'Vers'#227'o QR-Code'
               end
               object edtPathLogs: TEdit
                 Left = 8
@@ -518,7 +537,7 @@ object frmACBrNFe: TfrmACBrNFe
               object cbVersaoDF: TComboBox
                 Left = 8
                 Top = 181
-                Width = 248
+                Width = 113
                 Height = 21
                 TabOrder = 8
               end
@@ -542,6 +561,27 @@ object frmACBrNFe: TfrmACBrNFe
                 Width = 228
                 Height = 21
                 TabOrder = 11
+              end
+              object edtIdCSRT: TEdit
+                Left = 8
+                Top = 394
+                Width = 248
+                Height = 21
+                TabOrder = 12
+              end
+              object edtCSRT: TEdit
+                Left = 7
+                Top = 434
+                Width = 248
+                Height = 21
+                TabOrder = 13
+              end
+              object cbVersaoQRCode: TComboBox
+                Left = 133
+                Top = 181
+                Width = 113
+                Height = 21
+                TabOrder = 14
               end
             end
           end
@@ -1273,13 +1313,14 @@ object frmACBrNFe: TfrmACBrNFe
           Left = 8
           Top = 56
           Width = 257
-          Height = 49
+          Height = 58
           Caption = 'DANFE'
           Columns = 2
           ItemIndex = 0
           Items.Strings = (
             'Retrato'
-            'Paisagem')
+            'Paisagem'
+            'Simplificado')
           TabOrder = 1
         end
         object gbEscPos: TGroupBox
@@ -1776,6 +1817,15 @@ object frmACBrNFe: TfrmACBrNFe
           TabOrder = 0
           OnClick = btnStatusServClick
         end
+        object btnAdministrarCSC: TButton
+          Left = 8
+          Top = 100
+          Width = 177
+          Height = 25
+          Caption = 'Administrar CSC'
+          TabOrder = 5
+          OnClick = btnAdministrarCSCClick
+        end
       end
       object tsEventos: TTabSheet
         Caption = 'Eventos'
@@ -1809,7 +1859,7 @@ object frmACBrNFe: TfrmACBrNFe
         end
         object btnImprimirEvento: TButton
           Left = 8
-          Top = 100
+          Top = 141
           Width = 177
           Height = 25
           Caption = 'Imprimir Evento'
@@ -1818,7 +1868,7 @@ object frmACBrNFe: TfrmACBrNFe
         end
         object btnEnviarEventoEmail: TButton
           Left = 191
-          Top = 100
+          Top = 141
           Width = 177
           Height = 25
           Caption = 'Enviar Evento Email'
@@ -1842,6 +1892,42 @@ object frmACBrNFe: TfrmACBrNFe
           Caption = 'EPEC'
           TabOrder = 6
           OnClick = btnEventoEPECClick
+        end
+        object btnInsucessoEntrega: TButton
+          Left = 8
+          Top = 69
+          Width = 177
+          Height = 25
+          Caption = 'Insucesso na Entrega'
+          TabOrder = 7
+          OnClick = btnInsucessoEntregaClick
+        end
+        object btnCancInsucessoEntrega: TButton
+          Left = 191
+          Top = 69
+          Width = 177
+          Height = 25
+          Caption = 'Canc. Insucesso na Entrega'
+          TabOrder = 8
+          OnClick = btnCancInsucessoEntregaClick
+        end
+        object btnEventoECONF: TButton
+          Left = 8
+          Top = 100
+          Width = 177
+          Height = 25
+          Caption = 'ECONF'
+          TabOrder = 9
+          OnClick = btnEventoECONFClick
+        end
+        object btnEventoCancECONF: TButton
+          Left = 191
+          Top = 100
+          Width = 177
+          Height = 25
+          Caption = 'Cancelar ECONF'
+          TabOrder = 10
+          OnClick = btnEventoCancECONFClick
         end
       end
       object tsInutilizacao: TTabSheet
@@ -1933,13 +2019,35 @@ object frmACBrNFe: TfrmACBrNFe
           OnClick = btnManifDestConfirmacaoClick
         end
       end
+      object tsOutros: TTabSheet
+        Caption = 'Outros'
+        ImageIndex = 5
+        object btnLerArqINI: TButton
+          Left = 3
+          Top = 3
+          Width = 177
+          Height = 25
+          Caption = 'Ler Arquivo INI/Gerar XML'
+          TabOrder = 0
+          OnClick = btnLerArqINIClick
+        end
+        object btnGerarArqINI: TButton
+          Left = 186
+          Top = 3
+          Width = 177
+          Height = 25
+          Caption = 'Gerar Arquivo INI'
+          TabOrder = 1
+          OnClick = btnGerarArqINIClick
+        end
+      end
     end
     object pgRespostas: TPageControl
       Left = 1
       Top = 198
       Width = 567
       Height = 413
-      ActivePage = TabSheet5
+      ActivePage = Dados
       Align = alClient
       TabOrder = 1
       object TabSheet5: TTabSheet
@@ -2020,8 +2128,14 @@ object frmACBrNFe: TfrmACBrNFe
           Width = 559
           Height = 385
           Align = alClient
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Lucida Console'
+          Font.Style = []
           Lines.Strings = (
             '')
+          ParentFont = False
           ScrollBars = ssVertical
           TabOrder = 0
           WordWrap = False
@@ -2074,9 +2188,11 @@ object frmACBrNFe: TfrmACBrNFe
     CasasDecimais.Aliquota = 2
     CasasDecimais.MaskAliquota = ',0.00'
     ACBrNFe = ACBrNFe1
+    ExibeInforAdicProduto = infNenhum
+    ImprimeDetalhamentoEspecifico = False
     ExibeResumoCanhoto = False
     ExibeCampoFatura = False
-    Left = 411
+    Left = 427
     Top = 239
   end
   object ACBrNFeDANFCeFortes1: TACBrNFeDANFCeFortes
@@ -2106,7 +2222,7 @@ object frmACBrNFe: TfrmACBrNFe
     FonteLinhaItem.Height = -9
     FonteLinhaItem.Name = 'Lucida Console'
     FonteLinhaItem.Style = []
-    Left = 530
+    Left = 562
     Top = 239
   end
   object ACBrNFeDANFeESCPOS1: TACBrNFeDANFeESCPOS
@@ -2131,8 +2247,8 @@ object frmACBrNFe: TfrmACBrNFe
     TipoDANFE = tiSemGeracao
     FormularioContinuo = True
     PosPrinter = ACBrPosPrinter1
-    Left = 529
-    Top = 287
+    Left = 561
+    Top = 295
   end
   object ACBrPosPrinter1: TACBrPosPrinter
     Modelo = ppEscPosEpson
@@ -2146,8 +2262,8 @@ object frmACBrNFe: TfrmACBrNFe
     ConfigQRCode.LarguraModulo = 4
     ConfigQRCode.ErrorLevel = 0
     LinhasEntreCupons = 5
-    Left = 409
-    Top = 287
+    Left = 425
+    Top = 295
   end
   object ACBrMail1: TACBrMail
     Host = '127.0.0.1'
@@ -2158,7 +2274,7 @@ object frmACBrNFe: TfrmACBrNFe
     DefaultCharset = UTF_8
     IDECharset = CP1252
     Left = 330
-    Top = 287
+    Top = 295
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '*-nfe.XML'
@@ -2166,14 +2282,8 @@ object frmACBrNFe: TfrmACBrNFe
       'Arquivos NFE (*-nfe.XML)|*-nfe.XML|Arquivos XML (*.XML)|*.XML|To' +
       'dos os Arquivos (*.*)|*.*'
     Title = 'Selecione a NFe'
-    Left = 411
-    Top = 343
-  end
-  object ACBrIntegrador1: TACBrIntegrador
-    PastaInput = 'C:\Integrador\Input\'
-    PastaOutput = 'C:\Integrador\Output\'
-    Left = 334
-    Top = 342
+    Left = 427
+    Top = 351
   end
   object ACBrNFeDANFCeFortesA41: TACBrNFeDANFCeFortesA4
     Sistema = 'Projeto ACBr - www.projetoacbr.com.br'
@@ -2195,7 +2305,7 @@ object frmACBrNFe: TfrmACBrNFe
     CasasDecimais.Aliquota = 2
     CasasDecimais.MaskAliquota = ',0.00'
     FormularioContinuo = True
-    Left = 528
-    Top = 344
+    Left = 560
+    Top = 352
   end
 end

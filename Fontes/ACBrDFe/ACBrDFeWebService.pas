@@ -51,7 +51,7 @@ uses
    {$ENDIF}
   {$ENDIF}
   ACBrDFeConfiguracoes, ACBrIntegrador, ACBrDFe,
-  pcnGerador;
+  pcnGerador, ACBrXmlWriter;
 
 const
   CErroSemResposta = 'Erro ao obter resposta do webservice.';
@@ -89,7 +89,8 @@ type
   protected
     procedure FazerLog(const Msg: String; Exibir: Boolean = False); virtual;
     procedure GerarException(const Msg: String; E: Exception = nil); virtual;
-    procedure AjustarOpcoes(AOpcoes: TGeradorOpcoes);
+    procedure AjustarOpcoes(AOpcoes: TGeradorOpcoes); overload;
+    procedure AjustarOpcoes(AOpcoes: TACBrXmlWriterOptions); overload;
 
     procedure InicializarServico; virtual;
     procedure DefinirServicoEAction; virtual;
@@ -200,6 +201,7 @@ end;
 function TDFeWebService.Executar: Boolean;
 var
   ErroMsg: String;
+  Tratado: Boolean;
 begin
   { Sobrescrever apenas se realmente necessário }
 
@@ -222,6 +224,18 @@ begin
         SalvarResposta;
       end;
     except
+      on E: EACBrDFeExceptionTimeOut do
+      begin
+        FPDFeOwner.FazerLog('ERRO: ' + E.Message, Tratado);
+        if not Tratado then raise;
+      end;
+
+      on E: EACBrDFeException do
+      begin
+        FPDFeOwner.FazerLog('ERRO: ' + E.Message, Tratado);
+        if not Tratado then raise;
+      end;
+
       on E: Exception do
       begin
         Result := False;
@@ -433,6 +447,9 @@ begin
                                     FPURL, FPEnvelopeSoap, FPSoapAction,
                                     Tentar, Tratado) ;
 
+      if InternalErrorCode = 10060 {WSAETIMEDOUT} then
+        raise EACBrDFeExceptionTimeOut.Create('Connection Time Out');
+
       if not (Tentar or Tratado) then
         raise;
     end;
@@ -547,6 +564,15 @@ begin
   AOpcoes.RetirarEspacos := FPDFeOwner.Configuracoes.Geral.RetirarEspacos;
   AOpcoes.IdentarXML := FPDFeOwner.Configuracoes.Geral.IdentarXML;
   TimeZoneConf.Assign( FPDFeOwner.Configuracoes.WebServices.TimeZoneConf );
+  AOpcoes.QuebraLinha := FPDFeOwner.Configuracoes.WebServices.QuebradeLinha;
+end;
+
+procedure TDFeWebService.AjustarOpcoes(AOpcoes: TACBrXmlWriterOptions);
+begin
+  AOpcoes.FormatoAlerta := FPDFeOwner.Configuracoes.Geral.FormatoAlerta;
+  AOpcoes.RetirarAcentos := FPDFeOwner.Configuracoes.Geral.RetirarAcentos;
+  AOpcoes.RetirarEspacos := FPDFeOwner.Configuracoes.Geral.RetirarEspacos;
+  AOpcoes.IdentarXML := FPDFeOwner.Configuracoes.Geral.IdentarXML;
   AOpcoes.QuebraLinha := FPDFeOwner.Configuracoes.WebServices.QuebradeLinha;
 end;
 

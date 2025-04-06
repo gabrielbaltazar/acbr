@@ -38,7 +38,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv1, ACBrNFSeXGravarXml_ABRASFv2,
+  ACBrNFSeXGravarXml_ABRASFv1,
+  ACBrNFSeXGravarXml_ABRASFv2,
   ACBrNFSeXConversao;
 
 type
@@ -91,8 +92,6 @@ end;
 procedure TNFSeW_Pronim202.Configuracao;
 begin
   inherited Configuracao;
-
-  NrOcorrAliquota := 0;
 
   Opcoes.SuprimirDecimais := True;
 

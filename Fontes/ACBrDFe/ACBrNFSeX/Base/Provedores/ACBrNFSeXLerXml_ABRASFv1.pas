@@ -63,7 +63,7 @@ type
     procedure LerValores(const ANode: TACBrXmlNode);
 
     procedure LerPrestadorServico(const ANode: TACBrXmlNode);
-    procedure LerEnderecoPrestadorServico(const ANode: TACBrXmlNode; aTag: string);
+    procedure LerEnderecoPrestadorServico(const ANode: TACBrXmlNode; const aTag: string);
     procedure LerIdentificacaoPrestador(const ANode: TACBrXmlNode);
     procedure LerContatoPrestador(const ANode: TACBrXmlNode);
 
@@ -232,7 +232,7 @@ begin
 end;
 
 procedure TNFSeR_ABRASFv1.LerEnderecoPrestadorServico(const ANode: TACBrXmlNode;
-  aTag: string);
+  const aTag: string);
 var
   AuxNode: TACBrXmlNode;
   xUF: string;
@@ -473,6 +473,7 @@ end;
 procedure TNFSeR_ABRASFv1.LerInfNfse(const ANode: TACBrXmlNode);
 var
   AuxNode: TACBrXmlNode;
+  IdAttr: string;
   Ok: Boolean;
 begin
   if not Assigned(ANode) then Exit;
@@ -481,6 +482,9 @@ begin
 
   if AuxNode <> nil then
   begin
+    IdAttr := FpAOwner.ConfigGeral.Identificador;
+    NFSe.infNFSe.ID := ObterConteudoTag(AuxNode.Attributes.Items[IdAttr]);
+
     NFSe.Numero := ObterConteudo(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
     NFSe.Link := ObterConteudo(AuxNode.Childrens.FindAnyNs('LinkVisualizacaoNfse'), tcStr);
 
@@ -503,7 +507,7 @@ begin
     NFSe.NfseSubstituida := ObterConteudo(AuxNode.Childrens.FindAnyNs('NfseSubstituida'), tcStr);
     NFSe.OutrasInformacoes := ObterConteudo(AuxNode.Childrens.FindAnyNs('OutrasInformacoes'), tcStr);
     NFSe.OutrasInformacoes := StringReplace(NFSe.OutrasInformacoes, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
 
     LerServico(AuxNode);
 
@@ -705,7 +709,7 @@ begin
       CodigoTributacaoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('CodigoTributacaoMunicipio'), tcStr);
       Discriminacao             := ObterConteudo(AuxNode.Childrens.FindAnyNs('Discriminacao'), tcStr);
       Discriminacao := StringReplace(Discriminacao, FpQuebradeLinha,
-                                      sLineBreak, [rfReplaceAll, rfIgnoreCase]);
+                                                    sLineBreak, [rfReplaceAll]);
 
       VerificarSeConteudoEhLista(Discriminacao);
 
@@ -714,13 +718,22 @@ begin
       if CodigoMunicipio = '' then
         CodigoMunicipio := ObterConteudo(AuxNode.Childrens.FindAnyNs('MunicipioPrestacaoServico'), tcStr);
 
-      MunicipioPrestacaoServico := ObterNomeMunicipioUF(StrToIntDef(CodigoMunicipio, 0), xUF);
-      MunicipioPrestacaoServico := MunicipioPrestacaoServico + '/' + xUF;
-
       MunicipioIncidencia := StrToIntDef(CodigoMunicipio, 0);
-      xMunicipioIncidencia := ObterNomeMunicipioUF(MunicipioIncidencia, xUF);
-      xMunicipioIncidencia := xMunicipioIncidencia + '/' + xUF;
+      MunicipioPrestacaoServico := '';
+      xMunicipioIncidencia := '';
+
+      if MunicipioIncidencia > 0 then
+      begin
+        MunicipioPrestacaoServico := ObterNomeMunicipioUF(MunicipioIncidencia, xUF);
+        MunicipioPrestacaoServico := MunicipioPrestacaoServico + '/' + xUF;
+
+        xMunicipioIncidencia := MunicipioPrestacaoServico;
+      end;
     end;
+
+    NFSe.InformacoesComplementares := ObterConteudo(AuxNode.Childrens.FindAnyNs('InformacoesComplementares'), tcStr);
+    NFSe.InformacoesComplementares := StringReplace(NFSe.InformacoesComplementares,
+                                   FpQuebradeLinha, sLineBreak, [rfReplaceAll]);
 
     LerItensServico(AuxNode);
   end;
@@ -836,6 +849,8 @@ begin
       ValorTotalNotaFiscal := ValorServicos - DescontoCondicionado -
                               DescontoIncondicionado;
     end;
+
+    NFSe.TipoRecolhimento := FpAOwner.SituacaoTributariaDescricao(NFSe.Servico.Valores.IssRetido);
   end;
 end;
 
@@ -866,6 +881,7 @@ begin
     raise Exception.Create('Arquivo xml vazio.');
 
   NFSe.Clear;
+  NFSe.tpXML := tpXml;
 
   if tpXML = txmlNFSe then
     Result := LerXmlNfse(XmlNode)

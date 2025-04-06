@@ -3,9 +3,9 @@
 {  Biblioteca multiplataforma de componentes Delphi para interação com equipa- }
 { mentos de Automação Comercial utilizados no Brasil                           }
 {                                                                              }
-{ Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
+{ Direitos Autorais Reservados (c) 2024 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo:  José M S Junior, Victor Hugo Gonzales          }
+{ Colaboradores nesse arquivo:  José M S Junior, Victor H Gonzales - Pandaaa   }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -45,26 +45,33 @@ uses
   ACBrBoletoConversao,
   pcnConversao,
   ACBrBoletoWS,
-  ACBrBoleto, ACBrBase;
+  ACBrBoleto,
+  ACBrBase;
 
 type
-{ TBoletoWSREST }   //Implementar Bancos que utilizam JSON
-  {$IFDEF RTL230_UP}
-  [ComponentPlatformsAttribute(pidWin32 or pidWin64)]
-  {$ENDIF RTL230_UP}
+    { TBoletoWSREST }   //Implementar Bancos que utilizam JSON
+{$IFDEF RTL230_UP}
+  [ ComponentPlatformsAttribute(pidWin32 or pidWin64) ]
+{$ENDIF RTL230_UP}
+  TParams = record
+    prName, PrValue: String;
+  end;
+
   TBoletoWSREST = class(TBoletoWSClass)
   private
-
+    FPHeaders      : TStringList;
+	
   protected
-    FPURL           : String;
-    FPContentType   : String;
-    FPKeyUser       : String;
-    FPIdentificador : String;
-    FPAccept        : String;
-    FPAuthorization : String;
-    FMetodoHTTP     : TMetodoHTTP;
-    FParamsOAuth    : String;
-    FPHeaders       : TStringList;
+    FPURL          : String;
+    FPContentType  : String;
+    FPKeyUser      : String;
+    FPIdentificador: String;
+    FPAccept       : String;
+    FPAuthorization: String;
+    FMetodoHTTP    : TMetodoHTTP;
+    FParamsOAuth   : String;
+    FHeaderParamsList : Array of TParams;
+
     procedure setDefinirAccept(const AValue: String);
     procedure setMetodoHTTP(const AValue: TMetodoHTTP);
     procedure DefinirAuthorization; virtual;
@@ -85,18 +92,21 @@ type
   public
     constructor Create(ABoletoWS: TBoletoWS); override;
     destructor Destroy; override;
-
+    function AddHeaderParam(AParamName, AParamValue: String): TBoletoWSREST;
+    function ClearHeaderParams(): TBoletoWSREST;
+    property Headers:TStringList read FPHeaders;
   end;
 
-  { TRetornoEnvioREST }  //Implementar Retornos em JSON
-  {$IFDEF RTL230_UP}
-  [ComponentPlatformsAttribute(pidWin32 or pidWin64)]
-  {$ENDIF RTL230_UP}
+    { TRetornoEnvioREST }  //Implementar Retornos em JSON
+{$IFDEF RTL230_UP}
+  [ ComponentPlatformsAttribute(pidWin32 or pidWin64) ]
+{$ENDIF RTL230_UP}
+
   TRetornoEnvioREST = class(TRetornoEnvioClass)
   private
 
   protected
-    //FSucessResponse: Boolean;
+      //FSucessResponse: Boolean;
     function RetornoEnvio(const AIndex: Integer): Boolean; Override;
 
   public
@@ -104,8 +114,8 @@ type
 
   end;
 
-
 implementation
+
 uses
   ACBrUtil.Strings,
   ACBrBoletoWS.Rest.OAuth,
@@ -116,79 +126,78 @@ uses
   ACBrCompress,
   ACBrUtil.FilesIO;
 
-{ TRetornoEnvioREST }
+  { TRetornoEnvioREST }
 
 constructor TRetornoEnvioREST.Create(ABoletoWS: TACBrBoleto);
 begin
   inherited Create(ABoletoWS);
-  //FSucessResponse:= False;
+    //FSucessResponse:= False;
 end;
 
 function TRetornoEnvioREST.RetornoEnvio(const AIndex: Integer): Boolean;
 begin
   if (ACBrBoleto.ListadeBoletos.Count > 0) and (ACBrBoleto.Configuracoes.WebService.Operacao <> tpConsulta) then
   begin
-    Result:= LerRetorno(ACBrBoleto.ListadeBoletos[AIndex].RetornoWeb);
-    ACBrBoleto.ListadeBoletos[AIndex].QrCode; //GetQRCode valida campos no titulo
+    ACBrTitulo := ACBrBoleto.ListadeBoletos[ AIndex ];
+    Result := LerRetorno(ACBrBoleto.ListadeBoletos[ AIndex ].RetornoWeb);
+    ACBrBoleto.ListadeBoletos[ AIndex ].QrCode; //GetQRCode valida campos no titulo
   end
   else
-    Result:= LerListaRetorno;
+    Result := LerListaRetorno;
 
 end;
 
-{ TBoletoWSREST }
+  { TBoletoWSREST }
 
 procedure TBoletoWSREST.DefinirCertificado;
 begin
-  BoletoWS.ArquivoCRT := Boleto.Configuracoes.WebService.ArquivoCRT;
-  BoletoWS.ArquivoKEY := Boleto.Configuracoes.WebService.ArquivoKEY;
+  BoletoWS.ArquivoCRT   := Boleto.Configuracoes.WebService.ArquivoCRT;
+  BoletoWS.ArquivoKEY   := Boleto.Configuracoes.WebService.ArquivoKEY;
+  BoletoWS.ChavePrivada := Boleto.Configuracoes.WebService.ChavePrivada;
+  BoletoWS.Certificado  := Boleto.Configuracoes.WebService.Certificado;
 
-  // Adicionando o chave privada
+    // Adicionando o chave privada
   if NaoEstaVazio(BoletoWS.ChavePrivada) then
   begin
     if StringIsPEM(BoletoWS.ChavePrivada) then
-      HTTPSend.Sock.SSL.PrivateKey := ConvertPEMToASN1(BoletoWS.ChavePrivada)
+      httpsend.Sock.SSL.PrivateKey := ConvertPEMToASN1(BoletoWS.ChavePrivada)
     else
-      HTTPSend.Sock.SSL.PrivateKey := BoletoWS.ChavePrivada;
+      httpsend.Sock.SSL.PrivateKey := BoletoWS.ChavePrivada;
   end
-  else if NaoEstaVazio(BoletoWS.ArquivoKEY) then
-    HttpSend.Sock.SSL.PrivateKeyFile := BoletoWS.ArquivoKEY;
+  else
+    if NaoEstaVazio(BoletoWS.ArquivoKEY) then
+      httpsend.Sock.SSL.PrivateKeyFile := BoletoWS.ArquivoKEY;
 
   if NaoEstaVazio(BoletoWS.Certificado) then
   begin
     if StringIsPEM(BoletoWS.Certificado) then
-      HTTPSend.Sock.SSL.Certificate := ConvertPEMToASN1(BoletoWS.Certificado)
+      httpsend.Sock.SSL.Certificate := ConvertPEMToASN1(BoletoWS.Certificado)
     else
-      HTTPSend.Sock.SSL.Certificate := BoletoWS.Certificado;
+      httpsend.Sock.SSL.Certificate := BoletoWS.Certificado;
   end
-  else if NaoEstaVazio(BoletoWS.ArquivoCRT) then
-    HTTPSend.Sock.SSL.CertificateFile := BoletoWS.ArquivoCRT;
+  else
+    if NaoEstaVazio(BoletoWS.ArquivoCRT) then
+      httpsend.Sock.SSL.CertificateFile := BoletoWS.ArquivoCRT;
 end;
 
 procedure TBoletoWSREST.DefinirContentType;
 begin
   if FPContentType = '' then
-    FPContentType:= S_CONTENT_TYPE;
+    FPContentType := S_CONTENT_TYPE;
 end;
 
 procedure TBoletoWSREST.DefinirParamOAuth;
 begin
   DefinirCertificado;
-  FParamsOAuth := C_GRANT_TYPE
-                 + '=' + OAuth.GrantType
-                 + '&' + C_SCOPE
-                 + '=' + OAuth.Scope;
+  FParamsOAuth := C_GRANT_TYPE + '=' + OAuth.GrantType + '&' + C_SCOPE + '=' + OAuth.Scope;
 end;
 
 procedure TBoletoWSREST.DefinirProxy;
 begin
-  HTTPSend.ProxyHost := BoletoWS.ProxyHost;
-  HTTPSend.ProxyPort := BoletoWS.ProxyPort;
-  HTTPSend.ProxyUser := BoletoWS.ProxyUser;
-  HTTPSend.ProxyPass := BoletoWS.ProxyPass;
-
-  if (BoletoWS.TimeOut <> 0) then
-    HTTPSend.Timeout := BoletoWS.TimeOut;
+  httpsend.ProxyHost := BoletoWS.ProxyHost;
+  httpsend.ProxyPort := BoletoWS.ProxyPort;
+  httpsend.ProxyUser := BoletoWS.ProxyUser;
+  httpsend.ProxyPass := BoletoWS.ProxyPass;
 end;
 
 procedure TBoletoWSREST.setDefinirAccept(const AValue: String);
@@ -204,7 +213,7 @@ end;
 
 procedure TBoletoWSREST.DefinirURL;
 begin
-  raise EACBrBoletoWSException.Create(ClassName + Format( S_METODO_NAO_IMPLEMENTADO, [C_DEFINIR_URL] ));
+  raise EACBrBoletoWSException.Create(ClassName + Format(S_METODO_NAO_IMPLEMENTADO, [ C_DEFINIR_URL ]));
 end;
 
 destructor TBoletoWSREST.Destroy;
@@ -215,48 +224,53 @@ end;
 
 procedure TBoletoWSREST.GerarHeader;
 begin
-  raise EACBrBoletoWSException.Create(ClassName + Format( S_METODO_NAO_IMPLEMENTADO, [C_GERAR_HEADER] ));
+  raise EACBrBoletoWSException.Create(ClassName + Format(S_METODO_NAO_IMPLEMENTADO, [ C_GERAR_HEADER ]));
 end;
 
 procedure TBoletoWSREST.GerarDados;
 begin
-  raise EACBrBoletoWSException.Create(ClassName + Format( S_METODO_NAO_IMPLEMENTADO, [C_GERAR_DADOS] ));
+  raise EACBrBoletoWSException.Create(ClassName + Format(S_METODO_NAO_IMPLEMENTADO, [ C_GERAR_DADOS ]));
 end;
 
 procedure TBoletoWSREST.DefinirAuthorization;
 begin
-  raise EACBrBoletoWSException.Create(ClassName + Format( S_METODO_NAO_IMPLEMENTADO, [C_AUTHORIZATION] ));
+  raise EACBrBoletoWSException.Create(ClassName + Format(S_METODO_NAO_IMPLEMENTADO, [ C_AUTHORIZATION ]));
 end;
 
 function TBoletoWSREST.GerarTokenAutenticacao: String;
 begin
-  Result:= '';
+  Result := '';
   if Assigned(OAuth) then
   begin
-    BoletoWS.DoLog('Autenticando Token... ');
+    BoletoWS.DoLog('Autenticando Token... ', logSimples);
     DefinirParamOAuth;
     OAuth.ParamsOAuth := FParamsOAuth;
     if OAuth.GerarToken then
       Result := OAuth.Token
     else
-      BoletoWS.DoLog( Format( S_ERRO_GERAR_TOKEN_AUTENTICACAO, [OAuth.ErroComunicacao] ) );
+      BoletoWS.DoLog(Format(S_ERRO_GERAR_TOKEN_AUTENTICACAO, [ OAuth.ErroComunicacao ]) ,logSimples);
   end;
 end;
 
 procedure TBoletoWSREST.Executar;
 var
-  LHeaders : TStringList;
+  LHeaders: TStringList;
   LStream : TStringStream;
-  LCT : TCompressType;
+  LCT     : TCompressType;
+  I : Integer;
 begin
   LStream  := TStringStream.Create('');
   LHeaders := TStringList.Create;
-  try
-    HTTPSend.OutputStream := LStream;
-    HTTPSend.Headers.Clear;
 
-     if FPAccept <> '' then
-      LHeaders.Add(C_ACCEPT  + ': ' + FPAccept);
+  //Definido Valor para Timeout com a configuração da Classe
+  httpsend.Timeout := Boleto.Configuracoes.WebService.TimeOut;
+
+  try
+    httpsend.OutputStream := LStream;
+    httpsend.Headers.Clear;
+
+    if FPAccept <> '' then
+      LHeaders.Add(C_ACCEPT + ': ' + FPAccept);
 
     if FPAuthorization <> '' then
       LHeaders.Add(FPAuthorization);
@@ -267,52 +281,76 @@ begin
     if FPIdentificador <> '' then
       LHeaders.Add(FPIdentificador);
 
-    //if FPContentType <> '' then
-    //  LHeaders.Add(C_CONTENT_TYPE +': '+ FPContentType);
+      //if FPContentType <> '' then
+      //  LHeaders.Add(C_CONTENT_TYPE +': '+ FPContentType);
 
-    HTTPSend.Headers.AddStrings(LHeaders);
+    httpsend.Headers.AddStrings(LHeaders);
 
     if FPHeaders.Count > 0 then
-      HTTPSend.Headers.AddStrings(FPHeaders);
+      httpsend.Headers.AddStrings(FPHeaders);
 
-    HTTPSend.MimeType := FPContentType;
+    for I := 0 to Length(FHeaderParamsList) - 1 do
+      httpsend.Headers.Add(FHeaderParamsList[ I ].prName + ': ' + FHeaderParamsList[ I ].PrValue);
+
+    httpsend.MimeType := FPContentType;
   finally
     LHeaders.Free;
   end;
-  HTTPSend.Document.Clear;
+  httpsend.Document.Clear;
   try
-    HTTPSend.Document.Position:= 0;
+    httpsend.Document.Position := 0;
     if FPDadosMsg <> '' then
-      WriteStrToStream(HTTPSend.Document, AnsiString(FPDadosMsg));
-    HTTPSend.HTTPMethod(MetodoHTTPToStr(FMetodoHTTP), FPURL );
+      WriteStrToStream(httpsend.Document, NativeStringToUTF8(FPDadosMsg));
+
+    BoletoWS.DoLog('URL: [' + MetodoHTTPToStr(FMetodoHTTP) + '] ' + FPURL, logSimples);
+    BoletoWS.DoLog('Header:' + LineBreak
+                             + httpsend.Headers.Text, logParanoico);
+
+    httpsend.HTTPMethod(MetodoHTTPToStr(FMetodoHTTP), FPURL);
   finally
-    HTTPSend.Document.Position:= 0;
-    
-   try
-      LCT := DetectCompressType(LStream);
-      if (LCT = ctUnknown) then  // Not compressed...
-      begin
-        LStream.Position := 0;
-        FRetornoWS := ReadStrFromStream(LStream, LStream.Size);
-      end
-      else
-        FRetornoWS := UnZip(LStream);
-   except
-      LStream.Position := 0;
-      FRetornoWS := ReadStrFromStream(LStream, LStream.Size);
-   end;
-
-    FRetornoWS:= String(UTF8Decode(FRetornoWS));
-    BoletoWS.RetornoBanco.CodRetorno     := HTTPSend.Sock.LastError;
-
+    httpsend.Document.Position := 0;
+    FRetornoWS       := '';
     try
-//      LStream.CopyFrom(HTTPSend.Document,0);
-      BoletoWS.RetornoBanco.Msg            := Trim('HTTP_Code='+ IntToStr(HTTPSend.ResultCode)+' '+ HTTPSend.ResultString +' '+ FRetornoWS);
-      BoletoWS.RetornoBanco.HTTPResultCode := HTTPSend.ResultCode;
+      if LStream.Size > 0 then
+      begin
+        LCT := DetectCompressType(LStream);
+        if (LCT = ctUnknown) then // Not compressed...
+        begin
+          LStream.Position := 0;
+          FRetornoWS       := ReadStrFromStream(LStream, LStream.Size);
+        end
+        else
+          FRetornoWS := UnZip(LStream);
+      end;
+    except
+      LStream.Position := 0;
+      if LStream.Size > 0 then
+        FRetornoWS       := ReadStrFromStream(LStream, LStream.Size);
+    end;
+
+    FRetornoWS                       := String(UTF8ToNativeString(FRetornoWS));
+    BoletoWS.RetornoBanco.CodRetorno := httpsend.Sock.LastError;
+    try
+      BoletoWS.RetornoBanco.Msg            := Trim('HTTP_Code=' + IntToStr(httpsend.ResultCode) + ' ' + httpsend.ResultString + ' ' + FRetornoWS);
+      BoletoWS.RetornoBanco.HTTPResultCode := httpsend.ResultCode;
     finally
       LStream.Free;
     end;
   end;
+end;
+
+function TBoletoWSREST.AddHeaderParam(AParamName,AParamValue: String): TBoletoWSREST;
+begin
+  Result := Self;
+  SetLength(FHeaderParamsList, Length(FHeaderParamsList) + 1);
+  FHeaderParamsList[ Length(FHeaderParamsList) - 1 ].prName := AParamName;
+  FHeaderParamsList[ Length(FHeaderParamsList) - 1 ].PrValue := AParamValue;
+end;
+
+function TBoletoWSREST.ClearHeaderParams: TBoletoWSREST;
+begin
+  SetLength(FHeaderParamsList, 0);
+  Result := Self;
 end;
 
 constructor TBoletoWSREST.Create(ABoletoWS: TBoletoWS);
@@ -327,16 +365,16 @@ begin
   FPAuthorization := '';
   FPKeyUser       := '';
   FPIdentificador := '';
-  FPHeaders := TStringList.Create;
+  FPHeaders       := TStringList.Create;
 end;
 
 function TBoletoWSREST.GerarRemessa: String;
 begin
   Result := '';
-  HTTPSend.Headers.Clear;
-  //Gera o Header, para REST
+  httpsend.Headers.Clear;
+    //Gera o Header, para REST
   GerarHeader;
-  //Gera o Json, implementado na classe do Banco selecionado
+    //Gera o Json, implementado na classe do Banco selecionado
   GerarDados;
 
   Result := FPDadosMsg;
@@ -354,21 +392,30 @@ begin
   DefinirProxy;
 
   //Grava json gerado
-  BoletoWS.DoLog('Comando Enviar: ' + FPDadosMsg);
+  BoletoWS.DoLog('Comando Enviar: ' + ClassName, logSimples);
+  BoletoWS.DoLog('Comando Enviar: ' + FPDadosMsg, logSimples);
 
   try
     Executar;
   finally
-    Result := (BoletoWS.RetornoBanco.HTTPResultCode in [200..207]);
+    Result := (BoletoWS.RetornoBanco.HTTPResultCode in [ 200 .. 207 ]);
+
+    BoletoWS.DoLog('Retorno Envio: ' + Self.ClassName, logSimples);
+    BoletoWS.DoLog('Código do Envio: ' + IntToStr(BoletoWS.RetornoBanco.HTTPResultCode) + ' ' + httpsend.Protocol + ' ' +  httpsend.ResultString, logSimples);
 
     if Result then //Grava retorno
-      BoletoWS.DoLog('Retorno Envio: ' + FRetornoWS)
+      BoletoWS.DoLog('Retorno Envio: ' + FRetornoWS, logParanoico)
     else
-      BoletoWS.DoLog('Retorno Envio: ' +'HTTPCode=' + IntToStr(BoletoWS.RetornoBanco.HTTPResultCode)
-                                        + IfThen(BoletoWS.RetornoBanco.CodRetorno > 0, sLineBreak + 'ErrorCode=' + IntToStr(BoletoWS.RetornoBanco.CodRetorno),'')
-                                        + sLineBreak +'Result=' + NativeStringToAnsi(FRetornoWS));
-  end;
+      BoletoWS.DoLog('Retorno Envio: ' + IfThen(BoletoWS.RetornoBanco.CodRetorno > 0,
+          sLineBreak + 'ErrorCode=' + IntToStr(BoletoWS.RetornoBanco.CodRetorno), '') + sLineBreak + 'Result=' + NativeStringToAnsi(FRetornoWS), logParanoico);
 
+    BoletoWS.DoLog('Cookies:', logParanoico);
+    BoletoWS.DoLog(httpsend.Cookies.Text, logParanoico);
+    BoletoWS.DoLog(httpsend.Sock.SSL.CertificateFile, logParanoico);
+    BoletoWS.DoLog(httpsend.Sock.SSL.PrivateKeyFile, logParanoico);
+    BoletoWS.DoLog('Header:', logParanoico);
+    BoletoWS.DoLog(httpsend.Headers.Text, logParanoico);
+  end;
 end;
 
 end.

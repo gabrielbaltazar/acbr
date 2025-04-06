@@ -58,7 +58,7 @@ interface
 
 uses
   SysUtils, Classes,
-  pcnConversao, pcnLeitor, pcnNFe;
+  pcnConversao, pcnLeitor, ACBrNFe.Classes;
 
 type
 
@@ -101,7 +101,7 @@ var
   ok: Boolean;
   i, j, k, nItem, idx: Integer;
   Arquivo, Itens, ItensTemp, VersaoInfNFe, NumItem: String;
-  Aspas, tagPag: String;
+  Aspas, tagPag, sAux: String;
 begin
 
   Leitor.Grupo := Leitor.Arquivo;
@@ -420,7 +420,7 @@ begin
 
       idx := 0;
       NFe.Det[i].Prod.CredPresumido.Clear;
-      while Leitor.rExtrai(2, 'cCredPresumido', '', idx + 1) <> '' do
+      while Leitor.rExtrai(2, 'gCred', '', idx + 1) <> '' do
       begin
         NFe.Det[i].Prod.CredPresumido.New;
         NFe.Det[i].Prod.CredPresumido[idx].cCredPresumido := Leitor.rCampo(tcStr, 'cCredPresumido');
@@ -735,7 +735,12 @@ begin
 
       (*N26b*)NFe.Det[i].Imposto.ICMS.vICMSSubstituto := Leitor.rCampo(tcDe2, 'vICMSSubstituto');
 
-             NFe.Det[i].Imposto.ICMS.indDeduzDeson := StrToTIndicador(ok, Leitor.rCampo(tcStr, 'indDeduzDeson'));
+             sAux := Leitor.rCampo(tcStr, 'indDeduzDeson');
+             NFe.Det[i].Imposto.ICMS.indDeduzDeson := tieNenhum;
+             if sAux = '1' then
+               NFe.Det[i].Imposto.ICMS.indDeduzDeson := tieSim;
+             if sAux = '0' then
+               NFe.Det[i].Imposto.ICMS.indDeduzDeson := tieNao;
 
              NFe.Det[i].Imposto.ICMS.cBenefRBC := Leitor.rCampo(tcStr, 'cBenefRBC');
 
@@ -947,7 +952,11 @@ begin
         (*W22d*)NFe.Total.ISSQNtot.vDescIncond := Leitor.rCampo(tcDe2, 'vDescIncond');
         (*W22e*)NFe.Total.ISSQNtot.vDescCond   := Leitor.rCampo(tcDe2, 'vDescCond');
         (*W22f*)NFe.Total.ISSQNtot.vISSRet     := Leitor.rCampo(tcDe2, 'vISSRet');
-        (*W22g*)NFe.Total.ISSQNtot.cRegTrib    := StrToRegTribISSQN(Ok, Leitor.rCampo(tcStr, 'cRegTrib'));
+
+        sAux := Leitor.rCampo(tcStr, 'cRegTrib');
+        NFe.Total.ISSQNtot.cRegTrib := RTISSNenhum;
+        if sAux <> '' then
+          (*W22g*)NFe.Total.ISSQNtot.cRegTrib := StrToRegTribISSQN(Ok, sAux);
       end;
     end;
     
@@ -1215,6 +1224,29 @@ begin
     NFe.infNFeSupl.urlChave := Leitor.rCampo(tcStr, 'urlChave');
   end;
 
+  if Leitor.rExtrai(1, 'agropecuario') <> '' then
+  begin
+    if Leitor.rExtrai(2, 'guiaTransito') <> '' then
+    begin
+      NFe.agropecuario.guiaTransito.UFGuia := Leitor.rCampo(tcStr, 'UFGuia');
+      NFe.agropecuario.guiaTransito.tpGuia := StrToTtpGuia(Leitor.rCampo(tcStr, 'tpGuia'));
+      NFe.agropecuario.guiaTransito.serieGuia := Leitor.rCampo(tcStr, 'serieGuia');
+      NFe.agropecuario.guiaTransito.nGuia := Leitor.rCampo(tcInt, 'nGuia');
+    end
+    else
+    begin
+      i := 0;
+      NFe.agropecuario.defensivo.Clear;
+      while Leitor.rExtrai(2, 'defensivo', '', i + 1) <> '' do
+      begin
+        NFe.agropecuario.defensivo.New;
+        NFe.agropecuario.defensivo[i].nReceituario := Leitor.rCampo(tcStr, 'nReceituario');
+        NFe.agropecuario.defensivo[i].CPFRespTec := Leitor.rCampo(tcStr, 'CPFRespTec');
+        inc(i);
+      end;
+    end;
+  end;
+
   (* Grupo da TAG <protNFe> ***************************************************)
   if Leitor.rExtrai(1, 'protNFe') <> '' then
   begin
@@ -1231,7 +1263,6 @@ begin
   end;
 
   Result := true;
-
 end;
 
 end.

@@ -38,8 +38,10 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXClass,
+  ACBrNFSeXGravarXml;
 
 type
   { TNFSeW_PadraoNacional }
@@ -48,7 +50,7 @@ type
   private
     FpVersao: string;
 
-    function GerarChaveDPS(AcMun, ACNPJCPF, ASerie, ANumero: string): string;
+    function GerarChaveDPS(const AcMun, ACNPJCPF, ASerie, ANumero: string): string;
 
   protected
     function GerarInfDps: TACBrXmlNode;
@@ -109,6 +111,48 @@ type
     function GerarTotalTributos: TACBrXmlNode;
     function GerarValorTotalTributos: TACBrXmlNode;
     function GerarPercentualTotalTributos: TACBrXmlNode;
+
+    // Reforma Tributária
+    function GerarIBSCBSSEL(IBSCBSSEL: TIBSCBSSEL): TACBrXmlNode;
+    function GerarDestinatario(Dest: TDadosdaPessoa): TACBrXmlNode;
+    function GerarEnderecoDestinatario(ender: Tender): TACBrXmlNode;
+    function GerarEnderecoNacionalDestinatario(endNac: TendNac): TACBrXmlNode;
+    function GerarEnderecoExteriorDestinatario(endExt: TendExt): TACBrXmlNode;
+
+    function GerarAdquirente(Adq: TDadosdaPessoa): TACBrXmlNode;
+    function GerarEnderecoAdquirente(ender: Tender): TACBrXmlNode;
+    function GerarEnderecoNacionalAdquirente(endNac: TendNac): TACBrXmlNode;
+    function GerarEnderecoExteriorAdquirente(endExt: TendExt): TACBrXmlNode;
+
+    function GerarServicoIBSCBSSEL(serv: Tserv): TACBrXmlNode;
+
+    function GerarValoresIBSCBSSEL(valores: Tvalorestrib): TACBrXmlNode;
+    function GerarValoresTributosIBSCBSSEL(trib: Ttrib): TACBrXmlNode;
+    function GerarValoresTributosSeletivo(seletivo: Tseletivo): TACBrXmlNode;
+    function GerarValoresTributosImpostoSeletivo(gImpSel: TgImpSel): TACBrXmlNode;
+
+    function GerarValoresTributosIBSCBS(gIBSCBS: TgIBSCBS): TACBrXmlNode;
+
+    function GerarValoresTributosIBSUF(gIBSUF: TgIBSUFValores): TACBrXmlNode;
+    function GerarValoresTributosUFCredPres(gIBSUF: TgIBSUFValores): TACBrXmlNode;
+    function GerarValoresTributosUFDif(gIBSUF: TgIBSUFValores): TACBrXmlNode;
+    function GerarValoresTributosUFDevTrib(gIBSUF: TgIBSUFValores): TACBrXmlNode;
+    function GerarValoresTributosUFRed(gIBSUF: TgIBSUFValores): TACBrXmlNode;
+    function GerarValoresTributosUFDeson(gIBSUF: TgIBSUFValores): TACBrXmlNode;
+
+    function GerarValoresTributosIBSMun(gIBSMun: TgIBSMunValores): TACBrXmlNode;
+    function GerarValoresTributosMunCredPres(gIBSMun: TgIBSMunValores): TACBrXmlNode;
+    function GerarValoresTributosMunDif(gIBSMun: TgIBSMunValores): TACBrXmlNode;
+    function GerarValoresTributosMunDevTrib(gIBSMun: TgIBSMunValores): TACBrXmlNode;
+    function GerarValoresTributosMunRed(gIBSMun: TgIBSMunValores): TACBrXmlNode;
+    function GerarValoresTributosMunDeson(gIBSMun: TgIBSMunValores): TACBrXmlNode;
+
+    function GerarValoresTributosCBS(gCBS: TgCBSValores): TACBrXmlNode;
+    function GerarValoresTributosCBSCredPres(gCBS: TgCBSValores): TACBrXmlNode;
+    function GerarValoresTributosCBSDif(gCBS: TgCBSValores): TACBrXmlNode;
+    function GerarValoresTributosCBSDevTrib(gCBS: TgCBSValores): TACBrXmlNode;
+    function GerarValoresTributosCBSRed(gCBS: TgCBSValores): TACBrXmlNode;
+    function GerarValoresTributosCBSDeson(gCBS: TgCBSValores): TACBrXmlNode;
   public
     function GerarXml: Boolean; override;
   end;
@@ -128,7 +172,7 @@ uses
 
 { TNFSeW_PadraoNacional }
 
-function TNFSeW_PadraoNacional.GerarChaveDPS(AcMun, ACNPJCPF, ASerie,
+function TNFSeW_PadraoNacional.GerarChaveDPS(const AcMun, ACNPJCPF, ASerie,
   ANumero: string): string;
 var
   cMun, vSerie, vNumero, vCNPJ, tpInsc: string;
@@ -201,6 +245,12 @@ begin
   Result.AppendChild(GerarIntermediario);
   Result.AppendChild(GerarServico);
   Result.AppendChild(GerarValores);
+  // Reforma Tributária
+  {
+    Manter comentado até que o ambiente de homologação/produção sejam liberados
+
+  Result.AppendChild(GerarIBSCBSSEL(NFSe.IBSCBSSEL));
+  }
 end;
 
 function TNFSeW_PadraoNacional.GerarSubstituicao: TACBrXmlNode;
@@ -1237,7 +1287,6 @@ begin
         Result.AppendChild(AddNode(tcStr, '#1', 'indTotTrib', 1, 1, 1,
                   indTotTribToStr(NFSe.Servico.Valores.totTrib.indTotTrib), ''))
       else
-      if NFSe.Servico.Valores.totTrib.pTotTribSN > 0 then
         Result.AppendChild(AddNode(tcDe2, '#1', 'pTotTribSN', 1, 5, 1,
                                   NFSe.Servico.Valores.totTrib.pTotTribSN, ''));
     end;
@@ -1279,8 +1328,6 @@ var
 begin
   Configuracao;
 
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
-
   ListaDeAlertas.Clear;
 
   FDocument.Clear();
@@ -1304,6 +1351,481 @@ begin
   NFSeNode.AppendChild(xmlNode);
 
   Result := True;
+end;
+
+// Reforma Tributária
+function TNFSeW_PadraoNacional.GerarIBSCBSSEL(IBSCBSSEL: TIBSCBSSEL): TACBrXmlNode;
+begin
+  Result := CreateElement('IBSCBSSEL');
+
+  if IBSCBSSEL.dest.xNome <> '' then
+    Result.AppendChild(GerarDestinatario(IBSCBSSEL.dest));
+
+  if IBSCBSSEL.adq.xNome <> '' then
+    Result.AppendChild(GerarAdquirente(IBSCBSSEL.adq));
+
+  Result.AppendChild(GerarServicoIBSCBSSEL(IBSCBSSEL.serv));
+
+  Result.AppendChild(GerarValoresIBSCBSSEL(IBSCBSSEL.valores));
+end;
+
+function TNFSeW_PadraoNacional.GerarDestinatario(Dest: TDadosdaPessoa): TACBrXmlNode;
+begin
+  Result := CreateElement('dest');
+
+  if Dest.CNPJCPF <> '' then
+    Result.AppendChild(AddNodeCNPJCPF('#1', '#1', Dest.CNPJCPF))
+  else
+  if Dest.Nif <> '' then
+    Result.AppendChild(AddNode(tcStr, '#1', 'NIF', 1, 40, 1, Dest.Nif, ''))
+  else
+    Result.AppendChild(AddNode(tcStr, '#1', 'cNaoNIF', 1, 1, 1,
+                                                NaoNIFToStr(Dest.cNaoNIF), ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'CAEPF', 1, 14, 0, Dest.CAEPF, ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'xNome', 1, 300, 1, Dest.xNome, ''));
+
+  Result.AppendChild(GerarEnderecoDestinatario(Dest.ender));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'fone', 6, 20, 0, Dest.fone, ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'email', 1, 80, 0, Dest.email, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarEnderecoDestinatario(
+  ender: Tender): TACBrXmlNode;
+begin
+  Result := nil;
+
+  if (ender.endNac.cMun <> 0) or (ender.endExt.cPais <> 0) then
+  begin
+    Result := CreateElement('end');
+
+    if (ender.endNac.cMun <> 0) then
+      Result.AppendChild(GerarEnderecoNacionalDestinatario(ender.endNac))
+    else
+      Result.AppendChild(GerarEnderecoExteriorDestinatario(ender.endExt));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'xLgr', 1, 255, 1, ender.xLgr, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'nro', 1, 60, 1, ender.nro, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'xCpl', 1, 156, 0, ender.xCpl, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'xBairro', 1, 60, 1,
+                                                            ender.xBairro, ''));
+  end;
+end;
+
+function TNFSeW_PadraoNacional.GerarEnderecoNacionalDestinatario(
+  endNac: TendNac): TACBrXmlNode;
+begin
+  Result := nil;
+
+  if endNac.CEP <> '' then
+  begin
+    Result := CreateElement('endNac');
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'cMun', 7, 7, 1, endNac.cMun, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'CEP', 8, 8, 1, endNac.CEP, ''));
+  end;
+end;
+
+function TNFSeW_PadraoNacional.GerarEnderecoExteriorDestinatario(
+  endExt: TendExt): TACBrXmlNode;
+begin
+  Result := CreateElement('endExt');
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'cPais', 2, 2, 1,
+                                     CodIBGEPaisToSiglaISO2(endExt.cPais), ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'cEndPost', 1, 11, 1,
+                                                          endExt.cEndPost, ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'xCidade', 1, 60, 1,
+                                                           endExt.xCidade, ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'xEstProvReg', 1, 60, 1,
+                                                       endExt.xEstProvReg, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarAdquirente(
+  Adq: TDadosdaPessoa): TACBrXmlNode;
+begin
+  Result := CreateElement('adq');
+
+  if Adq.CNPJCPF <> '' then
+    Result.AppendChild(AddNodeCNPJCPF('#1', '#1', Adq.CNPJCPF))
+  else
+  if Adq.Nif <> '' then
+    Result.AppendChild(AddNode(tcStr, '#1', 'NIF', 1, 40, 1, Adq.Nif, ''))
+  else
+    Result.AppendChild(AddNode(tcStr, '#1', 'cNaoNIF', 1, 1, 1,
+                                                NaoNIFToStr(Adq.cNaoNIF), ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'CAEPF', 1, 14, 0, Adq.CAEPF, ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'xNome', 1, 300, 1, Adq.xNome, ''));
+
+  Result.AppendChild(GerarEnderecoAdquirente(Adq.ender));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'fone', 6, 20, 0, Adq.fone, ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'email', 1, 80, 0, Adq.email, ''));
+
+end;
+
+function TNFSeW_PadraoNacional.GerarEnderecoAdquirente(
+  ender: Tender): TACBrXmlNode;
+begin
+  Result := nil;
+
+  if (ender.endNac.cMun <> 0) or (ender.endExt.cPais <> 0) then
+  begin
+    Result := CreateElement('end');
+
+    if (ender.endNac.cMun <> 0) then
+      Result.AppendChild(GerarEnderecoNacionalDestinatario(ender.endNac))
+    else
+      Result.AppendChild(GerarEnderecoExteriorDestinatario(ender.endExt));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'xLgr', 1, 255, 1, ender.xLgr, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'nro', 1, 60, 1, ender.nro, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'xCpl', 1, 156, 0, ender.xCpl, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'xBairro', 1, 60, 1,
+                                                            ender.xBairro, ''));
+  end;
+end;
+
+function TNFSeW_PadraoNacional.GerarEnderecoNacionalAdquirente(
+  endNac: TendNac): TACBrXmlNode;
+begin
+  Result := nil;
+
+  if endNac.CEP <> '' then
+  begin
+    Result := CreateElement('endNac');
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'cMun', 7, 7, 1, endNac.cMun, ''));
+
+    Result.AppendChild(AddNode(tcStr, '#1', 'CEP', 8, 8, 1, endNac.CEP, ''));
+  end;
+end;
+
+function TNFSeW_PadraoNacional.GerarEnderecoExteriorAdquirente(
+  endExt: TendExt): TACBrXmlNode;
+begin
+  Result := CreateElement('endExt');
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'cPais', 2, 2, 1,
+                                     CodIBGEPaisToSiglaISO2(endExt.cPais), ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'cEndPost', 1, 11, 1,
+                                                          endExt.cEndPost, ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'xCidade', 1, 60, 1,
+                                                           endExt.xCidade, ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'xEstProvReg', 1, 60, 1,
+                                                       endExt.xEstProvReg, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarServicoIBSCBSSEL(serv: Tserv): TACBrXmlNode;
+begin
+  Result := CreateElement('serv');
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'modoPrestServ', 1, 1, 1,
+                                                       serv.modoPrestServ, ''));
+
+  if serv.clocalPrestServ > 0 then
+    Result.AppendChild(AddNode(tcInt, '#1', 'clocalPrestServ', 7, 7, 1,
+                                                      serv.clocalPrestServ, ''))
+  else
+    Result.AppendChild(AddNode(tcStr, '#1', 'cPaisPrestServ', 2, 2, 1,
+                              CodIBGEPaisToSiglaISO2(serv.cPaisPrestServ), ''));
+
+  Result.AppendChild(AddNode(tcStr, '#1', 'cCIB', 8, 8, 0, serv.cCIB, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresIBSCBSSEL(
+  valores: Tvalorestrib): TACBrXmlNode;
+begin
+  Result := CreateElement('valores');
+
+  Result.AppendChild(GerarValoresTributosIBSCBSSEL(valores.trib));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosIBSCBSSEL(
+  trib: Ttrib): TACBrXmlNode;
+begin
+  Result := CreateElement('trib');
+
+  if trib.seletivo.cstImpSel > 0 then
+    Result.AppendChild(GerarValoresTributosSeletivo(trib.seletivo));
+
+  Result.AppendChild(GerarValoresTributosIBSCBS(trib.gIBSCBS));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosSeletivo(
+  seletivo: Tseletivo): TACBrXmlNode;
+begin
+  Result := CreateElement('seletivo');
+
+  Result.AppendChild(AddNode(tcInt, '#1', 'cstImpSel', 3, 3, 1,
+                                                       seletivo.cstImpSel, ''));
+
+  Result.AppendChild(AddNode(tcInt, '#1', 'cClassTribImpSel', 6, 6, 1,
+                                                seletivo.cClassTribImpSel, ''));
+
+  if seletivo.gImpSel.uTrib > 0 then
+    Result.AppendChild(GerarValoresTributosImpostoSeletivo(seletivo.gImpSel));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosImpostoSeletivo(
+  gImpSel: TgImpSel): TACBrXmlNode;
+begin
+  Result := CreateElement('gImpSel');
+
+  Result.AppendChild(AddNode(tcDe4, '#1', 'uTrib', 1, 7, 0, gImpSel.uTrib, ''));
+
+  Result.AppendChild(AddNode(tcDe4, '#1', 'qTrib', 1, 15, 0, gImpSel.qTrib, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosIBSCBS(
+  gIBSCBS: TgIBSCBS): TACBrXmlNode;
+begin
+  Result := CreateElement('gIBSCBS');
+
+  Result.AppendChild(AddNode(tcInt, '#1', 'cstIBSCBS', 3, 3, 1,
+                                                        gIBSCBS.cstIBSCBS, ''));
+
+  Result.AppendChild(AddNode(tcInt, '#1', 'cClassTribIBSCBS', 6, 6, 1,
+                                                 gIBSCBS.cClassTribIBSCBS, ''));
+
+  Result.AppendChild(GerarValoresTributosIBSUF(gIBSCBS.gIBSUF));
+  Result.AppendChild(GerarValoresTributosIBSMun(gIBSCBS.gIBSMun));
+  Result.AppendChild(GerarValoresTributosCBS(gIBSCBS.gCBS));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosIBSUF(
+  gIBSUF: TgIBSUFValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gIBSUF');
+
+  if gIBSUF.pCredPres > 0 then
+    Result.AppendChild(GerarValoresTributosUFCredPres(gIBSUF));
+
+  if gIBSUF.pDif > 0 then
+    Result.AppendChild(GerarValoresTributosUFDif(gIBSUF));
+
+  if gIBSUF.vDevTrib > 0 then
+    Result.AppendChild(GerarValoresTributosUFDevTrib(gIBSUF));
+
+  if gIBSUF.pRedAliq > 0 then
+    Result.AppendChild(GerarValoresTributosUFRed(gIBSUF));
+
+  if gIBSUF.pAliqDeson > 0 then
+    Result.AppendChild(GerarValoresTributosUFDeson(gIBSUF));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosUFCredPres(
+  gIBSUF: TgIBSUFValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gCredPres');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pCredPresUF', 1, 5, 1,
+                                                         gIBSUF.pCredPres, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosUFDif(
+  gIBSUF: TgIBSUFValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gDif');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pDifUF', 1, 5, 1,
+                                                              gIBSUF.pDif, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosUFDevTrib(
+  gIBSUF: TgIBSUFValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gDevTrib');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'vDevTribUF', 1, 15, 1,
+                                                          gIBSUF.vDevTrib, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosUFRed(
+  gIBSUF: TgIBSUFValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gRed');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pRedAliqUF', 1, 5, 1,
+                                                          gIBSUF.pRedAliq, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosUFDeson(
+  gIBSUF: TgIBSUFValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gDeson');
+
+  Result.AppendChild(AddNode(tcInt, '#1', 'cstUFDeson', 3, 3, 1,
+                                                          gIBSUF.cstDeson, ''));
+
+  Result.AppendChild(AddNode(tcInt, '#1', 'cClassTribUFDeson', 6, 6, 1,
+                                                   gIBSUF.cClassTribDeson, ''));
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pAliqUFDeson', 1, 5, 1,
+                                                        gIBSUF.pAliqDeson, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosIBSMun(
+  gIBSMun: TgIBSMunValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gIBSMun');
+
+  if gIBSMun.pCredPres > 0 then
+    Result.AppendChild(GerarValoresTributosMunCredPres(gIBSMun));
+
+  if gIBSMun.pDif > 0 then
+    Result.AppendChild(GerarValoresTributosMunDif(gIBSMun));
+
+  if gIBSMun.vDevTrib > 0 then
+    Result.AppendChild(GerarValoresTributosMunDevTrib(gIBSMun));
+
+  if gIBSMun.pRedAliq > 0 then
+    Result.AppendChild(GerarValoresTributosMunRed(gIBSMun));
+
+  if gIBSMun.pAliqDeson > 0 then
+    Result.AppendChild(GerarValoresTributosMunDeson(gIBSMun));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosMunCredPres(
+  gIBSMun: TgIBSMunValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gCredPres');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pCredPresMun', 1, 5, 1,
+                                                        gIBSMun.pCredPres, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosMunDif(
+  gIBSMun: TgIBSMunValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gDif');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pDifMun', 1, 5, 1,
+                                                             gIBSMun.pDif, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosMunDevTrib(
+  gIBSMun: TgIBSMunValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gDevTrib');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'vDevTribMun', 1, 15, 1,
+                                                         gIBSMun.vDevTrib, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosMunRed(
+  gIBSMun: TgIBSMunValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gRed');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pRedAliqMun', 1, 5, 1,
+                                                         gIBSMun.pRedAliq, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosMunDeson(
+  gIBSMun: TgIBSMunValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gDeson');
+
+  Result.AppendChild(AddNode(tcInt, '#1', 'cstMunDeson', 3, 3, 1,
+                                                         gIBSMun.cstDeson, ''));
+
+  Result.AppendChild(AddNode(tcInt, '#1', 'cClassTribMunDeson', 6, 6, 1,
+                                                  gIBSMun.cClassTribDeson, ''));
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pAliqMunDeson', 1, 5, 1,
+                                                       gIBSMun.pAliqDeson, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosCBS(
+  gCBS: TgCBSValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gCBS');
+
+  if gCBS.pCredPres > 0 then
+    Result.AppendChild(GerarValoresTributosCBSCredPres(gCBS));
+
+  if gCBS.pDif > 0 then
+    Result.AppendChild(GerarValoresTributosCBSDif(gCBS));
+
+  if gCBS.vDevTrib > 0 then
+    Result.AppendChild(GerarValoresTributosCBSDevTrib(gCBS));
+
+  if gCBS.pRedAliq > 0 then
+    Result.AppendChild(GerarValoresTributosCBSRed(gCBS));
+
+  if gCBS.pAliqDeson > 0 then
+    Result.AppendChild(GerarValoresTributosCBSDeson(gCBS));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosCBSCredPres(
+  gCBS: TgCBSValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gCredPres');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pCredPresCBS', 1, 5, 1,
+                                                           gCBS.pCredPres, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosCBSDif(
+  gCBS: TgCBSValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gDif');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pDifCBS', 1, 5, 1,
+                                                                gCBS.pDif, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosCBSDevTrib(
+  gCBS: TgCBSValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gDevTrib');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'vDevTribCBS', 1, 15, 1,
+                                                            gCBS.vDevTrib, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosCBSRed(
+  gCBS: TgCBSValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gRed');
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pRedAliqCBS', 1, 5, 1,
+                                                            gCBS.pRedAliq, ''));
+end;
+
+function TNFSeW_PadraoNacional.GerarValoresTributosCBSDeson(
+  gCBS: TgCBSValores): TACBrXmlNode;
+begin
+  Result := CreateElement('gDeson');
+
+  Result.AppendChild(AddNode(tcInt, '#1', 'cstCBSDeson', 3, 3, 1,
+                                                            gCBS.cstDeson, ''));
+
+  Result.AppendChild(AddNode(tcInt, '#1', 'cClassTribCBSDeson', 6, 6, 1,
+                                                     gCBS.cClassTribDeson, ''));
+
+  Result.AppendChild(AddNode(tcDe2, '#1', 'pAliqCBSDeson', 1, 5, 1,
+                                                          gCBS.pAliqDeson, ''));
 end;
 
 end.

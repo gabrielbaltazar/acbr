@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                              Jean Carlo Cantu                                }
 {                              Tiago Ravache                                   }
 {                              Guilherme Costa                                 }
@@ -179,6 +179,10 @@ type
   TDespProcJud = class;
   TIdeAdvCollection = class;
   TIdeAdvCollectionItem = class;
+  TdescFolha = class;
+  TinfoIntermCollection = class;
+  TinfoIntermCollectionItem = class;
+  TperAnt = class;
 
   IEventoeSocial = Interface;
 
@@ -453,6 +457,8 @@ type
     FclauAssec: tpSimNao;
     FobjDet: string;
   public
+    constructor Create;
+
     property TpContr: tpTpContr read FTpContr write FTpContr;
     property dtTerm: TDateTime read FdtTerm write FdtTerm;
     property clauAssec: tpSimNao read FclauAssec write FclauAssec;
@@ -793,6 +799,8 @@ type
     FInfoCota: tpSimNaoFacultativo;
     FObservacao: string;
   public
+    constructor Create;
+    destructor Destroy; override;
     property DefFisica: tpSimNao read FDefFisica  write FDefFisica;
     property DefMental: tpSimNao read FDefMental  write FDefMental;
     property DefIntelectual: tpSimNao read FDefIntelectual write FDefIntelectual;
@@ -1404,7 +1412,10 @@ type
     FVrUnit: Double;
     FVrRubr: Double;
     FindApurIR : tpindApurIR;
+    FdescFolha: TdescFolha;
   public
+    constructor Create;
+    destructor Destroy; override;
     property matricula: string read Fmatricula write Fmatricula;
     property codRubr: string read FCodRubr write FCodRubr;
     property ideTabRubr: string read FIdeTabRubr write FIdeTabRubr;
@@ -1413,6 +1424,7 @@ type
     property vrUnit: Double read FVrUnit write FVrUnit;
     property vrRubr: Double read FVrRubr write FVrRubr;
     property indApurIR: tpindApurIR read FindApurIR write FindApurIR;
+    property descFolha: TdescFolha read FdescFolha;
   end;
 
   TReciboPagamento = class(TObject) // s1200
@@ -2017,6 +2029,51 @@ type
     property vlrAdv: Double read FvlrAdv write FvlrAdv;
   end;
 
+  TdescFolha = class(TObject)
+  private
+    FtpDesc: TtpDesc;
+    FinstFinanc: String;
+    FnrDoc: String;
+    Fobservacao: String;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property tpDesc: TtpDesc read FtpDesc write FtpDesc;
+    property instFinanc: String read FinstFinanc write FinstFinanc;
+    property nrDoc: String read FnrDoc write FnrDoc;
+    property observacao: String read Fobservacao write Fobservacao;
+  end;
+
+  TInfoIntermCollection = class(TACBrObjectList)
+  private
+    function GetItem(Index: Integer): TInfoIntermCollectionItem;
+    procedure SetItem(Index: Integer; Value: TInfoIntermCollectionItem);
+  public
+    function Add: TInfoIntermCollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TInfoIntermCollectionItem;
+    property Items[Index: Integer]: TInfoIntermCollectionItem read GetItem write SetItem; default;
+  end;
+
+  TInfoIntermCollectionItem = class(TObject)
+  private
+    FDia: Integer;
+    FqtdDiasInterm: Byte;
+    FhrsTrab: String;
+  public
+    property qtdDiasInterm: Byte read FqtdDiasInterm write FqtdDiasInterm;
+    property dia: Integer read FDia write FDia;
+    property hrsTrab: String read FhrsTrab write FhrsTrab;
+  end;
+
+  TperAnt = class(TObject)
+  private
+    FperRefAjuste: string;
+    FnrRec1210Orig: string;
+  public
+    property perRefAjuste: string read FperRefAjuste write FperRefAjuste;
+    property nrRec1210Orig: string read FnrRec1210Orig write FnrRec1210Orig;
+  end;
+
   IEventoeSocial = Interface(IInterface)
     ['{93160D81-FE11-454A-ACA7-DA357D618F82}']
     function GetXml : string;
@@ -2379,6 +2436,20 @@ begin
   Self.Add(Result);
 end;
 
+{ TRubricaCollectionItem }
+
+constructor TRubricaCollectionItem.Create;
+begin
+  inherited Create;
+  FdescFolha := TdescFolha.Create;
+end;
+
+destructor TRubricaCollectionItem.Destroy;
+begin
+  FdescFolha.Free;
+  inherited;
+end;
+
 { TRecPgtosCollection }
 function TRecPgtosCollection.Add: TRecPgtosCollectionItem;
 begin
@@ -2420,6 +2491,7 @@ end;
 
 constructor TInfoEstatutario.Create;
 begin
+  FTpPlanRP := prpNenhum;
   FInfoDecJud := TInfoDecJud.Create;
 end;
 
@@ -3071,6 +3143,69 @@ function TIdeAdvCollection.New: TIdeAdvCollectionItem;
 begin
   Result := TIdeAdvCollectionItem.Create;
   Self.Add(Result);
+end;
+
+{ TDuracao }
+
+constructor TDuracao.Create;
+begin
+  FTpContr := PrazoNaoAplicavel;
+end;
+
+{ TdescFolha }
+
+constructor TdescFolha.Create;
+begin
+  inherited Create;
+  FtpDesc := tpdNaoInformado;
+end;
+
+destructor TdescFolha.Destroy;
+begin
+  inherited;
+end;
+
+{ TInfoIntermCollection }
+
+function TInfoIntermCollection.Add: TInfoIntermCollectionItem;
+begin
+  Result := Self.New;
+end;
+
+function TInfoIntermCollection.GetItem(Index: Integer): TInfoIntermCollectionItem;
+begin
+  Result := TInfoIntermCollectionItem(inherited Items[Index]);
+end;
+
+procedure TInfoIntermCollection.SetItem(Index: Integer; Value: TInfoIntermCollectionItem);
+begin
+  inherited Items[Index] := Value;
+end;
+
+function TInfoIntermCollection.New: TInfoIntermCollectionItem;
+begin
+  Result := TInfoIntermCollectionItem.Create;
+  Self.Add(Result);
+end;
+
+{ TInfoDeficiencia }
+
+constructor TInfoDeficiencia.Create;
+begin
+  inherited Create;
+  DefFisica := tpNao;
+  DefMental := tpNao;
+  DefIntelectual := tpNao;
+  DefMotora := tpNao;
+  DefVisual := tpNao;
+  DefAuditiva := tpNao;
+  ReabReadap := tpNao;
+end;
+
+destructor TInfoDeficiencia.Destroy;
+begin
+
+  inherited;
 end;
 
 end.

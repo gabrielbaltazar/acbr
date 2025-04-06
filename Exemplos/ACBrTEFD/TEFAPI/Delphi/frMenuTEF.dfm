@@ -1,9 +1,9 @@
 object FormMenuTEF: TFormMenuTEF
   Left = 563
   Top = 293
+  Width = 624
+  Height = 400
   Caption = 'Selecione uma op'#231#227'o'
-  ClientHeight = 361
-  ClientWidth = 608
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -67,9 +67,8 @@ object FormMenuTEF: TFormMenuTEF
       Height = 35
       Anchors = [akTop]
       Caption = '&OK'
-      Kind = bkOK
-      NumGlyphs = 2
       TabOrder = 0
+      Kind = bkOK
     end
     object btCancel: TBitBtn
       Left = 360
@@ -78,9 +77,8 @@ object FormMenuTEF: TFormMenuTEF
       Height = 35
       Anchors = [akTop]
       Caption = 'Cancelar'
-      Kind = bkCancel
-      NumGlyphs = 2
       TabOrder = 2
+      Kind = bkCancel
     end
     object btVoltar: TBitBtn
       Left = 24
@@ -89,9 +87,8 @@ object FormMenuTEF: TFormMenuTEF
       Height = 35
       Anchors = [akTop]
       Caption = 'Voltar'
-      Kind = bkRetry
-      NumGlyphs = 2
       TabOrder = 1
+      Kind = bkRetry
     end
   end
   object mOpcao: TMemo

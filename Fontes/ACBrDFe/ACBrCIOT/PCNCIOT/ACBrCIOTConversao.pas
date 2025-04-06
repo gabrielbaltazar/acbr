@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -78,14 +78,17 @@ type
                 opAdicionar, opAdicionarViagem, opAdicionarPagamento,
                 opObterCodigoIOT , opObterPdf, opRetificar, opCancelar,
                 opCancelarPagamento, opEncerrar, opConsultarTipoCarga,
-                opAlterarDataLiberacaoPagamento);
+                opAlterarDataLiberacaoPagamento,
+                opRegistrarQtdeMercadoriaDesembarque,
+                opRegistrarPagamentoQuitacao);
 
 const
   TpOperacaoArrayStrings: array[TpOperacao] of string = ('Login', 'Logout',
     'Gravar Proprietario', 'Gravar Veículo', 'Gravar Motorista', 'Adicionar',
     'Adicionar Viagem', 'Adicionar Pagamento', 'Obter Codigo CIOT', 'Obter Pdf',
     'Retificar', 'Cancelar', 'Cancelar Pagamento', 'Encerrar',
-    'ConsultarTipoCarga', 'AlterarDataLiberacaoPagamento');
+    'ConsultarTipoCarga', 'AlterarDataLiberacaoPagamento',
+    'RegistrarQtdeMercadoriaDesembarque', 'RegistrarPagamentoQuitacao');
 
 type
   tpTipoConta = (tcIndefinido, tcContaCorrente, tcContaPoupanca, tcContaPagamentos);
@@ -160,11 +163,13 @@ const
     of string = ('QuantidadeDesembarque', 'QuantidadeMenor');
 
 type
-  TpTipoPagamento = (TransferenciaBancaria, eFRETE, Parceiro, Outros);
+  TpTipoPagamento = (TransferenciaBancaria, eFRETE, Parceiro, Outros,
+                     DepositoAgendado);
 
 const
   TpTipoPagamentoArrayStrings: array[TpTipoPagamento]
-    of string = ('TransferenciaBancaria', 'eFRETE', 'Parceiro', 'Outros');
+    of string = ('TransferenciaBancaria', 'eFRETE', 'Parceiro', 'Outros',
+                 'DepositoAgendado');
 
 type
   TpTipoCategoriaPagamento = (tcpAdiantamento, tcpEstadia, tcpQuitacao,

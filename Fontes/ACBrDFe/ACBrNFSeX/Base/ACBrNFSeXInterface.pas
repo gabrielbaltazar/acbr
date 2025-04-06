@@ -82,6 +82,9 @@ type
     function StrToSimNao(out ok: boolean; const s: string): TnfseSimNao;
     function SimNaoDescricao(const t: TnfseSimNao): string;
 
+    function SimNaoOpcToStr(const t: TnfseSimNaoOpc): string;
+    function StrToSimNaoOpc(out ok: boolean; const s: string): TnfseSimNaoOpc;
+
     function RegimeEspecialTributacaoToStr(const t: TnfseRegimeEspecialTributacao): string;
     function StrToRegimeEspecialTributacao(out ok: boolean; const s: string): TnfseRegimeEspecialTributacao;
     function RegimeEspecialTributacaoDescricao(const t: TnfseRegimeEspecialTributacao): string;
@@ -115,6 +118,9 @@ type
 
     function TipoDeducaoToStr(const t: TTipoDeducao): string;
     function StrToTipoDeducao(out ok: Boolean; const s: string): TTipoDeducao;
+
+    function DeducaoPorToStr(const t: TDeducaoPor): string;
+    function StrToDeducaoPor(out ok: Boolean; const s: string): TDeducaoPor;
 
     function TipoTributacaoRPSToStr(const t: TTipoTributacaoRPS): string;
     function StrToTipoTributacaoRPS(out ok: boolean; const s: string): TTipoTributacaoRPS;

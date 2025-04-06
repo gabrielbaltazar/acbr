@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -49,7 +49,7 @@ uses
   RLPrinters, 
   RLPDFFilter, 
   RLConsts,
-  pmdfeMDFe, 
+  ACBrMDFe.Classes,
   ACBrMDFe, 
   ACBrMDFeDAMDFeRLClass, 
   ACBrDFeReportFortes;
@@ -77,7 +77,7 @@ type
   public
     { Public declarations }
     class procedure Imprimir(ADAMDFe: TACBrMDFeDAMDFeRL; AMDFes: array of TMDFe);
-    class procedure SalvarPDF(ADAMDFe: TACBrMDFeDAMDFeRL; AMDFe: TMDFe; AFile: String); overload;
+    class procedure SalvarPDF(ADAMDFe: TACBrMDFeDAMDFeRL; AMDFe: TMDFe; const AFile: String); overload;
     class procedure SalvarPDF(ADANFe: TACBrMDFeDAMDFeRL; AMDFe: TMDFe; AStream: TStream); overload;
 
   end;
@@ -124,6 +124,8 @@ var
 begin
   if (Length(AMDFes) < 1) then
     Exit;
+
+  DAMDFeReport := nil;
 
   try
     SetLength(ReportArray, Length(AMDFes));
@@ -185,7 +187,8 @@ begin
   end;
 end;
 
-class procedure TfrlDAMDFeRL.SalvarPDF(ADAMDFe: TACBrMDFeDAMDFeRL; AMDFe: TMDFe; AFile: String);
+class procedure TfrlDAMDFeRL.SalvarPDF(ADAMDFe: TACBrMDFeDAMDFeRL; AMDFe: TMDFe;
+  const AFile: String);
 var
   DAMDFeReport: TfrlDAMDFeRL;
 //  ADir: String;

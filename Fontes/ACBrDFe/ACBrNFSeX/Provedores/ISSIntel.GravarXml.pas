@@ -69,12 +69,16 @@ begin
 
   DivAliq100  := True;
 
+  if FpAOwner.ConfigGeral.Params.TemParametro('NaoDividir100') then
+    DivAliq100 := False;
+
   FormatoItemListaServico := filsComFormatacaoSemZeroEsquerda;
 end;
 
 function TNFSeW_ISSIntel.GerarXml: Boolean;
 begin
-  if NFSe.OptanteSimplesNacional = snSim then
+  // no4 = Imune
+  if (NFSe.OptanteSimplesNacional = snSim) or (NFSe.NaturezaOperacao = no4) then
     NrOcorrAliquota := 1;
 
   Result := inherited GerarXml;

@@ -39,7 +39,7 @@ interface
 uses
   Classes, SysUtils,
   ACBrBase, ACBrDFeReport,
-  pcnNFe, pcnConversao;
+  pcnConversao, ACBrNFe.Classes, pcnConversaoNFe;
 
 type
   TpcnTributos = (trbNenhum, trbNormal, trbSeparadamente);
@@ -78,12 +78,15 @@ type
     procedure ErroAbstract(const NomeProcedure: String);
 
   protected
+
+
     function GetSeparadorPathPDF(const aInitialPath: String): String; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
 
     procedure SetTipoDANFE(AValue: TpcnTipoImpressao); virtual;
 
   public
+
     constructor Create(AOwner: TComponent); override;
 
     procedure ImprimirDANFE(ANFe: TNFe = nil); virtual;
@@ -122,6 +125,7 @@ type
     function CalcularValorLiquidoItem(const ANFE: TNFe; const ANItem: Integer):Double;overload;
     function CalcularValorDescontoItem(const ANFE: TNFe; const ANItem: Integer):Double;
     function CalcularValorDescontoTotal(const ANFE: TNFe):Double;
+    function CaractereQuebraDeLinha: String;
   public
     property Protocolo: String read FProtocoloNFe write FProtocoloNFe;
     property Cancelada: Boolean read FNFeCancelada write FNFeCancelada default False;
@@ -210,6 +214,13 @@ begin
   FExibeICMSDesoneradoComoDesconto := False;
 end;
 
+function TACBrDFeDANFeReport.CaractereQuebraDeLinha: String;
+begin
+  Result := '|';
+  if Assigned(ACBrNFe) and (ACBrNFe is TACBrNFe) then
+    Result := TACBrNFe(ACBrNFe).Configuracoes.WebServices.QuebradeLinha;
+end;
+
 procedure TACBrDFeDANFeReport.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
@@ -269,7 +280,11 @@ begin
   begin
     if TACBrNFe(ACBrNFe).NotasFiscais.Count > 0 then  // Se tem alguma Nota carregada
     begin
-      ANFe := TACBrNFe(ACBrNFe).NotasFiscais.Items[0].NFe;   // Pegue informações da Primeira Nota
+      if (TACBrNFe(ACBrNFe).DANFE.ClassName = 'TACBrNFeDANFCEFR') or
+         (TACBrNFe(ACBrNFe).DANFE.ClassName = 'TACBrNFeDANFEFR') then
+        ANFe := TACBrNFe(ACBrNFe).NotasFiscais[FIndexImpressaoIndividual - 1].NFe
+      else
+        ANFe := TACBrNFe(ACBrNFe).NotasFiscais[FIndexImpressaoIndividual].NFe;
 
       if TACBrNFe(ACBrNFe).Configuracoes.Arquivos.EmissaoPathNFe then
         dhEmissao := ANFe.Ide.dEmi
@@ -430,14 +445,16 @@ function TACBrDFeDANFeReport.ManterInfAdFisco(ANFe: TNFe): String;
   // Informações de interesse do fisco
 var
   infAdFisco: string;
+  obsSequencia: Boolean;
 begin
   Result := '';
-  infAdFisco := ANFe.InfAdic.infAdFisco;
+  infAdFisco := RemoverQuebraLinhaFinal(ANFe.InfAdic.infAdFisco);
+  obsSequencia := (ANFe.InfAdic.infCpl > '') or (ANFe.InfAdic.obsFisco.Count > 0) or (ANFe.InfAdic.procRef.Count > 0) or (ANFe.InfAdic.obsCont.Count > 0);
 
   if infAdFisco > '' then
   begin
-    if ANFe.InfAdic.infCpl > '' then
-      Result := infAdFisco + IfThen(Copy(infAdFisco, Length(infAdFisco), 1) = ';', '', '; ')
+    if obsSequencia then
+      Result := infAdFisco + IfThen(Copy(infAdFisco, Length(infAdFisco), 1) = CaractereQuebraDeLinha, '', CaractereQuebraDeLinha)
     else
       Result := infAdFisco;
   end;
@@ -459,7 +476,7 @@ begin
     Result := Trim(aNFE.Det.Items[inItem].infAdProd);
 
     sQuebraLinha := SeparadorDetalhamentos;
-    Result := StringReplace(Result, ';', sQuebraLinha, [rfReplaceAll, rfIgnoreCase]);
+    Result := StringReplace(Result, CaractereQuebraDeLinha, sQuebraLinha, [rfReplaceAll, rfIgnoreCase]);
     if (Result <> '') then
       Result := sQuebraLinha + Result;
   end;
@@ -490,10 +507,10 @@ begin
           Result := Result +
             obsCont.Items[i].xCampo + ': ' +
             obsCont.Items[i].xTexto +
-            IfThen((i = (obsCont.Count - 1)), '', ';');
+            IfThen((i = (obsCont.Count - 1)), '', CaractereQuebraDeLinha);
         end;
 
-        Result := Result + '; ';
+        Result := Result + CaractereQuebraDeLinha + ' ';
       end;
     end;
   end;
@@ -513,10 +530,10 @@ begin
       begin
         Result := Result +
           obsFisco.Items[i].xCampo + ': ' +
-          obsFisco.Items[i].xTexto + IfThen((i = (obsFisco.Count - 1)), '', ';');
+          obsFisco.Items[i].xTexto + IfThen((i = (obsFisco.Count - 1)), '', CaractereQuebraDeLinha);
       end;
 
-      Result := Result + '; ';
+      Result := Result + CaractereQuebraDeLinha + ' ';
     end;
   end;
 end;
@@ -538,10 +555,10 @@ begin
             ACBrStr('PROCESSO OU ATO CONCESSÓRIO Nº: ') +
             procRef.Items[i].nProc + ' - ORIGEM: ' +
             indProcToDescrStr(procRef.Items[i].indProc) +
-            ifthen((i = (procRef.Count - 1)), '', ';');
+            ifthen((i = (procRef.Count - 1)), '', CaractereQuebraDeLinha);
       end;
 
-      Result := Result + '; ';
+      Result := Result + CaractereQuebraDeLinha + ' ';
     end;
   end;
 end;
@@ -587,7 +604,7 @@ end;
 
 function TACBrDFeDANFeReport.ManterCst(dCRT: TpcnCRT; dCSOSN: TpcnCSOSNIcms; dCST: TpcnCSTIcms): String;
 begin
-  if (dCRT = crtSimplesNacional) and not (dCST in [cst02, cst15, cst53, cst61]) then
+  if (dCRT in [crtSimplesNacional, crtMEI]) and not (dCST in [cst02, cst15, cst53, cst61]) then
     Result := CSOSNIcmsToStr(dCSOSN)
   else
     Result := CSTICMSToStr(dCST);

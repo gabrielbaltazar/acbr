@@ -49,13 +49,13 @@ uses
 type
   TACBrNFSeXWebservicePadraoNacional = class(TACBrNFSeXWebserviceRest)
   public
-    function GerarNFSe(ACabecalho, AMSG: string): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: string): string; override;
-    function ConsultarNFSePorChave(ACabecalho, AMSG: string): string; override;
-    function EnviarEvento(ACabecalho, AMSG: string): string; override;
-    function ConsultarEvento(ACabecalho, AMSG: string): string; override;
-    function ConsultarDFe(ACabecalho, AMSG: string): string; override;
-    function ConsultarParam(ACabecalho, AMSG: string): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: string): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: string): string; override;
+    function ConsultarNFSePorChave(const ACabecalho, AMSG: string): string; override;
+    function EnviarEvento(const ACabecalho, AMSG: string): string; override;
+    function ConsultarEvento(const ACabecalho, AMSG: string): string; override;
+    function ConsultarDFe(const ACabecalho, AMSG: string): string; override;
+    function ConsultarParam(const ACabecalho, AMSG: string): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -130,16 +130,13 @@ begin
     FormatoArqEnvioSoap := tfaJson;
     FormatoArqRetornoSoap := tfaJson;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarUnitario := True;
-      ConsultarNfseChave := True;
-      ConsultarRps := True;
-      EnviarEvento := True;
-      ConsultarEvento := True;
-      ConsultarDFe := True;
-      ConsultarParam := True;
-    end;
+    ServicosDisponibilizados.EnviarUnitario := True;
+    ServicosDisponibilizados.ConsultarNfseChave := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.EnviarEvento := True;
+    ServicosDisponibilizados.ConsultarEvento := True;
+    ServicosDisponibilizados.ConsultarDFe := True;
+    ServicosDisponibilizados.ConsultarParam := True;
   end;
 
   with ConfigWebServices do
@@ -157,17 +154,11 @@ begin
 
     DadosCabecalho := GetCabecalho('');
 
-    with XmlRps do
-    begin
-      InfElemento := 'infDPS';
-      DocElemento := 'DPS';
-    end;
+    XmlRps.InfElemento := 'infDPS';
+    XmlRps.DocElemento := 'DPS';
 
-    with EnviarEvento do
-    begin
-      InfElemento := 'infPedReg';
-      DocElemento := 'pedRegEvento';
-    end;
+    EnviarEvento.InfElemento := 'infPedReg';
+    EnviarEvento.DocElemento := 'pedRegEvento';
   end;
 
   with ConfigAssinar do
@@ -341,14 +332,14 @@ begin
 
     Nota.GerarXML;
 
-    Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
-    Nota.XmlRps := AplicarLineBreak(Nota.XmlRps, '');
+    Nota.XmlRps := ConverteXMLtoUTF8(Nota.XmlRps);
+    Nota.XmlRps := ChangeLineBreak(Nota.XmlRps, '');
 
     if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono])) or
        (ConfigAssinar.RpsGerarNFSe and (Response.ModoEnvio = meUnitario)) then
     begin
       Nota.XmlRps := FAOwner.SSL.Assinar(Nota.XmlRps,
-                                         PrefixoTS + ConfigMsgDados.XmlRps.DocElemento,
+                                         ConfigMsgDados.XmlRps.DocElemento,
                                          ConfigMsgDados.XmlRps.InfElemento, '', '', '', IdAttr);
 
       Response.ArquivoEnvio := Nota.XmlRps;
@@ -721,8 +712,8 @@ begin
                  '</infPedReg>' +
                '</pedRegEvento>';
 
-    xEvento := AplicarXMLtoUTF8(xEvento);
-    xEvento := AplicarLineBreak(xEvento, '');
+    xEvento := ConverteXMLtoUTF8(xEvento);
+    xEvento := ChangeLineBreak(xEvento, '');
 
     Response.ArquivoEnvio := xEvento;
     FpChave := chNFSe;
@@ -786,6 +777,19 @@ begin
             Response.Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('dhProc'), tcDatHor);
             Response.idEvento := IDEvento;
             Response.tpEvento := StrTotpEvento(Ok, Copy(IDEvento, 51, 6));
+
+            case Response.tpEvento of
+              teCancelamento:
+                begin
+                  Response.SucessoCanc := True;
+                  Response.DescSituacao := 'Nota Cancelada';
+                end
+            else
+              begin
+                Response.SucessoCanc := False;
+                Response.DescSituacao := '';
+              end;
+            end;
 
             ANode := ANode.Childrens.FindAnyNs('pedRegEvento');
             ANode := ANode.Childrens.FindAnyNs('infPedReg');
@@ -1018,6 +1022,7 @@ begin
           AResumo.ChaveDFe := JSon.AsString['ChaveAcesso'];
           TipoDoc := JSon.AsString['TipoDocumento'];
           AResumo.TipoDoc := TipoDoc;
+          AResumo.TipoEvento := JSon.AsString['TipoEvento'];
 
           ArquivoXml := JSon.AsString['ArquivoXml'];
           ArquivoXml := DeCompress(DecodeBase64(ArquivoXml));
@@ -1323,7 +1328,7 @@ begin
   begin
     inherited ValidarSchema(Response, aMetodo);
 
-    Response.ArquivoEnvio := AplicarLineBreak(Response.ArquivoEnvio, '');
+    Response.ArquivoEnvio := ChangeLineBreak(Response.ArquivoEnvio, '');
     Response.ArquivoEnvio := EncodeBase64(GZipCompress(Response.ArquivoEnvio));
 
     case aMetodo of
@@ -1338,6 +1343,11 @@ begin
           Response.ArquivoEnvio := '{"pedidoRegistroEventoXmlGZipB64":"' + Response.ArquivoEnvio + '"}';
           FpPath := '/nfse/' + FpChave + '/eventos';
         end;
+    else
+      begin
+        Response.ArquivoEnvio := '';
+        FpPath := '';
+      end;
     end;
 
     FpMethod := 'POST';
@@ -1382,7 +1392,7 @@ end;
 
 { TACBrNFSeXWebservicePadraoNacional }
 
-function TACBrNFSeXWebservicePadraoNacional.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.GerarNFSe(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1394,7 +1404,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.ConsultarNFSePorChave(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.ConsultarNFSePorChave(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1406,7 +1416,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.ConsultarNFSePorRps(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1418,7 +1428,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.EnviarEvento(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.EnviarEvento(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1430,7 +1440,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.ConsultarEvento(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.ConsultarEvento(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1442,7 +1452,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.ConsultarDFe(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.ConsultarDFe(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;
@@ -1454,7 +1464,7 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebservicePadraoNacional.ConsultarParam(ACabecalho,
+function TACBrNFSeXWebservicePadraoNacional.ConsultarParam(const ACabecalho,
   AMSG: string): string;
 var
   Request: string;

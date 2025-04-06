@@ -56,8 +56,6 @@ object FormExibeMensagem: TFormExibeMensagem
       Layout = tlCenter
       WordWrap = True
       OnClick = lMensagemClick
-      ExplicitWidth = 228
-      ExplicitHeight = 24
     end
   end
   object tEspera: TTimer

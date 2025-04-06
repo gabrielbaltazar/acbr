@@ -47,12 +47,12 @@ type
   TACBrNFSeXWebserviceBetha = class(TACBrNFSeXWebserviceSoap11)
 
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -80,16 +80,16 @@ type
   TACBrNFSeXWebserviceBetha202 = class(TACBrNFSeXWebserviceSoap11)
 
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -126,42 +126,42 @@ begin
   Result := RemoverCaracteresDesnecessarios(Result);
 end;
 
-function TACBrNFSeXWebserviceBetha.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBetha.Recepcionar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
   Result := Executar('', AMSG, ['EnviarLoteRpsResposta'], []);
 end;
 
-function TACBrNFSeXWebserviceBetha.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBetha.ConsultarLote(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
   Result := Executar('', AMSG, ['ConsultarLoteRpsResposta'], []);
 end;
 
-function TACBrNFSeXWebserviceBetha.ConsultarSituacao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBetha.ConsultarSituacao(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
   Result := Executar('', AMSG, ['ConsultarSituacaoLoteRpsResposta'], []);
 end;
 
-function TACBrNFSeXWebserviceBetha.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBetha.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
   Result := Executar('', AMSG, ['ConsultarNfseRpsResposta'], []);
 end;
 
-function TACBrNFSeXWebserviceBetha.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBetha.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
   Result := Executar('', AMSG, ['ConsultarNfseResposta'], []);
 end;
 
-function TACBrNFSeXWebserviceBetha.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBetha.Cancelar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
@@ -175,6 +175,8 @@ begin
   inherited Configuracao;
 
   ConfigGeral.DetalharServico := True;
+
+  ConfigGeral.Particularidades.PermiteTagOutrasInformacoes := True;
 
   with ConfigAssinar do
   begin
@@ -337,6 +339,8 @@ procedure TACBrNFSeProviderBetha.PrepararCancelaNFSe(
 var
   aXml: string;
 begin
+  ConfigMsgDados.Prefixo := '';
+
   inherited PrepararCancelaNFSe(Response);
 
   aXml := RetornarConteudoEntre(Response.ArquivoEnvio,
@@ -344,6 +348,8 @@ begin
    '</CancelarNfseEnvio>', False);
 
   Response.ArquivoEnvio := aXml;
+
+  ConfigMsgDados.Prefixo := 'ns3';
 end;
 
 procedure TACBrNFSeProviderBetha.AssinarCancelaNFSe(
@@ -355,7 +361,7 @@ begin
                          Response.ArquivoEnvio +
                        '</ns3:CancelarNfseEnvio>';
 
-  ConfigMsgDados.Prefixo := 'ns3';
+
 end;
 
 function TACBrNFSeProviderBetha.CondicaoPagToStr(
@@ -442,12 +448,14 @@ end;
 function TACBrNFSeProviderBetha202.DefinirIDLote(const ID: string): string;
 begin
   if ConfigGeral.Identificador <> '' then
-    Result := ' ' + ConfigGeral.Identificador + '="lote' + ID + '"';
+    Result := ' ' + ConfigGeral.Identificador + '="lote' + ID + '"'
+  else
+    Result := '';
 end;
 
 { TACBrNFSeXWebserviceBetha202 }
 
-function TACBrNFSeXWebserviceBetha202.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceBetha202.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -464,7 +472,7 @@ begin
                 ['xmlns:tns="http://www.betha.com.br/e-nota-contribuinte-ws"']);
 end;
 
-function TACBrNFSeXWebserviceBetha202.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceBetha202.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -481,7 +489,7 @@ begin
                 ['xmlns:tns="http://www.betha.com.br/e-nota-contribuinte-ws"']);
 end;
 
-function TACBrNFSeXWebserviceBetha202.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceBetha202.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -498,7 +506,7 @@ begin
                 ['xmlns:tns="http://www.betha.com.br/e-nota-contribuinte-ws"']);
 end;
 
-function TACBrNFSeXWebserviceBetha202.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceBetha202.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -515,7 +523,7 @@ begin
                 ['xmlns:tns="http://www.betha.com.br/e-nota-contribuinte-ws"']);
 end;
 
-function TACBrNFSeXWebserviceBetha202.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceBetha202.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -532,7 +540,7 @@ begin
                 ['xmlns:tns="http://www.betha.com.br/e-nota-contribuinte-ws"']);
 end;
 
-function TACBrNFSeXWebserviceBetha202.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceBetha202.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -549,7 +557,7 @@ begin
                 ['xmlns:tns="http://www.betha.com.br/e-nota-contribuinte-ws"']);
 end;
 
-function TACBrNFSeXWebserviceBetha202.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceBetha202.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -566,7 +574,7 @@ begin
                 ['xmlns:tns="http://www.betha.com.br/e-nota-contribuinte-ws"']);
 end;
 
-function TACBrNFSeXWebserviceBetha202.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceBetha202.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -583,7 +591,7 @@ begin
                 ['xmlns:tns="http://www.betha.com.br/e-nota-contribuinte-ws"']);
 end;
 
-function TACBrNFSeXWebserviceBetha202.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBetha202.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -599,7 +607,7 @@ begin
                 ['xmlns:tns="http://www.betha.com.br/e-nota-contribuinte-ws"']);
 end;
 
-function TACBrNFSeXWebserviceBetha202.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceBetha202.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;

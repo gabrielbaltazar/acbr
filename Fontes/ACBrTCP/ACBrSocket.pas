@@ -49,32 +49,110 @@ interface
 {$ENDIF}
 
 uses
-  SysUtils, Classes, Types, syncobjs,
-  blcksock, synsock, httpsend, ssl_openssl,  {Units da Synapse}
+  SysUtils, Classes, Types, syncobjs, ACBrBase,
+  { Units da Synapse: }
+  blcksock, synsock, httpsend, ssl_openssl
+  { Units para a auto-detecção de Proxy: }
   {$IFDEF MSWINDOWS}
-    windows, wininet,
-  {$ENDIF}  { Units para a auto-detecção de Proxy }
-  ACBrBase;
+    ,windows, wininet
+  {$ENDIF};
+
+const 
+  cHTTPTimeOutDef = 90000;
+  cHTTPMethodGET = 'GET';
+  cHTTPMethodPOST = 'POST';
+  cHTTPMethodPUT = 'PUT';
+  cHTTPMethodPATCH = 'PATCH';
+  cHTTPMethodDELETE = 'DELETE';
+
+  cContentTypeUTF8 = 'charset=utf-8';
+  cContentTypeTextPlain = 'text/plain';
+  cContentTypeApplicationJSon = 'application/json';
+  cContentTypeApplicationWwwFormUrlEncoded = 'application/x-www-form-urlencoded';
+
+  cHTTPHeaderAuthorization = 'Authorization:';
+  cHTTPHeaderContentType = 'Content-Type:';
+  cHTTPHeaderContentEncoding = 'Content-Encoding:';
+  cHTTPHeaderAcceptEncoding = 'Accept-Encoding:';
+
+  cHTTPAuthorizationBearer = 'Bearer';
+  cHTTPAuthorizationBasic = 'Basic';
+  cHTTPProtocols: array[0..2] of string = ('http','https', 'ftp');
+
+  HTTP_CONTINUE                     = 100;
+  HTTP_SWITCHING_PROTOCOLS          = 101;
+  HTTP_PROCESSING                   = 102;
+  HTTP_OK                           = 200;
+  HTTP_CREATED                      = 201;
+  HTTP_ACCEPTED                     = 202;
+  HTTP_NON_AUTHORITATIVE            = 203;
+  HTTP_NO_CONTENT                   = 204;
+  HTTP_RESET_CONTENT                = 205;
+  HTTP_PARTIAL_CONTENT              = 206;
+  HTTP_MULTI_STATUS                 = 207;
+  HTTP_MULTIPLE_CHOICES             = 300;
+  HTTP_MOVED_PERMANENTLY            = 301;
+  HTTP_MOVED_TEMPORARILY            = 302;
+  HTTP_SEE_OTHER                    = 303;
+  HTTP_NOT_MODIFIED                 = 304;
+  HTTP_USE_PROXY                    = 305;
+  HTTP_TEMPORARY_REDIRECT           = 307;
+  HTTP_BAD_REQUEST                  = 400;
+  HTTP_UNAUTHORIZED                 = 401;
+  HTTP_PAYMENT_REQUIRED             = 402;
+  HTTP_FORBIDDEN                    = 403;
+  HTTP_NOT_FOUND                    = 404;
+  HTTP_METHOD_NOT_ALLOWED           = 405;
+  HTTP_NOT_ACCEPTABLE               = 406;
+  HTTP_PROXY_AUTHENTICATION_REQUIRED= 407;
+  HTTP_REQUEST_TIME_OUT             = 408;
+  HTTP_CONFLICT                     = 409;
+  HTTP_GONE                         = 410;
+  HTTP_LENGTH_REQUIRED              = 411;
+  HTTP_PRECONDITION_FAILED          = 412;
+  HTTP_REQUEST_ENTITY_TOO_LARGE     = 413;
+  HTTP_REQUEST_URI_TOO_LARGE        = 414;
+  HTTP_UNSUPPORTED_MEDIA_TYPE       = 415;
+  HTTP_RANGE_NOT_SATISFIABLE        = 416;
+  HTTP_EXPECTATION_FAILED           = 417;
+  HTTP_UNPROCESSABLE_ENTITY         = 422;
+  HTTP_LOCKED                       = 423;
+  HTTP_FAILED_DEPENDENCY            = 424;
+  HTTP_INTERNAL_SERVER_ERROR        = 500;
+  HTTP_NOT_IMPLEMENTED              = 501;
+  HTTP_BAD_GATEWAY                  = 502;
+  HTTP_SERVICE_UNAVAILABLE          = 503;
+  HTTP_GATEWAY_TIME_OUT             = 504;
+  HTTP_VERSION_NOT_SUPPORTED        = 505;
+  HTTP_VARIANT_ALSO_VARIES          = 506;
+  HTTP_INSUFFICIENT_STORAGE         = 507;
+  HTTP_NOT_EXTENDED                 = 510;
 
 type
 
-TACBrTCPServer = class ;
+  TACBrTCPServer = class;
+  EACBrHTTPError = class(Exception);
 
-{ Evento disparada quando Conecta }
-TACBrTCPServerConecta = procedure( const TCPBlockSocket : TTCPBlockSocket;
-   var Enviar : AnsiString ) of object ;
+  { Evento disparada quando Conecta }
+  TACBrTCPServerConecta = procedure( const TCPBlockSocket : TTCPBlockSocket;
+    var Enviar : AnsiString ) of object ;
 
-{ Evento disparada quando DesConecta }
-TACBrTCPServerDesConecta = procedure( const TCPBlockSocket : TTCPBlockSocket;
-   Erro: Integer; ErroDesc : String ) of object ;
+  { Evento disparada quando DesConecta }
+  TACBrTCPServerDesConecta = procedure( const TCPBlockSocket : TTCPBlockSocket;
+    Erro: Integer; ErroDesc : String ) of object ;
 
-{ Evento disparado quando recebe dados }
-TACBrTCPServerRecive = procedure( const TCPBlockSocket : TTCPBlockSocket;
-   const Recebido : AnsiString; var Enviar : AnsiString) of object ;
+  { Evento disparado quando recebe dados }
+  TACBrTCPServerRecive = procedure( const TCPBlockSocket : TTCPBlockSocket;
+    const Recebido : AnsiString; var Enviar : AnsiString) of object;
 
-{ TACBrTCPServerDaemon }
+  TACBrOnAntesAbrirHTTP = procedure(var AURL: String) of object;
 
-TACBrTCPServerDaemon = class(TThread)
+  THttpContentEncodingCompress = (ecGzip, ecCompress, ecDeflate);
+  THttpContentsEncodingCompress = set of THttpContentEncodingCompress;
+
+  { TACBrTCPServerDaemon }
+
+  TACBrTCPServerDaemon = class(TThread)
   private
     fsEnabled: Boolean;
     fsEvent: TSimpleEvent;
@@ -94,9 +172,9 @@ TACBrTCPServerDaemon = class(TThread)
     property Enabled: Boolean read fsEnabled write SetEnabled ;
   end;
 
-{ TACBrTCPServerThread }
+  { TACBrTCPServerThread }
 
-TACBrTCPServerThread = class(TThread)
+  TACBrTCPServerThread = class(TThread)
   private
     fsACBrTCPServerDaemon : TACBrTCPServerDaemon ;
     fsEnabled: Boolean;
@@ -123,10 +201,9 @@ TACBrTCPServerThread = class(TThread)
     property TCPBlockSocket : TTCPBlockSocket read fsSock ;
   end;
 
+  { Componente ACBrTCPServer - Servidor TCP muito simples }
 
-{ Componente ACBrTCPServer - Servidor TCP muito simples }
-
-{ TACBrTCPServer }
+  { TACBrTCPServer }
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
   {$ENDIF RTL230_UP}
@@ -188,76 +265,154 @@ TACBrTCPServerThread = class(TThread)
                                                       write fsOnDesConecta ;
     property OnRecebeDados : TACBrTCPServerRecive     read  fsOnRecebeDados
                                                       write fsOnRecebeDados ;
-end ;
+end;
 
-  TACBrOnAntesAbrirHTTP = procedure( var AURL : String ) of object ;
+  { TACBrHTTPQueryParams }
 
-  EACBrHTTPError = class( Exception ) ;
+  TACBrHTTPQueryParams = class(TStringList)
+  private
+    function GetAsURL: String;
+    procedure SetAsURL(const aValue: String);
+  public
+    property AsURL: String read GetAsURL write SetAsURL;
+  end;
 
-{ TACBrHTTP }
+  { TACBrHTTP }
 
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(piacbrAllPlatforms)]
   {$ENDIF RTL230_UP}
-  TACBrHTTP = class( TACBrComponent )
+  TACBrHTTP = class(TACBrComponent)
   private
-    fHTTPSend : THTTPSend ;
+    fArqLOG: String;
+    fArquivoCertificado: String;
+    fArquivoChavePrivada: String;
+    fArquivoPFX: String;
+    fCertificado: AnsiString;
+    fChavePrivada: AnsiString;
+    fHTTPResultCode: Integer;
+    fNivelLog: Byte;
     FIsUTF8: Boolean;
-    fOnAntesAbrirHTTP : TACBrOnAntesAbrirHTTP ;
-    fRespHTTP   : TStringList ;
+    fPFX: AnsiString;
     FTimeOut: Integer;
-    fURL        : String;
-    FParseText: Boolean;
-    function GetProxyHost : string ;
-    function GetProxyPass : string ;
-    function GetProxyPort : string ;
-    function GetProxyUser : string ;
-    procedure SetProxyHost(const AValue : string) ;
-    procedure SetProxyPass(const AValue : string) ;
-    procedure SetProxyPort(const AValue : string) ;
-    procedure SetProxyUser(const AValue : string) ;
+    fHTTPSend: THTTPSend;
+    fHTTPResponse: AnsiString;
+    fURLPathParams: TStringList;
+    fHttpRespStream: TMemoryStream;
+    fOnQuandoGravarLog: TACBrGravarLog;
+    fURLQueryParams: TACBrHTTPQueryParams;
+    fOnAntesAbrirHTTP: TACBrOnAntesAbrirHTTP;
+    fContenstEncodingCompress: THttpContentsEncodingCompress;
+    fSenhaPFX: String;
+    fK: String;
+    fURL: String;
+    function GetProxyHost: String;
+    function GetProxyPass: String;
+    function GetProxyPort: String;
+    function GetProxyUser: String;
+    function GetSenhaPFX: AnsiString;
+    procedure SetArquivoCertificado(aValue: String);
+    procedure SetArquivoChavePrivada(aValue: String);
+    procedure SetArquivoPFX(aValue: String);
+    procedure SetCertificado(aValue: AnsiString);
+    procedure SetChavePrivada(aValue: AnsiString);
+    procedure SetPFX(aValue: AnsiString);
+    procedure SetProxyHost(const AValue: String);
+    procedure SetProxyPass(const AValue: String);
+    procedure SetProxyPort(const AValue: String);
+    procedure SetProxyUser(const AValue: String);
+    procedure SetSenhaPFX(aValue: AnsiString);
+    procedure ConfigurarAutenticacao_mTLS(const aMethod, aURL: String);
+  protected
+    function GetHeaderValue(aHeader: String): String;
+    function VerificarSeIncluiPFX(const Method, AURL: String): Boolean; virtual;
+    function VerificarSeIncluiCertificado(const Method, AURL: String): Boolean; virtual;
+    function VerificarSeIncluiChavePrivada(const Method, AURL: String): Boolean; virtual;
+
+    procedure RegistrarLog(const aLinha: String; aNivelMin: Byte = 0);
+    function GetRespIsUTF8: Boolean; virtual;
+
+    procedure OnHookSocketStatus(Sender: TObject; Reason: THookSocketReason; const Value: String);
+    procedure OnHookCreateSocket(Sender: TObject);
+    procedure OnHookAfterConnect(Sender: TObject);
+    procedure OnHookMonitor(Sender: TObject; Writing: Boolean; const Buffer: TMemory; Len: Integer);
+
   public
-    constructor Create( AOwner : TComponent ) ; override ;
-    destructor Destroy ; override ;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
 
-    function AjustaParam(const AParam : String) : String ;
-    procedure HTTPGet( const AURL : String) ; virtual ;
-    Procedure HTTPPost( const AURL : String ) ; overload; virtual ;
-    Procedure HTTPPost( const AURL : String; const APostData : AnsiString  ) ; overload; virtual ;
+    function AjustaParam(const AParam: String): String;
+
+    procedure HTTPGet(const AURL: String); virtual;
+    procedure HTTPPost(const AURL: String); overload; virtual;
+    procedure HTTPPost(const AURL: String; const APostData: AnsiString); overload; virtual;
     procedure HTTPPut(const AURL: String);
-    procedure HTTPMethod( const Method, AURL : String ); virtual ;
+    procedure HTTPMethod(const Method, AURL: String); virtual;
 
-    function GetHeaderValue( const AValue : String ) : String ;
-
+    procedure LimparHTTP;
     procedure LerConfiguracoesProxy; 
 
-    property HTTPSend  : THTTPSend read fHTTPSend ;
-    property RespHTTP  : TStringList read fRespHTTP ;
-    property URL       : String read fURL;
-  published
-    property ProxyHost : string read GetProxyHost write SetProxyHost ;
-    property ProxyPort : string read GetProxyPort write SetProxyPort ;
-    property ProxyUser : string read GetProxyUser write SetProxyUser ;
-    property ProxyPass : string read GetProxyPass write SetProxyPass ;
-    property ParseText : Boolean read FParseText  write FParseText default False;
-    property IsUTF8    : Boolean read FIsUTF8     write FIsUTF8    default False;
-    property TimeOut   : Integer read FTimeOut    write FTimeOut   default 90000;
+    property HTTPSend: THTTPSend read fHTTPSend;
+    property HTTPResponse: AnsiString read fHTTPResponse;
+    property HTTPResultCode: Integer read fHTTPResultCode;
+    property URL: String read fURL;
 
-    property OnAntesAbrirHTTP : TACBrOnAntesAbrirHTTP
-       read fOnAntesAbrirHTTP write fOnAntesAbrirHTTP ;
-end ;
+    property URLPathParams: TStringList read fURLPathParams;
+    property URLQueryParams: TACBrHTTPQueryParams read fURLQueryParams;
+  published
+    property ProxyHost: String read GetProxyHost write SetProxyHost;
+    property ProxyPort: String read GetProxyPort write SetProxyPort;
+    property ProxyUser: String read GetProxyUser write SetProxyUser;
+    property ProxyPass: String read GetProxyPass write SetProxyPass;
+    property RespIsUTF8: Boolean read GetRespIsUTF8;
+    property TimeOut: Integer read FTimeOut write FTimeOut default 90000;
+    property ContentsEncodingCompress: THttpContentsEncodingCompress read fContenstEncodingCompress write fContenstEncodingCompress;
+
+    property ArquivoCertificado: String read fArquivoCertificado write SetArquivoCertificado;
+    property ArquivoChavePrivada: String read fArquivoChavePrivada write SetArquivoChavePrivada;
+    property ArquivoPFX: String read fArquivoPFX write SetArquivoPFX;
+
+    property Certificado: AnsiString read fCertificado write SetCertificado;
+    property ChavePrivada: AnsiString read fChavePrivada write SetChavePrivada;
+    property PFX: AnsiString read fPFX write SetPFX;
+    property SenhaPFX: AnsiString read GetSenhaPFX write SetSenhaPFX;
+                
+    property ArqLOG: String read fArqLOG write fArqLOG;
+    property NivelLog: Byte read fNivelLog write fNivelLog default 1;
+    property OnQuandoGravarLog: TACBrGravarLog read fOnQuandoGravarLog write fOnQuandoGravarLog;
+    property OnAntesAbrirHTTP: TACBrOnAntesAbrirHTTP read fOnAntesAbrirHTTP write fOnAntesAbrirHTTP;
+end;
 
 function GetURLBasePath(const URL: String): String;
-function IsAbsoluteURL(const URL: String): Boolean;
+function GetURLRoot(const URL: String): String;
+
+// Tipos de Location: https://en.wikipedia.org/wiki/HTTP_location
+function LocationIsAbsoluteURL(const ALocation: String): Boolean;
+function LocationIsRelativeURLAbsolutePath(const ALocation: String): Boolean;
+function LocationIsRelativeURLRelativePath(const ALocation: String): Boolean;
+
+function URLWithDelim(aURL: String): String;
+function URLWithoutDelim(aURL: String): String;
+
+function GetHeaderValue(const aValue: String; aStringList: TStringList): String;
+
+function ContentIsCompressed(aHeader: TStringList): Boolean;
+function StreamToAnsiString(aStream: TStream): AnsiString;
+function DecompressStream(aStream: TStream): AnsiString;
+function ContentEncodingCompressToString(aValue: THttpContentEncodingCompress): String;
+function StringToContentEncodingCompress(aValue: String): THttpContentEncodingCompress;
 
 implementation
 
-Uses
-  math, StrUtils, synacode,
+uses
+  Math, StrUtils, TypInfo,
+  synacode, synautil,
+  ACBrOpenSSLUtils,
+  ACBrCompress,
   ACBrUtil.Base,
+  ACBrUtil.FilesIO,
   ACBrUtil.Strings,
-  ACBrUtil.XMLHTML,
-  synautil
+  ACBrUtil.XMLHTML
   {$IFDEF UPDATE_SCREEN_CURSOR}
     ,Controls, Forms
   {$ENDIF};
@@ -267,32 +422,45 @@ begin
   Result := Copy(URL, 1, PosLast('/',URL) );
 end;
 
-function IsAbsoluteURL(const URL: String): Boolean;
-const
-  protocolos: array[0..2] of string = ('http','https', 'ftp');
+function GetURLRoot(const URL: String): String;
+var
+  i: Integer;
+begin
+  i := Pos('//',URL);
+  if (i > 0) then
+    i := PosEx('/', URL, i+2)
+  else
+    i := Pos('/',URL);
+
+  if (i = 0) then
+    i := Length(URL);
+
+  Result := URLWithoutDelim( Copy(URL, 1, i) );
+end;
+
+function LocationIsAbsoluteURL(const ALocation: String): Boolean;
 var
  i: Integer;
 begin
   Result := False;
 
   //Testa se é um tipo absoluto relativo ao protocolo
-  if Pos('//', URL) = 1 then
+  if Pos('//', ALocation) = 1 then
   begin
     Result := True;
     Exit;
   end;
 
-  //Testa se é um tipo relativo
-  if Pos('/', URL) = 1 then
+  if LocationIsRelativeURLAbsolutePath(ALocation) then
   begin
     Result := False;
     Exit;
   end;
 
   //Testa se inicia por protocolos...
-  for I := 0 to High(protocolos) do
+  for I := 0 to High(cHTTPProtocols) do
   begin
-    if Pos(UpperCase(protocolos[i])+'://', UpperCase(URL)) = 1 then
+    if Pos(UpperCase(cHTTPProtocols[i])+'://', UpperCase(ALocation)) = 1 then
     begin
       Result := True;
       Break;
@@ -302,11 +470,151 @@ begin
   if Result then Exit;
 
   //Começa com "www."
-  if Pos('www.', URL) = 1 then
+  if Pos('www.', ALocation) = 1 then
   begin
     Result := True;
     Exit;
   end;
+end;
+
+function LocationIsRelativeURLAbsolutePath(const ALocation: String): Boolean;
+begin
+  Result := (copy(ALocation,1,1) =  '/') and
+            (copy(ALocation,2,1) <> '/');
+end;
+
+function LocationIsRelativeURLRelativePath(const ALocation: String): Boolean;
+begin
+  Result := (not LocationIsAbsoluteURL(ALocation)) and
+            (not LocationIsRelativeURLAbsolutePath(ALocation));
+end;
+
+function URLWithDelim(aURL: String): String;
+begin
+  Result := Trim(aURL);
+  if (RightStr(Result, 1) <> '/') then
+    Result := Result + '/'
+end;
+
+function URLWithoutDelim(aURL: String): String;
+begin
+  Result := Trim(aURL);
+  while NaoEstaVazio(Result) and (RightStr(Result, 1) = '/') do
+    Delete(Result, Length(Result), 1);
+end;
+
+function GetHeaderValue(const aValue: String; aStringList: TStringList): String;
+var
+  i: Integer;
+  u, LinhaHeader: String;
+begin
+  Result := '';
+  u := UpperCase(Trim(AValue));
+  if EstaVazio(u) then
+    Exit;
+
+  i := 0;
+  while EstaVazio(Result) and (i < aStringList.Count) do
+  begin
+    LinhaHeader := aStringList[i];
+    if (Pos(u, UpperCase(LinhaHeader)) = 1) then
+      Result := Trim(Copy(LinhaHeader, Length(u)+1, Length(LinhaHeader)));
+    Inc(i);
+  end;
+end;
+
+function ContentIsCompressed(aHeader: TStringList): Boolean;
+var
+  i: Integer;
+  ce: String;
+begin
+  Result := False;
+  ce := GetHeaderValue(cHTTPHeaderContentEncoding, aHeader);
+
+  for i := Ord(Low(THttpContentEncodingCompress)) to Ord(High(THTTPContentEncodingCompress)) do
+  begin
+    Result := (Pos(ContentEncodingCompressToString(THttpContentEncodingCompress(i)), ce) > 0);
+    if Result then
+      Exit;
+  end;
+end;
+
+function StreamToAnsiString(aStream: TStream): AnsiString;
+begin
+  aStream.Position := 0;
+  Result := ReadStrFromStream(aStream, aStream.Size);
+end;
+
+function DecompressStream(aStream: TStream): AnsiString;
+var
+  zt: TCompressType;
+begin
+  zt := DetectCompressType(AStream);
+  if (zt = ctUnknown) then  // Not compressed...
+  begin
+    AStream.Position := 0;
+    Result := ReadStrFromStream(AStream, AStream.Size);
+  end
+  else
+    Result := UnZip(AStream);
+end;
+
+function ContentEncodingCompressToString(aValue: THttpContentEncodingCompress): String;
+begin
+  Result := EmptyStr;
+  case aValue of
+    ecGzip: Result := 'gzip';
+    ecCompress: Result := 'compress';
+    ecDeflate: Result := 'deflate';
+  end;
+end;
+
+function StringToContentEncodingCompress(aValue: String): THttpContentEncodingCompress;
+begin
+  aValue := LowerCase(aValue);
+  if (aValue = 'gzip') then
+    Result := ecGzip
+  else if (aValue = 'compress') then
+    Result := ecCompress
+  else if (aValue = 'deflate') then
+    Result := ecDeflate;
+end;
+
+{ TACBrHTTPQueryParams }
+
+function TACBrHTTPQueryParams.GetAsURL: String;
+var
+  i: Integer;
+  aName, aValue: String;
+begin
+  Result := EmptyStr;
+  if EstaZerado(Count) then
+    Exit;
+
+  for i := 0 to Count-1 do
+  begin
+    aName := Names[i];
+    if NaoEstaVazio(aName) then
+    begin
+      if NaoEstaVazio(Result) then
+        Result := Result + '&';
+      aValue := Values[aName];
+      Result := Result + EncodeURLElement(aName) + '=' + EncodeURLElement(aValue);
+    end;
+  end;
+end;
+
+procedure TACBrHTTPQueryParams.SetAsURL(const aValue: String);
+var
+  s: String;
+begin
+  Clear;
+  s := Trim(aValue);
+  if (Copy(s, 1, 1) = '?') then
+    System.Delete(s, 1, 1);
+
+  s := DecodeURL(s);
+  AddDelimitedTextToList(s, '&', Self, #0);
 end;
 
 { TACBrTCPServerDaemon }
@@ -809,79 +1117,98 @@ end ;
 
 { TACBrHTTP }
 
-constructor TACBrHTTP.Create(AOwner : TComponent) ;
+constructor TACBrHTTP.Create(AOwner: TComponent);
 begin
-  inherited Create( AOwner ) ;
+  inherited Create(AOwner);
+  fURLQueryParams := TACBrHTTPQueryParams.Create;
+  fURLPathParams := TStringList.Create;
+  fHttpRespStream := TMemoryStream.Create;
 
-  fHTTPSend := THTTPSend.Create;
-  fRespHTTP   := TStringList.Create;
-  fOnAntesAbrirHTTP := nil ;
-  fURL := '';
-  FParseText := False;
+  fHttpSend := THTTPSend.Create;
+  fHttpSend.OutputStream := fHttpRespStream;
+  fHTTPSend.Sock.OnAfterConnect := OnHookAfterConnect;
+  fHTTPSend.Sock.OnCreateSocket := OnHookCreateSocket;
+  fHTTPSend.Sock.OnStatus := OnHookSocketStatus;
+  fHTTPSend.Sock.OnMonitor := OnHookMonitor;
+
+  fOnAntesAbrirHTTP := Nil;
+  fHTTPResultCode := 0;
+  fURL := EmptyStr;
   FIsUTF8 := False;
-  FTimeOut := 90000;
-end ;
+  FTimeOut := cHTTPTimeOutDef;
+  fContenstEncodingCompress := [];
 
-destructor TACBrHTTP.Destroy ;
+  fArquivoCertificado := EmptyStr;
+  fArquivoChavePrivada := EmptyStr;
+  fChavePrivada := EmptyStr;
+  fCertificado := EmptyStr;
+  fArquivoPFX := EmptyStr;
+  fSenhaPFX := EmptyStr;
+  fPFX := EmptyStr;
+  fK := EmptyStr;
+end;
+
+destructor TACBrHTTP.Destroy;
 begin
   fHTTPSend.Free;
-  fRespHTTP.Free;
-
+  fHttpRespStream.Free;
+  fURLQueryParams.Free;
+  fURLPathParams.Free;
   inherited Destroy;
-end ;
+end;
 
 function TACBrHTTP.AjustaParam(const AParam: String): String;
 begin
-  Result := Trim( AParam ) ;
+  Result := Trim(AParam);
 
   if (Result <> '') then
   begin
-     Result := String( ACBrStrToAnsi( Result ) ) ;
-     Result := String( EncodeURLElement( AnsiString( Result ) ) ) ;
-  end ;
-end ;
+    Result := String(ACBrStrToAnsi(Result));
+    Result := String(EncodeURLElement(AnsiString(Result)));
+  end;
+end;
 
 procedure TACBrHTTP.HTTPGet(const AURL: String);
 begin
   HTTPSend.Clear;
-  HTTPMethod( 'GET', AURL );
+  HTTPMethod(cHTTPMethodGET, AURL);
 end ;
 
-procedure TACBrHTTP.HTTPPost(const AURL : String) ;
+procedure TACBrHTTP.HTTPPost(const AURL: String);
 begin
-  HTTPMethod( 'POST', AURL ) ;
-end ;
+  HTTPMethod(cHTTPMethodPOST, AURL);
+end;
 
-procedure TACBrHTTP.HTTPPut(const AURL : String) ;
+procedure TACBrHTTP.HTTPPut(const AURL: String);
 begin
-  HTTPMethod( 'PUT', AURL ) ;
-end ;
+  HTTPMethod(cHTTPMethodPUT, AURL);
+end;
 
-procedure TACBrHTTP.HTTPPost(const AURL : String ; const APostData : AnsiString) ;
+procedure TACBrHTTP.HTTPPost(const AURL: String; const APostData: AnsiString);
 begin
   HTTPSend.Clear;
-  HTTPSend.Document.Write(Pointer(APostData)^,Length(APostData));
-  HTTPPost( AURL ) ;
-end ;
+  HTTPSend.Document.Write(Pointer(APostData)^, Length(APostData));
+  RegistrarLog('Req.Body: ' + APostData);
+  HTTPPost(AURL);
+end;
 
 procedure TACBrHTTP.HTTPMethod(const Method, AURL: String);
 var
-  OK : Boolean ;
   {$IFDEF UPDATE_SCREEN_CURSOR}
-   OldCursor : TCursor ;
+   OldCursor: TCursor;
   {$ENDIF}
-   CT, Location, HtmlHead: String ;
-   RespIsUTF8, AddUTF8InHeader: Boolean;
-   ContaRedirecionamentos: Integer;
-   HeadersOld: string;
+   HeadersOld, qp, Location, wCEC, wErro: String;
+   i, ContaRedirecionamentos: Integer;
+   ce: THttpContentEncodingCompress;
+   AddUTF8InHeader: Boolean;
 begin
   {$IFDEF UPDATE_SCREEN_CURSOR}
-   OldCursor := Screen.Cursor ;
+   OldCursor := Screen.Cursor;
    Screen.Cursor := crHourGlass;
   {$ENDIF}
   ContaRedirecionamentos := 0;
   try
-    RespHTTP.Clear;
+    fHTTPResponse := EmptyStr;
     fURL := AURL;
 
     {$IfDef UNICODE}
@@ -890,16 +1217,39 @@ begin
      AddUTF8InHeader := FIsUTF8;
     {$EndIf}
 
-    if AddUTF8InHeader then
-      HTTPSend.Headers.Add('Accept-Charset: utf-8;q=*;q=0.7') ;
+    wCEC := EmptyStr;
+    for ce := Low(THttpContentEncodingCompress) to High(THttpContentEncodingCompress) do
+      if ce in fContenstEncodingCompress then
+      begin
+        if EstaVazio(wCEC) then
+          wCEC := cHTTPHeaderAcceptEncoding + ContentEncodingCompressToString(ce)
+        else
+          wCEC := wCEC + ', ' + ContentEncodingCompressToString(ce);
+      end;
 
-    if Assigned( OnAntesAbrirHTTP ) then
-       OnAntesAbrirHTTP( fURL ) ;
+    if NaoEstaVazio(wCEC) then
+      fHttpSend.Headers.Add(wCEC);
+
+    if NaoEstaZerado(fURLPathParams.Count) then
+      for i := 0 to fURLPathParams.Count - 1 do
+        fURL := URLWithDelim(fURL) + URLWithoutDelim(EncodeURLElement(fURLPathParams[i]));
+
+    qp := fURLQueryParams.AsURL;
+    if NaoEstaVazio(qp) then
+      fURL := fURL + '?' + qp;
+
+    if AddUTF8InHeader then
+      HTTPSend.Headers.Add('Accept-Charset: utf-8;q=*;q=0.7');
+
+    if Assigned(OnAntesAbrirHTTP) then
+      OnAntesAbrirHTTP(fURL);
 
     // DEBUG //
-    //HTTPSend.Document.SaveToFile( 'c:\temp\HttpSend.txt' );
+    //HTTPSend.Document.SaveToFile( '_HttpSend.txt' );
+    RegistrarLog('HTTPMethod( ' + Method + ', URL: ' + fURL + ' )');
+    RegistrarLog(' - Req.Headers: ' + HTTPSend.Headers.Text, 3);
 
-    if FTimeOut > 0 then
+    if (FTimeOut > 0) then
     begin
       HTTPSend.Timeout := FTimeOut;
       with HTTPSend.Sock do
@@ -911,15 +1261,26 @@ begin
         HTTPTunnelTimeout := FTimeOut;
       end;
     end;
+           
+    ConfigurarAutenticacao_mTLS(Method, fURL);
+    RegistrarLog(sLineBreak +
+      'Http.Sock.SSL.Certificate: ' + HTTPSend.Sock.SSL.Certificate + sLineBreak +
+      'Http.Sock.SSL.PrivateKey: ' + HTTPSend.Sock.SSL.PrivateKey + sLineBreak +
+      'Http.Sock.SSL.CertificateFile: ' + HTTPSend.Sock.SSL.CertificateFile + sLineBreak +
+      'Http.Sock.SSL.PrivateKeyFile: ' + HTTPSend.Sock.SSL.PrivateKeyFile + sLineBreak, 4);
 
     HeadersOld := HTTPSend.Headers.Text;
     HTTPSend.HTTPMethod(Method, fURL);
 
-    while ContaRedirecionamentos <= 10 do
+    while (ContaRedirecionamentos <= 10) do
     begin
       Inc(ContaRedirecionamentos);
+
       case  HTTPSend.ResultCode of
-        301, 302, 303, 307:
+        HTTP_MOVED_PERMANENTLY,  // 301
+        HTTP_MOVED_TEMPORARILY,  // 302
+        HTTP_SEE_OTHER,          // 303
+        HTTP_TEMPORARY_REDIRECT: // 307
         begin
           // DEBUG //
           //HTTPSend.Headers.SaveToFile('c:\temp\HeaderResp.txt');
@@ -927,11 +1288,12 @@ begin
           Location := GetHeaderValue('Location:');
           Location := Trim(SeparateLeft( Location, ';' ));
 
-          //Location pode ser relativa ou absoluta http://stackoverflow.com/a/25643550/460775
-          if IsAbsoluteURL(Location) then
+          if LocationIsAbsoluteURL(Location) then
             fURL := Location
+          else if LocationIsRelativeURLAbsolutePath(Location) then
+            fURL := GetURLRoot(fURL) + Location
           else
-            fURL := GetURLBasePath( fURL ) + Location;
+            fURL := GetURLBasePath(fURL) + Location;
 
           HTTPSend.Clear;
           HTTPSend.Headers.Text := HeadersOld;
@@ -940,89 +1302,68 @@ begin
           // https://tools.ietf.org/html/rfc2616#page-62
           // ... mas talvez seja necessário, pois a maioria dos browsers o fazem
           // http://blogs.msdn.com/b/ieinternals/archive/2011/08/19/understanding-the-impact-of-redirect-response-status-codes-on-http-methods-like-head-get-post-and-delete.aspx
-          if (HttpSend.ResultCode = 303) or
-             ( ((HttpSend.ResultCode = 301) or (HttpSend.ResultCode = 302)) and (Method = 'POST')) then
-          begin
-            HTTPSend.HTTPMethod('GET', fURL ) ;
-          end
+          if (HttpSend.ResultCode = HTTP_SEE_OTHER) or
+             (((HttpSend.ResultCode = HTTP_MOVED_PERMANENTLY) or
+               (HttpSend.ResultCode = HTTP_MOVED_TEMPORARILY)) and (Method = cHTTPMethodPOST)) then
+            HTTPSend.HTTPMethod(cHTTPMethodGET, fURL)
           else
-          begin
-            HTTPSend.HTTPMethod(Method, fURL ) ;
-          end;
+            HTTPSend.HTTPMethod(Method, fURL);
         end;
       else
         Break;
       end;
     end;
 
-    OK := HTTPSend.ResultCode = 200;
-    RespHTTP.LoadFromStream( HTTPSend.Document {$IfDef POSIX},TEncoding.ANSI{$EndIf} ) ;
+    fHTTPResultCode := fHttpSend.ResultCode;
+    RegistrarLog('  ResultCode: ' + IntToStr(fHTTPResultCode)+' - '+ HTTPSend.ResultString, 2);
+    if (fHttpSend.Sock.LastError > 0) then
+      RegistrarLog('  Sock.LastError: ' + IntToStr(fHttpSend.Sock.LastError)+' - '+ HTTPSend.Sock.LastErrorDesc, 4);
 
-    // DEBUG //
-    //RespHTTP.SaveToFile('c:\temp\HttpResp.txt');
-    //HTTPSend.Headers.SaveToFile('c:\temp\HeaderResp.txt');
-
-    RespIsUTF8 := FIsUTF8;
-    if not RespIsUTF8 then
+    if ContentIsCompressed(fHttpSend.Headers) then
     begin
-      // Verifica se a Resposta está em ANSI //
-      CT     := LowerCase( GetHeaderValue('Content-Type:') );
-      RespIsUTF8 := (pos('utf-8', CT) > 0);
-
-      if not RespIsUTF8 then
-      begin
-        if (pos('xhtml+xml', CT) > 0) then
-          RespIsUTF8 := XmlEhUTF8(RespHTTP.Text);
-      end;
-
-      if not RespIsUTF8 then
-      begin
-        if (pos('html', CT) > 0) then
-        begin
-          HtmlHead := RetornarConteudoEntre(LowerCase(RespHTTP.Text),'<head>','</head>');
-          RespIsUTF8 := (pos('charset="utf-8"', HtmlHead) > 0);
-        end;
-      end;
+      RegistrarLog('    Decompress Content', 3);
+      fHTTPResponse := DecompressStream(fHttpSend.OutputStream);
+    end
+    else
+    begin
+      fHttpSend.OutputStream.Position := 0;
+      fHTTPResponse := ReadStrFromStream(fHttpSend.OutputStream, fHttpSend.OutputStream.Size);
     end;
 
-    if ParseText then
-       RespHTTP.Text := ACBrUtil.XMLHTML.ParseText( AnsiString(RespHTTP.Text), True, RespIsUTF8 )
-    else
-       RespHTTP.Text := DecodeToString( AnsiString(RespHTTP.Text), RespIsUTF8 );
+    RegistrarLog('  Resp.Body: ' + sLineBreak + fHTTPResponse, 3);
 
-    if not OK then
-       raise EACBrHTTPError.Create( 'Erro HTTP: '+IntToStr(HTTPSend.ResultCode)+' '+
-                                      HTTPSend.ResultString + sLineBreak +
-                                    'Socket Error: '+IntToStr(HTTPSend.Sock.LastError)+' '+
-                                      HTTPSend.Sock.LastErrorDesc + sLineBreak +
-                                    'URL: '+AURL + sLineBreak + sLineBreak +
-                                    'Resposta HTTP:' + sLineBreak +
-                                      String(AjustaLinhas( AnsiString(RespHTTP.Text), 80, 20) )) ;
+    //if (not (fHTTPResultCode in [HTTP_OK, HTTP_CREATED, HTTP_ACCEPTED])) then
+    if (fHTTPResultCode < 200) or (fHTTPResultCode > 299) then
+    begin
+      wErro :=
+        'Erro HTTP: ' + IntToStr(fHTTPResultCode) +' '+ HTTPSend.ResultString + sLineBreak +
+        'Socket Error: ' + IntToStr(HTTPSend.Sock.LastError) +' '+ HTTPSend.Sock.LastErrorDesc + sLineBreak +
+        'URL: ' + AURL + sLineBreak + sLineBreak +
+        'Resposta HTTP:' + sLineBreak + String(AjustaLinhas(fHTTPResponse, 80, 20));
+
+      RegistrarLog(wErro);
+      raise EACBrHTTPError.Create(wErro);
+    end;
   finally
     {$IFDEF UPDATE_SCREEN_CURSOR}
-     Screen.Cursor := OldCursor;
+    Screen.Cursor := OldCursor;
     {$ENDIF}
   end;
 end;
 
-function TACBrHTTP.GetHeaderValue(const AValue : String) : String ;
-var
-  I : Integer ;
-  LinhaHeader : string ;
+procedure TACBrHTTP.LimparHTTP;
 begin
-  Result := '' ;
-  I      := 0 ;
+  RegistrarLog('LimparHTTP', 3);
 
-  while (Result = '') and (I < HTTPSend.Headers.Count) do
-  begin
-     LinhaHeader := HTTPSend.Headers[I];
-
-     if (pos(AValue, LinhaHeader) = 1) then
-        Result := Trim(copy(LinhaHeader, Length(AValue)+1, Length(LinhaHeader) )) ;
-
-     Inc( I ) ;
-  end ;
-end ;
+  fHTTPSend.Clear;
+  fURLPathParams.Clear;
+  fURLQueryParams.Clear;  
+  fHTTPSend.Headers.Clear;
+  fHttpSend.UserName := EmptyStr;
+  fHttpSend.Password := EmptyStr;
+  fHTTPResponse := EmptyStr;
+  FHTTPResultCode := 0;
+end;
 
 procedure TACBrHTTP.LerConfiguracoesProxy;
 {$IFDEF MSWINDOWS}
@@ -1059,6 +1400,7 @@ var
   function GetOptionString(Option: DWORD): String;
   begin
      Len := 0;
+     Result := EmptyStr;
      if not InternetQueryOption(nil, Option, nil, Len) then
      begin
         if GetLastError = ERROR_INSUFFICIENT_BUFFER then
@@ -1068,8 +1410,6 @@ var
               Exit;
         end;
      end;
-
-     Result := '';
   end;
 
 begin
@@ -1152,44 +1492,228 @@ begin
 end ;
 {$ENDIF}
 
-function TACBrHTTP.GetProxyHost : string ;
+function TACBrHTTP.GetProxyHost: String;
 begin
   Result := fHTTPSend.ProxyHost;
 end;
 
-function TACBrHTTP.GetProxyPass : string ;
+function TACBrHTTP.GetRespIsUTF8: Boolean;
+var
+  wHeaderValue, wHtmlHead: String;
+begin
+  Result := False;
+  if EstaVazio(HTTPResponse) then
+    Exit;
+
+  wHeaderValue := LowerCase(GetHeaderValue(cHTTPHeaderContentType));
+  Result := (Pos('utf-8', wHeaderValue) > 0);
+  if (not Result) and (Pos('xhtml+xml', wHeaderValue) > 0) then
+    Result := XmlEhUTF8(HTTPResponse);
+  if (not Result) and (pos('html', wHeaderValue) > 0) then
+  begin
+    wHtmlHead := RetornarConteudoEntre(LowerCase(HTTPResponse),'<head>','</head>');
+    Result := (Pos('charset="utf-8"', wHtmlHead) > 0);
+  end;
+end;
+
+function TACBrHTTP.GetHeaderValue(aHeader: String): String;
+var
+  wLinhaHeader: String;
+  I: Integer;
+begin
+  Result := EmptyStr;
+  for I := 0 to HTTPSend.Headers.Count-1 do
+  begin
+    wLinhaHeader := HTTPSend.Headers[I];
+    if (Pos(aHeader, wLinhaHeader) > 0) then
+    begin
+      Result := Trim(Copy(wLinhaHeader, Length(aHeader)+1, Length(wLinhaHeader)));
+      Break;
+    end;
+  end;
+end;
+
+function TACBrHTTP.VerificarSeIncluiPFX(const Method, AURL: String): Boolean;
+begin
+  Result := NaoEstaVazio(fPFX) or NaoEstaVazio(fArquivoPFX);
+end;
+
+function TACBrHTTP.GetProxyPass: String;
 begin
   Result := fHTTPSend.ProxyPass;
 end;
 
-function TACBrHTTP.GetProxyPort : string ;
+function TACBrHTTP.GetProxyPort: String;
 begin
   Result := fHTTPSend.ProxyPort;
 end;
 
-function TACBrHTTP.GetProxyUser : string ;
+function TACBrHTTP.GetProxyUser: String;
 begin
   Result := fHTTPSend.ProxyUser;
 end;
 
-procedure TACBrHTTP.SetProxyHost(const AValue : string) ;
+function TACBrHTTP.GetSenhaPFX: AnsiString;
+begin
+  Result := StrCrypt(fSenhaPFX, fK)  // Descritografa a Senha
+end;
+
+procedure TACBrHTTP.SetArquivoCertificado(aValue: String);
+begin
+  fArquivoCertificado := Trim(aValue);
+  fCertificado := EmptyStr;
+end;
+
+procedure TACBrHTTP.SetArquivoChavePrivada(aValue: String);
+begin
+  fArquivoChavePrivada := Trim(aValue);
+  fChavePrivada := EmptyStr;
+end;
+
+procedure TACBrHTTP.SetArquivoPFX(aValue: String);
+begin
+  fArquivoPFX := Trim(AValue);
+  fPFX := EmptyStr;
+end;
+
+procedure TACBrHTTP.SetCertificado(aValue: AnsiString);
+begin
+  fCertificado := aValue;
+  fArquivoCertificado := EmptyStr;
+end;
+
+procedure TACBrHTTP.SetChavePrivada(aValue: AnsiString);
+begin
+  fChavePrivada := aValue;
+  fArquivoChavePrivada := EmptyStr;
+end;
+
+procedure TACBrHTTP.SetPFX(aValue: AnsiString);
+begin
+  fPFX := aValue;
+  fArquivoPFX := EmptyStr;
+end;
+
+procedure TACBrHTTP.SetProxyHost(const AValue: String);
 begin
   fHTTPSend.ProxyHost := AValue;
 end;
 
-procedure TACBrHTTP.SetProxyPass(const AValue : string) ;
+procedure TACBrHTTP.SetProxyPass(const AValue: String);
 begin
   fHTTPSend.ProxyPass := AValue;
 end;
 
-procedure TACBrHTTP.SetProxyPort(const AValue : string) ;
+procedure TACBrHTTP.SetProxyPort(const AValue: String);
 begin
   fHTTPSend.ProxyPort := AValue;
 end;
 
-procedure TACBrHTTP.SetProxyUser(const AValue : string) ;
+procedure TACBrHTTP.SetProxyUser(const AValue: String);
 begin
   fHTTPSend.ProxyUser := AValue;
+end;
+
+procedure TACBrHTTP.SetSenhaPFX(aValue: AnsiString);
+begin
+  if NaoEstaVazio(fK) and (fSenhaPFX = StrCrypt(AValue, fK)) then
+    Exit;
+
+  fK := FormatDateTime('hhnnsszzz', Now);
+  fSenhaPFX := StrCrypt(AValue, fK);  // Salva Senha de forma Criptografada, para evitar "Inspect"
+end;
+
+procedure TACBrHTTP.ConfigurarAutenticacao_mTLS(const aMethod, aURL: String);
+begin
+  // Adicionando PFX
+  if VerificarSeIncluiPFX(aMethod, aURL) then
+  begin
+    if NaoEstaVazio(PFX) then
+      HTTPSend.Sock.SSL.PFX := PFX
+    else if NaoEstaVazio(ArquivoPFX) then
+      HTTPSend.Sock.SSL.PFXfile := ArquivoPFX;
+
+    if NaoEstaVazio(SenhaPFX) then
+      HTTPSend.Sock.SSL.KeyPassword := SenhaPFX;
+  end
+  else
+  begin
+    // Adicionando o Certificado
+    if VerificarSeIncluiCertificado(aMethod, aURL) then
+    begin
+      if NaoEstaVazio(Certificado) then
+      begin
+        if StringIsPEM(Certificado) then
+          HTTPSend.Sock.SSL.Certificate := ConvertPEMToASN1(Certificado)
+        else
+          HTTPSend.Sock.SSL.Certificate := Certificado;
+      end
+      else if NaoEstaVazio(ArquivoCertificado) then
+        HTTPSend.Sock.SSL.CertificateFile := ArquivoCertificado;
+    end;
+
+    // Adicionando a Chave Privada
+    if VerificarSeIncluiChavePrivada(aMethod, aURL) then
+    begin
+      if NaoEstaVazio(ChavePrivada) then
+      begin
+        if StringIsPEM(ChavePrivada) then
+          HTTPSend.Sock.SSL.PrivateKey := ConvertPEMToASN1(ChavePrivada)
+        else
+          HTTPSend.Sock.SSL.PrivateKey := ChavePrivada;
+      end
+      else if NaoEstaVazio(ArquivoChavePrivada) then
+        HTTPSend.Sock.SSL.PrivateKeyFile := ArquivoChavePrivada;
+
+      if NaoEstaVazio(SenhaPFX) then
+        HTTPSend.Sock.SSL.KeyPassword := SenhaPFX;
+    end;
+  end;
+end;
+
+function TACBrHTTP.VerificarSeIncluiCertificado(const Method, AURL: String): Boolean;
+begin
+  Result := NaoEstaVazio(fCertificado) or NaoEstaVazio(fArquivoCertificado);
+end;
+
+function TACBrHTTP.VerificarSeIncluiChavePrivada(const Method, AURL: String): Boolean;
+begin
+  Result := NaoEstaVazio(fChavePrivada) or NaoEstaVazio(fArquivoChavePrivada);
+end;
+
+procedure TACBrHTTP.RegistrarLog(const aLinha: String; aNivelMin: Byte);
+var
+  wTratado: Boolean;
+begin
+  if (NivelLog < aNivelMin) then
+    Exit;
+
+  wTratado := False;
+  if Assigned(fOnQuandoGravarLog) then
+    fOnQuandoGravarLog(aLinha, wTratado);
+
+  if (not wTratado) and NaoEstaVazio(fArqLOG) then
+    WriteLog(fArqLOG, FormatDateTime('dd/mm/yy hh:nn:ss:zzz', Now) + ' - ' + aLinha);
+end;
+
+procedure TACBrHTTP.OnHookSocketStatus(Sender: TObject; Reason: THookSocketReason; const Value: String);
+begin
+  RegistrarLog('  Socket Status: '+GetEnumName(TypeInfo(THookSocketReason), integer(Reason) )+' - '+Value, 4);
+end;
+
+procedure TACBrHTTP.OnHookCreateSocket(Sender: TObject);
+begin
+  RegistrarLog('  Socket Created', 4);
+end;
+
+procedure TACBrHTTP.OnHookAfterConnect(Sender: TObject);
+begin
+  RegistrarLog('  Socket Connected', 4);
+end;
+
+procedure TACBrHTTP.OnHookMonitor(Sender: TObject; Writing: Boolean; const Buffer: TMemory; Len: Integer);
+begin
+  RegistrarLog('  Socket Monitor, Writing:'+IfThen(Writing,'Yes','No')+', Len:'+IntToStr(Len), 4);
 end;
 
 end.

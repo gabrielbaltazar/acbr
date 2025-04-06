@@ -39,7 +39,7 @@ uses
   Spin, Buttons, DBCtrls, ExtCtrls, Grids,
   uVendaClass,
   ACBrPosPrinter, ACBrTEFComum, ACBrTEFAPI, ACBrBase, ACBrTEFAPIComum,
-  ImgList, System.ImageList;
+  ImgList,  ACBrAbecsPinPad;
 
 type
 
@@ -54,64 +54,16 @@ type
     btImprimir: TBitBtn;
     btIncluirPagamentos: TBitBtn;
     btExcluirPagamento: TBitBtn;
-    btLerParametros: TBitBtn;
     btLimparImpressora: TBitBtn;
     btMudaPagina: TBitBtn;
     btMsgPinPad: TButton;
     btOperacao: TBitBtn;
     btEfetuarPagamentos: TBitBtn;
-    btProcuraImpressoras: TSpeedButton;
-    btSalvarParametros: TBitBtn;
-    btSerial: TSpeedButton;
-    btTestarPosPrinter: TBitBtn;
-    btTestarTEF: TBitBtn;
     btObterCPF: TButton;
-    cbConfirmarAutomaticamente: TCheckBox;
-    cbAutoAtendimento: TCheckBox;
-    cbImprimirViaReduzida: TCheckBox;
     cbSimularErroNoDoctoFiscal: TCheckBox;
-    cbSuportaDesconto: TCheckBox;
-    cbSuportaSaque: TCheckBox;
-    cbxGP: TComboBox;
-    cbxTransacaoPendente: TComboBox;
-    cbxModeloPosPrinter: TComboBox;
-    cbxPagCodigo: TComboBox;
-    cbxPorta: TComboBox;
-    cbxQRCode: TComboBox;
     cbEnviarImpressora: TCheckBox;
-    cbxImpressaoViaCliente: TComboBox;
-    cbxTransacaoPendenteInicializacao: TComboBox;
-    edCNPJEstabelecimento: TEdit;
-    edCNPJSwHouse: TEdit;
-    edLog: TEdit;
-    edNomeAplicacao: TEdit;
-    edRazaoSocialEstabelecimento: TEdit;
-    edRazaoSocialSwHouse: TEdit;
-    edVersaoAplicacao: TEdit;
-    gbConfigImpressora: TGroupBox;
-    gbConfigTEF: TGroupBox;
     gbPagamentos: TGroupBox;
-    GroupBox1: TGroupBox;
-    GroupBox2: TGroupBox;
     imgQRCode: TImage;
-    Label1: TLabel;
-    Label10: TLabel;
-    Label11: TLabel;
-    Label12: TLabel;
-    Label14: TLabel;
-    Label15: TLabel;
-    Label16: TLabel;
-    Label17: TLabel;
-    Label18: TLabel;
-    Label19: TLabel;
-    Label21: TLabel;
-    Label25: TLabel;
-    Label26: TLabel;
-    Label27: TLabel;
-    Label28: TLabel;
-    Label29: TLabel;
-    Label7: TLabel;
-    Label9: TLabel;
     lMensagemCliente: TLabel;
     lMensagemOperador: TLabel;
     lNumOperacao: TLabel;
@@ -121,7 +73,6 @@ type
     lURLTEF: TLabel;
     mImpressao: TMemo;
     mLog: TMemo;
-    pConfigImpSwHouseEstab: TPanel;
     pQRCode: TPanel;
     pImpressoraBotes: TPanel;
     pImpressao: TPanel;
@@ -129,7 +80,6 @@ type
     pMensagemCliente: TPanel;
     pMensagemOperador: TPanel;
     pPrincipal: TPanel;
-    pConfiguracao: TPanel;
     pLogs: TPanel;
     pBotoesPagamentos: TPanel;
     pSimulador: TPanel;
@@ -146,10 +96,6 @@ type
     Label6: TLabel;
     pOperacao: TPanel;
     pgPrincipal: TPageControl;
-    SbArqLog: TSpeedButton;
-    seColunas: TSpinEdit;
-    seEspLinhas: TSpinEdit;
-    seLinhasPular: TSpinEdit;
     sbLimparLog: TSpeedButton;
     Splitter1: TSplitter;
     sgPagamentos: TStringGrid;
@@ -161,6 +107,79 @@ type
     seValorInicialVenda: TEdit;
     seTotalDesconto: TEdit;
     seTotalAcrescimo: TEdit;
+    PageControl1: TPageControl;
+    tsConfigTEF: TTabSheet;
+    pConfiguracao: TPanel;
+    gbConfigTEF: TGroupBox;
+    Label11: TLabel;
+    SbArqLog: TSpeedButton;
+    Label9: TLabel;
+    Label1: TLabel;
+    Label10: TLabel;
+    Label12: TLabel;
+    Label18: TLabel;
+    cbSuportaDesconto: TCheckBox;
+    cbSuportaSaque: TCheckBox;
+    cbImprimirViaReduzida: TCheckBox;
+    edLog: TEdit;
+    btTestarTEF: TBitBtn;
+    cbxQRCode: TComboBox;
+    cbConfirmarAutomaticamente: TCheckBox;
+    cbxGP: TComboBox;
+    cbAutoAtendimento: TCheckBox;
+    btSalvarParametros: TBitBtn;
+    btLerParametros: TBitBtn;
+    cbxImpressaoViaCliente: TComboBox;
+    cbxTransacaoPendente: TComboBox;
+    cbxTransacaoPendenteInicializacao: TComboBox;
+    pConfigImpSwHouseEstab: TPanel;
+    GroupBox1: TGroupBox;
+    Label14: TLabel;
+    Label16: TLabel;
+    Label19: TLabel;
+    Label15: TLabel;
+    edRazaoSocialSwHouse: TEdit;
+    edNomeAplicacao: TEdit;
+    edVersaoAplicacao: TEdit;
+    edCNPJSwHouse: TEdit;
+    GroupBox2: TGroupBox;
+    Label17: TLabel;
+    Label21: TLabel;
+    edRazaoSocialEstabelecimento: TEdit;
+    edCNPJEstabelecimento: TEdit;
+    tsConfigImpressora: TTabSheet;
+    gbConfigImpressora: TGroupBox;
+    Label25: TLabel;
+    Label26: TLabel;
+    Label27: TLabel;
+    Label28: TLabel;
+    Label7: TLabel;
+    Label29: TLabel;
+    btSerial: TSpeedButton;
+    btProcuraImpressoras: TSpeedButton;
+    seLinhasPular: TSpinEdit;
+    seEspLinhas: TSpinEdit;
+    seColunas: TSpinEdit;
+    cbxModeloPosPrinter: TComboBox;
+    cbxPorta: TComboBox;
+    cbxPagCodigo: TComboBox;
+    btTestarPosPrinter: TBitBtn;
+    gbDadosTerminal: TGroupBox;
+    Label8: TLabel;
+    edCodFilial: TEdit;
+    Label20: TLabel;
+    edPortaPinPad: TEdit;
+    Label23: TLabel;
+    edEnderecoServidor: TEdit;
+    Label24: TLabel;
+    edCodEmpresa: TEdit;
+    Label30: TLabel;
+    edCodTerminal: TEdit;
+    ACBrAbecsPinPad1: TACBrAbecsPinPad;
+    btExibirImagemPinPad: TButton;
+    btMenuPinPad: TButton;
+    btCancelarUltima: TBitBtn;
+    Button1: TButton;
     procedure ACBrTEFAPI1QuandoDetectarTransacaoPendente(
       RespostaTEF: TACBrTEFResp; const MsgErro: String);
     procedure ACBrTEFAPI1QuandoExibirMensagem(const Mensagem: String;
@@ -179,10 +198,13 @@ type
     procedure ACBrTEFAPI1QuandoPerguntarMenu(const Titulo: String;
       Opcoes: TStringList; var ItemSelecionado: Integer);
     procedure btAdministrativoClick(Sender: TObject);
+    procedure btCancelarUltimaClick(Sender: TObject);
     procedure btEfetuarPagamentosClick(Sender: TObject);
     procedure btExcluirPagamentoClick(Sender: TObject);
     procedure btIncluirPagamentosClick(Sender: TObject);
+    procedure btMenuPinPadClick(Sender: TObject);
     procedure btMsgPinPadClick(Sender: TObject);
+    procedure btExibirImagemPinPadClick(Sender: TObject);
     procedure btOperacaoClick(Sender: TObject);
     procedure btLerParametrosClick(Sender: TObject);
     procedure btMudaPaginaClick(Sender: TObject);
@@ -205,6 +227,9 @@ type
     procedure seTotalDescontoChange(Sender: TObject);
     procedure seValorInicialVendaChange(Sender: TObject);
     procedure seValorInicialVendaKeyPress(Sender: TObject; var Key: Char);
+    procedure ACBrAbecsPinPad1WriteLog(const ALogLine: string;
+      var Tratado: Boolean);
+    procedure Button1Click(Sender: TObject);
   private
     FVenda: TVenda;
     FTipoBotaoOperacao: TTipoBotaoOperacao;
@@ -274,9 +299,10 @@ uses
   IniFiles, typinfo, dateutils, math, strutils,
   frIncluirPagamento, frMenuTEF, frObtemCampo, frExibeMensagem,
   configuraserial,
-  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.FilesIO, ACBrUtil.DateTime,
+  //ACBrUtil,
   ACBrDelphiZXingQRCode,
-  ACBrTEFPayGoComum, ACBrTEFAPIPayGoWeb;
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime, ACBrUtil.FilesIO,
+  ACBrTEFPayGoComum, ACBrTEFAPIPayGoWeb, ACBrTEFAPIStoneAutoTEF;
 
 {$R *.dfm}
 
@@ -356,7 +382,8 @@ end;
 
 procedure TFormPrincipal.FormDestroy(Sender: TObject);
 begin
-  FVenda.Free;
+  if Assigned(FVenda) then
+    FVenda.Free;
 end;
 
 procedure TFormPrincipal.FormKeyDown(Sender: TObject; var Key: Word;
@@ -521,12 +548,118 @@ begin
   end;
 end;
 
+procedure TFormPrincipal.btMenuPinPadClick(Sender: TObject);
+var
+  sl: TStringList;
+  i: Integer;
+begin
+  sl := TStringList.Create;
+  try
+    sl.Add('Item1');
+    sl.Add('Item2');
+    sl.Add('Item3');
+    i := ACBrTEFAPI1.MenuPinPad('Select', sl);
+
+    ShowMessage('Selecionada opção: '+IntToStr(i));
+  finally
+    sl.Free;
+  end;
+end;
+
 procedure TFormPrincipal.btMsgPinPadClick(Sender: TObject);
 var
   Msg: String;
 begin
   Msg := 'PROJETO ACBR|'+FormatDateTimeBr(now,'DD/MM HH:NN:SS');
   ACBrTEFAPI1.ExibirMensagemPinPad(Msg);
+end;
+
+procedure TFormPrincipal.btExibirImagemPinPadClick(Sender: TObject);
+var
+  sl: TStringList;
+  PortFound, MediaName, FileLogo: String;
+  i: Integer;
+  ms: TMemoryStream;
+begin
+  // Procura a Porta do PinPad
+  sl := TStringList.Create;
+  try
+    ACBrAbecsPinPad1.Device.AcharPortasSeriais( sl );
+    i := 0;
+    PortFound := '';
+    while (i < sl.Count) and (PortFound = '') do
+    begin
+      try
+        ACBrAbecsPinPad1.Disable;
+        ACBrAbecsPinPad1.Port := sl[i];
+        ACBrAbecsPinPad1.Enable;
+        try
+          ACBrAbecsPinPad1.OPN;
+          ACBrAbecsPinPad1.CLO;
+          PortFound := ACBrAbecsPinPad1.Port;
+        finally
+          ACBrAbecsPinPad1.Disable;
+        end;
+      except
+      end;
+      Inc(i);
+    end;
+
+    if (PortFound = '') then
+      raise Exception.Create('Porta do PinPad não encontrada');
+
+    // Liga comunicação com o PinPad
+    ACBrAbecsPinPad1.Enable;
+    try
+      ACBrAbecsPinPad1.OPN;
+
+      // Carrega lista de imagens carregadas no PinPad
+      ACBrAbecsPinPad1.LMF;
+      sl.Clear;
+      ACBrAbecsPinPad1.Response.GetResponseFromTagValue(PP_MFNAME, sl);
+
+      // Verifica se o "LOGOACBR" já está na memória do PinPad
+      MediaName := '';
+      for i := 0 to sl.Count-1 do
+      begin
+        if (trim(UpperCase(sl[i])) = 'LOGOACBR') then
+        begin
+          MediaName := sl[i];
+          Break;
+        end;
+      end;
+
+      // Se não estiver.. carrega o PNG do Logo e sobe no PinPad
+      if (MediaName = '') then
+      begin
+        FileLogo := ApplicationPath+'LogoACBr.png';
+        if not FileExists(FileLogo) then
+          raise Exception.Create('Imagem não encontrada: '+FileLogo);
+
+        ms := TMemoryStream.Create;
+        try
+          ms.LoadFromFile(FileLogo);
+          MediaName := 'LOGOACBR';
+          ACBrAbecsPinPad1.LoadMedia(MediaName, ms, mtPNG);
+        finally
+          ms.Free;
+        end;
+      end;
+
+      // Exibindo no PinPad, imagem gravada previamente
+      if (MediaName <> '') then
+        ACBrAbecsPinPad1.DSI(MediaName);
+
+    finally
+      // Fecha comunicação com o PinPad, para liberar a Porta
+      if ACBrAbecsPinPad1.IsEnabled then
+        ACBrAbecsPinPad1.CLO;
+
+      ACBrAbecsPinPad1.Disable;
+    end;
+  finally
+    sl.Free;
+  end;
 end;
 
 procedure TFormPrincipal.btAdministrativoClick(Sender: TObject);
@@ -536,6 +669,23 @@ begin
   StatusVenda := stsOperacaoTEF;
   try
     ACBrTEFAPI1.EfetuarAdministrativa(tefopAdministrativo);
+  finally
+    StatusVenda := stsFinalizada;
+  end;
+end;
+
+procedure TFormPrincipal.btCancelarUltimaClick(Sender: TObject);
+begin
+  AdicionarLinhaLog('- btCancelarUltimaClick');
+  IniciarOperacao;
+  StatusVenda := stsOperacaoTEF;
+  try
+    with ACBrTEFAPI1.UltimaRespostaTEF do
+    begin
+      ACBrTEFAPI1.CancelarTransacao( NSU, CodigoAutorizacaoTransacao,
+                                     DataHoraTransacaoHost, ValorTotal,
+                                     Finalizacao, Rede );
+    end;
   finally
     StatusVenda := stsFinalizada;
   end;
@@ -590,7 +740,7 @@ begin
       ImprimirRelatorio( '</ce>'+
                          '<qrcode_largura>8</qrcode_largura>'+
                          '<qrcode>'+DadosQRCode+'</qrcode>'+
-                         '</lf>');
+                         '</lf>' + '</lf>' + '</lf>' + '</lf>');
 
     Exit;
   end;
@@ -731,6 +881,8 @@ begin
     end;
   end;
   *)
+
+  AdicionarLinhaLog('Sucesso: '+IfThen(RespostaTEF.Sucesso, 'SIM', 'NÃO'));
 end;
 
 procedure TFormPrincipal.ACBrTEFAPI1QuandoFinalizarTransacao(
@@ -857,6 +1009,13 @@ begin
   end;
 end;
 
+procedure TFormPrincipal.ACBrAbecsPinPad1WriteLog(const ALogLine: String;
+  var Tratado: Boolean);
+begin
+  AdicionarLinhaLog(ALogLine);
+  Tratado := False;
+end;
+
 procedure TFormPrincipal.ACBrTEFAPI1QuandoGravarLog(const ALogLine: String;
   var Tratado: Boolean);
 begin
@@ -941,9 +1100,15 @@ begin
 
     MR := FormObtemCampo.ShowModal ;
 
-    Cancelado := (MR <> mrOK) ;
+    Cancelado := (MR = mrCancel);
     Validado := False;  // Não fizemos as validações de "DefinicaoCampo.ValidacaoDado", vamos deixar o ACBrTEFAPI validar
-    Resposta := FormObtemCampo.Resposta;
+
+    if (MR = mrOK) then
+      Resposta := FormObtemCampo.Resposta
+    else if (MR = mrRetry) then  // Botão Voltar
+      Resposta := ':-2'
+    else if (MR = mrCancel) then // Botão Cancelar
+      Resposta := ':-1';
   finally
     FormObtemCampo.Free;
   end;
@@ -1032,6 +1197,12 @@ begin
     edRazaoSocialEstabelecimento.Text := INI.ReadString('Estabelecimento', 'RazaoSocial', edRazaoSocialEstabelecimento.Text);
     edCNPJEstabelecimento.Text := INI.ReadString('Estabelecimento', 'CNPJ', edCNPJEstabelecimento.Text);
 
+    edCodEmpresa.Text := INI.ReadString('Terminal', 'CodEmpresa', edCodEmpresa.Text);
+    edCodFilial.Text := INI.ReadString('Terminal', 'CodFilial', edCodFilial.Text);
+    edCodTerminal.Text := INI.ReadString('Terminal', 'CodTerminal', edCodTerminal.Text);
+    edPortaPinPad.Text := INI.ReadString('Terminal', 'PortaPinPad', edPortaPinPad.Text);
+    edEnderecoServidor.Text := INI.ReadString('Terminal', 'EnderecoServidor', edEnderecoServidor.Text);
+
     cbxModeloPosPrinter.ItemIndex := INI.ReadInteger('PosPrinter', 'Modelo', 1);
     cbxPorta.Text := INI.ReadString('PosPrinter','Porta',ACBrPosPrinter1.Porta);
     cbxPagCodigo.ItemIndex := INI.ReadInteger('PosPrinter','PaginaDeCodigo', 2);
@@ -1071,6 +1242,12 @@ begin
 
     INI.WriteString('Estabelecimento', 'RazaoSocial', edRazaoSocialEstabelecimento.Text);
     INI.WriteString('Estabelecimento', 'CNPJ', edCNPJEstabelecimento.Text);
+
+    INI.WriteString('Terminal', 'CodEmpresa', edCodEmpresa.Text);
+    INI.WriteString('Terminal', 'CodFilial', edCodFilial.Text);
+    INI.WriteString('Terminal', 'CodTerminal', edCodTerminal.Text);
+    INI.WriteString('Terminal', 'PortaPinPad', edPortaPinPad.Text);
+    INI.WriteString('Terminal', 'EnderecoServidor', edEnderecoServidor.Text);
 
     INI.WriteInteger('PosPrinter', 'Modelo', cbxModeloPosPrinter.ItemIndex);
     INI.WriteString('PosPrinter','Porta', cbxPorta.Text);
@@ -1115,7 +1292,7 @@ end;
 
 procedure TFormPrincipal.AdicionarLinhaImpressao(ALinha: String);
 begin
-  mImpressao.Lines.Add(ALinha);
+  mImpressao.Lines.Add(ACBrStr(ALinha));
   if ACBrPosPrinter1.Ativo then
     ACBrPosPrinter1.Imprimir(ALinha);
 end;
@@ -1154,6 +1331,9 @@ begin
   gbTotaisVenda.Enabled := (AValue in [stsLivre, stsIniciada]);
   gbPagamentos.Enabled := (AValue = stsEmPagamento);
   btAdministrativo.Enabled := (AValue = stsLivre);
+  btCancelarUltima.Enabled := (AValue = stsLivre);
+  btMsgPinPad.Enabled := (AValue = stsLivre);
+  btMenuPinPad.Enabled := (AValue = stsLivre);
   btObterCPF.Enabled := btAdministrativo.Enabled;
   pImpressao.Enabled := (AValue in [stsLivre, stsFinalizada, stsCancelada]);
   btEfetuarPagamentos.Enabled := (AValue = stsIniciada);
@@ -1313,6 +1493,13 @@ begin
   end;
 end;
 
+procedure TFormPrincipal.Button1Click(Sender: TObject);
+begin
+  ACBrTEFAPI1.ExibirQRCodePinPad(
+  '00020101021226900014BR.GOV.BCB.PIX2568pix-qr.mercadopago.com/instore/p/v2/7edcf890b0de4f0689fe7aea52e447b843540016com.mercadolibre0130'+
+  'https://mpago.la/pos/1078225765204000053039865802BR5907GETCARD6009SAO PAULO62070503***6304424C', 'QRCODE');
+end;
+
 procedure TFormPrincipal.btObterCPFClick(Sender: TObject);
 var
   Saida: String;
@@ -1387,6 +1574,8 @@ var
   ReajusteValor: Double;
   IndicePagto: LongInt;
 begin
+  AdicionarLinhaLog('- AdicionarPagamento( '+Indice+', '+FloatToStr(AValor)+' )');
+
   Ok := False;
   TemTEF := False;
 
@@ -1400,7 +1589,7 @@ begin
     Modalidade := tefmpNaoDefinido;
     CartoesAceitos := [];
 
-    TemTEF := (IndicePagto >= 2) and (IndicePagto <= 5);
+    TemTEF := (IndicePagto >= 2) and (IndicePagto <= 6);
     case IndicePagto of
       2:
         Modalidade := tefmpCheque;
@@ -1426,11 +1615,15 @@ begin
     if TemTEF then
     begin
       // -- Exemplo, usando TypeCast, para inserir Propriedades direto na Classe de TEF -- //
+
       (*
       if ACBrTEFAPI1.TEF is TACBrTEFAPIClassPayGoWeb then
       begin
         with TACBrTEFAPIClassPayGoWeb(ACBrTEFAPI1.TEF) do
         begin
+          TEFPayGoAPI.ParametrosAdicionais.ValueInfo[PWINFO_POSID] := '99999';   // PDC
+          TEFPayGoAPI.ParametrosAdicionais.ValueInfo[PWINFO_DESTTCPIP] := 'esba-hom01.tpgweb.io:17500'  // Homologação
+          TEFPayGoAPI.ParametrosAdicionais.ValueInfo[PWINFO_DESTTCPIP] := 'pl03.pgweb.io:17500'  // Produção
           TEFPayGoAPI.ParametrosAdicionais.ValueInfo[PWINFO_AUTHSYST] := 'REDE';   // Autorizador
           TEFPayGoAPI.ParametrosAdicionais.ValueInfo[PWINFO_FINTYPE] := '2';       // 01: à vista, 2: parcelado
           TEFPayGoAPI.ParametrosAdicionais.ValueInfo[PWINFO_INSTALLMENTS] := '3';  // Parcelas
@@ -1451,12 +1644,13 @@ begin
       end;
       *)
       Ok := ACBrTEFAPI1.EfetuarPagamento( IntToStr(Venda.NumOperacao),
-                                          AValor, Modalidade, CartoesAceitos,
-                                          tefmfAVista );
+                                          AValor, Modalidade, CartoesAceitos);
+      AdicionarLinhaLog(' EfetuarPagamento - OK: '+IfThen(Ok, 'Sim', 'Não'));
 
       Ok := Ok and
             ACBrTEFAPI1.UltimaRespostaTEF.Sucesso and
             ACBrTEFAPI1.UltimaRespostaTEF.TransacaoAprovada;
+      AdicionarLinhaLog(' Sucesso - OK: '+IfThen(Ok, 'Sim', 'Não'));
     end
     else
       Ok := True;
@@ -1476,6 +1670,8 @@ begin
     end;
   end;
   *)
+
+  AdicionarLinhaLog('  - OK: '+IfThen(Ok, 'Sim', 'Não'));
 
   if Ok then
   begin
@@ -1532,6 +1728,9 @@ begin
     end;
 
     AtualizarPagamentosVendaNaInterface;
+
+    AdicionarLinhaLog('- Venda.TotalPago: '+FloatToStr(Venda.TotalPago));
+    AdicionarLinhaLog('- Venda.TotalVenda: '+FloatToStr(Venda.TotalVenda));
 
     if (Venda.TotalPago >= Venda.TotalVenda) then
       FinalizarVenda;
@@ -1623,6 +1822,7 @@ var
   DoctoFiscalOk: Boolean;
   MR: TModalResult;
 begin
+  AdicionarLinhaLog('- FinalizarVenda');
   try
     // AQUI você deve Chamar uma Rotina para Gerar e Transmitir o Documento Fiscal (NFCe ou SAT)
     DoctoFiscalOk := not cbSimularErroNoDoctoFiscal.Checked;
@@ -1701,6 +1901,7 @@ procedure TFormPrincipal.ImprimirTodosComprovantes;
 var
   i: Integer;
 begin
+  AdicionarLinhaLog('- ImprimirTodosComprovantes');
   for i := 0 to ACBrTEFAPI1.RespostasTEF.Count-1 do
     ImprimirComprovantes(ACBrTEFAPI1.RespostasTEF[i]);
 end;
@@ -1854,6 +2055,12 @@ begin
   ACBrTEFAPI1.DadosEstabelecimento.RazaoSocial := edRazaoSocialEstabelecimento.Text;
   ACBrTEFAPI1.DadosEstabelecimento.CNPJ := edCNPJEstabelecimento.Text;
 
+  ACBrTEFAPI1.DadosTerminal.CodEmpresa := edCodEmpresa.Text;
+  ACBrTEFAPI1.DadosTerminal.CodFilial  := edCodFilial.Text;
+  ACBrTEFAPI1.DadosTerminal.CodTerminal := edCodTerminal.Text;
+  ACBrTEFAPI1.DadosTerminal.PortaPinPad := edPortaPinPad.Text;
+  ACBrTEFAPI1.DadosTerminal.EnderecoServidor := edEnderecoServidor.Text;
+
   case cbxQRCode.ItemIndex of
     0: ACBrTEFAPI1.ExibicaoQRCode := qrapiNaoSuportado;
     2: ACBrTEFAPI1.ExibicaoQRCode := qrapiExibirPinPad;
@@ -1863,10 +2070,28 @@ begin
   end;
 
   // -- Exemplo de como ajustar o diretório de Trabalho, da PayGoWeb -- //
-  (*
+
   if (ACBrTEFAPI1.TEF is TACBrTEFAPIClassPayGoWeb) then
-    TACBrTEFAPIClassPayGoWeb(ACBrTEFAPI1.TEF).DiretorioTrabalho := 'C:\PAYGOWEB';
-  *)
+  begin
+    with TACBrTEFAPIClassPayGoWeb(ACBrTEFAPI1.TEF) do
+    begin
+      //DiretorioTrabalho := 'C:\PAYGOWEB\PROD';
+      //DiretorioTrabalho := 'C:\PAYGOWEB\INGENICO';
+      DiretorioTrabalho := 'C:\PAYGOWEB';
+      //TEFPayGoAPI.PathLib := 'C:\temp\64bits\PGWebLib.dll';
+      {$IFDEF DEBUG}
+       TEFPayGoAPI.IsDebug := True;
+      {$EndIf}
+    end;
+  end;
+
+  //if (ACBrTEFAPI1.TEF is TACBrTEFAPIClassScope) then
+  //begin
+  //  with TACBrTEFAPIClassScope(ACBrTEFAPI1.TEF) do
+  //  begin
+  //    TEFScopeAPI.ControleConexao := True;
+  //  end;
+  //end;
 end;
 
 procedure TFormPrincipal.AtivarTEF;
@@ -1923,7 +2148,7 @@ end;
 procedure TFormPrincipal.seValorInicialVendaKeyPress(Sender: TObject;
   var Key: Char);
 begin
-  if not CharInSet(Key, ['0'..'9',#8,#13,#27])  then
+  if not( Key in ['0'..'9',#8,#13,#27])  then
     Key := #0;
 end;
 

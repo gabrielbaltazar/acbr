@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -603,6 +603,26 @@ begin
         FPArqResp := 'res-AlterarDataLiberacaoPagamento';
         Acao      := 'AlterarDataLiberacaoPagamento';
       end;
+
+    opRegistrarQtdeMercadoriaDesembarque:
+      begin
+        FPArqEnv  := 'ped-RegistrarQtdeMercadoriaDesembarque';
+        FPArqResp := 'res-RegistrarQtdeMercadoriaDesembarque';
+        Acao      := 'RegistrarQuantidadeDaMercadoriaNoDesembarque';
+
+        FPSoapEnvelopeAtributtes := FPSoapEnvelopeAtributtes +
+              ' xmlns:reg="http://schemas.ipc.adm.br/efrete/pef/objects/' + Acao + '"';
+      end;
+
+    opRegistrarPagamentoQuitacao:
+      begin
+        FPArqEnv  := 'ped-RegistrarPagamentoQuitacao';
+        FPArqResp := 'res-RegistrarPagamentoQuitacao';
+        Acao      := 'RegistrarPagamentoQuitacao';
+
+        FPSoapEnvelopeAtributtes := FPSoapEnvelopeAtributtes +
+              ' xmlns:reg="http://schemas.ipc.adm.br/efrete/pef/objects/' + Acao + '"';
+      end;
   end;
 
   FPServico := CURL_WSDL + Acao;
@@ -672,7 +692,7 @@ begin
   FPRetWS := SeparaDados(FPRetornoWS, 'soap:Body');
 
   FRetornoEnvio.Integradora := FPConfiguracoesCIOT.Geral.Integradora;
-  FRetornoEnvio.Leitor.Arquivo := ParseText(FPRetWS);
+  FRetornoEnvio.Leitor.Arquivo := UTF8ToNativeString(ParseText(FPRetWS));
   FRetornoEnvio.LerXml;
 
   if FRetornoEnvio.RetEnvio.PDF <> '' then

@@ -77,7 +77,7 @@ type
 
   protected
     FAOwner: TACBrDFe;
-    PrefixoTS: string;
+    FPrefixoTS: string;
 
     procedure Configuracao; virtual;
     procedure CarregarURL; virtual;
@@ -87,9 +87,10 @@ type
     procedure SalvarXmlRps(aNota: TNotaFiscal);
     procedure SalvarXmlNfse(aNota: TNotaFiscal);
     procedure SalvarPDFNfse(const aNome: string; const aPDF: AnsiString);
-    procedure SalvarXmlEvento(const aNome: string; const  aEvento: AnsiString);
+    procedure SalvarXmlEvento(const aNome: string; const aEvento: AnsiString);
+    procedure SalvarXmlCancelamento(const aNome, aCancelamento: string);
 
-    function CarregarXmlNfse(aNota: TNotaFiscal; aXml: string): TNotaFiscal;
+    function CarregarXmlNfse(aNota: TNotaFiscal; const aXml: string): TNotaFiscal;
 
     function GetWebServiceURL(const AMetodo: TMetodo): string;
     function SetIdSignatureValue(const ConteudoXml, docElement, IdAttr: string): string;  virtual;
@@ -260,6 +261,9 @@ type
     function StrToSimNao(out ok: boolean; const s: string): TnfseSimNao; virtual;
     function SimNaoDescricao(const t: TnfseSimNao): string; virtual;
 
+    function SimNaoOpcToStr(const t: TnfseSimNaoOpc): string; virtual;
+    function StrToSimNaoOpc(out ok: boolean; const s: string): TnfseSimNaoOpc; virtual;
+
     function RegimeEspecialTributacaoToStr(const t: TnfseRegimeEspecialTributacao): string; virtual;
     function StrToRegimeEspecialTributacao(out ok: boolean; const s: string): TnfseRegimeEspecialTributacao; virtual;
     function RegimeEspecialTributacaoDescricao(const t: TnfseRegimeEspecialTributacao): string; virtual;
@@ -293,6 +297,9 @@ type
 
     function TipoDeducaoToStr(const t: TTipoDeducao): string; virtual;
     function StrToTipoDeducao(out ok: Boolean; const s: string): TTipoDeducao; virtual;
+
+    function DeducaoPorToStr(const t: TDeducaoPor): string; virtual;
+    function StrToDeducaoPor(out ok: Boolean; const s: string): TDeducaoPor; virtual;
 
     function TipoTributacaoRPSToStr(const t: TTipoTributacaoRPS): string; virtual;
     function StrToTipoTributacaoRPS(out ok: boolean; const s: string): TTipoTributacaoRPS; virtual;
@@ -633,55 +640,50 @@ begin
     FormatoArqRecibo := tfaXml;
     FormatoArqNota := tfaXml;
     FormatoArqEvento := tfaXml;
+    ImprimirOptanteSN := True;
 
-    with Autenticacao do
-    begin
-      RequerCertificado := True;
-      RequerLogin := False;
-      RequerChaveAcesso := False;
-      RequerChaveAutorizacao := False;
-      RequerFraseSecreta := False;
-    end;
+    Autenticacao.RequerCertificado := True;
+    Autenticacao.RequerLogin := False;
+    Autenticacao.RequerChaveAcesso := False;
+    Autenticacao.RequerChaveAutorizacao := False;
+    Autenticacao.RequerFraseSecreta := False;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := False;
-      EnviarLoteSincrono := False;
-      EnviarUnitario := False;
-      ConsultarSituacao := False;
-      ConsultarLote := False;
-      ConsultarRps := False;
-      ConsultarNfse := False;
-      ConsultarFaixaNfse := False;
-      ConsultarServicoPrestado := False;
-      ConsultarServicoTomado := False;
-      CancelarNfse := False;
-      SubstituirNfse := False;
-      GerarToken := False;
-      EnviarEvento := False;
-      ConsultarEvento := False;
-      ConsultarDFe := False;
-      ConsultarParam := False;
-      ConsultarSeqRps := False;
-      ConsultarLinkNfse := False;
-      ConsultarNfseChave := False;
-      TestarEnvio := False;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := False;
+    ServicosDisponibilizados.EnviarLoteSincrono := False;
+    ServicosDisponibilizados.EnviarUnitario := False;
+    ServicosDisponibilizados.ConsultarSituacao := False;
+    ServicosDisponibilizados.ConsultarLote := False;
+    ServicosDisponibilizados.ConsultarRps := False;
+    ServicosDisponibilizados.ConsultarNfse := False;
+    ServicosDisponibilizados.ConsultarFaixaNfse := False;
+    ServicosDisponibilizados.ConsultarServicoPrestado := False;
+    ServicosDisponibilizados.ConsultarServicoTomado := False;
+    ServicosDisponibilizados.CancelarNfse := False;
+    ServicosDisponibilizados.SubstituirNfse := False;
+    ServicosDisponibilizados.GerarToken := False;
+    ServicosDisponibilizados.EnviarEvento := False;
+    ServicosDisponibilizados.ConsultarEvento := False;
+    ServicosDisponibilizados.ConsultarDFe := False;
+    ServicosDisponibilizados.ConsultarParam := False;
+    ServicosDisponibilizados.ConsultarSeqRps := False;
+    ServicosDisponibilizados.ConsultarLinkNfse := False;
+    ServicosDisponibilizados.ConsultarNfseChave := False;
+    ServicosDisponibilizados.TestarEnvio := False;
 
-    with TACBrNFSeX(FAOwner) do
-    begin
-      Provedor := Configuracoes.Geral.Provedor;
-      Versao := Configuracoes.Geral.Versao;
-      xMunicipio := Configuracoes.Geral.xMunicipio;
+    Particularidades.PermiteMaisDeUmServico := False;
+    Particularidades.PermiteTagOutrasInformacoes := False;
 
-      if Configuracoes.WebServices.AmbienteCodigo = 1 then
-        Ambiente := taProducao
-      else
-        Ambiente := taHomologacao;
+    Provedor := TACBrNFSeX(FAOwner).Configuracoes.Geral.Provedor;
+    Versao := TACBrNFSeX(FAOwner).Configuracoes.Geral.Versao;
+    xMunicipio := TACBrNFSeX(FAOwner).Configuracoes.Geral.xMunicipio;
 
-      CodIBGE := IntToStr(Configuracoes.Geral.CodigoMunicipio);
-      IniTabServicos := Configuracoes.Arquivos.IniTabServicos;
-    end;
+    if TACBrNFSeX(FAOwner).Configuracoes.WebServices.AmbienteCodigo = 1 then
+      Ambiente := taProducao
+    else
+      Ambiente := taHomologacao;
+
+    CodIBGE := IntToStr(TACBrNFSeX(FAOwner).Configuracoes.Geral.CodigoMunicipio);
+    IniTabServicos := TACBrNFSeX(FAOwner).Configuracoes.Arquivos.IniTabServicos;
   end;
 
   // Inicializa os parâmetros de configuração: MsgDados
@@ -694,186 +696,119 @@ begin
     UsarNumLoteConsLote := False;
 
     // Usado para geração do Xml do Rps
-    with XmlRps do
-    begin
-      xmlns := '';
-      InfElemento := 'InfRps';
-      DocElemento := 'Rps';
-    end;
+    XmlRps.xmlns := '';
+    XmlRps.InfElemento := 'InfRps';
+    XmlRps.DocElemento := 'Rps';
 
     // Usado para geração do Envio do Lote em modo assíncrono
-    with LoteRps do
-    begin
-      xmlns := '';
-      InfElemento := 'LoteRps';
-      DocElemento := 'EnviarLoteRpsEnvio';
-    end;
+    LoteRps.xmlns := '';
+    LoteRps.InfElemento := 'LoteRps';
+    LoteRps.DocElemento := 'EnviarLoteRpsEnvio';
 
     // Usado para geração do Envio do Lote em modo Sincrono
-    with LoteRpsSincrono do
-    begin
-      xmlns := '';
-      InfElemento := 'LoteRps';
-      DocElemento := 'EnviarLoteRpsSincronoEnvio';
-    end;
+    LoteRpsSincrono.xmlns := '';
+    LoteRpsSincrono.InfElemento := 'LoteRps';
+    LoteRpsSincrono.DocElemento := 'EnviarLoteRpsSincronoEnvio';
 
     // Usado para geração da Consulta a Situação do Lote
-    with ConsultarSituacao do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'ConsultarSituacaoLoteRpsEnvio';
-    end;
+    ConsultarSituacao.xmlns := '';
+    ConsultarSituacao.InfElemento := '';
+    ConsultarSituacao.DocElemento := 'ConsultarSituacaoLoteRpsEnvio';
 
     // Usado para geração da Consulta do Lote
-    with ConsultarLote do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'ConsultarLoteRpsEnvio';
-    end;
+    ConsultarLote.xmlns := '';
+    ConsultarLote.InfElemento := '';
+    ConsultarLote.DocElemento := 'ConsultarLoteRpsEnvio';
 
     // Usado para geração da Consulta da NFSe por RPS
-    with ConsultarNFSeRps do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'ConsultarNfseRpsEnvio';
-    end;
+    ConsultarNFSeRps.xmlns := '';
+    ConsultarNFSeRps.InfElemento := '';
+    ConsultarNFSeRps.DocElemento := 'ConsultarNfseRpsEnvio';
 
     // Usado para geração da Consulta da NFSe
-    with ConsultarNFSe do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'ConsultarNfseEnvio';
-    end;
+    ConsultarNFSe.xmlns := '';
+    ConsultarNFSe.InfElemento := '';
+    ConsultarNFSe.DocElemento := 'ConsultarNfseEnvio';
 
     // Usado para geração da Consulta da NFSe Por Chave
-    with ConsultarNFSePorChave do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    ConsultarNFSePorChave.xmlns := '';
+    ConsultarNFSePorChave.InfElemento := '';
+    ConsultarNFSePorChave.DocElemento := '';
 
     // Usado para geração da Consulta da NFSe Por Faixa
-    with ConsultarNFSePorFaixa do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'ConsultarNfseFaixaEnvio';
-    end;
+    ConsultarNFSePorFaixa.xmlns := '';
+    ConsultarNFSePorFaixa.InfElemento := '';
+    ConsultarNFSePorFaixa.DocElemento := 'ConsultarNfseFaixaEnvio';
 
     // Usado para geração da Consulta da NFSe Servico Prestado
-    with ConsultarNFSeServicoPrestado do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'ConsultarNfseServicoPrestadoEnvio';
-    end;
+    ConsultarNFSeServicoPrestado.xmlns := '';
+    ConsultarNFSeServicoPrestado.InfElemento := '';
+    ConsultarNFSeServicoPrestado.DocElemento := 'ConsultarNfseServicoPrestadoEnvio';
 
     // Usado para geração da Consulta da NFSe Servico Tomado
-    with ConsultarNFSeServicoTomado do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'ConsultarNfseServicoTomadoEnvio';
-    end;
+    ConsultarNFSeServicoTomado.xmlns := '';
+    ConsultarNFSeServicoTomado.InfElemento := '';
+    ConsultarNFSeServicoTomado.DocElemento := 'ConsultarNfseServicoTomadoEnvio';
 
     // Usado para geração do Cancelamento
-    with CancelarNFSe do
-    begin
-      xmlns := '';
-      InfElemento := 'InfPedidoCancelamento';
-      DocElemento := 'Pedido';
-    end;
+    CancelarNFSe.xmlns := '';
+    CancelarNFSe.InfElemento := 'InfPedidoCancelamento';
+    CancelarNFSe.DocElemento := 'Pedido';
 
     // Usado para geração do Gerar
-    with GerarNFSe do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'GerarNfseEnvio';
-    end;
+    GerarNFSe.xmlns := '';
+    GerarNFSe.InfElemento := '';
+    GerarNFSe.DocElemento := 'GerarNfseEnvio';
 
     // Usado para geração do Substituir
-    with SubstituirNFSe do
-    begin
-      xmlns := '';
-      InfElemento := 'SubstituicaoNfse';
-      DocElemento := 'SubstituirNfseEnvio';
-    end;
+    SubstituirNFSe.xmlns := '';
+    SubstituirNFSe.InfElemento := 'SubstituicaoNfse';
+    SubstituirNFSe.DocElemento := 'SubstituirNfseEnvio';
 
     // Usado para geração da Abertura de Sessão
-    with AbrirSessao do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    AbrirSessao.xmlns := '';
+    AbrirSessao.InfElemento := '';
+    AbrirSessao.DocElemento := '';
 
     // Usado para geração do Fechamento de Sessão
-    with FecharSessao do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    FecharSessao.xmlns := '';
+    FecharSessao.InfElemento := '';
+    FecharSessao.DocElemento := '';
 
     // Usado para geração do Gerar Token
-    with GerarToken do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    GerarToken.xmlns := '';
+    GerarToken.InfElemento := '';
+    GerarToken.DocElemento := '';
 
     // Usado para geração do Enviar Evento
-    with EnviarEvento do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    EnviarEvento.xmlns := '';
+    EnviarEvento.InfElemento := '';
+    EnviarEvento.DocElemento := '';
 
     // Usado para geração do Consultar Evento
-    with ConsultarEvento do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    ConsultarEvento.xmlns := '';
+    ConsultarEvento.InfElemento := '';
+    ConsultarEvento.DocElemento := '';
 
     // Usado para geração do Consultar Evento
-    with ConsultarDFe do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    ConsultarDFe.xmlns := '';
+    ConsultarDFe.InfElemento := '';
+    ConsultarDFe.DocElemento := '';
 
     // Usado para geração do Consultar Parâmetros
-    with ConsultarParam do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    ConsultarParam.xmlns := '';
+    ConsultarParam.InfElemento := '';
+    ConsultarParam.DocElemento := '';
 
-    with ConsultarSeqRps do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    // Usado para geração do Consultar Sequencia de Rps
+    ConsultarSeqRps.xmlns := '';
+    ConsultarSeqRps.InfElemento := '';
+    ConsultarSeqRps.DocElemento := '';
 
-    with ConsultarLinkNFSe do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    // Usado para geração do Consultar Link da NFS-e
+    ConsultarLinkNFSe.xmlns := '';
+    ConsultarLinkNFSe.InfElemento := '';
+    ConsultarLinkNFSe.DocElemento := '';
   end;
 
   // Inicializa os parâmetros de configuração: Assinar
@@ -908,7 +843,7 @@ begin
 
     AssinaturaAdicional := False;
     Assinaturas := TACBrNFSeX(FAOwner).Configuracoes.Geral.Assinaturas;
-	IdSignatureValue := '';
+    IdSignatureValue := '';
   end;
 
   SetNomeXSD('nfse.xsd');
@@ -1025,7 +960,7 @@ begin
   end;
 end;
 
-function TACBrNFSeXProvider.CarregarXmlNfse(aNota: TNotaFiscal; aXml: string): TNotaFiscal;
+function TACBrNFSeXProvider.CarregarXmlNfse(aNota: TNotaFiscal; const aXml: string): TNotaFiscal;
 begin
   if Assigned(ANota) then
     ANota.XmlNfse := aXml
@@ -1033,6 +968,9 @@ begin
   begin
     TACBrNFSeX(FAOwner).NotasFiscais.LoadFromString(aXml, False);
     ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[TACBrNFSeX(FAOwner).NotasFiscais.Count-1];
+
+    if (aNota.XmlRps <> '') and (ANota.XmlNfse = '') then
+      ANota.XmlNfse := aNota.XmlRps;
   end;
 
   Result := aNota;
@@ -1066,15 +1004,19 @@ begin
       aNota.NomeArqRps := aNota.CalcularNomeArquivoCompleto(aNota.NomeArqRps, '');
 
     if not ConteudoEhXml then
+    begin
       aNota.NomeArqRps := StringReplace(aNota.NomeArqRps, '.xml', Extensao, [rfReplaceAll]);
 
-    TACBrNFSeX(FAOwner).Gravar(aNota.NomeArqRps, aNota.XmlRps, '', ConteudoEhXml);
+      WriteToTXT(aNota.NomeArqRps, aNota.XmlRps, False, False);
+    end
+    else
+      TACBrNFSeX(FAOwner).Gravar(aNota.NomeArqRps, aNota.XmlRps, '', ConteudoEhXml);
   end;
 end;
 
 procedure TACBrNFSeXProvider.SalvarXmlNfse(aNota: TNotaFiscal);
 var
-  aPath, aNomeArq, Extensao: string;
+  aPath, aNomeArq, Extensao, aXML: string;
   aConfig: TConfiguracoesNFSe;
   ConteudoEhXml: Boolean;
 begin
@@ -1098,18 +1040,30 @@ begin
       Extensao := '.xml';
     end;
 
+    aXml := aNota.XmlNfse;
+
+    if aXml = '' then
+      aXml := aNota.XmlEspelho;
+
+    if aXml = '' then
+      aXml := aNota.XmlRps;
+
     if ConfigGeral.FormatoArqNota <> tfaXml then
     begin
-      aNota.XmlNfse := RemoverDeclaracaoXML(aNota.XmlNfse);
+      aXml := RemoverDeclaracaoXML(aXml);
       ConteudoEhXml := False;
     end
     else
       ConteudoEhXml := True;
 
     if not ConteudoEhXml then
+    begin
       aNota.NomeArq := StringReplace(aNota.NomeArq, '.xml', Extensao, [rfReplaceAll]);
 
-    TACBrNFSeX(FAOwner).Gravar(aNota.NomeArq, aNota.XmlNfse, '', ConteudoEhXml);
+      WriteToTXT(aNota.NomeArq, aXml, False, False);
+    end
+    else
+      TACBrNFSeX(FAOwner).Gravar(aNota.NomeArq, aXml, '', ConteudoEhXml);
   end;
 end;
 
@@ -1130,7 +1084,7 @@ begin
 end;
 
 procedure TACBrNFSeXProvider.SalvarXmlEvento(const aNome: string;
-  const  aEvento: AnsiString);
+  const aEvento: AnsiString);
 var
   aPath, aNomeArq, Extensao: string;
   aConfig: TConfiguracoesNFSe;
@@ -1170,6 +1124,50 @@ begin
       aNomeArq := StringReplace(aNomeArq, '.xml', Extensao, [rfReplaceAll]);
 
     WriteToTXT(aNomeArq, ArqEvento, False, False);
+  end;
+end;
+
+procedure TACBrNFSeXProvider.SalvarXmlCancelamento(const aNome,
+  aCancelamento: string);
+var
+  aPath, aNomeArq, Extensao: string;
+  aConfig: TConfiguracoesNFSe;
+  ConteudoEhXml: Boolean;
+  ArqCancelamento: string;
+begin
+  aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
+
+  aPath := aConfig.Arquivos.GetPathCan(0, aConfig.Geral.Emitente.CNPJ,
+                        aConfig.Geral.Emitente.DadosEmitente.InscricaoEstadual);
+
+  aNomeArq := PathWithDelim(aPath) + aNome + '.xml';
+
+  if FAOwner.Configuracoes.Arquivos.Salvar then
+  begin
+    case ConfigGeral.FormatoArqEvento of
+      tfaJson:
+        Extensao := '.json';
+      tfaTxt:
+        Extensao := '.txt';
+    else
+      Extensao := '.xml';
+    end;
+
+    if ConfigGeral.FormatoArqEvento <> tfaXml then
+    begin
+      ArqCancelamento := RemoverDeclaracaoXML(aCancelamento);
+      ConteudoEhXml := False;
+    end
+    else
+    begin
+      ArqCancelamento := aCancelamento;
+      ConteudoEhXml := True;
+    end;
+
+    if not ConteudoEhXml then
+      aNomeArq := StringReplace(aNomeArq, '.xml', Extensao, [rfReplaceAll]);
+
+    WriteToTXT(aNomeArq, ArqCancelamento, False, False);
   end;
 end;
 
@@ -1310,6 +1308,21 @@ begin
                            [snSim, snNao, snNao]);
 end;
 
+function TACBrNFSeXProvider.SimNaoOpcToStr(const t: TnfseSimNaoOpc): string;
+begin
+  Result := EnumeradoToStr(t,
+                           ['1', '2', ''],
+                           [snoSim, snoNao, snoNenhum]);
+end;
+
+function TACBrNFSeXProvider.StrToSimNaoOpc(out ok: boolean;
+  const s: string): TnfseSimNaoOpc;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['1', '2', ''],
+                           [snoSim, snoNao, snoNenhum]);
+end;
+
 function TACBrNFSeXProvider.SituacaoTributariaToStr(
   const t: TnfseSituacaoTributaria): string;
 begin
@@ -1398,6 +1411,7 @@ begin
       AWriter.Opcoes.RetirarAcentos := Configuracoes.Geral.RetirarAcentos;
       AWriter.Opcoes.RetirarEspacos := Configuracoes.Geral.RetirarEspacos;
       AWriter.Opcoes.IdentarXML := Configuracoes.Geral.IdentarXML;
+      AWriter.Opcoes.QuebraLinha := Configuracoes.WebServices.QuebradeLinha;
     end;
 
     Result := AWriter.GerarXml;
@@ -1436,6 +1450,9 @@ begin
     Result := AReader.LerXml;
     ATipo := AReader.tpXML;
     aXmlTratado := AReader.Arquivo;
+
+    if aNFSe.Tomador.RazaoSocial = '' then
+      aNFSe.Tomador.RazaoSocial := 'Tomador Não Identificado';
   finally
     AReader.Destroy;
   end;
@@ -1715,6 +1732,16 @@ begin
                   tdVeiculacao, tdIntermediacao]);
 end;
 
+function TACBrNFSeXProvider.DeducaoPorToStr(const t: TDeducaoPor): string;
+begin
+  Result := EnumeradoToStr(t, ['', 'Percentual', 'Valor'], [dpNenhum, dpPercentual, dpValor]);
+end;
+
+function TACBrNFSeXProvider.StrToDeducaoPor(out ok: Boolean; const s: string): TDeducaoPor;
+begin
+  Result := StrToEnumerado(Ok, s, ['', 'Percentual', 'Valor'], [dpNenhum, dpPercentual, dpValor]);
+end;
+
 function TACBrNFSeXProvider.TipoTributacaoRPSToStr(const t: TTipoTributacaoRPS): string;
 begin
   Result := EnumeradoToStr(t,
@@ -1853,6 +1880,7 @@ end;
 
 procedure TACBrNFSeXProvider.GeraLote;
 begin
+  GerarResponse.Sucesso := False;
   GerarResponse.Erros.Clear;
   GerarResponse.Alertas.Clear;
   GerarResponse.Resumos.Clear;
@@ -1882,9 +1910,9 @@ begin
   end;
 
   case GerarResponse.ModoEnvio of
-    meLoteAssincrono: ValidarSchema(EmiteResponse, tmRecepcionar);
-    meLoteSincrono: ValidarSchema(EmiteResponse, tmRecepcionarSincrono);
-    meTeste: ValidarSchema(EmiteResponse, tmTeste);
+    meLoteAssincrono: ValidarSchema(GerarResponse, tmRecepcionar);
+    meLoteSincrono: ValidarSchema(GerarResponse, tmRecepcionarSincrono);
+    meTeste: ValidarSchema(GerarResponse, tmTeste);
   else
     // meUnitario
     ValidarSchema(GerarResponse, tmGerar);
@@ -1904,6 +1932,7 @@ begin
                            GerarResponse.NomeArq;
 
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  GerarResponse.Sucesso := (GerarResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.Emite;
@@ -1911,6 +1940,7 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  EmiteResponse.Sucesso := False;
   EmiteResponse.Erros.Clear;
   EmiteResponse.Alertas.Clear;
   EmiteResponse.Resumos.Clear;
@@ -2023,6 +2053,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoEmitir(EmiteResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  EmiteResponse.Sucesso := (EmiteResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.ConsultaSituacao;
@@ -2030,6 +2061,7 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultaSituacaoResponse.Sucesso := False;
   ConsultaSituacaoResponse.Erros.Clear;
   ConsultaSituacaoResponse.Alertas.Clear;
   ConsultaSituacaoResponse.Resumos.Clear;
@@ -2098,6 +2130,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoConsultaSituacao(ConsultaSituacaoResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  ConsultaSituacaoResponse.Sucesso := (ConsultaSituacaoResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.ConsultaLoteRps;
@@ -2105,6 +2138,7 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultaLoteRpsResponse.Sucesso := False;
   ConsultaLoteRpsResponse.Erros.Clear;
   ConsultaLoteRpsResponse.Alertas.Clear;
   ConsultaLoteRpsResponse.Resumos.Clear;
@@ -2172,6 +2206,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoConsultaLoteRps(ConsultaLoteRpsResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  ConsultaLoteRpsResponse.Sucesso := (ConsultaLoteRpsResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.ConsultaNFSeporRps;
@@ -2179,6 +2214,7 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultaNFSeporRpsResponse.Sucesso := False;
   ConsultaNFSeporRpsResponse.Erros.Clear;
   ConsultaNFSeporRpsResponse.Alertas.Clear;
   ConsultaNFSeporRpsResponse.Resumos.Clear;
@@ -2247,6 +2283,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoConsultaNFSeporRps(ConsultaNFSeporRpsResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  ConsultaNFSeporRpsResponse.Sucesso := (ConsultaNFSeporRpsResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.ConsultarEvento;
@@ -2254,6 +2291,7 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultarEventoResponse.Sucesso := False;
   ConsultarEventoResponse.Erros.Clear;
   ConsultarEventoResponse.Alertas.Clear;
   ConsultarEventoResponse.Resumos.Clear;
@@ -2322,6 +2360,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoConsultarEvento(ConsultarEventoResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  ConsultarEventoResponse.Sucesso := (ConsultarEventoResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.ConsultarParam;
@@ -2329,6 +2368,7 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultarParamResponse.Sucesso := False;
   ConsultarParamResponse.Erros.Clear;
   ConsultarParamResponse.Alertas.Clear;
   ConsultarParamResponse.Resumos.Clear;
@@ -2398,6 +2438,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoConsultarParam(ConsultarParamResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  ConsultarParamResponse.Sucesso := (ConsultarParamResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.ConsultarDFe;
@@ -2405,6 +2446,7 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultarDFeResponse.Sucesso := False;
   ConsultarDFeResponse.Erros.Clear;
   ConsultarDFeResponse.Alertas.Clear;
   ConsultarDFeResponse.Resumos.Clear;
@@ -2473,6 +2515,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoConsultarDFe(ConsultarDFeResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  ConsultarDFeResponse.Sucesso := (ConsultarDFeResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.ConsultaNFSe;
@@ -2481,6 +2524,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   Prefixo: string;
 begin
+  ConsultaNFSeResponse.Sucesso := False;
   ConsultaNFSeResponse.Erros.Clear;
   ConsultaNFSeResponse.Alertas.Clear;
   ConsultaNFSeResponse.Resumos.Clear;
@@ -2589,6 +2633,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoConsultaNFSe(ConsultaNFSeResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  ConsultaNFSeResponse.Sucesso := (ConsultaNFSeResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.ConsultaLinkNFSe;
@@ -2596,6 +2641,7 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultaLinkNFSeResponse.Sucesso := False;
   ConsultaLinkNFSeResponse.Erros.Clear;
   ConsultaLinkNFSeResponse.Alertas.Clear;
   ConsultaLinkNFSeResponse.Resumos.Clear;
@@ -2663,14 +2709,16 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoConsultaLinkNFSe(ConsultaLinkNFSeResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  ConsultaLinkNFSeResponse.Sucesso := (ConsultaLinkNFSeResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.CancelaNFSe;
 var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
-  aConfig: TConfiguracoesNFSe;
+//  aConfig: TConfiguracoesNFSe;
 begin
+  CancelaNFSeResponse.Sucesso := False;
   CancelaNFSeResponse.Erros.Clear;
   CancelaNFSeResponse.Alertas.Clear;
   CancelaNFSeResponse.Resumos.Clear;
@@ -2711,10 +2759,10 @@ begin
       else
         AService.Prefixo := CancelaNFSeResponse.InfCancelamento.ChaveNFSe;
 
-      aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
+//      aConfig := TConfiguracoesNFSe(FAOwner.Configuracoes);
 
-      AService.Path := aConfig.Arquivos.GetPathCan(0, aConfig.Geral.Emitente.CNPJ,
-                        aConfig.Geral.Emitente.DadosEmitente.InscricaoEstadual);
+//      AService.Path := aConfig.Arquivos.GetPathCan(0, aConfig.Geral.Emitente.CNPJ,
+//                        aConfig.Geral.Emitente.DadosEmitente.InscricaoEstadual);
 
       CancelaNFSeResponse.ArquivoRetorno := AService.Cancelar(ConfigMsgDados.DadosCabecalho, CancelaNFSeResponse.ArquivoEnvio);
 
@@ -2748,6 +2796,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoCancelaNFSe(CancelaNFSeResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  CancelaNFSeResponse.Sucesso := (CancelaNFSeResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.SubstituiNFSe;
@@ -2755,7 +2804,9 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
   Cancelamento: TNFSeCancelaNFSeResponse;
+  i: Integer;
 begin
+  SubstituiNFSeResponse.Sucesso := False;
   SubstituiNFSeResponse.Erros.Clear;
   SubstituiNFSeResponse.Alertas.Clear;
   SubstituiNFSeResponse.Resumos.Clear;
@@ -2765,6 +2816,7 @@ begin
   Cancelamento := TNFSeCancelaNFSeResponse.Create;
 
   try
+    Cancelamento.Sucesso := False;
     Cancelamento.Erros.Clear;
     Cancelamento.Alertas.Clear;
     Cancelamento.Resumos.Clear;
@@ -2777,11 +2829,20 @@ begin
       MotCancelamento := SubstituiNFSeResponse.InfCancelamento.MotCancelamento;
       NumeroLote := SubstituiNFSeResponse.InfCancelamento.NumeroLote;
       CodVerificacao := SubstituiNFSeResponse.InfCancelamento.CodVerificacao;
+      NumeroNFSeSubst := SubstituiNFSeResponse.InfCancelamento.NumeroNFSeSubst;
+      CodMunicipio := SubstituiNFSeResponse.InfCancelamento.CodMunicipio;
     end;
 
     PrepararCancelaNFSe(Cancelamento);
     if (Cancelamento.Erros.Count > 0) then
     begin
+      for i := 0 to Cancelamento.Erros.Count -1 do
+      begin
+        AErro := SubstituiNFSeResponse.Erros.New;
+        AErro.Codigo := Cancelamento.Erros[i].Codigo;
+        AErro.Descricao := Cancelamento.Erros[i].Descricao;
+      end;
+
       TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
       Exit;
     end;
@@ -2789,12 +2850,20 @@ begin
     AssinarCancelaNFSe(Cancelamento);
     if (Cancelamento.Erros.Count > 0) then
     begin
+      for i := 0 to Cancelamento.Erros.Count -1 do
+      begin
+        AErro := SubstituiNFSeResponse.Erros.New;
+        AErro.Codigo := Cancelamento.Erros[i].Codigo;
+        AErro.Descricao := Cancelamento.Erros[i].Descricao;
+      end;
+
       TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
       Exit;
     end;
 
     SubstituiNFSeResponse.PedCanc := Cancelamento.ArquivoEnvio;
     SubstituiNFSeResponse.PedCanc := SepararDados(SubstituiNFSeResponse.PedCanc, 'CancelarNfseEnvio', False);
+    Cancelamento.Sucesso := True;
   finally
     FreeAndNil(Cancelamento);
   end;
@@ -2861,6 +2930,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoSubstituiNFSe(SubstituiNFSeResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  SubstituiNFSeResponse.Sucesso := (SubstituiNFSeResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.GerarToken;
@@ -2868,6 +2938,7 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  GerarTokenResponse.Sucesso := False;
   GerarTokenResponse.Erros.Clear;
   GerarTokenResponse.Alertas.Clear;
   GerarTokenResponse.Resumos.Clear;
@@ -2935,6 +3006,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoGerarToken(GerarTokenResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  GerarTokenResponse.Sucesso := (GerarTokenResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.EnviarEvento;
@@ -2943,6 +3015,7 @@ var
   AErro: TNFSeEventoCollectionItem;
   aConfig: TConfiguracoesNFSe;
 begin
+  EnviarEventoResponse.Sucesso := False;
   EnviarEventoResponse.Erros.Clear;
   EnviarEventoResponse.Alertas.Clear;
   EnviarEventoResponse.Resumos.Clear;
@@ -3016,6 +3089,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoEnviarEvento(EnviarEventoResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  EnviarEventoResponse.Sucesso := (EnviarEventoResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.ConsultarSeqRps;
@@ -3023,6 +3097,7 @@ var
   AService: TACBrNFSeXWebservice;
   AErro: TNFSeEventoCollectionItem;
 begin
+  ConsultarSeqRpsResponse.Sucesso := False;
   ConsultarSeqRpsResponse.Erros.Clear;
   ConsultarSeqRpsResponse.Alertas.Clear;
   ConsultarSeqRpsResponse.Resumos.Clear;
@@ -3090,6 +3165,7 @@ begin
   TACBrNFSeX(FAOwner).SetStatus(stNFSeAguardaProcesso);
   TratarRetornoConsultarSeqRps(ConsultarSeqRpsResponse);
   TACBrNFSeX(FAOwner).SetStatus(stNFSeIdle);
+  ConsultarSeqRpsResponse.Sucesso := (ConsultarSeqRpsResponse.Erros.Count = 0);
 end;
 
 procedure TACBrNFSeXProvider.AssinarConsultaLinkNFSe(

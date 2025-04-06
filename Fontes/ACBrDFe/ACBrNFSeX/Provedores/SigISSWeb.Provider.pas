@@ -48,15 +48,15 @@ uses
 type
   TACBrNFSeXWebserviceSigISSWeb = class(TACBrNFSeXWebserviceRest)
   private
-    AjustaSetHeader:Boolean;
+    FAjustaSetHeader:Boolean;
 
   protected
     procedure SetHeaders(aHeaderReq: THTTPHeader); override;
 
   public
-    function GerarToken(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function GerarToken(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -114,20 +114,19 @@ begin
 
   with ConfigGeral do
   begin
+    QuebradeLinha := '|';
     UseCertificateHTTP := False;
     ModoEnvio := meUnitario;
     ConsultaLote := False;
     ConsultaNFSe := False;
+    CancPreencherMotivo := True;
 
     Autenticacao.RequerCertificado := False;
     Autenticacao.RequerLogin := True;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarUnitario := True;
-      GerarToken := True;
-      CancelarNfse := True;
-    end;
+    ServicosDisponibilizados.EnviarUnitario := True;
+    ServicosDisponibilizados.GerarToken := True;
+    ServicosDisponibilizados.CancelarNfse := True;
   end;
 
   SetXmlNameSpace('');
@@ -179,6 +178,7 @@ var
   ANode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   AErro: TNFSeEventoCollectionItem;
+  Descricao: String;
 begin
   ANode := RootNode.Childrens.FindAnyNs(AListTag);
 
@@ -191,10 +191,15 @@ begin
 
   for I := Low(ANodeArray) to High(ANodeArray) do
   begin
-    AErro := Response.Erros.New;
-    AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('codigo'), tcStr);
-    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('descricao'), tcStr);
-    AErro.Correcao := '';
+    Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('descricao'), tcStr);
+
+    if Descricao <> 'Operação concluída com sucesso' then
+    begin
+      AErro := Response.Erros.New;
+      AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('codigo'), tcStr);
+      AErro.Descricao := Descricao;
+      AErro.Correcao := '';
+    end;  
   end;
 end;
 
@@ -394,8 +399,8 @@ begin
 
     Nota.GerarXML;
 
-    Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
-    Nota.XmlRps := AplicarLineBreak(Nota.XmlRps, '');
+    Nota.XmlRps := ConverteXMLtoUTF8(Nota.XmlRps);
+    Nota.XmlRps := ChangeLineBreak(Nota.XmlRps, '');
 
     SalvarXmlRps(Nota);
 
@@ -436,7 +441,10 @@ begin
 
       Response.CodigoVerificacao := ObterConteudoTag(ANode.Childrens.FindAnyNs('codigo'), tcStr);
       Response.NumeroNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('numero_nf'), tcStr);
+      Response.SerieNota := ObterConteudoTag(ANode.Childrens.FindAnyNs('serie'), tcStr);
       Response.NumeroRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('rps'), tcStr);
+      Response.SerieRps := ObterConteudoTag(ANode.Childrens.FindAnyNs('serie_rps'), tcStr);
+      Response.Data := ObterConteudoTag(ANode.Childrens.FindAnyNs('data_emissao'), tcDatVcto);
 
       ProcessarMensagemErros(ANode, Response);
 
@@ -551,16 +559,16 @@ end;
 
 procedure TACBrNFSeXWebserviceSigISSWeb.SetHeaders(aHeaderReq: THTTPHeader);
 begin
-  if AjustaSetHeader then
+  if FAjustaSetHeader then
     aHeaderReq.AddHeader('Authorization', xToken);
 end;
 
-function TACBrNFSeXWebserviceSigISSWeb.GerarToken(ACabecalho,
+function TACBrNFSeXWebserviceSigISSWeb.GerarToken(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
-  AjustaSetHeader := False;
+  FAjustaSetHeader := False;
   FPMsgOrig := AMSG;
 
   Request := AMSG;
@@ -568,12 +576,12 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebserviceSigISSWeb.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSigISSWeb.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
 begin
-  AjustaSetHeader := True;
+  FAjustaSetHeader := True;
   FPMsgOrig := AMSG;
 
   Request := AMSG;
@@ -581,11 +589,11 @@ begin
   Result := Executar('', Request, [], []);
 end;
 
-function TACBrNFSeXWebserviceSigISSWeb.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSigISSWeb.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
-  AjustaSetHeader := True;
+  FAjustaSetHeader := True;
   FPMsgOrig := AMSG;
 
   Request := AMSG;
@@ -595,13 +603,18 @@ end;
 
 function TACBrNFSeXWebserviceSigISSWeb.TratarXmlRetornado(
   const aXML: string): string;
+var
+  Xml: string;
 begin
-  if StringIsXML(aXML) then
+  Xml := ConverteANSIparaUTF8(aXML);
+  Xml := RemoverDeclaracaoXML(Xml);
+
+  if StringIsXML(Xml) then
   begin
-    Result := inherited TratarXmlRetornado(aXML);
+    Result := inherited TratarXmlRetornado(Xml);
 
     Result := ParseText(Result);
-    Result := RemoverDeclaracaoXML(Result);
+//    Result := RemoverDeclaracaoXML(Result);
     Result := RemoverIdentacao(Result);
     Result := RemoverCaracteresDesnecessarios(Result);
     Result := RemoverPrefixosDesnecessarios(Result);
@@ -613,7 +626,7 @@ begin
                 '<erros>' +
                   '<erro>' +
                     '<codigo>' + '</codigo>' +
-                    '<descricao>' + aXML + '</descricao>' +
+                    '<descricao>' + Xml + '</descricao>' +
                     '<correcao>' + '</correcao>' +
                   '</erro>' +
                 '</erros>' +

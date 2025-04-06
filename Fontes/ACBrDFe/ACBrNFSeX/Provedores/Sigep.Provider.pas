@@ -46,11 +46,11 @@ uses
 type
   TACBrNFSeXWebserviceSigep200 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -96,14 +96,17 @@ begin
     Autenticacao.RequerLogin := True;
     Autenticacao.RequerChaveAcesso := True;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := False;
-      ConsultarFaixaNfse := False;
-      ConsultarServicoPrestado := False;
-      ConsultarServicoTomado := False;
-      SubstituirNfse := False;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := False;
+    ServicosDisponibilizados.ConsultarFaixaNfse := False;
+    ServicosDisponibilizados.ConsultarServicoPrestado := False;
+    ServicosDisponibilizados.ConsultarServicoTomado := False;
+    ServicosDisponibilizados.SubstituirNfse := False;
+  end;
+
+  with ConfigWebServices do
+  begin
+    VersaoDados := '1.01';
+    VersaoAtrib := '1.01';
   end;
 
   with ConfigAssinar do
@@ -114,6 +117,14 @@ begin
     RpsGerarNFSe := True;
 
     IncluirURI := False;
+  end;
+
+  with ConfigSchemas do
+  begin
+    ConsultarNFSePorFaixa := '***';
+    ConsultarNFSeServicoPrestado := '***';
+    ConsultarNFSeServicoTomado := '***';
+    SubstituirNFSe := '***';
   end;
 end;
 
@@ -289,7 +300,7 @@ end;
 
 { TACBrNFSeXWebserviceSigep200 }
 
-function TACBrNFSeXWebserviceSigep200.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceSigep200.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -305,7 +316,7 @@ begin
                      ['xmlns:ws="http://ws.integration.pm.bsit.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceSigep200.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSigep200.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -321,7 +332,7 @@ begin
                      ['xmlns:ws="http://ws.integration.pm.bsit.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceSigep200.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceSigep200.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -337,7 +348,7 @@ begin
                      ['xmlns:ws="http://ws.integration.pm.bsit.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceSigep200.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceSigep200.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -353,7 +364,7 @@ begin
                      ['xmlns:ws="http://ws.integration.pm.bsit.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceSigep200.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSigep200.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -371,6 +382,13 @@ end;
 function TACBrNFSeXWebserviceSigep200.TratarXmlRetornado(
   const aXML: string): string;
 begin
+  {
+    O retorno do provedor esta em UTF-8 mas as vogais acentuadas e cedilha vem da
+    seguinte forma:
+    As informa&#xfffd;&#xfffd;es das credenciais s&#xfffd;o inv&#xfffd;lida
+    Note que a sequencia: &#xfffd; é utilizada para o cedilha e para qualquer
+    vogal acentuada.
+  }
   Result := inherited TratarXmlRetornado(aXML);
 
   Result := StrToXml(Result);

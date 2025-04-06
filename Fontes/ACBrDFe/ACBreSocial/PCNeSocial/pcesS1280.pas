@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -58,73 +58,13 @@ uses
   pcesCommon, pcesConversaoeSocial, pcesGerador;
 
 type
-  TS1280Collection = class;
-  TS1280CollectionItem = class;
-  TEvtInfoComplPer = class;
-  TInfoSubstPatrOpPortItem = class;
-  TInfoSubstPatrOpPortColecao = class;
-  TInfoSubstPatr = class;
-  TInfoAtivConcom = class;
-  TinfoPercTransf11096 = class;
-
-  TS1280Collection = class(TeSocialCollection)
+  TInfoAtivConcom = class(TObject)
   private
-    function GetItem(Index: Integer): TS1280CollectionItem;
-    procedure SetItem(Index: Integer; Value: TS1280CollectionItem);
+    FfatorMes: Double;
+    Ffator13: Double;
   public
-    function Add: TS1280CollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
-    function New: TS1280CollectionItem;
-    property Items[Index: Integer]: TS1280CollectionItem read GetItem write SetItem; default;
-  end;
-
-  TS1280CollectionItem = class(TObject)
-  private
-    FTipoEvento: TTipoEvento;
-    FEvtInfoComplPer: TEvtInfoComplPer;
-  public
-    constructor Create(AOwner: TComponent);
-    destructor  Destroy; override;
-    property TipoEvento: TTipoEvento read FTipoEvento;
-    property EvtInfoComplPer: TEvtInfoComplPer read FEvtInfoComplPer write FEvtInfoComplPer;
-  end;
-
-  TEvtInfoComplPer = class(TESocialEvento)
-  private
-    FIdeEvento: TIdeEvento3;
-    FIdeEmpregador: TIdeEmpregador;
-    FInfoSubstPatr: TInfoSubstPatr;
-    FInfoAtivConcom: TInfoAtivConcom;
-    FInfoSubstPatrOpPort: TInfoSubstPatrOpPortColecao;
-    FinfoPercTransf11096 : TinfoPercTransf11096;
-
-    {Geradores específicos da classe}
-    procedure GerarInfoSubstPatr;
-    procedure GerarInfoSubstPatrOpPort;
-    procedure GerarInfoAtivConcom;
-    procedure GerarinfoPercTransf11096;
-    function getInfoAtivConcom: TInfoAtivConcom;
-    function getInfoSubstPatr: TInfoSubstPatr;
-    function getInfoSubstPatrOpPort: TInfoSubstPatrOpPortColecao;
-    function getinfoPercTransf11096: TinfoPercTransf11096;
-
-  public
-    constructor Create(AACBreSocial: TObject); override;
-    destructor  Destroy; override;
-
-    function GerarXML: boolean; override;
-    function LerArqIni(const AIniString: String): Boolean;
-
-    function infoAtivConcomInst(): Boolean;
-    function infoSubstPatrInst(): Boolean;
-    function infoSubstPatrOpPortInst(): Boolean;
-    function infoPercTransf11096Inst(): Boolean;
-
-    property IdeEvento: TIdeEvento3 read FIdeEvento write FIdeEvento;
-    property IdeEmpregador: TIdeEmpregador read FIdeEmpregador write FIdeEmpregador;
-    property InfoSubstPatr: TInfoSubstPatr read getInfoSubstPatr write FInfoSubstPatr;
-    property InfoAtivConcom: TInfoAtivConcom read getInfoAtivConcom write FInfoAtivConcom;
-    property InfoSubstPatrOpPort: TInfoSubstPatrOpPortColecao read getInfoSubstPatrOpPort write FInfoSubstPatrOpPort;
-    property infoPercTransf11096 : TinfoPercTransf11096 read getinfoPercTransf11096 write FinfoPercTransf11096;
+    property fatorMes: Double read FfatorMes write FfatorMes;
+    property fator13: Double read Ffator13 write Ffator13;
   end;
 
   TInfoSubstPatr = class(TObject)
@@ -162,14 +102,66 @@ type
     property percTransf : Integer read FpercTransf write FpercTransf;
   end;
 
-
-  TInfoAtivConcom = class(TObject)
+  TEvtInfoComplPer = class(TESocialEvento)
   private
-    FfatorMes: Double;
-    Ffator13: Double;
+    FClassTrib: TpClassTrib;
+    FIdeEvento: TIdeEvento3;
+    FIdeEmpregador: TIdeEmpregador;
+    FInfoSubstPatr: TInfoSubstPatr;
+    FInfoAtivConcom: TInfoAtivConcom;
+    FInfoSubstPatrOpPort: TInfoSubstPatrOpPortColecao;
+    FinfoPercTransf11096 : TinfoPercTransf11096;
+
+    {Geradores específicos da classe}
+    procedure GerarInfoSubstPatr;
+    procedure GerarInfoSubstPatrOpPort;
+    procedure GerarInfoAtivConcom;
+    procedure GerarinfoPercTransf11096;
+    function getInfoAtivConcom: TInfoAtivConcom;
+    function getInfoSubstPatr: TInfoSubstPatr;
+    function getInfoSubstPatrOpPort: TInfoSubstPatrOpPortColecao;
+    function getinfoPercTransf11096: TinfoPercTransf11096;
+
   public
-    property fatorMes: Double read FfatorMes write FfatorMes;
-    property fator13: Double read Ffator13 write Ffator13;
+    constructor Create(AACBreSocial: TObject); override;
+    destructor  Destroy; override;
+
+    function GerarXML: boolean; override;
+    function LerArqIni(const AIniString: String): Boolean;
+
+    function infoAtivConcomInst(): Boolean;
+    function infoSubstPatrInst(): Boolean;
+    function infoSubstPatrOpPortInst(): Boolean;
+    function infoPercTransf11096Inst(): Boolean;
+
+    property ClassTrib: TpClassTrib read FClassTrib write FClassTrib;
+    property IdeEvento: TIdeEvento3 read FIdeEvento write FIdeEvento;
+    property IdeEmpregador: TIdeEmpregador read FIdeEmpregador write FIdeEmpregador;
+    property InfoSubstPatr: TInfoSubstPatr read getInfoSubstPatr write FInfoSubstPatr;
+    property InfoAtivConcom: TInfoAtivConcom read getInfoAtivConcom write FInfoAtivConcom;
+    property InfoSubstPatrOpPort: TInfoSubstPatrOpPortColecao read getInfoSubstPatrOpPort write FInfoSubstPatrOpPort;
+    property infoPercTransf11096 : TinfoPercTransf11096 read getinfoPercTransf11096 write FinfoPercTransf11096;
+  end;
+
+  TS1280CollectionItem = class(TObject)
+  private
+    FTipoEvento: TTipoEvento;
+    FEvtInfoComplPer: TEvtInfoComplPer;
+  public
+    constructor Create(AOwner: TComponent);
+    destructor  Destroy; override;
+    property TipoEvento: TTipoEvento read FTipoEvento;
+    property EvtInfoComplPer: TEvtInfoComplPer read FEvtInfoComplPer write FEvtInfoComplPer;
+  end;
+
+  TS1280Collection = class(TeSocialCollection)
+  private
+    function GetItem(Index: Integer): TS1280CollectionItem;
+    procedure SetItem(Index: Integer; Value: TS1280CollectionItem);
+  public
+    function Add: TS1280CollectionItem; overload; deprecated {$IfDef SUPPORTS_DEPRECATED_DETAILS} 'Obsoleta: Use a função New'{$EndIf};
+    function New: TS1280CollectionItem;
+    property Items[Index: Integer]: TS1280CollectionItem read GetItem write SetItem; default;
   end;
 
 implementation
@@ -245,7 +237,7 @@ end;
 
 procedure TEvtInfoComplPer.GerarInfoAtivConcom;
 begin
-  if InfoAtivConcom.fatorMes <> 0 then
+  if (FClassTrib = ct03) or (InfoAtivConcom.fatorMes <> 0) then
   begin
     Gerador.wGrupo('infoAtivConcom');
 
@@ -258,16 +250,14 @@ end;
 
 procedure TEvtInfoComplPer.GerarinfoPercTransf11096;
 begin
-  if VersaoDF > ve02_05_00 then
-    if infoPercTransf11096.percTransf > 0 then
-    begin
-      Gerador.wGrupo('infoPercTransf11096');
+  if infoPercTransf11096.percTransf > 0 then
+  begin
+    Gerador.wGrupo('infoPercTransf11096');
 
-      Gerador.wCampo(tcStr, '', 'percTransf', 1, 1, 1, infoPercTransf11096.percTransf);
+    Gerador.wCampo(tcStr, '', 'percTransf', 1, 1, 1, infoPercTransf11096.percTransf);
 
-      Gerador.wGrupo('/infoPercTransf11096');
-    end;
-
+    Gerador.wGrupo('/infoPercTransf11096');
+  end;
 end;
 
 procedure TEvtInfoComplPer.GerarInfoSubstPatr;
@@ -294,10 +284,7 @@ begin
 
     Gerador.wGrupo('infoSubstPatrOpPort');
 
-    if VersaoDF <= ve02_05_00 then
-      Gerador.wCampo(tcStr, '', 'cnpjOpPortuario', 14, 14, 1, objInfoSubstPatrOpPortItem.cnpjOpPortuario)
-    else
-      Gerador.wCampo(tcStr, '', 'codLotacao ', 30, 30, 1, objInfoSubstPatrOpPortItem.codLotacao);
+    Gerador.wCampo(tcStr, '', 'codLotacao ', 30, 30, 1, objInfoSubstPatrOpPortItem.codLotacao);
 
     Gerador.wGrupo('/infoSubstPatrOpPort');
   end;
@@ -334,9 +321,6 @@ begin
     GerarRodape;
 
     FXML := Gerador.ArquivoFormatoXML;
-//    XML := Assinar(Gerador.ArquivoFormatoXML, 'evtInfoComplPer');
-
-//    Validar(schevtInfoComplPer);
   except on e:exception do
     raise Exception.Create('ID: ' + Self.Id + sLineBreak + ' ' + e.Message);
   end;
@@ -472,8 +456,9 @@ begin
       InfoAtivConcom.fator13  := StringToFloatDef(INIRec.ReadString(sSecao, 'fator13', ''), 0);
 
       sSecao := 'infoPercTransf11096';
-      if INIRec.ReadString(sSecao, 'percTrans', '') <> '' then
-        infoPercTransf11096.percTransf  := StrToIntDef(INIRec.ReadString(sSecao, 'percTrans', ''), 0);
+      sFim := INIRec.ReadString(sSecao, 'percTrans', INIRec.ReadString(sSecao, 'percTransf', ''));
+      if Trim(sFim) <> '' then
+        infoPercTransf11096.percTransf  := StrToIntDef(sFim, 0);
     end;
 
     GerarXML;

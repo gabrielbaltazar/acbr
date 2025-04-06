@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -38,7 +38,9 @@ interface
 
 uses
   SysUtils, Classes, DB, DBClient, ACBrBase, ACBrMDFeDAMDFeClass, pcnConversao,
-  pmdfeMDFe, frxClass, ACBrDFeUtil, pmdfeEnvEventoMDFe, frxDBSet,
+  ACBrMDFe.Classes, frxClass, ACBrDFeUtil,
+  ACBrMDFe.EnvEvento,
+  frxDBSet,
   frxExportPDF, frxBarcode;
 
 type
@@ -142,6 +144,7 @@ type
     procedure ImprimirDAMDFePDF(AStream: TStream; AMDFe: TMDFe = nil); override;
     procedure ImprimirEVENTO(AMDFe: TMDFe = nil); override;
     procedure ImprimirEVENTOPDF(AMDFe: TMDFe = nil); override;
+    procedure ImprimirEVENTOPDF(AStream: TStream; AMDFe: TMDFe = nil); override;
 
     procedure CarregaDados;
     procedure LimpaDados;
@@ -931,6 +934,33 @@ begin
   end;
 end;
 
+procedure TACBrMDFeDAMDFEFR.ImprimirEVENTOPDF(AStream: TStream; AMDFe: TMDFe);
+const
+  TITULO_PDF = 'Manifesto de Documento Eletrônico - Evento';
+var
+  OldShowDialog: Boolean;
+begin
+  if PrepareReportEvento then
+  begin
+    frxPDFExport.Author   := Sistema;
+    frxPDFExport.Creator  := Sistema;
+    frxPDFExport.Producer := Sistema;
+    frxPDFExport.Title    := TITULO_PDF;
+    frxPDFExport.Subject  := TITULO_PDF;
+    frxPDFExport.Keywords := TITULO_PDF;
+
+    frxPDFExport.Stream := AStream;
+    OldShowDialog := frxPDFExport.ShowDialog;
+
+    try
+      frxPDFExport.ShowDialog := False;
+      frxReport.Export(frxPDFExport);
+    finally
+      frxPDFExport.ShowDialog := OldShowDialog;
+    end;
+  end;
+end;
+
 function TACBrMDFeDAMDFEFR.PrepareReport(AMDFe: TMDFe): Boolean;
 var
   i: Integer;
@@ -1108,15 +1138,15 @@ var i:integer;
 begin
   with cdsContratantes, FMDFe.rodo.infANTT do
   begin
-    Append;
     for I := 0 to infContratante.Count - 1 do
     begin
+      Append;
       if Length(infContratante[i].CNPJCPF)=11 then
         FieldByName('CNPJCPF').AsString         := FormatarCPF(infContratante[i].CNPJCPF)
       else
         FieldByName('CNPJCPF').AsString         := FormatarCNPJ(infContratante[i].CNPJCPF);
+      Post;
     end;
-    Post;
   end;
 end;
 
@@ -1228,11 +1258,7 @@ end;
 
 procedure TACBrMDFeDAMDFEFR.CarregaIdentificacao;
 var
-  vTemp:TStringList;
   wObs:String;
-  Campos:TSplitResult;
-  IndexCampo:Integer;
-  TmpStr:String;
   BufferObs:String;
   I:integer;
 begin
@@ -1240,40 +1266,35 @@ begin
   begin
     Append;
 
-    with FMDFe.infMDFe do
-    begin
-      FieldByName('Id').AsString    := OnlyNumber(Id);
-      FieldByName('Chave').AsString := FormatarChaveAcesso(Id);
-    end;
+    FieldByName('Id').AsString    := OnlyNumber(FMDFe.infMDFe.Id);
+    FieldByName('Chave').AsString := FormatarChaveAcesso(FMDFe.infMDFe.Id);
 
-    with FMDFe.Ide do
+    FieldByName('tpAmb').AsInteger  := StrToIntDef(TpAmbToStr(FMDFe.Ide.tpAmb), 0);
+    FieldByName('tpEmit').AsInteger := StrToIntDef(TpEmitenteToStr(FMDFe.Ide.tpEmit), 0);
+    FieldByName('Modelo').AsString  := FMDFe.Ide.modelo;
+    FieldByName('serie').AsString   := Poem_Zeros(FMDFe.Ide.serie, 3);
+    FieldByName('nMDF').AsString    := FormatFloat('000,000,000', FMDFe.Ide.nMDF);
+    FieldByName('modal').AsInteger  := StrToIntDef(ModalToStr(FMDFe.Ide.modal), 0);
+    FieldByName('dhEmi').AsDateTime := FMDFe.Ide.dhEmi;
+    FieldByName('tpEmis').AsInteger := StrToIntDef(TpEmisToStr(FMDFe.Ide.tpEmis), 0);
+    FieldByName('UFIni').AsString   := FMDFe.Ide.UFIni;
+    FieldByName('UFFim').AsString   := FMDFe.Ide.UFFim;
+
+    if (FMDFe.Ide.tpEmis = teNormal) or (not EstaVazio(FDAMDFEClassOwner.Protocolo)) or
+       (not EstaVazio(FMDFe.procMDFe.nProt)) then
     begin
-      FieldByName('tpAmb').AsInteger  := StrToIntDef(TpAmbToStr(tpAmb), 0);
-      FieldByName('tpEmit').AsInteger := StrToIntDef(TpEmitenteToStr(tpEmit), 0);
-      FieldByName('Modelo').AsString  := modelo;
-      FieldByName('serie').AsString   := Poem_Zeros(serie, 3);
-      FieldByName('nMDF').AsString    := FormatFloat('000,000,000', nMDF);
-      FieldByName('modal').AsInteger  := StrToIntDef(ModalToStr(modal), 0);
-      FieldByName('dhEmi').AsDateTime := dhEmi;
-      FieldByName('tpEmis').AsInteger := StrToIntDef(TpEmisToStr(tpEmis), 0);
-      FieldByName('UFIni').AsString   := UFIni;
-      FieldByName('UFFim').AsString   := UFFim;
-      if (tpEmis = teNormal) or (not EstaVazio(FDAMDFEClassOwner.Protocolo)) or (not EstaVazio(FMDFe.procMDFe.nProt))
-      then
-      begin
-        if not EstaVazio(FDAMDFEClassOwner.Protocolo) then
-          FieldByName('Protocolo').AsString := FDAMDFEClassOwner.Protocolo
-        else if not EstaVazio(FMDFe.procMDFe.nProt) then
-          FieldByName('Protocolo').AsString := FMDFe.procMDFe.nProt + '   ' +
-            IfThen(FMDFe.procMDFe.dhRecbto <> 0, DateTimeToStr(FMDFe.procMDFe.dhRecbto), '')
-        else
-          FieldByName('Protocolo').AsString := 'MDFe sem Autorização de Uso da SEFAZ';
-      end
+      if not EstaVazio(FDAMDFEClassOwner.Protocolo) then
+        FieldByName('Protocolo').AsString := FDAMDFEClassOwner.Protocolo
+      else if not EstaVazio(FMDFe.procMDFe.nProt) then
+        FieldByName('Protocolo').AsString := FMDFe.procMDFe.nProt + '   ' +
+          IfThen(FMDFe.procMDFe.dhRecbto <> 0, DateTimeToStr(FMDFe.procMDFe.dhRecbto), '')
       else
-        FieldByName('Protocolo').AsString := 'Impressão em contingência. Obrigatória a autorização em 168 horas' +
-          ' após esta impressão (' + FormatDateTimeBr(dhEmi) + ')';
+        FieldByName('Protocolo').AsString := 'MDFe sem Autorização de Uso da SEFAZ';
+    end
+    else
+      FieldByName('Protocolo').AsString := 'Impressão em contingência. Obrigatória a autorização em 168 horas' +
+        ' após esta impressão (' + FormatDateTimeBr(FMDFe.Ide.dhEmi) + ')';
 
-    end;
     with FMDFe.tot do
     begin
       FieldByName('qCTe').AsInteger    := qCTe;
@@ -1298,22 +1319,12 @@ begin
 
     // Incluido por Paulo Hostert em 18/11/2014.
     wObs := FMDFe.infAdic.infCpl;
-    vTemp := TStringList.Create;
-    try
-      if Trim(wObs) <> '' then
-      begin
-        Campos := Split(';', wObs);
-        for IndexCampo := 0 to Length(Campos) - 1 do
-          vTemp.Add(Trim(Campos[IndexCampo]));
 
-        TmpStr := vTemp.Text;
-        BufferObs := TmpStr;
-      end
-      else
-        BufferObs := '';
-    finally
-      vTemp.Free;
-    end;
+    if Trim(wObs) <> '' then
+      BufferObs := StringReplace(wObs, FDAMDFEClassOwner.CaractereQuebraDeLinha, sLineBreak, [rfReplaceAll, rfIgnoreCase])
+    else
+      BufferObs := '';
+
     FieldByName('OBS').AsString := BufferObs;
     FieldByName('dhIniViagem').AsDateTime := FMDFe.Ide.dhIniViagem;
 
@@ -1750,7 +1761,7 @@ begin
     begin
       FieldByName('placa').AsString     := FieldByName('placa').AsString + #13#10 + FormatarPlaca(veicReboque.Items[i].placa) + ' / ' + veicReboque.Items[i].UF;
       FieldByName('RENAVAM').AsString   := FieldByName('RENAVAM').AsString + #13#10 + veicReboque.Items[i].RENAVAM;
-      FieldByName('RNTRCProp').AsString := FieldByName('RNTRCProp').AsString + #13#10 + IfThen(veicReboque.Items[i].prop.RNTRC <> '', veicReboque.Items[i].prop.RNTRC, FMDFe.rodo.RNTRC);
+      FieldByName('RNTRCProp').AsString := FieldByName('RNTRCProp').AsString + #13#10 + IfThen(veicReboque.Items[i].prop.RNTRC <> '', veicReboque.Items[i].prop.RNTRC, FieldByName('RNTRC').AsString);
       FieldByName('CNPJCPFProp').AsString := FieldByName('CNPJCPFProp').AsString + #13#10 + veicReboque.Items[i].prop.CNPJCPF;
     end;
 

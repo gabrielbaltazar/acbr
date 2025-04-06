@@ -5,7 +5,7 @@
 {                                                                              }
 { Direitos Autorais Reservados (c) 2020 Daniel Simoes de Almeida               }
 {                                                                              }
-{ Colaboradores nesse arquivo: Italo Jurisato Junior                           }
+{ Colaboradores nesse arquivo: Italo Giurizzato Junior                         }
 {                                                                              }
 {  Você pode obter a última versão desse arquivo na pagina do  Projeto ACBr    }
 { Componentes localizado em      http://www.sourceforge.net/projects/acbr      }
@@ -204,7 +204,7 @@ uses
   StrUtils,
   Dialogs,
   DateUtils,
-  pmdfeMDFe,
+  ACBrMDFe.Classes,
   ACBrUtil.Strings,
   ACBrUtil.DateTime,
   ACBrUtil.Base,
@@ -267,15 +267,16 @@ begin
       rlmEmitente.Lines.Text := XNome;
 
       rlmDadosEmitente.Lines.Clear;
-      with EnderEmit do
-      begin
-        rlmDadosEmitente.Lines.Add(XLgr + ifthen(XBairro <> '', ', ' + XBairro, '') +  IfThen(Nro = '0', '', ', ' + Nro));
 
-        if XCpl <> '' then
-          rlmDadosEmitente.Lines.Add(XCpl);
+      rlmDadosEmitente.Lines.Add(EnderEmit.XLgr + ifthen(EnderEmit.XBairro <> '',
+        ', ' + EnderEmit.XBairro, '') +
+        IfThen(EnderEmit.Nro = '0', '', ', ' + EnderEmit.Nro));
 
-        rlmDadosEmitente.Lines.Add(XMun + ' - ' + UF + '   CEP: ' + FormatarCEP(CEP));
-      end;
+      if EnderEmit.XCpl <> '' then
+        rlmDadosEmitente.Lines.Add(EnderEmit.XCpl);
+
+      rlmDadosEmitente.Lines.Add(EnderEmit.XMun + ' - ' + EnderEmit.UF +
+        '   CEP: ' + FormatarCEP(EnderEmit.CEP));
 
       rlmDadosEmitente.Lines.Add(IfThen(Length(OnlyNumber(CNPJCPF)) > 11, 'CNPJ: ', 'CPF: ') + FormatarCNPJouCPF(CNPJCPF) + ACBrStr('   IE: ') + IE);
       rlmDadosEmitente.Lines.Add('TEL.: ' + FormatarFone(EnderEmit.Fone));
@@ -516,7 +517,7 @@ begin
   rlmObservacao.Lines.BeginUpdate;
   rlmObservacao.Lines.Clear;
   rlmObservacao.Lines.Add(StringReplace(fpMDFe.infAdic.infCpl, '&lt;BR&gt;', #13#10, [rfReplaceAll, rfIgnoreCase]));
-  rlmObservacao.Lines.Text := StringReplace(rlmObservacao.Lines.Text, ';', #13, [rfReplaceAll]);
+  rlmObservacao.Lines.Text := StringReplace(rlmObservacao.Lines.Text, fpDAMDFe.CaractereQuebraDeLinha, #13, [rfReplaceAll]);
   rlmObservacao.Lines.EndUpdate;
 
   // Mensagem para modo Homologacao.
@@ -558,7 +559,7 @@ begin
       rllMsg2.Enabled := True;
     end;
 
-    if not fpMDFe.procMDFe.cStat in [100, 101, 110] then
+    if not (fpMDFe.procMDFe.cStat in [100, 101, 110]) then
     begin
       rllMsg2.Caption := fpMDFe.procMDFe.xMotivo;
       rllMsg2.Visible := True;

@@ -52,6 +52,203 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+13/03/2025
+-- pcesRetDownloadRetEvt -
+[*] #TK-6669: Atualizar o schema do S1260 para não validar cnpj
+  Por: Jeihcio Francis / Renato Rubinho
+
+03/03/2025
+-- Diversos --
+[*] Remoção de código que eram usados por versões antigas, ou seja, antes das
+    versões Simplificadas.
+    Remoção realizada nos eventos não periódicos (2190 até 2399).
+Por: Italo Giurizzato Junior
+
+27/02/2025
+-- pcesRetDownloadRetEvt -
+[*] #TK-6455: Alteração visando melhorar a resposta do comando DownloadEventos.
+  Por: Diego Folieni
+
+14/02/2025
+-- Diversos --
+[*] Remoção de código que eram usados por versões antigas, ou seja, antes das
+    versões Simplificadas.
+    Remoção realizada nos eventos não periódicos (2190 até 2399).
+Por: Italo Giurizzato Junior
+
+12/02/2025
+-- Diversos --
+[*] #TK-TK-6608 - Restaurada geração do grupo infoComplCont no S1200
+Por: falcon2000 / Renato Rubinho
+
+07/02/2025
+-- Diversos --
+[*] Remoção de código que eram usados por versões antigas, ou seja, antes das
+    versões Simplificadas.
+    Remoção realizada nos eventos de tabelas e eventos periódicos.
+Por: Italo Giurizzato Junior
+
+10/01/2025
+-- pcesS1210 --
+[*] #TK-6468 - Ajuste das ocorrências do vlrDedPC e vlrDedPC13 conforme leiaute.
+https://www.projetoacbr.com.br/forum/topic/81289-esocial-s-1210-erro-the-value-000-must-be-greater-than-0-vlrdedpc13/
+Por: Diego Folieni 
+
+31/12/2024
+-- Diversos --
+[*] #TK-6368 - Ajustes visando sanar discordâncias relatadas - https://www.projetoacbr.com.br/forum/topic/80885-evento-s-2200-valida%C3%A7%C3%B5es/?&_rid=124795#findComment-524965
+Por: Diego Folieni 
+
+27/12/2024
+-- pcesGerador --
+[*] #TK-6364 - Alterado critério para geração do campo DscSalvar no S-2200, sem considerar o campo UndSalFixo - https://www.projetoacbr.com.br/forum/topic/81039-acbresocial-divergente-do-manual-e-leiaute-13/
+Por: Eduardo Rodrigues de Faria / Renato Rubinho
+-- pcesS5002 --
+[*] #TK-6364 - Alterada classe TinfoIRComplem do S-5002, que passou a ser uma TCollection devido a mudança do leiaute 1.3.
+Por: Renato Rubinho
+
+04/12/2024
+-- pcesS2205, pcesS2300 --
+[*] #TK-6309 - Adiciona na rotina de leitura do INI nova informação para correta geração de EnderecoExterior. - https://www.projetoacbr.com.br/forum/topic/80885-evento-s-2200-valida%C3%A7%C3%B5es/
+Por: Diego Folieni
+
+03/12/2024
+-- pcesS2200 --
+[*] #TK-6309 - Adiciona na rotina de leitura do INI nova informação para correta geração de EnderecoExterior. - https://www.projetoacbr.com.br/forum/topic/80885-evento-s-2200-valida%C3%A7%C3%B5es/
+Por: Diego Folieni
+-- pcesS1010 --
+[*] TK-6283 - Configurada leitura do ini e do xml do evento S1010 para considerarem o campo dadosRubrica.codInscPisPasep - https://www.projetoacbr.com.br/forum/topic/80820-codincpispasep-no-evento-s-1010/
+Por: Renato Rubinho
+-- pcesS2501 --
+[*] TK-6294 - Corrigido S2510 para gerar o atributo vrCR13 somente quando for maior que zero  - https://www.projetoacbr.com.br/forum/topic/80842-sugest%C3%A3o-de-melhoria-evento-s-2501/
+Por: Andergoncalves
+
+02/12/2024
+-- pcesS1299 --
+[*] TK-6284 - Corrigidos S1000, S1005, S1020, S1070 para não gerar grupo novaValidade quando iniValid estiver em branco. - https://www.projetoacbr.com.br/forum/topic/80807-nova-validade-eventos-de-tabelas-dll/
+Por: Renato Rubinho
+
+28/11/2024
+-- pcesS1299 --
+[*] TK-6287 - Configurado infoFech.naoValid, no S1299, para considerar a versão do leiaute para o preenchimento do campo.
+Por: Jeihcio Francis / Renato Rubinho
+
+12/11/2024
+-- pcesS1010.pas --
+[*] Sem TK - Corrigido S1010 para não gerar grupo novaValidade quando iniValid estiver em branco.
+Por: Renato Rubinho
+
+07/11/2024
+-- pcesS3500 --
+[+] TK-6073 - Ajuste conforme NT 01/2024
+Por: Renato Rubinho
+
+31/10/2024
+-- Diversos --
+[*] TK-5666-1 - Compatibiliza o e-Social com a versão S-1.3 do leiaute.
+Por: Marcelo Pontes Melim / Diego Folieni
+
+28/10/2024
+-- pcesConversaoeSocial --
+[-] TK-6179 - Correção do enumerado tpPlanRP
+Por: Renato Rubinho
+
+15/10/2024
+-- pcesS2206 --
+[-] TK-6087 - Correção de memory leak
+Por: Alisson Souza Pereira
+
+07/10/2024
+-- pcesS1200 --
+[*] TK-6054 - Corrigida leitura do ini S-1200, considerando o campo obrigatório tpAcConv para geração do grupo ideADC
+Por: Renato Rubinho
+
+11/09/2024
+-- pcesConversaoeSocial --
+[*] TK-5890 - Identificação do evento S-2221 e Refatoração parcial da unit pcesConversaoeSocial
+Por: MSS, Renato Rubinho
+
+10/09/2024
+-- pcesConversaoeSocial --
+[*] TK-5902 - Adicionado código 68-Desconto Simplificado Mensal na Tabela 21
+Por: claudemes, Andergoncalves
+
+05/08/2024
+-- pcesGerador --
+[*] TK-5811 - Configurados valores padrão para tpPlanRP e tpContr no S2200 e corrigidas funções de conversão
+Por: Renato Rubinho
+
+23/07/2024
+-- pcesGerador --
+[*] TK-5761 - Correção ao ler xmls assinados para preencher a propriedade ID do evento.
+Por: Renato Rubinho
+
+11/07/2024
+-- pcesConversaoeSocial, pcesS2501, pcesS5003 --
+[*] Implementa as alterações da NT2024/04 Revisada.
+Por: Diego Folieni
+
+25/06/2024
+--- pcesS2500 ---
+[*] Corrigido critério para geração do grupo infoCompl do evento S2500
+Por: Andergoncalves
+
+24/06/2024
+--- Diversos ---
+[*] Implementado evento S2221 na versão 01_02_00
+Por: Renato Rubinho
+
+19/06/2024
+-- Frm_ACBreSocial --
+[*] Correção na geração do grupo Vinculo do evento S2206
+Por: Renato Rubinho
+
+04/06/2024
+-- pcesConversaoeSocial --
+[*] Correção na identificação do tipo de evento ao carregar o xml
+Por: Ray Hildebrant
+
+07/05/2024
+-- pcesS2206 --
+[*] Corrigido critério para geração do grupo infoRegimeTrab no evento S2206
+Por: EdmarFrazao, Renato Rubinho
+
+06/05/2024
+-- pcesConversaoeSocial, pcesS2206 --
+[*] Corrigido critério para geração do grupo infoRegimeTrab no evento S2206
+Por: paulosilva0306
+-- pcesS5002 --
+[*] Corrigida leitura do grupo InfoIRComplem do evento S5002
+Por: claudemes
+
+23/04/2024
+-- Frm_ACBreSocial, ACBreSocialWebServices --
+[*] Implementada propriedade PathNome para retorno do arquivo gerado em envio de lote, consultas e download de eventos
+Por: Renato Rubinho
+
+22/04/2024
+-- pcesS2206 --
+[*] Ajustes no S2206 para considerar a classe Vinculo
+Por: Andergoncalves, paulosilva0306, Sófolha
+
+12/04/2024
+-- pcesConversaoeSocial --
+[*] Atualização dos enumerados referentes à Tabela 18 - Motivos de Afastamento
+Por: paulosilva0306, Renato Rubinho
+-- pcesS2500, Frm_ACBreSocial --
+[*] AlteradO critério para geração do grupo baseCalculo do S2500 considerando preenchimento do vrBcCpMensal ou vrBcCp13
+Por: Elton Barbosa, Renato Rubinho
+
+21/03/2024
+-- ACBreSocialWebServices --
+[*] Adiciona chamada a UTF8ToNativeString quando usa ParseText para corrigir problemas de conversão de acentuação
+Por: Diego Folieni
+
+11/03/2024
+-- pcesS1280, Frm_ACBreSocial --
+[*] Criada propriedade ClassTrib informativa no S1280, para utilização como critério de geração do grupo infoAtivConcom 
+  Por: Renato Rubinho
+
 27/02/2024
 -- pcesS2299 --
 [*] Alterada condição de preenchimento do nrProcTrab, no S-2299, para considerar somente se ele foi preenchido.

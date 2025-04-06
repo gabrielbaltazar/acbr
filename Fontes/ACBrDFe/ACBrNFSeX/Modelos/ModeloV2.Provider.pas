@@ -49,22 +49,18 @@ uses
 type
   TACBrNFSeXWebserviceModeloV2200 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
-    {
-      Descomente a linha abaixo para definir um tratamento para o XML
-      retornado caso seja necessário.
-    }
-//    function TratarXmlRetornado(const aXML: string): string; override;
+    function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderModeloV2200 = class (TACBrNFSeProviderABRASFv2)
@@ -80,6 +76,7 @@ type
 implementation
 
 uses
+  ACBrUtil.XMLHTML,
   ACBrDFeException,
   ModeloV2.GravarXml, ModeloV2.LerXml;
 
@@ -158,101 +155,65 @@ begin
     }
 
     // Usado para geração do Xml do Rps
-    with XmlRps do
-    begin
-      // Define o NameSpace do XML do Rps, sobrepõe a definição global: SetXmlNameSpace
-      xmlns := '';
-      InfElemento := 'InfDeclaracaoPrestacaoServico';
-      DocElemento := 'Rps';
-    end;
+    // Define o NameSpace do XML do Rps, sobrepõe a definição global: SetXmlNameSpace
+    XmlRps.xmlns := '';
+    XmlRps.InfElemento := 'InfDeclaracaoPrestacaoServico';
+    XmlRps.DocElemento := 'Rps';
 
     // Usado para geração do Envio do Lote em modo assíncrono
-    with LoteRps do
-    begin
-      xmlns := '';
-      InfElemento := 'LoteRps';
-      DocElemento := 'EnviarLoteRpsEnvio';
-    end;
+    LoteRps.xmlns := '';
+    LoteRps.InfElemento := 'LoteRps';
+    LoteRps.DocElemento := 'EnviarLoteRpsEnvio';
 
     // Usado para geração do Envio do Lote em modo Sincrono
-    with LoteRpsSincrono do
-    begin
-      xmlns := '';
-      InfElemento := 'LoteRps';
-      DocElemento := 'EnviarLoteRpsSincronoEnvio';
-    end;
+    LoteRpsSincrono.xmlns := '';
+    LoteRpsSincrono.InfElemento := 'LoteRps';
+    LoteRpsSincrono.DocElemento := 'EnviarLoteRpsSincronoEnvio';
 
     // Usado para geração da Consulta a Situação do Lote
-    with ConsultarSituacao do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'ConsultarSituacaoLoteRpsEnvio';
-    end;
+    ConsultarSituacao.xmlns := '';
+    ConsultarSituacao.InfElemento := '';
+    ConsultarSituacao.DocElemento := 'ConsultarSituacaoLoteRpsEnvio';
 
     // Usado para geração da Consulta do Lote
-    with ConsultarLote do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'ConsultarLoteRpsEnvio';
-    end;
+    ConsultarLote.xmlns := '';
+    ConsultarLote.InfElemento := '';
+    ConsultarLote.DocElemento := 'ConsultarLoteRpsEnvio';
 
     // Usado para geração da Consulta da NFSe por RPS
-    with ConsultarNFSeRps do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'ConsultarNfseRpsEnvio';
-    end;
+    ConsultarNFSeRps.xmlns := '';
+    ConsultarNFSeRps.InfElemento := '';
+    ConsultarNFSeRps.DocElemento := 'ConsultarNfseRpsEnvio';
 
     // Usado para geração da Consulta da NFSe
-    with ConsultarNFSe do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'ConsultarNfseEnvio';
-    end;
+    ConsultarNFSe.xmlns := '';
+    ConsultarNFSe.InfElemento := '';
+    ConsultarNFSe.DocElemento := 'ConsultarNfseEnvio';
 
     // Usado para geração do Cancelamento
-    with CancelarNFSe do
-    begin
-      xmlns := '';
-      InfElemento := 'InfPedidoCancelamento';
-      DocElemento := 'Pedido';
-    end;
+    CancelarNFSe.xmlns := '';
+    CancelarNFSe.InfElemento := 'InfPedidoCancelamento';
+    CancelarNFSe.DocElemento := 'Pedido';
 
     // Usado para geração do Gerar
-    with GerarNFSe do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := 'GerarNfseEnvio';
-    end;
+    GerarNFSe.xmlns := '';
+    GerarNFSe.InfElemento := '';
+    GerarNFSe.DocElemento := 'GerarNfseEnvio';
 
     // Usado para geração do Substituir
-    with SubstituirNFSe do
-    begin
-      xmlns := '';
-      InfElemento := 'SubstituicaoNfse';
-      DocElemento := 'SubstituirNfseEnvio';
-    end;
+    SubstituirNFSe.xmlns := '';
+    SubstituirNFSe.InfElemento := 'SubstituicaoNfse';
+    SubstituirNFSe.DocElemento := 'SubstituirNfseEnvio';
 
     // Usado para geração da Abertura de Sessão
-    with AbrirSessao do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    AbrirSessao.xmlns := '';
+    AbrirSessao.InfElemento := '';
+    AbrirSessao.DocElemento := '';
 
     // Usado para geração do Fechamento de Sessão
-    with FecharSessao do
-    begin
-      xmlns := '';
-      InfElemento := '';
-      DocElemento := '';
-    end;
+    FecharSessao.xmlns := '';
+    FecharSessao.InfElemento := '';
+    FecharSessao.DocElemento := '';
   end;
 
   // Inicializa os parâmetros de configuração: Assinar
@@ -338,7 +299,7 @@ end;
 
 { TACBrNFSeXWebserviceModeloV2200 }
 
-function TACBrNFSeXWebserviceModeloV2200.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceModeloV2200.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -355,7 +316,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceModeloV2200.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceModeloV2200.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -372,7 +333,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceModeloV2200.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceModeloV2200.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -389,7 +350,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceModeloV2200.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceModeloV2200.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -406,7 +367,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceModeloV2200.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceModeloV2200.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -423,7 +384,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceModeloV2200.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceModeloV2200.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -440,7 +401,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceModeloV2200.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceModeloV2200.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -457,7 +418,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceModeloV2200.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceModeloV2200.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -474,7 +435,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceModeloV2200.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceModeloV2200.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -490,7 +451,7 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-function TACBrNFSeXWebserviceModeloV2200.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceModeloV2200.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -507,18 +468,12 @@ begin
                      ['xmlns:nfse="http://nfse.abrasf.org.br"']);
 end;
 
-    {
-      Descomente a definição da function abaixo para definir um tratamento para
-      o XML retornado caso seja necessário.
-    }
-
-{
 function TACBrNFSeXWebserviceModeloV2200.TratarXmlRetornado(
   const aXML: string): string;
 begin
   Result := inherited TratarXmlRetornado(aXML);
 
-  // Reescrever se necessário;
+  Result := ParseText(Result);
 end;
-}
+
 end.

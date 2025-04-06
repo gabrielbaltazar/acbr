@@ -134,7 +134,12 @@ begin
         end;
 
         case LTipoOperacao of
-          tpBaixa,
+          tpBaixa :
+            begin
+              ARetornoWS.DadosRet.TituloRet.CodigoEstadoTituloCobranca := LJsonObject.AsString['statusComando'];
+              ARetornoWS.DadosRet.IDBoleto.IDBoleto                    := LJsonObject.AsString['transactionId'];
+              ARetornoWS.DadosRet.TituloRet.EstadoTituloCobranca       := LJsonObject.AsString['tipoMensagem'];
+            end;
           tpAltera,
           tpConsultaDetalhe :
             begin
@@ -143,6 +148,10 @@ begin
               ARetornoWS.DadosRet.TituloRet.Carteira       := LJsonObject.AsString['carteira'];
               ARetornoWS.DadosRet.TituloRet.SeuNumero      := LJsonObject.AsString['seuNumero'];
               ARetornoWS.DadosRet.TituloRet.NossoNumero    := LJsonObject.AsString['nossoNumero'];
+              ARetornoWS.DadosRet.IDBoleto.CodBarras       := ARetornoWS.DadosRet.TituloRet.CodBarras;
+              ARetornoWS.DadosRet.IDBoleto.LinhaDig        := ARetornoWS.DadosRet.TituloRet.LinhaDig;
+              ARetornoWS.DadosRet.IDBoleto.NossoNum        := ARetornoWS.DadosRet.TituloRet.NossoNumero;
+
               //Pagador
               //ARetornoWS.DadosRet.TituloRet.Sacado.codigo         := LJsonObject.AsJSONObject['pagador'].AsString['codigo'];
               ARetornoWS.DadosRet.TituloRet.Sacado.NomeSacado      := LJsonObject.AsJSONObject['pagador'].AsString['nome'];
@@ -187,6 +196,7 @@ begin
                  ARetornoWS.DadosRet.TituloRet.DataBaixa              := DateSicreditoDateTime(LJsonObject.AsJSONObject['dadosLiquidacao'].AsString['data']);
                  ARetornoWS.DadosRet.TituloRet.HoraBaixa              := TimeSicreditoDateTime(LJsonObject.AsJSONObject['dadosLiquidacao'].AsString['data']);
                  ARetornoWS.DadosRet.TituloRet.ValorDesconto          := LJsonObject.AsJSONObject['dadosLiquidacao'].AsFloat['desconto'];
+                 ARetornoWS.DadosRet.TituloRet.ValorMulta             := LJsonObject.AsJSONObject['dadosLiquidacao'].AsFloat['multa'];
               end;
 
               if LJsonObject.IsJSONArray('descontos') then
@@ -224,7 +234,7 @@ begin
             ARetornoWS.DadosRet.IDBoleto.NossoNum       := LJsonObject.AsString['nossoNumero'];
             ARetornoWS.DadosRet.TituloRet.UrlPix        := '';//LJsonObject.AsString['url'];
             ARetornoWS.DadosRet.TituloRet.TxId          := LJsonObject.AsString['txid'];
-            ARetornoWS.DadosRet.TituloRet.EMV           := LJsonObject.AsString['QrCode'];
+            ARetornoWS.DadosRet.TituloRet.EMV           := LJsonObject.AsString['qrCode'];
 
             ARetornoWS.DadosRet.TituloRet.CodBarras     := ARetornoWS.DadosRet.IDBoleto.CodBarras;
             ARetornoWS.DadosRet.TituloRet.LinhaDig      := ARetornoWS.DadosRet.IDBoleto.LinhaDig;
@@ -337,6 +347,7 @@ begin
             LListaRetorno.DadosRet.TituloRet.DataBaixa                  := DateSicreditoDateTime(LItemObject.AsString['dataPagamento']);
             LListaRetorno.DadosRet.TituloRet.HoraBaixa                  := TimeSicreditoDateTime(LItemObject.AsString['dataPagamento']);
             LListaRetorno.DadosRet.TituloRet.SeuNumero                  := LItemObject.AsString['seuNumero'];
+            LListaRetorno.DadosRet.TituloRet.valorAtual                 := LItemObject.AsFloat['valor'];
             LListaRetorno.DadosRet.TituloRet.ValorDocumento             := LItemObject.AsFloat['valor'];
             LListaRetorno.DadosRet.TituloRet.ValorRecebido              := LItemObject.AsFloat['valorLiquidado'];
             LListaRetorno.DadosRet.TituloRet.ValorPago                  := LItemObject.AsFloat['valorLiquidado'];
@@ -346,6 +357,8 @@ begin
             LListaRetorno.DadosRet.TituloRet.ValorOutrosCreditos        := LItemObject.AsFloat['multaLiquida'];
             LListaRetorno.DadosRet.TituloRet.ValorAbatimento            := LItemObject.AsFloat['abatimentoLiquido'];
             LListaRetorno.DadosRet.TituloRet.Mensagem.Text              := LItemObject.AsString['tipoLiquidacao'];
+
+            LListaRetorno.DadosRet.TituloRet.DataCredito                := DateSicreditoDateTime(LItemObject.AsString['dataPagamento']);
           end;
         end;
       finally

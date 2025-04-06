@@ -38,8 +38,10 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml, ACBrNFSeXConversao;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXGravarXml,
+  ACBrNFSeXConversao;
 
 type
   { TNFSeW_WebFisco }
@@ -53,6 +55,9 @@ type
   end;
 
 implementation
+
+uses
+  ACBrValidador;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -68,12 +73,15 @@ var
   xAtrib, strAux: string;
   i: Integer;
   valAux: Double;
+  LAuxVencimento: TDateTime;
+  function TemParcela(const AIndice: Integer): Boolean;
+  begin
+    Result := AIndice < NFSe.CondicaoPagamento.Parcelas.Count;
+  end;
 begin
   Configuracao;
 
   ListaDeAlertas.Clear;
-
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   cSimples := (NFSe.OptanteSimplesNacional = snSim);
   xAtrib   := 'xsi:type="xsd:string"';
@@ -84,12 +92,21 @@ begin
 
   FDocument.Root := NFSeNode;
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#', 'usuario', 1, 6, 1,
+  if Ambiente = taProducao then
+  begin
+    NFSeNode.AppendChild(AddNode(tcStr, '#', 'usuario', 1, 6, 1,
                                                     Usuario, '', True, xAtrib));
 
-  NFSeNode.AppendChild(AddNode(tcStr, '#', 'pass', 1, 6, 1,
+    NFSeNode.AppendChild(AddNode(tcStr, '#', 'pass', 1, 6, 1,
                                                       Senha, '', True, xAtrib));
+  end;
 
+  NFSeNode.AppendChild(AddNode(tcStr, '#', 'prf', 1, 18, 1,
+                               FormatarCNPJ(CNPJPrefeitura), '', True, xAtrib));
+
+  NFSeNode.AppendChild(AddNode(tcStr, '#', 'usr', 1, 18, 1,
+    FormatarCNPJouCPF(NFSe.Prestador.IdentificacaoPrestador.CpfCnpj), '', True, xAtrib));
+(*
   // as Tags abaixo só devem ser geradas em ambinte de produção
   if Ambiente = taProducao then
   begin
@@ -119,11 +136,11 @@ begin
       NFSeNode.AppendChild(AddNode(tcStr, '#', 'usr', 1, 18, 1,
                                        '57.657.017/0001-33', '', True, xAtrib));
   end;
-
+*)
   NFSeNode.AppendChild(AddNode(tcStr, '#', 'ctr', 1, 8, 1,
                                NFSe.IdentificacaoRps.Numero, '', True, xAtrib));
   NFSeNode.AppendChild(AddNode(tcStr, '#', 'cnpj', 1, 18, 1,
-                  NFSe.Tomador.IdentificacaoTomador.CpfCnpj, '', True, xAtrib));
+    FormatarCNPJouCPF(NFSe.Tomador.IdentificacaoTomador.CpfCnpj), '', True, xAtrib));
   NFSeNode.AppendChild(AddNode(tcStr, '#', 'cnpjn', 1, 60, 1,
                                    NFSe.Tomador.RazaoSocial, '', True, xAtrib));
   NFSeNode.AppendChild(AddNode(tcStr, '#', 'ie', 1, 20, 1,
@@ -154,11 +171,33 @@ begin
 
   for i := 1 to 6 do
   begin
+    strAux := '';
+    if TemParcela(i-1) then
+      strAux := NFSe.CondicaoPagamento.Parcelas[i-1].Parcela;
+
     NFSeNode.AppendChild(AddNode(tcStr, '#', 'f' + IntToStr(i) + 'n', 1, 15, 1,
+                strAux, '', True, xAtrib));
+
+    LAuxVencimento := 0;
+    if TemParcela(i-1) then
+      LAuxVencimento := NFSe.CondicaoPagamento.Parcelas[i-1].DataVencimento;
+
+    if LAuxVencimento > 0 then
+      NFSeNode.AppendChild(AddNode(tcDatVcto, '#', 'f' + IntToStr(i) + 'd', 1, 10, 1,
+           LAuxVencimento, '', True, xAtrib))
+    else
+      NFSeNode.AppendChild(AddNode(tcStr, '#', 'f' + IntToStr(i) + 'd', 1, 10, 1,
                                                          '', '', True, xAtrib));
-    NFSeNode.AppendChild(AddNode(tcStr, '#', 'f' + IntToStr(i) + 'd', 1, 10, 1,
-                                                         '', '', True, xAtrib));
-    NFSeNode.AppendChild(AddNode(tcStr, '#', 'f' + IntToStr(i) + 'v', 1, 12, 1,
+
+    valAux := 0;
+    if TemParcela(i-1) then
+      valAux := NFSe.CondicaoPagamento.Parcelas[i-1].Valor;
+
+    if valAux > 0 then
+      NFSeNode.AppendChild(AddNode(tcDe2, '#', 'f' + IntToStr(i) + 'v', 1, 12, 1,
+                    NFSe.CondicaoPagamento.Parcelas[i-1].Valor, '', True, xAtrib))
+    else
+      NFSeNode.AppendChild(AddNode(tcStr, '#', 'f' + IntToStr(i) + 'v', 1, 12, 1,
                                                          '', '', True, xAtrib));
   end;
 

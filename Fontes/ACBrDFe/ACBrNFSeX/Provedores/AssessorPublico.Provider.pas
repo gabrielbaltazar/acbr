@@ -51,10 +51,10 @@ type
   private
     function GetDadosUsuario: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
 
@@ -111,17 +111,17 @@ begin
     UseCertificateHTTP := False;
     ModoEnvio := meLoteAssincrono;
     DetalharServico := True;
+    QuebradeLinha := sLineBreak;
 
     Autenticacao.RequerCertificado := False;
     Autenticacao.RequerLogin := True;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := True;
-      ConsultarLote := True;
-      ConsultarNfse := True;
-      CancelarNfse := True;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+
+    Particularidades.PermiteMaisDeUmServico := True;
   end;
 
   ConfigMsgDados.UsarNumLoteConsLote := True;
@@ -200,28 +200,35 @@ procedure TACBrNFSeProviderAssessorPublico.GerarMsgDadosEmitir(
   Response: TNFSeEmiteResponse; Params: TNFSeParamsResponse);
 var
   Emitente: TEmitenteConfNFSe;
+  xData: string;
+  Mes, Ano: Integer;
 begin
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
+
+  xData := SeparaDados(Params.Xml, 'DATAEMISSAO', False);
+
+  Mes := StrToInt(Copy(xData, 4, 2));
+  Ano := StrToInt(Copy(xData, 7, 4));
 
   with Params do
   begin
     Response.ArquivoEnvio := '<NFSE>' +
-                           '<IDENTIFICACAO>' +
-                             '<MESCOMP>' +
-                                FormatDateTime('MM', Now) +
-                             '</MESCOMP>' +
-                             '<ANOCOMP>' +
-                                FormatDateTime('yyyy', Now) +
-                             '</ANOCOMP>' +
-                             '<INSCRICAO>' +
-                                Emitente.InscMun +
-                             '</INSCRICAO>' +
-                             '<VERSAO>1.00</VERSAO>' +
-                           '</IDENTIFICACAO>' +
-                           '<NOTAS>' +
-                             Xml +
-                           '</NOTAS>' +
-                         '</NFSE>';
+                               '<IDENTIFICACAO>' +
+                                 '<MESCOMP>' +
+                                    FormatFloat('00', Mes) +
+                                 '</MESCOMP>' +
+                                 '<ANOCOMP>' +
+                                    FormatFloat('0000', Ano) +
+                                 '</ANOCOMP>' +
+                                 '<INSCRICAO>' +
+                                    Emitente.InscMun +
+                                 '</INSCRICAO>' +
+                                 '<VERSAO>1.00</VERSAO>' +
+                               '</IDENTIFICACAO>' +
+                               '<NOTAS>' +
+                                 Xml +
+                               '</NOTAS>' +
+                             '</NFSE>';
   end;
 end;
 
@@ -290,15 +297,15 @@ begin
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
 
   Response.ArquivoEnvio := '<NFSE>' +
-                         '<IDENTIFICACAO>' +
-                           '<INSCRICAO>' +
-                              Emitente.InscMun +
-                           '</INSCRICAO>' +
-                           '<LOTE>' +
-                              Response.NumeroLote +
-                           '</LOTE>' +
-                         '</IDENTIFICACAO>' +
-                       '</NFSE>';
+                             '<IDENTIFICACAO>' +
+                               '<INSCRICAO>' +
+                                  Emitente.InscMun +
+                               '</INSCRICAO>' +
+                               '<LOTE>' +
+                                  Response.NumeroLote +
+                               '</LOTE>' +
+                             '</IDENTIFICACAO>' +
+                           '</NFSE>';
 end;
 
 procedure TACBrNFSeProviderAssessorPublico.TratarRetornoConsultaLoteRps(
@@ -405,18 +412,18 @@ begin
   Response.Metodo := tmConsultarNFSe;
 
   Response.ArquivoEnvio := '<NFSE>' +
-                         '<IDENTIFICACAO>' +
-                           '<INSCRICAO>' +
-                              Emitente.InscMun +
-                           '</INSCRICAO>' +
-                           '<LOTE>' +
-                              Response.InfConsultaNFSe.NumeroLote +
-                           '</LOTE>' +
-                           '<SEQUENCIA>' +
-                              Response.InfConsultaNFSe.NumeroIniNFSe +
-                           '</SEQUENCIA>' +
-                         '</IDENTIFICACAO>' +
-                       '</NFSE>';
+                             '<IDENTIFICACAO>' +
+                               '<INSCRICAO>' +
+                                  Emitente.InscMun +
+                               '</INSCRICAO>' +
+                               '<LOTE>' +
+                                  Response.InfConsultaNFSe.NumeroLote +
+                               '</LOTE>' +
+                               '<SEQUENCIA>' +
+                                  Response.InfConsultaNFSe.NumeroIniNFSe +
+                               '</SEQUENCIA>' +
+                             '</IDENTIFICACAO>' +
+                           '</NFSE>';
 end;
 
 procedure TACBrNFSeProviderAssessorPublico.TratarRetornoConsultaNFSeporNumero(
@@ -607,7 +614,7 @@ begin
   end;
 end;
 
-function TACBrNFSeXWebserviceAssessorPublico.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceAssessorPublico.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -623,7 +630,7 @@ begin
   Result := Executar('nfseaction/ANFSE.Execute', Request, [], ['xmlns:nfse="nfse"']);
 end;
 
-function TACBrNFSeXWebserviceAssessorPublico.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceAssessorPublico.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -639,7 +646,7 @@ begin
   Result := Executar('nfseaction/ANFSE.Execute', Request, [], ['xmlns:nfse="nfse"']);
 end;
 
-function TACBrNFSeXWebserviceAssessorPublico.ConsultarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceAssessorPublico.ConsultarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -655,7 +662,7 @@ begin
   Result := Executar('nfseaction/ANFSE.Execute', Request, [], ['xmlns:nfse="nfse"']);
 end;
 
-function TACBrNFSeXWebserviceAssessorPublico.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceAssessorPublico.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin

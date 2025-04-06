@@ -47,16 +47,16 @@ uses
 type
   TACBrNFSeXWebserviceSudoeste202 = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -88,6 +88,7 @@ begin
   inherited Configuracao;
 
   ConfigGeral.CancPreencherMotivo := True;
+  ConfigGeral.ConsultaPorFaixaPreencherNumNfseFinal := True;
 
   with ConfigWebServices do
   begin
@@ -139,6 +140,36 @@ var
   ANode: TACBrXmlNode;
   ANodeArray: TACBrXmlNodeArray;
   AErro: TNFSeEventoCollectionItem;
+
+procedure MontarListaErros(AuxNode: TACBrXmlNode);
+var
+  Codigo, Descricao, Correcao: string;
+begin
+  Codigo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Codigo'), tcStr);
+
+  if Codigo = '' then
+    Codigo := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ErroID'), tcStr);
+
+  Descricao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Mensagem'), tcStr);
+
+  if Descricao = '' then
+    Descricao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ErroMensagem'), tcStr);
+
+  Correcao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Correcao'), tcStr);
+
+  if Correcao = '' then
+    Correcao := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('ErroSolucao'), tcStr);
+
+  if (Codigo <> '') or (Descricao <> '') or (Correcao <> '') then
+  begin
+    AErro := Response.Erros.New;
+
+    AErro.Codigo := Codigo;
+    AErro.Descricao := Descricao;
+    AErro.Correcao := Correcao;
+  end;
+end;
+
 begin
   ANode := RootNode.Childrens.FindAnyNs(AListTag);
 
@@ -147,39 +178,18 @@ begin
 
   ANodeArray := ANode.Childrens.FindAllAnyNs('Erro');
 
-  if not Assigned(ANodeArray) and (ANodeArray <> nil) then
+  if Assigned(ANodeArray) then
   begin
-    AErro := Response.Erros.New;
-    AErro.Codigo := ObterConteudoTag(ANode.Childrens.FindAnyNs('Codigo'), tcStr);
-    AErro.Descricao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Mensagem'), tcStr);
-    AErro.Correcao := ObterConteudoTag(ANode.Childrens.FindAnyNs('Correcao'), tcStr);
-
-   Exit;
-  end;
-
-  for I := Low(ANodeArray) to High(ANodeArray) do
-  begin
-    AErro := Response.Erros.New;
-    AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Codigo'), tcStr);
-
-    if AErro.Codigo = '' then
-      AErro.Codigo := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('ErroID'), tcStr);
-
-    AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Mensagem'), tcStr);
-
-    if AErro.Descricao = '' then
-      AErro.Descricao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('ErroMensagem'), tcStr);
-
-    AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('Correcao'), tcStr);
-
-    if AErro.Correcao = '' then
-      AErro.Correcao := ObterConteudoTag(ANodeArray[I].Childrens.FindAnyNs('ErroSolucao'), tcStr);
-  end;
+    for I := Low(ANodeArray) to High(ANodeArray) do
+      MontarListaErros(ANodeArray[I]);
+  end
+  else
+    MontarListaErros(ANode);
 end;
 
 { TACBrNFSeXWebserviceSudoeste202 }
 
-function TACBrNFSeXWebserviceSudoeste202.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceSudoeste202.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -196,7 +206,7 @@ begin
                      ['xmlns:def="http://DefaultNamespace"']);
 end;
 
-function TACBrNFSeXWebserviceSudoeste202.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceSudoeste202.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -213,7 +223,7 @@ begin
                      ['xmlns:def="http://DefaultNamespace"']);
 end;
 
-function TACBrNFSeXWebserviceSudoeste202.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSudoeste202.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -230,7 +240,7 @@ begin
                      ['xmlns:def="http://DefaultNamespace"']);
 end;
 
-function TACBrNFSeXWebserviceSudoeste202.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceSudoeste202.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -247,7 +257,7 @@ begin
                      ['xmlns:def="http://DefaultNamespace"']);
 end;
 
-function TACBrNFSeXWebserviceSudoeste202.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceSudoeste202.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -264,7 +274,7 @@ begin
                      ['xmlns:def="http://DefaultNamespace"']);
 end;
 
-function TACBrNFSeXWebserviceSudoeste202.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceSudoeste202.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -281,7 +291,7 @@ begin
                      ['xmlns:def="http://DefaultNamespace"']);
 end;
 
-function TACBrNFSeXWebserviceSudoeste202.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceSudoeste202.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -298,7 +308,7 @@ begin
                      ['xmlns:def="http://DefaultNamespace"']);
 end;
 
-function TACBrNFSeXWebserviceSudoeste202.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceSudoeste202.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -315,7 +325,7 @@ begin
                      ['xmlns:def="http://DefaultNamespace"']);
 end;
 
-function TACBrNFSeXWebserviceSudoeste202.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSudoeste202.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -331,7 +341,7 @@ begin
                      ['xmlns:def="http://DefaultNamespace"']);
 end;
 
-function TACBrNFSeXWebserviceSudoeste202.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceSudoeste202.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;

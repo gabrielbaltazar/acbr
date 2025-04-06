@@ -11,6 +11,12 @@ uses
   {$endif}
   ACBrTests.Util;
 
+
+const
+  ARQUIVO_UTF8BOM = '..\..\..\..\Recursos\Xml\21_XmlUTF8BOM.xml';
+  ARQUIVO_UTF8 = '..\..\..\..\Recursos\Xml\22_XmlUTF8SemBOM.xml';
+  ARQUIVO_ANSI = '..\..\..\..\Recursos\Xml\23_XmlAnsi.xml';
+
 type
 
   { ParseTextTest }
@@ -21,6 +27,20 @@ type
     procedure ParseDecode;
     procedure ParseEncode;
     procedure VerificarConversaoTextoLongo;
+    procedure ParseStringSimples_SemParametros;
+    procedure ParseStringAcentuada_SemParametros;
+    procedure ParseStringAcentuada_DecodeFalse_IsUTF8False;
+    procedure ParseStringAcentuada_DecodeTrue_IsUTF8False;
+    procedure ParseStringAcentuada_DecodeFalse_IsUTF8True;
+    procedure ParseStringAcentuadaConvertidaParaAnsi_SemParametros;
+    procedure ParseStringAcentuadaConvertidaParaAnsi_DecodeFalse_IsUTF8False;
+    procedure ParseStringAcentuadaConvertidaParaAnsi_DecodeTrue_IsUTF8False;
+    procedure ParseStringAcentuadaConvertidaParaAnsi_DecodeFalse_IsUTF8True;
+    procedure ParseStringAcentuadaConvertidaParaUTF8_SemParametros;
+    procedure ParseStringAcentuadaConvertidaParaUTF8_DecodeFalse_IsUTF8False;
+    procedure ParseStringAcentuadaConvertidaParaUTF8_DecodeTrue_IsUTF8False;
+    procedure ParseStringAcentuadaConvertidaParaUTF8_DecodeFalse_IsUTF8True;
+
   end;
 
   { LerTagXMLTest }
@@ -40,6 +60,15 @@ type
     procedure PadraoUTF8AspasSimplesLowerCase;
     procedure NaoUTF8;
     procedure ApenasXML10;
+  end;
+
+  { TestXmlEhUTF8BOM }
+
+  TestXmlEhUTF8BOM = class(TTestCase)
+  published
+    procedure ArquivoUTF8BOM;
+    procedure ArquivoUTF8SemBOM;
+    procedure ArquivoAnsi;
   end;
 
   { SepararDadosTest }
@@ -268,6 +297,8 @@ type
   published
     procedure Simples;
     procedure Comlexo;
+    procedure CompletoCaracteresEspeciais;
+    procedure DesCriptografia;
   end;
 
   { AsciiToHexTest }
@@ -276,6 +307,22 @@ type
   published
     procedure Simples;
     procedure Comlexo;
+  end;
+
+  { DecodeHTMLEntitiesTest }
+
+  DecodeHTMLEntitiesTest = class(TTestCase)
+  published
+    procedure Vazio;
+    procedure Normal;
+    procedure EntidadesHTML_Comuns;
+    procedure EntidadesHTML_Monetarias;
+    procedure EntidadesHTML_AcentuadasUpperCase;
+    procedure EntidadesHTML_AcentuadasLowerCase;
+    procedure HexCodes_Comuns;
+    procedure HexCodes_Monetarias;
+    procedure HexCodes_AcentuadosUpperCase;
+    procedure HexCodes_AcentuadosLowerCase;
   end;
 
   { BinaryStringToStringTest }
@@ -566,7 +613,7 @@ type
 implementation
 
 uses
-  synacode,
+  synacode, synautil,
   ACBrCompress, ACBrConsts, ACBrUtil.Compatibilidade, ACBrUtil.Base, ACBrUtil.FilesIO,
   ACBrUtil.Math, ACBrUtil.XMLHTML, ACBrUtil.Strings;
 
@@ -1489,6 +1536,165 @@ begin
   CheckEquals('312C4D6FFF', AsciiToHex('1,Mo'+chr(255)) );
 end;
 
+{ DecodeHTMLEntitiesTest }
+
+procedure DecodeHTMLEntitiesTest.Vazio;
+begin
+  CheckEquals('', DecodeHTMLEntities(''));
+end;
+
+procedure DecodeHTMLEntitiesTest.Normal;
+begin
+  CheckEquals('Texto com acentuaÁ„o sem entÌdades', DecodeHTMLEntities('Texto com acentuaÁ„o sem entÌdades'));
+end;
+
+procedure DecodeHTMLEntitiesTest.EntidadesHTML_Comuns;
+begin
+  CheckEquals(' ' , DecodeHTMLEntities('&nbsp;'));
+  CheckEquals('&' , DecodeHTMLEntities('&amp;'));
+  CheckEquals('<' , DecodeHTMLEntities('&lt;'));
+  CheckEquals('>' , DecodeHTMLEntities('&gt;'));
+  CheckEquals('"', DecodeHTMLEntities('&quot;'));
+  CheckEquals('''', DecodeHTMLEntities('&#39;'));
+end;
+
+procedure DecodeHTMLEntitiesTest.EntidadesHTML_Monetarias;
+begin
+  CheckEquals('¢', DecodeHTMLEntities('&cent;'));
+  CheckEquals('£', DecodeHTMLEntities('&pound;'));
+  CheckEquals('•', DecodeHTMLEntities('&yen;'));
+  CheckEquals('Ä', DecodeHTMLEntities('&euro;'));
+  CheckEquals('©', DecodeHTMLEntities('&copy;'));
+  CheckEquals('Æ', DecodeHTMLEntities('&reg;'));
+end;
+
+procedure DecodeHTMLEntitiesTest.EntidadesHTML_AcentuadasUpperCase;
+begin
+  CheckEquals('¿', DecodeHTMLEntities('&Agrave;'));
+  CheckEquals('¡', DecodeHTMLEntities('&Aacute;'));
+  CheckEquals('¬', DecodeHTMLEntities('&Acirc;'));
+  CheckEquals('√', DecodeHTMLEntities('&Atilde;'));
+  CheckEquals('ƒ', DecodeHTMLEntities('&Auml;'));
+  CheckEquals('«', DecodeHTMLEntities('&Ccedil;'));
+  CheckEquals('»', DecodeHTMLEntities('&Egrave;'));
+  CheckEquals('…', DecodeHTMLEntities('&Eacute;'));
+  CheckEquals(' ', DecodeHTMLEntities('&Ecirc;'));
+  CheckEquals('À', DecodeHTMLEntities('&Euml;'));
+  CheckEquals('Ã', DecodeHTMLEntities('&Igrave;'));
+  CheckEquals('Õ', DecodeHTMLEntities('&Iacute;'));
+  CheckEquals('Œ', DecodeHTMLEntities('&Icirc;'));
+  CheckEquals('œ', DecodeHTMLEntities('&Iuml;'));
+  CheckEquals('“', DecodeHTMLEntities('&Ograve;'));
+  CheckEquals('”', DecodeHTMLEntities('&Oacute;'));
+  CheckEquals('‘', DecodeHTMLEntities('&Ocirc;'));
+  CheckEquals('’', DecodeHTMLEntities('&Otilde;'));
+  CheckEquals('÷', DecodeHTMLEntities('&Ouml;'));
+  CheckEquals('Ÿ', DecodeHTMLEntities('&Ugrave;'));
+  CheckEquals('⁄', DecodeHTMLEntities('&Uacute;'));
+  CheckEquals('€', DecodeHTMLEntities('&Ucirc;'));
+  CheckEquals('‹', DecodeHTMLEntities('&Uuml;'));
+end;
+
+procedure DecodeHTMLEntitiesTest.EntidadesHTML_AcentuadasLowerCase;
+begin
+  CheckEquals('‡', DecodeHTMLEntities('&agrave;'));
+  CheckEquals('·', DecodeHTMLEntities('&aacute;'));
+  CheckEquals('‚', DecodeHTMLEntities('&acirc;'));
+  CheckEquals('„', DecodeHTMLEntities('&atilde;'));
+  CheckEquals('‰', DecodeHTMLEntities('&auml;'));
+  CheckEquals('Á', DecodeHTMLEntities('&ccedil;'));
+  CheckEquals('Ë', DecodeHTMLEntities('&egrave;'));
+  CheckEquals('È', DecodeHTMLEntities('&eacute;'));
+  CheckEquals('Í', DecodeHTMLEntities('&ecirc;'));
+  CheckEquals('Î', DecodeHTMLEntities('&euml;'));
+  CheckEquals('Ï', DecodeHTMLEntities('&igrave;'));
+  CheckEquals('Ì', DecodeHTMLEntities('&iacute;'));
+  CheckEquals('Ó', DecodeHTMLEntities('&icirc;'));
+  CheckEquals('Ô', DecodeHTMLEntities('&iuml;'));
+  CheckEquals('Ú', DecodeHTMLEntities('&ograve;'));
+  CheckEquals('Û', DecodeHTMLEntities('&oacute;'));
+  CheckEquals('Ù', DecodeHTMLEntities('&ocirc;'));
+  CheckEquals('ı', DecodeHTMLEntities('&otilde;'));
+  CheckEquals('ˆ', DecodeHTMLEntities('&ouml;'));
+  CheckEquals('˘', DecodeHTMLEntities('&ugrave;'));
+  CheckEquals('˙', DecodeHTMLEntities('&uacute;'));
+  CheckEquals('˚', DecodeHTMLEntities('&ucirc;'));
+  CheckEquals('¸', DecodeHTMLEntities('&uuml;'));
+end;
+
+procedure DecodeHTMLEntitiesTest.HexCodes_Comuns;
+begin
+  CheckEquals('&' , DecodeHTMLEntities('&#x26;'));
+  CheckEquals('<' , DecodeHTMLEntities('&#x3C;'));
+  CheckEquals('>' , DecodeHTMLEntities('&#x3E;'));
+  CheckEquals('"', DecodeHTMLEntities('&#x22;'));
+  CheckEquals('''', DecodeHTMLEntities('&#x27;'));
+end;
+
+procedure DecodeHTMLEntitiesTest.HexCodes_Monetarias;
+begin
+  CheckEquals('¢', DecodeHTMLEntities('&#xA2;'));
+  CheckEquals('£', DecodeHTMLEntities('&#xA3;'));
+  CheckEquals('•', DecodeHTMLEntities('&#xA5;'));
+  CheckEquals('Ä', DecodeHTMLEntities('&#x20AC;'));
+  CheckEquals('©', DecodeHTMLEntities('&#xA9;'));
+  CheckEquals('Æ', DecodeHTMLEntities('&#xAE;'));
+end;
+
+procedure DecodeHTMLEntitiesTest.HexCodes_AcentuadosUpperCase;
+begin
+  CheckEquals('¿', DecodeHTMLEntities('&#xC0;'));
+  CheckEquals('¡', DecodeHTMLEntities('&#xC1;'));
+  CheckEquals('¬', DecodeHTMLEntities('&#xC2;'));
+  CheckEquals('√', DecodeHTMLEntities('&#xC3;'));
+  CheckEquals('ƒ', DecodeHTMLEntities('&#xC4;'));
+  CheckEquals('«', DecodeHTMLEntities('&#xC7;'));
+  CheckEquals('»', DecodeHTMLEntities('&#xC8;'));
+  CheckEquals('…', DecodeHTMLEntities('&#xC9;'));
+  CheckEquals(' ', DecodeHTMLEntities('&#xCA;'));
+  CheckEquals('À', DecodeHTMLEntities('&#xCB;'));
+  CheckEquals('Ã', DecodeHTMLEntities('&#xCC;'));
+  CheckEquals('Õ', DecodeHTMLEntities('&#xCD;'));
+  CheckEquals('Œ', DecodeHTMLEntities('&#xCE;'));
+  CheckEquals('œ', DecodeHTMLEntities('&#xCF;'));
+  CheckEquals('“', DecodeHTMLEntities('&#xD2;'));
+  CheckEquals('”', DecodeHTMLEntities('&#xD3;'));
+  CheckEquals('‘', DecodeHTMLEntities('&#xD4;'));
+  CheckEquals('’', DecodeHTMLEntities('&#xD5;'));
+  CheckEquals('÷', DecodeHTMLEntities('&#xD6;'));
+  CheckEquals('Ÿ', DecodeHTMLEntities('&#xD9;'));
+  CheckEquals('⁄', DecodeHTMLEntities('&#xDA;'));
+  CheckEquals('€', DecodeHTMLEntities('&#xDB;'));
+  CheckEquals('‹', DecodeHTMLEntities('&#xDC;'));
+end;
+
+procedure DecodeHTMLEntitiesTest.HexCodes_AcentuadosLowerCase;
+begin
+  CheckEquals('‡', DecodeHTMLEntities('&#xE0;'));
+  CheckEquals('·', DecodeHTMLEntities('&#xE1;'));
+  CheckEquals('‚', DecodeHTMLEntities('&#xE2;'));
+  CheckEquals('„', DecodeHTMLEntities('&#xE3;'));
+  CheckEquals('‰', DecodeHTMLEntities('&#xE4;'));
+  CheckEquals('Á', DecodeHTMLEntities('&#xE7;'));
+  CheckEquals('Ë', DecodeHTMLEntities('&#xE8;'));
+  CheckEquals('È', DecodeHTMLEntities('&#xE9;'));
+  CheckEquals('Í', DecodeHTMLEntities('&#xEA;'));
+  CheckEquals('Î', DecodeHTMLEntities('&#xEB;'));
+  CheckEquals('Ï', DecodeHTMLEntities('&#xEC;'));
+  CheckEquals('Ì', DecodeHTMLEntities('&#xED;'));
+  CheckEquals('Ó', DecodeHTMLEntities('&#xEE;'));
+  CheckEquals('Ô', DecodeHTMLEntities('&#xEF;'));
+  CheckEquals('Ú', DecodeHTMLEntities('&#xF2;'));
+  CheckEquals('Û', DecodeHTMLEntities('&#xF3;'));
+  CheckEquals('Ù', DecodeHTMLEntities('&#xF4;'));
+  CheckEquals('ı', DecodeHTMLEntities('&#xF5;'));
+  CheckEquals('ˆ', DecodeHTMLEntities('&#xF6;'));
+  CheckEquals('˘', DecodeHTMLEntities('&#xF9;'));
+  CheckEquals('˙', DecodeHTMLEntities('&#xFA;'));
+  CheckEquals('˚', DecodeHTMLEntities('&#xFB;'));
+  CheckEquals('¸', DecodeHTMLEntities('&#xFC;'));
+end;
+
 { HexToAsciiTest }
 
 procedure HexToAsciiTest.Simples;
@@ -1499,6 +1705,63 @@ end;
 procedure HexToAsciiTest.Comlexo;
 begin
   CheckEquals('1,Mo'+chr(255), HexToAscii('312C4D6FFF') );
+end;
+
+procedure HexToAsciiTest.CompletoCaracteresEspeciais;
+begin
+  CheckEquals('&', HexToAscii('26'));
+  CheckEquals('<', HexToAscii('3C'));
+  CheckEquals('>', HexToAscii('3E'));
+  CheckEquals('¿', HexToAscii('C0'));
+  CheckEquals('¡', HexToAscii('C1'));
+  CheckEquals('√', HexToAscii('C3'));
+  CheckEquals('¬', HexToAscii('C2'));
+  CheckEquals('‡', HexToAscii('E0'));
+  CheckEquals('·', HexToAscii('E1'));
+  CheckEquals('„', HexToAscii('E3'));
+  CheckEquals('‚', HexToAscii('E2'));
+  CheckEquals('»', HexToAscii('C8'));
+  CheckEquals('…', HexToAscii('C9'));
+  CheckEquals(' ', HexToAscii('CA'));
+  CheckEquals('Ë', HexToAscii('E8'));
+  CheckEquals('È', HexToAscii('E9'));
+  CheckEquals('Í', HexToAscii('EA'));
+  CheckEquals('Ã', HexToAscii('CC'));
+  CheckEquals('Õ', HexToAscii('CD'));
+  CheckEquals('Œ', HexToAscii('CE'));
+  CheckEquals('Ï', HexToAscii('EC'));
+  CheckEquals('Ì', HexToAscii('ED'));
+  CheckEquals('Ó', HexToAscii('EE'));
+  CheckEquals('“', HexToAscii('D2'));
+  CheckEquals('”', HexToAscii('D3'));
+  CheckEquals('’', HexToAscii('D5'));
+  CheckEquals('‘', HexToAscii('D4'));
+  CheckEquals('Ú', HexToAscii('F2'));
+  CheckEquals('Û', HexToAscii('F3'));
+  CheckEquals('ı', HexToAscii('F5'));
+  CheckEquals('Ù', HexToAscii('F4'));
+  CheckEquals('Ÿ', HexToAscii('D9'));
+  CheckEquals('⁄', HexToAscii('DA'));
+  CheckEquals('€', HexToAscii('DB'));
+  CheckEquals('˘', HexToAscii('F9'));
+  CheckEquals('˙', HexToAscii('FA'));
+  CheckEquals('˚', HexToAscii('FB'));
+  CheckEquals('«', HexToAscii('C7'));
+  CheckEquals('Á', HexToAscii('E7'));
+  CheckEquals('—', HexToAscii('D1'));
+  CheckEquals('Ò', HexToAscii('F1'));
+end;
+
+procedure HexToAsciiTest.DesCriptografia;
+const
+  CK = #25 + #251 + #133 + #80;
+var
+  RndK1, RndK2, HexStr: AnsiString;
+begin
+  RndK1 := 'BD';
+  RndK2 := '16';
+  HexStr := '19015C466B9EF6311F';
+  CheckEquals('[Empresa]', StrCrypt(HexToAscii(HexStr), RndK1 + RndK2 + CK));
 end;
 
 { LEStrToIntTest }
@@ -2379,6 +2642,56 @@ begin
   CheckFalse( XmlEhUTF8( '<?xml version="1.0"?>' ) );
 end;
 
+{ TestXmlEhUTF8BOM }
+
+procedure TestXmlEhUTF8BOM.ArquivoUTF8BOM;
+var
+  LMS: TMemoryStream;
+  LXML: AnsiString;
+begin
+  LMS := TMemoryStream.Create;
+  try
+    LMS.LoadFromFile(ARQUIVO_UTF8BOM);
+    LXML := ReadStrFromStream(LMS, LMS.Size);
+
+    Check(XmlEhUTF8BOM(LXML), 'Falhou ao definir se È UTF8BOM');
+  finally
+    LMS.Free;
+  end;
+end;
+
+procedure TestXmlEhUTF8BOM.ArquivoUTF8SemBOM;
+var
+  LMS: TMemoryStream;
+  LXML: AnsiString;
+begin
+  LMS := TMemoryStream.Create;
+  try
+    LMS.LoadFromFile(ARQUIVO_UTF8);
+    LXML := ReadStrFromStream(LMS, LMS.Size);
+
+    Check(not XmlEhUTF8BOM(LXML), 'Falhou ao definir se È UTF8BOM');
+  finally
+    LMS.Free;
+  end;
+end;
+
+procedure TestXmlEhUTF8BOM.ArquivoAnsi;
+var
+  LMS: TMemoryStream;
+  LXML: AnsiString;
+begin
+  LMS := TMemoryStream.Create;
+  try
+    LMS.LoadFromFile(ARQUIVO_ANSI);
+    LXML := ReadStrFromStream(LMS, LMS.Size);
+
+    Check(not XmlEhUTF8BOM(LXML), 'Falhou ao definir se È UTF8BOM');
+  finally
+    LMS.Free;
+  end;
+end;
+
 { ParseTextTest }
 
 procedure ParseTextTest.ParseDecode;
@@ -2433,6 +2746,95 @@ begin
   CheckEquals('<&">', ParseText('&lt;&amp;&quot;&gt;'));
   CheckEquals( ACBrStr(#39'·√«‹… ’'''), ParseText('&#39;&aacute;&Atilde;&Ccedil;&Uuml;'
               + '&Eacute;&Ecirc;&Otilde;&apos;', True, False));
+end;
+
+procedure ParseTextTest.ParseStringSimples_SemParametros;
+begin
+  CheckEquals('abcdef', ParseText('abcdef'));
+end;
+
+procedure ParseTextTest.ParseStringAcentuada_SemParametros;
+begin
+  CheckEquals('·√«‹… ’', ParseText('·√«‹… ’'));
+end;
+
+procedure ParseTextTest.ParseStringAcentuada_DecodeFalse_IsUTF8False;
+begin
+  CheckEquals('·√«‹… ’', ParseText('·√«‹… ’', False, False));
+end;
+
+procedure ParseTextTest.ParseStringAcentuada_DecodeTrue_IsUTF8False;
+begin
+  CheckEquals('·√«‹… ’', ParseText('·√«‹… ’', True, False));
+end;
+
+procedure ParseTextTest.ParseStringAcentuada_DecodeFalse_IsUTF8True;
+begin
+  CheckEquals('·√«‹… ’', ParseText('·√«‹… ’', False, True));
+end;
+
+procedure ParseTextTest.ParseStringAcentuadaConvertidaParaAnsi_SemParametros;
+var
+  LStr: String;
+begin
+  LStr := NativeStringToAnsi('·√«‹… ’');
+  CheckEquals(LStr, ParseText(LStr));
+end;
+
+procedure ParseTextTest.ParseStringAcentuadaConvertidaParaAnsi_DecodeFalse_IsUTF8False;
+var
+  LStr: String;
+begin
+  LStr := NativeStringToAnsi('·√«‹… ’');
+  CheckEquals(LStr, ParseText(LStr, False, False));
+end;
+
+procedure ParseTextTest.ParseStringAcentuadaConvertidaParaAnsi_DecodeTrue_IsUTF8False;
+var
+  LStr: String;
+begin
+  LStr := NativeStringToAnsi('·√«‹… ’');
+  CheckEquals(LStr, ParseText(LStr, True, False));
+end;
+
+procedure ParseTextTest.ParseStringAcentuadaConvertidaParaAnsi_DecodeFalse_IsUTF8True;
+var
+  LStr: String;
+begin
+  LStr := NativeStringToAnsi('·√«‹… ’');
+  CheckEquals(LStr, ParseText(LStr, False, True));
+end;
+
+procedure ParseTextTest.ParseStringAcentuadaConvertidaParaUTF8_SemParametros;
+var
+  LStr: String;
+begin
+  LStr := NativeStringToUTF8('·√«‹… ’');
+  CheckEquals(LStr, ParseText(LStr));
+end;
+
+procedure ParseTextTest.ParseStringAcentuadaConvertidaParaUTF8_DecodeFalse_IsUTF8False;
+var
+  LStr: String;
+begin
+  LStr := NativeStringToUTF8('·√«‹… ’');
+  CheckEquals(LStr, ParseText(LStr, False, False));
+end;
+
+procedure ParseTextTest.ParseStringAcentuadaConvertidaParaUTF8_DecodeTrue_IsUTF8False;
+var
+  LStr: String;
+begin
+  LStr := NativeStringToUTF8('·√«‹… ’');
+  CheckEquals(LStr, ParseText(LStr, True, False));
+end;
+
+procedure ParseTextTest.ParseStringAcentuadaConvertidaParaUTF8_DecodeFalse_IsUTF8True;
+var
+  LStr: String;
+begin
+  LStr := NativeStringToUTF8('·√«‹… ’');
+  CheckEquals(LStr, ParseText(LStr, False, true));
 end;
 
 { TruncToTest }
@@ -2665,6 +3067,7 @@ initialization
   _RegisterTest('ACBrComum.ACBrUtil', ParseTextTest);
   _RegisterTest('ACBrComum.ACBrUtil', LerTagXMLTest);
   _RegisterTest('ACBrComum.ACBrUtil', TestXmlEhUTF8);
+  _RegisterTest('ACBrComum.ACBrUtil', TestXmlEhUTF8BOM);
   _RegisterTest('ACBrComum.ACBrUtil', SepararDadosTest);
   _RegisterTest('ACBrComum.ACBrUtil', TruncFixTest);
   _RegisterTest('ACBrComum.ACBrUtil', TruncToTest);
@@ -2689,6 +3092,7 @@ initialization
   _RegisterTest('ACBrComum.ACBrUtil', LEStrToIntTest);
   _RegisterTest('ACBrComum.ACBrUtil', HexToAsciiTest);
   _RegisterTest('ACBrComum.ACBrUtil', AsciiToHexTest);
+  _RegisterTest('ACBrComum.ACBrUtil', DecodeHTMLEntitiesTest);
   _RegisterTest('ACBrComum.ACBrUtil', BinaryStringToStringTest);
   _RegisterTest('ACBrComum.ACBrUtil', StringToBinaryStringTest);
   _RegisterTest('ACBrComum.ACBrUtil', StripHTMLTest);

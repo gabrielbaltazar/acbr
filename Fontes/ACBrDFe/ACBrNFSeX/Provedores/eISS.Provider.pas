@@ -55,8 +55,8 @@ type
     procedure SetHeaders(aHeaderReq: THTTPHeader); override;
 
   public
-    function GerarToken(ACabecalho, AMSG: String): string; override;
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
+    function GerarToken(const ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -83,8 +83,7 @@ type
     procedure TratarRetornoEmitir(Response: TNFSeEmiteResponse); override;
 
     procedure ProcessarMensagemDeErros(LJson: TACBrJSONObject;
-                                     Response: TNFSeWebserviceResponse;
-                                     const AListTag: string = 'erros');
+                                       Response: TNFSeWebserviceResponse);
   end;
 
 implementation
@@ -117,11 +116,8 @@ begin
     Autenticacao.RequerCertificado := False;
     Autenticacao.RequerChaveAcesso := True;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := True;
-      GerarToken := True;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.GerarToken := True;
   end;
 
   SetXmlNameSpace('');
@@ -166,8 +162,7 @@ begin
 end;
 
 procedure TACBrNFSeProvidereISS.ProcessarMensagemDeErros(
-  LJson: TACBrJSONObject; Response: TNFSeWebserviceResponse;
-  const AListTag: string);
+  LJson: TACBrJSONObject; Response: TNFSeWebserviceResponse);
 var
   JSonErro: TACBrJSONObject;
   AErro: TNFSeEventoCollectionItem;
@@ -273,8 +268,8 @@ var
 begin
   Json := '[' + Copy(Params.Xml, 1, Length(Params.Xml) -1) + ']';
   Json := '{"Notas":' + Json + '}';
-  Json := AplicarLineBreak(Json, '');
 
+  Json := ChangeLineBreak(Json, '');
   Json := EncodeBase64(Json);
 //  Json := EncodeBase64(GZipCompress(Json));
 
@@ -407,7 +402,7 @@ begin
   end;
 end;
 
-function TACBrNFSeXWebserviceeISS.GerarToken(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceeISS.GerarToken(const ACabecalho, AMSG: String): string;
 begin
   FpMetodo := tmGerarToken;
   FPMsgOrig := AMSG;
@@ -415,7 +410,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceeISS.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceeISS.Recepcionar(const ACabecalho, AMSG: String): string;
 begin
   FpMetodo := tmRecepcionar;
   FPMsgOrig := AMSG;

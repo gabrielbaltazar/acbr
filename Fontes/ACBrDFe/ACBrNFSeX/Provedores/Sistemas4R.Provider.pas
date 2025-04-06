@@ -47,10 +47,10 @@ type
   TACBrNFSeXWebservice4R200 = class(TACBrNFSeXWebserviceSoap11)
 
   public
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -73,7 +73,7 @@ uses
 
 { TACBrNFSeXWebservice4R200 }
 
-function TACBrNFSeXWebservice4R200.RecepcionarSincrono(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice4R200.RecepcionarSincrono(const ACabecalho, AMSG: String): string;
 var
   Request: string;
   xTag, xSoap: string;
@@ -98,7 +98,7 @@ begin
   Result := Executar(xSoap, Request, ['Resposta', 'EnviarLoteRpsSincronoResposta'], []);
 end;
 
-function TACBrNFSeXWebservice4R200.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice4R200.ConsultarLote(const ACabecalho, AMSG: String): string;
 var
   Request: string;
   xTag, xSoap: string;
@@ -123,7 +123,7 @@ begin
   Result := Executar(xSoap, Request, ['Resposta', 'ConsultarLoteRpsResposta'], []);
 end;
 
-function TACBrNFSeXWebservice4R200.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice4R200.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 var
   Request: string;
   xTag, xSoap: string;
@@ -148,7 +148,7 @@ begin
   Result := Executar(xSoap, Request, ['Resposta', 'ConsultarNfseRpsResposta'], []);
 end;
 
-function TACBrNFSeXWebservice4R200.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservice4R200.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
   xTag, xSoap: string;
@@ -180,6 +180,7 @@ begin
 
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := ParseText(Result);
+  Result := StringReplace(Result, '&amp;', '&', [rfReplaceAll]);
   Result := RemoverIdentacao(Result);
 end;
 
@@ -194,15 +195,12 @@ begin
     QuebradeLinha := '&lt;br&gt;';
     ConsultaNFSe := False;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := False;
-      EnviarUnitario := False;
-      ConsultarFaixaNfse := False;
-      ConsultarServicoPrestado := False;
-      ConsultarServicoTomado := False;
-      SubstituirNfse := False;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := False;
+    ServicosDisponibilizados.EnviarUnitario := False;
+    ServicosDisponibilizados.ConsultarFaixaNfse := False;
+    ServicosDisponibilizados.ConsultarServicoPrestado := False;
+    ServicosDisponibilizados.ConsultarServicoTomado := False;
+    ServicosDisponibilizados.SubstituirNfse := False;
   end;
 
   with ConfigAssinar do

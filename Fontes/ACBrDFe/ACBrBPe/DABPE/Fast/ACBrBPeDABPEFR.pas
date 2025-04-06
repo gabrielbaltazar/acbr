@@ -40,7 +40,7 @@ interface
 
 uses
   ACBrBPeDABPEClass, 
-  pcnBPe, 
+  ACBrBPeClass, 
   frxClass, 
   Classes, 
   frxExportPDF, 
@@ -140,7 +140,7 @@ type
 implementation
 
 uses
-  ACBrDFeUtil, ACBrDelphiZXingQRCode, ACBrImage;
+  ACBrDFeUtil, ACBrDelphiZXingQRCode, ACBrImage, ACBrXmlBase, ACBrUtil.Base;
 
 { TACBrBPeDABPEFR }
 
@@ -277,7 +277,7 @@ begin
             FieldByName('serie').AsInteger := serie;
             FieldByName('DataEmi').AsString := FormatDateTime('dd/mm/yyyy', dhEmi);
             FieldByName('HoraEmi').AsString := FormatDateTime('hh:nn:ss', dhEmi);
-            FieldByName('tpAmb').AsString := TpAmbToStr(tpAmb);
+            FieldByName('tpAmb').AsString := ACBrXmlBase.TipoAmbienteToStr(tpAmb);
             FieldByName('UFIni').AsString := UFIni;
             FieldByName('UFFim').AsString := UFFim;
         end;
@@ -293,7 +293,7 @@ begin
         with FBPe.Imp do
         begin
             FieldByName('vTotTrib').AsFloat := vTotTrib;
-            FieldByName('infAdFisco').AsString := StringReplace(infAdFisco, '|', sLineBreak, [rfReplaceAll]);
+            FieldByName('infAdFisco').AsString := StringReplace(infAdFisco, FDABPEClassOwner.CaractereQuebraDeLinha , sLineBreak, [rfReplaceAll]);
         end;
         Post;
     end;
@@ -306,7 +306,7 @@ begin
         Append;
         with FBPe.InfAdic do
         begin
-            FieldByName('infAdFisco').AsString := StringReplace(infAdFisco, '|', sLineBreak, [rfReplaceAll]);
+            FieldByName('infAdFisco').AsString := StringReplace(infAdFisco, FDABPEClassOwner.CaractereQuebraDeLinha, sLineBreak, [rfReplaceAll]);
             FieldByName('infCpl').AsString := infCpl;
         end;
         Post;
@@ -934,9 +934,7 @@ begin
 
         if EstaVazio(Trim(FBPe.infBPeSupl.qrCodBPe)) then
         begin
-            qrcode := TACBrBPe(DABPEClassOwner.ACBrBPe).GetURLQRCode(FBPe.ide.cUF,
-                                                                     FBPe.ide.tpAmb,
-                                                                     OnlyNumber(FBPe.infBPe.ID))
+            qrcode := TACBrBPe(DABPEClassOwner.ACBrBPe).GetURLQRCode(FBPe)
         end
         else
             qrcode := FBPe.infBPeSupl.qrCodBPe;

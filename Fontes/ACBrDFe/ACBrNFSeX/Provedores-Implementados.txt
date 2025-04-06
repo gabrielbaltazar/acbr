@@ -10,6 +10,7 @@ Adm                  2.01
 ADPM                 2.00
 AEG                  2.02
 Agili                1.00  08/09/2022
+Aspec                1.00
 AssessorPublico      1.00  23/08/2022
 Asten                2.02
 Bauhaus              1.00  20/10/2022
@@ -36,7 +37,8 @@ DSF                  2.03
 eGoverneISS          1.00  06/09/2022
 eISS                 1.00
 EL                   1.00
-EL                   2.04
+EL                   2.04  21/01/2025
+Elmar                2.02
 EloTech              2.03  10/08/2022
 Equiplano            1.00  22/11/2022
 eReceita             2.02
@@ -55,7 +57,7 @@ geNFe                1.00
 GestaoISS            2.02  31/03/2023
 Giap                 1.00  02/08/2022
 Ginfes               1.00  19/09/2022
-Giss                 2.04
+Giss                 2.04             (GissOnline)
 GovBr                1.00
 GovDigital           2.00
 GovDigital           2.01
@@ -74,6 +76,8 @@ Isaneto              2.03
 ISSBarueri           1.00  19/09/2022
 ISSCamacari          2.01
 ISSCambe             1.00
+ISSCampinas          1.00
+ISSCampinas          2.03
 ISSCuritiba          1.00
 ISSDigital           2.00
 ISSDSF               1.00
@@ -84,9 +88,10 @@ ISSIntel             1.00
 ISSJoinville         2.04  10/08/2022
 ISSLegal             2.03
 ISSLencois           1.00
+ISSMap               1.00
 ISSNatal             1.00
-ISSNet               1.00  04/08/2022
-ISSNet               2.04
+ISSNet               1.00  04/08/2022 (NotaControl)
+ISSNet               2.04             (NotaControl)
 ISSPortoVelho        2.00
 ISSRecife            1.00
 ISSRio               1.00
@@ -94,6 +99,7 @@ ISSSalvador          1.00
 ISSSaoPaulo          1.00
 ISSSJP               1.00
 ISSVitoria           2.00
+Kalana               1.00
 Lexsom               1.00
 Libre                2.04
 Link3                2.00
@@ -102,7 +108,8 @@ MetropolisWeb        1.00
 Mitra                2.00
 ModernizacaoPublica  2.02
 NEAInformatica       2.00
-NFSeBrasil           1.00
+NFEletronica         1.00
+NFSeBrasil           1.00             (Memory)
 NotaInteligente      2.00
 PadraoNacional       1.00
 Prescon              1.00  14/03/2023
@@ -119,6 +126,7 @@ RLZ                  2.03
 Saatri               2.01
 Saatri               2.03
 SafeWeb              2.00
+Sam                  1.00
 SH3                  2.00
 Siam                 2.00
 SiapNet              2.00
@@ -142,6 +150,7 @@ Sistemas4R           2.00  20/09/2022
 SmarAPD              1.00
 SmarAPD              2.03
 SmarAPD              2.04
+Smart4               1.00             (Ativ!)
 SoftPlan             1.00
 SpeedGov             1.00
 SSInformatica        2.03
@@ -164,3 +173,4 @@ Virtual              2.02
 WebFisco             1.00  20/09/2022
 WebISS               1.00
 WebISS               2.02
+XTRTecnologia        1.00

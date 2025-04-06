@@ -50,11 +50,11 @@ type
 
   TACBrNFSeXWebserviceIPM = class(TACBrNFSeXWebserviceMulti1)
   public
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function AjustarRetorno(const Retorno: string): string;
     function TratarXmlRetornado(const aXML: string): string; override;
@@ -71,7 +71,8 @@ type
     function CriarServiceClient(const AMetodo: TMetodo): TACBrNFSeXWebservice; override;
 
     function GerarXMLNota(const AXmlRps: String; const Response: TNFSeWebserviceResponse): String;
-    procedure MontarXMLNFSe(const ANode: TACBrXmlNode; const Response: TNFSeWebserviceResponse);
+    procedure MontarXMLNFSe(const ANode: TACBrXmlNode;
+      const Response: TNFSeWebserviceResponse; AResumo: TNFSeResumoCollectionItem);
 
     function PrepararRpsParaLote(const aXml: string): string; override;
 
@@ -100,6 +101,9 @@ type
     function SimNaoToStr(const t: TnfseSimNao): string; override;
     function StrToSimNao(out ok: boolean; const s: string): TnfseSimNao; override;
 
+    function SimNaoOpcToStr(const t: TnfseSimNaoOpc): string; override;
+    function StrToSimNaoOpc(out ok: boolean; const s: string): TnfseSimNaoOpc; override;
+
     function CondicaoPagToStr(const t: TnfseCondicaoPagamento): string; override;
     function StrToCondicaoPag(out ok: boolean; const s: string): TnfseCondicaoPagamento; override;
   end;
@@ -109,10 +113,10 @@ type
     procedure SetHeaders(aHeaderReq: THTTPHeader); override;
 
   public
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function AjustarRetorno(const Retorno: string): string;
     function TratarXmlRetornado(const aXML: string): string; override;
@@ -132,18 +136,18 @@ type
     procedure SetHeaders(aHeaderReq: THTTPHeader); override;
 
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
 //    Implementado e testado em produção usando como referencia a cidade de Camaquã
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorFaixa(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorFaixa(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
 //    Não foi implementado no ambiente de homologação
-//    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
+//    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
 
     function AjustarRetorno(const Retorno: string): string;
     function TratarXmlRetornado(const aXML: string): string; override;
@@ -178,46 +182,43 @@ procedure TACBrNFSeProviderIPM.Configuracao;
 begin
   inherited Configuracao;
 
-  with ConfigGeral do
-  begin
-    ModoEnvio := meUnitario;
-    ConsultaNFSe := False;
-    DetalharServico := True;
-    FormatoArqEnvioSoap := tfaTxt;
-
-    Autenticacao.RequerLogin := True;
-
-    with ServicosDisponibilizados do
-    begin
-      EnviarUnitario := True;
-      ConsultarLote := True;
-      ConsultarRps := True;
-      ConsultarNfse := True;
-      CancelarNfse := True;
-    end;
-  end;
-
   with ConfigAssinar do
   begin
     RpsGerarNFSe := ConfigGeral.Params.ParamTemValor('Assinar', 'AssRpsGerarNfse');
     CancelarNFSe := ConfigGeral.Params.ParamTemValor('Assinar', 'AssCancelarNfse');
   end;
 
+  with ConfigGeral do
+  begin
+    ModoEnvio := meUnitario;
+    ConsultaNFSe := False;
+    DetalharServico := True;
+    FormatoArqEnvioSoap := tfaTxt;
+    ImprimirOptanteSN := False;
+    UseCertificateHTTP := (ConfigAssinar.RpsGerarNFSe) or (ConfigAssinar.CancelarNFSe);
+
+    Autenticacao.RequerCertificado := UseCertificateHTTP;
+    Autenticacao.RequerLogin := True;
+
+    ServicosDisponibilizados.EnviarUnitario := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.ConsultarNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+
+    Particularidades.PermiteTagOutrasInformacoes := True;
+    Particularidades.PermiteMaisDeUmServico := True;
+  end;
+
   SetXmlNameSpace('');
 
   with ConfigMsgDados do
   begin
-    with XmlRps do
-    begin
-      InfElemento := 'nfse';
-      DocElemento := 'nfse';
-    end;
+    XmlRps.InfElemento := 'nfse';
+    XmlRps.DocElemento := 'nfse';
 
-    with CancelarNFSe do
-    begin
-      InfElemento := 'nfse';
-      DocElemento := 'nfse';
-    end;
+    CancelarNFSe.InfElemento := 'nfse';
+    CancelarNFSe.DocElemento := 'nfse';
   end;
 
   ConfigSchemas.Validar := False;
@@ -297,33 +298,39 @@ begin
   end;
 end;
 
-procedure TACBrNFSeProviderIPM.MontarXMLNFSe(const ANode: TACBrXmlNode; const Response: TNFSeWebserviceResponse);
+procedure TACBrNFSeProviderIPM.MontarXMLNFSe(const ANode: TACBrXmlNode;
+  const Response: TNFSeWebserviceResponse; AResumo: TNFSeResumoCollectionItem);
 var
   AuxNode: TACBrXmlNode;
   NumRps, LXmlNota: String;
   ANota: TNotaFiscal;
 begin
   AuxNode := ANode.Childrens.FindAnyNs('rps');
+
   if Assigned(AuxNode) then
-  begin
     NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('nro_recibo_provisorio'), tcStr);
-    if NumRps <> '' then
-      ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps)
+
+  if NumRps <> '' then
+    ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByRps(NumRps)
+  else
+    ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(Response.NumeroNota);
+
+  if (not Assigned(ANota)) and (TACBrNFSeX(FAOwner).NotasFiscais.Count > 0) then
+    ANota := TACBrNFSeX(FAOwner).NotasFiscais.Items[0];
+
+  if Assigned(ANota) then
+  begin
+    if ANota.XmlRps = '' then
+      LXmlNota := GerarXMLNota(ANota.XmlNfse, Response)
     else
-      ANota := TACBrNFSeX(FAOwner).NotasFiscais.FindByNFSe(Response.NumeroNota);
+      LXmlNota := GerarXMLNota(ANota.XmlRps, Response);
 
-    if Assigned(ANota) then
+    if LXmlNota <> '' then
     begin
-      if ANota.XmlRps = '' then
-        LXmlNota := GerarXMLNota(ANota.XmlNfse, Response)
-      else
-        LXmlNota := GerarXMLNota(ANota.XmlRps, Response);
+      ANota.XmlNfse := LXmlNota;
+      SalvarXmlNfse(ANota);
 
-      if LXmlNota <> '' then
-      begin
-        ANota.XmlNfse := LXmlNota;
-        SalvarXmlNfse(ANota);
-      end;
+      AResumo.NomeArq := ANota.NomeArq;
     end;
   end;
 end;
@@ -414,6 +421,19 @@ begin
   Result := StrToEnumerado(ok, s,
                            ['0', '1', 'N', 'S'],
                            [snNao, snSim, snNao, snSim]);
+end;
+
+function TACBrNFSeProviderIPM.SimNaoOpcToStr(const t: TnfseSimNaoOpc): string;
+begin
+  Result := EnumeradoToStr(t, ['0', '1', ''], [snoNao, snoSim, snoNenhum]);
+end;
+
+function TACBrNFSeProviderIPM.StrToSimNaoOpc(out ok: boolean;
+  const s: string): TnfseSimNaoOpc;
+begin
+  Result := StrToEnumerado(ok, s,
+                           ['0', '1', 'N', 'S', ''],
+                           [snoNao, snoSim, snoNao, snoSim, snoNenhum]);
 end;
 
 function TACBrNFSeProviderIPM.CondicaoPagToStr(
@@ -564,8 +584,7 @@ begin
         AResumo.Situacao := Response.Situacao;
         AResumo.DescSituacao := Response.DescSituacao;
 
-        MontarXMLNFSe(ANode, Response);
-
+        MontarXMLNFSe(ANode, Response, AResumo);
       end;
     except
       on E:Exception do
@@ -712,7 +731,7 @@ begin
         AResumo.Situacao := Response.Situacao;
         AResumo.DescSituacao := Response.DescSituacao;
 
-        MontarXMLNFSe(ANode, Response);
+        MontarXMLNFSe(ANode, Response, AResumo);
       end;
     except
       on E:Exception do
@@ -887,8 +906,7 @@ begin
         AResumo.Situacao := Response.Situacao;
         AResumo.DescSituacao := Response.DescSituacao;
 
-        MontarXMLNFSe(ANode, Response);
-
+        MontarXMLNFSe(ANode, Response, AResumo);
       end;
     except
       on E:Exception do
@@ -1082,8 +1100,7 @@ begin
         AResumo.Situacao := Response.Situacao;
         AResumo.DescSituacao := Response.DescSituacao;
 
-        MontarXMLNFSe(ANode, Response);
-
+        MontarXMLNFSe(ANode, Response, AResumo);
       end;
     except
       on E:Exception do
@@ -1343,8 +1360,7 @@ begin
         AResumo.Situacao := Response.Situacao;
         AResumo.DescSituacao := Response.DescSituacao;
 
-        MontarXMLNFSe(ANode, Response);
-
+        MontarXMLNFSe(ANode, Response, AResumo);
       end;
     except
       on E:Exception do
@@ -1370,17 +1386,30 @@ begin
   if i > 0 then
     Result := Copy(Retorno, 1, i -1) + '</retorno>'
   else
-    Result := Retorno;
+  begin
+    if Pos('<', Retorno) = 0 then
+      Result := '<retorno>' +
+                  '<mensagem>' +
+                    '<codigo>999</codigo>' +
+                    '<Mensagem>' + Retorno + '</Mensagem>' +
+                  '</mensagem>' +
+                '</retorno>'
+    else
+      Result := Retorno;
+  end;
 end;
 
 function TACBrNFSeXWebserviceIPM.TratarXmlRetornado(const aXML: string): string;
 var
   jDocument, JSonErro: TACBrJSONObject;
-  Codigo, Mensagem: string;
+  Codigo, Mensagem, Xml: string;
 begin
-  if (Pos('{"', aXML) > 0) and (Pos('":"', aXML) > 0) then
+  Xml := ConverteANSIparaUTF8(aXML);
+  Xml := RemoverDeclaracaoXML(Xml);
+
+  if (Pos('{"', Xml) > 0) and (Pos('":"', Xml) > 0) then
   begin
-    jDocument := TACBrJSONObject.Parse(aXML);
+    jDocument := TACBrJSONObject.Parse(Xml);
     JSonErro := jDocument.AsJSONObject['retorno'];
 
     if not Assigned(JSonErro) then Exit;
@@ -1400,9 +1429,20 @@ begin
   end
   else
   begin
-    Result := inherited TratarXmlRetornado(aXML);
+    Result := inherited TratarXmlRetornado(Xml);
 
     Result := AjustarRetorno(Result);
+
+    if not StringIsXML(Result) then
+    begin
+      Result := '<retorno>' +
+                  '<mensagem>' +
+                    '<codigo>' + '</codigo>' +
+                    '<Mensagem>' + Result + '</Mensagem>' +
+                    '<Correcao>' + '</Correcao>' +
+                  '</mensagem>' +
+                '</retorno>';
+    end;
 
     Result := ParseText(Result);
     Result := RemoverDeclaracaoXML(Result);
@@ -1412,14 +1452,14 @@ begin
   end;
 end;
 
-function TACBrNFSeXWebserviceIPM.GerarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceIPM.GerarNFSe(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceIPM.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceIPM.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -1427,7 +1467,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceIPM.ConsultarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceIPM.ConsultarNFSe(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -1435,7 +1475,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceIPM.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceIPM.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -1443,7 +1483,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceIPM.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceIPM.Cancelar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
@@ -1473,18 +1513,31 @@ begin
   if i > 0 then
     Result := Copy(Retorno, 1, i -1) + '</retorno>'
   else
-    Result := Retorno;
+  begin
+    if Pos('<', Retorno) = 0 then
+      Result := '<retorno>' +
+                  '<mensagem>' +
+                    '<codigo>999</codigo>' +
+                    '<Mensagem>' + Retorno + '</Mensagem>' +
+                  '</mensagem>' +
+                '</retorno>'
+    else
+      Result := Retorno;
+  end;
 end;
 
 function TACBrNFSeXWebserviceIPM101.TratarXmlRetornado(
   const aXML: string): string;
 var
   jDocument, JSonErro: TACBrJSONObject;
-  Codigo, Mensagem: string;
+  Codigo, Mensagem, Xml: string;
 begin
-  if (Pos('{"', aXML) > 0) and (Pos('":"', aXML) > 0) then
+  Xml := ConverteANSIparaUTF8(aXML);
+  Xml := RemoverDeclaracaoXML(Xml);
+
+  if (Pos('{"', Xml) > 0) and (Pos('":"', Xml) > 0) then
   begin
-    jDocument := TACBrJSONObject.Parse(aXML);
+    jDocument := TACBrJSONObject.Parse(Xml);
     JSonErro := jDocument.AsJSONObject['retorno'];
 
     if not Assigned(JSonErro) then Exit;
@@ -1504,9 +1557,20 @@ begin
   end
   else
   begin
-    Result := inherited TratarXmlRetornado(aXML);
+    Result := inherited TratarXmlRetornado(Xml);
 
     Result := AjustarRetorno(Result);
+
+    if not StringIsXML(Result) then
+    begin
+      Result := '<retorno>' +
+                  '<mensagem>' +
+                    '<codigo>' + '</codigo>' +
+                    '<Mensagem>' + Result + '</Mensagem>' +
+                    '<Correcao>' + '</Correcao>' +
+                  '</mensagem>' +
+                '</retorno>';
+    end;
 
     Result := ParseText(Result);
     Result := RemoverDeclaracaoXML(Result);
@@ -1516,7 +1580,7 @@ begin
   end;
 end;
 
-function TACBrNFSeXWebserviceIPM101.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceIPM101.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -1524,7 +1588,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceIPM101.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceIPM101.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -1532,7 +1596,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceIPM101.ConsultarNFSe(ACabecalho,
+function TACBrNFSeXWebserviceIPM101.ConsultarNFSe(const ACabecalho,
   AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
@@ -1540,7 +1604,7 @@ begin
   Result := Executar('', AMSG, [], []);
 end;
 
-function TACBrNFSeXWebserviceIPM101.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceIPM101.Cancelar(const ACabecalho, AMSG: String): string;
 begin
   FPMsgOrig := AMSG;
 
@@ -1552,6 +1616,8 @@ end;
 procedure TACBrNFSeProviderIPM101.Configuracao;
 begin
   inherited Configuracao;
+
+  ConfigGeral.UseCertificateHTTP := False;
 
   with ConfigGeral.ServicosDisponibilizados do
   begin
@@ -1620,87 +1686,97 @@ begin
   if i > 0 then
     Result := Copy(Retorno, 1, i -1) + '</retorno>'
   else
-    Result := Retorno;
+  begin
+    if Pos('<', Retorno) = 0 then
+      Result := '<retorno>' +
+                  '<mensagem>' +
+                    '<codigo>999</codigo>' +
+                    '<Mensagem>' + Retorno + '</Mensagem>' +
+                  '</mensagem>' +
+                '</retorno>'
+    else
+      Result := Retorno;
+  end;
 end;
 
-function TACBrNFSeXWebserviceIPM204.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceIPM204.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
-  Request: string;
+  Request, AMSGaux: string;
 begin
   FPMsgOrig := AMSG;
 
-  AMSG := SeparaDados(AMSG, 'EnviarLoteRpsEnvio');
+  AMSGaux := SeparaDados(AMSG, 'EnviarLoteRpsEnvio');
 
   Request := '<net:EnviarLoteRpsEnvio>';
-  Request := Request + AMSG;
+  Request := Request + AMSGaux;
   Request := Request + '</net:EnviarLoteRpsEnvio>';
 
   Result := Executar('net.atende#EnviarLoteRpsEnvio', Request,
               ['return', 'EnviarLoteRpsResposta'], ['xmlns:net="net.atende"']);
 end;
 
-function TACBrNFSeXWebserviceIPM204.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceIPM204.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
-  Request: string;
+  Request, AMSGaux: string;
 begin
   FPMsgOrig := AMSG;
 
-  AMSG := SeparaDados(AMSG, 'EnviarLoteRpsSincronoEnvio');
+  AMSGaux := SeparaDados(AMSG, 'EnviarLoteRpsSincronoEnvio');
 
   Request := '<net:EnviarLoteRpsSincronoEnvio>';
-  Request := Request + AMSG;
+  Request := Request + AMSGaux;
   Request := Request + '</net:EnviarLoteRpsSincronoEnvio>';
 
   Result := Executar('net.atende#EnviarLoteRpsSincronoEnvio', Request,
               ['return', 'EnviarLoteRpsSincronoResposta'], ['xmlns:net="net.atende"']);
 end;
 
-function TACBrNFSeXWebserviceIPM204.GerarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceIPM204.GerarNFSe(const ACabecalho, AMSG: String): string;
 var
-  Request: string;
+  Request, AMSGaux: string;
 begin
   FPMsgOrig := AMSG;
 
-  AMSG := SeparaDados(AMSG, 'GerarNfseEnvio');
+  AMSGaux := SeparaDados(AMSG, 'GerarNfseEnvio');
 
   Request := '<net:GerarNfseEnvio>';
-  Request := Request + AMSG;
+  Request := Request + AMSGaux;
   Request := Request + '</net:GerarNfseEnvio>';
 
   Result := Executar('net.atende#GerarNfseEnvio', Request,
               ['return', 'GerarNfseResposta'], ['xmlns:net="net.atende"']);
 end;
 
-function TACBrNFSeXWebserviceIPM204.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceIPM204.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
-  Request: string;
+  Request, AMSGaux: string;
 begin
   FPMsgOrig := AMSG;
 
-  AMSG := SeparaDados(AMSG, 'ConsultarLoteRpsEnvio');
+  AMSGaux := SeparaDados(AMSG, 'ConsultarLoteRpsEnvio');
 
   Request := '<net:ConsultarLoteRpsEnvio>';
-  Request := Request + AMSG;
+  Request := Request + AMSGaux;
   Request := Request + '</net:ConsultarLoteRpsEnvio>';
 
   Result := Executar('net.atende#ConsultarLoteRpsEnvio', Request,
               ['return', 'ConsultarLoteRpsResposta'], ['xmlns:net="net.atende"']);
 end;
 
-function TACBrNFSeXWebserviceIPM204.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebserviceIPM204.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
-  Request: string;
+  Request, AMSGaux: string;
 begin
   FPMsgOrig := AMSG;
 
-  AMSG := SeparaDados(AMSG, 'ConsultarNfseRpsEnvio');
+  AMSGaux := SeparaDados(AMSG, 'ConsultarNfseRpsEnvio');
 
   Request := '<net:ConsultarNfseRpsEnvio>';
-  Request := Request + AMSG;
+  Request := Request + AMSGaux;
   Request := Request + '</net:ConsultarNfseRpsEnvio>';
 
   Result := Executar('net.atende#ConsultarNfseRpsEnvio', Request,
@@ -1708,73 +1784,73 @@ begin
 
 end;
 
-function TACBrNFSeXWebserviceIPM204.ConsultarNFSePorFaixa(ACabecalho,
+function TACBrNFSeXWebserviceIPM204.ConsultarNFSePorFaixa(const ACabecalho,
   AMSG: String): string;
 var
-  Request: string;
+  Request, AMSGaux: string;
 begin
   FPMsgOrig := AMSG;
 
-  AMSG := SeparaDados(AMSG, 'ConsultarNfseFaixaEnvio');
+  AMSGaux := SeparaDados(AMSG, 'ConsultarNfseFaixaEnvio');
 
   Request := '<net:ConsultarNfseFaixaEnvio>';
-  Request := Request + AMSG;
+  Request := Request + AMSGaux;
   Request := Request + '</net:ConsultarNfseFaixaEnvio>';
 
   Result := Executar('net.atende#ConsultarNfseFaixaEnvio', Request,
               ['return', 'ConsultarNfseFaixaResposta'], ['xmlns:net="net.atende"']);
 end;
 
-function TACBrNFSeXWebserviceIPM204.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebserviceIPM204.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
-  Request: string;
+  Request, AMSGaux: string;
 begin
   FPMsgOrig := AMSG;
 
-  AMSG := SeparaDados(AMSG, 'ConsultarNfseServicoPrestadoEnvio');
+  AMSGaux := SeparaDados(AMSG, 'ConsultarNfseServicoPrestadoEnvio');
 
   Request := '<net:ConsultarNfseServicoPrestadoEnvio>';
-  Request := Request + AMSG;
+  Request := Request + AMSGaux;
   Request := Request + '</net:ConsultarNfseServicoPrestadoEnvio>';
 
   Result := Executar('net.atende#ConsultarNfseServicoPrestadoEnvio', Request,
               ['return', 'ConsultarNfseServicoPrestadoResposta'], ['xmlns:net="net.atende"']);
 end;
 {
-function TACBrNFSeXWebserviceIPM204.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebserviceIPM204.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 begin
 
 end;
 }
-function TACBrNFSeXWebserviceIPM204.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceIPM204.Cancelar(const ACabecalho, AMSG: String): string;
 var
-  Request: string;
+  Request, AMSGaux: string;
 begin
   FPMsgOrig := AMSG;
 
-  AMSG := SeparaDados(AMSG, 'CancelarNfseEnvio');
+  AMSGaux := SeparaDados(AMSG, 'CancelarNfseEnvio');
 
   Request := '<net:CancelarNfseEnvio>';
-  Request := Request + AMSG;
+  Request := Request + AMSGaux;
   Request := Request + '</net:CancelarNfseEnvio>';
 
   Result := Executar('net.atende#CancelarNfseEnvio', Request,
               ['return', 'CancelarNfseResposta'], ['xmlns:net="net.atende"']);
 end;
 
-function TACBrNFSeXWebserviceIPM204.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebserviceIPM204.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
-  Request: string;
+  Request, AMSGaux: string;
 begin
   FPMsgOrig := AMSG;
 
-  AMSG := SeparaDados(AMSG, 'SubstituirNfseEnvio');
+  AMSGaux := SeparaDados(AMSG, 'SubstituirNfseEnvio');
 
   Request := '<net:SubstituirNfseEnvio>';
-  Request := Request + AMSG;
+  Request := Request + AMSGaux;
   Request := Request + '</net:SubstituirNfseEnvio>';
 
   Result := Executar('net.atende#SubstituirNfseEnvio', Request,
@@ -1785,11 +1861,14 @@ function TACBrNFSeXWebserviceIPM204.TratarXmlRetornado(
   const aXML: string): string;
 var
   jDocument, JSonErro: TACBrJSONObject;
-  Codigo, Mensagem: string;
+  Codigo, Mensagem, Xml: string;
 begin
-  if (Pos('{"', aXML) > 0) and (Pos('":"', aXML) > 0) then
+  Xml := ConverteANSIparaUTF8(aXML);
+  Xml := RemoverDeclaracaoXML(Xml);
+
+  if (Pos('{"', Xml) > 0) and (Pos('":"', Xml) > 0) then
   begin
-    jDocument := TACBrJSONObject.Parse(aXML);
+    jDocument := TACBrJSONObject.Parse(Xml);
     JSonErro := jDocument.AsJSONObject['retorno'];
 
     if not Assigned(JSonErro) then Exit;
@@ -1809,7 +1888,7 @@ begin
   end
   else
   begin
-    Result := inherited TratarXmlRetornado(aXML);
+    Result := inherited TratarXmlRetornado(Xml);
 
     Result := AjustarRetorno(Result);
 
@@ -1949,7 +2028,7 @@ begin
           else
             AuxNode := ANode.Childrens.FindAnyNs('Nfse');
 
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
 
@@ -1963,17 +2042,17 @@ begin
 
           if AuxNode2 = nil then
             AuxNode2 := AuxNode.Childrens.FindAnyNs('Rps');
-          if not Assigned(AuxNode2) or (AuxNode2 = nil) then Exit;
+          if not Assigned(AuxNode2) then Exit;
 
           AuxNode := AuxNode2.Childrens.FindAnyNs('InfDeclaracaoPrestacaoServico');
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           AuxNode := AuxNode.Childrens.FindAnyNs('Rps');
 
           if AuxNode <> nil then
           begin
             AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
-            if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+            if not Assigned(AuxNode) then Exit;
 
             NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 
@@ -2164,13 +2243,13 @@ begin
         else
           AuxNode := ANode.Childrens.FindAnyNs('Nfse');
 
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         AuxNode := AuxNode.Childrens.FindAnyNs('Numero');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         NumNFSe := AuxNode.AsString;
 
@@ -2256,13 +2335,13 @@ begin
         else
           AuxNode := ANode.Childrens.FindAnyNs('Nfse');
 
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         AuxNode := AuxNode.Childrens.FindAnyNs('Numero');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         NumNFSe := AuxNode.AsString;
 

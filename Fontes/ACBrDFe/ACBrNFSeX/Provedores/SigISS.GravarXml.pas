@@ -39,7 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml;
+  ACBrNFSeXGravarXml;
 
 type
   { TNFSeW_SigISS }
@@ -55,6 +55,15 @@ type
     function GerarIdentificacaoRPS: TACBrXmlNode;
   public
     function GerarXml: Boolean; override;
+
+  end;
+
+  { TNFSeW_SigISS101 }
+
+  TNFSeW_SigISS101 = class(TNFSeW_SigISS)
+  protected
+
+  public
 
   end;
 
@@ -218,10 +227,10 @@ begin
 <xsd:element name="obra_local_bairro" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 *)
 
-  Result.AppendChild(AddNode(tcStr, '#1', 'outro_municipio', 1, 7, 1,
-                                 OnlyNumber(NFSe.Servico.CodigoMunicipio), ''));
+  Result.AppendChild(AddNode(tcStr, '#1', 'outro_municipio', 1, 60, 0,
+                                 NFSe.Servico.xMunicipioIncidencia, ''));
 
-  Result.AppendChild(AddNode(tcStr, '#1', 'cod_outro_municipio', 1, 7, 1,
+  Result.AppendChild(AddNode(tcStr, '#1', 'cod_outro_municipio', 1, 7, 0,
                                  OnlyNumber(NFSe.Servico.CodigoMunicipio), ''));
 
   Result.AppendChild(AddNode(tcDe4, '#1', 'retencao_iss', 1, 15, 1,
@@ -283,7 +292,6 @@ var
 begin
   Configuracao;
 
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
   Opcoes.DecimalChar := ',';
 
   ListaDeAlertas.Clear;
@@ -479,7 +487,6 @@ var
 begin
   Configuracao;
 
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
   Opcoes.DecimalChar := ',';
 
   ListaDeAlertas.Clear;

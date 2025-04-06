@@ -46,13 +46,13 @@ type
   TACBrNFSeXWebserviceBHISS = class(TACBrNFSeXWebserviceSoap11)
 
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -81,7 +81,7 @@ uses
 
 { TACBrNFSeXWebserviceBHISS }
 
-function TACBrNFSeXWebserviceBHISS.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBHISS.Recepcionar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -97,7 +97,7 @@ begin
                      ['xmlns:ws="http://ws.bhiss.pbh.gov.br"']);
 end;
 
-function TACBrNFSeXWebserviceBHISS.GerarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBHISS.GerarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -113,7 +113,7 @@ begin
                      ['xmlns:ws="http://ws.bhiss.pbh.gov.br"']);
 end;
 
-function TACBrNFSeXWebserviceBHISS.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBHISS.ConsultarLote(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -129,7 +129,7 @@ begin
                      ['xmlns:ws="http://ws.bhiss.pbh.gov.br"']);
 end;
 
-function TACBrNFSeXWebserviceBHISS.ConsultarSituacao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBHISS.ConsultarSituacao(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -145,7 +145,7 @@ begin
                      ['xmlns:ws="http://ws.bhiss.pbh.gov.br"']);
 end;
 
-function TACBrNFSeXWebserviceBHISS.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBHISS.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -161,7 +161,7 @@ begin
                      ['xmlns:ws="http://ws.bhiss.pbh.gov.br"']);
 end;
 
-function TACBrNFSeXWebserviceBHISS.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBHISS.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -177,7 +177,7 @@ begin
                      ['xmlns:ws="http://ws.bhiss.pbh.gov.br"']);
 end;
 
-function TACBrNFSeXWebserviceBHISS.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceBHISS.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -196,7 +196,10 @@ end;
 function TACBrNFSeXWebserviceBHISS.TratarXmlRetornado(
   const aXML: string): string;
 begin
-  Result := inherited TratarXmlRetornado(aXML);
+  Result := ConverteANSIparaUTF8(aXML);
+  Result := RemoverDeclaracaoXML(Result);
+
+  Result := inherited TratarXmlRetornado(Result);
 
   Result := RemoverCaracteresDesnecessarios(Result);
   Result := ParseText(Result);
@@ -211,6 +214,7 @@ begin
 
   with ConfigGeral do
   begin
+    QuebradeLinha := '|';
     NumMaxRpsGerar := 3;
 
     ServicosDisponibilizados.EnviarUnitario := True;
@@ -231,11 +235,8 @@ begin
   begin
     ConsultarNFSe.DocElemento := 'ConsultarNfseFaixaEnvio';
 
-    with GerarNFSe do
-    begin
-      InfElemento := 'LoteRps';
-      DocElemento := 'GerarNfseEnvio';
-    end;
+    GerarNFSe.InfElemento := 'LoteRps';
+    GerarNFSe.DocElemento := 'GerarNfseEnvio';
 
     DadosCabecalho := GetCabecalho('');
   end;
@@ -277,14 +278,32 @@ procedure TACBrNFSeProviderBHISS.PrepararConsultaNFSe(
 var
   AErro: TNFSeEventoCollectionItem;
   Emitente: TEmitenteConfNFSe;
-  XmlConsulta, NameSpace, Prefixo: string;
+  XmlConsulta, NameSpace, Prefixo, NumeroFinal: string;
 begin
-  if Response.InfConsultaNFSe.tpConsulta in [tcPorFaixa, tcServicoTomado] then
+  if Response.InfConsultaNFSe.tpConsulta in [tcPorPeriodo,
+     tcServicoTomado, tcServicoPrestado, tcPorChave, tcPorCodigoVerificacao] then
   begin
     AErro := Response.Erros.New;
     AErro.Codigo := Cod001;
-    AErro.Descricao := ACBrStr(Desc101);
+    AErro.Descricao := ACBrStr(Desc001);
     Exit;
+  end;
+
+  if EstaVazio(Response.InfConsultaNFSe.NumeroIniNFSe) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod105;
+    AErro.Descricao := ACBrStr(Desc105);
+    Exit;
+  end;
+
+  NumeroFinal := '';
+
+  if not EstaVazio(Response.InfConsultaNFSe.NumeroFinNFSe) then
+  begin
+    NumeroFinal := '<NumeroNfseFinal>' +
+                      OnlyNumber(Response.InfConsultaNFSe.NumeroFinNFSe) +
+                   '</NumeroNfseFinal>';
   end;
 
   Emitente := TACBrNFSeX(FAOwner).Configuracoes.Geral.Emitente;
@@ -295,9 +314,7 @@ begin
                    '<NumeroNfseInicial>' +
                       OnlyNumber(Response.InfConsultaNFSe.NumeroIniNFSe) +
                    '</NumeroNfseInicial>' +
-                   '<NumeroNfseFinal>' +
-                      OnlyNumber(Response.InfConsultaNFSe.NumeroFinNFSe) +
-                   '</NumeroNfseFinal>' +
+                   NumeroFinal +
                  '</Faixa>';
 
   if EstaVazio(ConfigMsgDados.ConsultarNFSe.xmlns) then
@@ -421,7 +438,7 @@ begin
                                '<NumeroLote>' + Response.NumeroLote + '</NumeroLote>' +
                                '<Cnpj>' + OnlyNumber(Emitente.CNPJ) + '</Cnpj>' +
                                '<InscricaoMunicipal>' +
-                                  OnlyNumber(Emitente.InscMun) +
+                                  OnlyAlphaNum(Emitente.InscMun) +
                                '</InscricaoMunicipal>' +
                                '<QuantidadeRps>' +
                                   IntToStr(TACBrNFSeX(FAOwner).NotasFiscais.Count) +

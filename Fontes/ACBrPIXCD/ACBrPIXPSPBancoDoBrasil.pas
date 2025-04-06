@@ -92,6 +92,9 @@ type
     procedure ConfigurarQueryParameters(const Method, EndPoint: String); override;
     procedure TratarRetornoComErro(ResultCode: Integer; const RespostaHttp: AnsiString;
       Problema: TACBrPIXProblema); override;
+
+    procedure ConfigurarHeaders(const Method, AURL: String); override;
+
   public
     constructor Create(AOwner: TComponent); override;
     procedure Autenticar; override;
@@ -100,9 +103,6 @@ type
       var Code: Integer; var Texto: String);
   published
     property APIVersion;
-    property ClientID;
-    property ClientSecret;
-
     property BBAPIVersao: TACBrBBAPIVersao read fBBAPIVersao write fBBAPIVersao default apiVersao1;
     property DeveloperApplicationKey: String read fDeveloperApplicationKey write fDeveloperApplicationKey;
   end;
@@ -113,6 +113,7 @@ uses
   synautil, synacode,
   ACBrUtil.Strings,
   ACBrUtil.Base,
+  ACBrUtil.DateTime,
   ACBrJSON,
   ACBrPIXBase,
   DateUtils;
@@ -300,9 +301,22 @@ begin
   end;
 end;
 
+procedure TACBrPSPBancoDoBrasil.ConfigurarHeaders(const Method, AURL: String);
+begin
+   inherited ConfigurarHeaders(Method, AURL);
+   if ACBrPixCD.DadosAutomacao.CNPJSoftwareHouse <> '' then
+     Http.Headers.Add( 'x-bb-portal-devx-cnpj-parceiro:' + ACBrPixCD.DadosAutomacao.CNPJSoftwareHouse );
+end;
+
 procedure TACBrPSPBancoDoBrasil.ConfigurarQueryParameters(const Method, EndPoint: String);
 begin
   inherited ConfigurarQueryParameters(Method, EndPoint);
+
+  if (Method = ChttpMethodGET) and (EndPoint = cEndPointPix) and (URLQueryParams.Values['inicio'] <> EmptyStr) then
+  begin
+    URLQueryParams.Values['inicio'] := DateTimeToIso8601(DateTimeUniversal(GetUTCSistema,Iso8601ToDateTime(URLQueryParams.Values['inicio'])));
+    URLQueryParams.Values['fim'] := DateTimeToIso8601(DateTimeUniversal(GetUTCSistema,Iso8601ToDateTime(URLQueryParams.Values['fim'])));
+  end;
 
   if (fDeveloperApplicationKey <> '') then
     URLQueryParams.Values[cBBParamDevAppKey] := fDeveloperApplicationKey;

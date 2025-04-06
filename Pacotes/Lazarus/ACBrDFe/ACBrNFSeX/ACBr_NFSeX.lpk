@@ -13,7 +13,7 @@
         <UnitOutputDirectory Value="..\..\..\..\Lib\Lazarus\ACBrDFe\ACBrNFSeX\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Files Count="417">
+    <Files Count="444">
       <Item1>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\ACBrNFSeXReg.pas"/>
         <HasRegisterProc Value="True"/>
@@ -1683,7 +1683,115 @@
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Isaneto.Provider.pas"/>
         <UnitName Value="Isaneto.Provider"/>
       </Item417>
-    </Files>
+      <Item418>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Elmar.GravarXml.pas"/>
+        <UnitName Value="Elmar.GravarXml"/>
+      </Item418>
+      <Item419>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Elmar.LerXml.pas"/>
+        <UnitName Value="Elmar.LerXml"/>
+      </Item419>
+      <Item420>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Elmar.Provider.pas"/>
+        <UnitName Value="Elmar.Provider"/>
+      </Item420>
+      <Item421>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Sam.GravarXml.pas"/>
+        <UnitName Value="Sam.GravarXml"/>
+      </Item421>
+      <Item422>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Sam.LerXml.pas"/>
+        <UnitName Value="Sam.LerXml"/>
+      </Item422>
+      <Item423>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Sam.Provider.pas"/>
+        <UnitName Value="Sam.Provider"/>
+      </Item423>
+      <Item424>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\ISSCampinas.GravarXml.pas"/>
+        <UnitName Value="ISSCampinas.GravarXml"/>
+      </Item424>
+      <Item425>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\ISSCampinas.LerXml.pas"/>
+        <UnitName Value="ISSCampinas.LerXml"/>
+      </Item425>
+      <Item426>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\ISSCampinas.Provider.pas"/>
+        <UnitName Value="ISSCampinas.Provider"/>
+      </Item426>
+      <Item427>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Kalana.GravarXml.pas"/>
+        <UnitName Value="Kalana.GravarXml"/>
+      </Item427>
+      <Item428>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Kalana.LerXml.pas"/>
+        <UnitName Value="Kalana.LerXml"/>
+      </Item428>
+      <Item429>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Kalana.Provider.pas"/>
+        <UnitName Value="Kalana.Provider"/>
+      </Item429>
+      <Item430>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\NFEletronica.GravarXml.pas"/>
+        <UnitName Value="NFEletronica.GravarXml"/>
+      </Item430>
+      <Item431>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\NFEletronica.LerXml.pas"/>
+        <UnitName Value="NFEletronica.LerXml"/>
+      </Item431>
+      <Item432>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\NFEletronica.Provider.pas"/>
+        <UnitName Value="NFEletronica.Provider"/>
+      </Item432>
+      <Item433>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\XTRTecnologia.GravarJson.pas"/>
+        <UnitName Value="XTRTecnologia.GravarJson"/>
+      </Item433>
+      <Item434>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\XTRTecnologia.LerJson.pas"/>
+        <UnitName Value="XTRTecnologia.LerJson"/>
+      </Item434>
+      <Item435>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\XTRTecnologia.Provider.pas"/>
+        <UnitName Value="XTRTecnologia.Provider"/>
+      </Item435>
+      <Item436>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\ISSMap.GravarXml.pas"/>
+        <UnitName Value="ISSMap.GravarXml"/>
+      </Item436>
+      <Item437>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\ISSMap.LerXml.pas"/>
+        <UnitName Value="ISSMap.LerXml"/>
+      </Item437>
+      <Item438>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\ISSMap.Provider.pas"/>
+        <UnitName Value="ISSMap.Provider"/>
+      </Item438>
+      <Item439>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Aspec.GravarJson.pas"/>
+        <UnitName Value="Aspec.GravarJson"/>
+      </Item439>
+      <Item440>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Aspec.LerJson.pas"/>
+        <UnitName Value="Aspec.LerJson"/>
+      </Item440>
+      <Item441>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Aspec.Provider.pas"/>
+        <UnitName Value="Aspec.Provider"/>
+      </Item441>
+      <Item442>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Smart4.GravarXml.pas"/>
+        <UnitName Value="Smart4.GravarXml"/>
+      </Item442>
+      <Item443>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Smart4.LerXml.pas"/>
+        <UnitName Value="Smart4.LerXml"/>
+      </Item443>
+      <Item444>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrNFSeX\Provedores\Smart4.Provider.pas"/>
+        <UnitName Value="Smart4.Provider"/>
+      </Item444>
+   </Files>
     <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="ACBrDFeComum"/>

@@ -204,8 +204,6 @@ type
 
     property ErroResposta: TMateraError read GetErroResposta;
   published
-    property ClientID;
-    property ClientSecret;
     property SecretKey: String read fSecretKey write fSecretKey;
     property AccountId: String read fAccountId write fAccountId;
     property MediatorFee: Currency read fMediatorFee write SetMediatorFee;
@@ -289,7 +287,12 @@ begin
   if (ContaSolicitacao.accountType = matNone) then
     ContaSolicitacao.accountType := matUnlimitedOrdinary;
 
+  {$IFNDEF FPC}
+  wBody := Trim(ACBrAnsiToUTF8(ContaSolicitacao.AsJSON));
+  {$ELSE}
   wBody := Trim(ContaSolicitacao.AsJSON);
+  {$ENDIF}
+
   ContaResposta.Clear;
   PrepararHTTP;
   WriteStrToStream(Http.Document, wBody);
@@ -1004,9 +1007,13 @@ var
 begin
   wJO := TACBrJSONObject.Parse(aJson);
   try
-    Result := wJO.AsJSONObject['data'].ToJSON;
-  except
-    Result := aJson;
+    try
+      Result := wJO.AsJSONObject['data'].ToJSON;
+    except
+      Result := aJson;
+    end;
+  finally
+    wJO.Free;
   end;
 end;
 
@@ -1176,6 +1183,11 @@ begin
 
     // Copiando informações que não constam na resposta, do Objeto de Requisição //
     wCob.chave := fQRCodeSolicitacao.paymentInfo.instantPayment.alias_;
+	
+    wCob.calendario.expiracao := fQRCodeSolicitacao.paymentInfo.instantPayment.expiration;
+    if fQRCodeSolicitacao.recipients.Count > 0 then
+      wCob.solicitacaoPagador := fQRCodeSolicitacao.recipients.Items[0].recipientComment;
+	
 
     if (fQRCodeSolicitacao.paymentInfo.instantPayment.additionalInformation. Count > 0) then
     with fQRCodeSolicitacao.paymentInfo.instantPayment.additionalInformation[0] do
@@ -1234,6 +1246,9 @@ begin
         valor := TransacoesResposta[0].instantPayment.paymentReceived[I].receivedAmount;
         endToEndId := TransacoesResposta[0].instantPayment.paymentReceived[I].endToEndId;
         infoPagador := TransacoesResposta[0].instantPayment.paymentReceived[I].sender.name;
+
+        txId := StringReplace(TransacoesResposta[0].transactionId, '-', '', [rfReplaceAll]);
+        chave := TransacoesResposta[0].instantPayment.recipient.alias_;
 
         wTS := StrToInt64Def(TransacoesResposta[0].instantPayment.paymentReceived[I].transactionTimestamp, 0);
         wTS := (wTS div 1000);
@@ -1666,6 +1681,12 @@ begin
   if Assigned(fRetiradaResposta) then
     fRetiradaResposta.Free;
 
+  if Assigned(fExtratoECResposta) then
+    fExtratoECResposta.Free;
+
+  if Assigned(fSaldoECResposta) then
+    fSaldoECResposta.Free;
+
   inherited Destroy;
 end;
 
@@ -1717,6 +1738,12 @@ begin
 
   if Assigned(fRetiradaResposta) then
     fRetiradaResposta.Clear;
+
+  if Assigned(fExtratoECResposta) then
+    fExtratoECResposta.Clear;
+
+  if Assigned(fSaldoECResposta) then
+    fSaldoECResposta.Clear;
 end;
 
 end.

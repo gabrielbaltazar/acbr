@@ -154,20 +154,20 @@ begin
 end;
 
 function TACBrCotacao.GetURLMoedas: String;
-var
-  StrTmp: String;
-  PosCp: Integer;
+//var
+//  StrTmp: String;
+//  PosCp: Integer;
 begin
-  Self.HTTPGet('https://ptax.bcb.gov.br/ptax_internet/consultarTabelaMoedas.do?method=consultaTabelaMoedas');
-  StrTmp := Self.RespHTTP.Text;
+  (*Self.HTTPGet('https://ptax.bcb.gov.br/ptax_internet/consultarTabelaMoedas.do?method=consultaTabelaMoedas');
+  StrTmp := DecodeToString(HTTPResponse, RespIsUTF8);
 
   PosCp := Pos('https://www4.bcb.gov.br/Download/fechamento/', StrTmp);
   StrTmp := Copy(StrTmp, PosCp, Length(StrTmp) - PosCp);
 
   PosCp := Pos('.csv', strTmp) + 3;
-  StrTmp := Copy(StrTmp, 0, PosCp);
+  StrTmp := Copy(StrTmp, 0, PosCp);*)
 
-  Result := StrTmp;
+  Result := 'https://svn.code.sf.net/p/acbr/code/trunk2/Exemplos/ACBrTCP/ACBrCotacao/Tabelas/ArqMoedas.csv';
 end;
 
 function TACBrCotacao.GetURLTabela(const AData: TDateTime): String;
@@ -185,7 +185,7 @@ begin
   else
   begin
     Self.HTTPGet('https://ptax.bcb.gov.br/ptax_internet/consultarTodasAsMoedas.do?method=consultaTodasMoedas');
-    StrTmp := Self.RespHTTP.Text;
+    StrTmp := DecodeToString(HTTPResponse, RespIsUTF8);
 
     PosCp := Pos('https://www4.bcb.gov.br/Download/fechamento/', StrTmp);
     StrTmp := Copy(StrTmp, PosCp, Length(StrTmp) - PosCp);
@@ -269,12 +269,12 @@ begin
     // baixar .csv com dados da cotação
     HTTPGet(GetURLTabela(AData));
     ArqCotacao.Clear;
-    ArqCotacao.Text := RespHTTP.Text;
+    ArqCotacao.Text := DecodeToString(HTTPResponse, RespIsUTF8);
 
     // baixar .csv com dados das moedas
     HTTPGet(GetURLMoedas);
     ArqMoedas.Clear;
-    ArqMoedas.Text := RespHTTP.Text;
+    ArqMoedas.Text := DecodeToString(HTTPResponse, RespIsUTF8);
 
     // varrer a tabela preenchendo o componente
     Tabela.Clear;

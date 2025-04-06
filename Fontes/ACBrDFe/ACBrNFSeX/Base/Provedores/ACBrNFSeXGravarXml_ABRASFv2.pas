@@ -100,6 +100,7 @@ type
     FNrOcorrTipoRPS: Integer;
     FNrOcorrUFTomador: Integer;
     FNrOcorrCepTomador: Integer;
+    FNrOcorrCepTomador_2: Integer;
     FNrOcorrCodigoCNAE: Integer;
     FNrOcorrDiscriminacao_1: Integer;
     FNrOcorrDiscriminacao_2: Integer;
@@ -146,6 +147,7 @@ type
     FNrOcorrCodigoNBS: Integer;
     FGerarTagRps: Boolean;
     FNrOcorrDataPagamento: Integer;
+    FNrOcorrInfAdicional: Integer;
 
   protected
     procedure Configuracao; override;
@@ -178,6 +180,9 @@ type
     function GerarQuartos: TACBrXmlNode; virtual;
     function GerarQuarto: TACBrXmlNodeArray; virtual;
 
+    function GerarCodigoPaisServico: TACBrXmlNode; virtual;
+    function GerarCodigoPaisTomador: TACBrXmlNode; virtual;
+    function GerarCodigoPaisTomadorExterior: TACBrXmlNode; virtual;
   public
     function GerarXml: Boolean; override;
 
@@ -231,6 +236,7 @@ type
     property NrOcorrLogradouro: Integer         read FNrOcorrLogradouro         write FNrOcorrLogradouro;
     property NrOcorrUFTomador: Integer          read FNrOcorrUFTomador          write FNrOcorrUFTomador;
     property NrOcorrCepTomador: Integer         read FNrOcorrCepTomador         write FNrOcorrCepTomador;
+    property NrOcorrCepTomador_2: Integer       read FNrOcorrCepTomador_2       write FNrOcorrCepTomador_2;
     property NrOcorrIncentCultural: Integer     read FNrOcorrIncentCultural     write FNrOcorrIncentCultural;
     property NrOcorrDiscriminacao_1: Integer    read FNrOcorrDiscriminacao_1    write FNrOcorrDiscriminacao_1;
     property NrOcorrDiscriminacao_2: Integer    read FNrOcorrDiscriminacao_2    write FNrOcorrDiscriminacao_2;
@@ -277,6 +283,7 @@ type
     property NrOcorrQuantDiarias: Integer read FNrOcorrQuantDiarias write FNrOcorrQuantDiarias;
     property NrOcorrCodigoNBS: Integer read FNrOcorrCodigoNBS write FNrOcorrCodigoNBS;
     property NrOcorrDataPagamento: Integer read FNrOcorrDataPagamento write FNrOcorrDataPagamento;
+    property NrOcorrInfAdicional: Integer read FNrOcorrInfAdicional write FNrOcorrInfAdicional;
 
     property GerarTagServicos: Boolean read FGerarTagServicos write FGerarTagServicos;
     property GerarIDDeclaracao: Boolean read FGerarIDDeclaracao write FGerarIDDeclaracao;
@@ -379,6 +386,7 @@ begin
   FNrOcorrTipoTelefone := -1;
   FNrOcorrProducao := -1;
   FNrOcorrAtualizaTomador := -1;
+  FNrOcorrCepTomador_2 := -1;
   FNrOcorrTomadorExterior := -1;
   FNrOcorrCodigoMunic_2 := -1;
   FNrOcorrCodigoMunicInterm := -1;
@@ -403,6 +411,7 @@ begin
   FNrOcorrValorCpp := -1;
   FNrOcorrAliquotaCpp := -1;
   FNrOcorrRetidoCpp := -1;
+  FNrOcorrInfAdicional := -1;
 
   FGerarTagServicos := True;
   FGerarIDDeclaracao := True;
@@ -425,8 +434,6 @@ begin
   // Em conformidade com a versão 2 do layout da ABRASF não deve ser alterado
 
   ListaDeAlertas.Clear;
-
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   case VersaoNFSe of
     ve203:
@@ -474,6 +481,8 @@ end;
 function TNFSeW_ABRASFv2.GerarInfDeclaracaoPrestacaoServico: TACBrXmlNode;
 var
   aNameSpace: string;
+  nodeArray: TACBrXmlNodeArray;
+  i: Integer;
 begin
   aNameSpace := DefinirNameSpaceDeclaracao;
 
@@ -499,6 +508,16 @@ begin
                                                   NFSe.Competencia, DSC_DHEMI));
 
   Result.AppendChild(GerarServico);
+
+  nodeArray := GerarServicos;
+  if nodeArray <> nil then
+  begin
+    for i := 0 to Length(nodeArray) - 1 do
+    begin
+      Result.AppendChild(nodeArray[i]);
+    end;
+  end;
+
   Result.AppendChild(GerarPrestador);
   Result.AppendChild(GerarTomador);
   Result.AppendChild(GerarIntermediarioServico);
@@ -535,10 +554,12 @@ begin
                                         NFSe.ValorCargaTributariaEstadual, ''));
 
   Result.AppendChild(AddNode(tcStr, '#9', 'OutrasInformacoes', 0, 255, NrOcorrOutrasInformacoes,
-                                        NFSe.OutrasInformacoes, DSC_OUTRASINF));
+    StringReplace(NFSe.OutrasInformacoes, Opcoes.QuebraLinha,
+           FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), DSC_OUTRASINF));
 
   Result.AppendChild(AddNode(tcStr, '#9', 'InformacoesComplementares', 0, 2000, NrOcorrInformacoesComplemetares,
-                                NFSe.InformacoesComplementares, DSC_OUTRASINF));
+    StringReplace(NFSe.InformacoesComplementares, Opcoes.QuebraLinha,
+                      FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), ''));
 
   Result.AppendChild(AddNode(tcInt, '#9', 'TipoNota', 1, 3, NrOcorrTipoNota,
                                                             NFSe.TipoNota, ''));
@@ -659,8 +680,8 @@ begin
                      NFSe.Servico.CodigoTributacaoMunicipio, DSC_CSERVTRIBMUN));
 
     Result.AppendChild(AddNode(tcStr, '#32', 'Discriminacao', 1, 2000, NrOcorrDiscriminacao_1,
-      StringReplace(NFSe.Servico.Discriminacao, ';', FpAOwner.ConfigGeral.QuebradeLinha,
-                                     [rfReplaceAll, rfIgnoreCase]), DSC_DISCR));
+      StringReplace(NFSe.Servico.Discriminacao, Opcoes.QuebraLinha,
+               FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), DSC_DISCR));
 
     Result.AppendChild(AddNode(tcStr, '#33', 'CodigoMunicipio', 1, 7, NrOcorrCodigoMunic_1,
                            OnlyNumber(NFSe.Servico.CodigoMunicipio), DSC_CMUN));
@@ -672,14 +693,13 @@ begin
                                  OnlyNumber(NFSe.Servico.CodigoNBS), DSC_CMUN));
 
     Result.AppendChild(AddNode(tcStr, '#33', 'Discriminacao', 1, 2000, NrOcorrDiscriminacao_2,
-      StringReplace(NFSe.Servico.Discriminacao, ';', FpAOwner.ConfigGeral.QuebradeLinha,
-                                     [rfReplaceAll, rfIgnoreCase]), DSC_DISCR));
+      StringReplace(NFSe.Servico.Discriminacao, Opcoes.QuebraLinha,
+               FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), DSC_DISCR));
 
     Result.AppendChild(AddNode(tcStr, '#34', 'CodigoMunicipio', 1, 7, NrOcorrCodigoMunic_2,
                            OnlyNumber(NFSe.Servico.CodigoMunicipio), DSC_CMUN));
 
-    Result.AppendChild(AddNode(tcInt, '#35', 'CodigoPais', 4, 4, NrOcorrCodigoPaisServico,
-                                           NFSe.Servico.CodigoPais, DSC_CPAIS));
+    Result.AppendChild(GerarCodigoPaisServico);
 
     Result.AppendChild(AddNode(tcInt, '#36', 'ExigibilidadeISS',
                                NrMinExigISS, NrMaxExigISS, NrOcorrExigibilidadeISS,
@@ -690,6 +710,9 @@ begin
 
     Result.AppendChild(AddNode(tcStr, '#38', 'NumeroProcesso', 1, 30, NrOcorrNumProcesso,
                                    NFSe.Servico.NumeroProcesso, DSC_NPROCESSO));
+
+    Result.AppendChild(AddNode(tcStr, '#39', 'InfAdicional', 1, 255, NrOcorrInfAdicional,
+                                  NFSe.Servico.InfAdicional, DSC_INFADICIONAL));
 
     Result.AppendChild(GerarListaItensServico);
   end;
@@ -725,7 +748,7 @@ begin
   Result.AppendChild(AddNode(tcDe2, '#14', 'ValorDeducoes', 1, 15, NrOcorrValorDeducoes,
                             NFSe.Servico.Valores.ValorDeducoes, DSC_VDEDUCISS));
 
-  Result.AppendChild(AddNode(tcDe2, '#15', 'AliquotaPis', 1, 15, NrOcorrAliquotaPis,
+  Result.AppendChild(AddNode(FormatoAliq, '#15', 'AliquotaPis', 1, 15, NrOcorrAliquotaPis,
                                   NFSe.Servico.Valores.AliquotaPis, DSC_VALIQ));
 
   Result.AppendChild(AddNode(tcStr, '#15', 'RetidoPis', 1, 1, NrOcorrRetidoPis,
@@ -734,7 +757,7 @@ begin
   Result.AppendChild(AddNode(tcDe2, '#15', 'ValorPis', 1, 15, NrOcorrValorPis,
                                       NFSe.Servico.Valores.ValorPis, DSC_VPIS));
 
-  Result.AppendChild(AddNode(tcDe2, '#15', 'AliquotaCofins', 1, 15, NrOcorrAliquotaCofins,
+  Result.AppendChild(AddNode(FormatoAliq, '#15', 'AliquotaCofins', 1, 15, NrOcorrAliquotaCofins,
                                NFSe.Servico.Valores.AliquotaCofins, DSC_VALIQ));
 
   Result.AppendChild(AddNode(tcStr, '#15', 'RetidoCofins', 1, 1, NrOcorrRetidoCofins,
@@ -743,7 +766,7 @@ begin
   Result.AppendChild(AddNode(tcDe2, '#16', 'ValorCofins', 1, 15, NrOcorrValorCofins,
                                 NFSe.Servico.Valores.ValorCofins, DSC_VCOFINS));
 
-  Result.AppendChild(AddNode(tcDe2, '#15', 'AliquotaInss', 1, 15, NrOcorrAliquotaInss,
+  Result.AppendChild(AddNode(FormatoAliq, '#15', 'AliquotaInss', 1, 15, NrOcorrAliquotaInss,
                                  NFSe.Servico.Valores.AliquotaInss, DSC_VALIQ));
 
   Result.AppendChild(AddNode(tcStr, '#15', 'RetidoInss', 1, 1, NrOcorrRetidoInss,
@@ -752,7 +775,7 @@ begin
   Result.AppendChild(AddNode(tcDe2, '#17', 'ValorInss', 1, 15, NrOcorrValorInss,
                                     NFSe.Servico.Valores.ValorInss, DSC_VINSS));
 
-  Result.AppendChild(AddNode(tcDe2, '#15', 'AliquotaIr', 1, 15, NrOcorrAliquotaIr,
+  Result.AppendChild(AddNode(FormatoAliq, '#15', 'AliquotaIr', 1, 15, NrOcorrAliquotaIr,
                                    NFSe.Servico.Valores.AliquotaIr, DSC_VALIQ));
 
   Result.AppendChild(AddNode(tcStr, '#15', 'RetidoIr', 1, 1, NrOcorrRetidoIr,
@@ -761,7 +784,7 @@ begin
   Result.AppendChild(AddNode(tcDe2, '#18', 'ValorIr', 1, 15, NrOcorrValorIr,
                                         NFSe.Servico.Valores.ValorIr, DSC_VIR));
 
-  Result.AppendChild(AddNode(tcDe2, '#15', 'AliquotaCsll', 1, 15, NrOcorrAliquotaCsll,
+  Result.AppendChild(AddNode(FormatoAliq, '#15', 'AliquotaCsll', 1, 15, NrOcorrAliquotaCsll,
                                  NFSe.Servico.Valores.AliquotaCsll, DSC_VALIQ));
 
   Result.AppendChild(AddNode(tcStr, '#15', 'RetidoCsll', 1, 1, NrOcorrRetidoCsll,
@@ -770,7 +793,7 @@ begin
   Result.AppendChild(AddNode(tcDe2, '#19', 'ValorCsll', 1, 15, NrOcorrValorCsll,
                                     NFSe.Servico.Valores.ValorCsll, DSC_VCSLL));
 
-  Result.AppendChild(AddNode(tcDe2, '#15', 'AliquotaCpp', 1, 15, NrOcorrAliquotaCpp,
+  Result.AppendChild(AddNode(FormatoAliq, '#15', 'AliquotaCpp', 1, 15, NrOcorrAliquotaCpp,
                                  NFSe.Servico.Valores.AliquotaCpp, DSC_VALIQ));
 
   Result.AppendChild(AddNode(tcStr, '#15', 'RetidoCpp', 1, 1, NrOcorrRetidoCpp,
@@ -915,8 +938,7 @@ begin
   begin
     Result := CreateElement('EnderecoExterior');
 
-    Result.AppendChild(AddNode(tcInt, '#38', 'CodigoPais', 4, 4, 0,
-                                  NFSe.Tomador.Endereco.CodigoPais, DSC_CPAIS));
+    Result.AppendChild(GerarCodigoPaisTomadorExterior);
 
     Result.AppendChild(AddNode(tcStr, '#39', 'EnderecoCompletoExterior', 1, 255, 0,
                                      NFSe.Tomador.Endereco.Endereco, DSC_XLGR));
@@ -951,6 +973,9 @@ begin
     Result.AppendChild(AddNode(tcStr, '#42', 'Bairro', 1, 60, 0,
                                     NFSe.Tomador.Endereco.Bairro, DSC_XBAIRRO));
 
+    Result.AppendChild(AddNode(tcStr, '#45', 'Cep', 8, 8, NrOcorrCepTomador_2,
+                               OnlyNumber(NFSe.Tomador.Endereco.CEP), DSC_CEP));
+
     Result.AppendChild(AddNode(tcStr, '#43', 'CodigoMunicipio', 7, 7, 0,
                   OnlyNumber(NFSe.Tomador.Endereco.CodigoMunicipio), DSC_CMUN));
 
@@ -959,8 +984,7 @@ begin
 
     if (OnlyNumber(NFSe.Tomador.Endereco.CodigoMunicipio) = '9999999') or
        (NrOcorrCodigoPaisTomador = 1) then
-      Result.AppendChild(AddNode(tcInt, '#44', 'CodigoPais', 4, 4, NrOcorrCodigoPaisTomador,
-                                  NFSe.Tomador.Endereco.CodigoPais, DSC_CPAIS));
+      Result.AppendChild(GerarCodigoPaisTomador);
 
     Result.AppendChild(AddNode(tcStr, '#45', 'Cep', 8, 8, NrOcorrCepTomador,
                                OnlyNumber(NFSe.Tomador.Endereco.CEP), DSC_CEP));
@@ -1046,19 +1070,51 @@ begin
   end;
 end;
 
+function TNFSeW_ABRASFv2.GerarCodigoPaisServico: TACBrXmlNode;
+begin
+  Result := AddNode(tcInt, '#35', 'CodigoPais', 4, 4, NrOcorrCodigoPaisServico,
+                                           NFSe.Servico.CodigoPais, DSC_CPAIS);
+end;
+
+function TNFSeW_ABRASFv2.GerarCodigoPaisTomador: TACBrXmlNode;
+begin
+  Result := AddNode(tcInt, '#44', 'CodigoPais', 4, 4, NrOcorrCodigoPaisTomador,
+                                  NFSe.Tomador.Endereco.CodigoPais, DSC_CPAIS);
+end;
+
+function TNFSeW_ABRASFv2.GerarCodigoPaisTomadorExterior: TACBrXmlNode;
+begin
+  Result := AddNode(tcInt, '#38', 'CodigoPais', 4, 4, 0,
+                                  NFSe.Tomador.Endereco.CodigoPais, DSC_CPAIS);
+end;
+
 function TNFSeW_ABRASFv2.GerarConstrucaoCivil: TACBrXmlNode;
+var
+  NrOcorrCodigoObra: integer;
+  NrOcorrArt: integer;
 begin
   // Em conformidade com a versão 2 do layout da ABRASF não deve ser alterado
   Result := nil;
 
-  if (NFSe.ConstrucaoCivil.CodigoObra <> '') then
+  if ((NFSe.ConstrucaoCivil.CodigoObra <> '') or (NFSe.ConstrucaoCivil.Art <> '')) then
   begin
+    if (NFSe.ConstrucaoCivil.CodigoObra <> '') then
+    begin
+      NrOcorrCodigoObra := 1;
+      NrOcorrArt := 0;
+    end
+    else
+    begin
+      NrOcorrCodigoObra := 0;
+      NrOcorrArt := 1;
+    end;
+
     Result := CreateElement('ConstrucaoCivil');
 
-    Result.AppendChild(AddNode(tcStr, '#51', 'CodigoObra', 1, 15, 1,
+    Result.AppendChild(AddNode(tcStr, '#51', 'CodigoObra', 1, 15, NrOcorrCodigoObra,
                                    NFSe.ConstrucaoCivil.CodigoObra, DSC_COBRA));
 
-    Result.AppendChild(AddNode(tcStr, '#52', 'Art', 1, 15, 1,
+    Result.AppendChild(AddNode(tcStr, '#52', 'Art', 1, 15, NrOcorrArt,
                                             NFSe.ConstrucaoCivil.Art, DSC_ART));
   end;
 end;

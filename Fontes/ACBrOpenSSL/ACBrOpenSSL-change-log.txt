@@ -38,6 +38,29 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+18/03/2025
+-- ACBrOpenSSLUtils --
+[+] Inclusão de parâmetro para permitir seleção do tipo de saída da função HMACFromString();
+    por: Elias César
+
+21/12/2024
+-- OpenSSLExt --
+[-] Correção na assinatura do método: 'EVP_EncryptUpdate';
+[+] Adicionado vários Logs para Android
+
+-- ACBrOpenSSLUtils --
+[+] Adicionados novos métodos, para Criptografia e Descriptografia de Strings
+    function EncryptFromString(const PlainText, aKey: AnsiString;
+      Cipher: TACBrOpenSSLCipher; OutputType: TACBrOpenSSLStrType = sttBase64): AnsiString;
+    function DecryptFromString(const CipherText, aKey: AnsiString;
+      Cipher: TACBrOpenSSLCipher; CipherTextType: TACBrOpenSSLStrType = sttBase64): AnsiString;
+    (por: DSA)
+
+25/03/2024
+[*] Alteração para importar corretamente arquivos de Chave Privada que possuem o 
+    cabeçalho: "-----BEGIN PRIVATE KEY-----"
+    por: Elias César
+
 07/12/2023
 -- OpenSSLExt --
 [+] Adicionado novos métodos do OpenSSL3, para permitir carregar Bibliotecas

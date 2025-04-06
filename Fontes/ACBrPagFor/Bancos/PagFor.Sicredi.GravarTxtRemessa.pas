@@ -99,7 +99,7 @@ begin
   GravarCampo(PagFor.Registro0.Empresa.Convenio, 20, tcStr);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Agencia.Codigo, 5, tcInt);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Agencia.DV, 1, tcStr);
-  GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Conta.Numero, 12, tcInt);
+  GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Conta.Numero, 12, tcInt64);
   GravarCampo(PagFor.Registro0.Empresa.ContaCorrente.Conta.DV, 1, tcStr);
   GravarCampo(' ', 1, tcStr);
   GravarCampo(PagFor.Registro0.Empresa.Nome, 30, tcStr, True);
@@ -154,7 +154,7 @@ begin
     GravarCampo(Convenio, 20, tcStr);
     GravarCampo(ContaCorrente.Agencia.Codigo, 5, tcInt);
     GravarCampo(ContaCorrente.Agencia.DV, 1, tcStr);
-    GravarCampo(ContaCorrente.Conta.Numero, 12, tcInt);
+    GravarCampo(ContaCorrente.Conta.Numero, 12, tcInt64);
     GravarCampo(ContaCorrente.Conta.DV, 1, tcStr);
     GravarCampo(' ', 1, tcStr);
     GravarCampo(Nome, 30, tcStr, True);
@@ -243,7 +243,7 @@ begin
       GravarCampo(BancoToStr(Favorecido.Banco), 3, tcStr);
       GravarCampo(Favorecido.ContaCorrente.Agencia.Codigo, 5, tcInt);
       GravarCampo(Favorecido.ContaCorrente.Agencia.DV, 1, tcStr);
-      GravarCampo(Favorecido.ContaCorrente.Conta.Numero, 12, tcInt);
+      GravarCampo(Favorecido.ContaCorrente.Conta.Numero, 12, tcInt64);
       GravarCampo(Favorecido.ContaCorrente.Conta.DV, 1, tcStr);
       GravarCampo(Favorecido.ContaCorrente.DV, 1, tcStr);
       GravarCampo(Favorecido.Nome, 30, tcStr, True);
@@ -381,10 +381,19 @@ begin
       GravarCampo(TpInscricaoToStr(Beneficiario.Inscricao.Tipo), 1, tcStr);
       GravarCampo(Beneficiario.Inscricao.Numero, 15, tcStrZero);
       GravarCampo(Beneficiario.Nome, 40, tcStr, True);
-      GravarCampo(TpInscricaoToStr(SacadorAvalista.Inscricao.Tipo), 1, tcStr);
-      GravarCampo(SacadorAvalista.Inscricao.Numero, 15, tcStrZero);
-      GravarCampo(SacadorAvalista.Nome, 40, tcStr, True);
-      GravarCampo(' ', 53, tcStr);
+
+      if Chave = '' then
+      begin
+        GravarCampo(TpInscricaoToStr(SacadorAvalista.Inscricao.Tipo), 1, tcStr);
+        GravarCampo(SacadorAvalista.Inscricao.Numero, 15, tcStrZero);
+        GravarCampo(SacadorAvalista.Nome, 40, tcStr, True);
+        GravarCampo(' ', 53, tcStr);
+      end
+      else
+      begin
+        GravarCampo(Chave, 79, tcStr);
+        GravarCampo(TXID, 30, tcStr);
+      end;
 
       ValidarLinha('J52');
       IncluirLinha;

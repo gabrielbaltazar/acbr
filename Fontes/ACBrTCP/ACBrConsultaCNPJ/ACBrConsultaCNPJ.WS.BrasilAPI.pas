@@ -96,10 +96,10 @@ begin
           FResposta.CNAE2.Add(IntToStr(LJsonArray.ItemAsJSONObject[Z].AsInteger['codigo']) + ' ' + LJsonArray.ItemAsJSONObject[Z].AsString['descricao']);
 
         FResposta.EmpresaTipo          := LJsonObject.AsString['descricao_matriz_filial'];
-        FResposta.Endereco             := LJsonObject.AsString['logradouro'];
+        FResposta.Endereco             := Trim(LJsonObject.AsString['descricao_tipo_de_logradouro'] + ' ' + LJsonObject.AsString['logradouro']);
         FResposta.Numero               := LJsonObject.AsString['numero'];
         FResposta.Complemento          := LJsonObject.AsString['complemento'];
-        FResposta.CEP                  := IntToStr( LJsonObject.AsInteger['cep']);
+        FResposta.CEP                  := FormatFloat('00000000', LJsonObject.AsInteger['cep']);
         FResposta.Bairro               := LJsonObject.AsString['bairro'];
         FResposta.Cidade               := LJsonObject.AsString['municipio'];
         FResposta.CodigoIBGE           := IntToStr(LJsonObject.AsInteger['codigo_municipio_ibge']);
@@ -112,6 +112,7 @@ begin
         FResposta.EndEletronico        := '';
         FResposta.Telefone             := LJsonObject.AsString['ddd_telefone_1'];
         FResposta.EFR                  := '';
+        FResposta.CapitalSocial        := LJsonObject.AsFloat['capital_social'];
 
         FResposta.MotivoSituacaoCad    := LJsonObject.AsString['motivo_situacao_cadastral'];
 

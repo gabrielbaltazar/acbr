@@ -1721,17 +1721,26 @@ object frmACBrBPe: TfrmACBrBPe
           OnClick = btnExcessoBagagemClick
         end
       end
-      object tsDistribuicao: TTabSheet
-        Caption = 'Distribui'#231#227'o DFe'
-        ImageIndex = 5
-        object btnDistribuicaoDFe: TButton
-          Left = 8
-          Top = 9
-          Width = 178
+      object tsOutros: TTabSheet
+        Caption = 'Outros'
+        ImageIndex = 3
+        object btnLerArqINI: TButton
+          Left = 3
+          Top = 3
+          Width = 177
           Height = 25
-          Caption = 'Distribui'#231#227'o Documentos Fiscais'
+          Caption = 'Ler Arquivo INI/Gerar XML'
           TabOrder = 0
-          OnClick = btnDistribuicaoDFeClick
+          OnClick = btnLerArqINIClick
+        end
+        object btnGerarArqINI: TButton
+          Left = 186
+          Top = 3
+          Width = 177
+          Height = 25
+          Caption = 'Gerar Arquivo INI'
+          TabOrder = 1
+          OnClick = btnGerarArqINIClick
         end
       end
     end

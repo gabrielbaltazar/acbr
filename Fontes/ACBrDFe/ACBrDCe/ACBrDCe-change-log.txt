@@ -42,6 +42,83 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+
+08/01/2025
+-- ACBrDCeServicos --
+[+] Incluída as URLs de Produção.
+   Por: Italo Giurizzato Junior
+-- ACBrDCe.EnvEvento --
+[*] Melhorias no código.
+   Por: Italo Giurizzato Junior
+
+07/01/2025
+-- ACBrDCe.XmlWriter --
+[*] Acrescentado a função para gerar o grupo <protDCe> no XML.
+   Por: Italo Giurizzato Junior
+
+30/10/2024
+-- Diversos --
+[*] Ajustes necessários para deixar em conformidade com a NT 2024/001.
+   Por: Italo Giurizzato Junior
+
+01/10/2024
+-- Diversos --
+[*] Ajustes necessários para utilizar a unit: ACBrDFeComum.Proc
+   Por: Italo Giurizzato Junior
+
+26/09/2024
+-- ACBrDCe.XmlWriter --
+[-] Não estava populando os campos xObs1 e xObs2 ao gerar o XML.
+  Por: Italo Giurizzato Junior
+-- Diversos --
+[-] Diversas correções para impressão do DACE, ler o retorno do evento e impressão
+    do DAEvento.
+  Por: Italo Giurizzato Junior
+
+25/09/2024
+-- ACBrDCeServicos/ACBrDCe.XmlWriter --
+[-] Correções para gerar corretamente o XML do DC-e e ser autorizado pela SEFAZ.
+  Por: Italo Giurizzato Junior
+
+06/09/2024
+-- Diversos --
+[-] Algumas correções referente a incompatibilidade de tipos.
+  Por: Italo Giurizzato Junior
+
+07/08/2024
+-- Diversos --
+[*] Algumas correções no código para poder realizar a impressão do DACE.
+[+] Implementação da impressão do DACE em Fortes Report.
+  Por: Italo Giurizzato Junior
+
+02/08/2024
+-- Diversos --
+[*] Melhorias no código usando o FixInsight (ainda não ficou 100%).
+  Por: Italo Giurizzato Junior
+
+27/06/2024
+-- Diversos --
+[*] Ajustes em diversas units do componente.
+  Por: Italo Giurizzato Junior
+
+31/04/2024
+-- ACBrDCeServicos --
+[*] Corrigida as URLs de Homologação.
+  Por: Italo Giurizzato Junior
+-- Diversos --
+[*] Ajustes em diversas units do componente.
+  Por: Italo Giurizzato Junior
+
+29/04/2024
+-- Diversos --
+[*] Alterado a nomenclatura das units do componente.
+  Por: Italo Giurizzato Junior
+
+21/03/2024
+-- ACBrDCeWebServices
+[*] Adiciona chamada a UTF8ToNativeString quando usa ParseText para corrigir problemas de conversão de acentuação
+Por: Diego Folieni
+
 02/03/2024
 -- ACBrDCeXmlWriter --
 [*] Corrigido o tipo de conversão para a tag: cDC.

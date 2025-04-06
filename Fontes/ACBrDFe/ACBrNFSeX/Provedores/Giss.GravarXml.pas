@@ -39,7 +39,8 @@ interface
 uses
   SysUtils, Classes, StrUtils,
   ACBrXmlBase,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv2, ACBrNFSeXConversao;
+  ACBrXmlDocument,
+  ACBrNFSeXGravarXml_ABRASFv2;
 
 type
   { TNFSeW_Giss204 }
@@ -48,9 +49,16 @@ type
   protected
     procedure Configuracao; override;
 
+    function GerarCodigoPaisServico: TACBrXmlNode; override;
+    function GerarCodigoPaisTomador: TACBrXmlNode; override;
+    function GerarCodigoPaisTomadorExterior: TACBrXmlNode; override;
   end;
 
 implementation
+
+uses
+  ACBrNFSeXConsts,
+  ACBrNFSeXConversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o XML do RPS do provedor:
@@ -63,12 +71,30 @@ procedure TNFSeW_Giss204.Configuracao;
 begin
   inherited Configuracao;
 
-  FormatoAliq := tcDe2;
-
-  NrOcorrCodigoPaisServico := -1;
+  NrOcorrCodigoPaisServico := 0;
   NrOcorrCodigoPaisTomador := -1;
 
+  NrOcorrAliquota := 1;
+
   TagTomador := 'TomadorServico';
+end;
+
+function TNFSeW_Giss204.GerarCodigoPaisServico: TACBrXmlNode;
+begin
+  Result := AddNode(tcInt, '#35', 'CodigoPais', 4, 4, NrOcorrCodigoPaisServico,
+                       CodIBGEPaisToCodISO(NFSe.Servico.CodigoPais), DSC_CPAIS);
+end;
+
+function TNFSeW_Giss204.GerarCodigoPaisTomador: TACBrXmlNode;
+begin
+  Result := AddNode(tcInt, '#44', 'CodigoPais', 4, 4, NrOcorrCodigoPaisTomador,
+              CodIBGEPaisToCodISO(NFSe.Tomador.Endereco.CodigoPais), DSC_CPAIS);
+end;
+
+function TNFSeW_Giss204.GerarCodigoPaisTomadorExterior: TACBrXmlNode;
+begin
+  Result := AddNode(tcInt, '#38', 'CodigoPais', 4, 4, 0,
+              CodIBGEPaisToCodISO(NFSe.Tomador.Endereco.CodigoPais), DSC_CPAIS);
 end;
 
 end.

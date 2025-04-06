@@ -45,12 +45,12 @@ uses
 type
   TACBrNFSeXWebserviceMetropolisWeb = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -80,6 +80,7 @@ begin
 
   with ConfigGeral do
   begin
+    QuebradeLinha := '&#xd;';
     UseCertificateHTTP := False;
     Identificador := 'id';
   end;
@@ -123,7 +124,7 @@ end;
 
 { TACBrNFSeXWebserviceMetropolisWeb }
 
-function TACBrNFSeXWebserviceMetropolisWeb.Recepcionar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceMetropolisWeb.Recepcionar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -141,7 +142,7 @@ begin
                      ['xmlns:end="http://endpoint.nfse.ws.webservicenfse.edza.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceMetropolisWeb.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceMetropolisWeb.ConsultarLote(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -159,7 +160,7 @@ begin
                      ['xmlns:end="http://endpoint.nfse.ws.webservicenfse.edza.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceMetropolisWeb.ConsultarSituacao(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceMetropolisWeb.ConsultarSituacao(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -177,7 +178,7 @@ begin
                      ['xmlns:end="http://endpoint.nfse.ws.webservicenfse.edza.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceMetropolisWeb.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceMetropolisWeb.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -195,7 +196,7 @@ begin
                      ['xmlns:end="http://endpoint.nfse.ws.webservicenfse.edza.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceMetropolisWeb.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceMetropolisWeb.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -213,7 +214,7 @@ begin
                      ['xmlns:end="http://endpoint.nfse.ws.webservicenfse.edza.com.br/"']);
 end;
 
-function TACBrNFSeXWebserviceMetropolisWeb.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceMetropolisWeb.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin

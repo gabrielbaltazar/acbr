@@ -123,7 +123,7 @@ type
     RLLabel4: TRLLabel;
     RLDraw20: TRLDraw;
     RLLabel15: TRLLabel;
-    RLLabel5: TRLLabel;
+    lbIdentificacao: TRLLabel;
     RLLabel17: TRLLabel;
     RLLabel19: TRLLabel;
     RLLabel10: TRLLabel;
@@ -281,7 +281,7 @@ implementation
 
 uses
   StrUtils, DateUtils,
-  ACBrUtil.Base, ACBrUtil.Strings,
+  ACBrUtil.Base, ACBrUtil.Strings, ACBrUtil.DateTime,
   ACBrNFSeX, ACBrNFSeXClass, ACBrNFSeXInterface,
   ACBrValidador, ACBrDFeReportFortes;
 
@@ -316,13 +316,16 @@ begin
   rlmDadosAdicionais.Lines.Clear;
 
   if fpNFSe.OutrasInformacoes <> '' then
-    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.OutrasInformacoes, FQuebradeLinha, #13#10, [rfReplaceAll]))
+    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.OutrasInformacoes,
+                                        FQuebradeLinha, #13#10, [rfReplaceAll]))
   else
     if fpDANFSe.OutrasInformacaoesImp <> '' then
-      rlmDadosAdicionais.Lines.Add(StringReplace(fpDANFSe.OutrasInformacaoesImp, ';', #13#10, [rfReplaceAll]));
+      rlmDadosAdicionais.Lines.Add(StringReplace(fpDANFSe.OutrasInformacaoesImp,
+                                       FQuebradeLinha, #13#10, [rfReplaceAll]));
 
   if fpNFSe.InformacoesComplementares <> '' then
-    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.InformacoesComplementares, FQuebradeLinha, #13#10, [rfReplaceAll]));
+    rlmDadosAdicionais.Lines.Add(StringReplace(fpNFSe.InformacoesComplementares,
+                                       FQuebradeLinha, #13#10, [rfReplaceAll]));
 
   if fpNFSe.Link <> '' then
   begin
@@ -366,18 +369,15 @@ begin
   end;
 
   rlmDadosAdicionais.Lines.EndUpdate;
-//  //rllDataHoraImpressao.Caption := Format(ACBrStr('DATA E HORA DA IMPRESSÃO: %s') , [FormatDateTime('dd/mm/yyyy hh:nn',Now)]);
-//  rllDataHoraImpressao.Caption := FormatDateTime('dd/mm/yyyy hh:nn',Now);
-//
-//  if fpDANFSe.Usuario <> '' then
-//    rllDataHoraImpressao.Caption := Format(ACBrStr('%s   USUÁRIO: %s'), [rllDataHoraImpressao.Caption, fpDANFSe.Usuario]);
-//
-//  // imprime sistema
-//  if fpDANFSe.Sistema <> '' then
-//    rllSistema.Caption := Format('Desenvolvido por %s %s' , [fpDANFSe.Sistema, fpDANFSe.Site])
-//  else
-//    rllSistema.Caption := '';
 
+  {
+  rllDataHoraImpressao.Visible := NaoEstaVazio(fpDANFSe.Usuario);
+  rllDataHoraImpressao.Caption := ACBrStr('DATA / HORA DA IMPRESSÃO: ') +
+                               FormatDateTimeBr(Now) + ' - ' + fpDANFSe.Usuario;
+
+  rllSistema.Visible := NaoEstaVazio(fpDANFSe.Sistema);
+  rllSistema.Caption := Format('Desenvolvido por %s', [fpDANFSe.Sistema]);
+  }
   //Exibe canhoto
   rlbCanhoto.Visible := fpDANFSe.ImprimeCanhoto;
 end;
@@ -389,7 +389,8 @@ begin
   TDFeReportFortes.CarregarLogo(rliLogo, fpDANFSe.Logo);
 
   rlmPrefeitura.Lines.Clear;
-  rlmPrefeitura.Lines.Add(StringReplace(fpDANFSe.Prefeitura, ';', #13#10, [rfReplaceAll,rfIgnoreCase]));
+  rlmPrefeitura.Lines.Add(StringReplace(fpDANFSe.Prefeitura,
+                                       FQuebradeLinha, #13#10, [rfReplaceAll]));
 
   With fpNFSe do
   begin
@@ -458,26 +459,23 @@ begin
   inherited;
 
   RLLabel16.Visible := False;
-//  rllCodTributacaoMunicipio.Visible     := False;
-//  rlmDescCodTributacaoMunicipio.Visible := False;
 
   FProvider := ACBrNFSe.Provider;
 
   With fpNFSe do
   begin
-    //rllNatOperacao.Lines.Text := ACBrStr(FProvider.NaturezaOperacaoDescricao(NaturezaOperacao));
-    rllNatOperacao.Caption := ACBrStr(FProvider.NaturezaOperacaoDescricao(NaturezaOperacao));
+    rllNatOperacao.Caption    := ACBrStr(FProvider.NaturezaOperacaoDescricao(NaturezaOperacao));
     MostrarNaturezaOperacao   := rllNatOperacao.Caption<>'';
-    lblNatOperacao.Visible        := MostrarNaturezaOperacao;
+    lblNatOperacao.Visible    := MostrarNaturezaOperacao;
     rllRegimeEspecial.Caption := ACBrStr(FProvider.RegimeEspecialTributacaoDescricao(RegimeEspecialTributacao));
     rllOpcaoSimples.Caption   := ACBrStr(FProvider.SimNaoDescricao(OptanteSimplesNacional));
     rllIncentivador.Caption   := ACBrStr(FProvider.SimNaoDescricao(IncentivadorCultural));
     rllCodObra.Caption        := ConstrucaoCivil.CodigoObra;
     rllCodART.Caption         := ConstrucaoCivil.Art;
 
-    MostrarObra                 := (rllCodObra.Caption <> '') or (rllCodART.Caption <> '');
-    //rlsLinhaH1.Visible          := MostrarObra;
-    RLDraw52.Visible          := MostrarObra;
+    MostrarObra := (rllCodObra.Caption <> '') or (rllCodART.Caption <> '');
+
+    RLDraw52.Visible            := MostrarObra;
     rllTituloConstCivil.Visible := MostrarObra;
     rllCodigoObra.Visible       := MostrarObra;
     rllCodObra.Visible          := MostrarObra;
@@ -489,84 +487,66 @@ begin
     else
       rlbISSQN.Height:= 240;
 
-    with Servico.Valores  do
-    begin
-//      rllValorTotal.Caption := 'VALOR TOTAL DA NOTA = R$ '+ FormatFloat(',0.00' , ValorServicos);
-      rlmCodServico.Lines.Clear;
+    rlmCodServico.Lines.Clear;
 
-      if Servico.xItemListaServico <> '' then
+    if Servico.xItemListaServico <> '' then
+    begin
+      RLLabel16.Visible := True;
+
+      if fpDANFSe.Atividade <> '' then
+        rlmCodServico.Lines.Append('Atividade: ' + fpDANFSe.Atividade);
+
+      rlmCodServico.Lines.Append(Servico.ItemListaServico + ' - '+ Servico.xItemListaServico);
+
+      rlmCodServico.Height := Trunc(rlmCodServico.Height * 2.5);
+    end
+    else
+    begin
+      if fpDANFSe.Atividade <> '' then
       begin
         RLLabel16.Visible := True;
-
-        if fpDANFSe.Atividade <> '' then
-          rlmCodServico.Lines.Append('Atividade: ' + fpDANFSe.Atividade);
-
-        rlmCodServico.Lines.Append(Servico.ItemListaServico + ' - '+ Servico.xItemListaServico);
-
-//        if (Servico.xCodigoTributacaoMunicipio <> '') then
-//        begin
-//          rllCodTributacaoMunicipio.Visible     := True;
-//          rlmDescCodTributacaoMunicipio.Visible := True;
-//          rlmDescCodTributacaoMunicipio.Lines.Append(Servico.xCodigoTributacaoMunicipio);
-//        end
-//        else
-          rlmCodServico.Height := Trunc(rlmCodServico.Height * 2.5);
+        RLLabel16.Caption := 'Atividade:';
+        rlmCodServico.Lines.Append(fpDANFSe.Atividade);
       end
-      else
-      begin
-        if fpDANFSe.Atividade <> '' then
-        begin
-          RLLabel16.Visible := True;
-          RLLabel16.Caption := 'Atividade:';
-          rlmCodServico.Lines.Append(fpDANFSe.Atividade);
-        end
-      end;
+    end;
 
-      rllValorTributavel.Caption      := FormatFloat(',0.00', BaseCalculo);
-      rllValorNaoTributavel.Caption   := '0,00'; // ToDo
-      rllValorPIS.Caption             := FormatFloat(',0.00', ValorPis);
-      rllValorCOFINS.Caption          := FormatFloat(',0.00', ValorCofins);
-      rllValorIR.Caption              := FormatFloat(',0.00', ValorIr);
-      rllValorINSS.Caption            := FormatFloat(',0.00', ValorInss);
-      rllValorCSLL.Caption            := FormatFloat(',0.00', ValorCsll);
-      rllValorServicos1.Caption       := FormatFloat(',0.00', ValorServicos);
-      rllDescIncondicionado.Caption  := FormatFloat(',0.00', DescontoIncondicionado);
-      rllDescCondicionado.Caption     := FormatFloat(',0.00', DescontoCondicionado);
-//      rllRetencoesFederais.Caption    := FormatFloat(',0.00', RetencoesFederais);
-      rllOutrasRetencoes.Caption      := FormatFloat(',0.00', OutrasRetencoes);
-//      rllValorIssRetido.Caption       := FormatFloat(',0.00', ValorIssRetido);
-      rllValorLiquido.Caption         := FormatFloat(',0.00', ValorLiquidoNfse);
-//      rllValorServicos2.Caption       := FormatFloat(',0.00', ValorServicos);
-      rllValorDeducoes.Caption        := FormatFloat(',0.00', ValorDeducoes);
-//      rllDescIncondicionado2.Caption  := FormatFloat(',0.00', DescontoIncondicionado);
-      rllBaseCalc.Caption             := FormatFloat(',0.00', BaseCalculo);
-      rllAliquota.Caption             := fpDANFSe.FormatarAliquota(Aliquota);
-//      rllISSReter.Caption             := FProvider.SituacaoTributariaDescricao(IssRetido);
-      rllValorISS.Caption             := FormatFloat(',0.00',ValorIss);
+    rllValorTributavel.Caption    := FormatFloat(',0.00', Servico.Valores.BaseCalculo);
+    rllValorNaoTributavel.Caption := '0,00'; // ToDo
+    rllValorPIS.Caption           := FormatFloat(',0.00', Servico.Valores.ValorPis);
+    rllValorCOFINS.Caption        := FormatFloat(',0.00', Servico.Valores.ValorCofins);
+    rllValorIR.Caption            := FormatFloat(',0.00', Servico.Valores.ValorIr);
+    rllValorINSS.Caption          := FormatFloat(',0.00', Servico.Valores.ValorInss);
+    rllValorCSLL.Caption          := FormatFloat(',0.00', Servico.Valores.ValorCsll);
+    rllValorServicos1.Caption     := FormatFloat(',0.00', Servico.Valores.ValorServicos);
+    rllDescIncondicionado.Caption := FormatFloat(',0.00', Servico.Valores.DescontoIncondicionado);
+    rllDescCondicionado.Caption   := FormatFloat(',0.00', Servico.Valores.DescontoCondicionado);
+    rllOutrasRetencoes.Caption    := FormatFloat(',0.00', Servico.Valores.OutrasRetencoes);
+    rllValorLiquido.Caption       := FormatFloat(',0.00', Servico.Valores.ValorLiquidoNfse);
+    rllValorDeducoes.Caption      := FormatFloat(',0.00', Servico.Valores.ValorDeducoes);
+    rllBaseCalc.Caption           := FormatFloat(',0.00', Servico.Valores.BaseCalculo);
+    rllAliquota.Caption           := fpDANFSe.FormatarAliquota(Servico.Valores.Aliquota);
+    rllValorISS.Caption           := FormatFloat(',0.00',Servico.Valores.ValorIss);
 
-      rllCNAE.Caption := fpNFSe.Servico.CodigoCnae;
-      rllDataGeracao.Caption := FormatDateTime('dd/mm/yyyy hh:nn', DataEmissao);
-      case Servico.Valores.IssRetido of
-        stRetencao:
-          rllRecolhimento.Caption := 'Com Retenção';
-        stNormal:
-          rllRecolhimento.Caption := 'Sem Retenção';
-        stSubstituicao:
-          rllRecolhimento.Caption := 'Substituição';
-      else
-        rllRecolhimento.Caption := '';
-      end;
+    rllCNAE.Caption := fpNFSe.Servico.CodigoCnae;
+    rllDataGeracao.Caption := FormatDateTime('dd/mm/yyyy hh:nn', DataEmissao);
+    case Servico.Valores.IssRetido of
+      stRetencao:
+        rllRecolhimento.Caption := 'Com Retenção';
+      stNormal:
+        rllRecolhimento.Caption := 'Sem Retenção';
+      stSubstituicao:
+        rllRecolhimento.Caption := 'Substituição';
+    else
+      rllRecolhimento.Caption := '';
     end;
   end;
 
-
-  //rllDataHoraImpressao.Caption := Format(ACBrStr('DATA E HORA DA IMPRESSÃO: %s') , [FormatDateTime('dd/mm/yyyy hh:nn',Now)]);
   rllDataHoraImpressao.Caption := FormatDateTime('dd/mm/yyyy hh:nn',Now);
 
   if fpDANFSe.Usuario <> '' then
-    rllDataHoraImpressao.Caption := Format(ACBrStr('%s   USUÁRIO: %s'), [rllDataHoraImpressao.Caption, fpDANFSe.Usuario]);
+    rllDataHoraImpressao.Caption := Format(ACBrStr('%s   USUÁRIO: %s'),
+      [rllDataHoraImpressao.Caption, fpDANFSe.Usuario]);
 
-  // imprime sistema
   if fpDANFSe.Sistema <> '' then
     rllSistema.Caption := Format('Desenvolvido por %s %s' , [fpDANFSe.Sistema, fpDANFSe.Site])
   else
@@ -641,57 +621,38 @@ begin
   begin
     rllTomaNome.Caption := RazaoSocial;
 
-    with IdentificacaoTomador do
+    lbIdentificacao.Caption := 'CPF/CNPJ:';
+    if (Length(IdentificacaoTomador.Nif) > 0) then
     begin
-      if Length(CpfCnpj)<=11 then
-        rllTomaCNPJ.Caption := FormatarCPF(CpfCnpj)
-      else
-        rllTomaCNPJ.Caption := FormatarCNPJ(CpfCnpj);
+      lbIdentificacao.Caption := 'NIF:';
+      rllTomaCNPJ.Caption := IdentificacaoTomador.Nif;
+    end
+    else
+      rllTomaCNPJ.Caption := FormatarCNPJouCPF(IdentificacaoTomador.CpfCnpj);
 
-      rllTomaInscMunicipal.Caption := IfThen(InscricaoMunicipal <> '' , InscricaoMunicipal , fpDANFSe.Tomador.InscricaoMunicipal);
+    rllTomaInscMunicipal.Caption := fpDANFSe.Tomador.InscricaoMunicipal;
+    rllTomaInscEstadual.Caption := fpDANFSe.Tomador.InscricaoEstadual;
 
-      rllTomaInscEstadual.Caption := IfThen(InscricaoEstadual <> '', InscricaoEstadual, fpDANFSe.Tomador.InscricaoEstadual);
-    end;
-
-    with Endereco do
+    if Endereco.Endereco <> '' then
     begin
-      if Endereco <> '' then
-      begin
-        rllTomaEndereco.Caption :=  Trim(Endereco) + ', '  +
-                                    Trim(Numero)  + ' - ' +
-                                    Trim(Bairro)  + ' - CEP: ' +
-                                    FormatarCEP(CEP);
-      end
-      else
-       rllTomaEndereco.Caption := Trim(fpDANFSe.Tomador.Endereco) + ' - CEP: ' +
-                                  FormatarCEP(CEP);
+      rllTomaEndereco.Caption :=  Trim(Endereco.Endereco) + ', '  +
+                                  Trim(Endereco.Numero)  + ' - ' +
+                                  Trim(Endereco.Bairro)  + ' - CEP: ' +
+                                  FormatarCEP(Endereco.CEP);
+    end
+    else
+     rllTomaEndereco.Caption := Trim(fpDANFSe.Tomador.Endereco) + ' - CEP: ' +
+                                FormatarCEP(Endereco.CEP);
 
-      rllTomaComplemento.Caption := IfThen(Complemento <> '' , Complemento , fpDANFSe.Tomador.Complemento);
+    rllTomaComplemento.Caption := fpDANFSe.Tomador.Complemento;
 
-      rllTomaMunicipio.Caption := xMunicipio;
+    rllTomaMunicipio.Caption := Endereco.xMunicipio;
 
-      rllTomaUF.Caption := UF;
-    end;
+    rllTomaUF.Caption := Endereco.UF;
 
-    with Contato do
-    begin
-      rllTomaTelefone.Caption := IfThen(Telefone <> '' , FormatarFone(Telefone) , FormatarFone(fpDANFSe.Tomador.Fone));
-      rllTomaEmail.Caption    := IfThen(Email    <> '' , Email , fpDANFSe.Tomador.Email);
-    end;
+    rllTomaTelefone.Caption := FormatarFone(fpDANFSe.Tomador.Fone);
+    rllTomaEmail.Caption    := fpDANFSe.Tomador.Email;
   end;
-
-//  rllMsgTeste.Visible := (fpDANFSe.Producao = snNao);
-//  rllMsgTeste.Enabled := (fpDANFSe.Producao = snNao);
-//
-//  if fpDANFSe.Cancelada or (fpNFSe.NfseCancelamento.DataHora <> 0) or
-//    (fpNFSe.SituacaoNfse = snCancelado) or (fpNFSe.StatusRps = srCancelado) then
-//  begin
-//    rllMsgTeste.Caption := 'NFS-e CANCELADA';
-//    rllMsgTeste.Visible := True;
-//    rllMsgTeste.Enabled := True;
-//  end;
-//
-//  rllMsgTeste.Repaint;
 end;
 
 procedure TfrlXDANFSeRLSimplISS.RLNFSeBeforePrint(Sender: TObject;
@@ -701,8 +662,8 @@ var
 begin
   inherited;
 
-  Detalhar := ACBrNFSe.Provider.ConfigGeral.DetalharServico;
-
+  //Detalhar := ACBrNFSe.Provider.ConfigGeral.DetalharServico;
+  Detalhar := fpDANFSe.DetalharServico;
   RLNFSe.Title := 'NFS-e: ' + fpNFSe.Numero;
   TDFeReportFortes.AjustarMargem(RLNFSe, fpDANFSe);
   rlbItens.Visible := not Detalhar;

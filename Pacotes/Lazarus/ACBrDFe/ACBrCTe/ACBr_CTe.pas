@@ -4,14 +4,16 @@
 
 unit ACBr_CTe;
 
+{$warn 5023 off : no warning about unused units}
 interface
 
 uses
   ACBrCTeConhecimentos, ACBrCTe, pcteConversaoCTe, ACBrCTeConfiguracoes, 
-  ACBrCTeReg, ACBrCTeWebServices, pcteConsSitCTe, pcteCTe, 
-  pcteCTeR, pcteCTeW, pcteEnvEventoCTe, pcteEventoCTe, pcteInutCTe, 
-  pcteLayoutTXT, pcteModeloCTe, pcteProcCTe, ACBrCTeDACTEClass, pcteConsts, 
-  LazarusPackageIntf;
+  ACBrCTeReg, ACBrCTeWebServices, ACBrCTe.XmlWriter, pcteCTeR, pcteCTeW, 
+  pcteInutCTe, pcteProcCTe, ACBrCTeDACTEClass, ACBrCTe.Classes, 
+  ACBrCTe.XmlHandler, ACBrCTe.ConsSit, ACBrCTe.RetConsSit, 
+  ACBrCTe.EventoClass, ACBrCTe.EnvEvento, ACBrCTe.RetEnvEvento, 
+  ACBrCTe.Consts, ACBrCTe.IniReader, ACBrCTe.IniWriter, LazarusPackageIntf;
 
 implementation
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 
     <!-- Grupo {ideEvento} -->
@@ -144,6 +144,19 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="T_ideEvento_trab_PJ_sem_simplificado">
+        <xs:annotation>
+            <xs:documentation>Informações de identificação do evento.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="indRetif" type="TS_indRetif" />
+            <xs:element name="nrRecibo" minOccurs="0" type="TS_nrRecibo" />
+            <xs:element name="tpAmb" type="TS_tpAmb" />
+            <xs:element name="procEmi" type="TS_procEmi_PJ_sem_simplificado" />
+            <xs:element name="verProc" type="TS_verProc" />
+        </xs:sequence>
+    </xs:complexType>
+
     <xs:complexType name="T_ideEvento_trab_indGuia">
         <xs:annotation>
             <xs:documentation>Informações de identificação do evento.</xs:documentation>
@@ -190,27 +203,6 @@
             <xs:element name="tpAmb" type="TS_tpAmb" />
             <xs:element name="procEmi" type="TS_procEmi_8" />
             <xs:element name="verProc" type="TS_verProc" />
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="T_ideEvento_retorno_trab">
-        <xs:annotation>
-            <xs:documentation>Identificação do evento de retorno.</xs:documentation>
-            <xs:documentation>CHAVE_GRUPO: {indApuracao*}, {perApur*}</xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:element name="nrRecArqBase" type="TS_nrRecibo">
-                <xs:annotation>
-                    <xs:documentation>Preencher com o número do recibo do arquivo que deu origem ao presente arquivo de retorno ao empregador.</xs:documentation>
-                    <xs:documentation>Validação: Deve ser um recibo de entrega válido, correspondente ao arquivo que deu origem ao presente arquivo de retorno (S-1200, S-2299, S-2399 ou S-3000).</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="indApuracao" type="TS_indApuracao" />
-            <xs:element name="perApur" type="TS_perApur">
-                <xs:annotation>
-                    <xs:documentation>Informar o mês/ano (formato AAAA-MM) de referência das informações, se {indApuracao}(./indApuracao) for igual a [1], ou apenas o ano (formato AAAA), se {indApuracao}(./indApuracao) for igual a [2].</xs:documentation>
-                </xs:annotation>
-            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
@@ -332,6 +324,13 @@
     <xs:complexType name="T_infoInterm">
         <xs:sequence>
             <xs:element name="dia" type="TS_dia" />
+            <xs:element name="hrsTrab" minOccurs="0" type="TS_hora">
+                <xs:annotation>
+                    <xs:documentation>Horas trabalhadas no dia pelo empregado com contrato de trabalho intermitente, no formato HHMM.</xs:documentation>
+                    <xs:documentation>Validação: Preenchimento obrigatório e exclusivo se {}(1000_infoEmpregador_inclusao_infoCadastro_classTrib) em S-1000 = [22].</xs:documentation>
+                    <xs:documentation>Se preenchida, deve estar no intervalo entre [0000] e [2359], criticando inclusive a segunda parte do número, que indica os minutos, que deve ser menor ou igual a 59.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
@@ -366,11 +365,15 @@
                         <xs:element name="vlrDespCustas" type="TS_valorMonetario">
                             <xs:annotation>
                                 <xs:documentation>Preencher com o valor das despesas com custas judiciais.</xs:documentation>
+                                <xs:documentation>Validação: Deve ser maior ou igual a 0 (zero).</xs:documentation>
                             </xs:annotation>
                         </xs:element>
                         <xs:element name="vlrDespAdvogados" type="TS_valorMonetario">
                             <xs:annotation>
                                 <xs:documentation>Preencher com o valor total das despesas com advogado(s).</xs:documentation>
+                                <xs:documentation>Validação: Se o grupo {}(../ideAdv) for preenchido, o valor informado neste campo deve ser maior ou igual à soma do(s) campo(s) {}(../ideAdv_vlrAdv) do grupo {}(../ideAdv).</xs:documentation>
+                                <xs:documentation>Deve ser maior ou igual a 0 (zero).</xs:documentation>
+                                <xs:documentation>O não preenchimento do grupo {}(../ideAdv) indica que o contribuinte declarante não possui as informações detalhadas por advogado.</xs:documentation>
                             </xs:annotation>
                         </xs:element>
                     </xs:sequence>
@@ -380,7 +383,7 @@
                 <xs:annotation>
                     <xs:documentation>Identificação dos advogados.</xs:documentation>
                     <xs:documentation>CHAVE_GRUPO: {tpInsc}, {nrInsc}</xs:documentation>
-                    <xs:documentation>CONDICAO_GRUPO: OC</xs:documentation>
+                    <xs:documentation>CONDICAO_GRUPO: OC (se {vlrDespAdvogados}(../despProcJud_vlrDespAdvogados) > 0); N (nos demais casos)</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
                     <xs:sequence>
@@ -456,6 +459,7 @@
                 <xs:annotation>
                     <xs:documentation>Informar o número de inscrição do prestador de serviços de assistência médica, de acordo com o tipo de inscrição indicado em {tpInsc}(./tpInsc).</xs:documentation>
                     <xs:documentation>Validação: Deve ser um CNPJ ou CPF válido, de acordo com o tipo de inscrição indicado em {tpInsc}(./tpInsc).</xs:documentation>
+                    <xs:documentation>Não pode ser igual a {}(1210_ideBenef_cpfBenef).</xs:documentation>
                 </xs:annotation>
             </xs:element>
             <xs:element name="vlrReemb" type="TS_valorMonetario_positivo" minOccurs="0">
@@ -826,7 +830,7 @@
         </xs:annotation>
         <xs:sequence>
             <xs:element name="cpfTrab" type="TS_cpfTrab" />
-            <xs:element name="matricula" type="TS_codigo_esocial">
+            <xs:element name="matricula" type="TS_matricula">
                 <xs:annotation>
                     <xs:documentation>Matrícula atribuída ao trabalhador pela empresa ou, no caso de servidor público, a matrícula constante no Sistema de Administração de Recursos Humanos do órgão.</xs:documentation>
                     <xs:documentation>Validação: Deve corresponder à matrícula informada pelo empregador no evento S-2200 do respectivo vínculo trabalhista.</xs:documentation>
@@ -842,7 +846,7 @@
         </xs:annotation>
         <xs:sequence>
             <xs:element name="cpfTrab" type="TS_cpfTrab" />
-            <xs:element name="matricula" minOccurs="0" type="TS_codigo_esocial">
+            <xs:element name="matricula" minOccurs="0" type="TS_matricula">
                 <xs:annotation>
                     <xs:documentation>Matrícula atribuída ao trabalhador pela empresa ou, no caso de servidor público, a matrícula constante no Sistema de Administração de Recursos Humanos do órgão.</xs:documentation>
                     <xs:documentation>Validação: Deve corresponder à matrícula informada pelo empregador no evento S-2190, S-2200 ou S-2300 do respectivo contrato. Não preencher no caso de Trabalhador Sem Vínculo de Emprego/Estatutário - TSVE sem informação de matrícula no evento S-2300.</xs:documentation>
@@ -865,7 +869,7 @@
         </xs:annotation>
         <xs:sequence>
             <xs:element name="cpfTrab" type="TS_cpfTrab" />
-            <xs:element name="matricula" type="TS_codigo_esocial">
+            <xs:element name="matricula" type="TS_matricula">
                 <xs:annotation>
                     <xs:documentation>Matrícula atribuída ao trabalhador pela empresa ou, no caso de servidor público, a matrícula constante no Sistema de Administração de Recursos Humanos do órgão.</xs:documentation>
                     <xs:documentation>Validação: Deve corresponder à matrícula informada pelo empregador no evento S-2190 ou S-2200 do respectivo vínculo trabalhista.</xs:documentation>
@@ -975,7 +979,7 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
-            <xs:element name="nivEstagio" minOccurs="0" >
+            <xs:element name="nivEstagio" minOccurs="0">
                 <xs:simpleType>
                     <xs:annotation>
                         <xs:documentation>Informar o nível do estágio ou da prestação de serviço civil voluntário.</xs:documentation>
@@ -1155,7 +1159,7 @@
                     <xs:documentation>Informar o número de inscrição do empregador anterior, de acordo com o tipo de inscrição indicado no campo {sucessaoVinc/tpInsc}(./tpInsc).</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="matricAnt" minOccurs="0" type="TS_codigo_esocial">
+            <xs:element name="matricAnt" minOccurs="0" type="TS_matricula">
                 <xs:annotation>
                     <xs:documentation>Matrícula do trabalhador no empregador anterior.</xs:documentation>
                 </xs:annotation>
@@ -1163,6 +1167,58 @@
             <xs:element name="dtAdm" type="xs:date">
                 <xs:annotation>
                     <xs:documentation>Preencher com a data de admissão do trabalhador. No caso de transferência do empregado, deve ser preenchida a data inicial do vínculo no primeiro empregador (data de início do vínculo).</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Grupo {descFolha} (S-1200, S-1202, S-1207, S-2299 e S-2399) -->
+
+    <xs:complexType name="T_descFolha">
+        <xs:annotation>
+            <xs:documentation>Informações de desconto do empréstimo em folha.</xs:documentation>
+            <xs:documentation>CONDICAO_GRUPO: O (se {}(1010_infoRubrica_inclusao_dadosRubrica_natRubr) em S-1010 = [9253]); N (nos demais casos)</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="tpDesc">
+                <xs:simpleType>
+                    <xs:annotation>
+                        <xs:documentation>Indicativo do tipo de desconto.</xs:documentation>
+                    </xs:annotation>
+                    <xs:restriction base="xs:byte">
+                        <xs:enumeration value="1">
+                            <xs:annotation>
+                                <xs:documentation>eConsignado</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="instFinanc">
+                <xs:simpleType>
+                    <xs:annotation>
+                        <xs:documentation>Código da Instituição Financeira concedente do empréstimo.</xs:documentation>
+                        <xs:documentation>Validação: Deve ser um código válido, conforme tabela do Banco Central.</xs:documentation>
+                    </xs:annotation>
+                    <xs:restriction base="xs:string">
+                        <xs:pattern value="\d{3}" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="nrDoc">
+                <xs:simpleType>
+                    <xs:annotation>
+                        <xs:documentation>Número do contrato referente ao empréstimo.</xs:documentation>
+                        <xs:documentation>Validação: Se {}(./tpDesc) = [1], deve ser informado com 8 (oito) algarismos.</xs:documentation>
+                    </xs:annotation>
+                    <xs:restriction base="xs:string">
+                        <xs:pattern value="\d{8,12}" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="observacao" minOccurs="0" type="TS_observacao">
+                <xs:annotation>
+                    <xs:documentation>Outras informações do desconto.</xs:documentation>
                 </xs:annotation>
             </xs:element>
         </xs:sequence>
@@ -1391,6 +1447,24 @@
             <xs:enumeration value="4">
                 <xs:annotation>
                     <xs:documentation>Aplicativo governamental - Simplificado Pessoa Jurídica</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="TS_procEmi_PJ_sem_simplificado">
+        <xs:annotation>
+            <xs:documentation>Processo de emissão do evento.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:byte">
+            <xs:enumeration value="1">
+                <xs:annotation>
+                    <xs:documentation>Aplicativo do empregador</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="3">
+                <xs:annotation>
+                    <xs:documentation>Aplicativo governamental - Web Geral</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
         </xs:restriction>
@@ -2202,6 +2276,15 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <!-- Campo {matricula} -->
+
+    <xs:simpleType name="TS_matricula">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1" />
+            <xs:maxLength value="30" />
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- Campo {indRRA} -->
 
     <xs:simpleType name="TS_indRRA">
@@ -2241,7 +2324,7 @@
         <xs:annotation>
             <xs:documentation>Matrícula do trabalhador no empregador anterior.</xs:documentation>
         </xs:annotation>
-        <xs:restriction base="TS_codigo_esocial" />
+        <xs:restriction base="TS_matricula" />
     </xs:simpleType>    
 
     <!-- Campo {sucessaoVinc/dtAdm} -->
@@ -2280,6 +2363,7 @@
             <xs:documentation>Dia do mês efetivamente trabalhado pelo empregado com contrato de trabalho intermitente.</xs:documentation>
             <xs:documentation>Caso não tenha havido trabalho no mês, informar 0 (zero).</xs:documentation>
             <xs:documentation>Validação: Deve ser um número entre 0 e 31, de acordo com o calendário anual.</xs:documentation>
+            <xs:documentation>Retornar alerta caso seja informado 0 (zero).</xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:byte">
             <xs:minInclusive value="0" />
@@ -2514,6 +2598,11 @@
                     <xs:documentation>Sentença judicial (exceto reclamatória trabalhista)</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
+            <xs:enumeration value="J">
+                <xs:annotation>
+                    <xs:documentation>Parcelas complementares conhecidas após o fechamento da folha</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
         </xs:restriction>
     </xs:simpleType>
 
@@ -2532,6 +2621,11 @@
             <xs:enumeration value="H">
                 <xs:annotation>
                     <xs:documentation>Declaração de base de cálculo de FGTS anterior ao início do FGTS Digital</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="I">
+                <xs:annotation>
+                    <xs:documentation>Sentença judicial (exceto reclamatória trabalhista)</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
         </xs:restriction>
@@ -3111,7 +3205,7 @@
     <xs:simpleType name="TS_racaCorTrab">
         <xs:annotation>
             <xs:documentation>Etnia e raça do trabalhador, conforme sua autoclassificação (art. 39, § 8º, da Lei 12.288/2010).</xs:documentation>
-            <xs:documentation>Validação: Retornar alerta caso seja informado o valor [6].</xs:documentation>
+            <xs:documentation>Validação: Não pode ser informado o valor [6].</xs:documentation>
         </xs:annotation>
         <xs:restriction base="TS_racaCor" />
     </xs:simpleType>
@@ -3119,7 +3213,7 @@
     <xs:simpleType name="TS_racaCorBenef">
         <xs:annotation>
             <xs:documentation>Etnia e raça do beneficiário, conforme sua autoclassificação (art. 39, § 8º, da Lei 12.288/2010).</xs:documentation>
-            <xs:documentation>Validação: Retornar alerta caso seja informado o valor [6].</xs:documentation>
+            <xs:documentation>Validação: Não pode ser informado o valor [6].</xs:documentation>
         </xs:annotation>
         <xs:restriction base="TS_racaCor" />
     </xs:simpleType>
@@ -3551,6 +3645,19 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="TS_tpRegTrab_1">
+        <xs:annotation>
+            <xs:documentation>Tipo de regime trabalhista.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:byte">
+            <xs:enumeration value="1">
+                <xs:annotation>
+                    <xs:documentation>CLT - Consolidação das Leis de Trabalho e legislações trabalhistas específicas</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- Campo {tpRegPrev} -->
    
     <xs:simpleType name="TS_tpRegPrev">
@@ -3566,7 +3673,7 @@
             </xs:enumeration>
             <xs:enumeration value="2">
                 <xs:annotation>
-                    <xs:documentation>Regime Próprio de Previdência Social - RPPS</xs:documentation>
+                    <xs:documentation>Regime Próprio de Previdência Social - RPPS, Regime dos Parlamentares e Sistema de Proteção dos Militares dos Estados/DF</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
             <xs:enumeration value="3">
@@ -3594,7 +3701,7 @@
             </xs:enumeration>
             <xs:enumeration value="2">
                 <xs:annotation>
-                    <xs:documentation>Regime Próprio de Previdência Social - RPPS</xs:documentation>
+                    <xs:documentation>Regime Próprio de Previdência Social - RPPS, Regime dos Parlamentares e Sistema de Proteção dos Militares dos Estados/DF</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
             <xs:enumeration value="3">
@@ -3811,6 +3918,14 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="TS_crm_10">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1" />
+            <xs:maxLength value="10" />
+            <xs:pattern value=".*[^\s].*" />
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- Campo {pensAlim} -->
 
     <xs:simpleType name="TS_pensAlim">
@@ -3954,15 +4069,6 @@
                     <xs:documentation>13° salário ({codIncCP}(1010_infoRubrica_inclusao_dadosRubrica_codIncCP) em S-1010 = [12, 14, 16, 22, 26, 32, 92, 94, 96, 98])</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <!-- Campo {matricula} (S-5001 e S-5003) -->
-
-    <xs:simpleType name="TS_matricula_retorno">
-        <xs:restriction base="xs:string">
-            <xs:minLength value="1" />
-            <xs:maxLength value="30" />
         </xs:restriction>
     </xs:simpleType>
 
@@ -4333,9 +4439,15 @@
 
     <xs:simpleType name="TS_hora">
         <xs:restriction base="xs:string">
-            <xs:pattern value="\d{4}" />
+            <xs:length value="4" />
             <xs:pattern value="(([0-1][0-9]|2[0-3])[0-5][0-9])" />
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="TS_hora_99">
+        <xs:restriction base="xs:string">
+            <xs:length value="4" />
+            <xs:pattern value="([0-9][0-9][0-5][0-9])" />
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

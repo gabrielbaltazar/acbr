@@ -46,6 +46,590 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+06/04/2025
+-- ACBrTEFAPIScope, ACBrTEFScopeAPI --
+[*] Ajuste para permitir validação de Parcelas, no fluxo do TEF
+    (por: GPlus e DSA)
+
+04/04/2025
+-- ACBrTEDAPIDestaxa --
+[*] Alteração para preencher propriedade AplicacaoTela do DestaxaClient;
+[*] Alteração para permitir acesso ao DestaxaClient através do TACBrTEFAPI.
+    por: Elias César
+
+31/03/2025
+-- ACBrTEFAPIAditum --
+[*] Exibição de msg "Transação já Cancelada" na Tela do Operador
+[*] Tradução dos Status VALIDATING_NSU e WAITING_CARD_EVENT
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=82582
+    (por: EasySoft Sistemas e DSA)
+
+[-] Correção em 'TACBrTEFRespAditum.ConteudoToProperty', para considerar o Raiz
+    do Json, se não achar o objeto 'charge' dentro do JSon
+[-] Correção em 'TACBrTEFAPIClassAditum.RecuperarTransacao', para considerar
+    os chaves 'success' ou 'isApproved'
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=82589
+    (por: EasySoft Sistemas e DSA)
+
+26/03/2025
+-- ACBrTEFScopeAPI --
+[-] Correção para não tentar cancelar a transação, enquando o estado for
+    RCS_TRN_EM_ANDAMENTO
+    (por: DSA)
+
+24/03/2025
+-- ACBrTEFAPIScope --
+[-] Correção no tratamento do retorno do registrador MASK1_Data_local_transacao
+    (por: DSA)
+
+20/03/2025
+-- ACBrTEFScopeAPI --
+[-] Correção no método 'AssignColetaToColetaEx', para Delphi Unicode
+    (por: DSA)
+-- ACBrTEFAPIScope, ACBrTEFScopeAPI --
+[-] Correção no método 'TACBrTEFAPIClassScope.FinalizarTransacao', para
+    conseguir Finalizar Transaçoes (sessões), quando estiver inicializando e
+    precisar confirmar/desfazer Transações pendentes/
+    https://www.projetoacbr.com.br/forum/topic/82433-tef-scope-problema-com-desfazimento-por-queda-de-energia/
+    (por: DSA)
+
+18/03/2025
+-- ACBrTEFDestaxaComum --
+[-] Ajuste para correção de erro por resposta muito rápida do componente.
+    por: Elias César
+
+17/03/2025
+-- ACBrTEFScopeAPI --
+[-] Possível correção, para coleta de Bandeira durante a transação
+    (por: DSA)
+
+13/03/2025
+-- ACBrTEFScopeAPI --
+[-] Correção de Bug de A.V. quando 'ControleConexao' estava ativo
+[*] Propriedade 'ControleConexao' passa a ser True por default
+
+-- ACBrTEFAPIScope --
+[-] Correção em 'TACBrTEFAPIClassScope.EfetuarPagamento', para aplicar
+    corretamente os parâmetros informados em
+    Financiamento = (tefmfParceladoEmissor, tefmfParceladoEstabelecimento)
+    (por: DSA)
+
+07/03/2025
+-- ACBrTEFAPIDestaxa --
+[*] Ajuste na máscara de números sem casa decimal.
+    por: Elias César
+
+27/02/2025
+-- ACBrTEFAPI --
+[-] Ajustes para compilar em Delphi FMX
+
+-- ACBrTEFMSitefAndroidAPI, ACBrTEFMSitefComum --
+[-] Correção de erro de compilação em Delphi Android FMX
+
+-- ACBrTEFScopeAPI --
+[*] Adicionada verificação se TEF foi inicializado em vários métodos
+    (por: DSA)
+
+26/02/2025
+-- ACBrTEFAPIScope --
+[-] Ajustes para apagar respostas da transação anterior em EfetuarAdministrativa
+    (por: DSA)
+
+24/02/2025
+-- ACBrTEFAPI, ACBrTEFTPagAPI, ACBrTEFAPITPag --
+[+] Adicionado novo modelo de TEF "TPag", do Grupo Transire
+    (por: DSA)
+
+19/02/2025
+-- ACBrTEFDestaxaComum --
+[*] Suporte da Destaxa solicitou que fosse adicionado sleep antes de enviar o comando de coleta, 
+    pois o client V$Pague não está recebendo o comando quando ele acontece no mesmo instante.
+
+14/02/2025
+-- ACBrTEFScopeAPI --
+[*] Ajuste para o caso da rotina 'ScopeConsultaPP' retornar 'RCS_PP_NAO_ENCONTRADO'
+    https://www.projetoacbr.com.br/forum/topic/81846-tef-scope-problema-ao-comunicar-com-pinpad/
+[*] Ajuste em 'TACBrTEFScopeAPI.VerificarEAjustarScopeINI', para remover chaves
+    exclusivas de PIX, quando configuração não for específica para PIX
+
+-- ACBrTEFAPIScope --
+[*] Correção no nome de Método 'QuandoTransacaoEmAndamentoAPI'
+[*] Informando 'PathDLL'  em 'TACBrTEFAPIClassScope.Inicializar'
+    (por: DSA)
+
+12/02/2025
+-- ACBrTEFScopeAPI --
+[*] Ajustes para evitar A.V. em Delphi 10.2.x
+    (por: DSA)
+
+05/02/2025
+-- ACBrTEFAPICliSiTef --
+[+] Adicionado a Propriedade 'TACBrTEFAPIClassCliSiTef.FinalizarTransacaoIndividual'
+    que permite que o comando 'FinalizarTransacao', seja específico para apenas
+    uma Transação e não para todas Transações da Venda
+    https://dev.softwareexpress.com.br/en/docs/clisitef/clisitef_documento_principal#completion-of-individual-payments-in-the-same-tax-coupon
+    https://www.projetoacbr.com.br/forum/topic/81482-problema-ao-cancelar-pagamento-tef-sitef/
+    (por: Smaili Amorim e DSA)
+
+-- ACBrTEFDestaxaComum --
+[*] Alteração para abrir/fechar a conexão TCP a cada fluxo de pagamento.
+
+-- ACBrTEFAPIDestaxa --
+[-] Correção para desconectar a conexão TCP ao DesInicializar o componente;
+[*] Ajuste não manter a conexão TCP aberta após Inicializar o componente.
+
+27/01/2025
+-- ACBrTEFScopeAPI --
+[+] Adicionado os métodos:
+    procedure ObterListaImagensPinPad(ALista: TStrings);
+    procedure CarregarImagemPinPad(const NomeImagem: String; const Arquivo: String);
+    procedure ExibirImagemPinPad(const NomeImagem: String);
+    procedure ApagarImagemPinPad(const NomeImagem: String);
+    function ObterInformacoesPinPad: String;
+    procedure ObterDimensoesVisorPinPad(out Width: Word; out Height: Word);
+
+-- ACBrTEFAPI, ACBrTEFAPIScope --
+[+] Adicionado os métodos em 'TACBrTEFAPIClass'
+    procedure ObterListaImagensPinPad(ALista: TStrings); virtual;
+    procedure ObterDimensoesVisorPinPad(out Width: Word; out Height: Word); virtual;
+
+    procedure ExibirImagemPinPad(const NomeImagem: String); virtual;
+    procedure ApagarImagemPinPad(const NomeImagem: String); virtual;
+    procedure CarregarImagemPinPad(const NomeImagem: String; AStream: TStream;
+      TipoImagem: TACBrTEFAPIImagemPinPad); virtual;
+
+-- ACBrTEFAPI --
+[+] Adicionado os métodos em 'TACBrTEFAPI'
+    procedure ObterListaImagensPinPad(ALista: TStrings);
+    procedure ObterDimensoesVisorPinPad(out Width: Word; out Height: Word);
+
+    procedure ExibirImagemPinPad(const NomeImagem: String);
+    procedure ExibirQRCodePinPad(const DadosQRCode: String; const NomeImg: String;
+      Tamanho: Integer = 0);
+    procedure ApagarImagemPinPad(const NomeImagem: String);
+    procedure CarregarImagemPinPad(const NomeImagem: String; AStream: TStream;
+      TipoImagem: TACBrTEFAPIImagemPinPad ); overload;
+    procedure CarregarImagemPinPad(const NomeImagem: String; const Arquivo: String); overload;
+    (por: DSA)
+
+26/01/2025
+-- ACBrTEFScopeAPI, ACBrTEFAPIScope --
+[*] Ajustes para funcionamento de transações PIX
+
+-- ACBrTEFAPIScope --
+[*] Ajuste em 'EfetuarPagamento', para adicionar resposta em TC_DECIDE_P_ADM_EST
+    conformer valor do parâmetro 'Financiamento'
+    (por: DSA)
+
+24/01/2025
+-- ACBrTEFMSitefAndroidAPI --
+[*] Ajuste na 'IniciarTransacao', para considerar parâmetros de TLS 'tokenRegistroTls'
+    https://www.projetoacbr.com.br/forum/topic/71696-componente-elgintef-e-msitef-android/page/4/?&_rid=61#findComment-526559
+    (por: Dércio Luis Zanatta)
+
+-- ACBrTEFDCliDTEF --
+[+] Adicionado o método
+    function ColetaPinPad(TipoColeta: TACBrTEFDCliDTEFTipoColetaPinPad): string;
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=81438
+    (por: Desenvolvimento Automafour)
+
+20/01/2025
+-- ACBrTEFAPIElginComum
+[-] Correção de vazamento de memória - TK-6471
+    por: Clayton Alves
+
+16/01/2025
+-- ACBrTEFDDestaxaComum -- 
+[-] Correção de problema no fluxo ao ocorrer Timeout após a transação ser iniciada.
+    por: Elias César
+
+09/01/2025
+-- ACBrTEFDestaxaComum --
+[-] Alteração para aguardar primeira resposta do client Destaxa antes de permitir Cancelar o Fluxo.
+    por: Elias César
+
+07/01/2025
+-- ACBrTEFAPIDestaxa --
+[-] Correção na confirmação da transação "Digital Pagar".
+    por: Elias César
+
+27/12/2024
+-- ACBrTEFComum --
+[*] Ajustes para a classe 'TACBrTEFArquivo' usar a busca por Chave alfanumérica
+
+-- ACBrTEFAPIScope, ACBrTEFScopeAPI --
+[*] Refatoração de classes e métodos, para simplificação, e melhor isolamento de
+    classes
+
+-- ACBrTEFAPIScope --
+[+] Implementação de Definiçoes de Campo e Validação em 'QuandoPerguntarCampoAPI'
+
+-- ACBrTEFPayGoWebComum --
+[*] Métodos 'ValidarMMAA' e 'ValidarDDMMAA' movidos para ACBrUtil.Base
+    (por: DSA)
+
+23/12/2024
+-- ACBrTEFCliSiTefComum --
+[*] Ajustes nos textos de mensagens de resolução de transação Pendente
+
+-- ACBrTEFAPICliSiTef --
+[*] Ajuste em 'TACBrTEFAPIClassCliSiTef.ResolverTransacaoPendente' para exibir
+    mensagens quando Confirmar ou Estornar a transação Pendente, conforme
+    requisito de homologação
+[*] Ajuste para que todas as transações iniciadas, possuam um identificados único
+    Se nada for informado, usa a Data e Hora com a mascara 'yyyymmddhhmmss'
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=80973
+
+-- ACBrTEFAPIComum --
+[*] Método 'TACBrTEFAPIRespostas.AcharTransacao', modificado para não considerar
+    o Case na busca por 'REDE'
+    (por: DSA)
+
+18/12/2024
+-- ACBrTEFAPI --
+[-] Remoção da propriedade 'NaoRemoverMascaraResposta'.
+
+-- ACBrTEFAPICliSiTef, ACBrTEFAPIElgin, ACBrTEFAPIPaygoWeb --
+[-] Ajuste por removação da propriedade 'NaoRemoverMascaraResposta'.
+
+-- ACBrTEFAPIDestaxa --
+[+] Inclusão da função 'AplicarMascaraData()' para tratar automaticamente a resposta
+    do evento QuandoPerguntarCampoAPI().
+    por: Elias César
+
+17/12/2024
+-- ACBrTEFDestaxaComum --
+[-] Correção de exibição do QRCode na tela.
+    por: Elias César
+
+17/12/2024
+-- ACBrTEFAPICliSiTef, ACBrTEFAPIElgin, ACBrTEFAPIPaygoWeb --
+[*] Altera para definir a propriedade 'NaoRemoverMascaraResposta' ao chamar evento
+    'QuandoPerguntarCampo' nos demais TEFs.
+    por: Elias César
+
+11/12/2024
+-- ACBrTEFAPIDestaxaComum --
+[+] Criação de função para possibilitar executar transação sem alterar último sequencial
+
+-- ACBrTEFAPIDestaxa --
+[*] Alterada TACBrTEFRespDestaxa para possibilitar o acesso às propriedades da resposta
+    original do TEF Destaxa;
+[*] Ajuste para confirmar as Transações que estão pendentes dentro da venda.
+    por: Elias César
+
+11/12/2024
+-- ACBrTEFAPIDestaxa --
+[-] Correção para retorno correto ao efetuar Venda Pix.
+    por: Digital Way
+[+] Correção de problema ao imprimir comprovantes de Cancelamento.
+    por: Elias César
+
+10/12/2024
+-- ACBrTEFAPICliSiTef, ACBrTEFCliSiTefComum --
+[-] Ajuste para que o método "ConteudoToProperty" sempre considere a resposta
+    lida pelo método "CarregarRespostasPendentes" com o Status de Confirmar = True
+
+-- ACBrTEFAPICliSiTef --
+[*] Ajuste no método "EfetuarPagamento", para não adicionar restrições na
+    transação, quando a operação for igual a 0
+    (por: DSA)
+
+09/12/2024
+-- ACBrTEFAPIDestaxa --
+[*] Correção para parâmetro "Confirmar Transação Automaticamente";
+[+] Inclusão dos campos BIN e UltimosQuatroDigitos  no "ConteudoToProperty".
+    por: Elias César
+
+05/12/2024
+-- ACBrTEFAPIDestaxa --
+[*] Alteração para não utilizar o comando Administracao Pendente para carregar
+    as transações pendentes ao inicializar o TEF. Será utilizado o arquivo bkp.
+    por: Elias César
+
+04/12/2024
+-- ACBrTEFAPIDestaxa --
+[*] Correção para respeitar o parâmetro "Perguntar" para Transações Pendentes.
+
+-- ACBrTEFAPIDestaxaComum --
+[*] Ajuste na leitura da mensagem com quebra de linha;
+[*] Ajuste para não enviar comandos após finalizar a transação;
+[+] Incluído sleep para não concatenar os comandos enviados ao client.
+    por: Elias César
+
+03/12/2024
+-- ACBrTEFDestaxaComum --
+[*] Ajuste para não exibir QRCode e não enviar como mensagem o hexa da imagem.
+    por: Elias César
+
+02/12/2024
+-- ACBrTEFAPIDestaxa, ACBrTEFDestaxaComum --
+[+] Inclusão de eventos para envio do QRCode pra tela.
+    por: Elias César
+
+29/11/2024
+-- ACBrTEFDestaxaComum --
+[-] Correção da máscara de envio de valores float ao client.
+    por: Elias César
+
+28/11/2024
+-- ACBrTEFAPIDestaxaComum --
+[+] Criada função para possibilitar executar uma AdministracaoPendente sem exibir
+    mensagens para a aplicação.
+[*] Ajustes após retorno de homologação do parceiro CertaSoluções (Ademir P. Voigt);
+[-] Remoção de parâmetro desnecessário na function FinalizarRequisicao e Finalizar;
+[-] Remoção da procedure TratarRetorno, pois estava causando funcionamento inesperado
+    no fluxo.
+    por: Elias César
+
+28/11/2024
+-- ACBrTEFAPIDestaxa --
+[*] Ajuste em CarregarRespostasPendentes e ResolverTransacaoPendente para utilizarem
+    a nova função ExecutarTransacaoSilenciosa;
+[*] Após orientação da Destaxa, foi alterado para não utilizar a tag estado para 
+    verificar se o pinpad foi encontrado, pois o retorno dessa tag está incorreto.
+    A função TesteConexao considerará apenas a conexão com o V$PagueServer.
+
+-- ACBrTEFAPIDestaxaComum --
+[-] Correção de problema ao Reimprimir apenas a 2ªvia (portador)
+    por: Elias César
+
+27/11/2024
+-- ACBrTEFAPIDestaxa --
+[+] Criada função TesteComunicacao para se comportar como o TEF PayGo.
+
+-- ACBrTEFAPIDestaxaComum --
+[-] Correção da consulta dos bits no retorno do campo Estado.
+    por: Elias César
+
+26/11/2024
+-- ACBrTEFAPIDestaxa --
+[+] Inclusão de campos referentes à credenciadora em ConteudoToProperty.
+    por: Elias César
+
+25/11/2024
+-- ACBrTEFAPIDestaxa --
+[+] Alteração para carregar as respostas pendentes do próprio V$PagueClient
+    através do comando "Adminitracao Pendente".
+[*] Alteração para também utilizar o comando "Administracao Pendente" ao 
+    resolver uma transacao pendente.
+    por: Elias César
+
+-- ACBrTEFAPIDestaxaComum --
+[*] Ajuste no ProcessarColeta para exibição correta das mensagens.
+[-] Correção do tipo da propriedade automacao_coleta_transacao_resposta para String.
+
+-- ACBrTEFAPI --
+[+] Inclusão de nova propriedade para não remover a máscara no momento de enviar
+    a resposta em OnObterCampo.
+
+24/11/2024
+-- ACBrTEFAPIAditum --
+[-] Ajuste em 'TACBrTEFAPIClassAditum.TransmitirHttp' para evitar loop infinito,
+    e considerar erros na inicialização
+[-] Correção em 'TACBrTEFAPIClassAditum.Autenticar', no tratamento de resposta
+    com erro
+[*] Ajuste para simular Menu Administrativo quando chamar EfetuarAdministrativa,
+    sem parâmetros
+    (por: DSA)
+
+21/11/2024
+-- ACBrTEFAPIStoneAutoTEF --
+[-] Correção para transações Credito A VISTA e Parcelado
+[*] Ajuste para simular Menu Administrativo quando chamar EfetuarAdministrativa,
+    sem parâmetros
+    (por: DSA)
+
+14/11/2024
+-- ACBrTEFDestaxaComum, ACBrTEFAPIDestaxa --
+[*] Ajustes para integração com a Destaxa
+
+12/11/2024
+-- ACBrTEFDestaxaComum, ACBrTEFAPIDestaxa --
+[*] Continuação das alterações para integração TEF Destaxa
+    por: Elias César
+
+12/11/2024
+-- ACBrTEFDestaxaComum --
+[-] Ajuste para utilização em Delphi
+
+-- ACBrTEFAPIDestaxa --
+[*] Ajuste para utilizar endereço IP e porta padrão, caso não informado no componente
+    por: Elias César
+
+11/11/2024
+-- ACBrTEFDestaxaComum, ACBrTEFAPIDestaxa --
+[*] Ajustes no controle do Sequencial;
+[*] Ajuste na confirmação de transação.
+    por: Elias César 
+
+04/11/2024
+-- ACBrTEFDestaxaComum --
+[+] Início do desenvolvimento do novo modelo de TEF "Destaxa"
+    por: Elias César
+
+14/10/2024
+-- ACBrTEFAPI, ACBrTEFAPIAditum --
+[+] Inicio do desenvolvimento de novo modelo de TEF "tefAditumAPI"
+    https://aditum.com.br/
+[+] Adicionado novo método em "TACBrTEFAPIClass"
+    function MenuPinPad(const Titulo: String; Opcoes: TStrings; TimeOut: Integer = 30000): Integer;
+
+-- TACBrTEFAPIComum --
+[+] Adicionada nova propriedade "TACBrTEFAPIDadosTerminal.ParamComunicacao: String"
+    permite definir Configurações para conexão do TEF (usada no SiTEF)
+[+] Adicionado método em "TACBrTEFAPIComumClass" e "TACBrTEFAPIComum"
+    procedure CarregarRespostasPendentes(const AListaRespostasTEF: TACBrTEFAPIRespostas); virtual;
+    - Permite que as classes de TEF, criem métodos próprios para recuperar as
+      Transações Pendentes, independentes do Arq.Backup
+
+-- ACBrTEFAPIStoneAutoTEF --
+[*] Ajuste no método "MenuPinPad" para compatibilizar com método Virtual de
+    "TACBrTEFAPIClass"
+
+-- ACBrTEFCliSiTefComum --
+[*] Ajuste em "TACBrTEFRespCliSiTef.GravaInformacao", para sequencializar as
+    informações de transações pendentes
+
+-- ACBrTEFAPICliSiTef --
+[*] Implementada sobrecarga do método "CarregarRespostasPendentes"
+    Ajuste para nova homologação do SiTEF, que deve ler transações pendentes
+    usando o comando "130" e não arquivos de Backup
+[*] método "TACBrTEFAPIClassCliSiTef.Inicializar" modificado, para considerar a
+    informação no Parâmetro "DadosTerminal.ParamComunicacao" e informa-lo na
+    inicialização (se não for vazio)
+[*] Método privado "TACBrTEFAPIClassCliSiTef.FinalizarTransacaoSiTef" modificado
+    para receber o parâmetro "DataHora: TDateTime" e detectar se a transação
+    a ser Finalizada, tem como origem arquivos de Backup ou o comando "130"
+  (por: DSA)
+
+07/09/2024
+-- ACBrTEFAPI, ACBrTEFAPIStoneAutoTEF --
+[+] Adicionado novo modelo de TEF "tefStoneAutoTEF"
+    https://microtefdocs.stone.com.br/reference/o-que-%C3%A9-o-autotef
+
+-- ACBrTEFAPIComum, ACBrTEFAndroidElginIDH, ACBrTEFAndroidMSitef, ACBrTEFAndroidPayGo,
+   ACBrTEFAPICliSiTef, ACBrTEFAPIElgin, ACBrTEFAPIPayGoWeb --
+[*] Método 'EfetuarPagamento' modificado, para receber como último parâmetro
+    "DadosAdicionais: String = ''"
+    Isso permite a aplicação, informar Dados Adicionais a transação de Pagamento,
+    e qua não possam ser mapeados, pelos parâmetros já existentes
+(por: DSA)
+
+27/08/2024
+-- ACBrTEFPayGoWebComum --
+[*] TACBrTEFPGWebAPI.Create modificado para sempre criar propriedade "IsDebug"
+    como Falsa, pois em algumas IDEs, o modo Debug era ativo, mesmo em Release
+    (por: DSA)
+
+09/08/2024
+-- ACBrTEFAPI --
+[*] "TACBrTEFAPIValidacaoDado", adicionado enumerado, "valdQuantidadeParcelas"
+    Evento "QuandoPerguntarCampoAPI", permite indicar que a pergunta é
+    referente a um parcelamento
+
+-- ACBrTEFPayGoWebComum, ACBrTEFAPIPaygoWeb --
+[*] "TACBrTEFPGWebAPIValidacaoDado", adicionado enumerado "pgvQuantidadeParcelas = 102"
+[*] método "PW_GetDataToDefinicaoCampo" alterado para mapear PWINFO_INSTALLMENTS para
+    pgvQuantidadeParcelas
+(por: Guilherme Geraldo - GPlus)
+
+10/07/2024
+-- ACBrTEFAPI --
+[-] Ajueste em "ObterDadoPinPad", para permitir valores maiores
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=78687
+    (por: datilas)
+
+04/07/2024
+-- ACBrTEFAPICliSiTef --
+[*] Ajuste para não perguntar campos, que foram informados anteriormente por
+    "RespostasPorTipo"
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=78597
+    (por: DataCamp)
+
+25/06/2024
+-- ACBrTEFPayGoComum --
+[*] Workaround, para situações onde a VERO / BANRICOMPRAS não retorna o 
+    CodigoAutorizacaoTransacao ou PWINFO_AUTHCODE (0x46), para considerar
+    CodigoAutorizacaoTransacao = NSU
+    (por: DSA)
+  
+27/05/2024
+-- ACBrTEFAPI --
+[*] Modificada a assintura do método "ObterDadoPinPad" para permitir informar
+    o Tamanho Mínimo e Máximo do Campo
+    function ObterDadoPinPad(TipoDado: TACBrTEFAPIDadoPinPad;
+      TimeOut: SmallInt = 30000; MinLen: SmallInt = 0; MaxLen: SmallInt = 0): String;
+[*] Novos enumerados adicionados em TACBrTEFAPIDadoPinPad
+[+] Adicionado o método Protected
+    procedure CalcularTamanhosCampoDadoPinPad( TipoDado: TACBrTEFAPIDadoPinPad;
+      out MinLen: SmallInt; out MaxLen: SmallInt);
+   (por: DSA)
+
+-- ACBrTEFAPIPayGoWeb --
+[*] Refatoração do método "ObterDadoPinPad" para processar os novos parâmetros
+
+-- ACBrTEFAPICliSiTef --
+[*] Nova Implememtação do método "ObterDadoPinPad", baseado nas sugestões da
+    nova versão da CliSiTef
+    https://www.projetoacbr.com.br/forum/topic/73829-problema-em-obter-dados-pinpad/
+    (por: DataCamp)
+
+26/05/2024
+-- ACBrTEFAPICliSiTef --
+[*] Adicionada Restrição em "RestricoesParcela", para não exibir o Menu de
+    Parcelamento pela Administradora/Crediário
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=77855
+    (por: DataCamp)
+
+21/05/2024
+-- ACBrTEFAPI, ACBrTEFAPIElgin, ACBrTEFAPIElginComum --
+[+] Adicionado suporte novo TEF por API (DLL) TED Elgin
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=74662
+    (por: MuriloS.A e Fernando Pasqueto e DSA)
+
+-- ACBrTEFAPIComum, ACBrTEFAPICliSiTef --
+[*] Removendo propriedade "PathDLL" que passou para a classe mãe "TACBrTEFAPIComumClass"
+    (por: DSA)
+
+--ACBrTEFPayGoWebComum --
+[*] Adicionado Log em "LibFullName", para informar qual Path será considerado na carga da DLL
+    (por: DSA)
+
+26/02/2024
+-- ACBrTEFPayGoWebComum --
+[*] Ajuste para que a Carga da DLL não use o valor definido na variável de ambiente
+    "PathPGWebLib", caso o valor dessa varável, aponte para uma DLL inexistente
+    (por: DSA)
+
+25/02/2024
+-- ACBrTEFPayGoWebComum --
+[*] Reversão da Modificação aplicada em 08/03/24
+    TACBrTEFPGWebAPI.ObterDadoPinPad, chamar  xPW_iPPAbort, antes de chamar xPW_iPPGetUserData
+    (por: DSA)
+
+17/04/2024
+-- ACBrTEFPayGoWebComum --
+[*] Ajuste para que propriedade IsDebug, mude o valor da váriável de ambiente,
+    "PathPGWebLib" que aponta para a PGWebLib, para o Path com a DLL a ser
+    carregada.
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=77321
+    (por: DSA)
+
+21/03/2024
+-- ACBrTEFAPICliSiTef --
+[*] Ajuste para permitir Voltar e Interromper o fluxo de perguntas, baseado em
+    Conteúdo da "Resposta": Interromper := (Resposta = '-1')
+                            Voltar      := (Resposta = '-2')
+    https://www.projetoacbr.com.br/forum/index.php?showtopic=74988
+    (por: joão vitor de fraga venancio)
+
+20/03/2024
+-- ACBrTEFPayGoWebComum --
+[*] Applicado workaround para quando Transações de PIX é recebida, sem o flag de
+    confirmação PWINFO_CNFREQ = 0
+    (por: DSA)
+
 08/03/2024
 -- ACBrTEFPayGoWebComum --
 [+] Adicionada a propriedade "IsDebug: Boolean".

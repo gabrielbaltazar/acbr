@@ -47,10 +47,10 @@ type
   TACBrNFSeXWebserviceABase201 = class(TACBrNFSeXWebserviceSoap11)
 
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -75,7 +75,7 @@ uses
 
 { TACBrNFSeXWebserviceABase201 }
 
-function TACBrNFSeXWebserviceABase201.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceABase201.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -94,7 +94,7 @@ begin
                      ['RecepcionarLoteRpsResult', 'EnviarLoteRpsResposta'], []);
 end;
 
-function TACBrNFSeXWebserviceABase201.ConsultarLote(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceABase201.ConsultarLote(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -112,7 +112,7 @@ begin
                      ['ConsultaLoteRpsResult', 'ConsultarLoteRpsResposta'], []);
 end;
 
-function TACBrNFSeXWebserviceABase201.ConsultarNFSePorRps(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceABase201.ConsultarNFSePorRps(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -128,7 +128,7 @@ begin
                      ['ConsultaNfseRpsResult', 'ConsultarNfseRpsResposta'], []);
 end;
 
-function TACBrNFSeXWebserviceABase201.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceABase201.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -156,15 +156,14 @@ begin
     ModoEnvio := meLoteAssincrono;
     ConsultaNFSe := False;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteSincrono := False;
-      EnviarUnitario := False;
-      ConsultarFaixaNfse := False;
-      ConsultarServicoPrestado := False;
-      ConsultarServicoTomado := False;
-      SubstituirNfse := False;
-    end;
+    ServicosDisponibilizados.EnviarLoteSincrono := False;
+    ServicosDisponibilizados.EnviarUnitario := False;
+    ServicosDisponibilizados.ConsultarFaixaNfse := False;
+    ServicosDisponibilizados.ConsultarServicoPrestado := False;
+    ServicosDisponibilizados.ConsultarServicoTomado := False;
+    ServicosDisponibilizados.SubstituirNfse := False;
+
+    Particularidades.PermiteTagOutrasInformacoes := True;
   end;
 
   with ConfigAssinar do
@@ -266,7 +265,7 @@ begin
 
         if AuxNodeConf = nil then
           AuxNodeConf := AuxNode.Childrens.FindAnyNs('ConfirmacaoCancelamento');
-        if not Assigned(AuxNodeConf) or (AuxNodeConf = nil) then Exit;
+        if not Assigned(AuxNodeConf) then Exit;
 
 //        Response.DataCanc := LerDatas(ObterConteudoTag(AuxNodeConf.Childrens.FindAnyNs('DataHora'), tcStr));
         Response.DataCanc := ObterConteudoTag(AuxNodeConf.Childrens.FindAnyNs('DataHora'), FpFormatoDataHora);
@@ -281,7 +280,7 @@ begin
       if AuxNode <> nil then
       begin
         AuxNode := AuxNode.Childrens.FindAnyNs('InfNfse');
-        if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+        if not Assigned(AuxNode) then Exit;
 
         NumNFSe := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 
@@ -297,7 +296,7 @@ begin
         if ANota = nil then
         begin
           AuxNode := AuxNode.Childrens.FindAnyNs('IdentificacaoRps');
-          if not Assigned(AuxNode) or (AuxNode = nil) then Exit;
+          if not Assigned(AuxNode) then Exit;
 
           NumRps := ObterConteudoTag(AuxNode.Childrens.FindAnyNs('Numero'), tcStr);
 

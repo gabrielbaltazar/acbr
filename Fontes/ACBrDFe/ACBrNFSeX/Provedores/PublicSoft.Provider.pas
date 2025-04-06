@@ -46,21 +46,21 @@ uses
 type
   TACBrNFSeXWebservicePublicSoft203 = class(TACBrNFSeXWebserviceSoap11)
   private
-    SetHeaderTokenPrefeitura: Boolean;
+    FSetHeaderTokenPrefeitura: Boolean;
 
   protected
     function GerarXmlHeader: string;
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function GerarNFSe(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSePorRps(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoPrestado(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSeServicoTomado(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function SubstituirNFSe(ACabecalho, AMSG: String): string; override;
-    function GerarToken(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function GerarNFSe(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSePorRps(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoPrestado(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSeServicoTomado(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function SubstituirNFSe(const ACabecalho, AMSG: String): string; override;
+    function GerarToken(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -236,7 +236,7 @@ var
 begin
   Producao := (TConfiguracoesNFSe(FPConfiguracoes).WebServices.AmbienteCodigo = 1);
 
-  if SetHeaderTokenPrefeitura then
+  if FSetHeaderTokenPrefeitura then
     aToken := TConfiguracoesNFSe(FPConfiguracoes).Geral.Emitente.WSChaveAcesso
   else
     aToken := xToken;
@@ -252,12 +252,12 @@ begin
             '</codigoCidade>';
 end;
 
-function TACBrNFSeXWebservicePublicSoft203.Recepcionar(ACabecalho,
+function TACBrNFSeXWebservicePublicSoft203.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request, xHeader: string;
 begin
-  SetHeaderTokenPrefeitura := False;
+  FSetHeaderTokenPrefeitura := False;
   FPMsgOrig := AMSG;
   xHeader := GerarXmlHeader;
 
@@ -272,12 +272,12 @@ begin
                       'xmlns:urn="urn:index.EnviarLoteRpsEnvio"']);
 end;
 
-function TACBrNFSeXWebservicePublicSoft203.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebservicePublicSoft203.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request, xHeader: string;
 begin
-  SetHeaderTokenPrefeitura := False;
+  FSetHeaderTokenPrefeitura := False;
   FPMsgOrig := AMSG;
   xHeader := GerarXmlHeader;
 
@@ -292,12 +292,12 @@ begin
                       'xmlns:urn="urn:index.EnviarLoteRpsSincronoEnvio"']);
 end;
 
-function TACBrNFSeXWebservicePublicSoft203.GerarNFSe(ACabecalho,
+function TACBrNFSeXWebservicePublicSoft203.GerarNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request, xHeader: string;
 begin
-  SetHeaderTokenPrefeitura := False;
+  FSetHeaderTokenPrefeitura := False;
   FPMsgOrig := AMSG;
   xHeader := GerarXmlHeader;
 
@@ -312,12 +312,12 @@ begin
                       'xmlns:urn="urn:index.GerarNfseEnvio"']);
 end;
 
-function TACBrNFSeXWebservicePublicSoft203.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebservicePublicSoft203.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request, xHeader: string;
 begin
-  SetHeaderTokenPrefeitura := False;
+  FSetHeaderTokenPrefeitura := False;
   FPMsgOrig := AMSG;
   xHeader := GerarXmlHeader;
 
@@ -332,12 +332,12 @@ begin
                       'xmlns:urn="urn:index.ConsultarLoteRpsEnvio"']);
 end;
 
-function TACBrNFSeXWebservicePublicSoft203.ConsultarNFSePorRps(ACabecalho,
+function TACBrNFSeXWebservicePublicSoft203.ConsultarNFSePorRps(const ACabecalho,
   AMSG: String): string;
 var
   Request, xHeader: string;
 begin
-  SetHeaderTokenPrefeitura := False;
+  FSetHeaderTokenPrefeitura := False;
   FPMsgOrig := AMSG;
   xHeader := GerarXmlHeader;
 
@@ -352,12 +352,12 @@ begin
                       'xmlns:urn="urn:index.ConsultarNfseRpsEnvio"']);
 end;
 
-function TACBrNFSeXWebservicePublicSoft203.ConsultarNFSeServicoPrestado(ACabecalho,
+function TACBrNFSeXWebservicePublicSoft203.ConsultarNFSeServicoPrestado(const ACabecalho,
   AMSG: String): string;
 var
   Request, xHeader: string;
 begin
-  SetHeaderTokenPrefeitura := False;
+  FSetHeaderTokenPrefeitura := False;
   FPMsgOrig := AMSG;
   xHeader := GerarXmlHeader;
 
@@ -372,12 +372,12 @@ begin
                       'xmlns:urn="urn:index.ConsultarNfseServicoPrestadoEnvio"']);
 end;
 
-function TACBrNFSeXWebservicePublicSoft203.ConsultarNFSeServicoTomado(ACabecalho,
+function TACBrNFSeXWebservicePublicSoft203.ConsultarNFSeServicoTomado(const ACabecalho,
   AMSG: String): string;
 var
   Request, xHeader: string;
 begin
-  SetHeaderTokenPrefeitura := False;
+  FSetHeaderTokenPrefeitura := False;
   FPMsgOrig := AMSG;
   xHeader := GerarXmlHeader;
 
@@ -392,11 +392,11 @@ begin
                       'xmlns:urn="urn:index.ConsultarNfseServicoTomadoEnvio"']);
 end;
 
-function TACBrNFSeXWebservicePublicSoft203.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebservicePublicSoft203.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request, xHeader: string;
 begin
-  SetHeaderTokenPrefeitura := False;
+  FSetHeaderTokenPrefeitura := False;
   FPMsgOrig := AMSG;
   xHeader := GerarXmlHeader;
 
@@ -411,12 +411,12 @@ begin
                       'xmlns:urn="urn:index.CancelarNfseEnvio"']);
 end;
 
-function TACBrNFSeXWebservicePublicSoft203.SubstituirNFSe(ACabecalho,
+function TACBrNFSeXWebservicePublicSoft203.SubstituirNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request, xHeader: string;
 begin
-  SetHeaderTokenPrefeitura := False;
+  FSetHeaderTokenPrefeitura := False;
   FPMsgOrig := AMSG;
   xHeader := GerarXmlHeader;
 
@@ -431,12 +431,12 @@ begin
                       'xmlns:urn="urn:index.SubstituirNfseEnvio"']);
 end;
 
-function TACBrNFSeXWebservicePublicSoft203.GerarToken(ACabecalho,
+function TACBrNFSeXWebservicePublicSoft203.GerarToken(const ACabecalho,
   AMSG: String): string;
 var
   Request, xHeader: string;
 begin
-  SetHeaderTokenPrefeitura := True;
+  FSetHeaderTokenPrefeitura := True;
   FPMsgOrig := AMSG;
   xHeader := GerarXmlHeader;
 

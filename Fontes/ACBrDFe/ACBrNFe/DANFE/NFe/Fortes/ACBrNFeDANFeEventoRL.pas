@@ -46,7 +46,8 @@ uses
   {$ELSE}
   Controls, Forms, ExtCtrls,
   {$ENDIF}
-  pcnEnvEventoNFe, pcnNFe,
+  ACBrNFe.EnvEvento,
+  ACBrNFe.Classes,
   ACBrNFeDANFeRLClass, ACBrDFeReportFortes,
   RLReport, RLPDFFilter, RLFilters;
 
@@ -122,6 +123,7 @@ class procedure TfrlDANFeEventoRL.SalvarPDF(ADANFe: TACBrNFeDANFeRL; FEventoNFe:
                                             const AFile: String; ANFe: TNFe = nil);
 var
   DANFeReport: TfrlDANFeEventoRL;
+  LNNF : string;
 begin
   DANFeReport := Create(nil);
   try;
@@ -141,10 +143,14 @@ begin
 
       with DANFeReport.RLPDFFilter1.DocumentInfo do
       begin
-        Title := ACBrStr('Evento - Nota fiscal nº ') +
-          FormatFloat('000,000,000', DANFeReport.fpNFe.Ide.nNF);
+        if DANFeReport.fpDANFe.FormatarNumeroDocumento then
+          LNNF := FormatFloat('000,000,000', DANFeReport.fpNFe.Ide.nNF)
+        else
+          IntToStr(DANFeReport.fpNFe.Ide.nNF);
+
+        Title := ACBrStr('Evento - Nota fiscal nº ') + LNNF;
         KeyWords := ACBrStr(
-          'Número:' + FormatFloat('000,000,000', DANFeReport.fpNFe.Ide.nNF) +
+          'Número:' + LNNF +
           '; Data de emissão: ' + FormatDateBr(DANFeReport.fpNFe.Ide.dEmi) +
           '; Destinatário: ' + DANFeReport.fpNFe.Dest.xNome +
           '; CNPJ: ' + DANFeReport.fpNFe.Dest.CNPJCPF +
@@ -163,6 +169,7 @@ class procedure TfrlDANFeEventoRL.SalvarPDF(ADANFe: TACBrNFeDANFeRL; FEventoNFe:
                                             AStream: TStream; ANFe: TNFe = nil);
 var
   DANFeReport: TfrlDANFeEventoRL;
+  LNNF : string;
 begin
   DANFeReport := Create(nil);
   try;
@@ -184,10 +191,14 @@ begin
 
       with DANFeReport.RLPDFFilter1.DocumentInfo do
       begin
-        Title := ACBrStr('Evento - Nota fiscal nº ') +
-          FormatFloat('000,000,000', DANFeReport.fpNFe.Ide.nNF);
+        if DANFeReport.fpDANFe.FormatarNumeroDocumento then
+          LNNF := FormatFloat('000,000,000', DANFeReport.fpNFe.Ide.nNF)
+        else
+          LNNF := IntToStr(DANFeReport.fpNFe.Ide.nNF);
+
+        Title := ACBrStr('Evento - Nota fiscal nº ') + LNNF;
         KeyWords := ACBrStr(
-          'Número:' + FormatFloat('000,000,000', DANFeReport.fpNFe.Ide.nNF) +
+          'Número:' + LNNF +
           '; Data de emissão: ' + FormatDateBr(DANFeReport.fpNFe.Ide.dEmi) +
           '; Destinatário: ' + DANFeReport.fpNFe.Dest.xNome +
           '; CNPJ: ' + DANFeReport.fpNFe.Dest.CNPJCPF +

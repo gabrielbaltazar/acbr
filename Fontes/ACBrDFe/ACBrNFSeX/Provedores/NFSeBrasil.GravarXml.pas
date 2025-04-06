@@ -38,8 +38,9 @@ interface
 
 uses
   SysUtils, Classes, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml_ABRASFv1;
+  ACBrXmlBase,
+  ACBrXmlDocument,
+  ACBrNFSeXGravarXml_ABRASFv1;
 
 type
   { TNFSeW_NFSeBrasil }
@@ -61,7 +62,6 @@ implementation
 
 uses
   ACBrNFSeXConsts,
-  ACBrNFSeXConversao,
   ACBrUtil.Strings;
 
 //==============================================================================
@@ -76,6 +76,8 @@ begin
   inherited Configuracao;
 
   FormatoAliq := tcDe2;
+
+  NrOcorrInscEstTomador := 0;
 
   NrOcorrComplTomador := 1;
   NrOcorrFoneTomador := 1;
@@ -145,9 +147,6 @@ begin
 
   Result.AppendChild(GerarValores);
 
-//  Result.AppendChild(AddNode(tcStr, '#29', 'ItemListaServico', 1, 5, 0,
-//                                 NFSe.Servico.ItemListaServico, DSC_CLISTSERV));
-
   Result.AppendChild(AddNode(tcStr, '#30', 'CodigoTributacaoMunicipio', 1, 20, 0,
                      NFSe.Servico.CodigoTributacaoMunicipio, DSC_CSERVTRIBMUN));
 
@@ -155,9 +154,12 @@ begin
                                 OnlyNumber(NFSe.Servico.CodigoCnae), DSC_CNAE));
 
   Result.AppendChild(AddNode(tcStr, '#32', 'Discriminacao', 1, 2000, 1,
-    StringReplace(NFSe.Servico.Discriminacao, ';', FpAOwner.ConfigGeral.QuebradeLinha,
-                                       [rfReplaceAll, rfIgnoreCase]), DSC_DISCR,
-                (NFSe.Prestador.Endereco.CodigoMunicipio <> '3304557')));
+    StringReplace(NFSe.Servico.Discriminacao, Opcoes.QuebraLinha,
+               FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), DSC_DISCR));
+
+  Result.AppendChild(AddNode(tcStr, '#33', 'Observacoes', 1, 2000, 0,
+    StringReplace(NFSe.OutrasInformacoes, Opcoes.QuebraLinha,
+               FpAOwner.ConfigGeral.QuebradeLinha, [rfReplaceAll]), DSC_DISCR));
 
   Result.AppendChild(GerarServicoCodigoMunicipio);
 end;
@@ -180,11 +182,11 @@ begin
     begin
       Result.AppendChild(GerarIdentificacaoTomador);
     end;
-
+    {
     // Envio de nome com o Caracter '&'
     NFSe.Tomador.RazaoSocial := StringReplace(NFSe.Tomador.RazaoSocial,
                                           '&amp;', '&amp;amp;', [rfReplaceAll]);
-
+    }
     Result.AppendChild(AddNode(tcStr, '#38', 'RazaoSocial', 1, 115, 0,
                                           NFSe.Tomador.RazaoSocial, DSC_XNOME));
 
@@ -203,8 +205,6 @@ var
   NFSeNode, xmlNode: TACBrXmlNode;
 begin
   ListaDeAlertas.Clear;
-
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   FDocument.Clear();
 

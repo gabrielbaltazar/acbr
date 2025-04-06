@@ -54,11 +54,11 @@ uses
 type
   TACBrNFSeXWebserviceConam = class(TACBrNFSeXWebserviceSoap11)
   public
-    function Recepcionar(ACabecalho, AMSG: String): string; override;
-    function ConsultarSituacao(ACabecalho, AMSG: String): string; override;
-    function ConsultarLote(ACabecalho, AMSG: String): string; override;
-    function ConsultarLinkNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
+    function Recepcionar(const ACabecalho, AMSG: String): string; override;
+    function ConsultarSituacao(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLote(const ACabecalho, AMSG: String): string; override;
+    function ConsultarLinkNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
@@ -125,25 +125,16 @@ begin
     Autenticacao.RequerCertificado := False;
     Autenticacao.RequerLogin := True;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := True;
-      ConsultarSituacao := True;
-      ConsultarLote := True;
-      ConsultarRps := True;
-      ConsultarLinkNfse := True;
-      CancelarNfse := True;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarSituacao := True;
+    ServicosDisponibilizados.ConsultarLote := True;
+    ServicosDisponibilizados.ConsultarRps := True;
+    ServicosDisponibilizados.ConsultarLinkNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
   end;
 
   SetXmlNameSpace('');
-{
-  with ConfigMsgDados do
-  begin
-    Prefixo := 'nfe';
-    PrefixoTS := 'nfe';
-  end;
-}
+
   ConfigSchemas.Validar := False;
 end;
 
@@ -445,6 +436,8 @@ begin
 
       exiExportacao:
         xOptante := '<TipoTrib>5</TipoTrib>';
+    else
+      xOptante := '';
     end;
   end;
 {
@@ -1217,7 +1210,7 @@ end;
 
 { TACBrNFSeXWebserviceConam }
 
-function TACBrNFSeXWebserviceConam.Recepcionar(ACabecalho,
+function TACBrNFSeXWebserviceConam.Recepcionar(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1233,7 +1226,7 @@ begin
                      ['xmlns:nfe="NFe"']);
 end;
 
-function TACBrNFSeXWebserviceConam.ConsultarSituacao(ACabecalho,
+function TACBrNFSeXWebserviceConam.ConsultarSituacao(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1249,7 +1242,7 @@ begin
                      ['xmlns:nfe="NFe"']);
 end;
 
-function TACBrNFSeXWebserviceConam.ConsultarLote(ACabecalho,
+function TACBrNFSeXWebserviceConam.ConsultarLote(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1265,7 +1258,7 @@ begin
                      ['xmlns:nfe="NFe"']);
 end;
 
-function TACBrNFSeXWebserviceConam.ConsultarLinkNFSe(ACabecalho,
+function TACBrNFSeXWebserviceConam.ConsultarLinkNFSe(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -1281,7 +1274,7 @@ begin
                      ['xmlns:nfe="NFe"']);
 end;
 
-function TACBrNFSeXWebserviceConam.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceConam.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin

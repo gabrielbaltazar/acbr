@@ -164,7 +164,7 @@ constructor TACBrNF3e.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  FNotasFiscais := TNotasFiscais.Create(Self, NotaFiscal);
+  FNotasFiscais := TNotasFiscais.Create(Self, TNotaFiscal);
   FEventoNF3e := TEventoNF3e.Create;
   FWebServices := TWebServices.Create(Self);
 end;
@@ -243,7 +243,7 @@ end;
 function TACBrNF3e.CstatConfirmada(AValue: integer): Boolean;
 begin
   case AValue of
-    100, 110, 150, 301, 302, 303: Result := True;
+    100, 150: Result := True;
   else
     Result := False;
   end;
@@ -252,7 +252,7 @@ end;
 function TACBrNF3e.CstatProcessado(AValue: integer): Boolean;
 begin
   case AValue of
-    100, 110, 150, 301, 302, 303: Result := True;
+    100, 150: Result := True;
   else
     Result := False;
   end;
@@ -321,7 +321,7 @@ function TACBrNF3e.GerarNomeArqSchemaEvento(ASchemaEventoNF3e: TSchemaNF3e;
 var
   xComplemento: string;
 begin
-  if VersaoServico = 0.0 then
+  if VersaoServico = 0 then
     Result := ''
   else
   begin
@@ -438,11 +438,11 @@ end;
 
 function TACBrNF3e.GravarStream(AStream: TStream): Boolean;
 begin
-  if EstaVazio(FEventoNF3e.Xml) then
+  if EstaVazio(FEventoNF3e.XmlEnvio) then
     FEventoNF3e.GerarXML;
 
   AStream.Size := 0;
-  WriteStrToStream(AStream, AnsiString(FEventoNF3e.Xml));
+  WriteStrToStream(AStream, AnsiString(FEventoNF3e.XmlEnvio));
   Result := True;
 end;
 
@@ -538,8 +538,8 @@ begin
   if NotasFiscais.Count <= 0 then
     GerarException(ACBrStr('ERRO: Nenhuma NF3-e adicionada ao Lote'));
 
-  if NotasFiscais.Count > 50 then
-    GerarException(ACBrStr('ERRO: Conjunto de NF3-e transmitidas (máximo de 50 NF3-e)' +
+  if NotasFiscais.Count > 1 then
+    GerarException(ACBrStr('ERRO: Conjunto de NF3-e transmitidos (máximo de 1 NF3-e)' +
       ' excedido. Quantidade atual: ' + IntToStr(NotasFiscais.Count)));
 
   NotasFiscais.Assinar;

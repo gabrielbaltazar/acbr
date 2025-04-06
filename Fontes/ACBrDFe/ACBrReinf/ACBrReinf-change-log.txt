@@ -42,6 +42,31 @@ Símbolo : Significado
 [*]     : Recurso modificado/melhorado
 [-]     : Correção de Bug (assim esperamos)
 
+15/10/2024
+-- pcnReinfR4010, pcnReinfR4020 --
+[*] #TK-6070 Ajustes para o leiaute 2.1.2.a
+  Por: Renato Rubinho
+
+20/09/2024
+-- pcnReinfR4010 --
+[*] TK-5980 - Corrigido preenchimento do NrOcorrNmBenef quando cpfBenef possuir valor
+Por: Jeihcio Francis
+
+10/09/2024
+-- pcnReinfR4010 --
+[*] TK-5946 - Corrigida exigência de NrOcorrencias do cpfBenef no R4010
+Por: Renato Rubinho
+
+17/07/2024
+-- Frm_ACBrReinf --
+[*] TK-5706 - Correção na codificação do xml temporário gerado para exibição no TWebBrowser de retorno
+  Por: Renato Rubinho
+
+25/03/2024
+-- ACBrReinfWebServices --
+[*] Adiciona chamada a UTF8ToNativeString quando usa ParseText para corrigir problemas de conversão de acentuação
+  Por: Diego Folieni
+
 09/02/2024
 -- Diversos --
 [*] Refactoring visando deixar de usar a unit pcnAuxiliar.

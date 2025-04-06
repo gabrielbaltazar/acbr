@@ -9,13 +9,13 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe;..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\DAMDFE;..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe"/>
+        <OtherUnitFiles Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe;..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\DAMDFE;..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe;..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base;..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\Servicos"/>
         <UnitOutputDirectory Value="..\..\..\..\Lib\Lazarus\ACBrDFe\ACBrMDFe\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
     <Description Value="ACBr - Manifesto de Documentos Fiscais Eletrônico - (http://www.projetoacbr.com.br/)"/>
     <License Value="LGPL"/>
-    <Files Count="21">
+    <Files Count="22">
       <Item1>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\ACBrMDFe.pas"/>
         <UnitName Value="ACBrMDFe"/>
@@ -38,69 +38,73 @@
         <UnitName Value="ACBrMDFeWebServices"/>
       </Item5>
       <Item6>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeConsMDFeNaoEnc.pas"/>
-        <UnitName Value="pmdfeConsMDFeNaoEnc"/>
-      </Item6>
-      <Item7>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeConsSitMDFe.pas"/>
-        <UnitName Value="pmdfeConsSitMDFe"/>
-      </Item7>
-      <Item8>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeConversaoMDFe.pas"/>
         <UnitName Value="pmdfeConversaoMDFe"/>
-      </Item8>
-      <Item9>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeEnvEventoMDFe.pas"/>
-        <UnitName Value="pmdfeEnvEventoMDFe"/>
-      </Item9>
-      <Item10>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeEventoMDFe.pas"/>
-        <UnitName Value="pmdfeEventoMDFe"/>
-      </Item10>
-      <Item11>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeMDFe.pas"/>
-        <UnitName Value="pmdfeMDFe"/>
-      </Item11>
-      <Item12>
+      </Item6>
+      <Item7>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeMDFeR.pas"/>
         <UnitName Value="pmdfeMDFeR"/>
-      </Item12>
-      <Item13>
+      </Item7>
+      <Item8>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeMDFeW.pas"/>
         <UnitName Value="pmdfeMDFeW"/>
-      </Item13>
-      <Item14>
+      </Item8>
+      <Item9>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeProcMDFe.pas"/>
         <UnitName Value="pmdfeProcMDFe"/>
-      </Item14>
-      <Item15>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeRetConsMDFeNaoEnc.pas"/>
-        <UnitName Value="pmdfeRetConsMDFeNaoEnc"/>
-      </Item15>
-      <Item16>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeRetConsSitMDFe.pas"/>
-        <UnitName Value="pmdfeRetConsSitMDFe"/>
-      </Item16>
-      <Item17>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeRetEnvEventoMDFe.pas"/>
-        <UnitName Value="pmdfeRetEnvEventoMDFe"/>
-      </Item17>
-      <Item18>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeRetEnvMDFe.pas"/>
-        <UnitName Value="pmdfeRetEnvMDFe"/>
-      </Item18>
-      <Item19>
+      </Item9>
+      <Item10>
         <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\DAMDFE\ACBrMDFeDAMDFeClass.pas"/>
         <UnitName Value="ACBrMDFeDAMDFeClass"/>
+      </Item10>
+      <Item11>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\ACBrMDFe.Classes.pas"/>
+        <UnitName Value="ACBrMDFe.Classes"/>
+      </Item11>
+      <Item12>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\ACBrMDFe.ProcInfraSA.pas"/>
+        <UnitName Value="ACBrMDFe.ProcInfraSA"/>
+      </Item12>
+      <Item13>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\ACBrMDFe.XmlReader.pas"/>
+        <UnitName Value="ACBrMDFe.XmlReader"/>
+      </Item13>
+      <Item14>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\ACBrMDFe.XmlWriter.pas"/>
+        <UnitName Value="ACBrMDFe.XmlWriter"/>
+      </Item14>
+      <Item15>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\Servicos\ACBrMDFe.ConsNaoEnc.pas"/>
+        <UnitName Value="ACBrMDFe.ConsNaoEnc"/>
+      </Item15>
+      <Item16>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\Servicos\ACBrMDFe.RetConsNaoEnc.pas"/>
+        <UnitName Value="ACBrMDFe.RetConsNaoEnc"/>
+      </Item16>
+      <Item17>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\Servicos\ACBrMDFe.ConsSit.pas"/>
+        <UnitName Value="ACBrMDFe.ConsSit"/>
+      </Item17>
+      <Item18>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\Servicos\ACBrMDFe.RetConsSit.pas"/>
+        <UnitName Value="ACBrMDFe.RetConsSit"/>
+      </Item18>
+      <Item19>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\Servicos\ACBrMDFe.EventoClass.pas"/>
+        <UnitName Value="ACBrMDFe.EventoClass"/>
       </Item19>
       <Item20>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeConsts.pas"/>
-        <UnitName Value="pmdfeConsts"/>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\Servicos\ACBrMDFe.EnvEvento.pas"/>
+        <UnitName Value="ACBrMDFe.EnvEvento"/>
       </Item20>
       <Item21>
-        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\PCNMDFe\pmdfeProcInfraSA.pas"/>
-        <UnitName Value="pmdfeProcInfraSA"/>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\Servicos\ACBrMDFe.RetEnvEvento.pas"/>
+        <UnitName Value="ACBrMDFe.RetEnvEvento"/>
       </Item21>
+      <Item22>
+        <Filename Value="..\..\..\..\Fontes\ACBrDFe\ACBrMDFe\Base\ACBrMDFe.Consts.pas"/>
+        <UnitName Value="ACBrMDFe.Consts"/>
+      </Item22>
     </Files>
     <RequiredPkgs Count="1">
       <Item1>

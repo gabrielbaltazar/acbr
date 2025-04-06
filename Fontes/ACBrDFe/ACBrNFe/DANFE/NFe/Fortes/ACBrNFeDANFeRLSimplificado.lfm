@@ -1,35 +1,31 @@
 inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
   Left = 487
-  Height = 583
   Top = 95
-  Width = 960
   Caption = 'DANFe - Simplificado'
-  ClientHeight = 583
-  ClientWidth = 960
   Font.Height = -8
   Font.Name = 'Arial'
   Font.Style = [fsBold]
   inherited RLNFe: TRLReport
     Tag = 1
-    Left = 128
-    Height = 1323
-    Top = -176
-    Width = 425
+    Left = 416
+    Height = 1890
+    Top = 16
+    Width = 340
     AllowedBands = [btHeader, btDetail, btSummary, btFooter]
     Background.Arrange = baCenter
     Font.Height = -8
     Font.Name = 'Courier New'
     PageSetup.PaperSize = fpCustom
     PageSetup.PaperWidth = 90
-    PageSetup.PaperHeight = 280
+    PageSetup.PaperHeight = 500
     UnlimitedHeight = True
     BeforePrint = RLNFeBeforePrint
     OnDataRecord = RLNFeDataRecord
     object rlb01_Chave: TRLBand[0]
-      Left = 47
+      Left = 38
       Height = 129
-      Top = 47
-      Width = 331
+      Top = 38
+      Width = 264
       AutoSize = True
       BandType = btTitle
       Color = clWhite
@@ -127,10 +123,10 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       end
     end
     object rlb02_Emitente: TRLBand[1]
-      Left = 47
+      Left = 38
       Height = 145
-      Top = 176
-      Width = 331
+      Top = 167
+      Width = 264
       BandType = btTitle
       Borders.Sides = sdCustom
       Borders.DrawLeft = False
@@ -520,10 +516,10 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       end
     end
     object rlb05c_Lin_Itens: TRLBand[2]
-      Left = 47
+      Left = 38
       Height = 1
-      Top = 979
-      Width = 331
+      Top = 1121
+      Width = 264
       BandType = btFooter
       Color = clWhite
       ParentColor = False
@@ -535,10 +531,10 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       end
     end
     object rlb03_DadosGerais: TRLBand[3]
-      Left = 47
+      Left = 38
       Height = 86
-      Top = 321
-      Width = 331
+      Top = 312
+      Width = 264
       AutoSize = True
       BandType = btColumnHeader
       Borders.Sides = sdCustom
@@ -629,10 +625,10 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       end
     end
     object rlb04_Destinatario: TRLBand[4]
-      Left = 47
+      Left = 38
       Height = 124
-      Top = 407
-      Width = 331
+      Top = 398
+      Width = 264
       AutoSize = True
       BandType = btColumnHeader
       Borders.Sides = sdCustom
@@ -688,10 +684,10 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       end
     end
     object subItens: TRLSubDetail[5]
-      Left = 47
+      Left = 38
       Height = 50
-      Top = 565
-      Width = 331
+      Top = 556
+      Width = 264
       Borders.Sides = sdCustom
       Borders.DrawLeft = False
       Borders.DrawTop = False
@@ -702,7 +698,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
         Left = 0
         Height = 18
         Top = 0
-        Width = 331
+        Width = 264
         AutoSize = True
         Borders.Sides = sdCustom
         Borders.DrawLeft = False
@@ -759,7 +755,7 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
         Left = 0
         Height = 16
         Top = 18
-        Width = 331
+        Width = 264
         Borders.Sides = sdCustom
         Borders.DrawLeft = False
         Borders.DrawTop = False
@@ -850,10 +846,10 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       end
     end
     object rlb05a_Cab_Itens: TRLBand[6]
-      Left = 47
+      Left = 38
       Height = 34
-      Top = 531
-      Width = 331
+      Top = 522
+      Width = 264
       AutoSize = True
       BandType = btColumnHeader
       Borders.Sides = sdCustom
@@ -996,10 +992,10 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       end
     end
     object rlb06a_Totais: TRLBand[7]
-      Left = 47
+      Left = 38
       Height = 65
-      Top = 615
-      Width = 331
+      Top = 606
+      Width = 264
       AutoSize = True
       BandType = btSummary
       Borders.Sides = sdCustom
@@ -1045,10 +1041,10 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       end
     end
     object rlb06b_Tributos: TRLBand[8]
-      Left = 47
+      Left = 38
       Height = 40
-      Top = 939
-      Width = 331
+      Top = 930
+      Width = 264
       BandType = btSummary
       Borders.Sides = sdCustom
       Borders.DrawLeft = False
@@ -1072,10 +1068,10 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       end
     end
     object rlbFaturaReal: TRLBand[9]
-      Left = 47
+      Left = 38
       Height = 37
-      Top = 680
-      Width = 331
+      Top = 671
+      Width = 264
       BandType = btSummary
       Borders.Sides = sdCustom
       Borders.DrawLeft = False
@@ -1227,10 +1223,10 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
       end
     end
     object rlbFatura: TRLBand[10]
-      Left = 47
+      Left = 38
       Height = 222
-      Top = 717
-      Width = 331
+      Top = 708
+      Width = 264
       BandType = btSummary
       Borders.Sides = sdCustom
       Borders.DrawLeft = False
@@ -1867,6 +1863,82 @@ inherited frlDANFeRLSimplificado: TfrlDANFeRLSimplificado
         Width = 302
         DrawKind = dkLine
         HoldStyle = hsRelatively
+      end
+    end
+    object rlb06a_Totais_Etiqueta: TRLBand[11]
+      Left = 38
+      Height = 39
+      Top = 970
+      Width = 264
+      AutoSize = True
+      BandType = btSummary
+      Borders.Sides = sdCustom
+      Borders.DrawLeft = False
+      Borders.DrawTop = True
+      Borders.DrawRight = False
+      Borders.DrawBottom = False
+      Color = clWhite
+      ParentColor = False
+      BeforePrint = rlb06a_Totais_EtiquetaBeforePrint
+      object RLLabel11: TRLLabel
+        Left = 3
+        Height = 15
+        Top = 24
+        Width = 200
+        Caption = 'VALOR TOTAL DA NOTA FISCAL:'
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Times New Roman'
+        ParentColor = False
+        ParentFont = False
+      end
+      object rllValorTotalNotaFiscal: TRLLabel
+        Left = 209
+        Height = 15
+        Top = 24
+        Width = 53
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'Valor Total da Nota Fiscal'
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Times New Roman'
+        ParentColor = False
+        ParentFont = False
+      end
+    end
+    object RLBand1: TRLBand[12]
+      Left = 38
+      Height = 112
+      Top = 1009
+      Width = 264
+      AutoSize = True
+      BandType = btSummary
+      Borders.Sides = sdCustom
+      Borders.DrawLeft = False
+      Borders.DrawTop = True
+      Borders.DrawRight = False
+      Borders.DrawBottom = False
+      Color = clWhite
+      ParentColor = False
+      BeforePrint = RLBand1BeforePrint
+      object rlmDadosAdicionais: TRLMemo
+        Left = 0
+        Height = 111
+        Top = 1
+        Width = 265
+        Align = faLeft
+        AutoSize = False
+        Behavior = [beSiteExpander]
+        Color = clWhite
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Times New Roman'
+        ParentColor = False
+        ParentFont = False
+        Transparent = False
       end
     end
   end

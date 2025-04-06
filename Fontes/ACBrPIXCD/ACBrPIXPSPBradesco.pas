@@ -64,14 +64,11 @@ type
   public
     constructor Create(aOwner: TComponent); override;
     procedure Autenticar; override;
-  published
-    property ClientID;
-    property ClientSecret;
   end;
 
 implementation
 
-uses synautil, DateUtils, ACBrJSON, ACBrUtil.Strings;
+uses synautil, synacode, DateUtils, ACBrJSON, ACBrUtil.Strings;
 
 { TACBrPSPBradesco }
 

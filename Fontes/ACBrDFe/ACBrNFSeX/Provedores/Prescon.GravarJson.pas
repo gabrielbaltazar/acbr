@@ -37,10 +37,9 @@ unit Prescon.GravarJson;
 interface
 
 uses
-  SysUtils, Classes, Variants, StrUtils,
-  ACBrXmlBase, ACBrXmlDocument, ACBrJSON,
-  ACBrNFSeXParametros, ACBrNFSeXGravarXml,
-  ACBrNFSeXConversao, ACBrNFSeXConsts;
+  SysUtils, Classes, StrUtils,
+  ACBrJSON,
+  ACBrNFSeXGravarXml;
 
 type
   { TNFSeW_Prescon }
@@ -57,9 +56,8 @@ type
 implementation
 
 uses
-  ACBrNFSeX,
-  ACBrUtil.Base, ACBrUtil.Strings,
-  ACBrConsts;
+  ACBrConsts,
+  ACBrNFSeXConversao;
 
 //==============================================================================
 // Essa unit tem por finalidade exclusiva gerar o Json do RPS do provedor:
@@ -78,8 +76,6 @@ end;
 function TNFSeW_Prescon.GerarXml: Boolean;
 begin
   Configuracao;
-
-  Opcoes.QuebraLinha := FpAOwner.ConfigGeral.QuebradeLinha;
 
   ListaDeAlertas.Clear;
 
@@ -103,10 +99,7 @@ function TNFSeW_Prescon.GerarDadosNota: String;
 var
   LJSonArray: TACBrJSONArray;
   AJSon: TACBrJSONObject;
-  tipoPessoa: String;
-  issRetido: String;
-  devidoNoLocal: String;
-  tipoEnquadramento: String;
+  tipoPessoa, issRetido, devidoNoLocal, tipoEnquadramento, tipoISS: string;
   deducaoMaterial: double;
   i: Integer;
 begin
@@ -139,6 +132,13 @@ begin
     tipoEnquadramento := 'E'
   else
     tipoEnquadramento := '';
+
+  case NFSe.FrmRec of
+    frmFixoAnual: tipoISS := 'F';
+    frmFixoMensal: tipoISS := 'M';
+  else
+    tipoISS := 'F';
+  end;
 
   deducaoMaterial := 0;
   if NFSe.DeducaoMateriais = snSim then
@@ -190,7 +190,7 @@ begin
       .AddPair('COFINS', NFSe.Servico.Valores.ValorCofins)
       .AddPair('PISPASEP', NFSe.Servico.Valores.ValorPis)
       .AddPair('CEPServico', NFSe.ConstrucaoCivil.Endereco.CEP)
-      .AddPair('PAISServico', NFSe.ConstrucaoCivil.Endereco.CodigoPais)
+      .AddPair('PAISServico', NFSe.ConstrucaoCivil.Endereco.xPais)
       .AddPair('descricao', NFSe.Servico.Discriminacao)
       .AddPair('atividade', FormatarItemServico(NFSe.Servico.ItemListaServico, FormatoItemListaServico))
       .AddPair('valor', NFSe.Servico.Valores.ValorServicos)
@@ -203,7 +203,7 @@ begin
       .AddPair('valorIss', NFSe.Servico.Valores.ValorIss)
       .AddPair('valorTotalNota', NFSe.Servico.Valores.ValorLiquidoNfse)
       .AddPair('tipoEnquadramento', tipoEnquadramento)
-      .AddPair('tipoIss', 'F')
+      .AddPair('tipoIss', tipoISS)
       .AddPair('hashMd5', '');
 
     LJSonArray

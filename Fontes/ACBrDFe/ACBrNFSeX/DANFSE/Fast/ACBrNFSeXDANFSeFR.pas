@@ -211,6 +211,9 @@ end;
 
 procedure TACBrNFSeXDANFSeFR.ImprimirDANFSe(NFSe: TNFSe);
 begin
+  Provedor := TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor;
+
+  DANFSeXClassOwner.FIndexImpressaoIndividual := -1;
   if PrepareReport(NFSe) then
   begin
     if MostraPreview then
@@ -228,6 +231,8 @@ var
   LArquivoPDF   : string;
   LOldShowDialog: Boolean;
 begin
+  Provedor := TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor;
+
   if PrepareReport(NFSe) then
   begin
     frxPDFExport.Author        := Sistema;
@@ -257,35 +262,44 @@ var
   LArquivoPDF  : string;
   OldShowDialog: Boolean;
 begin
-  if PrepareReport(NFSe) then
+  Provedor := TACBrNFSeX(ACBrNFSe).Configuracoes.Geral.Provedor;
+
+  for I := 1 to TACBrNFSeX(ACBrNFSe).NotasFiscais.Count do
   begin
-    frxPDFExport.Author        := Sistema;
-    frxPDFExport.Creator       := Sistema;
-    frxPDFExport.Subject       := TITULO_PDF;
-    frxPDFExport.EmbeddedFonts := false;
-    frxPDFExport.Background    := IncorporarBackgroundPdf;
-    frxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
+    DANFSeXClassOwner.FIndexImpressaoIndividual := I;
+    if PrepareReport(NFSe) then
+    begin
+      frxPDFExport.Author        := Sistema;
+      frxPDFExport.Creator       := Sistema;
+      frxPDFExport.Subject       := TITULO_PDF;
+      frxPDFExport.EmbeddedFonts := false;
+      frxPDFExport.Background    := IncorporarBackgroundPdf;
+      frxPDFExport.EmbeddedFonts := IncorporarFontesPdf;
 
-    OldShowDialog := frxPDFExport.ShowDialog;
-    try
-      frxPDFExport.ShowDialog := false;
-      for I                   := 0 to TACBrNFSeX(ACBrNFSe).NotasFiscais.Count - 1 do
-      begin
+      OldShowDialog := frxPDFExport.ShowDialog;
+      try
+        frxPDFExport.ShowDialog := false;
+          LArquivoPDF := Trim(DANFSeXClassOwner.NomeDocumento);
 
-        LArquivoPDF := Trim(DANFSeXClassOwner.NomeDocumento);
-        if EstaVazio(LArquivoPDF) then
-          LArquivoPDF         := TACBrNFSeX(ACBrNFSe).NumID[ TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[ I ].NFSe ] + '-nfse.pdf';
-        frxPDFExport.FileName := PathWithDelim(DANFSeXClassOwner.PathPDF) + LArquivoPDF;
+          if EstaVazio(LArquivoPDF) then
+            if Assigned(NFSe) then
+              LArquivoPDF         := TACBrNFSeX(ACBrNFSe).NumID[ NFSe ] + '-nfse.pdf'
+            else
+              LArquivoPDF         := TACBrNFSeX(ACBrNFSe).NumID[ TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[ I -1].NFSe ] + '-nfse.pdf';
 
-        if not DirectoryExists(ExtractFileDir(frxPDFExport.FileName)) then
-          ForceDirectories(ExtractFileDir(frxPDFExport.FileName));
+          frxPDFExport.FileName := PathWithDelim(DANFSeXClassOwner.PathPDF) + LArquivoPDF;
 
-        frxReport.Export(frxPDFExport);
+          if not DirectoryExists(ExtractFileDir(frxPDFExport.FileName)) then
+            ForceDirectories(ExtractFileDir(frxPDFExport.FileName));
 
-        FPArquivoPDF := frxPDFExport.FileName;
+          frxReport.Export(frxPDFExport);
+
+          FPArquivoPDF := frxPDFExport.FileName;
+          if Assigned(NFSe) then
+            Break;
+      finally
+        frxPDFExport.ShowDialog := OldShowDialog;
       end;
-    finally
-      frxPDFExport.ShowDialog := OldShowDialog;
     end;
   end;
 end;
@@ -373,13 +387,17 @@ begin
   begin
     if Assigned(ACBrNFSe) then
     begin
-      for I := 0 to TACBrNFSeX(ACBrNFSe).NotasFiscais.Count - 1 do
+      if DANFSeXClassOwner.FIndexImpressaoIndividual > 0  then
       begin
-        CarregaDados(TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[ I ].NFSe);
-        if (I > 0) then
-          Result := frxReport.PrepareReport(false)
-        else
-          Result := frxReport.PrepareReport;
+        CarregaDados(TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[ DANFSeXClassOwner.FIndexImpressaoIndividual -1 ].NFSe);
+        Result := frxReport.PrepareReport( DANFSeXClassOwner.FIndexImpressaoIndividual > 0 );
+      end else
+      begin
+        for I := 0 to TACBrNFSeX(ACBrNFSe).NotasFiscais.Count - 1 do
+        begin
+          CarregaDados(TACBrNFSeX(ACBrNFSe).NotasFiscais.Items[ I ].NFSe);
+          Result := frxReport.PrepareReport( not (i > 0) );
+        end;
       end;
     end
     else
@@ -457,7 +475,7 @@ begin
   cdsPrestador.FieldDefs.Clear;
   cdsPrestador.FieldDefs.Add('Cnpj', ftString, 18);
   cdsPrestador.FieldDefs.Add('InscricaoMunicipal', ftString, 15);
-  cdsPrestador.FieldDefs.Add('InscricaoEstadual', ftString, 15);
+  cdsPrestador.FieldDefs.Add('InscricaoEstadual', ftString, 20);
   cdsPrestador.FieldDefs.Add('RazaoSocial', ftString, 60);
   cdsPrestador.FieldDefs.Add('NomeFantasia', ftString, 60);
   cdsPrestador.FieldDefs.Add('Endereco', ftString, 60);
@@ -489,6 +507,9 @@ begin
   cdsServicos.FieldDefs.Add('CodigoNbs', ftString, 9);
   cdsServicos.FieldDefs.Add('CodigoTributacaoMunicipio', ftString, 20);
   cdsServicos.FieldDefs.Add('Discriminacao', ftString, 4000);
+  cdsServicos.FieldDefs.Add('ExigibilidadeISS', ftString, 60);
+  cdsServicos.FieldDefs.Add('CodigoMunicipio', ftString, 60);
+  cdsServicos.FieldDefs.Add('MunicipioIncidencia', ftString, 60);
   cdsServicos.FieldDefs.Add('CodigoPais', ftString, 4);
   cdsServicos.FieldDefs.Add('NumeroProcesso', ftString, 10);
   cdsServicos.FieldDefs.Add('xItemListaServico', ftString, 300);
@@ -516,6 +537,7 @@ begin
   cdsServicos.FieldDefs.Add('OutrosDescontos', ftCurrency);
   cdsServicos.FieldDefs.Add('DescricaoTotalRetDemo', ftString, 19);
   cdsServicos.FieldDefs.Add('DescriçãoTributosFederais', ftString, 35);
+  cdsServicos.FieldDefs.Add('ValorTotalNotaFiscal', ftCurrency);
 
     // Provedor SP
   cdsServicos.FieldDefs.Add('ValorCargaTributaria', ftCurrency);
@@ -537,7 +559,7 @@ begin
   cdsParametros.FieldDefs.Add('CodigoMunicipio', ftString, 60);
   cdsParametros.FieldDefs.Add('MunicipioIncidencia', ftString, 60);
   cdsParametros.FieldDefs.Add('MunicipioPrestacao', ftString, 60);
-  cdsParametros.FieldDefs.Add('OutrasInformacoes', ftString, 1000);
+  cdsParametros.FieldDefs.Add('OutrasInformacoes', ftString, 4000);
   cdsParametros.FieldDefs.Add('InformacoesComplementares', ftString, 1000);
   cdsParametros.FieldDefs.Add('CodigoObra', ftString, 60);
   cdsParametros.FieldDefs.Add('Art', ftString, 60);
@@ -574,7 +596,7 @@ begin
   cdsTomador.FieldDefs.Clear;
   cdsTomador.FieldDefs.Add('CpfCnpj', ftString, 18);
   cdsTomador.FieldDefs.Add('InscricaoMunicipal', ftString, 15);
-  cdsTomador.FieldDefs.Add('InscricaoEstadual', ftString, 15);
+  cdsTomador.FieldDefs.Add('InscricaoEstadual', ftString, 20);
   cdsTomador.FieldDefs.Add('RazaoSocial', ftString, 60);
   cdsTomador.FieldDefs.Add('NomeFantasia', ftString, 60);
   cdsTomador.FieldDefs.Add('Endereco', ftString, 60);
@@ -791,7 +813,6 @@ begin
   frxIntermediario := TfrxDBDataset.Create(Self);
 
   frxIntermediario.UserName := 'Intermediario';
-  frxIntermediario.Enabled         := false;
   frxIntermediario.CloseDataSource := false;
   frxIntermediario.OpenDataSource  := false;
 
@@ -865,6 +886,7 @@ begin
   frxServicos.FieldAliases.Add('OutrosDescontos=OutrosDescontos');
   frxServicos.FieldAliases.Add('DescricaoTotalRetDemo=DescricaoTotalRetDemo');
   frxServicos.FieldAliases.Add('DescriçãoTributosFederais=DescriçãoTributosFederais');
+  frxServicos.FieldAliases.Add('ValorTotalNotaFiscal=ValorTotalNotaFiscal');
     // Provedor SP
   frxServicos.FieldAliases.Add('ValorCargaTributaria=ValorCargaTributaria');
   frxServicos.FieldAliases.Add('PercentualCargaTributaria=PercentualCargaTributaria');
@@ -1104,7 +1126,14 @@ begin
 
   LCDS.FieldByName('OutrasInformacoes').AsString := ANFSe.OutrasInformacoes;
   LCDS.FieldByName('NaturezaOperacao').AsString  := FProvider.NaturezaOperacaoDescricao(ANFSe.NaturezaOperacao);
-
+  LCDS.FieldByName('RegimeEspecialTributacao').AsString := FProvider.RegimeEspecialTributacaoDescricao(ANFSe.RegimeEspecialTributacao);
+  LCDS.FieldByName('OptanteSimplesNacional').AsString := FProvider.SimNaoDescricao(ANFSe.OptanteSimplesNacional);
+  LCDS.FieldByName('IncentivadorCultural').AsString := FProvider.SimNaoDescricao(ANFSe.IncentivadorCultural);
+  LCDS.FieldByName('CodigoMunicipio').AsString := IntToStr(LDadosServico.MunicipioIncidencia);
+  LCDS.FieldByName('ExigibilidadeISS').AsString := FProvider.ExigibilidadeISSDescricao(LDadosServico.ExigibilidadeISS);
+  LCDS.FieldByName('MunicipioIncidencia').AsString := LDadosServico.xMunicipioIncidencia;
+  LCDS.FieldByName('TipoRecolhimento').AsString := ANFSe.TipoRecolhimento;
+  {
   if Provedor = proEL then
   begin
     if ANFSe.RegimeEspecialTributacao = retNenhum then
@@ -1122,22 +1151,8 @@ begin
     LCDS.FieldByName('CodigoMunicipio').AsString  := ANFSe.Prestador.Endereco.xMunicipio; //xMunicipio;
     LCDS.FieldByName('ExigibilidadeISS').AsString := FProvider.ExigibilidadeISSDescricao(LDadosServico.ExigibilidadeISS);
 
-    {
-      Incluido por: Italo em 12/01/2024
-    }
-    if LDadosServico.MunicipioIncidencia <> 0 then
-      LCDS.FieldByName('MunicipioIncidencia').AsString :=
-        IntToStr(LDadosServico.MunicipioIncidencia) + ' / ' +
-        LDadosServico.xMunicipioIncidencia
-    else
-      LCDS.FieldByName('MunicipioIncidencia').AsString := '';
+    LCDS.FieldByName('MunicipioIncidencia').AsString := xMunicipioIncidencia;
 
-    {  Comentado por: Italo em 12/01/2024
-    if ANFSe.NaturezaOperacao = no2 then
-      LCDS.FieldByName('MunicipioIncidencia').AsString := 'Fora do Município'
-    else
-      LCDS.FieldByName('MunicipioIncidencia').AsString := 'No Município';
-    }
     if LDadosServico.Valores.IssRetido = stRetencao then
       LCDS.FieldByName('TipoRecolhimento').AsString := 'Retido na Fonte'
     else
@@ -1167,10 +1182,8 @@ begin
 
     try
       LMunicipio := LDadosServico.xMunicipioIncidencia;
-
       if LMunicipio = '' then
         LMunicipio := 'SEM INCIDENCIA DE ISS';
-
       LCDS.FieldByName('MunicipioIncidencia').AsString := LMunicipio;
     except
       on E: Exception do
@@ -1179,8 +1192,8 @@ begin
         LUF        := '';
       end;
     end;
-
   end;
+  }
   LCDS.FieldByName('MunicipioPrestacao').AsString := LDadosServico.MunicipioPrestacaoServico;
   LCDS.FieldByName('CodigoObra').AsString         := ANFSe.ConstrucaoCivil.CodigoObra;
   LCDS.FieldByName('Art').AsString                := ANFSe.ConstrucaoCivil.Art;
@@ -1195,10 +1208,13 @@ begin
   LCDS.FieldByName('Usuario').AsString := DANFSeXClassOwner.Usuario;
   LCDS.FieldByName('Site').AsString    := DANFSeXClassOwner.Site;
 
-  if Provedor = proEL then
-    LCDS.FieldByName('Mensagem0').AsString := IfThen(ANFSe.SituacaoNfse = snCancelado, 'CANCELADA', '')
-  else
-    LCDS.FieldByName('Mensagem0').AsString := IfThen(ANFSe.SituacaoNfse = snCancelado, 'NFSe CANCELADA', '');
+  if FDANFSeXClassOwner.Cancelada
+    or (ANFSe.NfseCancelamento.DataHora <> 0)
+    or (ANFSe.SituacaoNfse = snCancelado)
+    or (ANFSe.StatusRps = srCancelado) then
+  begin
+    LCDS.FieldByName('Mensagem0').AsString := 'NFSe CANCELADA';
+  end;
 
   if (ACBrNFSe.Configuracoes.WebServices.AmbienteCodigo = 2) then
     LCDS.FieldByName('Mensagem0').AsString := Trim(LCDS.FieldByName('Mensagem0').AsString + sLineBreak + ACBrStr('AMBIENTE DE HOMOLOGAÇÃO - SEM VALOR FISCAL'));
@@ -1326,6 +1342,7 @@ begin
   LCDS.FieldByName('DescontoCondicionado').AsFloat   := LValores.DescontoCondicionado;
   LCDS.FieldByName('DescontoIncondicionado').AsFloat := LValores.DescontoIncondicionado;
   LCDS.FieldByName('OutrosDescontos').AsCurrency     := LValores.OutrosDescontos;
+  LCDS.FieldByName('ValorTotalNotaFiscal').AsCurrency := LValores.ValorTotalNotaFiscal;
 
   if LValores.IssRetido = stRetencao then
   begin
@@ -1351,8 +1368,11 @@ begin
     if LValoresNFSe.Aliquota <> 0 then
       LCDS.FieldByName('Aliquota').AsFloat      := LValoresNFSe.Aliquota;
 
-    if LValoresNFSe.ValorLiquidoNfse = 0 then
-      LValoresNFSe.ValorLiquidoNfse := LValoresNFSe.BaseCalculo;
+    if (LValoresNFSe.ValorLiquidoNfse = 0) and (LValores.ValorLiquidoNfse = 0) then
+      LValoresNFSe.ValorLiquidoNfse := LValoresNFSe.BaseCalculo
+    else
+    if (LValoresNFSe.ValorLiquidoNfse = 0) and (LValores.ValorLiquidoNfse > 0) then
+      LValoresNFSe.ValorLiquidoNfse := LValores.ValorLiquidoNfse;
 
     LCDS.FieldByName('ValorLiquidoNfse').AsFloat := LValoresNFSe.ValorLiquidoNfse;
   end;
@@ -1430,7 +1450,7 @@ var
   vStringStream: TStringStream;
 begin
   cdsParametros.FieldByName('LogoPrefExpandido').AsString := IfThen(ExpandeLogoMarca, '0', '1'); // Prefeitura
-  cdsParametros.FieldByName('Nome_Prefeitura').AsString   := Prefeitura;
+  cdsParametros.FieldByName('Nome_Prefeitura').AsString := Prefeitura;
   if NaoEstaVazio(DANFSeXClassOwner.Logo) then
   begin
     cdsParametros.FieldByName('imgPrefeitura').AsString := Logo;
@@ -1525,14 +1545,7 @@ begin
   LOutrasInformacoes       := LowerCase(cdsParametros.FieldByName('outrasinformacoes').Value);
   LOutrasInformacoesLength := length(LOutrasInformacoes);
 
-  if pos('http://', LOutrasInformacoes) > 0 then
-    LQrCode := Trim(MidStr(LOutrasInformacoes, pos('http://', LOutrasInformacoes), LOutrasInformacoesLength))
-  else
-    if pos('https://', LowerCase(LOutrasInformacoes)) > 0 then
-      LQrCode := Trim(MidStr(LOutrasInformacoes, pos('https://', LOutrasInformacoes), LOutrasInformacoesLength));
-
-  if cdsIdentificacao.FieldByName('LinkNFSe').Value <> '' then
-    LQrCode := cdsIdentificacao.FieldByName('LinkNFSe').Value;
+  LQrCode := cdsIdentificacao.FieldByName('LinkNFSe').Value;
 
   if Assigned(Sender) and (Sender.Name = 'imgQrCode') then
   begin

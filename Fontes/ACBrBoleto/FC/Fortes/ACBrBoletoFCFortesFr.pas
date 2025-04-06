@@ -1234,7 +1234,6 @@ type
     imgLogoEmpresaBoleto: TRLImage;
     imgQRCodePixCarne: TRLImage;
     RLBand9: TRLBand;
-    lblCopiaeCola: TRLLabel;
     RLDraw302: TRLDraw;
     RLDraw303: TRLDraw;
     RLDraw298: TRLDraw;
@@ -1260,6 +1259,7 @@ type
     txtCodigoBaixa2: TRLLabel;
     RLLabel98: TRLLabel;
     txtCarteiraRecPagDet2: TRLLabel;
+    mmoCopiaeCola: TRLMemo;
     procedure BoletoCarneBeforePrint ( Sender: TObject; var PrintIt: boolean ) ;
     procedure BoletoCarneDataCount ( Sender: TObject; var DataCount: integer ) ;
     procedure BoletoCarneDataRecord ( Sender: TObject; RecNo: integer;
@@ -1405,7 +1405,7 @@ begin
         RLLayout.ShowProgress := MostrarProgresso;
         RLLayout.Title        := TituloRelatorio;
 
-        RLLayout.JobTitle := 'boleto ' + ACBrBoleto.Banco.nome;
+        RLLayout.JobTitle     := 'boleto ' + ACBrBoleto.Banco.nome;
 
         if TituloPreview <> '' then
         begin
@@ -1423,6 +1423,8 @@ begin
            if MostrarPreview then
            begin
               RLLayout.Title := '';
+              RLPDFFilter1.FileName := NomeArquivo;
+              RLLayout.DefaultFilter := RLPDFFilter1;
               RLLayout.PreviewModal;
            end
            else
@@ -1535,8 +1537,8 @@ procedure TACBrBoletoFCFortesFr.BoletoCarneBeforePrint(Sender: TObject;
 begin
 
    fIndice := 0;
-   txtSwHouseReciboTopo.Caption := ACBrStr(BoletoFC.SoftwareHouse) ;
-   txtSwHouseCarne.Caption := ACBrStr(BoletoFC.SoftwareHouse) ;
+   txtSwHouseReciboTopo.Caption := BoletoFC.SoftwareHouse;
+   txtSwHouseCarne.Caption := BoletoFC.SoftwareHouse;
    AjustarMargem(BoletoCarne,BoletoFC);
 
 end;
@@ -1574,7 +1576,7 @@ procedure TACBrBoletoFCFortesFr.LayoutBoletoBeforePrint(Sender: TObject;
    var PrintIt: boolean);
 begin
    fIndice := 0 ;
-   txtSwHousePadrao.Caption := ACBrStr(BoletoFC.SoftwareHouse) ;
+   txtSwHousePadrao.Caption := BoletoFC.SoftwareHouse;
    AjustarMargem(LayoutBoleto,BoletoFC);
 end;
 
@@ -1629,7 +1631,7 @@ procedure TACBrBoletoFCFortesFr.LayoutFaturaDetalBeforePrint(Sender: TObject;
   var PrintIt: Boolean);
 begin
   fIndice := 0 ;
-  txtSwHouseFaturaDetail.Caption := ACBrStr(BoletoFC.SoftwareHouse) ;
+  txtSwHouseFaturaDetail.Caption := BoletoFC.SoftwareHouse;
   //txtSwHouseDet.Caption := BoletoFC.SoftwareHouse ;
   AjustarMargem(LayoutFaturaDetal,BoletoFC);
 end;
@@ -2128,8 +2130,8 @@ begin
     txtCNPJCedentePix.Caption     := Cedente.CNPJCPF;
     txtEnderecoPIX.Caption        := EnderecoCed;
     txtValorPix.Caption           := FormatFloatBr(Titulo.ValorDocumento,',R$ 0.00');
-    lblCopiaeCola.Visible := (Titulo.QrCode.emv <> '');
-    lblCopiaeCola.Caption := Titulo.QrCode.emv;
+    mmoCopiaeCola.Visible := (Titulo.QrCode.emv <> '');
+    mmoCopiaeCola.Lines.Text := Titulo.QrCode.emv;
     printEMVPix(Titulo.QrCode.emv, imgQRCodePix);
 
   end;

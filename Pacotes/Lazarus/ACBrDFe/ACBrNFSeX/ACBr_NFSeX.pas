@@ -120,7 +120,15 @@ uses
   Virtual.LerXml, Virtual.Provider, WebFisco.GravarXml, WebFisco.LerXml, 
   WebFisco.Provider, WebISS.GravarXml, WebISS.LerXml, WebISS.Provider, 
   PRODAUB.GravarXml, PRODAUB.LerXml, PRODAUB.Provider, Isaneto.GravarXml, 
-  Isaneto.LerXml, Isaneto.Provider, LazarusPackageIntf;
+  Isaneto.LerXml, Isaneto.Provider, Elmar.GravarXml, Elmar.LerXml, 
+  Elmar.Provider, Sam.GravarXml, Sam.LerXml, Sam.Provider, 
+  ISSCampinas.GravarXml, ISSCampinas.LerXml, ISSCampinas.Provider, 
+  Kalana.GravarXml, Kalana.LerXml, Kalana.Provider, NFEletronica.GravarXml, 
+  NFEletronica.LerXml, NFEletronica.Provider, XTRTecnologia.GravarJson, 
+  XTRTecnologia.LerJson, XTRTecnologia.Provider, ISSMap.GravarXml, 
+  ISSMap.LerXml, ISSMap.Provider, Aspec.GravarJson, Aspec.LerJson, 
+  Aspec.Provider, Smart4.GravarXml, Smart4.LerXml, Smart4.Provider, 
+  LazarusPackageIntf;
 
 implementation
 

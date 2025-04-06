@@ -49,17 +49,17 @@ uses
 type
   TACBrNFSeXWebserviceSiappa = class(TACBrNFSeXWebserviceSoap11)
   public
-    function RecepcionarSincrono(ACabecalho, AMSG: String): string; override;
-    function ConsultarNFSe(ACabecalho, AMSG: String): string; override;
-    function Cancelar(ACabecalho, AMSG: String): string; override;
-    function GerarToken(ACabecalho, AMSG: String): string; override;
+    function RecepcionarSincrono(const ACabecalho, AMSG: String): string; override;
+    function ConsultarNFSe(const ACabecalho, AMSG: String): string; override;
+    function Cancelar(const ACabecalho, AMSG: String): string; override;
+    function GerarToken(const ACabecalho, AMSG: String): string; override;
 
     function TratarXmlRetornado(const aXML: string): string; override;
   end;
 
   TACBrNFSeProviderSiappa = class (TACBrNFSeProviderProprio)
   private
-    function GetOpcExecucao: string;
+    function GetDadosOpcExecucao: string;
   protected
     procedure Configuracao; override;
 
@@ -82,14 +82,14 @@ type
     procedure PrepararGerarToken(Response: TNFSeGerarTokenResponse); override;
     procedure TratarRetornoGerarToken(Response: TNFSeGerarTokenResponse); override;
 
-    function AplicarLineBreak(AXMLRps: String; const ABreak: String): String; override;
+    function AplicarLineBreak(const AXMLRps: string; const ABreak: string): string; override;
 
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
                                      const AListTag: string = '';
                                      const AMessageTag: string = ''); override;
   public
-    property DadosOpcExecucao: string read GetOpcExecucao;
+    property DadosOpcExecucao: string read GetDadosOpcExecucao;
   end;
 
 implementation
@@ -102,7 +102,7 @@ uses
 
 { TACBrNFSeProviderSiappa }
 
-function TACBrNFSeProviderSiappa.GetOpcExecucao: string;
+function TACBrNFSeProviderSiappa.GetDadosOpcExecucao: string;
 begin
   // (T)estes ou (D)efinitivo
   if ConfigGeral.Ambiente = taHomologacao then
@@ -122,13 +122,12 @@ begin
     Autenticacao.RequerLogin := True;
     Autenticacao.RequerChaveAutorizacao := True;
 
-    with ServicosDisponibilizados do
-    begin
-      EnviarLoteAssincrono := True;
-      ConsultarNfse := True;
-      CancelarNfse := True;
-      GerarToken := True;
-    end;
+    ServicosDisponibilizados.EnviarLoteAssincrono := True;
+    ServicosDisponibilizados.ConsultarNfse := True;
+    ServicosDisponibilizados.CancelarNfse := True;
+    ServicosDisponibilizados.GerarToken := True;
+
+    Particularidades.PermiteTagOutrasInformacoes := True;
   end;
 
   ConfigSchemas.Validar := False;
@@ -734,20 +733,21 @@ begin
   end;
 end;
 
-function TACBrNFSeProviderSiappa.AplicarLineBreak(AXMLRps: String;
-  const ABreak: String): String;
+function TACBrNFSeProviderSiappa.AplicarLineBreak(const AXMLRps: string;
+  const ABreak: string): string;
 begin
   Result := AXMLRps;
   if Trim(Result) <> '' then
   begin
     Result := ChangeLineBreak(AXMLRps, '&#10;');
+    Result := StringReplace(Result, '&amp;amp;', '&amp;', [rfReplaceAll]);
     Result := StringReplace(Result, '&amp;#10;', '&#10;', [rfReplaceAll]);
   end;
 end;
 
 { TACBrNFSeXWebserviceSiappa }
 
-function TACBrNFSeXWebserviceSiappa.RecepcionarSincrono(ACabecalho,
+function TACBrNFSeXWebserviceSiappa.RecepcionarSincrono(const ACabecalho,
   AMSG: String): string;
 var
   Request: string;
@@ -761,7 +761,7 @@ begin
   Result := Executar('', Request, ['ws_gera_nfse_token.ExecuteResponse'], []);
 end;
 
-function TACBrNFSeXWebserviceSiappa.ConsultarNFSe(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSiappa.ConsultarNFSe(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -774,7 +774,7 @@ begin
   Result := Executar('', Request, ['ws_consulta_nfse_token.ExecuteResponse'], []);
 end;
 
-function TACBrNFSeXWebserviceSiappa.Cancelar(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSiappa.Cancelar(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin
@@ -787,7 +787,7 @@ begin
   Result := Executar('', Request, ['ws_cancela_nfse_token.ExecuteResponse'], []);
 end;
 
-function TACBrNFSeXWebserviceSiappa.GerarToken(ACabecalho, AMSG: String): string;
+function TACBrNFSeXWebserviceSiappa.GerarToken(const ACabecalho, AMSG: String): string;
 var
   Request: string;
 begin

@@ -145,8 +145,7 @@ type
     procedure GerarMsgDadosConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
     procedure TratarRetornoConsultarSeqRps(Response: TNFSeConsultarSeqRpsResponse); override;
 
-    function AplicarXMLtoUTF8(AXMLRps: String): String; virtual;
-    function AplicarLineBreak(AXMLRps: String; const ABreak: String): String; virtual;
+    function AplicarLineBreak(const AXMLRps: string; const ABreak: string): string; virtual;
 
     procedure ProcessarMensagemErros(RootNode: TACBrXmlNode;
                                      Response: TNFSeWebserviceResponse;
@@ -181,6 +180,13 @@ var
   TagEnvio, Prefixo, PrefixoTS: string;
   I: Integer;
 begin
+  if EstaVazio(Response.NumeroLote) then
+  begin
+    AErro := Response.Erros.New;
+    AErro.Codigo := Cod111;
+    AErro.Descricao := ACBrStr(Desc111);
+  end;
+
   if TACBrNFSeX(FAOwner).NotasFiscais.Count <= 0 then
   begin
     AErro := Response.Erros.New;
@@ -214,6 +220,17 @@ begin
   ListaRps := '';
   Prefixo := '';
   PrefixoTS := '';
+
+  {
+    Alimenta o campo NumeroLote na Lista de notas com o numero do lote informado
+    no primeiro parâmetro do método Emitir. O provedor AssessorPublico necessida
+    dessa informação.
+  }
+  for i := 0 to TACBrNFSeX(FAOwner).NotasFiscais.Count -1 do
+  begin
+    if TACBrNFSeX(FAOwner).NotasFiscais[i].NFSe.NumeroLote = '' then
+      TACBrNFSeX(FAOwner).NotasFiscais[i].NFSe.NumeroLote := Response.NumeroLote;
+  end;
 
   case Response.ModoEnvio of
     meLoteSincrono:
@@ -305,8 +322,10 @@ begin
 
     Nota.GerarXML;
 
-    Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
+    Nota.XmlRps := ConverteXMLtoUTF8(Nota.XmlRps);
     Nota.XmlRps := AplicarLineBreak(Nota.XmlRps, '');
+
+//    Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
 
     if (ConfigAssinar.Rps and (Response.ModoEnvio in [meLoteAssincrono, meLoteSincrono, meTeste])) or
        (ConfigAssinar.RpsGerarNFSe and (Response.ModoEnvio = meUnitario)) then
@@ -460,6 +479,12 @@ procedure TACBrNFSeProviderProprio.GerarMsgDadosConsultaNFSe(
   Response: TNFSeConsultaNFSeResponse; Params: TNFSeParamsResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
+end;
+
+function TACBrNFSeProviderProprio.AplicarLineBreak(const AXMLRps,
+  ABreak: string): string;
+begin
+  Result := ChangeLineBreak(AXMLRps, ABreak);
 end;
 
 procedure TACBrNFSeProviderProprio.AssinarConsultaNFSe(
@@ -752,7 +777,7 @@ begin
 
   Nota.GerarXML;
 
-  Nota.XmlRps := AplicarXMLtoUTF8(Nota.XmlRps);
+  Nota.XmlRps := ConverteXMLtoUTF8(Nota.XmlRps);
   Nota.XmlRps := AplicarLineBreak(Nota.XmlRps, '');
 
   if ConfigAssinar.RpsSubstituirNFSe then
@@ -822,16 +847,6 @@ end;
 procedure TACBrNFSeProviderProprio.TratarRetornoSubstituiNFSe(Response: TNFSeSubstituiNFSeResponse);
 begin
   // Deve ser implementado para cada provedor que tem o seu próprio layout
-end;
-
-function TACBrNFSeProviderProprio.AplicarXMLtoUTF8(AXMLRps: String): String;
-begin
-  Result := ConverteXMLtoUTF8(AXMLRps);
-end;
-
-function TACBrNFSeProviderProprio.AplicarLineBreak(AXMLRps: String; const ABreak: String): String;
-begin
-  Result := ChangeLineBreak(AXMLRps, ABreak);
 end;
 
 procedure TACBrNFSeProviderProprio.GerarMsgDadosGerarToken(

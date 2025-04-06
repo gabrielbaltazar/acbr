@@ -39,7 +39,7 @@ interface
 uses
   SysUtils, Classes, StrUtils, IniFiles,
   ACBrXmlBase, ACBrXmlDocument, ACBrXmlWriter,
-  ACBrNFSeXInterface, ACBrNFSeXClass, ACBrNFSeXConversao;
+  ACBrNFSeXInterface, ACBrNFSeXClass, ACBrNFSeXConversao, ACBrUtil.Base;
 
 type
 
@@ -113,9 +113,10 @@ type
 
     function GerarTabulado(const xDescricao: string; const xCodigoItem: string;
       aQuantidade, aValorUnitario, aValorServico, aBaseCalculo,
+      aAliquota: Double; aDescontoIncondicionado: Double): string;
+    function GerarJson(const xDescricao: string; const xCodigoItem: string;
+      aQuantidade, aValorUnitario, aValorServico, aBaseCalculo,
       aAliquota: Double): string;
-    function GerarJson(const xDescricao: string;
-      aQuantidade, aValorUnitario, aValorServico: Double): string;
 
     function GerarCNPJ(const CNPJ: string): TACBrXmlNode; virtual;
     function GerarCPFCNPJ(const CPFCNPJ: string): TACBrXmlNode; virtual;
@@ -128,7 +129,7 @@ type
     constructor Create(AOwner: IACBrNFSeXProvider); virtual;
     destructor Destroy; override;
 
-    function ObterNomeArquivo: String; Override;
+    function ObterNomeArquivo: String; overload;
     function GerarXml: Boolean; Override;
     function ConteudoTxt: String;
 
@@ -300,7 +301,8 @@ begin
                                   ItemServico[i].ValorUnitario,
                                   ItemServico[i].ValorTotal,
                                   ItemServico[i].BaseCalculo,
-                                  ItemServico[i].Aliquota);
+                                  ItemServico[i].Aliquota,
+                                  ItemServico[i].DescontoIncondicionado);
 
           fdJson:
             begin
@@ -309,12 +311,16 @@ begin
 
               xDiscriminacao := xDiscriminacao +
                                   GerarJson(ItemServico[i].Descricao,
+                                    ItemServico[i].ItemListaServico,
                                     ItemServico[i].Quantidade,
                                     ItemServico[i].ValorUnitario,
-                                    ItemServico[i].ValorTotal);
+                                    ItemServico[i].ValorTotal,
+                                    ItemServico[i].BaseCalculo,
+                                    ItemServico[i].Aliquota);
             end;
         else
-          xDiscriminacao := xDiscriminacao + ';' + ItemServico[i].Descricao;
+          xDiscriminacao := xDiscriminacao +
+                  FpAOwner.ConfigGeral.QuebradeLinha + ItemServico[i].Descricao;
         end;
       end;
     end;
@@ -334,7 +340,7 @@ begin
         NFSe.Servico.Discriminacao := '{' + xDiscriminacao + '}';
 
       fdJson:
-        NFSe.Servico.Discriminacao := '{[' + xDiscriminacao + ']}';
+        NFSe.Servico.Discriminacao := '[' + xDiscriminacao + ']';
     else
       NFSe.Servico.Discriminacao := xDiscriminacao;
     end;
@@ -356,24 +362,29 @@ end;
 
 function TNFSeWClass.GerarTabulado(const xDescricao, xCodigoItem: string;
   aQuantidade, aValorUnitario, aValorServico, aBaseCalculo,
-  aAliquota: Double): string;
+  aAliquota: Double; aDescontoIncondicionado: Double): string;
 begin
   Result := '[[Descricao=' + xDescricao + ']' +
              '[ItemServico=' + xCodigoItem + ']' +
-             '[Quantidade=' + FloatToStr(aQuantidade) + ']' +
-             '[ValorUnitario=' + FloatToStr(aValorUnitario) + ']' +
-             '[ValorServico=' + FloatToStr(aValorServico) + ']' +
-             '[ValorBaseCalculo=' + FloatToStr(aBaseCalculo) + ']' +
-             '[Aliquota=' + FloatToStr(aAliquota) + ']]';
+             '[Quantidade=' + FloatToString(aQuantidade, Opcoes.DecimalChar) + ']' +
+             '[ValorUnitario=' + FloatToString(aValorUnitario, Opcoes.DecimalChar) + ']' +
+             '[ValorServico=' + FloatToString(aValorServico, Opcoes.DecimalChar) + ']' +
+             '[ValorBaseCalculo=' + FloatToString(aBaseCalculo, Opcoes.DecimalChar) + ']' +
+             '[Aliquota=' + FloatToString(aAliquota, Opcoes.DecimalChar) + ']' +
+             '[DescontoIncondicionado=' + FloatToString(aDescontoIncondicionado, Opcoes.DecimalChar) + ']]';
 end;
 
-function TNFSeWClass.GerarJson(const xDescricao: string; aQuantidade,
-  aValorUnitario, aValorServico: Double): string;
+function TNFSeWClass.GerarJson(const xDescricao, xCodigoItem: string;
+  aQuantidade, aValorUnitario, aValorServico, aBaseCalculo,
+  aAliquota: Double): string;
 begin
   Result := '{"Descricao":"' + xDescricao + '",' +
+             '"ItemServico":"' + xCodigoItem + '",' +
              '"ValorUnitario":' + FloatToStr(aValorUnitario) + ',' +
              '"Quantidade":' + FloatToStr(aQuantidade) + ',' +
-             '"ValorServico":' + FloatToStr(aValorServico) + '}';
+             '"ValorServico":' + FloatToStr(aValorServico) + ',' +
+             '"ValorBaseCalculo":' + FloatToStr(aBaseCalculo) + ',' +
+             '"Aliquota":' + FloatToStr(aAliquota) + '}';
 end;
 
 function TNFSeWClass.ConteudoTxt: String;
